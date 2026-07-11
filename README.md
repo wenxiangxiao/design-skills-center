@@ -29,6 +29,8 @@
 | 11 | [孔雀閣 Hôtel Pavone](sites/hotel-pavone/index.html) | 精品旅宿 | Art Deco 裝飾藝術 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 12 | [夜鴞出版社 Nightjar Press](sites/nightjar-press/index.html) | 獨立出版 | 暗黑學院風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 13 | [跳跳格 Zigzag 學園](sites/zigzag-kids/index.html) | 兒童教育 | 孟菲斯 Memphis | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 14 | [月位元 MOONBIT](sites/moonbit-games/index.html) | 遊戲工作室 | 像素風 Pixel | 繁中 | Claude Fable 5 |
+| 15 | [疊瓣花社 Petal Press](sites/petal-press/index.html) | 花店 | 復古印刷 Risograph | 繁中 | Claude Fable 5 |
 
 ## 種子庫
 

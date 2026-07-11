@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>疊瓣花社 Petal Press|台中・像印刷一樣疊出來的花束</title>
+<meta name="description" content="台中西區的雙色油墨花店。每束花都像 Risograph 疊色:粉色版先走一次,藍色版再壓上去,疊出只屬於這束花的第三個顏色。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23F7F1E3'/%3E%3Cg fill='%233255A4' style='mix-blend-mode:multiply'%3E%3Cg transform='translate(35 34)'%3E%3Cellipse rx='6' ry='13'/%3E%3Cellipse rx='6' ry='13' transform='rotate(72)'/%3E%3Cellipse rx='6' ry='13' transform='rotate(144)'/%3E%3Cellipse rx='6' ry='13' transform='rotate(216)'/%3E%3Cellipse rx='6' ry='13' transform='rotate(288)'/%3E%3C/g%3E%3C/g%3E%3Cg fill='%23FF48B0' style='mix-blend-mode:multiply'%3E%3Cg transform='translate(29 28)'%3E%3Cellipse rx='6' ry='13'/%3E%3Cellipse rx='6' ry='13' transform='rotate(72)'/%3E%3Cellipse rx='6' ry='13' transform='rotate(144)'/%3E%3Cellipse rx='6' ry='13' transform='rotate(216)'/%3E%3Cellipse rx='6' ry='13' transform='rotate(288)'/%3E%3Ccircle r='5' fill='%23FFE800'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F1E3;
+  --paper-hi:#FCF8EC;
+  --pink:#FF48B0;
+  --blue:#3255A4;
+  --yellow:#FFE800;
+  --mix:#321871;
+  --ink:#2E2A44;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Space Grotesk','Noto Serif TC',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--serif);
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+/* 顆粒紋理:整頁鋪一層 feTurbulence 噪點 */
+body::after{
+  content:"";position:fixed;inset:0;z-index:80;pointer-events:none;
+  mix-blend-mode:multiply;opacity:.9;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+a{color:inherit}
+svg{display:block;max-width:100%}
+.sans{font-family:var(--sans)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* ── 色版系統 ─────────────────────────── */
+.plate{mix-blend-mode:multiply;transition:transform .35s ease,opacity .3s ease}
+.plate-pink{color:var(--pink)}
+.plate-blue{color:var(--blue);transform:translate(3px,2.5px)}
+.plate-yellow{color:var(--yellow)}
+body.pink-off .plate-pink{opacity:0}
+body.blue-off .plate-blue{opacity:0}
+body.pink-off .op::before{opacity:0}
+body.blue-off .op::after{opacity:0}
+
+/* 疊印文字:粉/藍兩層錯位 multiply */
+.op{position:relative;display:inline-block;color:transparent}
+.op::before,.op::after{
+  content:attr(data-text);position:absolute;inset:0;pointer-events:none;
+  mix-blend-mode:multiply;transition:transform .35s ease,opacity .3s ease;
+}
+.op::before{color:var(--pink);transform:translate(-2px,-2px)}
+.op::after{color:var(--blue);transform:translate(2px,1px)}
+.op-s::before{transform:translate(-1px,-1px)}
+.op-s::after{transform:translate(1px,1px)}
+
+/* ── 頂部印刷資訊條 + 導覽 ─────────────── */
+.presbar{
+  background:var(--blue);color:var(--paper);
+  font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  padding:6px 16px;text-align:center;
+}
+.presbar b{color:var(--yellow);font-weight:500}
+nav.top{border-bottom:2px solid var(--blue);background:var(--paper)}
+.navrow{max-width:1100px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand .bn{font-weight:900;font-size:1.3rem;letter-spacing:.06em}
+.brand .be{font-family:var(--sans);font-size:10px;letter-spacing:.32em;color:var(--blue);display:block;margin-top:-4px}
+.menu{display:flex;gap:4px;font-family:var(--sans);flex-wrap:wrap}
+.menu a{padding:8px 14px;text-decoration:none;font-size:14px;letter-spacing:.1em;border:2px solid transparent;transition:border-color .2s}
+.menu a:hover{border-color:var(--pink)}
+.menu a.now{background:var(--blue);color:var(--paper)}
+
+/* ── 章節標頭 ─────────────────────────── */
+.shead{display:flex;align-items:center;gap:16px;margin-bottom:36px;flex-wrap:wrap}
+.shead .no{font-family:var(--sans);font-size:11px;letter-spacing:.22em;border:2px solid var(--blue);color:var(--blue);padding:3px 10px;white-space:nowrap}
+.shead h2{font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:.04em}
+.shead .rule{flex:1;min-width:60px;border-top:2px dashed var(--blue);opacity:.5}
+.reg{color:var(--blue);flex-shrink:0}
+
+/* ── 裁切角 ──────────────────────────── */
+.crops{position:relative}
+.crops::before,.crops::after,.crops .cm::before,.crops .cm::after{
+  content:"";position:absolute;width:16px;height:16px;pointer-events:none;
+}
+.crops::before{top:-8px;left:-8px;border-top:2px solid var(--blue);border-left:2px solid var(--blue)}
+.crops::after{bottom:-8px;right:-8px;border-bottom:2px solid var(--blue);border-right:2px solid var(--blue)}
+.crops .cm::before{top:-8px;right:-8px;border-top:2px solid var(--pink);border-right:2px solid var(--pink)}
+.crops .cm::after{bottom:-8px;left:-8px;border-bottom:2px solid var(--pink);border-left:2px solid var(--pink)}
+
+/* ── Hero ────────────────────────────── */
+.hero{padding:72px 0 84px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.kicker{font-family:var(--sans);font-size:12px;letter-spacing:.3em;color:var(--pink);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.hero h1{font-size:clamp(2.9rem,8vw,5.4rem);font-weight:900;line-height:1.15;letter-spacing:.04em;margin-bottom:10px}
+.hero .sub{font-family:var(--sans);font-size:clamp(.85rem,2vw,1.05rem);letter-spacing:.42em;color:var(--blue);margin-bottom:28px}
+.hero .lead{max-width:34em;font-size:1.05rem;margin-bottom:34px}
+.hero .lead em{font-style:normal;background:linear-gradient(transparent 62%,var(--yellow) 62%,var(--yellow) 94%,transparent 94%)}
+.cta{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--sans)}
+.btn{display:inline-block;padding:13px 26px;font-size:14px;letter-spacing:.14em;text-decoration:none;border:2px solid var(--blue);transition:transform .2s,box-shadow .2s;background:var(--paper-hi)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--pink)}
+.btn-ink{background:var(--pink);border-color:var(--pink);color:#fff}
+.btn-ink:hover{box-shadow:4px 4px 0 var(--blue)}
+.sheet{background:var(--paper-hi);border:2px solid var(--blue);padding:26px;position:relative}
+.sheet .slab{position:absolute;top:12px;left:14px;font-family:var(--sans);font-size:10px;letter-spacing:.24em;color:var(--blue)}
+.sheet .slab-r{left:auto;right:14px;top:auto;bottom:12px;color:var(--pink)}
+.sheet .reg-tl{position:absolute;top:10px;right:12px}
+.sheet .reg-bl{position:absolute;bottom:10px;left:12px}
+
+/* ── 宣言帶 ──────────────────────────── */
+.manifesto{border-top:2px solid var(--blue);border-bottom:2px solid var(--blue);background:var(--paper-hi);padding:64px 0}
+.manifesto .mg{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start}
+.manifesto .big{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:700;line-height:1.7;max-width:24em}
+.manifesto .note{margin-top:22px;font-size:.95rem;max-width:36em;opacity:.88}
+.inkcol{display:flex;flex-direction:column;gap:10px;font-family:var(--sans);font-size:10px;letter-spacing:.14em}
+.swatch{width:64px;height:64px;border:2px solid var(--ink);display:flex;align-items:flex-end;padding:4px;color:#fff}
+.sw-p{background:var(--pink)}
+.sw-b{background:var(--blue)}
+.sw-y{background:var(--yellow);color:var(--ink)}
+.sw-m{background:var(--mix)}
+
+/* ── 打樣室(色版開關) ────────────────── */
+.proofroom{padding:88px 0}
+.proof{border:2px solid var(--blue);background:var(--paper-hi);display:grid;grid-template-columns:1.05fr .95fr}
+.proof .stage{padding:36px;border-right:2px dashed var(--blue);display:flex;align-items:center;justify-content:center;position:relative;min-height:360px}
+.proof .stage .corner{position:absolute;font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:var(--blue)}
+.proof .stage .c-tl{top:10px;left:12px}.proof .stage .c-br{bottom:10px;right:12px;color:var(--pink)}
+.proof .desk{padding:36px}
+.proof .desk h3{font-size:1.5rem;font-weight:900;margin-bottom:6px}
+.proof .desk .en{font-family:var(--sans);font-size:11px;letter-spacing:.3em;color:var(--pink);margin-bottom:20px}
+.proof .desk p{font-size:.95rem;margin-bottom:24px;max-width:30em}
+.plate-btn{
+  display:flex;align-items:center;gap:14px;width:100%;margin-bottom:12px;
+  border:2px solid var(--blue);background:var(--paper);padding:14px 18px;
+  font-family:var(--sans);font-size:13px;letter-spacing:.1em;cursor:pointer;
+  color:var(--ink);text-align:left;transition:box-shadow .2s,transform .2s;
+}
+.plate-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--blue)}
+.plate-btn .chip{width:22px;height:22px;border:2px solid var(--ink);flex-shrink:0;transition:background .25s}
+.plate-btn[data-plate="pink"] .chip{background:var(--pink)}
+.plate-btn[data-plate="blue"] .chip{background:var(--blue)}
+.plate-btn[aria-pressed="false"] .chip{background:transparent}
+.plate-btn[aria-pressed="false"]{opacity:.6}
+.plate-btn .state{margin-left:auto;font-size:11px;letter-spacing:.18em;color:var(--blue);white-space:nowrap}
+.proof-tip{font-size:.82rem;color:var(--blue);font-family:var(--sans);letter-spacing:.06em;margin-top:14px}
+
+/* ── 票券式花束卡 ─────────────────────── */
+.weekly{padding:0 0 96px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:28px}
+.ticket{
+  background:var(--paper-hi);border:2px solid var(--blue);
+  display:flex;flex-direction:column;position:relative;text-decoration:none;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.ticket:hover{transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--pink)}
+.ticket .art{padding:22px 22px 18px;border-bottom:2px dashed var(--blue);position:relative}
+.ticket .art::before,.ticket .art::after{
+  content:"";position:absolute;width:20px;height:20px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--blue);bottom:-12px;z-index:2;
+}
+.ticket .art::before{left:-12px}
+.ticket .art::after{right:-12px}
+.ticket .pp{position:absolute;top:12px;left:12px;font-family:var(--sans);font-size:10px;letter-spacing:.2em;border:1.5px solid var(--blue);color:var(--blue);padding:2px 8px;background:var(--paper-hi);z-index:2}
+.ticket .body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.ticket h3{font-size:1.25rem;font-weight:900;letter-spacing:.05em}
+.ticket .mats{font-size:.88rem;opacity:.85}
+.ticket .desc{font-size:.9rem;margin-top:2px}
+.ticket .meta{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--blue)}
+.ticket .price{font-family:var(--sans);font-weight:700;font-size:1.15rem;letter-spacing:.04em}
+.ticket .inkmix{font-family:var(--sans);font-size:10px;letter-spacing:.16em;color:var(--pink)}
+/* 招牌動效:hover 時套準失調加大 */
+.ticket:hover .plate-blue{transform:translate(6px,5px)}
+.ticket:hover .plate-pink{transform:translate(-2px,-2px)}
+.more{margin-top:36px;text-align:center}
+
+/* ── Footer ──────────────────────────── */
+footer{border-top:2px solid var(--blue);background:var(--paper-hi)}
+.fgrid{max-width:1100px;margin:0 auto;padding:52px 24px 40px;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:36px}
+.fgrid h4{font-family:var(--sans);font-size:11px;letter-spacing:.28em;color:var(--pink);margin-bottom:14px;text-transform:uppercase}
+.fgrid p,.fgrid li{font-size:.92rem}
+.fgrid ul{list-style:none}
+.fgrid li{margin-bottom:6px}
+.fgrid a{text-decoration:none;border-bottom:1.5px solid var(--pink)}
+.fgrid a:hover{color:var(--blue)}
+.fbrand{font-weight:900;font-size:1.25rem;margin-bottom:4px}
+.fslogan{font-size:.92rem;opacity:.85;max-width:20em}
+.colophon{border-top:1.5px dashed var(--blue)}
+.colorow{max-width:1100px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--blue)}
+.colorow .dots{display:flex;gap:6px}
+.colorow .d{width:10px;height:10px;border:1.5px solid var(--ink)}
+.d-p{background:var(--pink)}.d-b{background:var(--blue)}.d-y{background:var(--yellow)}
+
+/* ── RWD ─────────────────────────────── */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:44px}
+  .proof{grid-template-columns:1fr}
+  .proof .stage{border-right:none;border-bottom:2px dashed var(--blue)}
+  .fgrid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .wrap{padding:0 18px}
+  .navrow{padding:14px 18px}
+  .menu a{padding:7px 10px;font-size:13px}
+  .hero{padding:52px 0 64px}
+  .manifesto .mg{grid-template-columns:1fr}
+  .inkcol{flex-direction:row;flex-wrap:wrap}
+  .fgrid{grid-template-columns:1fr;padding:44px 18px 32px}
+  .presbar{font-size:9px;letter-spacing:.12em}
+}
+/* ── 動效降級 ─────────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  .ticket:hover{transform:none}
+  .ticket:hover .plate-blue{transform:translate(3px,2.5px)}
+  .ticket:hover .plate-pink{transform:none}
+  .btn:hover,.plate-btn:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="presbar">RISO PROOF NO.0711 — <b>疊瓣花社 PETAL PRESS</b> — INK: FLUO PINK 21U + MEDIUM BLUE — PAPER: 米白道林 120GSM — 台中西區</div>
+
+<nav class="top">
+  <div class="navrow">
+    <a class="brand" href="index.html" aria-label="疊瓣花社 Petal Press 首頁">
+      <svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true">
+        <g class="plate plate-blue" fill="currentColor"><g transform="translate(35 34)">
+          <ellipse rx="6" ry="13"/><ellipse rx="6" ry="13" transform="rotate(72)"/><ellipse rx="6" ry="13" transform="rotate(144)"/><ellipse rx="6" ry="13" transform="rotate(216)"/><ellipse rx="6" ry="13" transform="rotate(288)"/>
+        </g></g>
+        <g class="plate plate-pink" fill="currentColor"><g transform="translate(29 28)">
+          <ellipse rx="6" ry="13"/><ellipse rx="6" ry="13" transform="rotate(72)"/><ellipse rx="6" ry="13" transform="rotate(144)"/><ellipse rx="6" ry="13" transform="rotate(216)"/><ellipse rx="6" ry="13" transform="rotate(288)"/>
+          <circle r="5" fill="var(--yellow)"/>
+        </g></g>
+      </svg>
+      <span>
+        <span class="bn op op-s" data-text="疊瓣花社">疊瓣花社</span>
+        <span class="be">PETAL PRESS · TAICHUNG</span>
+      </span>
+    </a>
+    <div class="menu">
+      <a class="now" href="index.html" aria-current="page">首頁</a>
+      <a href="bouquets.html">花束目錄</a>
+      <a href="atelier.html">工作室</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────── -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">
+        <svg class="reg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 0v24M0 12h24" stroke="currentColor" stroke-width="1.5"/></svg>
+        Two-Colour Floral Press
+      </p>
+      <h1><span class="op" data-text="一束花,">一束花,</span><br><span class="op" data-text="兩塊色版。">兩塊色版。</span></h1>
+      <p class="sub">FLUORESCENT PINK ✕ MEDIUM BLUE</p>
+      <p class="lead">我們把花當油墨。粉色版先走一次,藍色版再壓上去——兩色相疊的地方,會冒出一種<em>印不出來、只能長出來的紫</em>。每束花出貨前都要「對版」:主花是粉版,葉材是藍版,錯位兩三公釐,剛剛好。</p>
+      <div class="cta">
+        <a class="btn btn-ink" href="bouquets.html">看本季色票花束</a>
+        <a class="btn" href="atelier.html">來工作室上一堂課</a>
+      </div>
+    </div>
+    <div class="sheet crops"><b class="cm"></b>
+      <span class="slab">PROOF SHEET A — 對位打樣</span>
+      <span class="slab slab-r">PINK PLATE 01 / BLUE PLATE 02</span>
+      <svg class="reg reg-tl" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 0v24M0 12h24" stroke="currentColor" stroke-width="1.5"/></svg>
+      <svg class="reg reg-bl" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 0v24M0 12h24" stroke="currentColor" stroke-width="1.5"/></svg>
+      <svg viewBox="0 0 440 440" role="img" aria-label="雙色分版的手綁花束插畫:粉色版畫花朵,藍色版畫莖葉與包裝紙,兩版交疊處呈現紫色">
+        <defs>
+          <pattern id="hp1" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.8" fill="var(--pink)"/></pattern>
+          <pattern id="hb1" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.6" fill="var(--blue)"/></pattern>
+        </defs>
+        <!-- PINK PLATE:花朵 -->
+        <g class="plate plate-pink" fill="currentColor">
+          <!-- 大雛菊 -->
+          <g transform="translate(150 150)" opacity=".55">
+            <ellipse rx="20" ry="58"/><ellipse rx="20" ry="58" transform="rotate(45)"/><ellipse rx="20" ry="58" transform="rotate(90)"/><ellipse rx="20" ry="58" transform="rotate(135)"/>
+          </g>
+          <circle cx="150" cy="150" r="30" opacity=".8"/>
+          <circle cx="150" cy="150" r="14"/>
+          <!-- 玫瑰(同心圓網點) -->
+          <circle cx="300" cy="185" r="52" fill="url(#hp1)"/>
+          <circle cx="300" cy="185" r="36" opacity=".6"/>
+          <circle cx="300" cy="185" r="20"/>
+          <!-- 鬱金香 -->
+          <path d="M232 60 C214 78 216 108 232 100 C248 108 250 78 232 60 Z" opacity=".85"/>
+          <path d="M232 66 L232 100" stroke="currentColor" stroke-width="3" fill="none" opacity=".5"/>
+          <!-- 小花苞 -->
+          <circle cx="82" cy="216" r="11"/><circle cx="368" cy="120" r="9" opacity=".7"/><circle cx="200" cy="228" r="8" opacity=".7"/>
+        </g>
+        <!-- BLUE PLATE:莖葉、包裝、陰影 -->
+        <g class="plate plate-blue" fill="none" stroke="currentColor">
+          <path d="M150 182 C160 240 190 268 212 292 M300 238 C280 262 244 276 226 294 M232 102 C230 170 224 240 220 292 M82 228 C110 258 170 276 214 294" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="118" cy="252" rx="30" ry="12" transform="rotate(-32 118 252)" fill="currentColor" stroke="none" opacity=".85"/>
+          <ellipse cx="330" cy="258" rx="30" ry="12" transform="rotate(26 330 258)" fill="currentColor" stroke="none" opacity=".85"/>
+          <ellipse cx="262" cy="150" rx="24" ry="9" transform="rotate(-58 262 150)" fill="currentColor" stroke="none" opacity=".6"/>
+          <!-- 花朵陰影(疊出紫) -->
+          <path d="M118 172 A46 46 0 0 0 172 186" stroke-width="16" opacity=".55" stroke-linecap="round"/>
+          <path d="M268 210 A44 44 0 0 0 322 214" stroke-width="13" opacity=".55" stroke-linecap="round"/>
+          <!-- 包裝紙 -->
+          <path d="M158 286 L220 418 L286 282 Z" stroke-width="5" fill="url(#hb1)" fill-opacity=".5"/>
+          <path d="M136 300 L220 418 L164 282" stroke-width="5"/>
+          <path d="M306 296 L220 418 L280 278" stroke-width="5"/>
+          <!-- 緞帶結 -->
+          <circle cx="221" cy="300" r="7" fill="currentColor" stroke="none"/>
+          <path d="M221 300 C204 292 200 310 214 310 M221 300 C238 292 242 310 228 310" stroke-width="4"/>
+        </g>
+        <!-- YELLOW SPOT:黃金球 -->
+        <g class="plate plate-yellow" fill="currentColor">
+          <circle cx="356" cy="86" r="13"/><circle cx="60" cy="150" r="10"/><circle cx="392" cy="176" r="8"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- ── 宣言 ─────────────────────────────────────────── -->
+<section class="manifesto">
+  <div class="wrap mg">
+    <div class="inkcol" aria-label="本店油墨色票">
+      <div class="swatch sw-p">PINK<br>21U</div>
+      <div class="swatch sw-b">BLUE<br>2728U</div>
+      <div class="swatch sw-y">YELLOW<br>SPOT</div>
+      <div class="swatch sw-m">疊色<br>MIX</div>
+    </div>
+    <div>
+      <p class="big op" data-text="開店前,我們在刷房做了七年 Risograph。後來發現:綁花跟印刷是同一件事——一層一層,疊到剛好,就收手。">開店前,我們在刷房做了七年 Risograph。後來發現:綁花跟印刷是同一件事——一層一層,疊到剛好,就收手。</p>
+      <p class="note">所以疊瓣花社只有兩種「油墨」:螢光粉負責花,藍色負責葉。配花單像印刷工單,寫的是「粉 70%、藍 30%」;包裝紙是我們自己印的網點紙,油墨味還沒散,花香就先蓋過去了。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 色版打樣室(招牌互動) ───────────────────────── -->
+<section class="proofroom" id="proof">
+  <div class="wrap">
+    <div class="shead">
+      <span class="no">SEC. 02</span>
+      <h2 class="op" data-text="色版打樣室">色版打樣室</h2>
+      <svg class="reg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 0v24M0 12h24" stroke="currentColor" stroke-width="1.5"/></svg>
+      <span class="rule"></span>
+    </div>
+    <div class="proof crops"><b class="cm"></b>
+      <div class="stage">
+        <span class="corner c-tl">REGISTRATION TEST</span>
+        <span class="corner c-br">GERBERA / 非洲菊</span>
+        <svg viewBox="0 0 320 320" width="300" role="img" aria-label="一朵非洲菊的分版示意:粉版是花瓣,藍版是花芯與莖葉">
+          <defs><pattern id="pc2" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.9" fill="var(--blue)"/></pattern></defs>
+          <g class="plate plate-pink" fill="currentColor">
+            <g transform="translate(160 128)">
+              <g opacity=".5"><ellipse rx="15" ry="66"/><ellipse rx="15" ry="66" transform="rotate(30)"/><ellipse rx="15" ry="66" transform="rotate(60)"/><ellipse rx="15" ry="66" transform="rotate(90)"/><ellipse rx="15" ry="66" transform="rotate(120)"/><ellipse rx="15" ry="66" transform="rotate(150)"/></g>
+              <g opacity=".9"><ellipse rx="11" ry="46"/><ellipse rx="11" ry="46" transform="rotate(45)"/><ellipse rx="11" ry="46" transform="rotate(90)"/><ellipse rx="11" ry="46" transform="rotate(135)"/></g>
+            </g>
+          </g>
+          <g class="plate plate-blue">
+            <circle cx="160" cy="128" r="26" fill="url(#pc2)" stroke="currentColor" stroke-width="2.5" color="inherit"/>
+            <path d="M160 158 C154 210 166 250 158 292" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <ellipse cx="128" cy="238" rx="28" ry="11" transform="rotate(-30 128 238)" fill="currentColor"/>
+            <path d="M104 128 A56 56 0 0 0 160 186" stroke="currentColor" stroke-width="12" fill="none" opacity=".5" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+      <div class="desk">
+        <h3 class="op op-s" data-text="自己動手,關掉一塊色版">自己動手,關掉一塊色版</h3>
+        <p class="en">PLATE ON / OFF — PRESS PROOFING</p>
+        <p>印刷打樣時,我們會單獨跑一次粉版、再單獨跑一次藍版,確認每一層都站得住。這裡讓你試試:關掉任何一版,整個網站——包括左邊這朵非洲菊和所有標題——都會退回單色打樣稿。</p>
+        <button class="plate-btn" type="button" data-plate="pink" aria-pressed="true">
+          <span class="chip" aria-hidden="true"></span>
+          PINK PLATE 01 — 螢光粉 #FF48B0
+          <span class="state">ON・上機</span>
+        </button>
+        <button class="plate-btn" type="button" data-plate="blue" aria-pressed="true">
+          <span class="chip" aria-hidden="true"></span>
+          BLUE PLATE 02 — 藍 #3255A4
+          <span class="state">ON・上機</span>
+        </button>
+        <p class="proof-tip">※ 兩版全關就是一張白紙——所有印刷的起點。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 本週花束 ─────────────────────────────────────── -->
+<section class="weekly">
+  <div class="wrap">
+    <div class="shead">
+      <span class="no">SEC. 03</span>
+      <h2 class="op" data-text="本週上機的三束">本週上機的三束</h2>
+      <span class="rule"></span>
+      <span class="no" style="border-color:var(--pink);color:var(--pink)">7/8 – 7/14</span>
+    </div>
+    <div class="cards">
+
+      <article class="ticket">
+        <div class="art">
+          <span class="pp">PP-01</span>
+          <svg viewBox="0 0 200 200" role="img" aria-label="初刷・粉:粉玫瑰花束插畫">
+            <defs><pattern id="wr1" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.7" fill="var(--pink)"/></pattern></defs>
+            <g class="plate plate-pink" fill="currentColor">
+              <circle cx="96" cy="82" r="46" fill="url(#wr1)"/>
+              <circle cx="96" cy="82" r="31" opacity=".65"/>
+              <circle cx="96" cy="82" r="16"/>
+              <circle cx="146" cy="118" r="12" opacity=".8"/><circle cx="48" cy="112" r="9" opacity=".8"/>
+            </g>
+            <g class="plate plate-blue" stroke="currentColor" fill="none">
+              <path d="M96 126 C92 152 100 168 96 186 M146 130 C132 150 112 164 102 182 M48 122 C64 148 84 164 92 184" stroke-width="4.5" stroke-linecap="round"/>
+              <ellipse cx="132" cy="162" rx="17" ry="7" transform="rotate(28 132 162)" fill="currentColor" stroke="none"/>
+              <ellipse cx="60" cy="152" rx="17" ry="7" transform="rotate(-30 60 152)" fill="currentColor" stroke="none"/>
+              <path d="M58 66 A46 46 0 0 1 96 36" stroke-width="10" opacity=".55" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>初刷・粉</h3>
+          <p class="mats">粉玫瑰 8 朵・洋桔梗・尤加利</p>
+          <p class="desc">第一版只印粉色,像信紙上的第一句話。適合不想太大聲的心意。</p>
+          <div class="meta"><span class="price">NT$ 980</span><span class="inkmix">PINK 70 / BLUE 30</span></div>
+        </div>
+      </article>
+
+      <article class="ticket">
+        <div class="art">
+          <span class="pp">PP-03</span>
+          <svg viewBox="0 0 200 200" role="img" aria-label="疊色紫:紫桔梗花束插畫,粉藍兩版幾乎重疊">
+            <g class="plate plate-pink" fill="currentColor">
+              <g transform="translate(96 84)" opacity=".85"><ellipse rx="16" ry="44"/><ellipse rx="16" ry="44" transform="rotate(60)"/><ellipse rx="16" ry="44" transform="rotate(120)"/></g>
+            </g>
+            <g class="plate plate-blue" fill="currentColor">
+              <g transform="translate(102 90)" opacity=".85"><ellipse rx="16" ry="44"/><ellipse rx="16" ry="44" transform="rotate(60)"/><ellipse rx="16" ry="44" transform="rotate(120)"/></g>
+              <path d="M100 134 C96 158 104 172 100 188 M64 120 C74 148 90 166 96 184 M138 122 C128 150 110 166 104 184" stroke="currentColor" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+              <ellipse cx="72" cy="164" rx="15" ry="6" transform="rotate(-28 72 164)"/>
+            </g>
+            <g class="plate plate-pink" fill="currentColor"><circle cx="64" cy="112" r="8"/><circle cx="140" cy="114" r="7" opacity=".8"/></g>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>疊色紫</h3>
+          <p class="mats">紫桔梗・飛燕草・薰衣草・紫薊</p>
+          <p class="desc">粉版與藍版幾乎對準,疊出滿版的紫——我們沒有紫色油墨,紫是疊出來的。</p>
+          <div class="meta"><span class="price">NT$ 1,280</span><span class="inkmix">PINK 50 / BLUE 50</span></div>
+        </div>
+      </article>
+
+      <article class="ticket">
+        <div class="art">
+          <span class="pp">PP-07</span>
+          <svg viewBox="0 0 200 200" role="img" aria-label="特色金:向日葵花束插畫,加開黃色特色版">
+            <defs><pattern id="wr3" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.6" fill="var(--blue)"/></pattern></defs>
+            <g class="plate plate-yellow" fill="currentColor">
+              <g transform="translate(98 84)"><ellipse rx="13" ry="52"/><ellipse rx="13" ry="52" transform="rotate(30)"/><ellipse rx="13" ry="52" transform="rotate(60)"/><ellipse rx="13" ry="52" transform="rotate(90)"/><ellipse rx="13" ry="52" transform="rotate(120)"/><ellipse rx="13" ry="52" transform="rotate(150)"/></g>
+            </g>
+            <g class="plate plate-blue">
+              <circle cx="98" cy="84" r="24" fill="url(#wr3)" color="inherit"/>
+              <circle cx="98" cy="84" r="24" fill="none" stroke="currentColor" stroke-width="2.5"/>
+              <path d="M98 138 C94 160 102 172 98 188 M60 128 C72 152 88 168 94 186" stroke="currentColor" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+              <ellipse cx="70" cy="160" rx="16" ry="7" transform="rotate(-30 70 160)" fill="currentColor"/>
+            </g>
+            <g class="plate plate-pink" fill="currentColor"><circle cx="52" cy="98" r="8"/><circle cx="148" cy="104" r="9" opacity=".85"/><circle cx="140" cy="146" r="6" opacity=".7"/></g>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>特色金</h3>
+          <p class="mats">向日葵 5 朵・黃金球・千日紅・卡斯比亞</p>
+          <p class="desc">本週限定加開第三塊色版:黃。像加印特色金,一年開不了幾次機。</p>
+          <div class="meta"><span class="price">NT$ 1,080</span><span class="inkmix">+YELLOW SPOT</span></div>
+        </div>
+      </article>
+
+    </div>
+    <div class="more">
+      <a class="btn sans" href="bouquets.html">整本目錄共 8 束 → 翻開花束目錄</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ───────────────────────────────────────── -->
+<footer>
+  <div class="fgrid">
+    <div>
+      <p class="fbrand op op-s" data-text="疊瓣花社">疊瓣花社</p>
+      <p class="sans" style="font-size:10px;letter-spacing:.3em;color:var(--blue);margin-bottom:14px">PETAL PRESS</p>
+      <p class="fslogan">像印刷一樣,把花疊出來。兩色油墨、一張米白紙,與台中西區的日常。</p>
+    </div>
+    <div>
+      <h4>店舖 Shop</h4>
+      <ul>
+        <li>台中市西區中興一巷 22 號</li>
+        <li>(綠光計劃巷內,美術館站步行 4 分)</li>
+        <li>電話 <a href="tel:0423017748">04-2301-7748</a></li>
+        <li>週二–週日 11:00–19:00・週一休</li>
+      </ul>
+    </div>
+    <div>
+      <h4>通路 Links</h4>
+      <ul>
+        <li><a href="bouquets.html">花束目錄與訂閱</a></li>
+        <li><a href="atelier.html">插花課程與訂製</a></li>
+        <li>Instagram <a href="https://instagram.com" rel="noopener">@petalpress.tc</a></li>
+        <li>LINE 訂花 @petalpress</li>
+      </ul>
+    </div>
+  </div>
+  <div class="colophon">
+    <div class="colorow">
+      <span>© 2026 疊瓣花社 PETAL PRESS — TAICHUNG</span>
+      <span class="dots" aria-hidden="true"><i class="d d-p"></i><i class="d d-b"></i><i class="d d-y"></i></span>
+      <span>PINK PLATE 01 / BLUE PLATE 02 / PAPER 米白道林 120GSM</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// 色版開關:關掉任一版,全站該色版退場(印刷打樣模擬)
+document.querySelectorAll('.plate-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var p = btn.dataset.plate;
+    document.body.classList.toggle(p + '-off');
+    var off = document.body.classList.contains(p + '-off');
+    btn.setAttribute('aria-pressed', String(!off));
+    btn.querySelector('.state').textContent = off ? 'OFF・停版' : 'ON・上機';
+  });
+});
+</script>
+</body>
+</html>

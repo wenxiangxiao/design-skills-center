@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>月位元 MOONBIT GAMES｜台北像素敘事遊戲工作室</title>
+<meta name="description" content="月位元 MOONBIT GAMES——五個人的台北獨立遊戲工作室，專做像素風敘事遊戲。最新作《九命電器行》發售中。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%230b1026'/%3E%3Cg fill='%23ffd23f'%3E%3Crect x='2' y='1' width='4' height='1'/%3E%3Crect x='1' y='2' width='2' height='1'/%3E%3Crect x='1' y='3' width='2' height='1'/%3E%3Crect x='1' y='4' width='2' height='1'/%3E%3Crect x='1' y='5' width='2' height='1'/%3E%3Crect x='2' y='6' width='4' height='1'/%3E%3C/g%3E%3Crect x='5' y='3' width='1' height='1' fill='%232ee6d6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --night:#0b1026;      /* 底色：深夜藍 */
+  --night2:#111838;     /* 次底 */
+  --panel:#161e46;      /* 面板 */
+  --line:#273065;       /* 弱邊框 */
+  --ink:#e8ecf8;        /* 主文字 */
+  --dim:#98a2cc;        /* 次文字 */
+  --cyan:#2ee6d6;       /* 螢光青 */
+  --cyan-d:#12857b;     /* 青・暗階 */
+  --mag:#ff4fa3;        /* 洋紅 */
+  --mag-d:#a3235f;      /* 洋紅・暗階 */
+  --yel:#ffd23f;        /* 像素黃 */
+  --yel-d:#c79616;      /* 黃・暗階 */
+  --px:4px;             /* 像素邊框單位 */
+  --pxfont:'Press Start 2P','DotGothic16',monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--night);color:var(--ink);
+  font-family:'Noto Sans TC',sans-serif;font-size:16px;line-height:1.8;
+  overflow-x:hidden;
+}
+::selection{background:var(--mag);color:var(--night)}
+img,svg{display:block}
+svg{image-rendering:pixelated}
+
+/* ── 星空（像素方點，box-shadow 疊出） ── */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+.stars i{position:absolute;top:0;left:0;width:3px;height:3px;background:transparent;
+  box-shadow:8vw 12vh 0 var(--dim),22vw 6vh 0 var(--cyan),35vw 18vh 0 var(--dim),
+  48vw 9vh 0 var(--yel),61vw 14vh 0 var(--dim),74vw 5vh 0 var(--dim),88vw 11vh 0 var(--mag),
+  15vw 32vh 0 var(--dim),41vw 28vh 0 var(--dim),67vw 30vh 0 var(--cyan),92vw 26vh 0 var(--dim),
+  5vw 55vh 0 var(--dim),29vw 60vh 0 var(--yel),55vw 52vh 0 var(--dim),81vw 58vh 0 var(--dim),
+  12vw 78vh 0 var(--cyan),38vw 84vh 0 var(--dim),63vw 76vh 0 var(--dim),90vw 82vh 0 var(--mag),
+  25vw 93vh 0 var(--dim),72vw 91vh 0 var(--dim)}
+/* ── CRT 掃描線（淡） ── */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:98;
+  background:repeating-linear-gradient(0deg,rgba(5,8,24,.16) 0 1px,transparent 1px 3px)}
+
+/* ── 像素邊框：四向 box-shadow，角落自然缺角成階梯 ── */
+.pxbox{position:relative;background:var(--panel);
+  box-shadow:0 calc(var(--px)*-1) 0 0 var(--bd,var(--line)),
+             0 var(--px) 0 0 var(--bd,var(--line)),
+             calc(var(--px)*-1) 0 0 0 var(--bd,var(--line)),
+             var(--px) 0 0 0 var(--bd,var(--line))}
+.bd-cyan{--bd:var(--cyan)}
+.bd-mag{--bd:var(--mag)}
+.bd-yel{--bd:var(--yel)}
+
+.pxfont{font-family:var(--pxfont)}
+h1,h2,h3{font-family:var(--pxfont);font-weight:400;line-height:1.7}
+.kicker{font-family:var(--pxfont);font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:18px}
+.kicker::before{content:'';display:inline-block;width:8px;height:8px;background:var(--cyan);margin-right:10px;transform:translateY(-1px)}
+.kicker.k-mag{color:var(--mag)}.kicker.k-mag::before{background:var(--mag)}
+.kicker.k-yel{color:var(--yel)}.kicker.k-yel::before{background:var(--yel)}
+
+/* ── 按鈕：按壓下沉 ── */
+.btn{display:inline-block;font-family:var(--pxfont);font-size:11px;letter-spacing:1px;
+  padding:16px 22px 14px;text-decoration:none;color:var(--night);background:var(--cyan);
+  box-shadow:0 -4px 0 0 var(--cyan),0 4px 0 0 var(--cyan),-4px 0 0 0 var(--cyan),4px 0 0 0 var(--cyan),
+             0 10px 0 0 var(--cyan-d),-4px 10px 0 0 var(--cyan-d),4px 10px 0 0 var(--cyan-d);
+  transition:none;margin:4px 8px 12px 4px}
+.btn:hover{background:var(--yel);
+  box-shadow:0 -4px 0 0 var(--yel),0 4px 0 0 var(--yel),-4px 0 0 0 var(--yel),4px 0 0 0 var(--yel),
+             0 10px 0 0 var(--yel-d),-4px 10px 0 0 var(--yel-d),4px 10px 0 0 var(--yel-d)}
+.btn:active{transform:translateY(6px);
+  box-shadow:0 -4px 0 0 var(--yel),0 4px 0 0 var(--yel),-4px 0 0 0 var(--yel),4px 0 0 0 var(--yel)}
+.btn.ghost{color:var(--cyan);background:transparent;
+  box-shadow:0 -4px 0 0 var(--cyan),0 4px 0 0 var(--cyan),-4px 0 0 0 var(--cyan),4px 0 0 0 var(--cyan)}
+.btn.ghost:hover{color:var(--night);background:var(--cyan)}
+.btn.ghost:active{transform:translateY(2px)}
+
+/* ── 導覽列 ── */
+header.nav{position:sticky;top:0;z-index:50;background:var(--night2);
+  box-shadow:0 4px 0 0 var(--line);padding:18px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);
+  font-family:var(--pxfont);font-size:12px;letter-spacing:1px}
+.brand svg{width:26px;height:26px}
+.brand b{color:var(--yel);font-weight:400}
+nav.links{display:flex;gap:6px;flex-wrap:wrap}
+nav.links a{font-family:var(--pxfont);font-size:10px;letter-spacing:1px;color:var(--dim);
+  text-decoration:none;padding:10px 12px}
+nav.links a:hover{color:var(--cyan)}
+nav.links a.active{color:var(--yel);box-shadow:0 4px 0 0 var(--yel)}
+
+/* ── 版面 ── */
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+section{padding:76px 0}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+
+/* ── 進場：逐格 8-bit 揭示（step easing） ── */
+@keyframes bitreveal{
+  0%{opacity:0;transform:translateY(28px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+html.js .io{opacity:0}
+html.js .io.on{animation:bitreveal .55s steps(6,end) both;animation-delay:var(--d,0s)}
+
+/* ── HERO ── */
+.hero{padding:90px 0 70px}
+.hero h1{font-size:clamp(20px,4.2vw,34px);color:var(--ink);margin:0 0 26px}
+.hero h1 em{font-style:normal;color:var(--cyan)}
+.hero p.sub{color:var(--dim);max-width:34em;margin-bottom:34px}
+.hero .tagline-en{font-family:var(--pxfont);font-size:9px;color:var(--mag);letter-spacing:2px;margin-bottom:14px}
+
+/* ── 貓咪互動場景 ── */
+.catbox{padding:30px 26px 22px;background:var(--night2)}
+.cat-scene{position:relative;cursor:pointer;-webkit-user-select:none;user-select:none;padding:8px 0 4px}
+.cat-scene svg.cat{width:min(240px,58%);margin:0 auto}
+.cat-scene .moonbg{position:absolute;top:-4px;right:8%;width:56px;opacity:.9}
+.coin-hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;
+  font-family:var(--pxfont);font-size:9px;color:var(--yel);letter-spacing:1px}
+.coin-hud .lv{color:var(--dim)}
+.coin-hud svg{width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:6px}
+/* 對話框 */
+.dlg{margin-top:18px;background:var(--night);padding:14px 16px 12px;
+  box-shadow:0 -4px 0 0 var(--ink),0 4px 0 0 var(--ink),-4px 0 0 0 var(--ink),4px 0 0 0 var(--ink)}
+.dlg .who{font-family:var(--pxfont);font-size:8px;color:var(--cyan);margin-bottom:6px;letter-spacing:1px}
+.dlg .txt{font-family:'DotGothic16','Noto Sans TC',sans-serif;font-size:15px;min-height:1.6em}
+.dlg .cue{display:inline-block;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:8px solid var(--yel);margin-left:8px;animation:cue 1s steps(2,end) infinite}
+@keyframes cue{0%,49%{transform:translateY(0)}50%,100%{transform:translateY(3px)}}
+
+/* 貓動畫：眨眼／揮手／尾巴（幀切換 = visibility + steps） */
+.cat .eyes-shut,.cat .arm-wa,.cat .arm-wb,.cat .tail-b{visibility:hidden}
+.cat .tail-a{animation:fA 1.3s steps(1,end) infinite}
+.cat .tail-b{animation:fB 1.3s steps(1,end) infinite}
+.cat.near .eyes-open{animation:blO 2.2s steps(1,end) infinite}
+.cat.near .eyes-shut{animation:blS 2.2s steps(1,end) infinite}
+.cat.near .arm-rest{visibility:hidden}
+.cat.near .arm-wa{animation:fA .46s steps(1,end) infinite}
+.cat.near .arm-wb{animation:fB .46s steps(1,end) infinite}
+@keyframes fA{0%,49%{visibility:visible}50%,100%{visibility:hidden}}
+@keyframes fB{0%,49%{visibility:hidden}50%,100%{visibility:visible}}
+@keyframes blO{0%,86%{visibility:visible}87%,96%{visibility:hidden}97%,100%{visibility:visible}}
+@keyframes blS{0%,86%{visibility:hidden}87%,96%{visibility:visible}97%,100%{visibility:hidden}}
+.cat-scene.jump svg.cat{animation:catjump .5s steps(5,end)}
+@keyframes catjump{0%{transform:translateY(0)}40%{transform:translateY(-22px)}70%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+/* 金幣噴出 */
+.coinfly{position:absolute;left:50%;top:20%;width:20px;height:20px;pointer-events:none;
+  animation:coinup .8s steps(7,end) forwards}
+@keyframes coinup{0%{transform:translate(-50%,0);opacity:1}60%{transform:translate(-50%,-46px);opacity:1}100%{transform:translate(-50%,-64px);opacity:0}}
+
+/* ── 最新作 FEATURE ── */
+.feature{background:var(--night2);box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line)}
+.feature .art{padding:0;background:#0d1330;overflow:hidden}
+.feature .art svg{width:100%;height:auto}
+.chiprow{display:flex;flex-wrap:wrap;gap:14px;margin:20px 0 26px}
+.chip{font-family:var(--pxfont);font-size:9px;letter-spacing:1px;color:var(--ink);
+  background:var(--night);padding:10px 12px 8px;
+  box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
+.chip.c-yel{color:var(--yel)}.chip.c-mag{color:var(--mag)}.chip.c-cyan{color:var(--cyan)}
+/* 血條式進度條 */
+.hpbar{margin:8px 0 30px;max-width:420px}
+.hpbar .lab{display:flex;justify-content:space-between;font-family:var(--pxfont);font-size:9px;color:var(--dim);margin-bottom:10px;letter-spacing:1px}
+.hpbar .lab b{color:var(--cyan);font-weight:400}
+.hpbar .bar{height:16px;background:var(--night);padding:3px;
+  box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink)}
+.hpbar .fill{height:100%;width:72%;background:repeating-linear-gradient(90deg,var(--cyan) 0 8px,var(--cyan-d) 8px 10px)}
+
+/* ── 理念（編號橫列，非置中卡片） ── */
+.creed{border-left:none}
+.creed li{list-style:none;display:grid;grid-template-columns:84px 1fr;gap:26px;
+  padding:30px 4px;box-shadow:0 3px 0 0 var(--line)}
+.creed li:last-child{box-shadow:none}
+.creed .no{font-family:var(--pxfont);font-size:22px;color:var(--mag);padding-top:4px}
+.creed li:nth-child(2) .no{color:var(--cyan)}
+.creed li:nth-child(3) .no{color:var(--yel)}
+.creed h3{font-size:14px;margin-bottom:10px}
+.creed p{color:var(--dim);max-width:44em}
+.toolstrip{margin-top:40px;padding:18px 22px;display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;background:var(--night2)}
+.toolstrip span{font-family:var(--pxfont);font-size:9px;color:var(--dim);letter-spacing:1px}
+.toolstrip b{font-family:var(--pxfont);font-size:9px;color:var(--cyan);font-weight:400;letter-spacing:1px}
+
+/* ── FOOTER ── */
+footer{background:var(--night2);box-shadow:0 -4px 0 0 var(--line);margin-top:40px;position:relative;z-index:1}
+.foot{max-width:1080px;margin:0 auto;padding:56px 24px 30px;display:grid;
+  grid-template-columns:1.2fr 1fr 1.2fr;gap:40px}
+.foot h4{font-family:var(--pxfont);font-size:10px;color:var(--yel);margin-bottom:16px;letter-spacing:1px}
+.foot p,.foot a{color:var(--dim);font-size:14px;text-decoration:none}
+.foot a:hover{color:var(--cyan)}
+.foot ul{list-style:none}
+.foot li{margin-bottom:8px}
+.foot .fb{display:flex;align-items:center;gap:10px;font-family:var(--pxfont);font-size:11px;color:var(--ink);margin-bottom:14px}
+.foot .fb svg{width:22px;height:22px}
+.copyline{max-width:1080px;margin:0 auto;padding:18px 24px 26px;
+  font-family:var(--pxfont);font-size:8px;color:var(--dim);letter-spacing:1px;
+  box-shadow:0 -3px 0 0 var(--line)}
+.copyline b{color:var(--cyan);font-weight:400}
+
+/* ── 降級與 RWD ── */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html.js .io{opacity:1}
+  html{scroll-behavior:auto}
+}
+@media (max-width:860px){
+  .grid2{grid-template-columns:1fr;gap:40px}
+  .foot{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  header.nav{padding:14px 16px}
+  .brand{font-size:10px}
+  nav.links a{font-size:8px;padding:8px 8px}
+  .wrap{padding:0 16px}
+  section{padding:54px 0}
+  .hero{padding:56px 0 40px}
+  .hero h1{font-size:19px}
+  .creed li{grid-template-columns:1fr;gap:8px;padding:24px 2px}
+  .foot{grid-template-columns:1fr;padding:44px 16px 24px}
+  .btn{font-size:10px;padding:14px 16px 12px}
+}
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"><i></i></div>
+
+<header class="nav">
+  <a class="brand" href="index.html" aria-label="月位元 MOONBIT GAMES 首頁">
+    <svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect width="8" height="8" fill="#0b1026"/><g fill="#ffd23f"><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="2" height="1"/><rect x="1" y="3" width="2" height="1"/><rect x="1" y="4" width="2" height="1"/><rect x="1" y="5" width="2" height="1"/><rect x="2" y="6" width="4" height="1"/></g><rect x="5" y="3" width="1" height="1" fill="#2ee6d6"/></svg>
+    月位元 <b>MOONBIT</b>
+  </a>
+  <nav class="links" aria-label="主導覽">
+    <a href="index.html" class="active" aria-current="page">首頁 HOME</a>
+    <a href="games.html">作品 GAMES</a>
+    <a href="studio.html">工作室 STUDIO</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero grid2">
+    <div class="io on" style="--d:.05s">
+      <p class="tagline-en">TAIPEI INDIE GAME STUDIO / EST. 2019</p>
+      <h1>一格一格，<br>把故事<em>點亮</em>。</h1>
+      <p class="sub">我們是月位元，五個人的台北像素工作室。做的遊戲不大，
+      但每一顆像素、每一句對白，都有人負責到底。目前三款作品上市，
+      第四款正在赤峰街的二樓慢慢長大。</p>
+      <a class="btn" href="games.html">看我們的遊戲</a>
+      <a class="btn ghost" href="studio.html">認識工作室</a>
+    </div>
+
+    <div class="io on" style="--d:.2s">
+      <div class="catbox pxbox bd-cyan">
+        <div class="coin-hud">
+          <span><svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><g fill="#ffd23f"><rect x="2" y="0" width="4" height="1"/><rect x="1" y="1" width="6" height="1"/><rect x="0" y="2" width="8" height="4"/><rect x="1" y="6" width="6" height="1"/><rect x="2" y="7" width="4" height="1"/></g><rect x="3" y="2" width="2" height="4" fill="#c79616"/></svg>COIN × <span id="coinCount">0</span></span>
+          <span class="lv">STUDIO CAT — LV.9</span>
+        </div>
+        <div class="cat-scene" id="catScene" role="button" tabindex="0" aria-label="店貓歐姆：點擊可以獲得金幣">
+          <svg class="moonbg" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><g fill="#ffd23f"><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="2" height="1"/><rect x="1" y="3" width="2" height="1"/><rect x="1" y="4" width="2" height="1"/><rect x="1" y="5" width="2" height="1"/><rect x="2" y="6" width="4" height="1"/></g></svg>
+          <svg class="cat" id="theCat" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+            <!-- 耳朵 -->
+            <g fill="#454b78">
+              <rect x="3" y="1" width="1" height="2"/><rect x="4" y="2" width="1" height="1"/>
+              <rect x="12" y="1" width="1" height="2"/><rect x="11" y="2" width="1" height="1"/>
+            </g>
+            <rect x="3" y="2" width="1" height="1" fill="#ff4fa3"/>
+            <rect x="12" y="2" width="1" height="1" fill="#ff4fa3"/>
+            <!-- 頭 -->
+            <rect x="3" y="3" width="10" height="5" fill="#454b78"/>
+            <!-- 眼睛（開／閉 兩幀） -->
+            <g class="eyes-open" fill="#ffd23f">
+              <rect x="5" y="4" width="1" height="2"/><rect x="10" y="4" width="1" height="2"/>
+            </g>
+            <g class="eyes-shut" fill="#2f3457">
+              <rect x="5" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/>
+            </g>
+            <!-- 鼻子 -->
+            <rect x="7" y="6" width="2" height="1" fill="#ff4fa3"/>
+            <!-- 身體與項圈 -->
+            <rect x="4" y="8" width="8" height="6" fill="#454b78"/>
+            <rect x="4" y="8" width="8" height="1" fill="#2ee6d6"/>
+            <rect x="6" y="10" width="4" height="4" fill="#6d75ad"/>
+            <!-- 左手（休息／揮手兩幀） -->
+            <g class="arm-rest" fill="#454b78"><rect x="3" y="10" width="1" height="3"/></g>
+            <g class="arm-wa" fill="#454b78"><rect x="2" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="3" y="10" width="1" height="1"/></g>
+            <g class="arm-wb" fill="#454b78"><rect x="2" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="2"/></g>
+            <!-- 右手 -->
+            <rect x="12" y="10" width="1" height="3" fill="#454b78"/>
+            <!-- 尾巴（兩幀擺動） -->
+            <g class="tail-a" fill="#454b78"><rect x="12" y="11" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="14" y="8" width="1" height="2"/></g>
+            <g class="tail-b" fill="#454b78"><rect x="12" y="11" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="14" y="9" width="1" height="2"/></g>
+            <!-- 腳 -->
+            <rect x="4" y="14" width="2" height="1" fill="#2f3457"/>
+            <rect x="10" y="14" width="2" height="1" fill="#2f3457"/>
+          </svg>
+        </div>
+        <div class="dlg" aria-live="polite">
+          <p class="who">歐姆 OHM — 工作室監工</p>
+          <p class="txt"><span id="dlgText">喵。（游標靠近一點，牠會理你。）</span><span class="cue" aria-hidden="true"></span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 最新作 -->
+  <section>
+    <div class="io">
+      <p class="kicker k-mag">NEW RELEASE — 最新作</p>
+      <h2 style="font-size:clamp(15px,2.6vw,22px);margin-bottom:40px">《九命電器行》NINE LIVES ELECTRIC</h2>
+    </div>
+    <div class="grid2 io" style="--d:.1s">
+      <div class="feature art pxbox bd-mag">
+        <svg viewBox="0 0 48 30" shape-rendering="crispEdges" role="img" aria-label="九命電器行像素主視覺：貨架上的老電視與店貓">
+          <rect width="48" height="30" fill="#0d1330"/>
+          <rect y="26" width="48" height="4" fill="#161e46"/>
+          <!-- 窗與月 -->
+          <rect x="38" y="3" width="7" height="8" fill="#0b1026"/>
+          <rect x="38" y="3" width="7" height="1" fill="#273065"/><rect x="38" y="10" width="7" height="1" fill="#273065"/>
+          <rect x="38" y="3" width="1" height="8" fill="#273065"/><rect x="44" y="3" width="1" height="8" fill="#273065"/>
+          <g fill="#ffd23f"><rect x="40" y="5" width="2" height="1"/><rect x="39" y="6" width="1" height="2"/><rect x="40" y="8" width="2" height="1"/></g>
+          <!-- 層架 -->
+          <rect x="3" y="12" width="30" height="1" fill="#8a5a33"/>
+          <rect x="3" y="21" width="30" height="1" fill="#8a5a33"/>
+          <rect x="4" y="13" width="1" height="13" fill="#5d3b20"/><rect x="31" y="13" width="1" height="13" fill="#5d3b20"/>
+          <!-- 架上電視 1（青光） -->
+          <rect x="6" y="14" width="9" height="7" fill="#2f3457"/>
+          <rect x="7" y="15" width="6" height="5" fill="#2ee6d6"/>
+          <rect x="8" y="16" width="2" height="1" fill="#c8fff8"/>
+          <rect x="13" y="15" width="1" height="5" fill="#12857b"/>
+          <!-- 架上電視 2（洋紅雜訊） -->
+          <rect x="17" y="14" width="9" height="7" fill="#2f3457"/>
+          <rect x="18" y="15" width="7" height="5" fill="#3a1230"/>
+          <g fill="#ff4fa3"><rect x="19" y="16" width="1" height="1"/><rect x="22" y="15" width="1" height="1"/><rect x="21" y="18" width="1" height="1"/><rect x="24" y="17" width="1" height="1"/><rect x="19" y="19" width="1" height="1"/><rect x="23" y="19" width="1" height="1"/></g>
+          <!-- 地上大電視（黃光） -->
+          <rect x="35" y="18" width="10" height="8" fill="#2f3457"/>
+          <rect x="36" y="19" width="7" height="6" fill="#ffd23f"/>
+          <rect x="37" y="20" width="2" height="1" fill="#fff3c4"/>
+          <rect x="43" y="19" width="1" height="6" fill="#c79616"/>
+          <!-- 架頂的歐姆（剪影） -->
+          <g fill="#12172e">
+            <rect x="9" y="9" width="1" height="1"/><rect x="12" y="9" width="1" height="1"/>
+            <rect x="9" y="10" width="4" height="2"/><rect x="13" y="11" width="2" height="1"/>
+          </g>
+          <rect x="10" y="10" width="1" height="1" fill="#ffd23f"/><rect x="12" y="10" width="1" height="1" fill="#ffd23f"/>
+          <!-- 吊牌：閃電 -->
+          <rect x="2" y="2" width="8" height="6" fill="#161e46"/>
+          <rect x="2" y="2" width="8" height="1" fill="#2ee6d6"/><rect x="2" y="7" width="8" height="1" fill="#2ee6d6"/>
+          <g fill="#ffd23f"><rect x="6" y="3" width="1" height="1"/><rect x="5" y="4" width="2" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/></g>
+        </svg>
+      </div>
+      <div>
+        <p style="color:var(--dim);margin-bottom:6px">修理模擬 × 敘事｜2026.04.16 發售</p>
+        <p style="margin-bottom:18px">赤峰街口的老電器行，每一台送修的家電都關著一段往事。
+        跟著店貓歐姆拆開機殼，把記憶修好——或者，決定讓它安靜退役。</p>
+        <div class="chiprow">
+          <span class="chip c-cyan">STEAM</span>
+          <span class="chip c-cyan">SWITCH</span>
+          <span class="chip c-yel">NT$ 520</span>
+          <span class="chip c-mag">繁中/EN/JP</span>
+        </div>
+        <div class="hpbar">
+          <div class="lab"><span>1.1 版「霓虹燈修理包」更新進度</span><b>72 / 100</b></div>
+          <div class="bar"><div class="fill" style="width:72%"></div></div>
+        </div>
+        <a class="btn ghost" href="games.html#nine-lives">遊戲詳情 →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 理念 -->
+  <section>
+    <div class="io">
+      <p class="kicker">STUDIO CREED — 工作室理念</p>
+      <h2 style="font-size:clamp(15px,2.6vw,22px);margin-bottom:26px">我們只堅持三件事</h2>
+    </div>
+    <ul class="creed io" style="--d:.1s">
+      <li>
+        <span class="no">01</span>
+        <div>
+          <h3>先有故事，再有系統</h3>
+          <p>機制是為了把話說清楚，不是為了塞滿成就列表。如果一個玩法沒辦法讓故事更好，
+          我們就把它刪掉——刪掉的功能清單比企劃書還厚。</p>
+        </div>
+      </li>
+      <li>
+        <span class="no">02</span>
+        <div>
+          <h3>尊重每一顆像素</h3>
+          <p>整數倍縮放、不出半格、不套模糊濾鏡。像素風不是「解析度不夠」，
+          是一種把畫面控制到每一格的選擇。曉霜會檢查，而且她真的會逐格檢查。</p>
+        </div>
+      </li>
+      <li>
+        <span class="no">03</span>
+        <div>
+          <h3>小步發售，誠實改版</h3>
+          <p>先做能玩的 Demo，帶去場測，聽玩家講完再改。更新日誌寫人話，
+          修了什麼、還沒修什麼，全部寫出來。</p>
+        </div>
+      </li>
+    </ul>
+    <div class="toolstrip pxbox io" style="--d:.15s">
+      <span>工具箱 TOOLBOX —</span>
+      <b>GODOT 4</b><b>ASEPRITE</b><b>FAMITRACKER</b><b>YM2612 音源</b><b>一台還能開機的 GBA</b>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot">
+    <div>
+      <p class="fb">
+        <svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect width="8" height="8" fill="#0b1026"/><g fill="#ffd23f"><rect x="2" y="1" width="4" height="1"/><rect x="1" y="2" width="2" height="1"/><rect x="1" y="3" width="2" height="1"/><rect x="1" y="4" width="2" height="1"/><rect x="1" y="5" width="2" height="1"/><rect x="2" y="6" width="4" height="1"/></g><rect x="5" y="3" width="1" height="1" fill="#2ee6d6"/></svg>
+        月位元 MOONBIT GAMES
+      </p>
+      <p>台北獨立遊戲工作室，五個人、一隻貓，<br>專做像素風敘事遊戲。</p>
+    </div>
+    <div>
+      <h4>導覽 MENU</h4>
+      <ul>
+        <li><a href="index.html">首頁 HOME</a></li>
+        <li><a href="games.html">作品 GAMES</a></li>
+        <li><a href="studio.html">工作室 STUDIO</a></li>
+        <li><a href="studio.html#jobs">徵才 JOBS</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>聯絡 CONTACT</h4>
+      <p>103 台北市大同區赤峰街 41 巷 8 號 2 樓<br>
+      <a href="mailto:hello@moonbit.games">hello@moonbit.games</a><br>
+      拜訪請先來信預約（工作室有貓）。</p>
+    </div>
+  </div>
+  <p class="copyline">© 2019–2026 月位元遊戲有限公司 MOONBIT GAMES CO., LTD. — <b>PRESS START</b></p>
+</footer>
+
+<script>
+(function(){
+  var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 逐格揭示：IntersectionObserver */
+  var ios = document.querySelectorAll('.io');
+  if('IntersectionObserver' in window && !rm){
+    var ob = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); ob.unobserve(e.target);} });
+    },{threshold:.15});
+    ios.forEach(function(el){ ob.observe(el); });
+  }else{
+    ios.forEach(function(el){ el.classList.add('on'); el.style.opacity=1; });
+  }
+
+  /* 互動像素貓：靠近眨眼揮手、點擊跳起掉金幣 */
+  var scene = document.getElementById('catScene');
+  var cat = document.getElementById('theCat');
+  var count = 0;
+  var countEl = document.getElementById('coinCount');
+  var dlg = document.getElementById('dlgText');
+  var lines = [
+    '喵。',
+    '（歐姆盯著你的游標看。）',
+    '再點就要收摸摸費了。喵。',
+    '金幣不能換罐罐，真是遺憾。',
+    '（牠翻了個身，繼續監工。）',
+    '第四款遊戲？他們在二樓加班。喵。'
+  ];
+  var li = 0;
+
+  document.addEventListener('pointermove', function(e){
+    var r = cat.getBoundingClientRect();
+    var cx = r.left + r.width/2, cy = r.top + r.height/2;
+    var d = Math.hypot(e.clientX-cx, e.clientY-cy);
+    cat.classList.toggle('near', d < 160);
+  });
+
+  function pat(){
+    count++;
+    countEl.textContent = count;
+    dlg.textContent = lines[li % lines.length];
+    li++;
+    if(!rm){
+      scene.classList.remove('jump');
+      void scene.offsetWidth; /* 重新觸發動畫 */
+      scene.classList.add('jump');
+      var c = document.createElement('span');
+      c.className = 'coinfly';
+      c.innerHTML = '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><g fill="#ffd23f"><rect x="2" y="0" width="4" height="1"/><rect x="1" y="1" width="6" height="1"/><rect x="0" y="2" width="8" height="4"/><rect x="1" y="6" width="6" height="1"/><rect x="2" y="7" width="4" height="1"/></g><rect x="3" y="2" width="2" height="4" fill="#c79616"/></svg>';
+      scene.appendChild(c);
+      c.addEventListener('animationend', function(){ c.remove(); });
+    }
+  }
+  scene.addEventListener('click', pat);
+  scene.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pat(); }
+  });
+})();
+</script>
+</body>
+</html>

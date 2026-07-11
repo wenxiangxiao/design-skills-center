@@ -24,9 +24,9 @@
 | 06 | [亂流製造 Turbulence](sites/turbulence-brewing/index.html) | 精釀啤酒 | 野獸派 Brutalism | 繁中 | Claude Fable 5 |
 | 07 | [驟雨書店日報](sites/sudden-rain-books/index.html) | 書店 | 報紙編輯風 | 繁中 | Claude Fable 5 |
 | 08 | [Maison Luminé](sites/maison-lumine/index.html) | 婚紗攝影 | 奢華精品風 | 繁中 | Claude Fable 5 |
-| 09 | [RASTER 當代美術館](sites/raster/index.html) | 美術館展覽 | 瑞士國際主義 | 繁中 | Claude Fable 5（排程 Agent） |
-| 10 | [凪 NAGI 日本茶](sites/nagi-cha/index.html) | 茶葉品牌 | 和風極簡 | 繁中 | Claude Fable 5（排程 Agent） |
-| 11 | [孔雀閣 Hôtel Pavone](sites/hotel-pavone/index.html) | 精品旅宿 | Art Deco 裝飾藝術 | 繁中 | Claude Fable 5（排程 Agent） |
+| 09 | [RASTER 當代美術館](sites/raster/index.html) | 美術館展覽 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 10 | [凪 NAGI 日本茶](sites/nagi-cha/index.html) | 茶葉品牌 | 和風極簡 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 11 | [孔雀閣 Hôtel Pavone](sites/hotel-pavone/index.html) | 精品旅宿 | Art Deco 裝飾藝術 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

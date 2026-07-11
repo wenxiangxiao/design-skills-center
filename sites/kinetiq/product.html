@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product — Kinetiq Replay Engine, dissected</title>
+<meta name="description" content="How Kinetiq captures 120 Hz motion data, scores friction, and renders gesture heatmaps — the full pipeline from DOM event to replay in 38 ms.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230A0B0D'/%3E%3Cpath d='M10 5v22' stroke='%23C8FF3D' stroke-width='3.5'/%3E%3Cpath d='M26 5 15.5 16 26 27' stroke='%23C8FF3D' stroke-width='3.5' fill='none'/%3E%3Cpath d='M3 10h4M2 16h5M3 22h4' stroke='%23C8FF3D' stroke-width='2' opacity='.55'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ KINETIQ CORE ============ */
+:root{
+  --ink:#0A0B0D;
+  --ink-2:#0F1114;
+  --ink-3:#15181C;
+  --bone:#E8ECDF;
+  --dim:#878E80;
+  --volt:#C8FF3D;
+  --volt-deep:#8FB92A;
+  --line:rgba(232,236,223,.14);
+  --line-soft:rgba(232,236,223,.07);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--bone);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+::selection{background:var(--volt);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:clamp(20px,4.5vw,56px)}
+
+#glow{
+  position:fixed;top:0;left:0;width:560px;height:560px;margin:-280px 0 0 -280px;
+  border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(circle,rgba(200,255,61,.06) 0%,rgba(200,255,61,.025) 38%,transparent 65%);
+  opacity:0;transition:opacity .6s;
+}
+body.glow-on #glow{opacity:1}
+@media (pointer:coarse){#glow{display:none}}
+
+.display{
+  font-family:'Archivo',sans-serif;font-weight:900;text-transform:uppercase;
+  line-height:.92;letter-spacing:-.02em;
+}
+.outline{color:transparent;-webkit-text-stroke:1.5px var(--bone)}
+.outline-volt{color:transparent;-webkit-text-stroke:1.5px var(--volt)}
+.kicker{
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--volt);
+  display:inline-flex;align-items:center;gap:12px;font-weight:500;
+}
+.kicker::before{content:"";width:30px;height:1px;background:var(--volt);flex:none}
+.mono-tag{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding-inline:clamp(20px,4.5vw,56px);
+  border-bottom:1px solid transparent;
+  transition:background .4s,border-color .4s;
+}
+.nav.scrolled{background:rgba(10,11,13,.82);backdrop-filter:blur(14px);border-color:var(--line)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Archivo';font-weight:800;letter-spacing:.06em;font-size:17px;z-index:70}
+.nav-logo svg{display:block}
+.nav-links{display:flex;align-items:center;gap:clamp(18px,3vw,40px)}
+.nav-links a{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);transition:color .3s;position:relative}
+.nav-links a:hover{color:var(--bone)}
+.nav-links a[aria-current]{color:var(--volt)}
+.nav-links a[aria-current]::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--volt)}
+.nav-burger{display:none;z-index:70;width:40px;height:40px;position:relative}
+.nav-burger span{position:absolute;left:8px;right:8px;height:2px;background:var(--bone);transition:.4s var(--ease-out)}
+.nav-burger span:first-child{top:15px}
+.nav-burger span:last-child{bottom:15px}
+body.menu-open .nav-burger span:first-child{top:19px;transform:rotate(45deg);background:var(--volt)}
+body.menu-open .nav-burger span:last-child{bottom:19px;transform:rotate(-45deg);background:var(--volt)}
+
+.btn{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:16px 30px;border:1px solid var(--volt);color:var(--volt);
+  position:relative;overflow:hidden;isolation:isolate;white-space:nowrap;
+  transition:color .35s var(--ease-out);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;background:var(--volt);z-index:-1;
+  transform:translateY(101%);transition:transform .45s var(--ease-out);
+}
+.btn:hover{color:var(--ink)}
+.btn:hover::before{transform:translateY(0)}
+.btn .arw{transition:transform .35s var(--ease-out)}
+.btn:hover .arw{transform:translateX(5px)}
+.btn-solid{background:var(--volt);color:var(--ink)}
+.btn-solid::before{background:var(--ink)}
+.btn-solid:hover{color:var(--volt)}
+.btn-ghost{border-color:var(--line);color:var(--bone)}
+.btn-ghost::before{background:var(--bone)}
+.btn-ghost:hover{color:var(--ink)}
+.btn-sm{padding:10px 20px;font-size:11px}
+
+[data-rv]{opacity:0;transform:translateY(30px);transition:opacity .9s var(--ease-out),transform .9s var(--ease-out);transition-delay:var(--d,0s)}
+[data-rv].in{opacity:1;transform:none}
+[data-split] .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em;margin-bottom:-.08em}
+[data-split] .wi{display:inline-block;transform:translateY(112%);transition:transform .9s var(--ease-out)}
+[data-split].in .wi{transform:none}
+.ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.li{display:inline-block;transform:translateY(112%);transition:transform 1.05s var(--ease-out)}
+body.loaded .li{transform:none}
+
+.mq{overflow:hidden;border-block:1px solid var(--line);background:var(--ink);position:relative;z-index:2}
+.mq-track{display:flex;width:max-content;animation:mq var(--mqs,30s) linear infinite}
+.mq:hover .mq-track{animation-play-state:paused}
+.mq-set{display:flex;align-items:center;flex:none}
+.mq-set span{
+  font-family:'Archivo';font-weight:800;text-transform:uppercase;letter-spacing:.02em;
+  font-size:clamp(15px,1.7vw,22px);padding:18px 0;color:var(--bone);white-space:nowrap;
+}
+.mq-set i{font-style:normal;color:var(--volt);padding:0 26px;font-size:14px}
+.mq-ghost .mq-set span{color:transparent;-webkit-text-stroke:1px rgba(232,236,223,.35)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+section{position:relative}
+.sec{padding-block:clamp(90px,13vh,160px)}
+.sec-head{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:24px;
+  border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:clamp(40px,6vh,70px);
+}
+.sec-head h2{font-size:clamp(2.2rem,5.2vw,4.6rem)}
+.sec-num{font-family:'Archivo';font-weight:700;font-size:13px;letter-spacing:.18em;color:var(--dim);flex:none;padding-bottom:10px}
+.sec-num b{color:var(--volt);font-weight:700}
+
+.footer{border-top:1px solid var(--line);padding-top:clamp(60px,9vh,100px);overflow:hidden}
+.foot-grid{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:40px;padding-bottom:70px}
+.foot-brand p{color:var(--dim);font-size:14px;max-width:280px;margin-top:18px}
+.foot-status{display:inline-flex;align-items:center;gap:9px;margin-top:22px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--volt)}
+.foot-status i{width:7px;height:7px;border-radius:50%;background:var(--volt);animation:blip 2.2s infinite}
+@keyframes blip{0%,100%{box-shadow:0 0 0 0 rgba(200,255,61,.5)}55%{box-shadow:0 0 0 7px rgba(200,255,61,0)}}
+.foot-col h4{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:20px;font-weight:500}
+.foot-col a{display:block;font-size:14px;color:var(--bone);opacity:.75;margin-bottom:12px;transition:.3s}
+.foot-col a:hover{opacity:1;color:var(--volt);transform:translateX(4px)}
+.foot-word{
+  font-family:'Archivo';font-weight:900;text-transform:uppercase;line-height:.78;
+  font-size:clamp(4.5rem,15.5vw,15rem);letter-spacing:-.02em;text-align:center;
+  color:transparent;-webkit-text-stroke:1px rgba(232,236,223,.16);
+  transform:translateY(14%);user-select:none;
+}
+.foot-legal{
+  border-top:1px solid var(--line);padding:22px 0;display:flex;flex-wrap:wrap;gap:14px 30px;
+  justify-content:space-between;font-size:12px;color:var(--dim);letter-spacing:.06em;
+}
+.foot-legal a{color:var(--dim)}.foot-legal a:hover{color:var(--volt)}
+
+/* ============ PAGE: PRODUCT ============ */
+.p-hero{padding:clamp(150px,22vh,230px) 0 clamp(60px,9vh,100px);position:relative;overflow:hidden}
+.p-hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(rgba(232,236,223,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(232,236,223,.045) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(90% 80% at 50% 0%,#000 20%,transparent 90%);
+  -webkit-mask-image:radial-gradient(90% 80% at 50% 0%,#000 20%,transparent 90%);
+}
+.p-hero .wrap{position:relative}
+.p-hero h1{font-size:clamp(3rem,9.5vw,8.6rem);margin-top:24px}
+.p-hero .sub{color:var(--dim);max-width:60ch;margin-top:30px;font-size:clamp(15px,1.35vw,18px)}
+.p-hero .sub b{color:var(--bone);font-weight:500}
+
+/* deep-dive rows */
+.dive{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(36px,6vw,90px);align-items:center;padding-block:clamp(70px,10vh,120px);border-top:1px solid var(--line)}
+.dive:nth-of-type(even){grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
+.dive:nth-of-type(even) .dive-copy{order:2}
+.dive-copy .idx{font-family:'Archivo';font-weight:700;font-size:13px;letter-spacing:.2em;color:var(--volt)}
+.dive-copy h3{font-family:'Archivo';font-weight:900;text-transform:uppercase;font-size:clamp(1.9rem,3.8vw,3.2rem);line-height:.95;letter-spacing:-.01em;margin:16px 0 22px}
+.dive-copy p{color:var(--dim);font-size:15.5px;max-width:52ch}
+.dive-copy p b{color:var(--bone);font-weight:500}
+.dive-specs{margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.dive-specs div{background:var(--ink);padding:14px 16px}
+.dive-specs .k{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.dive-specs .v{font-family:'Archivo';font-weight:800;font-size:1.3rem;color:var(--volt);margin-top:2px}
+.diagram{border:1px solid var(--line);background:var(--ink-2);position:relative}
+.diagram .dg-head{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.diagram .dg-head .dots{display:flex;gap:6px}
+.diagram .dg-head .dots i{width:8px;height:8px;border-radius:50%;border:1px solid var(--dim);display:block}
+.diagram .dg-head .dots i:first-child{background:var(--volt);border-color:var(--volt)}
+.diagram svg,.diagram canvas{display:block;width:100%;height:auto}
+.diagram .dg-foot{padding:10px 18px;border-top:1px solid var(--line);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.diagram .dg-foot b{color:var(--volt);font-weight:500}
+
+/* pipeline svg animations */
+.pipe-flow{stroke:var(--volt);stroke-width:1.6;stroke-dasharray:5 9;opacity:.9}
+.in .pipe-flow{animation:dashmove 1.1s linear infinite}
+@keyframes dashmove{to{stroke-dashoffset:-14}}
+.pipe-node rect{fill:var(--ink);stroke:var(--line);transition:stroke .4s}
+.pipe-node:hover rect{stroke:var(--volt)}
+.pipe-node text{fill:var(--bone);font-family:'Space Grotesk';letter-spacing:.5px}
+.pipe-node .sub-t{fill:var(--dim);font-size:9.5px;letter-spacing:1.5px}
+.pulse-dot{fill:var(--volt)}
+.in .pulse-dot{animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* cursor path draw */
+.trace-path{stroke:var(--volt);stroke-width:2;fill:none;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000}
+.in .trace-path{animation:drawpath 3.4s var(--ease-out) .3s forwards}
+@keyframes drawpath{to{stroke-dashoffset:0}}
+.rage-ring{fill:none;stroke:var(--volt);opacity:0}
+.in .rage-ring{animation:ragering 1.8s ease-out 2.4s infinite}
+@keyframes ragering{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.6)}}
+.anno{opacity:0;transition:opacity .6s ease 2.6s}
+.in .anno{opacity:1}
+.ui-ghost{fill:none;stroke:rgba(232,236,223,.16);stroke-width:1}
+.ui-ghost-fill{fill:rgba(232,236,223,.05)}
+
+/* friction gauge */
+.gauge-wrap{display:flex;align-items:center;gap:clamp(24px,4vw,48px);padding:clamp(24px,4vw,48px);flex-wrap:wrap}
+.gauge{position:relative;width:min(240px,60vw);flex:none}
+.gauge svg{overflow:visible}
+.gauge .g-bg{stroke:var(--ink-3);stroke-width:10;fill:none}
+.gauge .g-val{stroke:var(--volt);stroke-width:10;fill:none;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.8s var(--ease-out) .3s}
+.in .gauge .g-val{stroke-dashoffset:73}
+.gauge .g-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge .g-num strong{font-family:'Archivo';font-weight:900;font-size:3.4rem;line-height:1}
+.gauge .g-num span{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.fbars{flex:1;min-width:230px;display:flex;flex-direction:column;gap:18px}
+.fbar .fb-top{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.fbar .fb-top b{color:var(--bone);font-weight:500}
+.fbar .fb-track{height:5px;background:var(--ink-3);overflow:hidden}
+.fbar .fb-fill{height:100%;background:var(--volt);transform:scaleX(0);transform-origin:left;transition:transform 1.3s var(--ease-out)}
+.in .fbar .fb-fill{transform:scaleX(var(--w))}
+.in .fbar:nth-child(2) .fb-fill{transition-delay:.15s}
+.in .fbar:nth-child(3) .fb-fill{transition-delay:.3s}
+.in .fbar:nth-child(4) .fb-fill{transition-delay:.45s}
+
+/* trust strip */
+.trust{border-block:1px solid var(--line);background:var(--ink-2)}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.trust-item{padding:34px clamp(18px,2.5vw,36px);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.trust-item:first-child{border-left:0}
+.trust-item b{font-family:'Archivo';font-weight:800;text-transform:uppercase;font-size:1.05rem;letter-spacing:.02em}
+.trust-item span{font-size:13px;color:var(--dim)}
+.trust-item .tick{color:var(--volt);font-size:15px}
+
+.cta{text-align:left;border-top:1px solid var(--line)}
+.cta h2{font-size:clamp(3rem,9vw,8.4rem)}
+.cta .sub{color:var(--dim);margin:30px 0 40px;max-width:52ch;font-size:17px}
+.cta-row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.cta-note{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+@media (max-width:960px){
+  .dive,.dive:nth-of-type(even){grid-template-columns:1fr}
+  .dive:nth-of-type(even) .dive-copy{order:0}
+  .trust-grid{grid-template-columns:1fr 1fr}
+  .trust-item{border-top:1px solid var(--line)}
+  .trust-item:nth-child(-n+2){border-top:0}
+  .trust-item:nth-child(3){border-left:0}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:820px){
+  .nav-burger{display:block}
+  .nav-links{
+    position:fixed;inset:0;background:rgba(10,11,13,.97);backdrop-filter:blur(10px);
+    flex-direction:column;justify-content:center;align-items:flex-start;
+    padding:0 9vw;gap:6px;transform:translateY(-102%);transition:transform .55s cubic-bezier(.7,0,.25,1);z-index:65;
+  }
+  body.menu-open .nav-links{transform:none}
+  .nav-links a{font-family:'Archivo';font-weight:800;font-size:clamp(2rem,9vw,3.4rem);letter-spacing:0;color:var(--bone);text-transform:uppercase}
+  .nav-links a[aria-current]{color:var(--volt)}
+  .nav-links a[aria-current]::after{display:none}
+  .nav-links .btn{margin-top:26px;font-size:13px;letter-spacing:.14em}
+  body.menu-open{overflow:hidden}
+}
+@media (max-width:560px){
+  .foot-grid{grid-template-columns:1fr}
+  .trust-grid{grid-template-columns:1fr}
+  .trust-item{border-left:0}
+  .dive-specs{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
+  .li,[data-rv],[data-split] .wi{transform:none!important;opacity:1!important}
+  .trace-path{stroke-dashoffset:0!important}
+  .in .gauge .g-val{transition:none}
+}
+</style>
+</head>
+<body>
+<div id="glow" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <a class="nav-logo" href="index.html" aria-label="Kinetiq home">
+    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path d="M10 4v24" stroke="#C8FF3D" stroke-width="4"/>
+      <path d="M27 4 15 16l12 12" stroke="#C8FF3D" stroke-width="4" fill="none"/>
+      <path d="M2 9h5M1 16h6M2 23h5" stroke="#C8FF3D" stroke-width="2" opacity=".5"/>
+    </svg>
+    <span>KINETIQ</span>
+  </a>
+  <nav class="nav-links" id="navLinks">
+    <a href="index.html">Overview</a>
+    <a href="product.html" aria-current="page">Product</a>
+    <a href="pricing.html">Pricing</a>
+    <a class="btn btn-solid btn-sm mag" href="pricing.html">Start tracing</a>
+  </nav>
+  <button class="nav-burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span></button>
+</header>
+
+<main>
+<!-- ============ PAGE HERO ============ -->
+<section class="p-hero">
+  <div class="wrap">
+    <span class="kicker">Under the hood</span>
+    <h1 class="display">
+      <span class="ln"><span class="li">The replay engine,</span></span>
+      <span class="ln"><span class="li outline-volt">dissected.</span></span>
+    </h1>
+    <p class="sub" data-rv style="--d:.4s">
+      Four subsystems, one purpose: turn the chaos of human motion into a signal you can graph.
+      Here is exactly what happens between a user's first hover and your next fix —
+      <b>captured at 120&nbsp;Hz, scored in real time, replayed frame-perfect.</b>
+    </p>
+  </div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="mq" aria-hidden="true">
+  <div class="mq-track" style="--mqs:30s">
+    <div class="mq-set">
+      <span>Capture</span><i>→</i><span>Ingest</span><i>→</i><span>Parse</span><i>→</i>
+      <span>Score</span><i>→</i><span>Replay</span><i>→</i><span>Fix</span><i>→</i>
+      <span>Capture</span><i>→</i><span>Ingest</span><i>→</i><span>Parse</span><i>→</i>
+      <span>Score</span><i>→</i><span>Replay</span><i>→</i><span>Fix</span><i>→</i>
+    </div>
+    <div class="mq-set">
+      <span>Capture</span><i>→</i><span>Ingest</span><i>→</i><span>Parse</span><i>→</i>
+      <span>Score</span><i>→</i><span>Replay</span><i>→</i><span>Fix</span><i>→</i>
+      <span>Capture</span><i>→</i><span>Ingest</span><i>→</i><span>Parse</span><i>→</i>
+      <span>Score</span><i>→</i><span>Replay</span><i>→</i><span>Fix</span><i>→</i>
+    </div>
+  </div>
+</div>
+
+<section class="sec" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="sec-head" data-rv>
+      <h2 class="display" data-split>Four subsystems</h2>
+      <span class="sec-num"><b>01–04</b> / deep dive</span>
+    </div>
+
+    <!-- ===== 01 PIPELINE ===== -->
+    <article class="dive" id="pipeline" style="border-top:0">
+      <div class="dive-copy" data-rv>
+        <span class="idx">01 / CAPTURE PIPELINE</span>
+        <h3>DOM event to replay in 38 ms</h3>
+        <p>
+          A <b>7&nbsp;KB SDK</b> batches pointer, scroll and touch events on the client,
+          compresses them into motion frames, and ships them to the nearest of
+          <b>34 edge points of presence</b>. The stream processor reassembles
+          sessions in order — even across tabs, reconnects and flaky hotel wi-fi.
+        </p>
+        <div class="dive-specs">
+          <div><span class="k">SDK weight</span><div class="v">7 KB</div></div>
+          <div><span class="k">Edge PoPs</span><div class="v">34</div></div>
+          <div><span class="k">Median latency</span><div class="v">38 ms</div></div>
+          <div><span class="k">Frame loss</span><div class="v">&lt; 0.01%</div></div>
+        </div>
+      </div>
+      <div class="diagram" data-rv style="--d:.15s">
+        <div class="dg-head"><span class="mono-tag">pipeline.live</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <svg viewBox="0 0 640 300" role="img" aria-label="Diagram of the Kinetiq capture pipeline: SDK to edge ingest to motion parser to replay store">
+          <!-- connectors -->
+          <path class="pipe-flow" d="M150 76 H 232" fill="none"/>
+          <path class="pipe-flow" d="M390 76 H 472" fill="none"/>
+          <path class="pipe-flow" d="M311 118 V 176" fill="none"/>
+          <path class="pipe-flow" d="M231 218 H 150 M 472 218 H 391" fill="none"/>
+          <!-- moving packets -->
+          <circle r="3" fill="#C8FF3D"><animateMotion dur="2.4s" repeatCount="indefinite" path="M150 76 H 232"/></circle>
+          <circle r="3" fill="#C8FF3D"><animateMotion dur="2.4s" begin="0.8s" repeatCount="indefinite" path="M390 76 H 472"/></circle>
+          <circle r="3" fill="#C8FF3D"><animateMotion dur="2s" begin="0.4s" repeatCount="indefinite" path="M311 118 V 176"/></circle>
+          <!-- nodes -->
+          <g class="pipe-node">
+            <rect x="30" y="42" width="120" height="68"/>
+            <text x="90" y="72" text-anchor="middle" font-size="13" font-weight="700">SDK</text>
+            <text x="90" y="92" text-anchor="middle" class="sub-t">7 KB · CLIENT</text>
+            <circle class="pulse-dot" cx="44" cy="56" r="3"/>
+          </g>
+          <g class="pipe-node">
+            <rect x="232" y="42" width="158" height="68"/>
+            <text x="311" y="72" text-anchor="middle" font-size="13" font-weight="700">EDGE INGEST</text>
+            <text x="311" y="92" text-anchor="middle" class="sub-t">34 POPS · TLS 1.3</text>
+            <circle class="pulse-dot" cx="246" cy="56" r="3" style="animation-delay:.4s"/>
+          </g>
+          <g class="pipe-node">
+            <rect x="472" y="42" width="138" height="68"/>
+            <text x="541" y="72" text-anchor="middle" font-size="13" font-weight="700">MOTION PARSER</text>
+            <text x="541" y="92" text-anchor="middle" class="sub-t">120 HZ FRAMES</text>
+            <circle class="pulse-dot" cx="486" cy="56" r="3" style="animation-delay:.8s"/>
+          </g>
+          <g class="pipe-node">
+            <rect x="232" y="176" width="158" height="68"/>
+            <text x="311" y="206" text-anchor="middle" font-size="13" font-weight="700">FRICTION SCORER</text>
+            <text x="311" y="226" text-anchor="middle" class="sub-t">REALTIME · STREAMING</text>
+            <circle class="pulse-dot" cx="246" cy="190" r="3" style="animation-delay:1.2s"/>
+          </g>
+          <g class="pipe-node">
+            <rect x="30" y="184" width="120" height="52"/>
+            <text x="90" y="206" text-anchor="middle" font-size="12" font-weight="700">ALERTS</text>
+            <text x="90" y="224" text-anchor="middle" class="sub-t">SLACK · WEBHOOK</text>
+          </g>
+          <g class="pipe-node">
+            <rect x="472" y="184" width="138" height="52"/>
+            <text x="541" y="206" text-anchor="middle" font-size="12" font-weight="700">REPLAY STORE</text>
+            <text x="541" y="224" text-anchor="middle" class="sub-t">13-MO RETENTION</text>
+          </g>
+          <text x="30" y="282" fill="#878E80" font-size="10" letter-spacing="2" font-family="Space Grotesk">END-TO-END: 38 MS MEDIAN — MEASURED, NOT MARKETED</text>
+        </svg>
+        <div class="dg-foot"><span>throughput <b>91k frames/s</b></span><span>region <b>auto</b></span></div>
+      </div>
+    </article>
+
+    <!-- ===== 02 CURSOR FORENSICS ===== -->
+    <article class="dive" id="forensics">
+      <div class="dive-copy" data-rv>
+        <span class="idx">02 / CURSOR FORENSICS</span>
+        <h3>Every hesitation, on the record</h3>
+        <p>
+          Kinetiq samples pointer position at <b>120&nbsp;Hz</b> and classifies the geometry:
+          a tight loop is <b>hesitation</b>, repeated clicks inside 24&nbsp;px within 900&nbsp;ms
+          is a <b>rage cluster</b>, a straight sprint to the corner is an <b>exit vector</b>.
+          You don't watch four minutes of video — you jump straight to the seven seconds that matter.
+        </p>
+        <div class="dive-specs">
+          <div><span class="k">Sampling</span><div class="v">120 Hz</div></div>
+          <div><span class="k">Gesture classes</span><div class="v">17</div></div>
+          <div><span class="k">Rage precision</span><div class="v">96.4%</div></div>
+          <div><span class="k">Time to moment</span><div class="v">1 click</div></div>
+        </div>
+      </div>
+      <div class="diagram" data-rv style="--d:.15s">
+        <div class="dg-head"><span class="mono-tag">session #84A2-F1 · frame 2 481</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <svg viewBox="0 0 640 340" role="img" aria-label="A recorded cursor path drawing itself across a wireframe checkout page, with a hesitation loop and a rage-click cluster annotated">
+          <!-- ghost UI -->
+          <rect class="ui-ghost-fill" x="40" y="36" width="560" height="44"/>
+          <rect class="ui-ghost" x="40" y="36" width="560" height="44"/>
+          <rect class="ui-ghost" x="40" y="104" width="336" height="120"/>
+          <line x1="64" y1="136" x2="330" y2="136" stroke="rgba(232,236,223,.14)"/>
+          <line x1="64" y1="162" x2="290" y2="162" stroke="rgba(232,236,223,.14)"/>
+          <line x1="64" y1="188" x2="310" y2="188" stroke="rgba(232,236,223,.14)"/>
+          <rect class="ui-ghost" x="400" y="104" width="200" height="70"/>
+          <rect class="ui-ghost-fill" x="400" y="198" width="200" height="46"/>
+          <rect class="ui-ghost" x="400" y="198" width="200" height="46"/>
+          <text x="500" y="226" text-anchor="middle" fill="rgba(232,236,223,.4)" font-size="11" letter-spacing="2" font-family="Space Grotesk">PAY NOW</text>
+          <!-- cursor trace -->
+          <path class="trace-path" pathLength="1000"
+            d="M60 300
+               C 140 250, 180 190, 230 170
+               C 270 155, 260 200, 300 195
+               C 330 191, 322 160, 300 165
+               C 282 169, 300 196, 330 190
+               C 380 180, 420 150, 470 145
+               C 500 142, 495 160, 500 190
+               L 500 218"/>
+          <!-- hesitation loop marker -->
+          <g class="anno">
+            <circle cx="305" cy="178" r="30" fill="none" stroke="#878E80" stroke-dasharray="3 5"/>
+            <text x="305" y="256" text-anchor="middle" fill="#878E80" font-size="10.5" letter-spacing="2" font-family="Space Grotesk">HESITATION LOOP · 2.4 S</text>
+          </g>
+          <!-- rage cluster -->
+          <g style="transform-origin:500px 221px">
+            <circle class="rage-ring" cx="500" cy="221" r="16" style="transform-origin:500px 221px"/>
+            <circle class="rage-ring" cx="500" cy="221" r="16" style="transform-origin:500px 221px;animation-delay:3s"/>
+          </g>
+          <g class="anno">
+            <path d="M494 215l12 12M506 215l-12 12" stroke="#C8FF3D" stroke-width="2"/>
+            <text x="500" y="276" text-anchor="middle" fill="#C8FF3D" font-size="10.5" letter-spacing="2" font-family="Space Grotesk">RAGE CLUSTER · ×6 CLICKS</text>
+          </g>
+          <text x="40" y="326" fill="#878E80" font-size="10" letter-spacing="2" font-family="Space Grotesk">CLASSIFIED: HESITATE → RAGE → ABANDON RISK 87%</text>
+        </svg>
+        <div class="dg-foot"><span>gesture <b>rage_cluster</b></span><span>confidence <b>0.96</b></span></div>
+      </div>
+    </article>
+
+    <!-- ===== 03 FRICTION SCORE ===== -->
+    <article class="dive" id="friction">
+      <div class="dive-copy" data-rv>
+        <span class="idx">03 / FRICTION SCORE</span>
+        <h3>One number your roadmap obeys</h3>
+        <p>
+          Every flow gets a score from 0 (frictionless) to 100 (users are suffering),
+          recomputed with every session. It is a weighted blend of <b>hesitation time</b>,
+          <b>rage input</b>, <b>scroll thrash</b> and <b>dead taps</b> — tuned against
+          11&nbsp;million labelled sessions. Teams pin it to dashboards and treat a rise
+          like a failing test.
+        </p>
+        <div class="dive-specs">
+          <div><span class="k">Range</span><div class="v">0–100</div></div>
+          <div><span class="k">Recompute</span><div class="v">Live</div></div>
+          <div><span class="k">Training set</span><div class="v">11M</div></div>
+          <div><span class="k">Alert delta</span><div class="v">±5 pts</div></div>
+        </div>
+      </div>
+      <div class="diagram" data-rv style="--d:.15s">
+        <div class="dg-head"><span class="mono-tag">flow: checkout — last 24 h</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="gauge-wrap">
+          <div class="gauge">
+            <svg viewBox="0 0 200 200">
+              <circle class="g-bg" cx="100" cy="100" r="84" pathLength="100" transform="rotate(-90 100 100)"/>
+              <circle class="g-val" cx="100" cy="100" r="84" pathLength="100" transform="rotate(-90 100 100)" stroke-linecap="butt"/>
+            </svg>
+            <div class="g-num">
+              <strong><span data-count="27">0</span></strong>
+              <span>friction / 100</span>
+            </div>
+          </div>
+          <div class="fbars">
+            <div class="fbar" style="--w:.42">
+              <div class="fb-top"><b>Hesitation time</b><span>42%</span></div>
+              <div class="fb-track"><div class="fb-fill"></div></div>
+            </div>
+            <div class="fbar" style="--w:.26">
+              <div class="fb-top"><b>Scroll thrash</b><span>26%</span></div>
+              <div class="fb-track"><div class="fb-fill"></div></div>
+            </div>
+            <div class="fbar" style="--w:.18">
+              <div class="fb-top"><b>Rage input</b><span>18%</span></div>
+              <div class="fb-track"><div class="fb-fill"></div></div>
+            </div>
+            <div class="fbar" style="--w:.14">
+              <div class="fb-top"><b>Dead taps</b><span>14%</span></div>
+              <div class="fb-track"><div class="fb-fill"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="dg-foot"><span>trend <b>▼ 9 pts since v4.1</b></span><span>sessions <b>18 402</b></span></div>
+      </div>
+    </article>
+
+    <!-- ===== 04 GESTURE HEATMAP ===== -->
+    <article class="dive" id="heatmap" style="border-bottom:1px solid var(--line)">
+      <div class="dive-copy" data-rv>
+        <span class="idx">04 / GESTURE HEATMAPS</span>
+        <h3>Where motion pools and dies</h3>
+        <p>
+          Click maps count endings. Kinetiq maps the <b>whole journey</b> — velocity-weighted,
+          so slow deliberate passes burn hotter than fast fly-overs. Bright pools mark
+          attention; the cold band across your fold is where 60% of your visitors
+          <b>never even drifted</b>. That is your real estate audit, live.
+        </p>
+        <div class="dive-specs">
+          <div><span class="k">Weighting</span><div class="v">Velocity</div></div>
+          <div><span class="k">Resolution</span><div class="v">4 px</div></div>
+          <div><span class="k">Segments</span><div class="v">Any cohort</div></div>
+          <div><span class="k">Export</span><div class="v">PNG / API</div></div>
+        </div>
+      </div>
+      <div class="diagram" data-rv style="--d:.15s">
+        <div class="dg-head"><span class="mono-tag">heatmap: landing / all devices / 7 d</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <canvas id="heat" width="640" height="360" aria-label="Animated gesture heatmap over a wireframe landing page, with bright pools of cursor activity"></canvas>
+        <div class="dg-foot"><span>hot zone <b>hero CTA</b></span><span>dead zone <b>below fold · 61%</b></span></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<section class="trust">
+  <div class="trust-grid">
+    <div class="trust-item" data-rv><span class="tick">✓</span><b>SOC 2 Type II</b><span>Audited annually, report on request.</span></div>
+    <div class="trust-item" data-rv style="--d:.08s"><span class="tick">✓</span><b>PII auto-masking</b><span>Text and inputs masked in the browser — raw keystrokes never leave the device.</span></div>
+    <div class="trust-item" data-rv style="--d:.16s"><span class="tick">✓</span><b>EU / US residency</b><span>Pin session data to Frankfurt or Virginia.</span></div>
+    <div class="trust-item" data-rv style="--d:.24s"><span class="tick">✓</span><b>GDPR & CCPA</b><span>DPA included; deletion API with 24 h SLA.</span></div>
+  </div>
+</section>
+
+<!-- ============ INTEGRATIONS MARQUEE ============ -->
+<section class="sec" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="sec-head" data-rv>
+      <h2 class="display" data-split>Plays well with your stack</h2>
+      <span class="sec-num"><b>05</b> / integrations</span>
+    </div>
+  </div>
+  <div class="mq mq-ghost" aria-hidden="true">
+    <div class="mq-track" style="--mqs:24s">
+      <div class="mq-set">
+        <span>Slack</span><i>◆</i><span>Segment</span><i>◆</i><span>Snowflake</span><i>◆</i>
+        <span>BigQuery</span><i>◆</i><span>Datadog</span><i>◆</i><span>Linear</span><i>◆</i>
+        <span>Amplitude</span><i>◆</i><span>Zapier</span><i>◆</i><span>S3</span><i>◆</i><span>Webhooks</span><i>◆</i>
+      </div>
+      <div class="mq-set">
+        <span>Slack</span><i>◆</i><span>Segment</span><i>◆</i><span>Snowflake</span><i>◆</i>
+        <span>BigQuery</span><i>◆</i><span>Datadog</span><i>◆</i><span>Linear</span><i>◆</i>
+        <span>Amplitude</span><i>◆</i><span>Zapier</span><i>◆</i><span>S3</span><i>◆</i><span>Webhooks</span><i>◆</i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="sec cta">
+  <div class="wrap">
+    <h2 class="display" data-split>See your own<br>friction first.</h2>
+    <p class="sub" data-rv>The demo above is real Kinetiq output. Your product has its own hesitation loops — find them this afternoon.</p>
+    <div class="cta-row" data-rv style="--d:.15s">
+      <a class="btn btn-solid mag" href="pricing.html">Start tracing — free <span class="arw">→</span></a>
+      <a class="btn btn-ghost mag" href="pricing.html">Compare plans</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="nav-logo" href="index.html">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M10 4v24" stroke="#C8FF3D" stroke-width="4"/>
+            <path d="M27 4 15 16l12 12" stroke="#C8FF3D" stroke-width="4" fill="none"/>
+            <path d="M2 9h5M1 16h6M2 23h5" stroke="#C8FF3D" stroke-width="2" opacity=".5"/>
+          </svg>
+          <span>KINETIQ</span>
+        </a>
+        <p>Motion analytics for product teams. Every cursor arc, scroll stall and rage-tap — recorded, scored, fixed.</p>
+        <span class="foot-status"><i></i> all systems nominal</span>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <a href="product.html">Replay Engine</a>
+        <a href="product.html#friction">Friction Score</a>
+        <a href="product.html#heatmap">Gesture Heatmaps</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div class="foot-col">
+        <h4>Resources</h4>
+        <a href="#">Documentation</a>
+        <a href="#">API Reference</a>
+        <a href="#">Changelog</a>
+        <a href="#">System Status</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Security</a>
+        <a href="#">Press Kit</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-word" aria-hidden="true">Kinetiq</div>
+  <div class="wrap">
+    <div class="foot-legal">
+      <span>© 2026 Kinetiq Systems, Inc. Motion is the metric.</span>
+      <span><a href="#">Privacy</a> &nbsp;/&nbsp; <a href="#">Terms</a> &nbsp;/&nbsp; <a href="#">DPA</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FINE = matchMedia('(pointer: fine)').matches;
+
+/* ---------- split text ---------- */
+document.querySelectorAll('[data-split]').forEach(function(el){
+  var words = el.innerHTML.trim().split(/<br\s*\/?>/i).map(function(line){
+    return line.trim().split(/\s+/).map(function(w){
+      return '<span class="w"><span class="wi">'+w+'</span></span>';
+    }).join(' ');
+  }).join('<br>');
+  el.innerHTML = words;
+  var i = 0;
+  el.querySelectorAll('.wi').forEach(function(s){ s.style.transitionDelay = (i++ * 70)+'ms'; });
+});
+
+/* ---------- intersection reveals (also triggers diagram anims via .in) ---------- */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+},{threshold:.18, rootMargin:'0px 0px -6% 0px'});
+document.querySelectorAll('[data-rv],[data-split]').forEach(function(el){ io.observe(el); });
+
+/* ---------- count-up ---------- */
+var cio = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(!e.isIntersecting) return;
+    cio.unobserve(e.target);
+    var el = e.target, target = parseFloat(el.dataset.count), dec = +(el.dataset.dec||0);
+    if(RM){ el.textContent = dec ? target.toFixed(dec) : Math.round(target).toLocaleString('en-US'); return; }
+    var t0 = null, DUR = 1800;
+    function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts-t0)/DUR, 1);
+      var ease = 1 - Math.pow(2, -10*p);
+      var v = target * ease;
+      el.textContent = dec ? v.toFixed(dec) : Math.round(v).toLocaleString('en-US');
+      if(p<1) requestAnimationFrame(step);
+      else el.textContent = dec ? target.toFixed(dec) : Math.round(target).toLocaleString('en-US');
+    }
+    requestAnimationFrame(step);
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(function(el){ cio.observe(el); });
+
+/* ---------- magnetic buttons ---------- */
+if(FINE && !RM){
+  document.querySelectorAll('.mag').forEach(function(el){
+    el.addEventListener('mouseenter', function(){ el.style.transition = 'transform .15s ease-out, color .35s'; });
+    el.addEventListener('mousemove', function(e){
+      var r = el.getBoundingClientRect();
+      var dx = e.clientX - (r.left + r.width/2);
+      var dy = e.clientY - (r.top + r.height/2);
+      el.style.transform = 'translate('+(dx*.22)+'px,'+(dy*.28)+'px)';
+    });
+    el.addEventListener('mouseleave', function(){
+      el.style.transition = 'transform .55s cubic-bezier(.16,1,.3,1), color .35s';
+      el.style.transform = '';
+    });
+  });
+}
+
+/* ---------- cursor glow ---------- */
+if(FINE && !RM){
+  var glow = document.getElementById('glow'), gx=innerWidth/2, gy=innerHeight/2, tx=gx, ty=gy;
+  addEventListener('pointermove', function(e){ tx=e.clientX; ty=e.clientY; document.body.classList.add('glow-on'); });
+  (function loop(){
+    gx += (tx-gx)*.09; gy += (ty-gy)*.09;
+    glow.style.transform = 'translate('+gx+'px,'+gy+'px)';
+    requestAnimationFrame(loop);
+  })();
+}
+
+/* ---------- nav ---------- */
+var nav = document.getElementById('nav');
+addEventListener('scroll', function(){ nav.classList.toggle('scrolled', scrollY>10); }, {passive:true});
+if(scrollY>10) nav.classList.add('scrolled');
+var burger = document.getElementById('burger');
+burger.addEventListener('click', function(){
+  var open = document.body.classList.toggle('menu-open');
+  burger.setAttribute('aria-expanded', open);
+});
+document.querySelectorAll('#navLinks a').forEach(function(a){
+  a.addEventListener('click', function(){ document.body.classList.remove('menu-open'); });
+});
+
+/* ---------- loaded state ---------- */
+requestAnimationFrame(function(){ requestAnimationFrame(function(){ document.body.classList.add('loaded'); }); });
+
+/* ---------- gesture heatmap canvas ---------- */
+(function(){
+  var c = document.getElementById('heat'); if(!c) return;
+  var x = c.getContext('2d');
+  var W = 640, H = 360, t = 0, raf, running = false;
+
+  var blobs = [
+    {x:210, y: 96, r: 92, a:.50, s:1.00}, /* hero headline */
+    {x:452, y:132, r: 62, a:.62, s:1.60}, /* CTA — hottest */
+    {x:120, y:200, r: 48, a:.30, s:0.80},
+    {x:330, y:172, r: 40, a:.24, s:1.30},
+    {x:520, y: 62, r: 34, a:.20, s:0.60}  /* nav search */
+  ];
+
+  function wireframe(){
+    x.strokeStyle = 'rgba(232,236,223,.14)';
+    x.fillStyle   = 'rgba(232,236,223,.05)';
+    x.lineWidth = 1;
+    /* nav */
+    x.strokeRect(30.5, 24.5, 580, 36);
+    /* hero headline blocks */
+    x.fillRect(56, 92, 300, 22);
+    x.fillRect(56, 126, 240, 22);
+    /* body copy lines */
+    x.strokeStyle = 'rgba(232,236,223,.1)';
+    [172,190,208].forEach(function(y,i){ x.beginPath(); x.moveTo(56,y); x.lineTo(56+[220,190,150][i],y); x.stroke(); });
+    /* CTA button */
+    x.strokeStyle = 'rgba(200,255,61,.5)';
+    x.strokeRect(400.5, 110.5, 106, 40);
+    /* fold line */
+    x.strokeStyle = 'rgba(232,236,223,.2)';
+    x.setLineDash([4,7]);
+    x.beginPath(); x.moveTo(0,268.5); x.lineTo(W,268.5); x.stroke();
+    x.setLineDash([]);
+    x.fillStyle = 'rgba(135,142,128,.9)';
+    x.font = '10px Space Grotesk';
+    x.fillText('F O L D', 300, 284);
+    /* below-fold ghost blocks (cold) */
+    x.strokeStyle = 'rgba(232,236,223,.07)';
+    x.strokeRect(56.5, 296.5, 160, 44);
+    x.strokeRect(240.5, 296.5, 160, 44);
+    x.strokeRect(424.5, 296.5, 160, 44);
+  }
+
+  function frame(){
+    t += .016;
+    x.clearRect(0,0,W,H);
+    wireframe();
+    x.globalCompositeOperation = 'lighter';
+    blobs.forEach(function(b,i){
+      var pulse = 1 + .12 * Math.sin(t*b.s + i*1.7);
+      var r = b.r * pulse;
+      var g = x.createRadialGradient(b.x, b.y, 0, b.x, b.y, r);
+      g.addColorStop(0,  'rgba(200,255,61,'+(b.a*.85)+')');
+      g.addColorStop(.45,'rgba(200,255,61,'+(b.a*.32)+')');
+      g.addColorStop(1,  'rgba(200,255,61,0)');
+      x.fillStyle = g;
+      x.beginPath(); x.arc(b.x, b.y, r, 0, 7); x.fill();
+    });
+    x.globalCompositeOperation = 'source-over';
+    if(running && !RM) raf = requestAnimationFrame(frame);
+  }
+
+  var hio = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){ if(!running){ running = true; frame(); } }
+      else { running = false; cancelAnimationFrame(raf); }
+    });
+  },{threshold:.15});
+  hio.observe(c);
+  if(RM){ frame(); }
+})();
+})();
+</script>
+</body>
+</html>

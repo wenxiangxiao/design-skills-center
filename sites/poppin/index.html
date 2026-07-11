@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poppin — 一個人也敢約，Poppin 一下就有伴</title>
+<meta name="description" content="Poppin 是即時揪團 App：吃飯、運動、看展，開一團三分鐘內就有人 +1。台北、台中、高雄熱烈開跑中。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='3' y='3' width='58' height='58' rx='14' fill='%23FFD400' stroke='%23141414' stroke-width='5'/%3E%3Cpolygon points='32,7 38,20 52,14 46,27 59,32 46,37 52,50 38,44 32,57 26,44 12,50 18,37 5,32 18,27 12,14 26,20' fill='%23FF3EA5' stroke='%23141414' stroke-width='3' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23FFFFFF' stroke='%23141414' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Lilita+One&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============ Poppin — Playful Pop Sticker Style ============ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --yellow:#FFD400;
+  --black:#141414;
+  --magenta:#FF3EA5;
+  --blue:#2B5BFF;
+  --orange:#FF7A1A;
+  --mint:#35D07F;
+  --cream:#FFF6E9;
+  --white:#FFFFFF;
+  --bw:3px;                          /* 描邊粗細 */
+  --shadow:6px 6px 0 var(--black);   /* 硬陰影：無模糊 */
+  --shadow-lg:10px 10px 0 var(--black);
+  --shadow-sm:4px 4px 0 var(--black);
+  --font-display:'Lilita One','Noto Sans TC',system-ui,sans-serif;
+  --font-body:'Noto Sans TC',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);color:var(--black);line-height:1.75;
+  background-color:var(--yellow);
+  background-image:radial-gradient(rgba(20,20,20,.13) 1.4px,transparent 1.4px);
+  background-size:26px 26px;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.display{font-family:var(--font-display);font-weight:900;line-height:1.15;letter-spacing:.5px}
+
+/* ---------- 按鈕：hover 抬升 / 按壓陰影歸零 ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--font-display);font-weight:900;font-size:1.05rem;
+  padding:14px 30px;border:var(--bw) solid var(--black);border-radius:999px;
+  background:var(--magenta);color:var(--white);text-decoration:none;cursor:pointer;
+  box-shadow:var(--shadow);transition:transform .12s ease,box-shadow .12s ease;
+  -webkit-text-stroke:.5px var(--black);
+}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--black)}
+.btn:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--black)}
+.btn-blue{background:var(--blue)}
+.btn-cream{background:var(--cream);color:var(--black);-webkit-text-stroke:0}
+.btn-yellow{background:var(--yellow);color:var(--black);-webkit-text-stroke:0}
+.btn-sm{padding:9px 20px;font-size:.95rem}
+.btn svg{flex:0 0 auto}
+
+/* ---------- 貼紙（白邊 + 硬陰影 + 旋轉） ---------- */
+.sticker{
+  --tilt:-2deg;
+  background:var(--white);border:var(--bw) solid var(--black);border-radius:18px;
+  box-shadow:0 0 0 5px var(--white),8px 8px 0 var(--black);
+  transform:rotate(var(--tilt));
+  transition:transform .18s ease;
+}
+.sticker:hover{transform:rotate(calc(var(--tilt) * -1.5)) scale(1.04);z-index:3;position:relative}
+
+/* ---------- 對話泡泡 ---------- */
+.bubble{
+  position:relative;background:var(--white);
+  border:var(--bw) solid var(--black);border-radius:20px;
+  box-shadow:var(--shadow-sm);padding:14px 20px;
+}
+.bubble::before{
+  content:"";position:absolute;bottom:-15px;left:32px;width:20px;height:20px;
+  background:var(--white);border-right:var(--bw) solid var(--black);border-bottom:var(--bw) solid var(--black);
+  transform:rotate(45deg);
+}
+
+/* ---------- 動效 ---------- */
+@keyframes popIn{
+  0%{opacity:0;transform:scale(.5) rotate(var(--tilt,0deg))}
+  70%{opacity:1;transform:scale(1.07) rotate(var(--tilt,0deg))}
+  100%{opacity:1;transform:scale(1) rotate(var(--tilt,0deg))}
+}
+.pop{opacity:0}
+.pop.in{animation:popIn .55s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.wiggle{animation:wiggle 1.4s ease-in-out infinite;transform-origin:50% 50%}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+@keyframes ticker{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  .pop{opacity:1}
+}
+
+/* ---------- 導覽列 ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;background:var(--cream);
+  border-bottom:var(--bw) solid var(--black);
+}
+.nav-inner{max-width:1160px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo .word{font-family:var(--font-display);font-size:1.5rem;letter-spacing:1px}
+.nav-links{display:flex;gap:6px;margin-left:auto}
+.nav-links a{
+  font-weight:700;text-decoration:none;padding:8px 16px;border-radius:999px;
+  border:var(--bw) solid transparent;transition:all .15s;
+}
+.nav-links a:hover{border-color:var(--black);background:var(--yellow)}
+.nav-links a[aria-current="page"]{background:var(--black);color:var(--yellow)}
+.nav-cta{margin-left:4px}
+.nav-burger{display:none;margin-left:auto;background:var(--yellow);border:var(--bw) solid var(--black);border-radius:12px;box-shadow:var(--shadow-sm);padding:8px 10px;cursor:pointer}
+.nav-burger:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--black)}
+.nav-burger svg{width:22px;height:22px}
+
+/* ---------- Hero ---------- */
+.hero{padding:64px 0 90px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero-badge{
+  display:inline-block;font-weight:900;font-size:.95rem;
+  background:var(--mint);border:var(--bw) solid var(--black);border-radius:999px;
+  padding:6px 18px;box-shadow:var(--shadow-sm);transform:rotate(-2deg);margin-bottom:24px;
+}
+.hero h1{font-size:clamp(2.4rem,5.4vw,4.2rem);margin-bottom:10px}
+.hero h1 .hl{
+  display:inline-block;background:var(--magenta);color:var(--white);
+  padding:0 16px;border:var(--bw) solid var(--black);border-radius:16px;
+  box-shadow:var(--shadow-sm);transform:rotate(-1.5deg);
+  -webkit-text-stroke:1px var(--black);
+}
+.hero .slogan{
+  font-family:'Bungee',var(--font-display);font-size:clamp(1.1rem,2.2vw,1.5rem);
+  color:var(--blue);margin:10px 0 18px;letter-spacing:1px;
+}
+.hero p.lead{font-size:1.12rem;max-width:34em;margin-bottom:30px}
+.hero-btns{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:40px}
+.hero-stats{display:flex;gap:26px;flex-wrap:wrap}
+.stat{--tilt:-3deg;padding:12px 22px;text-align:center}
+.stat:nth-child(2){--tilt:2deg}
+.stat:nth-child(3){--tilt:-1.5deg}
+.stat b{font-family:var(--font-display);font-size:1.6rem;display:block;line-height:1.2}
+.stat span{font-size:.85rem;font-weight:700}
+
+/* ---------- 手機 mockup ---------- */
+.phone-wrap{position:relative;display:flex;justify-content:center;padding:20px 0}
+.phone{
+  width:288px;background:var(--black);border:5px solid var(--black);border-radius:44px;
+  padding:10px;box-shadow:14px 14px 0 var(--black);
+  animation:floaty 4.5s ease-in-out infinite;
+}
+.screen{
+  background:var(--cream);border-radius:32px;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;height:568px;
+}
+.notch{width:110px;height:24px;background:var(--black);border-radius:0 0 16px 16px;margin:0 auto;flex:0 0 auto}
+.app-status{display:flex;justify-content:space-between;font-size:.68rem;font-weight:900;padding:4px 18px 0}
+.app-head{padding:10px 16px 8px}
+.app-head h4{font-family:var(--font-display);font-size:1.2rem;line-height:1.2}
+.app-head .loc{font-size:.72rem;font-weight:700;color:#555}
+.app-chips{display:flex;gap:6px;padding:0 16px 10px}
+.app-chips span{font-size:.66rem;font-weight:900;border:2px solid var(--black);border-radius:999px;padding:2px 10px;background:var(--white)}
+.app-chips span.on{background:var(--black);color:var(--yellow)}
+.app-feed{flex:1;overflow:hidden;padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.app-card{
+  background:var(--white);border:2.5px solid var(--black);border-radius:14px;
+  box-shadow:4px 4px 0 var(--black);padding:10px 12px;flex:0 0 auto;
+}
+.app-card .tag{
+  display:inline-block;font-size:.6rem;font-weight:900;color:var(--white);
+  background:var(--c,var(--magenta));border:2px solid var(--black);border-radius:6px;
+  padding:0 8px;margin-bottom:4px;
+}
+.app-card h5{font-size:.9rem;font-weight:900;line-height:1.3}
+.app-card p{font-size:.7rem;color:#555;font-weight:500}
+.app-card .row{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.slots{display:flex;align-items:center;gap:4px}
+.slot-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--black);background:var(--c,var(--magenta))}
+.slot-dot.empty{background:var(--white)}
+.slots b{font-size:.68rem;margin-left:4px}
+.join{
+  font-family:var(--font-display);font-size:.72rem;background:var(--yellow);
+  border:2px solid var(--black);border-radius:999px;padding:3px 12px;
+  box-shadow:3px 3px 0 var(--black);
+}
+.app-fab{
+  position:absolute;right:16px;bottom:64px;width:62px;height:62px;border-radius:50%;
+  background:var(--magenta);border:3px solid var(--black);box-shadow:5px 5px 0 var(--black);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);color:var(--white);font-size:.8rem;
+  -webkit-text-stroke:.5px var(--black);
+}
+.app-tabbar{
+  flex:0 0 auto;display:flex;justify-content:space-around;align-items:center;
+  border-top:2.5px solid var(--black);background:var(--white);padding:8px 6px 12px;
+}
+.app-tabbar svg{width:22px;height:22px}
+.float-sticker{position:absolute;z-index:4}
+.fs-1{top:2%;left:-4%;transform:rotate(-10deg)}
+.fs-2{bottom:9%;right:-6%;transform:rotate(8deg)}
+.fs-3{top:38%;right:-13%}
+.burst-badge{
+  width:96px;height:96px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:1.05rem;color:var(--black);text-align:center;line-height:1.1;
+}
+
+/* ---------- 跑馬燈 ---------- */
+.marquee{background:var(--black);border-top:var(--bw) solid var(--black);border-bottom:var(--bw) solid var(--black);overflow:hidden;padding:12px 0}
+.marquee-track{display:flex;gap:0;white-space:nowrap;width:max-content;animation:ticker 22s linear infinite}
+.marquee-track span{
+  font-family:'Bungee',var(--font-display);font-size:1.15rem;color:var(--yellow);
+  padding:0 18px;letter-spacing:1px;
+}
+.marquee-track span:nth-child(even){color:var(--magenta)}
+
+/* ---------- 區塊標題 ---------- */
+.sec{padding:88px 0}
+.sec-head{max-width:640px;margin-bottom:52px}
+.sec-kicker{
+  display:inline-block;font-family:'Bungee',var(--font-display);font-size:.85rem;
+  background:var(--blue);color:var(--white);border:var(--bw) solid var(--black);
+  border-radius:8px;padding:3px 14px;box-shadow:var(--shadow-sm);
+  transform:rotate(-2deg);margin-bottom:18px;letter-spacing:1px;
+}
+.sec-head h2{font-size:clamp(1.9rem,3.6vw,2.8rem)}
+.sec-head p{margin-top:12px;font-size:1.05rem}
+
+/* ---------- 特色速覽 ---------- */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:40px 34px}
+.feat{
+  --tilt:-1.5deg;padding:30px 30px 26px;display:flex;gap:20px;align-items:flex-start;
+}
+.feat:nth-child(2){--tilt:1.6deg}
+.feat:nth-child(3){--tilt:1.2deg}
+.feat:nth-child(4){--tilt:-1.8deg}
+.feat-icon{
+  flex:0 0 auto;width:64px;height:64px;border-radius:16px;border:var(--bw) solid var(--black);
+  background:var(--c,var(--yellow));display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-sm);
+}
+.feat-icon svg{width:34px;height:34px}
+.feat h3{font-size:1.3rem;font-weight:900;margin-bottom:6px}
+.feat h3 small{font-family:'Bungee',var(--font-display);font-size:.68rem;display:block;color:var(--blue);letter-spacing:1px;margin-top:2px}
+.feat p{font-size:.98rem}
+
+/* ---------- 評語貼紙牆 ---------- */
+.review-wall{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:44px 36px;align-items:start;
+}
+.review{--tilt:-2.5deg;padding:24px 24px 20px}
+.review:nth-child(2){--tilt:1.8deg;background:#FFF0F8}
+.review:nth-child(3){--tilt:-1deg;background:#EEF3FF}
+.review:nth-child(4){--tilt:2.4deg;background:#FFF6E0}
+.review:nth-child(5){--tilt:-1.6deg;background:#EAFBF1}
+.review:nth-child(6){--tilt:1.2deg}
+.review .stars{display:flex;gap:3px;margin-bottom:10px}
+.review .stars svg{width:18px;height:18px}
+.review q{font-weight:700;font-size:1rem;quotes:"「" "」"}
+.review .who{margin-top:12px;display:flex;align-items:center;gap:10px}
+.avatar{
+  width:38px;height:38px;border-radius:50%;border:2.5px solid var(--black);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:.9rem;color:var(--white);
+  background:var(--c,var(--magenta));flex:0 0 auto;
+  -webkit-text-stroke:.5px var(--black);
+}
+.who b{font-size:.88rem;display:block;line-height:1.3}
+.who span{font-size:.75rem;color:#666}
+
+/* ---------- CTA 區 ---------- */
+.cta-band{background:var(--black);padding:90px 0;position:relative;overflow:hidden}
+.cta-inner{position:relative;text-align:center;color:var(--cream)}
+.cta-inner h2{font-size:clamp(2rem,4.5vw,3.4rem);color:var(--yellow);margin-bottom:14px}
+.cta-inner p{font-size:1.1rem;margin-bottom:34px}
+.cta-burst{position:absolute;opacity:.95}
+.cb-1{top:-30px;left:4%;transform:rotate(-12deg)}
+.cb-2{bottom:-36px;right:5%;transform:rotate(14deg)}
+
+/* ---------- Footer ---------- */
+footer{background:var(--black);color:var(--cream);border-top:var(--bw) solid var(--black)}
+.foot-top{border-top:4px dashed rgba(255,246,233,.25);max-width:1160px;margin:0 auto;padding:54px 24px 30px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px}
+.foot-brand .word{font-family:var(--font-display);font-size:1.7rem;color:var(--yellow);letter-spacing:1px}
+.foot-brand p{font-size:.9rem;margin-top:10px;max-width:26em;color:#cfc8bd}
+.foot-col h4{font-family:var(--font-display);color:var(--magenta);font-size:1rem;margin-bottom:14px;letter-spacing:1px}
+.foot-col a{display:block;text-decoration:none;font-size:.92rem;color:#e8e2d6;padding:4px 0}
+.foot-col a:hover{color:var(--yellow);transform:translateX(3px)}
+.foot-bottom{border-top:2px solid #333;padding:18px 24px;text-align:center;font-size:.8rem;color:#9a938a}
+.foot-social{display:flex;gap:12px;margin-top:18px}
+.foot-social a{
+  width:40px;height:40px;border:2.5px solid var(--cream);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.foot-social a:hover{background:var(--yellow);border-color:var(--yellow)}
+.foot-social a:hover svg path,.foot-social a:hover svg circle,.foot-social a:hover svg rect{stroke:var(--black)}
+.foot-social svg{width:20px;height:20px}
+
+/* ---------- RWD ---------- */
+@media (max-width:960px){
+  .hero-grid{grid-template-columns:1fr;gap:64px}
+  .review-wall{grid-template-columns:repeat(2,1fr)}
+  .foot-top{grid-template-columns:1fr 1fr}
+  .fs-3{right:0}
+}
+@media (max-width:640px){
+  .nav-links,.nav-cta{display:none}
+  .nav-burger{display:block}
+  .nav.open .nav-links{
+    display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;
+    background:var(--cream);border-bottom:var(--bw) solid var(--black);padding:16px 24px;gap:8px;
+  }
+  .feat-grid,.review-wall{grid-template-columns:1fr}
+  .foot-top{grid-template-columns:1fr}
+  .hero{padding:44px 0 70px}
+  .fs-1{left:0}.fs-2{right:0}
+  .sec{padding:64px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html" aria-label="Poppin 首頁">
+      <svg width="40" height="40" viewBox="0 0 200 200" aria-hidden="true">
+        <polygon points="186,96 158,80.5 174.5,53 142.4,53.6 143,21.5 115.5,38 100,10 84.5,38 57,21.5 57.6,53.6 25.5,53 42,80.5 14,96 42,111.5 25.5,139 57.6,138.4 57,170.5 84.5,154 100,182 115.5,154 143,170.5 142.4,138.4 174.5,139 158,111.5" fill="#FFD400" stroke="#141414" stroke-width="8" stroke-linejoin="round" transform="rotate(-8 100 96)"/>
+        <g transform="rotate(-6 100 96)">
+          <path d="M76 54 h48 a26 26 0 0 1 26 26 v18 a26 26 0 0 1 -26 26 h-12 l-24 24 5 -24 h-17 a26 26 0 0 1 -26 -26 v-18 a26 26 0 0 1 26 -26 z" fill="#FF3EA5" stroke="#141414" stroke-width="8" stroke-linejoin="round"/>
+          <text x="99" y="110" text-anchor="middle" font-family="'Lilita One','Arial Black',sans-serif" font-size="54" fill="#FFFFFF" stroke="#141414" stroke-width="3" paint-order="stroke">P!</text>
+        </g>
+      </svg>
+      <span class="word">Poppin</span>
+    </a>
+    <nav class="nav-links" aria-label="主選單">
+      <a href="index.html" aria-current="page">首頁</a>
+      <a href="features.html">功能</a>
+      <a href="download.html">下載</a>
+    </nav>
+    <a class="btn btn-sm nav-cta" href="download.html">Get Poppin</a>
+    <button class="nav-burger" aria-label="開關選單" onclick="document.getElementById('nav').classList.toggle('open')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="3" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="hero-badge pop">台北・台中・高雄 熱烈開跑中</span>
+      <h1 class="display pop">想吃鍋沒人陪？<br><span class="hl">Poppin 一下</span>，馬上有伴。</h1>
+      <div class="slogan pop">TAP IN. SHOW UP. POPPIN!</div>
+      <p class="lead pop">吃飯、打球、看展、桌遊——附近誰在揪，打開就知道。開一團平均 3 分鐘成團，不用再在群組裡喊「+1 有人嗎」喊到心累。</p>
+      <div class="hero-btns pop">
+        <a class="btn" href="download.html">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5"/><path d="M4 19h16"/></svg>
+          免費下載
+        </a>
+        <a class="btn btn-cream" href="features.html">看功能怎麼玩</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat sticker pop"><b>12 萬+</b><span>註冊用戶</span></div>
+        <div class="stat sticker pop"><b>3,200+</b><span>每天成團數</span></div>
+        <div class="stat sticker pop"><b>2 分 41 秒</b><span>平均成團時間</span></div>
+      </div>
+    </div>
+
+    <!-- 手機 mockup（純 CSS/SVG） -->
+    <div class="phone-wrap">
+      <div class="phone" aria-label="Poppin App 畫面示意">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="app-status"><span>19:42</span><span>5G ▮▮▮</span></div>
+          <div class="app-head">
+            <h4>附近的團</h4>
+            <span class="loc">大安區・半徑 800m</span>
+          </div>
+          <div class="app-chips">
+            <span class="on">全部</span><span>吃飯</span><span>運動</span><span>看展</span>
+          </div>
+          <div class="app-feed">
+            <div class="app-card" style="--c:var(--magenta)">
+              <span class="tag">吃飯</span>
+              <h5>麻辣鍋補血團，缺 1 戰友</h5>
+              <p>今晚 20:00・公館・預算 $500 內</p>
+              <div class="row">
+                <div class="slots">
+                  <span class="slot-dot"></span><span class="slot-dot"></span><span class="slot-dot"></span><span class="slot-dot empty"></span>
+                  <b>3/4</b>
+                </div>
+                <span class="join">+1</span>
+              </div>
+            </div>
+            <div class="app-card" style="--c:var(--blue)">
+              <span class="tag">運動</span>
+              <h5>羽球雙打缺一，新手友善</h5>
+              <p>週六 10:00・大安運動中心</p>
+              <div class="row">
+                <div class="slots">
+                  <span class="slot-dot" style="--c:var(--blue)"></span><span class="slot-dot" style="--c:var(--blue)"></span><span class="slot-dot" style="--c:var(--blue)"></span><span class="slot-dot empty"></span>
+                  <b>3/4</b>
+                </div>
+                <span class="join">+1</span>
+              </div>
+            </div>
+            <div class="app-card" style="--c:var(--orange)">
+              <span class="tag">看展</span>
+              <h5>奈良美智特展快閃團</h5>
+              <p>週日 14:00・北美館・看完喝咖啡</p>
+              <div class="row">
+                <div class="slots">
+                  <span class="slot-dot" style="--c:var(--orange)"></span><span class="slot-dot" style="--c:var(--orange)"></span><span class="slot-dot empty"></span><span class="slot-dot empty"></span>
+                  <b>2/4</b>
+                </div>
+                <span class="join">+1</span>
+              </div>
+            </div>
+          </div>
+          <div class="app-fab wiggle">POP!</div>
+          <div class="app-tabbar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 漂浮貼紙 -->
+      <div class="float-sticker fs-1 pop">
+        <div class="bubble" style="font-family:var(--font-display);font-size:1rem;">+1 我要跟！</div>
+      </div>
+      <div class="float-sticker fs-2 pop">
+        <div class="bubble" style="font-family:var(--font-display);font-size:1rem;background:var(--yellow)">成團啦!!</div>
+      </div>
+      <div class="float-sticker fs-3 pop" aria-hidden="true">
+        <svg class="burst-badge wiggle" viewBox="0 0 120 120">
+          <polygon points="112,60 95,50 105,33 85,34 85,13 69,23 60,5 51,23 35,13 35,34 15,33 25,50 8,60 25,70 15,87 35,86 35,107 51,97 60,115 69,97 85,107 85,86 105,87 95,70" fill="#FF7A1A" stroke="#141414" stroke-width="4" stroke-linejoin="round"/>
+          <text x="60" y="70" text-anchor="middle" font-family="'Lilita One','Arial Black',sans-serif" font-size="26" fill="#fff" stroke="#141414" stroke-width="1.5" paint-order="stroke">揪!</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 跑馬燈 ===================== -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>POPPIN</span><span>★</span><span>揪起來</span><span>★</span><span>吃飯</span><span>★</span><span>運動</span><span>★</span><span>看展</span><span>★</span><span>NO MORE 已讀不回</span><span>★</span>
+    <span>POPPIN</span><span>★</span><span>揪起來</span><span>★</span><span>吃飯</span><span>★</span><span>運動</span><span>★</span><span>看展</span><span>★</span><span>NO MORE 已讀不回</span><span>★</span>
+  </div>
+</div>
+
+<!-- ===================== 特色速覽 ===================== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-kicker pop">WHY POPPIN</span>
+      <h2 class="display pop">群組喊半天，不如 Pop 一團</h2>
+      <p class="pop">我們把「揪人」這件事做到剩三個動作：開團、等 +1、出門。以下是老用戶最有感的四件事。</p>
+    </div>
+    <div class="feat-grid">
+      <article class="feat sticker pop">
+        <div class="feat-icon" style="--c:var(--magenta)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>
+        </div>
+        <div>
+          <h3>即時開團<small>DROP A POP</small></h3>
+          <p>選類型、填時間地點、設定人數上限，30 秒開好一團。附近打開 App 的人立刻看得到，不用等演算法賞飯吃。</p>
+        </div>
+      </article>
+      <article class="feat sticker pop">
+        <div class="feat-icon" style="--c:var(--blue)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="10.5" stroke-dasharray="2 4"/></svg>
+        </div>
+        <div>
+          <h3>附近雷達<small>NEARBY RADAR</small></h3>
+          <p>以你為圓心掃描 300m～3km 的開放團。走到哪掃到哪，出差外地也能立刻找到球咖飯友，一個人出門不再只能滑手機。</p>
+        </div>
+      </article>
+      <article class="feat sticker pop">
+        <div class="feat-icon" style="--c:var(--orange)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/></svg>
+        </div>
+        <div>
+          <h3>快閃限時團<small>FLASH POP</small></h3>
+          <p>「30 分鐘後不見不散」的快閃團，倒數計時滿了就自動關閉。適合突然想吃冰、臨時多一張電影票這種說走就走的行程。</p>
+        </div>
+      </article>
+      <article class="feat sticker pop">
+        <div class="feat-icon" style="--c:var(--mint)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-3.3 6.5L21 19z"/><path d="M8 10h8M8 13.5h5"/></svg>
+        </div>
+        <div>
+          <h3>免尬聊破冰<small>ICE BREAKER</small></h3>
+          <p>成團後聊天室自動丟出破冰題和到場暗號（例如「戴黃色帽子的就是我」），見面前就熟一半，社恐也能軟著陸。</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 評語貼紙牆 ===================== -->
+<section class="sec" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-kicker pop" style="background:var(--orange)">REAL TALK</span>
+      <h2 class="display pop">用過的人怎麼說</h2>
+      <p class="pop">以下評語來自 App Store 與 Google Play 商店評論區，一字未改（錯字也保留，比較真）。</p>
+    </div>
+    <div class="review-wall">
+      <article class="review sticker pop">
+        <div class="stars" aria-label="5 顆星">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <q>剛搬來台中人生地不熟，兩個禮拜靠 Poppin 揪了三場羽球，現在固定球咖比老家還多。</q>
+        <div class="who">
+          <span class="avatar" style="--c:var(--blue)">阿</span>
+          <div><b>阿凱打羽球</b><span>Google Play・2026/05</span></div>
+        </div>
+      </article>
+      <article class="review sticker pop">
+        <div class="stars" aria-label="5 顆星">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <q>一人火鍋吃到膩，開了個麻辣鍋團 5 分鐘就滿。大家見面第一句是對暗號，超白癡但真的不尷尬。</q>
+        <div class="who">
+          <span class="avatar" style="--c:var(--magenta)">小</span>
+          <div><b>小如 yuju</b><span>App Store・2026/04</span></div>
+        </div>
+      </article>
+      <article class="review sticker pop">
+        <div class="stars" aria-label="4 顆星">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#EDEDED" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <q>看展團的品質意外的高，遇到的人都真的有在看不是來聊天的。扣一星是希望快點開高雄以外的南部城市。</q>
+        <div class="who">
+          <span class="avatar" style="--c:var(--orange)">M</span>
+          <div><b>Ming.C</b><span>App Store・2026/06</span></div>
+        </div>
+      </article>
+      <article class="review sticker pop">
+        <div class="stars" aria-label="5 顆星">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <q>放鳥紀錄會顯示在個人頁這點做得太對了，用兩個月只遇過一次遲到，沒遇過直接消失的。</q>
+        <div class="who">
+          <span class="avatar" style="--c:var(--mint);color:var(--black)">婷</span>
+          <div><b>婷婷子</b><span>Google Play・2026/03</span></div>
+        </div>
+      </article>
+      <article class="review sticker pop">
+        <div class="stars" aria-label="5 顆星">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <q>快閃團根本為我這種想到就要馬上做的人設計，昨天 11 點半開「12 點吃拉麵」，12 點準時四個人排在店門口。</q>
+        <div class="who">
+          <span class="avatar" style="--c:var(--blue)">豪</span>
+          <div><b>豪豪 hao_eats</b><span>App Store・2026/05</span></div>
+        </div>
+      </article>
+      <article class="review sticker pop">
+        <div class="stars" aria-label="5 顆星">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" fill="#FFD400" stroke="#141414" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <q>身為社恐，破冰題真的救我一命。第一次見面不用想開場白，照著聊就好，聊完發現大家都是社恐哈哈哈。</q>
+        <div class="who">
+          <span class="avatar" style="--c:var(--orange)">R</span>
+          <div><b>Rita 不想上班</b><span>Google Play・2026/06</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta-band">
+  <svg class="cta-burst cb-1" width="150" height="150" viewBox="0 0 120 120" aria-hidden="true">
+    <polygon points="112,60 95,50 105,33 85,34 85,13 69,23 60,5 51,23 35,13 35,34 15,33 25,50 8,60 25,70 15,87 35,86 35,107 51,97 60,115 69,97 85,107 85,86 105,87 95,70" fill="#FF3EA5" stroke="#FFF6E9" stroke-width="4" stroke-linejoin="round"/>
+  </svg>
+  <svg class="cta-burst cb-2" width="180" height="180" viewBox="0 0 120 120" aria-hidden="true">
+    <polygon points="112,60 95,50 105,33 85,34 85,13 69,23 60,5 51,23 35,13 35,34 15,33 25,50 8,60 25,70 15,87 35,86 35,107 51,97 60,115 69,97 85,107 85,86 105,87 95,70" fill="#2B5BFF" stroke="#FFF6E9" stroke-width="4" stroke-linejoin="round"/>
+  </svg>
+  <div class="wrap cta-inner">
+    <h2 class="display pop">今晚的飯友，現在就揪</h2>
+    <p class="pop">免費下載，手機號碼註冊 60 秒搞定。No small talk, just show up.</p>
+    <div class="pop" style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-yellow" href="download.html">下載 Poppin</a>
+      <a class="btn" href="features.html" style="background:var(--magenta)">功能一次看</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-brand">
+      <span class="word">Poppin</span>
+      <p>即時揪團 App。吃飯、運動、看展，一個人也敢約。目前服務台北、台中、高雄，其他城市陸續 Pop 中。</p>
+      <div class="foot-social">
+        <a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF6E9" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="#FFF6E9"/></svg>
+        </a>
+        <a href="#" aria-label="Threads">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF6E9" stroke-width="2"><path d="M12 3C7 3 4 6.6 4 12s3 9 8 9c4.2 0 7-2.4 7-5.6 0-2.8-2.2-4.4-4.8-4.4-2.2 0-3.8 1.2-4 3"/><path d="M14.2 11c-.2-2.4-1.3-3.8-3.2-3.8"/></svg>
+        </a>
+        <a href="#" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFF6E9" stroke-width="2"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#FFF6E9"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h4>PRODUCT</h4>
+      <a href="features.html">功能介紹</a>
+      <a href="features.html#safety">安全機制</a>
+      <a href="download.html">下載 App</a>
+      <a href="download.html#faq">常見問題</a>
+    </div>
+    <div class="foot-col">
+      <h4>COMPANY</h4>
+      <a href="#">關於我們</a>
+      <a href="#">加入團隊</a>
+      <a href="#">媒體聯絡</a>
+      <a href="#">城市合作</a>
+    </div>
+    <div class="foot-col">
+      <h4>SUPPORT</h4>
+      <a href="#">幫助中心</a>
+      <a href="#">社群守則</a>
+      <a href="#">隱私權政策</a>
+      <a href="#">服務條款</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    © 2026 Poppin Inc. 保留所有權利。台北市大安區敦化南路二段 99 號 12 樓 — Made with 拚勁 in Taipei.
+  </div>
+</footer>
+
+<script>
+// 進場 pop 動畫（IntersectionObserver）
+(function(){
+  var els=document.querySelectorAll('.pop');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        en.target.style.animationDelay=(Array.prototype.indexOf.call(en.target.parentNode.children,en.target)%6)*0.07+'s';
+        en.target.classList.add('in');
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:.15});
+  els.forEach(function(e){io.observe(e)});
+})();
+</script>
+</body>
+</html>

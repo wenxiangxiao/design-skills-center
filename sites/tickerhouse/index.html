@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TICKERHOUSE // Terminal Dashboard</title>
+<meta name="description" content="TickerHouse — independent equity research desk. Demo terminal. All data fictional.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23040703'/%3E%3Crect x='2.5' y='2.5' width='27' height='27' fill='none' stroke='%2337ff70' stroke-width='2'/%3E%3Crect x='8' y='16' width='4' height='8' fill='%23ffb000'/%3E%3Crect x='14' y='11' width='4' height='13' fill='%2337ff70'/%3E%3Crect x='20' y='7' width='4' height='17' fill='%2337ff70'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040703;
+  --panel:#060c07;
+  --panel2:#081108;
+  --ink:#9fe8b4;
+  --ink-dim:#5a9a6e;
+  --green:#37ff70;
+  --green-dim:#1e9c4d;
+  --grid:#16452b;
+  --amber:#ffb000;
+  --amber-dim:#8f6a12;
+  --red:#ff5b45;
+  --glow:0 0 8px rgba(55,255,112,.35);
+  --glow-a:0 0 8px rgba(255,176,0,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  font-size:15px;
+  line-height:1.55;
+  overflow-x:hidden;
+}
+::selection{background:var(--green);color:#031006}
+
+/* ============ CRT overlay ============ */
+.crt-scan{position:fixed;inset:0;pointer-events:none;z-index:9000;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0px,rgba(0,0,0,.24) 1px,transparent 1px,transparent 3px);}
+.crt-glow{position:fixed;inset:0;pointer-events:none;z-index:8999;
+  background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.5) 100%);
+  animation:flick 7s infinite steps(1);}
+@keyframes flick{
+  0%,93%,100%{opacity:1}
+  94%{opacity:.86}
+  95%{opacity:1}
+  97%{opacity:.92}
+  98%{opacity:1}
+}
+
+/* ============ blink cursor ============ */
+.cur{display:inline-block;width:.6em;background:var(--green);animation:blink 1s steps(1) infinite;color:transparent}
+.cur.a{background:var(--amber)}
+@keyframes blink{50%{opacity:0}}
+
+/* ============ boot overlay ============ */
+#boot{position:fixed;inset:0;background:var(--bg);z-index:9500;padding:8vh 6vw;
+  transition:opacity .45s steps(4),visibility .45s;}
+#boot.off{opacity:0;visibility:hidden}
+#bootlog{font-family:inherit;font-size:14px;color:var(--ink);white-space:pre-wrap;text-shadow:var(--glow)}
+#bootlog .ok{color:var(--green)}
+#bootlog .warn{color:var(--amber)}
+#bootkey{margin-top:2em;color:var(--amber);letter-spacing:.08em;visibility:hidden}
+#bootkey.on{visibility:visible}
+
+/* ============ tape ============ */
+#tapewrap{border-bottom:1px solid var(--grid);background:#030503}
+#tape{display:block;width:100%;height:36px}
+
+/* ============ header ============ */
+header{
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+  padding:14px 22px;border-bottom:1px solid var(--grid);
+  background:linear-gradient(180deg,#071008,#040703);
+  position:relative;z-index:10;
+}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--green)}
+.logo svg{display:block}
+.logo b{font-size:17px;font-weight:700;letter-spacing:.14em;text-shadow:var(--glow)}
+.logo b i{font-style:normal;color:var(--amber)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{
+  color:var(--ink-dim);text-decoration:none;padding:4px 10px;letter-spacing:.06em;font-size:13px;
+  border:1px solid transparent;
+}
+nav a b{color:var(--amber-dim);font-weight:500}
+nav a:hover{color:var(--green);border-color:var(--grid);text-shadow:var(--glow)}
+nav a.on{color:var(--green);border-color:var(--green-dim);background:var(--panel2);text-shadow:var(--glow)}
+nav a.on b{color:var(--amber)}
+.hstat{margin-left:auto;font-size:12px;color:var(--ink-dim);text-align:right;line-height:1.4}
+.hstat .lv{color:var(--amber)}
+.hstat .ok{color:var(--green)}
+
+/* ============ layout ============ */
+main{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+.cols{display:grid;gap:18px}
+.cols.c2{grid-template-columns:1fr 1fr}
+.cols.c3{grid-template-columns:repeat(3,1fr)}
+.cols.c4{grid-template-columns:repeat(4,1fr)}
+.mt{margin-top:18px}
+
+/* ============ panel w/ ascii corners ============ */
+.panel{position:relative;border:1px solid var(--grid);background:var(--panel);padding:22px 18px 16px}
+.panel::before,.panel::after,.panel .cx::before,.panel .cx::after{
+  position:absolute;color:var(--green-dim);font-size:15px;line-height:1;background:var(--bg);
+}
+.panel::before{content:"\250C";top:-8px;left:-5px}
+.panel::after{content:"\2510";top:-8px;right:-5px}
+.panel .cx::before{content:"\2514";bottom:-8px;left:-5px}
+.panel .cx::after{content:"\2518";bottom:-8px;right:-5px}
+.pt{
+  position:absolute;top:-11px;left:14px;background:var(--bg);padding:0 8px;
+  color:var(--amber);font-size:12px;font-weight:500;letter-spacing:.18em;white-space:nowrap;
+}
+.pt::before{content:"[ "}
+.pt::after{content:" ]"}
+.psub{position:absolute;top:-10px;right:14px;background:var(--bg);padding:0 8px;color:var(--ink-dim);font-size:11px;letter-spacing:.1em}
+
+/* ============ hero ============ */
+#hero{padding:44px 0 34px;border-bottom:1px dashed var(--grid)}
+#hero .prompt{color:var(--ink-dim);font-size:13px;margin-bottom:12px}
+#hero .prompt em{color:var(--green);font-style:normal}
+#hero h1{
+  font-size:clamp(26px,4.6vw,46px);font-weight:700;letter-spacing:.02em;
+  color:var(--green);text-shadow:var(--glow);min-height:1.2em;
+}
+#hero p{max-width:62ch;margin-top:16px;color:var(--ink)}
+#hero p .dim{color:var(--ink-dim)}
+.keys{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap}
+.kbtn{
+  display:inline-block;text-decoration:none;font-family:inherit;font-size:14px;letter-spacing:.08em;
+  color:var(--amber);border:1px solid var(--amber-dim);background:#0a0902;
+  padding:9px 16px;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(255,176,0,.14);
+}
+.kbtn b{font-weight:700}
+.kbtn:hover{background:var(--amber);color:#140d00;text-shadow:none;box-shadow:var(--glow-a)}
+.kbtn.g{color:var(--green);border-color:var(--green-dim);background:#031006;box-shadow:inset 0 -3px 0 rgba(55,255,112,.14)}
+.kbtn.g:hover{background:var(--green);color:#031006;box-shadow:var(--glow)}
+
+/* ============ index cards ============ */
+.idx{padding-top:24px}
+.idx .nm{font-size:12px;color:var(--ink-dim);letter-spacing:.14em}
+.idx .px{font-size:22px;font-weight:700;color:var(--green);text-shadow:var(--glow);margin:2px 0}
+.idx .chg{font-size:13px}
+.up{color:var(--green)} .dn{color:var(--red)} .fl{color:var(--amber)}
+.spark{display:block;width:100%;height:46px;margin-top:8px}
+
+/* ============ tables ============ */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--amber);text-align:left;font-weight:500;letter-spacing:.12em;font-size:11px;
+   border-bottom:1px solid var(--grid);padding:6px 8px}
+td{padding:6px 8px;border-bottom:1px dotted #0e2c1b;color:var(--ink)}
+tr:hover td{background:#0a1a0e}
+td.r,th.r{text-align:right}
+td .tick{color:var(--green);font-weight:700}
+.tbl-scroll{overflow-x:auto}
+
+/* ============ log feed ============ */
+#desklog{font-size:12.5px;line-height:1.7;min-height:150px}
+#desklog .t{color:var(--ink-dim)}
+#desklog .sys{color:var(--amber)}
+
+/* ============ research teaser ============ */
+.note-line{display:flex;gap:12px;padding:9px 4px;border-bottom:1px dotted #0e2c1b;
+  text-decoration:none;color:var(--ink);font-size:13px;align-items:baseline}
+.note-line:hover{background:#0a1a0e}
+.note-line .d{color:var(--ink-dim);white-space:nowrap;font-size:12px}
+.note-line .tk{color:var(--green);font-weight:700;min-width:4.5ch}
+.note-line .rt{font-size:11px;letter-spacing:.08em;white-space:nowrap}
+.rt.ow{color:var(--green)} .rt.uw{color:var(--red)} .rt.n{color:var(--amber)}
+.note-line .ti{flex:1}
+
+/* ============ footer ============ */
+footer{border-top:1px solid var(--grid);background:#030603;padding:26px 22px 34px;margin-top:20px}
+.fin{max-width:1180px;margin:0 auto;font-size:12.5px;color:var(--ink-dim);line-height:1.8}
+.fin .frow{display:flex;flex-wrap:wrap;gap:6px 28px;margin-bottom:12px}
+.fin a{color:var(--ink-dim);text-decoration:none}
+.fin a:hover{color:var(--green)}
+.fin a b{color:var(--amber-dim);font-weight:500}
+.fin .rule{color:var(--green-dim);overflow:hidden;white-space:nowrap;margin-bottom:12px}
+.fin .disc{color:var(--amber);border:1px dashed var(--amber-dim);padding:8px 12px;display:inline-block;margin:6px 0 10px}
+.fin .cop{margin-top:8px}
+
+@media(max-width:920px){
+  .cols.c4{grid-template-columns:1fr 1fr}
+  .cols.c3{grid-template-columns:1fr}
+  .cols.c2{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  body{font-size:14px}
+  .cols.c4{grid-template-columns:1fr}
+  header{padding:12px 14px;gap:12px}
+  .hstat{display:none}
+  main{padding:20px 14px 40px}
+  #hero{padding:28px 0 26px}
+  .crt-scan{background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0px,rgba(0,0,0,.18) 1px,transparent 1px,transparent 3px)}
+}
+</style>
+</head>
+<body>
+<div class="crt-glow"></div>
+<div class="crt-scan"></div>
+
+<!-- ============ BOOT SEQUENCE ============ -->
+<div id="boot">
+  <pre id="bootlog"></pre>
+  <div id="bootkey">&gt;&gt; PRESS ANY KEY OR CLICK TO CONTINUE <span class="cur a">&#9646;</span></div>
+</div>
+
+<!-- ============ TICKER TAPE ============ -->
+<div id="tapewrap"><canvas id="tape" height="36"></canvas></div>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <a class="logo" href="index.html" aria-label="TickerHouse home">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1.5" y="1.5" width="29" height="29" fill="none" stroke="#37ff70" stroke-width="2"/>
+      <rect x="7" y="17" width="4" height="8" fill="#ffb000"/>
+      <rect x="14" y="12" width="4" height="13" fill="#37ff70"/>
+      <rect x="21" y="7" width="4" height="18" fill="#37ff70"/>
+    </svg>
+    <b>TICKER<i>HOUSE</i></b>
+  </a>
+  <nav>
+    <a class="on" href="index.html"><b>[1]</b> DASH</a>
+    <a href="markets.html"><b>[2]</b> MARKETS</a>
+    <a href="research.html"><b>[3]</b> RESEARCH</a>
+  </nav>
+  <div class="hstat">
+    <div>FEED: <span class="lv">SIMULATED</span> &middot; LINK: <span class="ok">OK</span></div>
+    <div>LOCAL <span id="clock" class="ok">--:--:--</span> &middot; SESSION #4471</div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section id="hero">
+    <div class="prompt">last login: <span id="lastlogin">--</span> on tty1 &nbsp;&middot;&nbsp; <em>guest@tickerhouse</em>:~$ run dashboard</div>
+    <h1><span id="typed"></span><span class="cur">&#9646;</span></h1>
+    <p>TickerHouse is an independent equity-research desk wired into a
+       terminal you can actually read. No banking mandates, no maintenance
+       ratings, no twelve-tab web app. <span class="dim">// every ticker, price and
+       note on this site is fictional demo data.</span></p>
+    <div class="keys">
+      <a class="kbtn g" href="markets.html"><b>[ENTER]</b> OPEN MARKETS</a>
+      <a class="kbtn" href="research.html"><b>[F3]</b> READ RESEARCH</a>
+    </div>
+  </section>
+
+  <!-- ============ INDEX STRIP ============ -->
+  <section class="cols c4 mt" id="idxgrid" aria-label="Index overview">
+    <div class="panel idx"><b class="cx"></b><span class="pt">TH-COMP</span>
+      <div class="nm">TICKERHOUSE COMPOSITE</div>
+      <div class="px">8,214.55</div>
+      <div class="chg up">&#9650; +50.61 (+0.62%)</div>
+      <canvas class="spark" data-c="g" data-v="8121,8130,8118,8144,8151,8139,8162,8158,8177,8171,8190,8183,8175,8196,8188,8204,8199,8212,8206,8215"></canvas>
+    </div>
+    <div class="panel idx"><b class="cx"></b><span class="pt">TH-100</span>
+      <div class="nm">LARGE CAP 100</div>
+      <div class="px">3,481.07</div>
+      <div class="chg up">&#9650; +16.63 (+0.48%)</div>
+      <canvas class="spark" data-c="g" data-v="3441,3448,3439,3452,3446,3460,3455,3449,3463,3471,3466,3459,3470,3477,3468,3474,3480,3473,3478,3481"></canvas>
+    </div>
+    <div class="panel idx"><b class="cx"></b><span class="pt">TH-VOL</span>
+      <div class="nm">VOLATILITY GAUGE</div>
+      <div class="px">17.42</div>
+      <div class="chg dn">&#9660; -0.76 (-4.20%)</div>
+      <canvas class="spark" data-c="r" data-v="19.4,19.1,19.6,18.8,19.0,18.5,18.9,18.2,18.6,18.0,18.3,17.8,18.1,17.6,17.9,17.5,17.7,17.3,17.6,17.4"></canvas>
+    </div>
+    <div class="panel idx"><b class="cx"></b><span class="pt">TH-10Y</span>
+      <div class="nm">SYNTH 10Y YIELD</div>
+      <div class="px">4.18%</div>
+      <div class="chg fl">&#9642; +2bp (+0.48%)</div>
+      <canvas class="spark" data-c="a" data-v="4.11,4.13,4.10,4.14,4.12,4.16,4.13,4.15,4.17,4.14,4.16,4.19,4.15,4.17,4.20,4.16,4.18,4.17,4.19,4.18"></canvas>
+    </div>
+  </section>
+
+  <!-- ============ MOVERS + LOG ============ -->
+  <section class="cols c2 mt">
+    <div class="panel"><b class="cx"></b><span class="pt">SESSION MOVERS</span><span class="psub">TOP 5 / BOTTOM 3</span>
+      <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>SYM</th><th>NAME</th><th class="r">LAST</th><th class="r">CHG%</th></tr></thead>
+        <tbody>
+          <tr><td class="tick">MNRL</td><td>Mineralis Mining</td><td class="r">12.47</td><td class="r up">+7.75</td></tr>
+          <tr><td class="tick">HLIO</td><td>Heliostat Solar</td><td class="r">24.63</td><td class="r up">+5.91</td></tr>
+          <tr><td class="tick">CRBX</td><td>Cerebrix AI Systems</td><td class="r">412.88</td><td class="r up">+3.42</td></tr>
+          <tr><td class="tick">OPTQ</td><td>Optiqa Photonics</td><td class="r">96.75</td><td class="r up">+1.44</td></tr>
+          <tr><td class="tick">KRNL</td><td>Kernel Semiconductors</td><td class="r">158.44</td><td class="r up">+0.86</td></tr>
+          <tr><td class="tick">ZPHR</td><td>Zephyr Media Group</td><td class="r">33.58</td><td class="r dn">-3.96</td></tr>
+          <tr><td class="tick">DKWT</td><td>Darkwater Offshore</td><td class="r">71.09</td><td class="r dn">-2.30</td></tr>
+          <tr><td class="tick">VLTN</td><td>Voltain Energy Grid</td><td class="r">68.21</td><td class="r dn">-1.17</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="keys" style="margin-top:14px">
+        <a class="kbtn g" href="markets.html" style="font-size:12px;padding:6px 12px"><b>[2]</b> FULL MOVERS TABLE</a>
+      </div>
+    </div>
+    <div class="panel"><b class="cx"></b><span class="pt">DESK LOG</span><span class="psub">LIVE (SIM)</span>
+      <div id="desklog" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ============ RESEARCH TEASER ============ -->
+  <section class="panel mt"><b class="cx"></b><span class="pt">LATEST FROM THE DESK</span><span class="psub">214 NOTES INDEXED</span>
+    <a class="note-line" href="research.html">
+      <span class="d">2026-07-10</span><span class="tk">CRBX</span>
+      <span class="ti">Inference margins are the story, not the training capex</span>
+      <span class="rt ow">OVERWEIGHT</span>
+    </a>
+    <a class="note-line" href="research.html">
+      <span class="d">2026-07-08</span><span class="tk">VLTN</span>
+      <span class="ti">Grid capex cycle: long duration, short patience</span>
+      <span class="rt n">NEUTRAL</span>
+    </a>
+    <a class="note-line" href="research.html">
+      <span class="d">2026-07-03</span><span class="tk">DKWT</span>
+      <span class="ti">Decommissioning liabilities: the bill nobody models</span>
+      <span class="rt uw">UNDERWEIGHT</span>
+    </a>
+    <a class="note-line" href="research.html">
+      <span class="d">2026-06-27</span><span class="tk">KRNL</span>
+      <span class="ti">Trailing-edge nodes, leading-edge cash flow</span>
+      <span class="rt ow">OVERWEIGHT</span>
+    </a>
+    <div class="keys" style="margin-top:14px">
+      <a class="kbtn" href="research.html" style="font-size:12px;padding:6px 12px"><b>[3]</b> OPEN RESEARCH INDEX</a>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="fin">
+    <div class="rule">+--------------------------------------------------------------------------------------------------+</div>
+    <div class="frow">
+      <span style="color:var(--green)">TICKERHOUSE // independent equity research desk</span>
+      <a href="index.html"><b>[1]</b> dashboard</a>
+      <a href="markets.html"><b>[2]</b> markets</a>
+      <a href="research.html"><b>[3]</b> research</a>
+    </div>
+    <div class="disc">* DEMO SITE. ALL TICKERS, COMPANIES, PRICES, ANALYSTS AND RESEARCH ARE FICTIONAL. NOT INVESTMENT ADVICE. *</div>
+    <div>keyboard: press 1 / 2 / 3 to switch pages &middot; rendered on a simulated P1 phosphor tube</div>
+    <div class="cop">&copy; 2026 TICKERHOUSE LABS &middot; EST. 1987 (also fictional) &middot; uptime 99.4% (self-reported)<span class="cur" style="margin-left:6px">&#9646;</span></div>
+  </div>
+</footer>
+
+<script>
+/* ================= shared data ================= */
+var TAPE=[
+ ["CRBX",412.88,3.42],["VLTN",68.21,-1.17],["KRNL",158.44,0.86],["HLIO",24.63,5.91],
+ ["DKWT",71.09,-2.30],["OPTQ",96.75,1.44],["SBRD",41.10,-0.52],["TLLW",88.02,0.13],
+ ["MNRL",12.47,7.75],["ZPHR",33.58,-3.96],["FRGT",54.36,0.41],["BNKR",132.90,-0.28],
+ ["TH-COMP",8214.55,0.62],["TH-100",3481.07,0.48],["TH-VOL",17.42,-4.20]
+];
+var C={bg:"#030503",green:"#37ff70",red:"#ff5b45",amber:"#ffb000",dim:"#5a9a6e",grid:"#16452b"};
+
+/* ================= boot sequence ================= */
+(function(){
+  var boot=document.getElementById("boot"),
+      log=document.getElementById("bootlog"),
+      key=document.getElementById("bootkey");
+  if(sessionStorage.getItem("th_booted")){boot.classList.add("off");return;}
+  var lines=[
+    ["TICKERHOUSE TERMINAL BIOS v3.7.1",0],
+    ["(C) 1987-2026 TICKERHOUSE LABS -- ALL RIGHTS RESERVED",0],
+    ["",0],
+    ["MEM CHECK ................ 640K <ok>OK</ok>",250],
+    ["PHOSPHOR DRIVER .......... P1/GREEN <ok>OK</ok>",200],
+    ["SCANLINE MODULE .......... 3px <ok>LOADED</ok>",180],
+    ["MARKET FEED /dev/tape0 ... <warn>SYNTHETIC</warn> <ok>OK</ok>",300],
+    ["RESEARCH DB .............. 214 NOTES INDEXED",220],
+    ["ANALYST ROSTER ........... 5 SEATS ACTIVE",160],
+    ["COMPLIANCE ............... <warn>ALL DATA FICTIONAL</warn>",260],
+    ["",120],
+    ["BOOT COMPLETE.",300]
+  ];
+  var i=0,done=false;
+  function esc(s){return s.replace(/<ok>/g,'<span class="ok">').replace(/<warn>/g,'<span class="warn">').replace(/<\/ok>|<\/warn>/g,"</span>");}
+  function next(){
+    if(i>=lines.length){done=true;key.classList.add("on");setTimeout(dismiss,2600);return;}
+    log.innerHTML+=esc(lines[i][0])+"\n";
+    i++;
+    setTimeout(next,lines[i-1][1]+40);
+  }
+  function dismiss(){
+    if(boot.classList.contains("off"))return;
+    boot.classList.add("off");
+    sessionStorage.setItem("th_booted","1");
+    startTyped();
+  }
+  boot.addEventListener("click",dismiss);
+  window.addEventListener("keydown",function(e){if(!boot.classList.contains("off")){e.preventDefault();if(done||i>2)dismiss();}});
+  setTimeout(next,300);
+})();
+
+/* ================= typewriter hero ================= */
+var typedStarted=false;
+function startTyped(){
+  if(typedStarted)return;typedStarted=true;
+  var el=document.getElementById("typed"),
+      txt="SIGNAL OVER NOISE.",i=0;
+  (function t(){
+    if(i<=txt.length){el.textContent=txt.slice(0,i);i++;setTimeout(t,i<4?120:62);}
+  })();
+}
+if(sessionStorage.getItem("th_booted")){startTyped();}
+
+/* ================= clock + last login ================= */
+(function(){
+  var c=document.getElementById("clock");
+  function pad(n){return (n<10?"0":"")+n;}
+  function tick(){var d=new Date();c.textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());}
+  tick();setInterval(tick,1000);
+  var ll=document.getElementById("lastlogin");
+  if(ll){var d=new Date(Date.now()-86400000*1-3600000*3);
+    ll.textContent=d.toDateString().slice(0,10)+" "+pad(d.getHours())+":"+pad(d.getMinutes());}
+})();
+
+/* ================= ticker tape canvas ================= */
+(function(){
+  var cv=document.getElementById("tape"),ctx=cv.getContext("2d"),off=0,items=[],total=0,dpr=1;
+  function build(){
+    dpr=window.devicePixelRatio||1;
+    cv.width=cv.clientWidth*dpr;cv.height=36*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.font="13px 'IBM Plex Mono',monospace";
+    items=[];total=0;
+    TAPE.forEach(function(t){
+      var s=t[0]+" "+t[1].toLocaleString("en-US",{minimumFractionDigits:2})+" ",
+          a=(t[2]>=0?"+":"")+t[2].toFixed(2)+"%",
+          sep="   ║   ";
+      var w1=ctx.measureText(s).width,w2=ctx.measureText(a).width,w3=ctx.measureText(sep).width;
+      items.push({s:s,a:a,sep:sep,w:w1+w2+w3,w1:w1,w2:w2,up:t[2]>=0});
+      total+=w1+w2+w3;
+    });
+  }
+  function draw(){
+    var w=cv.clientWidth;
+    ctx.clearRect(0,0,w,36);
+    ctx.font="13px 'IBM Plex Mono',monospace";
+    ctx.textBaseline="middle";
+    var x=-off;
+    while(x<w){
+      for(var k=0;k<items.length;k++){
+        var it=items[k];
+        if(x+it.w>0&&x<w){
+          ctx.fillStyle=C.dim;ctx.fillText(it.s,x,19);
+          ctx.fillStyle=it.up?C.green:C.red;ctx.fillText(it.a,x+it.w1,19);
+          ctx.fillStyle=C.grid;ctx.fillText(it.sep,x+it.w1+it.w2,19);
+        }
+        x+=it.w;
+        if(x>=w)break;
+      }
+    }
+    off+=0.6;
+    if(off>=total)off-=total;
+    requestAnimationFrame(draw);
+  }
+  build();
+  window.addEventListener("resize",build);
+  requestAnimationFrame(draw);
+})();
+
+/* ================= sparklines ================= */
+(function(){
+  function drawSpark(cv){
+    var vals=cv.dataset.v.split(",").map(Number),
+        col=cv.dataset.c==="r"?C.red:(cv.dataset.c==="a"?C.amber:C.green),
+        dpr=window.devicePixelRatio||1,
+        w=cv.clientWidth,h=cv.clientHeight;
+    cv.width=w*dpr;cv.height=h*dpr;
+    var ctx=cv.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),pad=4;
+    function X(i){return pad+i*(w-2*pad)/(vals.length-1);}
+    function Y(v){return h-pad-(v-mn)/(mx-mn||1)*(h-2*pad);}
+    /* baseline dots */
+    ctx.strokeStyle="#0e2c1b";ctx.setLineDash([2,3]);
+    ctx.beginPath();ctx.moveTo(0,Y(vals[0]));ctx.lineTo(w,Y(vals[0]));ctx.stroke();
+    ctx.setLineDash([]);
+    /* fill */
+    ctx.beginPath();ctx.moveTo(X(0),Y(vals[0]));
+    for(var i=1;i<vals.length;i++)ctx.lineTo(X(i),Y(vals[i]));
+    ctx.lineTo(X(vals.length-1),h);ctx.lineTo(X(0),h);ctx.closePath();
+    ctx.fillStyle=col+"1a";ctx.fill();
+    /* line */
+    ctx.beginPath();ctx.moveTo(X(0),Y(vals[0]));
+    for(i=1;i<vals.length;i++)ctx.lineTo(X(i),Y(vals[i]));
+    ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.shadowColor=col;ctx.shadowBlur=6;ctx.stroke();
+    ctx.shadowBlur=0;
+    /* last point */
+    ctx.fillStyle=col;
+    ctx.fillRect(X(vals.length-1)-2,Y(vals[vals.length-1])-2,4,4);
+  }
+  function all(){document.querySelectorAll(".spark").forEach(drawSpark);}
+  all();window.addEventListener("resize",all);
+})();
+
+/* ================= desk log feed ================= */
+(function(){
+  var el=document.getElementById("desklog");
+  var msgs=[
+    ["sys","feed handshake ok, latency 12ms (simulated)"],
+    ["","MNRL crosses +7% on assay rumor; desk unimpressed"],
+    ["","CRBX note pushed to subscribers (214 recipients)"],
+    ["sys","tape rebuilt: 15 symbols, 0 real ones"],
+    ["","ZPHR downgraded by consensus; we were already there"],
+    ["","block print: 40k KRNL @ 158.20, buyer initiated"],
+    ["sys","coffee machine on floor 2 back online"],
+    ["","VLTN files 8-K (fictional); grid capex guide unchanged"],
+    ["","HLIO short interest 11.2% and climbing"],
+    ["sys","reminder: everything on this tape is invented"]
+  ];
+  var i=0;
+  function pad(n){return (n<10?"0":"")+n;}
+  function stamp(){var d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());}
+  function push(){
+    var m=msgs[i%msgs.length];i++;
+    var line=document.createElement("div");
+    line.innerHTML='<span class="t">'+stamp()+"</span> "+(m[0]==="sys"?'<span class="sys">SYS</span> ':"&gt; ")+m[1];
+    el.appendChild(line);
+    while(el.children.length>8)el.removeChild(el.firstChild);
+  }
+  push();push();push();
+  setInterval(push,3400);
+})();
+
+/* ================= keyboard nav ================= */
+window.addEventListener("keydown",function(e){
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  var boot=document.getElementById("boot");
+  if(boot&&!boot.classList.contains("off"))return;
+  if(e.key==="1")location.href="index.html";
+  if(e.key==="2")location.href="markets.html";
+  if(e.key==="3")location.href="research.html";
+});
+</script>
+</body>
+</html>

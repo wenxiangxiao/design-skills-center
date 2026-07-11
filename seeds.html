@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>種子庫 — Design Skills Center</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23141414"/><rect x="8" y="8" width="22" height="22" fill="%23FF4D00"/><rect x="34" y="8" width="22" height="22" fill="%23F2E9DC"/><rect x="8" y="34" width="22" height="22" fill="%23F2E9DC"/><rect x="34" y="34" width="22" height="22" fill="%23FF4D00"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F5F1E8;--ink:#141414;--accent:#FF4D00;--muted:#6b6459;--line:#141414;
+--serif:'Noto Serif TC',serif;--grot:'Space Grotesk',sans-serif;--sans:'Noto Sans TC',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.7}
+::selection{background:var(--accent);color:#fff}
+header{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:2px solid var(--line)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 4vw}
+.nav .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
+.brand-mark{width:34px;height:34px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border:2px solid var(--ink)}
+.brand-mark i:nth-child(1),.brand-mark i:nth-child(4){background:var(--accent)}
+.brand b{font-family:var(--grot);font-size:1.05rem}
+.nav ul{display:flex;gap:28px;list-style:none}
+.nav a.lnk{font-family:var(--grot);font-size:.9rem;text-decoration:none;color:var(--ink);letter-spacing:.06em;text-transform:uppercase;border-bottom:2px solid transparent;padding-bottom:2px}
+.nav a.lnk:hover,.nav a.lnk[aria-current]{border-color:var(--accent)}
+.head{padding:7vh 4vw 4vh;border-bottom:2px solid var(--line)}
+.head .kicker{font-family:var(--grot);letter-spacing:.35em;text-transform:uppercase;font-size:.8rem;color:var(--accent);font-weight:700}
+.head h1{font-family:var(--serif);font-weight:900;font-size:clamp(2.2rem,6vw,4.6rem);line-height:1.1;margin:.3em 0}
+.head p{color:var(--muted);max-width:38em}
+.toolbar{display:flex;gap:14px;flex-wrap:wrap;padding:3vh 4vw;border-bottom:2px solid var(--line);align-items:center}
+.toolbar input{font-family:var(--sans);font-size:1rem;padding:10px 16px;border:2px solid var(--ink);background:#fff;min-width:min(340px,80vw)}
+.toolbar input:focus{outline:3px solid var(--accent);outline-offset:-1px}
+.legend{font-family:var(--grot);font-size:.75rem;letter-spacing:.08em;color:var(--muted);display:flex;gap:18px}
+.dot{display:inline-block;width:10px;height:10px;margin-right:6px;border:1.5px solid var(--ink)}
+.dot.done{background:var(--accent);border-color:var(--accent)}
+.wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:2px solid var(--line)}
+.col{padding:4vh 4vw}
+.col:first-child{border-right:2px solid var(--line)}
+.col h2{font-family:var(--serif);font-weight:900;font-size:1.6rem;margin-bottom:.3em}
+.col .cnt{font-family:var(--grot);color:var(--accent);font-weight:700;letter-spacing:.15em;font-size:.85rem}
+.grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:2.2vh}
+.seed{font-family:var(--sans);font-size:.85rem;border:1.5px solid var(--ink);padding:5px 13px;background:var(--paper);cursor:pointer;user-select:none;transition:all .15s}
+.seed:hover{background:#EDE6D6}
+.seed.done{border-color:var(--accent);box-shadow:2px 2px 0 var(--accent)}
+.seed.picked{background:var(--ink);color:var(--paper)}
+.seed small{font-family:var(--grot);font-size:.65rem;color:var(--muted);margin-left:6px;letter-spacing:.05em}
+.seed.picked small{color:#b8b2a6}
+@media(max-width:880px){.wrap{grid-template-columns:1fr}.col:first-child{border-right:none;border-bottom:2px solid var(--line)}}
+.combiner{background:var(--ink);color:var(--paper);padding:6vh 4vw}
+.combiner h2{font-family:var(--serif);font-weight:900;font-size:clamp(1.6rem,3.8vw,2.6rem)}
+.combiner h2 em{font-style:normal;color:var(--accent)}
+.combiner .pickline{font-family:var(--grot);font-size:1.05rem;margin:2.4vh 0;letter-spacing:.03em}
+.slot{display:inline-block;border-bottom:3px solid var(--accent);min-width:9em;padding:0 8px;color:#fff;text-align:center}
+.slot.empty{color:#7a756b}
+.combiner textarea{width:100%;min-height:210px;background:#1e1c19;color:#e8e2d5;border:1px solid #4a463e;padding:16px;font-family:var(--grot);font-size:.86rem;line-height:1.6;resize:vertical}
+.combiner .actions{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+.btn{font-family:var(--grot);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+text-decoration:none;border:2px solid var(--paper);padding:9px 20px;background:transparent;color:var(--paper);transition:all .18s}
+.btn:hover{background:var(--paper);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+footer{padding:5vh 4vw;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+footer .f-brand{font-family:var(--grot);font-weight:700}
+footer p{font-size:.8rem;color:var(--muted)}
+footer a{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="brand-mark"><i></i><i></i><i></i><i></i></span><b>Design Skills Center</b></a>
+    <ul>
+      <li><a class="lnk" href="index.html">Gallery</a></li>
+      <li><a class="lnk" href="seeds.html" aria-current="page">種子庫</a></li>
+      <li><a class="lnk" href="guide.html">使用指南</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="head">
+  <p class="kicker">Seed Library</p>
+  <h1>產業 × 風格 種子庫</h1>
+  <p>這裡是圖書館的苗圃：左邊挑產業、右邊挑風格，下方會自動組出一段「生成指令」——複製它丟給 AI（或丟回給我），就能長出下一個範例站。標記 <span class="dot done"></span> 的種子已有完成品。</p>
+</section>
+
+<div class="toolbar">
+  <input id="q" type="search" placeholder="搜尋種子…（例如：咖啡、龐克、律師）" aria-label="搜尋種子">
+  <span class="legend"><span><span class="dot done"></span>已產出</span><span><span class="dot"></span>待開發</span></span>
+</div>
+
+<div class="wrap">
+  <div class="col">
+    <h2>產業種子</h2><span class="cnt" id="cnt-ind"></span>
+    <div class="grid" id="grid-ind"></div>
+  </div>
+  <div class="col">
+    <h2>風格種子</h2><span class="cnt" id="cnt-sty"></span>
+    <div class="grid" id="grid-sty"></div>
+  </div>
+</div>
+
+<section class="combiner" id="combiner">
+  <h2>組合<em>生成器</em></h2>
+  <p class="pickline">產業：<span class="slot empty" id="pick-ind">點左邊選一個</span>　×　風格：<span class="slot empty" id="pick-sty">點右邊選一個</span></p>
+  <textarea id="prompt" readonly placeholder="選好產業與風格後，這裡會出現可直接使用的 AI 生成指令。"></textarea>
+  <div class="actions">
+    <button class="btn primary" id="copy">複製指令</button>
+    <button class="btn" id="clear">清除選擇</button>
+  </div>
+</section>
+
+<footer>
+  <span class="f-brand">Design Skills Center</span>
+  <p><a href="index.html">回藝廊</a> · <a href="guide.html">使用指南</a></p>
+</footer>
+
+<script>
+const INDUSTRIES=[
+["美髮沙龍",1],["科技 SaaS",1],["甜點餐飲",1],["金融投資",1],["App 產品",1],
+["咖啡廳",0],["精品旅宿",0],["健身房",0],["瑜伽教室",0],["牙醫診所",0],["中醫診所",0],["寵物美容",0],["動物醫院",0],
+["律師事務所",0],["會計師事務所",0],["建築師事務所",0],["室內設計",0],["房地產仲介",0],["婚紗攝影",0],["婚禮顧問",0],
+["花店",0],["書店",0],["獨立出版",0],["唱片廠牌",0],["podcast 節目",0],["電影影展",0],["美術館展覽",0],["音樂祭",0],
+["精釀啤酒",0],["葡萄酒莊",0],["茶葉品牌",0],["保養品牌",0],["香氛品牌",0],["服飾品牌",0],["選物店",0],["家具品牌",0],
+["電商平台",0],["新創募資頁",0],["AI 工具",0],["遊戲工作室",0],["電競戰隊",0],["線上課程",0],["兒童教育",0],["補習班",0],
+["非營利組織",0],["政府開放資料",0],["農產品直售",0],["登山戶外用品",0]
+];
+const STYLES=[
+["手繪雜誌風",1],["動態加重",1],["糖果風",1],["復古終端機",1],["俏皮普普風",1],
+["瑞士國際主義",0],["野獸派 Brutalism",0],["新粗獷主義 Neo-brutalism",0],["極簡留白",0],["和風極簡",0],["北歐簡約",0],
+["報紙編輯風",0],["復古印刷 Risograph",0],["孟菲斯 Memphis",0],["包浩斯 Bauhaus",0],["Art Deco 裝飾藝術",0],
+["Y2K 千禧風",0],["蒸氣波 Vaporwave",0],["賽博龐克",0],["像素風 Pixel",0],["液態玻璃 Glassmorphism",0],
+["黏土擬物 Claymorphism",0],["奢華精品風",0],["暗黑學院風",0],["自然有機風",0],["工業風",0],["兒童繪本風",0],["雜誌對開排版風",0]
+];
+const state={ind:null,sty:null};
+function render(list,mount,key){
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  mount.innerHTML='';
+  let shown=0;
+  list.forEach(([name,done])=>{
+    if(q && !name.toLowerCase().includes(q))return;
+    shown++;
+    const el=document.createElement('button');
+    el.className='seed'+(done?' done':'')+(state[key]===name?' picked':'');
+    el.innerHTML=name+(done?'<small>DONE</small>':'');
+    el.onclick=()=>{state[key]=state[key]===name?null:name;update()};
+    mount.appendChild(el);
+  });
+  return shown;
+}
+function update(){
+  const si=render(INDUSTRIES,document.getElementById('grid-ind'),'ind');
+  const ss=render(STYLES,document.getElementById('grid-sty'),'sty');
+  document.getElementById('cnt-ind').textContent=si+' / '+INDUSTRIES.length;
+  document.getElementById('cnt-sty').textContent=ss+' / '+STYLES.length;
+  const pi=document.getElementById('pick-ind'),ps=document.getElementById('pick-sty');
+  pi.textContent=state.ind||'點左邊選一個';pi.classList.toggle('empty',!state.ind);
+  ps.textContent=state.sty||'點右邊選一個';ps.classList.toggle('empty',!state.sty);
+  const t=document.getElementById('prompt');
+  if(state.ind&&state.sty){
+    t.value=`請為「${state.ind}」產業建立一個完整的範例網站，設計風格為「${state.sty}」。
+
+要求：
+1. 至少 3 個完整頁面（單檔 HTML，CSS/JS inline，相對路徑互連，一致的導覽列與 footer）。
+2. 品牌名稱、文案、價格、地址等內容需虛構但真實可信，禁止 Lorem ipsum。
+3. 所有圖像用原創 SVG/CSS 繪製，禁止外部圖片；外部資源僅允許 Google Fonts。
+4. 原創設計該品牌的 Logo（assets/logo.svg）與 favicon（inline SVG data URI）。
+5. 必須包含符合該風格的動畫與互動效果，並支援 RWD。
+6. 「去AI化」：禁止紫藍漸層、禁止置中大標＋三卡片模板、禁止 emoji 當 icon、禁止 AI 腔文案；使用不對稱版面與有個性的字體配置。
+7. 產出 README.md（繁中）與 SKILL.md：SKILL.md 需含 YAML frontmatter（name、description），內文包含 設計哲學／色彩系統（hex）／字體系統／版面與網格／元件配方／動效規則／插畫風格／Logo 與 Favicon 指南／Do & Don't／頁面骨架範例，讓任何 AI 讀完即可重現此風格。
+8. 完成後放入 sites/ 目錄，並回報加入 Design Skills Center 藝廊索引。`;
+  } else t.value='';
+}
+document.getElementById('q').addEventListener('input',update);
+document.getElementById('copy').onclick=async()=>{
+  const t=document.getElementById('prompt');
+  if(!t.value)return alert('請先選擇產業與風格');
+  await navigator.clipboard.writeText(t.value);
+  const b=document.getElementById('copy');b.textContent='已複製 ✓';setTimeout(()=>b.textContent='複製指令',1500);
+};
+document.getElementById('clear').onclick=()=>{state.ind=null;state.sty=null;update()};
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TICKERHOUSE // Markets</title>
+<meta name="description" content="TickerHouse markets screen — sectors, candles, movers. All data fictional.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23040703'/%3E%3Crect x='2.5' y='2.5' width='27' height='27' fill='none' stroke='%2337ff70' stroke-width='2'/%3E%3Crect x='8' y='16' width='4' height='8' fill='%23ffb000'/%3E%3Crect x='14' y='11' width='4' height='13' fill='%2337ff70'/%3E%3Crect x='20' y='7' width='4' height='17' fill='%2337ff70'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#040703;
+  --panel:#060c07;
+  --panel2:#081108;
+  --ink:#9fe8b4;
+  --ink-dim:#5a9a6e;
+  --green:#37ff70;
+  --green-dim:#1e9c4d;
+  --grid:#16452b;
+  --amber:#ffb000;
+  --amber-dim:#8f6a12;
+  --red:#ff5b45;
+  --glow:0 0 8px rgba(55,255,112,.35);
+  --glow-a:0 0 8px rgba(255,176,0,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:15px;line-height:1.55;overflow-x:hidden}
+::selection{background:var(--green);color:#031006}
+.crt-scan{position:fixed;inset:0;pointer-events:none;z-index:9000;background:repeating-linear-gradient(0deg,rgba(0,0,0,.24) 0px,rgba(0,0,0,.24) 1px,transparent 1px,transparent 3px)}
+.crt-glow{position:fixed;inset:0;pointer-events:none;z-index:8999;background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(0,0,0,.5) 100%);animation:flick 7s infinite steps(1)}
+@keyframes flick{0%,93%,100%{opacity:1}94%{opacity:.86}95%{opacity:1}97%{opacity:.92}98%{opacity:1}}
+.cur{display:inline-block;width:.6em;background:var(--green);animation:blink 1s steps(1) infinite;color:transparent}
+@keyframes blink{50%{opacity:0}}
+#tapewrap{border-bottom:1px solid var(--grid);background:#030503}
+#tape{display:block;width:100%;height:36px}
+header{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--grid);background:linear-gradient(180deg,#071008,#040703);position:relative;z-index:10}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--green)}
+.logo svg{display:block}
+.logo b{font-size:17px;font-weight:700;letter-spacing:.14em;text-shadow:var(--glow)}
+.logo b i{font-style:normal;color:var(--amber)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{color:var(--ink-dim);text-decoration:none;padding:4px 10px;letter-spacing:.06em;font-size:13px;border:1px solid transparent}
+nav a b{color:var(--amber-dim);font-weight:500}
+nav a:hover{color:var(--green);border-color:var(--grid);text-shadow:var(--glow)}
+nav a.on{color:var(--green);border-color:var(--green-dim);background:var(--panel2);text-shadow:var(--glow)}
+nav a.on b{color:var(--amber)}
+.hstat{margin-left:auto;font-size:12px;color:var(--ink-dim);text-align:right;line-height:1.4}
+.hstat .lv{color:var(--amber)}
+.hstat .ok{color:var(--green)}
+main{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+.cols{display:grid;gap:18px}
+.cols.c2{grid-template-columns:1fr 1fr}
+.mt{margin-top:18px}
+.panel{position:relative;border:1px solid var(--grid);background:var(--panel);padding:22px 18px 16px}
+.panel::before,.panel::after,.panel .cx::before,.panel .cx::after{position:absolute;color:var(--green-dim);font-size:15px;line-height:1;background:var(--bg)}
+.panel::before{content:"\250C";top:-8px;left:-5px}
+.panel::after{content:"\2510";top:-8px;right:-5px}
+.panel .cx::before{content:"\2514";bottom:-8px;left:-5px}
+.panel .cx::after{content:"\2518";bottom:-8px;right:-5px}
+.pt{position:absolute;top:-11px;left:14px;background:var(--bg);padding:0 8px;color:var(--amber);font-size:12px;font-weight:500;letter-spacing:.18em;white-space:nowrap}
+.pt::before{content:"[ "}
+.pt::after{content:" ]"}
+.psub{position:absolute;top:-10px;right:14px;background:var(--bg);padding:0 8px;color:var(--ink-dim);font-size:11px;letter-spacing:.1em}
+.pagehead{padding:26px 0 20px;border-bottom:1px dashed var(--grid);margin-bottom:24px}
+.pagehead .bc{color:var(--ink-dim);font-size:13px;margin-bottom:6px}
+.pagehead .bc em{color:var(--green);font-style:normal}
+.pagehead h1{font-size:clamp(22px,3.4vw,32px);color:var(--green);text-shadow:var(--glow);letter-spacing:.04em}
+.pagehead p{color:var(--ink-dim);font-size:13px;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--amber);text-align:left;font-weight:500;letter-spacing:.12em;font-size:11px;border-bottom:1px solid var(--grid);padding:6px 8px}
+td{padding:6px 8px;border-bottom:1px dotted #0e2c1b;color:var(--ink)}
+tr:hover td{background:#0a1a0e}
+td.r,th.r{text-align:right}
+td .tick{color:var(--green);font-weight:700}
+.up{color:var(--green)} .dn{color:var(--red)} .fl{color:var(--amber)}
+.tbl-scroll{overflow-x:auto}
+.bar{display:inline-block;height:9px;background:var(--green);vertical-align:middle;box-shadow:var(--glow)}
+.bar.neg{background:var(--red);box-shadow:0 0 8px rgba(255,91,69,.35)}
+/* chart */
+#chartbox{padding-bottom:10px}
+.chart-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.kbtn{display:inline-block;text-decoration:none;font-family:inherit;font-size:12px;letter-spacing:.08em;color:var(--amber);border:1px solid var(--amber-dim);background:#0a0902;padding:6px 12px;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(255,176,0,.14)}
+.kbtn b{font-weight:700}
+.kbtn:hover{background:var(--amber);color:#140d00;box-shadow:var(--glow-a)}
+.kbtn.g{color:var(--green);border-color:var(--green-dim);background:#031006;box-shadow:inset 0 -3px 0 rgba(55,255,112,.14)}
+.kbtn.g:hover{background:var(--green);color:#031006;box-shadow:var(--glow)}
+.kbtn.sel{background:var(--green);color:#031006;border-color:var(--green);box-shadow:var(--glow)}
+#candle{display:block;width:100%;height:380px;cursor:crosshair}
+#ohlc{font-size:12.5px;color:var(--ink-dim);min-height:1.6em;margin-top:6px}
+#ohlc b{color:var(--green);font-weight:500}
+#ohlc .o{color:var(--amber)}
+footer{border-top:1px solid var(--grid);background:#030603;padding:26px 22px 34px;margin-top:20px}
+.fin{max-width:1180px;margin:0 auto;font-size:12.5px;color:var(--ink-dim);line-height:1.8}
+.fin .frow{display:flex;flex-wrap:wrap;gap:6px 28px;margin-bottom:12px}
+.fin a{color:var(--ink-dim);text-decoration:none}
+.fin a:hover{color:var(--green)}
+.fin a b{color:var(--amber-dim);font-weight:500}
+.fin .rule{color:var(--green-dim);overflow:hidden;white-space:nowrap;margin-bottom:12px}
+.fin .disc{color:var(--amber);border:1px dashed var(--amber-dim);padding:8px 12px;display:inline-block;margin:6px 0 10px}
+.fin .cop{margin-top:8px}
+@media(max-width:920px){.cols.c2{grid-template-columns:1fr}}
+@media(max-width:560px){
+  body{font-size:14px}
+  header{padding:12px 14px;gap:12px}
+  .hstat{display:none}
+  main{padding:20px 14px 40px}
+  #candle{height:280px}
+}
+</style>
+</head>
+<body>
+<div class="crt-glow"></div>
+<div class="crt-scan"></div>
+
+<div id="tapewrap"><canvas id="tape" height="36"></canvas></div>
+
+<header>
+  <a class="logo" href="index.html" aria-label="TickerHouse home">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="1.5" y="1.5" width="29" height="29" fill="none" stroke="#37ff70" stroke-width="2"/>
+      <rect x="7" y="17" width="4" height="8" fill="#ffb000"/>
+      <rect x="14" y="12" width="4" height="13" fill="#37ff70"/>
+      <rect x="21" y="7" width="4" height="18" fill="#37ff70"/>
+    </svg>
+    <b>TICKER<i>HOUSE</i></b>
+  </a>
+  <nav>
+    <a href="index.html"><b>[1]</b> DASH</a>
+    <a class="on" href="markets.html"><b>[2]</b> MARKETS</a>
+    <a href="research.html"><b>[3]</b> RESEARCH</a>
+  </nav>
+  <div class="hstat">
+    <div>FEED: <span class="lv">SIMULATED</span> &middot; LINK: <span class="ok">OK</span></div>
+    <div>LOCAL <span id="clock" class="ok">--:--:--</span> &middot; SESSION #4471</div>
+  </div>
+</header>
+
+<main>
+  <div class="pagehead">
+    <div class="bc"><em>guest@tickerhouse</em>:~$ open markets --screen=sectors,candles,movers</div>
+    <h1>MARKETS<span class="cur">&#9646;</span></h1>
+    <p>End-of-day snapshot, synthetic session 2026-07-10. Nothing here trades anywhere.</p>
+  </div>
+
+  <!-- ============ CANDLESTICK ============ -->
+  <section class="panel" id="chartbox"><b class="cx"></b><span class="pt">DAILY CANDLES</span><span class="psub">120 SESSIONS &middot; SIM</span>
+    <div class="chart-controls">
+      <button class="kbtn g sel" data-sym="CRBX" type="button"><b>[Q]</b> CRBX</button>
+      <button class="kbtn g" data-sym="VLTN" type="button"><b>[W]</b> VLTN</button>
+      <button class="kbtn g" data-sym="KRNL" type="button"><b>[E]</b> KRNL</button>
+      <span id="chartmeta" style="font-size:12px;color:var(--ink-dim);margin-left:auto"></span>
+    </div>
+    <canvas id="candle"></canvas>
+    <div id="ohlc">hover the tape for OHLC readout &middot; keys Q / W / E switch symbol</div>
+  </section>
+
+  <!-- ============ SECTORS ============ -->
+  <section class="panel mt"><b class="cx"></b><span class="pt">SECTOR BOARD</span><span class="psub">1D / 1M / YTD</span>
+    <div class="tbl-scroll">
+    <table id="sectors">
+      <thead><tr>
+        <th>SECTOR</th><th class="r">1D%</th><th class="r">1M%</th><th class="r">YTD%</th>
+        <th>BREADTH (ADV/DEC)</th><th style="min-width:130px">1D HEAT</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>SEMICONDUCTORS</td><td class="r up">+1.84</td><td class="r up">+6.2</td><td class="r up">+21.4</td><td>31 / 9</td><td data-h="1.84"></td></tr>
+        <tr><td>AI INFRASTRUCTURE</td><td class="r up">+1.51</td><td class="r up">+9.8</td><td class="r up">+34.7</td><td>18 / 6</td><td data-h="1.51"></td></tr>
+        <tr><td>SOLAR &amp; STORAGE</td><td class="r up">+1.12</td><td class="r dn">-2.1</td><td class="r up">+4.9</td><td>22 / 14</td><td data-h="1.12"></td></tr>
+        <tr><td>BANKS &amp; CREDIT</td><td class="r up">+0.34</td><td class="r up">+1.7</td><td class="r up">+8.8</td><td>27 / 21</td><td data-h="0.34"></td></tr>
+        <tr><td>FOOD &amp; STAPLES</td><td class="r up">+0.11</td><td class="r up">+0.9</td><td class="r up">+3.2</td><td>19 / 17</td><td data-h="0.11"></td></tr>
+        <tr><td>FREIGHT &amp; LOGISTICS</td><td class="r dn">-0.27</td><td class="r up">+2.4</td><td class="r dn">-1.6</td><td>12 / 18</td><td data-h="-0.27"></td></tr>
+        <tr><td>AIRLINES &amp; LEISURE</td><td class="r dn">-0.58</td><td class="r dn">-3.3</td><td class="r up">+2.1</td><td>8 / 15</td><td data-h="-0.58"></td></tr>
+        <tr><td>UTILITIES &amp; GRID</td><td class="r dn">-0.92</td><td class="r up">+4.4</td><td class="r up">+11.9</td><td>10 / 24</td><td data-h="-0.92"></td></tr>
+        <tr><td>MEDIA &amp; ADTECH</td><td class="r dn">-1.63</td><td class="r dn">-7.2</td><td class="r dn">-12.5</td><td>5 / 22</td><td data-h="-1.63"></td></tr>
+        <tr><td>OFFSHORE ENERGY</td><td class="r dn">-2.05</td><td class="r dn">-5.6</td><td class="r dn">-8.3</td><td>4 / 19</td><td data-h="-2.05"></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- ============ MOVERS ============ -->
+  <section class="cols c2 mt">
+    <div class="panel"><b class="cx"></b><span class="pt">GAINERS</span><span class="psub">1D</span>
+      <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>SYM</th><th>NAME</th><th class="r">LAST</th><th class="r">CHG%</th><th class="r">VOL(M)</th></tr></thead>
+        <tbody>
+          <tr><td class="tick">MNRL</td><td>Mineralis Mining</td><td class="r">12.47</td><td class="r up">+7.75</td><td class="r">18.2</td></tr>
+          <tr><td class="tick">HLIO</td><td>Heliostat Solar</td><td class="r">24.63</td><td class="r up">+5.91</td><td class="r">9.4</td></tr>
+          <tr><td class="tick">CRBX</td><td>Cerebrix AI Systems</td><td class="r">412.88</td><td class="r up">+3.42</td><td class="r">6.1</td></tr>
+          <tr><td class="tick">OPTQ</td><td>Optiqa Photonics</td><td class="r">96.75</td><td class="r up">+1.44</td><td class="r">2.7</td></tr>
+          <tr><td class="tick">KRNL</td><td>Kernel Semiconductors</td><td class="r">158.44</td><td class="r up">+0.86</td><td class="r">4.9</td></tr>
+          <tr><td class="tick">FRGT</td><td>Freightline Logistics</td><td class="r">54.36</td><td class="r up">+0.41</td><td class="r">1.8</td></tr>
+          <tr><td class="tick">TLLW</td><td>Tallow Foods</td><td class="r">88.02</td><td class="r up">+0.13</td><td class="r">1.2</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="panel"><b class="cx"></b><span class="pt">DECLINERS</span><span class="psub">1D</span>
+      <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>SYM</th><th>NAME</th><th class="r">LAST</th><th class="r">CHG%</th><th class="r">VOL(M)</th></tr></thead>
+        <tbody>
+          <tr><td class="tick">ZPHR</td><td>Zephyr Media Group</td><td class="r">33.58</td><td class="r dn">-3.96</td><td class="r">7.3</td></tr>
+          <tr><td class="tick">DKWT</td><td>Darkwater Offshore</td><td class="r">71.09</td><td class="r dn">-2.30</td><td class="r">3.5</td></tr>
+          <tr><td class="tick">VLTN</td><td>Voltain Energy Grid</td><td class="r">68.21</td><td class="r dn">-1.17</td><td class="r">2.9</td></tr>
+          <tr><td class="tick">SBRD</td><td>Seabird Airlines</td><td class="r">41.10</td><td class="r dn">-0.52</td><td class="r">2.2</td></tr>
+          <tr><td class="tick">BNKR</td><td>Bunker Capital</td><td class="r">132.90</td><td class="r dn">-0.28</td><td class="r">1.5</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="font-size:12px;color:var(--ink-dim);margin-top:12px">Desk coverage on <span class="up">CRBX</span>,
+        <span class="up">KRNL</span>, <span class="fl">VLTN</span>, <span class="dn">DKWT</span> —
+        <a href="research.html" style="color:var(--amber)">[3] open research index</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="fin">
+    <div class="rule">+--------------------------------------------------------------------------------------------------+</div>
+    <div class="frow">
+      <span style="color:var(--green)">TICKERHOUSE // independent equity research desk</span>
+      <a href="index.html"><b>[1]</b> dashboard</a>
+      <a href="markets.html"><b>[2]</b> markets</a>
+      <a href="research.html"><b>[3]</b> research</a>
+    </div>
+    <div class="disc">* DEMO SITE. ALL TICKERS, COMPANIES, PRICES, ANALYSTS AND RESEARCH ARE FICTIONAL. NOT INVESTMENT ADVICE. *</div>
+    <div>keyboard: press 1 / 2 / 3 to switch pages &middot; Q / W / E switch chart symbol</div>
+    <div class="cop">&copy; 2026 TICKERHOUSE LABS &middot; EST. 1987 (also fictional) &middot; uptime 99.4% (self-reported)<span class="cur" style="margin-left:6px">&#9646;</span></div>
+  </div>
+</footer>
+
+<script>
+/* ================= shared data ================= */
+var TAPE=[
+ ["CRBX",412.88,3.42],["VLTN",68.21,-1.17],["KRNL",158.44,0.86],["HLIO",24.63,5.91],
+ ["DKWT",71.09,-2.30],["OPTQ",96.75,1.44],["SBRD",41.10,-0.52],["TLLW",88.02,0.13],
+ ["MNRL",12.47,7.75],["ZPHR",33.58,-3.96],["FRGT",54.36,0.41],["BNKR",132.90,-0.28],
+ ["TH-COMP",8214.55,0.62],["TH-100",3481.07,0.48],["TH-VOL",17.42,-4.20]
+];
+var C={bg:"#030503",green:"#37ff70",red:"#ff5b45",amber:"#ffb000",dim:"#5a9a6e",grid:"#16452b",ink:"#9fe8b4"};
+
+/* ================= clock ================= */
+(function(){
+  var c=document.getElementById("clock");
+  function pad(n){return (n<10?"0":"")+n;}
+  function tick(){var d=new Date();c.textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());}
+  tick();setInterval(tick,1000);
+})();
+
+/* ================= ticker tape ================= */
+(function(){
+  var cv=document.getElementById("tape"),ctx=cv.getContext("2d"),off=0,items=[],total=0;
+  function build(){
+    var dpr=window.devicePixelRatio||1;
+    cv.width=cv.clientWidth*dpr;cv.height=36*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.font="13px 'IBM Plex Mono',monospace";
+    items=[];total=0;
+    TAPE.forEach(function(t){
+      var s=t[0]+" "+t[1].toLocaleString("en-US",{minimumFractionDigits:2})+" ",
+          a=(t[2]>=0?"+":"")+t[2].toFixed(2)+"%",sep="   ║   ";
+      var w1=ctx.measureText(s).width,w2=ctx.measureText(a).width,w3=ctx.measureText(sep).width;
+      items.push({s:s,a:a,sep:sep,w:w1+w2+w3,w1:w1,w2:w2,up:t[2]>=0});
+      total+=w1+w2+w3;
+    });
+  }
+  function draw(){
+    var w=cv.clientWidth;
+    ctx.clearRect(0,0,w,36);
+    ctx.font="13px 'IBM Plex Mono',monospace";ctx.textBaseline="middle";
+    var x=-off;
+    while(x<w){
+      for(var k=0;k<items.length;k++){
+        var it=items[k];
+        if(x+it.w>0&&x<w){
+          ctx.fillStyle=C.dim;ctx.fillText(it.s,x,19);
+          ctx.fillStyle=it.up?C.green:C.red;ctx.fillText(it.a,x+it.w1,19);
+          ctx.fillStyle=C.grid;ctx.fillText(it.sep,x+it.w1+it.w2,19);
+        }
+        x+=it.w;
+        if(x>=w)break;
+      }
+    }
+    off+=0.6;if(off>=total)off-=total;
+    requestAnimationFrame(draw);
+  }
+  build();window.addEventListener("resize",build);requestAnimationFrame(draw);
+})();
+
+/* ================= candlestick chart ================= */
+(function(){
+  var cv=document.getElementById("candle"),ctx=cv.getContext("2d"),
+      out=document.getElementById("ohlc"),meta=document.getElementById("chartmeta");
+
+  /* deterministic fictional series — mulberry32 PRNG, fixed seeds */
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function genSeries(seed,start,drift,vol){
+    var r=mulberry32(seed),data=[],prev=start;
+    for(var i=0;i<120;i++){
+      var o=prev,
+          move=(r()-0.48)*vol*o+drift*o,
+          c=Math.max(1,o+move),
+          hi=Math.max(o,c)*(1+r()*vol*0.6),
+          lo=Math.min(o,c)*(1-r()*vol*0.6),
+          v=Math.round(1000+r()*4000+Math.abs(move/o)*40000);
+      data.push({o:o,h:hi,l:lo,c:c,v:v});
+      prev=c;
+    }
+    return data;
+  }
+  var SERIES={
+    CRBX:{d:genSeries(20260710,318,0.0024,0.028),last:412.88,name:"Cerebrix AI Systems"},
+    VLTN:{d:genSeries(19870411,74,-0.0007,0.019),last:68.21,name:"Voltain Energy Grid"},
+    KRNL:{d:genSeries(20011024,141,0.0011,0.022),last:158.44,name:"Kernel Semiconductors"}
+  };
+  var cur="CRBX",hoverI=-1,geom=null;
+
+  function draw(){
+    var dpr=window.devicePixelRatio||1,
+        w=cv.clientWidth,h=cv.clientHeight;
+    cv.width=w*dpr;cv.height=h*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,h);
+
+    var d=SERIES[cur].d,
+        padL=8,padR=64,padT=14,volH=Math.round(h*0.16),padB=volH+26,
+        cw=(w-padL-padR)/d.length,
+        mn=Infinity,mx=-Infinity,vmax=0;
+    d.forEach(function(k){if(k.l<mn)mn=k.l;if(k.h>mx)mx=k.h;if(k.v>vmax)vmax=k.v;});
+    var span=mx-mn||1;
+    function Y(p){return padT+(mx-p)/span*(h-padT-padB);}
+    geom={padL:padL,cw:cw,d:d,Y:Y,h:h,volH:volH,padB:padB,vmax:vmax};
+
+    /* grid + right axis labels */
+    ctx.font="10px 'IBM Plex Mono',monospace";
+    ctx.textBaseline="middle";
+    for(var g=0;g<=4;g++){
+      var p=mn+span*g/4,y=Y(p);
+      ctx.strokeStyle="#0c2415";ctx.setLineDash([2,4]);
+      ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=C.dim;
+      ctx.fillText(p.toFixed(p>500?0:2),w-padR+8,y);
+    }
+    /* session ticks on x */
+    ctx.fillStyle=C.dim;ctx.textAlign="center";
+    for(var t=0;t<d.length;t+=20){
+      var xx=padL+t*cw+cw/2;
+      ctx.fillText("-"+(d.length-t)+"d",xx,h-10);
+    }
+    ctx.textAlign="left";
+
+    /* volume bars */
+    for(var i=0;i<d.length;i++){
+      var k=d[i],x=padL+i*cw,
+          vh=(k.v/vmax)*volH,
+          up=k.c>=k.o;
+      ctx.fillStyle=up?"rgba(55,255,112,.28)":"rgba(255,91,69,.28)";
+      ctx.fillRect(x+cw*0.18,h-24-vh,Math.max(1,cw*0.64),vh);
+    }
+
+    /* candles: up = hollow green, down = solid amber-red */
+    for(i=0;i<d.length;i++){
+      k=d[i];x=padL+i*cw;
+      var up2=k.c>=k.o,
+          col=up2?C.green:C.red,
+          bx=x+cw*0.18,bw=Math.max(1,cw*0.64),
+          yO=Y(k.o),yC=Y(k.c),
+          top=Math.min(yO,yC),bh=Math.max(1,Math.abs(yO-yC));
+      ctx.strokeStyle=col;ctx.lineWidth=1;
+      /* wick */
+      ctx.beginPath();ctx.moveTo(x+cw/2,Y(k.h));ctx.lineTo(x+cw/2,Y(k.l));ctx.stroke();
+      /* body */
+      if(up2){ctx.strokeRect(bx+0.5,top+0.5,bw-1,bh);}
+      else{ctx.fillStyle=col;ctx.fillRect(bx,top,bw,bh);}
+      if(i===hoverI){
+        ctx.strokeStyle=C.amber;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(x+cw/2,padT);ctx.lineTo(x+cw/2,h-24);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    /* last price line */
+    var lastC=d[d.length-1].c,ly=Y(lastC);
+    ctx.strokeStyle=C.amber;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(padL,ly);ctx.lineTo(w-padR,ly);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=C.amber;
+    ctx.fillText("> "+lastC.toFixed(2),w-padR+4,ly-1);
+
+    meta.textContent=cur+" · "+SERIES[cur].name+" · 120 fictional sessions";
+  }
+
+  cv.addEventListener("mousemove",function(e){
+    if(!geom)return;
+    var r=cv.getBoundingClientRect(),
+        i=Math.floor((e.clientX-r.left-geom.padL)/geom.cw);
+    if(i<0||i>=geom.d.length){hoverI=-1;draw();return;}
+    hoverI=i;draw();
+    var k=geom.d[i];
+    out.innerHTML="<b>"+cur+"</b> t-"+(geom.d.length-i)+"d  "+
+      '<span class="o">O</span> '+k.o.toFixed(2)+"  "+
+      '<span class="o">H</span> '+k.h.toFixed(2)+"  "+
+      '<span class="o">L</span> '+k.l.toFixed(2)+"  "+
+      '<span class="o">C</span> '+k.c.toFixed(2)+"  "+
+      '<span class="o">V</span> '+(k.v/1000).toFixed(1)+"M";
+  });
+  cv.addEventListener("mouseleave",function(){hoverI=-1;draw();
+    out.textContent="hover the tape for OHLC readout · keys Q / W / E switch symbol";});
+
+  function select(sym){
+    cur=sym;hoverI=-1;
+    document.querySelectorAll(".chart-controls .kbtn").forEach(function(b){
+      b.classList.toggle("sel",b.dataset.sym===sym);
+    });
+    draw();
+  }
+  document.querySelectorAll(".chart-controls .kbtn").forEach(function(b){
+    b.addEventListener("click",function(){select(b.dataset.sym);});
+  });
+  window.addEventListener("keydown",function(e){
+    if(e.target.tagName==="INPUT")return;
+    var k=e.key.toLowerCase();
+    if(k==="q")select("CRBX");
+    if(k==="w")select("VLTN");
+    if(k==="e")select("KRNL");
+  });
+  window.addEventListener("resize",draw);
+  draw();
+})();
+
+/* ================= sector heat bars ================= */
+(function(){
+  document.querySelectorAll("#sectors td[data-h]").forEach(function(td){
+    var v=parseFloat(td.dataset.h),
+        wpx=Math.round(Math.abs(v)*38),
+        b=document.createElement("span");
+    b.className="bar"+(v<0?" neg":"");
+    b.style.width=Math.max(3,wpx)+"px";
+    td.appendChild(b);
+    var lbl=document.createElement("span");
+    lbl.style.cssText="font-size:11px;margin-left:8px;color:"+(v<0?"#ff5b45":"#37ff70");
+    lbl.textContent=(v>=0?"+":"")+v.toFixed(2);
+    td.appendChild(lbl);
+  });
+})();
+
+/* ================= keyboard nav ================= */
+window.addEventListener("keydown",function(e){
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  if(e.key==="1")location.href="index.html";
+  if(e.key==="2")location.href="markets.html";
+  if(e.key==="3")location.href="research.html";
+});
+</script>
+</body>
+</html>

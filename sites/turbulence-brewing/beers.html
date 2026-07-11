@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>酒款目錄｜亂流製造 TURBULENCE BREWING</title>
+<meta name="description" content="亂流製造常備七款酒。ABV、IBU、價格、原料，數字全部公開。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFD400'/%3E%3Crect x='2' y='2' width='28' height='28' fill='none' stroke='%23000' stroke-width='3'/%3E%3Cpath d='M7 12c3-5 6 5 9 0s6 5 9 0' fill='none' stroke='%23000' stroke-width='3'/%3E%3Cpath d='M7 21c3-5 6 5 9 0s6 5 9 0' fill='none' stroke='%23FF3E00' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--y:#FFD400;--k:#000000;--r:#FF3E00;--w:#FFFFFF}
+html{scroll-behavior:smooth}
+body{background:var(--y);color:var(--k);font-family:'Noto Sans TC',sans-serif;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--r);color:var(--w)}
+a{color:inherit;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+a:hover,a:focus-visible{background:var(--k);color:var(--y);outline:none}
+.mono{font-family:'Space Mono',monospace}
+.tag{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;border:2px solid var(--k);padding:2px 8px;display:inline-block;background:var(--y)}
+h1,h2,h3{font-weight:900;line-height:1.05;letter-spacing:-.02em}
+
+.topbar{display:flex;justify-content:space-between;align-items:stretch;flex-wrap:wrap;background:var(--k);color:var(--y);border-bottom:6px solid var(--k)}
+.brand{font-weight:900;font-size:22px;text-decoration:none;padding:14px 18px;border-right:3px solid var(--y);display:flex;gap:12px;align-items:baseline}
+.brand-en{font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.12em}
+.brand:hover{background:var(--y);color:var(--k)}
+.nav{display:flex}
+.nav a{display:flex;align-items:center;padding:14px 20px;text-decoration:none;font-size:13px;letter-spacing:.1em;border-left:3px solid var(--y)}
+.nav a:hover{background:var(--y);color:var(--k)}
+.nav a[aria-current="page"]{background:var(--r);color:var(--k)}
+
+.marquee{background:var(--k);color:var(--y);overflow:hidden;white-space:nowrap;border-bottom:3px solid var(--k)}
+.marquee-track{display:inline-block;animation:mq 24s linear infinite}
+.marquee-track span{display:inline-block;padding:8px 0;font-family:'Space Mono',monospace;font-size:14px;letter-spacing:.1em}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.page-head{border-bottom:6px solid var(--k);position:relative;padding:6vw 0 3vw}
+.page-head h1{font-size:clamp(56px,14vw,200px);margin-left:-.045em;line-height:.95}
+.page-head .en{font-family:'Archivo Black',sans-serif;font-size:clamp(20px,4.5vw,64px);-webkit-text-stroke:2.5px var(--k);color:transparent;display:block;margin-top:-.3em;margin-left:1em;position:relative;z-index:2}
+.page-head .note{padding:16px 24px 0;font-size:15px;max-width:42em}
+.page-head .tag{margin-left:24px}
+
+/* 總表 */
+table{border-collapse:collapse;width:100%}
+th,td{border:3px solid var(--k);padding:10px 12px;text-align:left;font-size:14px;background:var(--y)}
+thead th{background:var(--k);color:var(--y);font-family:'Space Mono',monospace;font-weight:700;letter-spacing:.08em;font-size:12px;text-transform:uppercase}
+td.num{font-family:'Space Mono',monospace;font-weight:700;white-space:nowrap}
+.index-table-wrap{padding:24px;border-bottom:6px solid var(--k);overflow-x:auto}
+.index-table-wrap table{min-width:640px}
+.index-table-wrap tbody tr:hover td{background:var(--k);color:var(--y)}
+.index-table-wrap tbody tr:hover td a{color:var(--y)}
+
+/* 酒款卡 */
+.beers{background:var(--k);display:grid;gap:3px}
+.beer{background:var(--y);scroll-margin-top:20px}
+.beer-head{
+  all:unset;display:grid;grid-template-columns:150px 70px 1fr auto auto;gap:0;width:100%;
+  cursor:pointer;align-items:stretch;box-sizing:border-box
+}
+.beer-head:hover,.beer-head:focus-visible{background:var(--k);color:var(--y)}
+.beer-head:hover .bcell,.beer-head:focus-visible .bcell{border-color:currentColor}
+.bcell{padding:18px;border-left:3px solid var(--k);display:flex;flex-direction:column;justify-content:center}
+.bcell:first-child{border-left:none;padding:10px}
+.blabel svg{display:block;width:130px;height:auto;border:3px solid var(--k);background:var(--w)}
+.beer-head:hover .blabel svg{border-color:var(--y)}
+.bno{font-family:'Space Mono',monospace;font-size:14px;align-items:center;justify-content:center;flex-direction:row}
+.bname{font-weight:900;font-size:clamp(22px,3.6vw,42px);letter-spacing:-.01em;line-height:1.1}
+.bstyle{font-family:'Space Mono',monospace;font-weight:400;font-size:12px;letter-spacing:.08em;margin-top:4px}
+.babv{font-family:'Space Mono',monospace;font-weight:700;font-size:clamp(18px,2.4vw,28px);align-items:flex-end}
+.btoggle{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;align-items:center;justify-content:center;flex-direction:row;min-width:64px}
+.beer.open .btoggle::before{content:"−"}
+.beer:not(.open) .btoggle::before{content:"+"}
+
+.spec{display:none;border-top:3px solid var(--k)}
+.beer.open .spec{display:grid;grid-template-columns:1fr 1.2fr;gap:0}
+.spec>div{padding:20px 24px}
+.spec>div+div{border-left:3px solid var(--k)}
+.spec p{font-size:15px;max-width:36em;margin-bottom:.8em}
+.spec .pair{font-family:'Space Mono',monospace;font-size:13px;background:var(--w);border:3px solid var(--k);padding:10px 12px;display:inline-block}
+.spec table td,.spec table th{font-size:14px}
+.soldnote{background:var(--r);color:var(--k);font-family:'Space Mono',monospace;font-size:12px;padding:2px 8px;border:2px solid var(--k);display:inline-block;margin-left:10px;vertical-align:middle}
+
+footer{background:var(--k);color:var(--y)}
+.warn{font-weight:900;font-size:clamp(28px,6.5vw,84px);line-height:1.05;padding:32px 24px 16px;border-bottom:3px solid var(--y)}
+.foot-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.foot-grid>div{padding:20px 24px;border-left:3px solid var(--y);font-size:13px;line-height:1.9}
+.foot-grid>div:first-child{border-left:none}
+.foot-grid .lbl{color:var(--r);font-weight:700;display:block}
+footer a:hover{background:var(--y);color:var(--k)}
+.foot-bottom{border-top:3px solid var(--y);padding:14px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em}
+.foot-bottom .drive{color:var(--r)}
+
+@media (max-width:900px){
+  .beer-head{grid-template-columns:110px 1fr auto}
+  .bno,.babv{display:none}
+  .blabel svg{width:92px}
+  .beer.open .spec{grid-template-columns:1fr}
+  .spec>div+div{border-left:none;border-top:3px solid var(--k)}
+  .foot-grid{grid-template-columns:1fr}
+  .foot-grid>div{border-left:none;border-top:3px solid var(--y)}
+}
+@media (max-width:600px){
+  .topbar{flex-direction:column}
+  .brand{border-right:none;border-bottom:3px solid var(--y)}
+  .nav a{flex:1;justify-content:center;border-left:none;border-right:3px solid var(--y)}
+  .nav a:last-child{border-right:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .marquee-track{animation:none}
+  html{scroll-behavior:auto}
+  *{transition:none !important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html">亂流製造<span class="brand-en">TURBULENCE BREWING</span></a>
+  <nav class="nav mono" aria-label="主選單">
+    <a href="index.html">01 首頁</a>
+    <a href="beers.html" aria-current="page">02 酒款</a>
+    <a href="taproom.html">03 酒吧</a>
+  </nav>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>未滿十八歲禁止飲酒 ✱ 常備七款 全數字公開 ✱ ABV / IBU / SRM / NT$ ✱ 點擊酒款展開完整規格 ✱ 飲酒過量，有害健康 ✱&nbsp;</span><span>未滿十八歲禁止飲酒 ✱ 常備七款 全數字公開 ✱ ABV / IBU / SRM / NT$ ✱ 點擊酒款展開完整規格 ✱ 飲酒過量，有害健康 ✱&nbsp;</span>
+  </div>
+</div>
+
+<main>
+  <header class="page-head">
+    <p class="tag">CATALOGUE — 7 BEERS ON ROTATION</p>
+    <h1>酒款目錄</h1>
+    <span class="en">THE BEER LIST</span>
+    <p class="note">常備七款，全年供應（玉井芒果酸啤為季節限定，6–9 月）。每款點開有完整規格與原料。瓶裝價為酒廠建議零售價（330ml），酒吧現壓價見 <a href="taproom.html">酒吧頁</a>。</p>
+  </header>
+
+  <!-- 總表 -->
+  <section class="index-table-wrap">
+    <table>
+      <caption class="mono" style="text-align:left;padding-bottom:10px;font-size:12px;letter-spacing:.1em">INDEX / 酒款總表（點編號跳至該款）</caption>
+      <thead>
+        <tr><th>NO.</th><th>酒款</th><th>類型</th><th>ABV</th><th>IBU</th><th>SRM</th><th>330ml 建議售價</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="num"><a href="#t01">T-01</a></td><td>亂流 IPA</td><td>West Coast IPA</td><td class="num">6.8%</td><td class="num">62</td><td class="num">6</td><td class="num">NT$180</td></tr>
+        <tr><td class="num"><a href="#t02">T-02</a></td><td>運河金黃 Canal Golden</td><td>Golden Ale</td><td class="num">5.0%</td><td class="num">22</td><td class="num">4</td><td class="num">NT$150</td></tr>
+        <tr><td class="num"><a href="#t03">T-03</a></td><td>鹽田 Gose</td><td>Leipzig-style Gose</td><td class="num">4.2%</td><td class="num">8</td><td class="num">3</td><td class="num">NT$170</td></tr>
+        <tr><td class="num"><a href="#t04">T-04</a></td><td>全糖司陶特 Full Sugar Stout</td><td>Sweet Stout</td><td class="num">7.5%</td><td class="num">40</td><td class="num">38</td><td class="num">NT$190</td></tr>
+        <tr><td class="num"><a href="#t05">T-05</a></td><td>西市場小麥 West Market Wheat</td><td>Hefeweizen</td><td class="num">4.8%</td><td class="num">14</td><td class="num">4</td><td class="num">NT$150</td></tr>
+        <tr><td class="num"><a href="#t06">T-06</a></td><td>雙倍亂流 Double Turbulence</td><td>Double IPA</td><td class="num">9.2%</td><td class="num">88</td><td class="num">8</td><td class="num">NT$220</td></tr>
+        <tr><td class="num"><a href="#t07">T-07</a></td><td>玉井芒果酸啤 Yujing Mango Sour</td><td>Fruited Sour（季節限定）</td><td class="num">4.5%</td><td class="num">10</td><td class="num">5</td><td class="num">NT$200</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 酒款卡 -->
+  <section class="beers" aria-label="酒款清單">
+
+    <!-- T-01 -->
+    <article class="beer open" id="t01">
+      <button class="beer-head" aria-expanded="true" aria-controls="spec01">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="亂流 IPA 酒標">
+            <rect width="200" height="260" fill="#FFD400"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#000" stroke-width="6"/>
+            <path d="M20 60 L48 96 L76 48 L104 112 L132 56 L160 100 L180 72" fill="none" stroke="#000" stroke-width="9"/>
+            <path d="M20 122 L48 158 L76 110 L104 174 L132 118 L160 162 L180 134" fill="none" stroke="#FF3E00" stroke-width="9"/>
+            <rect x="20" y="192" width="160" height="44" fill="#000"/>
+            <text x="100" y="214" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="16" font-weight="700">TURBULENCE</text>
+            <text x="100" y="230" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="11">IPA / ABV 6.8%</text>
+            <text x="24" y="36" fill="#000" font-family="'Space Mono',monospace" font-size="12">T-01</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-01</span>
+        <span class="bcell"><span class="bname">亂流 IPA</span><span class="bstyle">TURBULENCE IPA — WEST COAST IPA</span></span>
+        <span class="bcell babv">6.8%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec01">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">6.8%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">62</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">6（淡金）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$180</td></tr>
+              <tr><th scope="row">啤酒花</th><td>Simcoe、Centennial、Cascade</td></tr>
+              <tr><th scope="row">麥芽</th><td>Pale Ale、Munich、少量 CaraPils</td></tr>
+              <tr><th scope="row">建議杯型</th><td>Shaker Pint</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">7–10°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>創廠第一款酒，配方改了十一版才定案。松針與葡萄柚皮的苦味走在最前面，麥芽只負責墊底，不搶戲。收尾乾脆，苦味停留約十五秒——我們數過。</p>
+          <p>不做 Hazy。不是不會，是不想。</p>
+          <span class="pair">餐搭：鹽酥雞、蒜香烤物、任何炸的</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- T-02 -->
+    <article class="beer" id="t02">
+      <button class="beer-head" aria-expanded="false" aria-controls="spec02">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="運河金黃酒標">
+            <rect width="200" height="260" fill="#FFD400"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#000" stroke-width="6"/>
+            <circle cx="100" cy="70" r="30" fill="#FF3E00" stroke="#000" stroke-width="6"/>
+            <path d="M20 122 q20 -14 40 0 t40 0 t40 0 t40 0" fill="none" stroke="#000" stroke-width="8"/>
+            <path d="M20 148 q20 -14 40 0 t40 0 t40 0 t40 0" fill="none" stroke="#000" stroke-width="8"/>
+            <path d="M20 174 q20 -14 40 0 t40 0 t40 0 t40 0" fill="none" stroke="#000" stroke-width="8"/>
+            <rect x="20" y="192" width="160" height="44" fill="#000"/>
+            <text x="100" y="214" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="15" font-weight="700">CANAL GOLDEN</text>
+            <text x="100" y="230" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="11">GOLDEN ALE / 5.0%</text>
+            <text x="24" y="36" fill="#000" font-family="'Space Mono',monospace" font-size="12">T-02</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-02</span>
+        <span class="bcell"><span class="bname">運河金黃</span><span class="bstyle">CANAL GOLDEN — GOLDEN ALE</span></span>
+        <span class="bcell babv">5.0%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec02">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">5.0%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">22</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">4（金黃）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$150</td></tr>
+              <tr><th scope="row">啤酒花</th><td>Motueka、Saaz</td></tr>
+              <tr><th scope="row">麥芽</th><td>Pilsner、Wheat、關山米（10%）</td></tr>
+              <tr><th scope="row">建議杯型</th><td>Willi Becher</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">4–7°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>向安平運河的日落致意。加了一成關山米，酒體更輕、更透，萊姆皮般的香氣是 Motueka 給的。這是我們唯一一款「順口」的酒——因為連我們也需要休息。</p>
+          <span class="pair">餐搭：蝦捲、海產粥、生魚片</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- T-03 -->
+    <article class="beer" id="t03">
+      <button class="beer-head" aria-expanded="false" aria-controls="spec03">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="鹽田 Gose 酒標">
+            <rect width="200" height="260" fill="#FFD400"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#000" stroke-width="6"/>
+            <path d="M100 26 L156 110 L100 194 L44 110 Z" fill="none" stroke="#000" stroke-width="8"/>
+            <path d="M100 70 L128 110 L100 150 L72 110 Z" fill="#FF3E00" stroke="#000" stroke-width="5"/>
+            <path d="M30 110 h20 M150 110 h20 M100 40 v-14 M100 194 v14" stroke="#000" stroke-width="5"/>
+            <rect x="20" y="200" width="160" height="36" fill="#000"/>
+            <text x="100" y="217" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="15" font-weight="700">SALT FIELD GOSE</text>
+            <text x="100" y="231" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="10">井仔腳日曬海鹽 / 4.2%</text>
+            <text x="24" y="36" fill="#000" font-family="'Space Mono',monospace" font-size="12">T-03</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-03</span>
+        <span class="bcell"><span class="bname">鹽田 Gose</span><span class="bstyle">SALT FIELD GOSE — LEIPZIG-STYLE GOSE</span></span>
+        <span class="bcell babv">4.2%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec03">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">4.2%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">8</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">3（淺稻草）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$170</td></tr>
+              <tr><th scope="row">特色原料</th><td>北門井仔腳日曬海鹽、芫荽籽</td></tr>
+              <tr><th scope="row">麥芽</th><td>Pilsner、Wheat（各半）</td></tr>
+              <tr><th scope="row">得獎</th><td>2024 亞洲啤酒大賽 銀賞</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">4–6°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>鹽來自北門井仔腳——台灣最老的瓦盤鹽田，車程四十分鐘。乳酸發酵的酸、海鹽的鹹、芫荽籽的柑橘調，三者的比例我們調了整整一個夏天。喝起來像退潮後的風。</p>
+          <span class="pair">餐搭：蚵仔煎、烤牡蠣、白肉魚</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- T-04 -->
+    <article class="beer" id="t04">
+      <button class="beer-head" aria-expanded="false" aria-controls="spec04">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="全糖司陶特酒標">
+            <rect width="200" height="260" fill="#000"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#FFD400" stroke-width="6"/>
+            <rect x="28" y="30" width="36" height="36" fill="#FFD400"/>
+            <rect x="82" y="58" width="36" height="36" fill="#FFD400"/>
+            <rect x="136" y="34" width="36" height="36" fill="#FF3E00"/>
+            <rect x="44" y="104" width="36" height="36" fill="#FFD400"/>
+            <rect x="118" y="122" width="36" height="36" fill="#FFD400"/>
+            <rect x="76" y="152" width="36" height="36" fill="#FF3E00"/>
+            <rect x="20" y="200" width="160" height="36" fill="#FFD400"/>
+            <text x="100" y="217" text-anchor="middle" fill="#000" font-family="'Space Mono',monospace" font-size="14" font-weight="700">FULL SUGAR STOUT</text>
+            <text x="100" y="231" text-anchor="middle" fill="#000" font-family="'Space Mono',monospace" font-size="10">SWEET STOUT / 7.5%</text>
+            <text x="24" y="24" fill="#FFD400" font-family="'Space Mono',monospace" font-size="12">T-04</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-04</span>
+        <span class="bcell"><span class="bname">全糖司陶特</span><span class="bstyle">FULL SUGAR STOUT — SWEET STOUT</span></span>
+        <span class="bcell babv">7.5%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec04">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">7.5%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">40</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">38（黑）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$190</td></tr>
+              <tr><th scope="row">特色原料</th><td>東山龍眼乾、乳糖、台南義豐冬瓜糖（少量）</td></tr>
+              <tr><th scope="row">麥芽</th><td>Maris Otter、Roasted Barley、Chocolate</td></tr>
+              <tr><th scope="row">建議杯型</th><td>Snifter</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">10–13°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>對台南甜的正面回應。龍眼乾的煙燻甜、一小撮冬瓜糖、乳糖的圓潤，疊在深焙麥芽的咖啡苦上。甜歸甜，IBU 40 撐住了場面——這是全糖，不是死甜。</p>
+          <p>外地朋友的第一反應通常是「太甜了吧」，第二反應是續杯。</p>
+          <span class="pair">餐搭：黑糖粉粿、烤布蕾、藍紋起司</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- T-05 -->
+    <article class="beer" id="t05">
+      <button class="beer-head" aria-expanded="false" aria-controls="spec05">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="西市場小麥酒標">
+            <rect width="200" height="260" fill="#FFD400"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#000" stroke-width="6"/>
+            <g stroke="#000" stroke-width="7" fill="none">
+              <path d="M48 40 v140"/><path d="M100 40 v140"/><path d="M152 40 v140"/>
+              <path d="M48 62 l-16 -18 M48 62 l16 -18 M48 96 l-16 -18 M48 96 l16 -18 M48 130 l-16 -18 M48 130 l16 -18"/>
+              <path d="M100 62 l-16 -18 M100 62 l16 -18 M100 96 l-16 -18 M100 96 l16 -18 M100 130 l-16 -18 M100 130 l16 -18"/>
+              <path d="M152 62 l-16 -18 M152 62 l16 -18 M152 96 l-16 -18 M152 96 l16 -18 M152 130 l-16 -18 M152 130 l16 -18"/>
+            </g>
+            <rect x="60" y="150" width="80" height="26" fill="#FF3E00" stroke="#000" stroke-width="4"/>
+            <rect x="20" y="200" width="160" height="36" fill="#000"/>
+            <text x="100" y="217" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="13" font-weight="700">WEST MARKET WHEAT</text>
+            <text x="100" y="231" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="10">HEFEWEIZEN / 4.8%</text>
+            <text x="24" y="36" fill="#000" font-family="'Space Mono',monospace" font-size="12">T-05</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-05</span>
+        <span class="bcell"><span class="bname">西市場小麥</span><span class="bstyle">WEST MARKET WHEAT — HEFEWEIZEN</span></span>
+        <span class="bcell babv">4.8%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec05">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">4.8%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">14</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">4（霧金）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$150</td></tr>
+              <tr><th scope="row">酵母</th><td>德式小麥酵母（丁香、香蕉酯香）</td></tr>
+              <tr><th scope="row">麥芽</th><td>Wheat 60%、Pilsner 40%</td></tr>
+              <tr><th scope="row">建議杯型</th><td>Weizen Glass</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">5–8°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>名字獻給正興街口的百年西市場——布市、飲食攤、老屋頂棚。傳統德式做法不亂改：酵母給的丁香與香蕉香、綿密泡沫、微濁酒體。經典不需要我們多嘴。</p>
+          <span class="pair">餐搭：香腸熟肉、意麵、白灼透抽</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- T-06 -->
+    <article class="beer" id="t06">
+      <button class="beer-head" aria-expanded="false" aria-controls="spec06">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="雙倍亂流酒標">
+            <rect width="200" height="260" fill="#FF3E00"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#000" stroke-width="6"/>
+            <path d="M20 52 L48 88 L76 40 L104 104 L132 48 L160 92 L180 64" fill="none" stroke="#000" stroke-width="10"/>
+            <path d="M20 106 L48 142 L76 94 L104 158 L132 102 L160 146 L180 118" fill="none" stroke="#FFD400" stroke-width="10"/>
+            <path d="M20 160 L48 196 L76 148 L104 196 L132 156 L160 190 L180 172" fill="none" stroke="#000" stroke-width="10"/>
+            <rect x="20" y="204" width="160" height="34" fill="#000"/>
+            <text x="100" y="220" text-anchor="middle" fill="#FF3E00" font-family="'Space Mono',monospace" font-size="13" font-weight="700">DOUBLE TURBULENCE</text>
+            <text x="100" y="233" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="10">DIPA / 9.2% / IBU 88</text>
+            <text x="24" y="36" fill="#000" font-family="'Space Mono',monospace" font-size="12">T-06</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-06</span>
+        <span class="bcell"><span class="bname">雙倍亂流</span><span class="bstyle">DOUBLE TURBULENCE — DOUBLE IPA</span></span>
+        <span class="bcell babv">9.2%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec06">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">9.2%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">88</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">8（琥珀金）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$220</td></tr>
+              <tr><th scope="row">啤酒花</th><td>Simcoe、Columbus、Nelson Sauvin（乾投 12g/L）</td></tr>
+              <tr><th scope="row">麥芽</th><td>Pale Ale、Munich、蔗糖（提高發酵度）</td></tr>
+              <tr><th scope="row">建議杯型</th><td>Tulip</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">8–11°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>亂流 IPA 的加壓艙版本。所有東西乘以二：酒精、苦度、乾投量。Nelson Sauvin 帶出白酒般的葡萄皮香，底下是結實的松脂苦牆。一晚兩瓶是上限，這是建議，也是警告。</p>
+          <span class="pair">餐搭：牛肉湯（半熟）、椒麻雞、陳年切達</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- T-07 -->
+    <article class="beer" id="t07">
+      <button class="beer-head" aria-expanded="false" aria-controls="spec07">
+        <span class="bcell blabel" aria-hidden="true">
+          <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="玉井芒果酸啤酒標">
+            <rect width="200" height="260" fill="#FFD400"/>
+            <rect x="8" y="8" width="184" height="244" fill="none" stroke="#000" stroke-width="6"/>
+            <path d="M100 44 C150 44 168 86 156 122 C146 154 118 172 92 168 C56 162 38 128 48 94 C56 66 76 44 100 44 Z" fill="#FF3E00" stroke="#000" stroke-width="7"/>
+            <path d="M100 44 C112 62 116 84 108 106" fill="none" stroke="#000" stroke-width="6"/>
+            <circle cx="128" cy="96" r="9" fill="#FFD400" stroke="#000" stroke-width="4"/>
+            <rect x="20" y="200" width="160" height="36" fill="#000"/>
+            <text x="100" y="217" text-anchor="middle" fill="#FFD400" font-family="'Space Mono',monospace" font-size="12" font-weight="700">YUJING MANGO SOUR</text>
+            <text x="100" y="231" text-anchor="middle" fill="#FF3E00" font-family="'Space Mono',monospace" font-size="10">SEASONAL JUN–SEP / 4.5%</text>
+            <text x="24" y="36" fill="#000" font-family="'Space Mono',monospace" font-size="12">T-07</text>
+          </svg>
+        </span>
+        <span class="bcell bno">T-07</span>
+        <span class="bcell"><span class="bname">玉井芒果酸啤<span class="soldnote">季節限定 6–9 月</span></span><span class="bstyle">YUJING MANGO SOUR — FRUITED SOUR</span></span>
+        <span class="bcell babv">4.5%</span>
+        <span class="bcell btoggle" aria-hidden="true"></span>
+      </button>
+      <div class="spec" id="spec07">
+        <div>
+          <table>
+            <tbody>
+              <tr><th scope="row">ABV</th><td class="num">4.5%</td></tr>
+              <tr><th scope="row">IBU</th><td class="num">10</td></tr>
+              <tr><th scope="row">SRM</th><td class="num">5（濁橙）</td></tr>
+              <tr><th scope="row">容量 / 價格</th><td class="num">330ml / NT$200</td></tr>
+              <tr><th scope="row">特色原料</th><td>玉井愛文芒果果泥（180g/L）</td></tr>
+              <tr><th scope="row">製程</th><td>Kettle Sour，乳酸菌控酸至 pH 3.4</td></tr>
+              <tr><th scope="row">供應</th><td>每年 6–9 月，售完為止</td></tr>
+              <tr><th scope="row">適飲溫度</th><td class="num">4–6°C</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p>每年芒果季，我們的貨車直接開上玉井的產地收愛文——熟到隔天就不能要的那種。每公升砸 180 克果泥，酸度收在 pH 3.4，果香在前、酸在後，不加一滴香精。</p>
+          <p>七月中開賣，通常撐不到中秋。</p>
+          <span class="pair">餐搭：單獨喝。芒果不需要陪襯。</span>
+        </div>
+      </div>
+    </article>
+
+  </section>
+</main>
+
+<footer>
+  <p class="warn">未滿十八歲禁止飲酒</p>
+  <div class="foot-grid mono">
+    <div>
+      <span class="lbl">COMPANY</span>
+      亂流製造股份有限公司<br>
+      統一編號 90233417<br>
+      菸酒製造業許可執照 台財庫酒字第 108034 號
+    </div>
+    <div>
+      <span class="lbl">TAPROOM</span>
+      台南市中西區神農街 79 號<br>
+      平日 17:00 起／週末 15:00 起<br>
+      週二公休 / <a href="taproom.html">交通與活動 →</a>
+    </div>
+    <div>
+      <span class="lbl">CONTACT</span>
+      <a href="mailto:hi@turbulence-brewing.tw">hi@turbulence-brewing.tw</a><br>
+      IG <a href="https://instagram.com" rel="noopener">@turbulence.brewing</a><br>
+      批發洽詢 06-298-3341
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span class="drive">酒後不開車，安全有保障。飲酒過量，有害健康。</span>
+    <span>© 2026 TURBULENCE BREWING CO., TAINAN</span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.beer-head').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var card = btn.closest('.beer');
+    var open = card.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+});
+/* 由總表錨點進入時自動展開該款 */
+function openFromHash(){
+  var id = location.hash.replace('#','');
+  if(!id) return;
+  var card = document.getElementById(id);
+  if(card && card.classList.contains('beer') && !card.classList.contains('open')){
+    card.classList.add('open');
+    card.querySelector('.beer-head').setAttribute('aria-expanded','true');
+  }
+}
+window.addEventListener('hashchange', openFromHash);
+openFromHash();
+</script>
+
+</body>
+</html>

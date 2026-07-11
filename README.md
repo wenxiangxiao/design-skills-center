@@ -21,6 +21,9 @@
 | 03 | [糖雲 Sugar Cloud](sites/sugarcloud/index.html) | 甜點餐飲 | 糖果風 | 繁中 |
 | 04 | [TickerHouse](sites/tickerhouse/index.html) | 金融投資 | 復古終端機 | EN |
 | 05 | [Poppin](sites/poppin/index.html) | 社交 App | 俏皮普普風 | 中英混 |
+| 06 | [亂流製造 Turbulence](sites/turbulence-brewing/index.html) | 精釀啤酒 | 野獸派 Brutalism | 繁中 |
+| 07 | [驟雨書店日報](sites/sudden-rain-books/index.html) | 書店 | 報紙編輯風 | 繁中 |
+| 08 | [Maison Luminé](sites/maison-lumine/index.html) | 婚紗攝影 | 奢華精品風 | 繁中 |
 
 ## 種子庫
 

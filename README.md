@@ -12,7 +12,7 @@
 
 風格與內容分離：同一份 SKILL 可套用到任何產業。
 
-## 目前館藏（Vol.01）
+## 目前館藏（Vol.02）
 
 | # | 範例站 | 產業 | 風格 | 語言 |
 |---|--------|------|------|------|
@@ -24,6 +24,7 @@
 | 06 | [亂流製造 Turbulence](sites/turbulence-brewing/index.html) | 精釀啤酒 | 野獸派 Brutalism | 繁中 |
 | 07 | [驟雨書店日報](sites/sudden-rain-books/index.html) | 書店 | 報紙編輯風 | 繁中 |
 | 08 | [Maison Luminé](sites/maison-lumine/index.html) | 婚紗攝影 | 奢華精品風 | 繁中 |
+| 09 | [RASTER 當代美術館](sites/raster/index.html) | 美術館展覽 | 瑞士國際主義 | 繁中 |
 
 ## 種子庫
 

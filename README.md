@@ -26,6 +26,7 @@
 | 08 | [Maison Luminé](sites/maison-lumine/index.html) | 婚紗攝影 | 奢華精品風 | 繁中 |
 | 09 | [RASTER 當代美術館](sites/raster/index.html) | 美術館展覽 | 瑞士國際主義 | 繁中 |
 | 10 | [凪 NAGI 日本茶](sites/nagi-cha/index.html) | 茶葉品牌 | 和風極簡 | 繁中 |
+| 11 | [孔雀閣 Hôtel Pavone](sites/hotel-pavone/index.html) | 精品旅宿 | Art Deco 裝飾藝術 | 繁中 |
 
 ## 種子庫
 

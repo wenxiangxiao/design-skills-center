@@ -14,19 +14,19 @@
 
 ## 目前館藏（Vol.02）
 
-| # | 範例站 | 產業 | 風格 | 語言 |
-|---|--------|------|------|------|
-| 01 | [光合髮室 Lumière](sites/lumiere-hair/index.html) | 美髮沙龍 | 手繪雜誌風 | 繁中 |
-| 02 | [Kinetiq](sites/kinetiq/index.html) | 科技 SaaS | 動態加重 | EN |
-| 03 | [糖雲 Sugar Cloud](sites/sugarcloud/index.html) | 甜點餐飲 | 糖果風 | 繁中 |
-| 04 | [TickerHouse](sites/tickerhouse/index.html) | 金融投資 | 復古終端機 | EN |
-| 05 | [Poppin](sites/poppin/index.html) | 社交 App | 俏皮普普風 | 中英混 |
-| 06 | [亂流製造 Turbulence](sites/turbulence-brewing/index.html) | 精釀啤酒 | 野獸派 Brutalism | 繁中 |
-| 07 | [驟雨書店日報](sites/sudden-rain-books/index.html) | 書店 | 報紙編輯風 | 繁中 |
-| 08 | [Maison Luminé](sites/maison-lumine/index.html) | 婚紗攝影 | 奢華精品風 | 繁中 |
-| 09 | [RASTER 當代美術館](sites/raster/index.html) | 美術館展覽 | 瑞士國際主義 | 繁中 |
-| 10 | [凪 NAGI 日本茶](sites/nagi-cha/index.html) | 茶葉品牌 | 和風極簡 | 繁中 |
-| 11 | [孔雀閣 Hôtel Pavone](sites/hotel-pavone/index.html) | 精品旅宿 | Art Deco 裝飾藝術 | 繁中 |
+| # | 範例站 | 產業 | 風格 | 語言 | 建置模型 |
+|---|--------|------|------|------|----------|
+| 01 | [光合髮室 Lumière](sites/lumiere-hair/index.html) | 美髮沙龍 | 手繪雜誌風 | 繁中 | Claude Fable 5 |
+| 02 | [Kinetiq](sites/kinetiq/index.html) | 科技 SaaS | 動態加重 | EN | Claude Fable 5 |
+| 03 | [糖雲 Sugar Cloud](sites/sugarcloud/index.html) | 甜點餐飲 | 糖果風 | 繁中 | Claude Fable 5 |
+| 04 | [TickerHouse](sites/tickerhouse/index.html) | 金融投資 | 復古終端機 | EN | Claude Fable 5 |
+| 05 | [Poppin](sites/poppin/index.html) | 社交 App | 俏皮普普風 | 中英混 | Claude Fable 5 |
+| 06 | [亂流製造 Turbulence](sites/turbulence-brewing/index.html) | 精釀啤酒 | 野獸派 Brutalism | 繁中 | Claude Fable 5 |
+| 07 | [驟雨書店日報](sites/sudden-rain-books/index.html) | 書店 | 報紙編輯風 | 繁中 | Claude Fable 5 |
+| 08 | [Maison Luminé](sites/maison-lumine/index.html) | 婚紗攝影 | 奢華精品風 | 繁中 | Claude Fable 5 |
+| 09 | [RASTER 當代美術館](sites/raster/index.html) | 美術館展覽 | 瑞士國際主義 | 繁中 | Claude Fable 5 |
+| 10 | [凪 NAGI 日本茶](sites/nagi-cha/index.html) | 茶葉品牌 | 和風極簡 | 繁中 | Claude Fable 5 |
+| 11 | [孔雀閣 Hôtel Pavone](sites/hotel-pavone/index.html) | 精品旅宿 | Art Deco 裝飾藝術 | 繁中 | Claude Fable 5 |
 
 ## 種子庫
 

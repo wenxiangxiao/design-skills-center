@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NULLPOINT ESPORTS 斷點戰隊｜台北・職業電競俱樂部</title>
+<meta name="description" content="斷點電子競技俱樂部 NULLPOINT，位於台北南港。征戰《Valorant》與《英雄聯盟》的職業戰隊。下一戰 07.18 對決 PHANTOM DIVISION。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A0A12'/%3E%3Crect x='3' y='3' width='26' height='26' fill='none' stroke='%2300F0FF' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23CCFF00' stroke-width='2'/%3E%3Cpath d='M16 4V11 M16 21V28 M4 16H11 M21 16H28' stroke='%23FF2E88' stroke-width='2'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%2300F0FF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== NULLPOINT — Cyberpunk Neon HUD base ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A12; --bg2:#07070D; --panel:#12121E; --panel2:#0E0E1A;
+  --cyan:#00F0FF; --magenta:#FF2E88; --acid:#CCFF00;
+  --ink:#EAF6FF; --dim:#7C8AA5; --line:#1E2440; --line2:#2A3358;
+  --gut:22px;
+  --mono:'Chakra Petch','Noto Sans TC',ui-monospace,monospace;
+  --han:'Noto Sans TC',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--han);font-weight:400;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:44px 44px;background-position:center;
+  background-attachment:fixed;position:relative}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(120% 90% at 50% 0%,transparent 40%,rgba(7,7,13,.9) 100%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(0,240,255,.04) 0 1px,transparent 1px 3px)}
+::selection{background:var(--magenta);color:#0A0A12}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1320px;margin:0 auto;padding:0 var(--gut);position:relative;z-index:5}
+.tag{font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--cyan)}
+.tag .b{color:var(--magenta)}
+.rule{border:0;border-top:1px solid var(--line2)}
+
+/* ---- nav ---- */
+.hud-nav{position:sticky;top:0;z-index:60;background:rgba(10,10,18,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
+.hud-nav::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--cyan),transparent 45%,transparent 55%,var(--magenta))}
+.hud-nav .bar{display:flex;justify-content:space-between;align-items:center;padding:12px var(--gut);max-width:1320px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:150px;height:40px}
+.mainnav{display:flex;gap:4px}
+.mainnav a{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:9px 14px;color:var(--dim);position:relative;border:1px solid transparent;transition:color .15s,border-color .15s}
+.mainnav a:hover{color:var(--cyan)}
+.mainnav a[aria-current="page"]{color:var(--ink);border-color:var(--line2)}
+.mainnav a[aria-current="page"]::before{content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;background:var(--acid)}
+.menu-btn{display:none;font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;background:none;border:1px solid var(--cyan);color:var(--cyan);padding:8px 13px;cursor:pointer;clip-path:polygon(0 0,100% 0,100% 70%,90% 100%,0 100%)}
+
+/* ---- system bar (static HUD readout, NOT a marquee) ---- */
+.sysbar{background:var(--panel2);border-bottom:1px solid var(--line2)}
+.sysbar .row{display:grid;grid-template-columns:repeat(4,1fr);max-width:1320px;margin:0 auto}
+.sysbar .cell{padding:10px var(--gut);border-left:1px solid var(--line);display:flex;gap:10px;align-items:baseline}
+.sysbar .cell:first-child{border-left:none}
+.sysbar .k{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);flex:0 0 auto}
+.sysbar .v{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.04em}
+.sysbar .v .on{color:var(--acid)}
+.sysbar .v .hi{color:var(--magenta)}
+
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;padding:12px 22px;border:1px solid var(--cyan);color:var(--cyan);background:transparent;cursor:pointer;
+  clip-path:polygon(0 0,100% 0,100% 68%,88% 100%,0 100%);transition:background .16s,color .16s,box-shadow .16s}
+.btn:hover{background:var(--cyan);color:var(--bg);box-shadow:0 0 22px rgba(0,240,255,.4)}
+.btn.mag{border-color:var(--magenta);color:var(--magenta)}
+.btn.mag:hover{background:var(--magenta);color:var(--bg);box-shadow:0 0 22px rgba(255,46,136,.4)}
+.btn .dot{width:7px;height:7px;background:currentColor}
+
+/* ---- hero ---- */
+.hero{padding:60px 0 46px;position:relative}
+.hero .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:center}
+.eyebrow{display:flex;gap:16px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.hero h1{font-family:var(--mono);font-weight:700;font-size:clamp(3rem,9vw,6.6rem);line-height:.92;letter-spacing:.01em;color:var(--ink);position:relative}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;overflow:hidden}
+.glitch::before{color:var(--cyan);z-index:-1;animation:gl-x 3.4s infinite steps(2)}
+.glitch::after{color:var(--magenta);z-index:-2;animation:gl-y 2.6s infinite steps(2)}
+@keyframes gl-x{0%,92%,100%{transform:translate(0,0);clip-path:inset(0)}93%{transform:translate(-3px,-2px);clip-path:inset(10% 0 60% 0)}96%{transform:translate(3px,1px);clip-path:inset(50% 0 20% 0)}}
+@keyframes gl-y{0%,90%,100%{transform:translate(0,0)}91%{transform:translate(3px,2px)}94%{transform:translate(-2px,-1px)}}
+.hero .en{font-family:var(--mono);display:block;font-size:clamp(.9rem,2vw,1.35rem);font-weight:500;letter-spacing:.34em;color:var(--dim);margin-top:16px}
+.hero p.lede{margin-top:22px;max-width:30em;color:#c3d3e6;font-size:clamp(1rem,1.5vw,1.12rem)}
+.hero .cta{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
+
+/* next-match HUD panel (diagonal clip) */
+.matchcard{position:relative;background:var(--panel);border:1px solid var(--line2);padding:24px 24px 22px;
+  clip-path:polygon(0 0,100% 0,100% 88%,92% 100%,0 100%)}
+.matchcard::before{content:"";position:absolute;left:0;top:0;width:4px;height:100%;background:var(--acid)}
+.matchcard .hd{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}
+.matchcard .hd .live{color:var(--acid);display:flex;align-items:center;gap:7px}
+.matchcard .hd .live i{width:8px;height:8px;background:var(--acid);display:block;animation:pulse 1.4s infinite ease-in-out}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 rgba(204,255,0,.7)}50%{opacity:.5;box-shadow:0 0 12px rgba(204,255,0,.7)}}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:6px 0 14px}
+.vs .side{text-align:center}
+.vs .side .sig{width:52px;height:52px;margin:0 auto 8px}
+.vs .side b{font-family:var(--mono);font-size:16px;letter-spacing:.06em;display:block}
+.vs .side span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+.vs .mid{font-family:var(--mono);font-weight:700;font-size:20px;color:var(--magenta);letter-spacing:.05em}
+.matchcard .ft{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--cyan);border-top:1px solid var(--line);padding-top:12px;display:flex;justify-content:space-between}
+
+/* ---- counters ---- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line2);background:var(--panel2);margin:8px 0 0}
+.stat{padding:26px 22px;border-left:1px solid var(--line);position:relative}
+.stat:first-child{border-left:none}
+.stat .num{font-family:var(--mono);font-weight:700;font-size:clamp(2rem,4vw,3rem);line-height:1;color:var(--cyan)}
+.stat:nth-child(2) .num{color:var(--acid)}
+.stat:nth-child(3) .num{color:var(--magenta)}
+.stat .num .u{font-size:.5em;color:var(--dim);margin-left:2px}
+.stat .lb{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:10px}
+
+/* ---- section ---- */
+section.blk{padding:54px 0}
+.blk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:30px;padding-bottom:14px;border-bottom:1px solid var(--line2);position:relative}
+.blk-head::after{content:"";position:absolute;left:0;bottom:-1px;width:120px;height:2px;background:var(--magenta)}
+.blk-head h2{font-family:var(--mono);font-weight:700;font-size:clamp(1.5rem,3.4vw,2.3rem);letter-spacing:.03em}
+.blk-head .more{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--acid);border-bottom:1px solid var(--acid);padding-bottom:3px}
+
+/* ---- player cards (signature: RGB glitch hover + scanline) ---- */
+.roster{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pcard{position:relative;background:var(--panel);border:1px solid var(--line2);overflow:hidden;
+  clip-path:polygon(0 0,100% 0,100% 92%,90% 100%,0 100%);transition:border-color .18s}
+.pcard:hover{border-color:var(--cyan)}
+.pcard .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,240,255,.05) 0 2px,transparent 2px 4px);opacity:0;transition:opacity .2s}
+.pcard:hover .scan{opacity:1}
+.pcard .portrait{position:relative;height:210px;background:linear-gradient(160deg,#141428,#0b0b16);border-bottom:1px solid var(--line2);overflow:hidden}
+.pcard .portrait svg{width:100%;height:100%}
+.pcard:hover .portrait .sil{animation:rgbshift .5s steps(2) infinite}
+@keyframes rgbshift{0%,100%{filter:none;transform:none}30%{filter:drop-shadow(-3px 0 var(--magenta)) drop-shadow(3px 0 var(--cyan));transform:translateX(2px)}60%{filter:drop-shadow(3px 0 var(--magenta)) drop-shadow(-3px 0 var(--cyan));transform:translateX(-2px)}}
+.pcard .no{position:absolute;top:10px;left:12px;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--acid);letter-spacing:.1em}
+.pcard .role{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--bg);background:var(--cyan);padding:2px 8px}
+.pcard .body{padding:16px 18px 20px}
+.pcard .id{font-family:var(--mono);font-weight:700;font-size:1.5rem;letter-spacing:.04em}
+.pcard:hover .id{color:var(--cyan)}
+.pcard .rn{font-size:13px;color:var(--dim);margin-top:2px}
+.pcard .meta{display:flex;gap:14px;margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase;border-top:1px solid var(--line);padding-top:12px}
+.pcard .meta b{color:var(--ink);font-weight:600}
+
+/* ---- sponsors ---- */
+.spon{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line2)}
+.spon .s{padding:26px 16px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;min-height:96px;transition:background .18s}
+.spon .s:first-child{border-left:none}
+.spon .s:hover{background:var(--panel)}
+.spon .s svg{width:100%;height:34px;opacity:.72;transition:opacity .18s}
+.spon .s:hover svg{opacity:1}
+
+/* ---- footer ---- */
+footer{background:var(--bg2);border-top:1px solid var(--line2);padding:52px 0 26px;position:relative;z-index:5}
+footer::before{content:"";position:absolute;left:0;top:-1px;width:100%;height:1px;background:linear-gradient(90deg,var(--magenta),transparent 40%,transparent 60%,var(--cyan))}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.6fr;gap:var(--gut)}
+footer .fb svg{width:170px;height:46px;margin-bottom:14px}
+footer .fb p{color:var(--dim);font-size:13px;max-width:26em;line-height:1.8}
+footer .k{font-family:var(--mono);font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+footer ul{list-style:none;display:flex;flex-direction:column;gap:9px;font-size:14px;color:var(--dim)}
+footer ul a:hover{color:var(--acid)}
+.news input{width:100%;background:var(--panel);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font-family:var(--mono);font-size:13px;margin-bottom:10px}
+.news input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px rgba(0,240,255,.25)}
+.news button{width:100%;font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;background:var(--acid);color:var(--bg);border:none;padding:12px;cursor:pointer;clip-path:polygon(0 0,100% 0,100% 74%,94% 100%,0 100%)}
+.news button:hover{background:var(--cyan)}
+.news .msg{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--acid);min-height:16px;margin-top:8px}
+.foot-btm{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);margin-top:38px;padding-top:20px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+/* ---- reveal ---- */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+/* ---- responsive ---- */
+@media(max-width:900px){
+  .hero .grid{grid-template-columns:1fr}
+  .roster{grid-template-columns:repeat(2,1fr)}
+  .spon{grid-template-columns:repeat(3,1fr)}
+  .spon .s:nth-child(4){border-left:none}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .foot-grid .fb{grid-column:1 / -1}
+}
+@media(max-width:560px){
+  :root{--gut:15px}
+  .mainnav{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(10,10,18,.97);border-bottom:1px solid var(--line2);flex-direction:column;padding:8px var(--gut) 14px}
+  .mainnav.open{display:flex}
+  .mainnav a{border:none;border-bottom:1px solid var(--line);padding:13px 4px}
+  .mainnav a[aria-current="page"]::before{display:none}
+  .menu-btn{display:block}
+  .sysbar .row{grid-template-columns:1fr 1fr}
+  .sysbar .cell:nth-child(n+3){display:none}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--line)}
+  .stat:nth-child(odd){border-left:none}
+  .roster{grid-template-columns:1fr}
+  .spon{grid-template-columns:repeat(2,1fr)}
+  .spon .s:nth-child(odd){border-left:none}
+  .foot-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}
+  .rv{opacity:1;transform:none}
+  .glitch::before,.glitch::after{display:none}
+  body{background-attachment:scroll}
+}
+</style>
+</head>
+<body>
+
+<header class="hud-nav">
+  <div class="bar">
+    <a class="brand" href="index.html" aria-label="NULLPOINT 斷點戰隊 首頁">
+      <svg viewBox="0 0 240 64" aria-hidden="true"><defs><clipPath id="nvchip"><path d="M2 10 L20 2 L52 2 L60 12 L60 54 L42 62 L10 62 L2 52 Z"/></clipPath></defs><g clip-path="url(#nvchip)"><rect width="62" height="64" fill="#0A0A12"/><rect width="62" height="64" fill="none" stroke="#00F0FF" stroke-width="2"/><line x1="0" y1="20" x2="62" y2="20" stroke="#12324A"/><line x1="0" y1="44" x2="62" y2="44" stroke="#12324A"/></g><circle cx="31" cy="32" r="15" fill="none" stroke="#CCFF00" stroke-width="2"/><path d="M31 12 V22 M31 42 V52 M11 32 H21 M41 32 H51" stroke="#FF2E88" stroke-width="2.5" stroke-linecap="square"/><rect x="27" y="28" width="8" height="8" fill="#00F0FF"/><g font-family="Chakra Petch,sans-serif" fill="#EAF6FF"><text x="74" y="30" font-size="24" font-weight="700" letter-spacing="1.5">NULLPOINT</text><text x="74" y="50" font-size="11" font-weight="500" letter-spacing="6" fill="#00F0FF">斷點戰隊 / TPE</text></g></svg>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">選單 //</button>
+    <nav class="mainnav" id="nav" aria-label="主要導覽">
+      <a href="index.html" aria-current="page">首頁</a>
+      <a href="roster.html">選手名冊</a>
+      <a href="schedule.html">賽程戰績</a>
+    </nav>
+  </div>
+</header>
+
+<div class="sysbar">
+  <div class="row">
+    <div class="cell"><span class="k">Status</span><span class="v"><span class="on">● ACTIVE</span></span></div>
+    <div class="cell"><span class="k">Rank</span><span class="v">VCT Pacific <span class="hi">#3</span></span></div>
+    <div class="cell"><span class="k">Record</span><span class="v">14–5 <span class="on">W-STREAK 3</span></span></div>
+    <div class="cell"><span class="k">Next</span><span class="v">07.18 vs PHANTOM DIVISION</span></div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="grid">
+      <div>
+        <div class="eyebrow">
+          <span class="tag"><span class="b">//</span> LIVE ROSTER · 2026 SEASON</span>
+          <span class="tag">TAIPEI / 台北</span>
+        </div>
+        <h1><span class="glitch" data-text="斷點">斷點</span><br><span class="glitch" data-text="NULLPOINT">NULLPOINT</span><span class="en">ESPORTS · VALORANT / LEAGUE OF LEGENDS</span></h1>
+        <p class="lede">我們在誤差為零的那一格開火。斷點戰隊，一支從南港軟體園區的訓練基地打進 VCT Pacific 的台北職業隊——把每一次交火拆解到毫秒，把每一張地圖走成算式。</p>
+        <div class="cta">
+          <a class="btn" href="roster.html"><span class="dot"></span>認識選手</a>
+          <a class="btn mag" href="schedule.html"><span class="dot"></span>賽程與戰績</a>
+        </div>
+      </div>
+      <div class="matchcard rv" aria-label="下一場賽事資訊">
+        <div class="hd"><span>NEXT MATCH // 下一戰</span><span class="live"><i></i>07.18 19:00</span></div>
+        <div class="vs">
+          <div class="side">
+            <svg class="sig" viewBox="0 0 52 52" aria-hidden="true"><rect width="52" height="52" fill="none" stroke="#00F0FF" stroke-width="2"/><circle cx="26" cy="26" r="11" fill="none" stroke="#CCFF00" stroke-width="2"/><path d="M26 8V18 M26 34V44 M8 26H18 M34 26H44" stroke="#FF2E88" stroke-width="2"/><rect x="23" y="23" width="6" height="6" fill="#00F0FF"/></svg>
+            <b>NULLPOINT</b><span>Home / 主場</span>
+          </div>
+          <div class="mid">VS</div>
+          <div class="side">
+            <svg class="sig" viewBox="0 0 52 52" aria-hidden="true"><rect width="52" height="52" fill="none" stroke="#3A4468" stroke-width="2"/><path d="M14 40 L26 12 L38 40 Z" fill="none" stroke="#FF2E88" stroke-width="2"/><path d="M20 34H32" stroke="#7C8AA5" stroke-width="2"/></svg>
+            <b>PHANTOM DIV.</b><span>Away / 客場</span>
+          </div>
+        </div>
+        <div class="ft"><span>VCT PACIFIC · STAGE 2</span><span>BO3 · TPE</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" style="padding-top:8px">
+    <div class="stats" aria-label="戰隊統計">
+      <div class="stat rv"><div class="num" data-count="2021">2021</div><div class="lb">成立年份 / Founded</div></div>
+      <div class="stat rv"><div class="num" data-count="7">0</div><div class="lb">錦標賽獎盃 / Titles</div></div>
+      <div class="stat rv"><div class="num" data-count="68"><span data-plain>0</span><span class="u">%</span></div><div class="lb">本季勝率 / Win Rate</div></div>
+      <div class="stat rv"><div class="num" data-count="6">0</div><div class="lb">先發選手 / Starters</div></div>
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="blk-head">
+      <h2><span class="tag" style="display:block;margin-bottom:10px"><span class="b">02 //</span> STARTING FIVE</span>先發陣容</h2>
+      <a class="more" href="roster.html">完整名冊 →</a>
+    </div>
+    <div class="roster">
+      <article class="pcard rv">
+        <div class="scan"></div>
+        <div class="portrait"><span class="no">01</span><span class="role">Duelist</span>
+          <svg class="sil" viewBox="0 0 200 210" aria-hidden="true"><rect width="200" height="210" fill="none"/><path d="M100 34 a26 26 0 1 1 -.1 0 Z" fill="#00F0FF" opacity=".85"/><path d="M52 200 C52 150 70 120 100 120 C130 120 148 150 148 200 Z" fill="#0f2c38"/><path d="M100 120 L100 200 M78 132 L78 200 M122 132 L122 200" stroke="#00F0FF" stroke-width="2" opacity=".5"/><path d="M64 176 L136 176" stroke="#CCFF00" stroke-width="2"/></svg></div>
+        <div class="body"><div class="id">V01D</div><div class="rn">陳品睿 · 隊長</div>
+          <div class="meta"><span>TW <b>台灣</b></span><span>ROLE <b>Duelist</b></span></div></div>
+      </article>
+      <article class="pcard rv">
+        <div class="scan"></div>
+        <div class="portrait"><span class="no">02</span><span class="role">Controller</span>
+          <svg class="sil" viewBox="0 0 200 210" aria-hidden="true"><path d="M100 34 a26 26 0 1 1 -.1 0 Z" fill="#FF2E88" opacity=".85"/><path d="M52 200 C52 150 70 120 100 120 C130 120 148 150 148 200 Z" fill="#331025"/><path d="M100 120 L100 200 M78 132 L78 200 M122 132 L122 200" stroke="#FF2E88" stroke-width="2" opacity=".5"/><path d="M64 176 L136 176" stroke="#00F0FF" stroke-width="2"/></svg></div>
+        <div class="body"><div class="id">GHOSTLY</div><div class="rn">林哲宇</div>
+          <div class="meta"><span>TW <b>台灣</b></span><span>ROLE <b>Controller</b></span></div></div>
+      </article>
+      <article class="pcard rv">
+        <div class="scan"></div>
+        <div class="portrait"><span class="no">03</span><span class="role">IGL · Flex</span>
+          <svg class="sil" viewBox="0 0 200 210" aria-hidden="true"><path d="M100 34 a26 26 0 1 1 -.1 0 Z" fill="#CCFF00" opacity=".85"/><path d="M52 200 C52 150 70 120 100 120 C130 120 148 150 148 200 Z" fill="#2c3010"/><path d="M100 120 L100 200 M78 132 L78 200 M122 132 L122 200" stroke="#CCFF00" stroke-width="2" opacity=".5"/><path d="M64 176 L136 176" stroke="#FF2E88" stroke-width="2"/></svg></div>
+        <div class="body"><div class="id">APEX9</div><div class="rn">黃冠霖</div>
+          <div class="meta"><span>TW <b>台灣</b></span><span>ROLE <b>IGL</b></span></div></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="blk-head">
+      <h2><span class="tag" style="display:block;margin-bottom:10px"><span class="b">03 //</span> PARTNERS</span>贊助夥伴</h2>
+    </div>
+    <div class="spon rv">
+      <div class="s"><svg viewBox="0 0 130 34" aria-label="迴路能量 Circuit Energy"><path d="M6 8 h14 v4 h-10 v3 h9 v4 h-9 v3 h10 v4 h-14 Z" fill="#00F0FF"/><circle cx="30" cy="17" r="8" fill="none" stroke="#CCFF00" stroke-width="2"/><text x="46" y="15" font-family="Chakra Petch,sans-serif" font-size="11" font-weight="700" fill="#EAF6FF" letter-spacing="1">CIRCUIT</text><text x="46" y="27" font-family="Chakra Petch,sans-serif" font-size="8" fill="#7C8AA5" letter-spacing="3">ENERGY</text></svg></div>
+      <div class="s"><svg viewBox="0 0 130 34" aria-label="幀率科技 Framerate"><rect x="6" y="8" width="6" height="18" fill="#FF2E88"/><rect x="15" y="12" width="6" height="14" fill="#FF2E88"/><rect x="24" y="16" width="6" height="10" fill="#FF2E88"/><text x="40" y="15" font-family="Chakra Petch,sans-serif" font-size="11" font-weight="700" fill="#EAF6FF" letter-spacing="1">FRAMERATE</text><text x="40" y="27" font-family="Chakra Petch,sans-serif" font-size="8" fill="#7C8AA5" letter-spacing="2">幀率科技</text></svg></div>
+      <div class="s"><svg viewBox="0 0 130 34" aria-label="極域外設 Kyber Gear"><path d="M14 6 L22 17 L14 28 L6 17 Z" fill="none" stroke="#CCFF00" stroke-width="2"/><rect x="11" y="14" width="6" height="6" fill="#CCFF00"/><text x="30" y="15" font-family="Chakra Petch,sans-serif" font-size="11" font-weight="700" fill="#EAF6FF" letter-spacing="1">KYBER</text><text x="30" y="27" font-family="Chakra Petch,sans-serif" font-size="8" fill="#7C8AA5" letter-spacing="2">GEAR / 外設</text></svg></div>
+      <div class="s"><svg viewBox="0 0 130 34" aria-label="台北星鏈 Starlink TPE"><path d="M8 24 L16 8 L24 24 M11 18 h10" stroke="#00F0FF" stroke-width="2" fill="none"/><text x="32" y="15" font-family="Chakra Petch,sans-serif" font-size="11" font-weight="700" fill="#EAF6FF" letter-spacing="1">STARLINK</text><text x="32" y="27" font-family="Chakra Petch,sans-serif" font-size="8" fill="#7C8AA5" letter-spacing="3">TPE</text></svg></div>
+      <div class="s"><svg viewBox="0 0 130 34" aria-label="零度飲料 Zero Degree"><circle cx="15" cy="17" r="9" fill="none" stroke="#FF2E88" stroke-width="2"/><path d="M9 23 L21 11" stroke="#FF2E88" stroke-width="2"/><text x="32" y="15" font-family="Chakra Petch,sans-serif" font-size="11" font-weight="700" fill="#EAF6FF" letter-spacing="1">ZERO°</text><text x="32" y="27" font-family="Chakra Petch,sans-serif" font-size="8" fill="#7C8AA5" letter-spacing="2">零度飲料</text></svg></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="fb">
+        <svg viewBox="0 0 240 64" aria-hidden="true"><defs><clipPath id="ftchip"><path d="M2 10 L20 2 L52 2 L60 12 L60 54 L42 62 L10 62 L2 52 Z"/></clipPath></defs><g clip-path="url(#ftchip)"><rect width="62" height="64" fill="#0A0A12"/><rect width="62" height="64" fill="none" stroke="#00F0FF" stroke-width="2"/><line x1="0" y1="20" x2="62" y2="20" stroke="#12324A"/><line x1="0" y1="44" x2="62" y2="44" stroke="#12324A"/></g><circle cx="31" cy="32" r="15" fill="none" stroke="#CCFF00" stroke-width="2"/><path d="M31 12 V22 M31 42 V52 M11 32 H21 M41 32 H51" stroke="#FF2E88" stroke-width="2.5" stroke-linecap="square"/><rect x="27" y="28" width="8" height="8" fill="#00F0FF"/><g font-family="Chakra Petch,sans-serif" fill="#EAF6FF"><text x="74" y="30" font-size="24" font-weight="700" letter-spacing="1.5">NULLPOINT</text><text x="74" y="50" font-size="11" font-weight="500" letter-spacing="6" fill="#00F0FF">斷點戰隊 / TPE</text></g></svg>
+        <p>斷點電子競技俱樂部。台北南港的職業電競戰隊，征戰《Valorant》與《英雄聯盟》。基地：台北市南港區三重路 66 號 8 樓。</p>
+      </div>
+      <div>
+        <div class="k">Navigate</div>
+        <ul>
+          <li><a href="index.html">首頁</a></li>
+          <li><a href="roster.html">選手名冊</a></li>
+          <li><a href="schedule.html">賽程戰績</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="k">Contact</div>
+        <ul>
+          <li>02-2655-0142</li>
+          <li>team@nullpoint.gg</li>
+          <li>南港區三重路 66 號 8F</li>
+        </ul>
+      </div>
+      <div class="news">
+        <div class="k">情報訂閱 // Intel Drop</div>
+        <form id="nlForm" novalidate>
+          <input type="email" id="nlEmail" placeholder="your@email.gg" aria-label="電子郵件">
+          <button type="submit">接收情報</button>
+          <p class="msg" id="nlMsg" role="status"></p>
+        </form>
+      </div>
+    </div>
+    <div class="foot-btm">
+      <span>© 2026 NULLPOINT ESPORTS CLUB · TAIPEI</span>
+      <span>資料皆為虛構示意 · Design Skills Center Demo</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// 行動選單
+(function(){
+  var b=document.getElementById('menuBtn'),n=document.getElementById('nav');
+  if(b&&n){b.addEventListener('click',function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false');});}
+})();
+// 進場揭示
+(function(){
+  var els=document.querySelectorAll('.rv');
+  if(!('IntersectionObserver'in window)){els.forEach(function(e){e.classList.add('in');});return;}
+  var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.15});
+  els.forEach(function(e){io.observe(e);});
+})();
+// HUD 計數器（進場時 count-up）
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nums=document.querySelectorAll('.num[data-count]');
+  function run(el){
+    var target=parseInt(el.getAttribute('data-count'),10),plain=el.querySelector('[data-plain]');
+    var host=plain||el.firstChild,t0=null,dur=1100;
+    if(reduce){if(plain){plain.textContent=target;}else{el.childNodes[0].nodeValue=target;}return;}
+    function step(ts){if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1),val=Math.round(target*(1-Math.pow(1-p,3)));
+      if(plain){plain.textContent=val;}else{el.childNodes[0].nodeValue=val;}
+      if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  }
+  if(!('IntersectionObserver'in window)){nums.forEach(run);return;}
+  var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){run(e.target);io.unobserve(e.target);}});},{threshold:.5});
+  nums.forEach(function(e){io.observe(e);});
+})();
+// 情報訂閱（純前端示意）
+(function(){
+  var f=document.getElementById('nlForm');if(!f)return;
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var v=document.getElementById('nlEmail').value.trim(),m=document.getElementById('nlMsg');
+    if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){m.style.color='#CCFF00';m.textContent='// 已鎖定：情報將傳送至 '+v;f.reset();}
+    else{m.style.color='#FF2E88';m.textContent='// 錯誤：請輸入有效的電子郵件。';}
+  });
+})();
+</script>
+</body>
+</html>

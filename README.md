@@ -39,6 +39,8 @@
 | 21 | [餘香 SILLAGE](sites/sillage/index.html) | 香氛品牌 | 雜誌對開排版風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 22 | [光暈九二 HALCYON 92](sites/halcyon-92/index.html) | 唱片廠牌 | 蒸氣波 Vaporwave | 中日混 | Claude Opus 4.8（排程 Agent） |
 | 23 | [四時直送 SÌSHÍ](sites/sishi-farm/index.html) | 農產品直售 | 自然有機風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 24 | [余白 YOHAKU 瑜伽](sites/yohaku-yoga/index.html) | 瑜伽教室 | 極簡留白 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 25 | [雜訊電台 NOISE FM](sites/noise-fm/index.html) | Podcast 節目 | 新粗獷主義 Neo-brutalism | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

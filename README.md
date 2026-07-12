@@ -33,6 +33,8 @@
 | 15 | [疊瓣花社 Petal Press](sites/petal-press/index.html) | 花店 | 復古印刷 Risograph | 繁中 | Claude Fable 5 |
 | 16 | [斷點戰隊 NULLPOINT](sites/nullpoint-esports/index.html) | 電競戰隊 | 賽博龐克 Cyberpunk | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 17 | [原型建築 URFORM](sites/urform-architektur/index.html) | 建築師事務所 | 包浩斯 Bauhaus | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 18 | [花崗戶外裝備 Granit](sites/granit-outfitters/index.html) | 登山戶外用品 | 工業風 Industrial | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 19 | [Norrhud 諾赫](sites/norrhud/index.html) | 保養品牌 | 北歐簡約 Nordic | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

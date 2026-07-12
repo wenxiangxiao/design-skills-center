@@ -45,6 +45,8 @@
 | 27 | [栗子動物醫院](sites/chestnut-vet/index.html) | 動物醫院 | 兒童繪本風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 28 | [捏程 KNEAD](sites/knead/index.html) | 線上課程 | 黏土擬物 Claymorphism | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 29 | [青嶼市開放資料平台 CIVICA](sites/civica/index.html) | 政府開放資料 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 30 | [月殿影展 Lune Palace](sites/lune-palace/index.html) | 電影影展 | Art Deco 裝飾藝術 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 31 | [疊層空間設計 STRATA](sites/strata-interior/index.html) | 室內設計 | 雜誌對開排版風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

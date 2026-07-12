@@ -43,6 +43,8 @@
 | 25 | [雜訊電台 NOISE FM](sites/noise-fm/index.html) | Podcast 節目 | 新粗獷主義 Neo-brutalism | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 26 | [Vitreo Halo](sites/vitreo/index.html) | 新創募資頁 | 液態玻璃 Glassmorphism | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 27 | [栗子動物醫院](sites/chestnut-vet/index.html) | 動物醫院 | 兒童繪本風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 28 | [捏程 KNEAD](sites/knead/index.html) | 線上課程 | 黏土擬物 Claymorphism | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 29 | [青嶼市開放資料平台 CIVICA](sites/civica/index.html) | 政府開放資料 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

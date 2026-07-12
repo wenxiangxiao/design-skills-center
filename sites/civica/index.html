@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青嶼市開放資料平台 CIVICA — 資料索引</title>
+<meta name="description" content="青嶼市開放資料平台（CIVICA）。以目錄索引為首頁，公開全市預算、交通、環境、人口等資料集。資料皆為虛構示意。">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%23111111"/><rect x="8" y="8" width="20" height="20" fill="%23F0EEE9"/><rect x="36" y="8" width="20" height="20" fill="%23243FD6"/><rect x="8" y="36" width="20" height="20" fill="%23243FD6"/><rect x="36" y="36" width="20" height="20" fill="%23F0EEE9"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F0EEE9;--panel:#FBFAF7;--ink:#111111;--gray:#8C887E;--line:#111111;--blue:#243FD6;--faint:#DBD8D0;
+ --grot:'Archivo',system-ui,sans-serif;--sans:'Noto Sans TC',sans-serif;--rail:232px;}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+a{color:inherit}
+.grot{font-family:var(--grot)}
+/* SIDE RAIL NAV */
+.rail{position:fixed;top:0;left:0;width:var(--rail);height:100vh;border-right:2px solid var(--line);
+ background:var(--paper);display:flex;flex-direction:column;padding:24px 22px;z-index:60}
+.rail .brand{display:block;text-decoration:none;margin-bottom:30px}
+.rail .brand .mk{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;width:34px;height:34px;margin-bottom:12px}
+.rail .brand .mk i{display:block}
+.rail .brand .mk i:nth-child(1){background:var(--paper);outline:2px solid var(--ink);outline-offset:-1px}
+.rail .brand .mk i:nth-child(2){background:var(--blue)}
+.rail .brand .mk i:nth-child(3){background:var(--blue)}
+.rail .brand .mk i:nth-child(4){background:var(--paper);outline:2px solid var(--ink);outline-offset:-1px}
+.rail .brand b{font-family:var(--grot);font-weight:800;font-size:1.05rem;letter-spacing:-.01em;display:block}
+.rail .brand span{font-family:var(--grot);font-size:.66rem;letter-spacing:.24em;color:var(--gray);text-transform:uppercase}
+.rail nav{display:flex;flex-direction:column;gap:2px}
+.rail nav a{font-family:var(--grot);font-size:.9rem;font-weight:600;text-decoration:none;padding:9px 0;border-top:1px solid var(--faint);
+ display:flex;align-items:baseline;gap:10px;letter-spacing:.01em}
+.rail nav a:last-child{border-bottom:1px solid var(--faint)}
+.rail nav a .idx{font-size:.66rem;color:var(--gray);min-width:20px}
+.rail nav a:hover{color:var(--blue)}
+.rail nav a[aria-current]{color:var(--blue)}
+.rail nav a[aria-current] .idx{color:var(--blue)}
+.rail .meta{margin-top:auto;font-family:var(--grot);font-size:.66rem;color:var(--gray);line-height:1.5;letter-spacing:.02em}
+.rail .meta .up{color:var(--ink);font-weight:600}
+.railtoggle{display:none}
+main{margin-left:var(--rail);min-height:100vh}
+.inner{max-width:1000px;padding:0 44px}
+@media(max-width:860px){
+ .rail{position:sticky;top:0;width:100%;height:auto;flex-direction:row;align-items:center;padding:12px 18px;border-right:none;border-bottom:2px solid var(--line);gap:16px;flex-wrap:wrap}
+ .rail .brand{margin-bottom:0;display:flex;align-items:center;gap:10px}
+ .rail .brand .mk{margin-bottom:0}
+ .rail nav{flex-direction:row;gap:0;flex-wrap:wrap}
+ .rail nav a{border:none;padding:6px 12px;font-size:.82rem}
+ .rail nav a:last-child{border:none}
+ .rail nav a .idx{display:none}
+ .rail .meta{display:none}
+ main{margin-left:0}
+ .inner{padding:0 22px}
+}
+/* MASTHEAD */
+.masthead{border-bottom:2px solid var(--line);padding:40px 0 26px}
+.kicker{font-family:var(--grot);font-size:.72rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--blue)}
+.masthead h1{font-family:var(--grot);font-weight:800;font-size:clamp(2rem,5vw,3.6rem);line-height:1.02;letter-spacing:-.02em;margin:.2em 0 .35em;max-width:15em}
+.masthead .desc{max-width:40em;color:#333;font-size:1.02rem}
+.stamp{display:flex;flex-wrap:wrap;gap:0;margin-top:26px;border:2px solid var(--line)}
+.stamp div{flex:1;min-width:120px;padding:12px 16px;border-right:1px solid var(--faint)}
+.stamp div:last-child{border-right:none}
+.stamp b{font-family:var(--grot);font-weight:800;font-size:1.5rem;display:block;line-height:1}
+.stamp span{font-size:.72rem;color:var(--gray);font-family:var(--grot);letter-spacing:.04em;text-transform:uppercase}
+/* TOC — the opening */
+.toc{padding:8px 0 10px}
+.toc .lbl{display:flex;align-items:baseline;justify-content:space-between;padding:24px 0 8px;border-bottom:1px solid var(--faint)}
+.toc .lbl h2{font-family:var(--grot);font-weight:700;font-size:1rem;letter-spacing:.04em}
+.toc .lbl span{font-family:var(--grot);font-size:.72rem;color:var(--gray);letter-spacing:.1em;text-transform:uppercase}
+.tocrow{display:grid;grid-template-columns:56px 1fr 130px 30px;align-items:center;gap:18px;
+ padding:20px 4px;border-bottom:1px solid var(--faint);text-decoration:none;transition:background .15s,padding .15s}
+.tocrow:hover{background:var(--ink);color:var(--paper);padding-left:14px}
+.tocrow:hover .n,.tocrow:hover .cnt,.tocrow:hover .d{color:var(--paper)}
+.tocrow:hover .arrow{color:var(--paper)}
+.tocrow .n{font-family:var(--grot);font-weight:800;font-size:1.5rem;color:var(--blue);letter-spacing:-.02em}
+.tocrow .ti{font-family:var(--grot);font-weight:700;font-size:1.28rem;letter-spacing:-.01em}
+.tocrow .d{color:var(--gray);font-size:.86rem;margin-top:2px}
+.tocrow .cnt{font-family:var(--grot);font-size:.82rem;color:var(--gray);text-align:right;letter-spacing:.02em}
+.tocrow .arrow{font-family:var(--grot);font-weight:700;text-align:right;color:var(--ink)}
+@media(max-width:620px){.tocrow{grid-template-columns:44px 1fr 26px}.tocrow .cnt{display:none}}
+/* INDICATORS with charts */
+.ind{padding:50px 0;border-top:2px solid var(--line);margin-top:20px}
+.ind>h2{font-family:var(--grot);font-weight:800;font-size:1.6rem;letter-spacing:-.01em;margin-bottom:4px}
+.ind>p{color:var(--gray);font-size:.9rem;margin-bottom:26px}
+.charts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--line)}
+.chart{padding:20px;border-right:1px solid var(--faint)}
+.chart:last-child{border-right:none}
+.chart .ch-k{font-family:var(--grot);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700}
+.chart .ch-t{font-family:var(--grot);font-weight:700;font-size:1.05rem;margin:2px 0 4px}
+.chart .ch-v{font-family:var(--grot);font-weight:800;font-size:1.9rem;line-height:1}
+.chart .ch-v small{font-size:.8rem;color:var(--gray);font-weight:600}
+.chart svg{display:block;width:100%;height:96px;margin-top:12px;overflow:visible}
+.chart .ch-note{font-size:.72rem;color:var(--gray);margin-top:8px}
+@media(max-width:760px){.charts{grid-template-columns:1fr}.chart{border-right:none;border-bottom:1px solid var(--faint)}.chart:last-child{border-bottom:none}}
+.bar{fill:var(--blue);transform-origin:bottom;transform:scaleY(0);transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.chart.seen .bar{transform:scaleY(1)}
+.chart.seen .bar:nth-child(2){transition-delay:.06s}.chart.seen .bar:nth-child(3){transition-delay:.12s}
+.chart.seen .bar:nth-child(4){transition-delay:.18s}.chart.seen .bar:nth-child(5){transition-delay:.24s}
+.chart.seen .bar:nth-child(6){transition-delay:.30s}.chart.seen .bar:nth-child(7){transition-delay:.36s}
+.linepath{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s ease}
+.chart.seen .linepath{stroke-dashoffset:0}
+.gl{stroke:var(--faint);stroke-width:1}
+.crosshair{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3;opacity:0;pointer-events:none}
+.chart:hover .crosshair{opacity:.6}
+.readout{font-family:var(--grot);font-size:.7rem;fill:var(--ink);opacity:0}
+.chart:hover .readout{opacity:1}
+/* footer */
+footer{border-top:2px solid var(--line);padding:36px 0 60px}
+.foot{display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between}
+.foot .fb{font-family:var(--grot);font-weight:800;font-size:1.1rem}
+.foot p{color:var(--gray);font-size:.84rem;max-width:26em;margin-top:6px}
+.foot .col a{display:block;text-decoration:none;color:var(--ink);font-family:var(--grot);font-size:.86rem;padding:3px 0}
+.foot .col a:hover{color:var(--blue)}
+.disc{margin-top:24px;font-size:.75rem;color:var(--gray);border-top:1px solid var(--faint);padding-top:14px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.bar{transform:scaleY(1)}.linepath{stroke-dashoffset:0}.tocrow:hover{padding-left:4px}}
+</style>
+</head>
+<body>
+
+<aside class="rail">
+  <a class="brand" href="index.html" aria-label="青嶼市開放資料平台 首頁">
+    <span class="mk" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <b>CIVICA</b><span>青嶼市開放資料</span>
+  </a>
+  <nav aria-label="主導覽">
+    <a href="index.html" aria-current="page"><span class="idx">01</span>資料索引</a>
+    <a href="datasets.html"><span class="idx">02</span>資料集</a>
+    <a href="about.html"><span class="idx">03</span>關於與 API</a>
+  </nav>
+  <div class="meta"><span class="up">最後更新 2026-07-13</span><br>資料皆為虛構示意<br>CIVICA v2.4 · 公眾領域</div>
+</aside>
+
+<main>
+  <div class="inner">
+
+    <header class="masthead">
+      <p class="kicker">Qingyu City · Open Data Portal</p>
+      <h1>市政資料，攤在桌上。</h1>
+      <p class="desc">青嶼市開放資料平台以「目錄」為首頁，而不是搜尋框。全市的預算、交通、環境、人口與公共設施資料，按主題編號排列，點進去就能看、能下載、能接 API。這一頁本身就是一份可用的索引。</p>
+      <div class="stamp">
+        <div><b>248</b><span>資料集</span></div>
+        <div><b>6</b><span>主題分類</span></div>
+        <div><b>31.2M</b><span>累計下載</span></div>
+        <div><b>CC0</b><span>公眾領域授權</span></div>
+      </div>
+    </header>
+
+    <section class="toc" aria-label="資料主題索引">
+      <div class="lbl"><h2>主題索引 / Index</h2><span>06 categories</span></div>
+
+      <a class="tocrow" href="datasets.html#budget">
+        <span class="n">01</span>
+        <span><span class="ti">財政與預算</span><span class="d">總預算、決算、標案、補助款流向</span></span>
+        <span class="cnt">52 資料集</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="tocrow" href="datasets.html#transit">
+        <span class="n">02</span>
+        <span><span class="ti">交通與運輸</span><span class="d">公車班次、站點客流、事故熱點、YouBike</span></span>
+        <span class="cnt">61 資料集</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="tocrow" href="datasets.html#env">
+        <span class="n">03</span>
+        <span><span class="ti">環境與能源</span><span class="d">空氣品質、水質、垃圾回收、路燈用電</span></span>
+        <span class="cnt">44 資料集</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="tocrow" href="datasets.html#pop">
+        <span class="n">04</span>
+        <span><span class="ti">人口與戶政</span><span class="d">人口結構、遷入遷出、出生死亡、里別統計</span></span>
+        <span class="cnt">33 資料集</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="tocrow" href="datasets.html#facility">
+        <span class="n">05</span>
+        <span><span class="ti">公共設施</span><span class="d">公園綠地、圖書館、運動中心、公廁座標</span></span>
+        <span class="cnt">38 資料集</span>
+        <span class="arrow">↗</span>
+      </a>
+      <a class="tocrow" href="datasets.html#safety">
+        <span class="n">06</span>
+        <span><span class="ti">公共安全</span><span class="d">消防據點、避難場所、監視器、犯罪統計</span></span>
+        <span class="cnt">20 資料集</span>
+        <span class="arrow">↗</span>
+      </a>
+    </section>
+
+    <section class="ind">
+      <h2>本月市政指標</h2>
+      <p>三張由平台原始資料即時繪製的圖表。滑鼠移入可讀取數值。</p>
+      <div class="charts">
+        <!-- BAR: monthly bus ridership -->
+        <div class="chart" data-chart>
+          <div class="ch-k">交通 · 02</div>
+          <div class="ch-t">公車月運量</div>
+          <div class="ch-v">4.18<small> 百萬人次</small></div>
+          <svg viewBox="0 0 240 96" preserveAspectRatio="none" role="img" aria-label="近七個月公車運量長條圖">
+            <line class="gl" x1="0" y1="24" x2="240" y2="24"/><line class="gl" x1="0" y1="60" x2="240" y2="60"/>
+            <rect class="bar" x="6" y="40" width="24" height="56"/>
+            <rect class="bar" x="40" y="30" width="24" height="66"/>
+            <rect class="bar" x="74" y="46" width="24" height="50"/>
+            <rect class="bar" x="108" y="22" width="24" height="74"/>
+            <rect class="bar" x="142" y="34" width="24" height="62"/>
+            <rect class="bar" x="176" y="16" width="24" height="80"/>
+            <rect class="bar" x="210" y="10" width="24" height="86"/>
+            <line class="crosshair" x1="222" y1="0" x2="222" y2="96"/>
+            <text class="readout" x="150" y="12">7月 +6.1%</text>
+          </svg>
+          <div class="ch-note">2026 · 1–7 月 · 較去年同期 +6.1%</div>
+        </div>
+        <!-- LINE: air quality PM2.5 -->
+        <div class="chart" data-chart>
+          <div class="ch-k">環境 · 03</div>
+          <div class="ch-t">PM2.5 月均</div>
+          <div class="ch-v">14.2<small> µg/m³</small></div>
+          <svg viewBox="0 0 240 96" role="img" aria-label="近七個月 PM2.5 月均折線圖">
+            <line class="gl" x1="0" y1="24" x2="240" y2="24"/><line class="gl" x1="0" y1="60" x2="240" y2="60"/>
+            <path class="linepath" d="M6 30 L45 44 L84 38 L123 58 L162 66 L201 72 L234 78" pathLength="1"/>
+            <circle cx="234" cy="78" r="3.5" fill="#243FD6"/>
+            <line class="crosshair" x1="234" y1="0" x2="234" y2="96"/>
+            <text class="readout" x="150" y="90">達標，逐月改善</text>
+          </svg>
+          <div class="ch-note">符合年均 15 µg/m³ 目標 · 逐月下降</div>
+        </div>
+        <!-- BAR: budget execution -->
+        <div class="chart" data-chart>
+          <div class="ch-k">財政 · 01</div>
+          <div class="ch-t">預算執行率</div>
+          <div class="ch-v">62.4<small> %</small></div>
+          <svg viewBox="0 0 240 96" preserveAspectRatio="none" role="img" aria-label="六大局處預算執行率長條圖">
+            <line class="gl" x1="0" y1="24" x2="240" y2="24"/><line class="gl" x1="0" y1="60" x2="240" y2="60"/>
+            <rect class="bar" x="8" y="30" width="28" height="66"/>
+            <rect class="bar" x="46" y="18" width="28" height="78"/>
+            <rect class="bar" x="84" y="44" width="28" height="52"/>
+            <rect class="bar" x="122" y="26" width="28" height="70"/>
+            <rect class="bar" x="160" y="52" width="28" height="44"/>
+            <rect class="bar" x="198" y="36" width="28" height="60"/>
+            <line class="crosshair" x1="212" y1="0" x2="212" y2="96"/>
+            <text class="readout" x="150" y="12">工務局最高</text>
+          </svg>
+          <div class="ch-note">截至第二季 · 六大局處 · 年度目標 100%</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot">
+        <div>
+          <div class="fb">青嶼市開放資料平台 CIVICA</div>
+          <p>青嶼市政府資訊局 資料治理科 · 青嶼市中正路 1 號 · 02-8900-1200 · opendata@qingyu.gov.example</p>
+        </div>
+        <div class="col">
+          <a href="index.html">資料索引</a>
+          <a href="datasets.html">資料集清單</a>
+          <a href="about.html">關於與 API 說明</a>
+        </div>
+      </div>
+      <p class="disc">※ 青嶼市為虛構之示範城市，本站所有機關名稱、數據、地址、電話與資料集均為虛構示意，不代表任何真實政府資料。授權標示 CC0 亦為示意。</p>
+    </footer>
+
+  </div>
+</main>
+
+<script>
+(function(){
+  var charts=document.querySelectorAll('[data-chart]');
+  if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    charts.forEach(function(c){c.classList.add('seen');});return;
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('seen');io.unobserve(e.target);}});
+  },{threshold:.35});
+  charts.forEach(function(c){io.observe(c);});
+})();
+</script>
+</body>
+</html>

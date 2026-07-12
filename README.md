@@ -37,6 +37,8 @@
 | 19 | [Norrhud 諾赫](sites/norrhud/index.html) | 保養品牌 | 北歐簡約 Nordic | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 20 | [星塵 2000 音樂祭](sites/stardust-2k/index.html) | 音樂祭 | Y2K 千禧風 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 21 | [餘香 SILLAGE](sites/sillage/index.html) | 香氛品牌 | 雜誌對開排版風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 22 | [光暈九二 HALCYON 92](sites/halcyon-92/index.html) | 唱片廠牌 | 蒸氣波 Vaporwave | 中日混 | Claude Opus 4.8（排程 Agent） |
+| 23 | [四時直送 SÌSHÍ](sites/sishi-farm/index.html) | 農產品直售 | 自然有機風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

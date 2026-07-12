@@ -41,6 +41,8 @@
 | 23 | [四時直送 SÌSHÍ](sites/sishi-farm/index.html) | 農產品直售 | 自然有機風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 24 | [余白 YOHAKU 瑜伽](sites/yohaku-yoga/index.html) | 瑜伽教室 | 極簡留白 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 25 | [雜訊電台 NOISE FM](sites/noise-fm/index.html) | Podcast 節目 | 新粗獷主義 Neo-brutalism | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 26 | [Vitreo Halo](sites/vitreo/index.html) | 新創募資頁 | 液態玻璃 Glassmorphism | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 27 | [栗子動物醫院](sites/chestnut-vet/index.html) | 動物醫院 | 兒童繪本風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>運作原理 — Vitreo Halo｜三顆感測器，一種光語言</title>
+<meta name="description" content="Vitreo Halo 如何把 CO₂、PM2.5、溫濕度轉譯成呼吸般的光。感測規格與光語言全解析。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2716%27%20r%3D%2714%27%20fill%3D%27%230FA697%27/%3E%3Cpath%20d%3D%27M16%207c4%205%206%207%206%2010a6%206%200%200%201-12%200c0-3%202-5%206-10z%27%20fill%3D%27%23E8933B%27/%3E%3Cellipse%20cx%3D%2712%27%20cy%3D%2711%27%20rx%3D%274%27%20ry%3D%272.5%27%20fill%3D%27%23ffffff%27%20opacity%3D%27.7%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#EAF4F1;--ink:#1C2B2E;--teal:#0FA697;--amber:#E8933B;--peach:#FFD9B0;--mint:#B9EBDD;--glass:rgba(255,255,255,.42);--glass-2:rgba(255,255,255,.62);--stroke:rgba(28,43,46,.14);--shadow:0 22px 60px -28px rgba(28,43,46,.45);}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,"Noto Sans TC",sans-serif;color:var(--ink);background:var(--paper);line-height:1.6;overflow-x:hidden}
+h1,h2,h3,.disp{font-family:Sora,sans-serif}
+.mono{font-family:"Space Mono",monospace}
+a{color:inherit}
+.mesh{position:fixed;inset:-20vh -20vw;z-index:-2;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.8;animation:drift 30s ease-in-out infinite alternate}
+.b1{width:60vw;height:60vw;left:-10vw;top:-8vh;background:var(--mint)}
+.b2{width:50vw;height:50vw;right:-8vw;top:4vh;background:var(--peach);animation-duration:34s}
+.b3{width:44vw;height:44vw;left:26vw;bottom:-16vh;background:#CDEFEA;animation-duration:40s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(4vw,3vh) scale(1.12)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:50;width:min(1120px,92vw);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px 10px 18px;border-radius:22px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid rgba(255,255,255,.6);box-shadow:var(--shadow)}
+nav .brand{display:flex;align-items:center;gap:10px;font-family:Sora;font-weight:800;font-size:20px;text-decoration:none}
+nav .brand .dot{width:20px;height:20px;border-radius:50%;background:linear-gradient(140deg,var(--teal),#7FD9C9);box-shadow:inset 3px 3px 6px rgba(255,255,255,.7)}
+nav .links{display:flex;gap:6px;align-items:center}
+nav .links a{font-family:Sora;font-weight:600;font-size:14px;text-decoration:none;padding:8px 14px;border-radius:14px;transition:background .2s}
+nav .links a:hover,nav .links a.on{background:rgba(255,255,255,.55)}
+nav .cta{background:var(--ink);color:#fff;border-radius:14px;padding:10px 16px;font-family:Sora;font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
+.burger{display:none;background:none;border:0;width:38px;height:38px;cursor:pointer}
+.burger span{display:block;height:2px;background:var(--ink);margin:5px 6px;border-radius:2px}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);border:1px solid rgba(255,255,255,.6);border-radius:26px;box-shadow:var(--shadow)}
+.head{width:min(1120px,92vw);margin:0 auto;padding:150px 0 20px}
+.head .kicker{font-family:"Space Mono";font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}
+.head h1{font-size:clamp(32px,5vw,54px);font-weight:800;letter-spacing:-1px;margin:12px 0 14px;max-width:16ch}
+.head p{font-size:18px;max-width:52ch;color:#33454a}
+section.band{width:min(1120px,92vw);margin:60px auto}
+.eyebrow{font-family:"Space Mono";font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--amber)}
+.band h2{font-size:clamp(24px,3.2vw,36px);font-weight:800;letter-spacing:-.5px;margin:8px 0 24px;max-width:22ch}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{padding:26px;position:relative}
+.step .num{font-family:"Space Mono";font-size:13px;color:var(--teal)}
+.step h3{font-size:19px;font-weight:700;margin:10px 0 8px}
+.step p{font-size:15px;color:#3a4a4f}
+.step .sg{width:100%;height:88px;margin-bottom:8px}
+.specs{width:100%;border-collapse:separate;border-spacing:0;font-size:15px;overflow:hidden;border-radius:22px}
+.specs th,.specs td{text-align:left;padding:16px 20px;border-bottom:1px solid var(--stroke)}
+.specs th{font-family:Sora;font-weight:700;width:34%;background:rgba(255,255,255,.35)}
+.specs tr:last-child th,.specs tr:last-child td{border-bottom:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.diagram{padding:24px;display:grid;place-items:center}
+.callout{padding:30px}
+.callout h3{font-size:22px;margin-bottom:10px}
+.callout p{color:#3a4a4f}
+.buy{display:inline-flex;gap:10px;align-items:center;background:var(--ink);color:#fff;text-decoration:none;font-family:Sora;font-weight:700;padding:14px 24px;border-radius:18px;margin-top:18px;transition:transform .2s}
+.buy:hover{transform:translateY(-3px)}
+footer{margin-top:80px;padding:54px 0 40px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.4))}
+.fgrid{width:min(1120px,92vw);margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}
+footer h4{font-family:Sora;font-size:15px;margin-bottom:12px}
+footer a{display:block;text-decoration:none;color:#3a4a4f;font-size:14px;padding:3px 0}
+footer a:hover{color:var(--teal)}
+.disc{width:min(1120px,92vw);margin:28px auto 0;font-size:12px;color:#6b7a7e;border-top:1px solid var(--stroke);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+@media(max-width:860px){nav .links{display:none}.burger{display:block}.flow,.two,.fgrid{grid-template-columns:1fr}
+  nav.open .links{display:flex;position:absolute;top:64px;left:0;right:0;flex-direction:column;background:var(--glass-2);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);padding:12px;border-radius:20px;border:1px solid rgba(255,255,255,.6)}}
+@media(prefers-reduced-motion:reduce){.blob{animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="mesh" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="grain" aria-hidden="true"></div>
+
+<nav id="nav">
+  <a class="brand" href="index.html"><span class="dot"></span>Vitreo</a>
+  <div class="links">
+    <a href="index.html">募資 Campaign</a>
+    <a href="tech.html" class="on">原理 How</a>
+    <a href="rewards.html">回饋 Rewards</a>
+    <a class="cta" href="rewards.html">支持專案 →</a>
+  </div>
+  <button class="burger" aria-label="選單" onclick="document.getElementById('nav').classList.toggle('open')"><span></span><span></span><span></span></button>
+</nav>
+
+<header class="head">
+  <div class="kicker">How it works</div>
+  <h1>三顆感測器，翻譯成一種語言：光。</h1>
+  <p>Halo 內部其實藏著一整套實驗室等級的感測模組，但它從不用數字對你說話。它把讀到的一切，煮成一鍋溫柔的光。這一頁，我們把鍋蓋掀開給你看。</p>
+</header>
+
+<section class="band">
+  <div class="eyebrow">The Pipeline</div>
+  <h2>從「一口空氣」到「一次呼吸」，只花 0.8 秒。</h2>
+  <div class="flow">
+    <article class="glass step">
+      <svg class="sg" viewBox="0 0 120 88" fill="none"><rect x="16" y="20" width="88" height="48" rx="10" stroke="#1C2B2E" stroke-width="2.5"/><circle cx="42" cy="44" r="9" stroke="#0FA697" stroke-width="2.5"/><circle cx="72" cy="44" r="6" stroke="#E8933B" stroke-width="2.5"/><path d="M60 12c0 6 0 6 0 8" stroke="#0FA697" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <div class="num">01 · Sense</div>
+      <h3>三路並行取樣</h3>
+      <p>NDIR 紅外 CO₂ 感測、雷射散射 PM2.5、以及溫濕度探頭，每 2 秒同步讀一次房間的狀態。</p>
+    </article>
+    <article class="glass step">
+      <svg class="sg" viewBox="0 0 120 88" fill="none"><path d="M20 60c14-30 24-30 34 0" stroke="#0FA697" stroke-width="2.5" stroke-linecap="round"/><path d="M56 60c14-30 24-30 34 0" stroke="#E8933B" stroke-width="2.5" stroke-linecap="round"/><rect x="14" y="60" width="92" height="2" fill="#1C2B2E"/></svg>
+      <div class="num">02 · Blend</div>
+      <h3>感受曲線調和</h3>
+      <p>韌體不是看單一數字，而是把三者對「體感舒適度」的影響加權混合，避免忽亮忽暗的焦慮感。</p>
+    </article>
+    <article class="glass step">
+      <svg class="sg" viewBox="0 0 120 88" fill="none"><circle cx="60" cy="44" r="24" fill="url(#g)"/><defs><radialGradient id="g" cx="0.35" cy="0.3" r="0.7"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#0FA697"/></radialGradient></defs><circle cx="60" cy="44" r="30" stroke="#fff" stroke-width="2" opacity=".6"/></svg>
+      <div class="num">03 · Breathe</div>
+      <h3>化為呼吸光</h3>
+      <p>結果映射到 RGBW 燈環，透過乳白毛玻璃擴散——你看到的不是燈，是空氣本身在慢慢起伏。</p>
+    </article>
+  </div>
+</section>
+
+<section class="band">
+  <div class="two">
+    <div class="glass diagram">
+      <svg viewBox="0 0 320 260" width="100%" role="img" aria-label="Halo 剖面圖">
+        <ellipse cx="160" cy="130" rx="96" ry="96" fill="rgba(255,255,255,.5)" stroke="#1C2B2E" stroke-width="2"/>
+        <ellipse cx="160" cy="130" rx="96" ry="96" fill="url(#gg)"/>
+        <defs><radialGradient id="gg" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="0.6" stop-color="#B9EBDD" stop-opacity=".4"/><stop offset="1" stop-color="#0FA697" stop-opacity=".15"/></radialGradient></defs>
+        <circle cx="160" cy="130" r="52" fill="none" stroke="#0FA697" stroke-width="2" stroke-dasharray="4 6"/>
+        <rect x="140" y="150" width="40" height="26" rx="5" fill="#fff" stroke="#1C2B2E" stroke-width="2"/>
+        <circle cx="150" cy="163" r="4" fill="#0FA697"/><circle cx="170" cy="163" r="4" fill="#E8933B"/>
+        <path d="M160 90v24" stroke="#1C2B2E" stroke-width="2" stroke-linecap="round"/>
+        <text x="160" y="238" text-anchor="middle" font-family="Space Mono" font-size="12" fill="#1C2B2E">乳白毛玻璃 · RGBW 燈環 · 感測艙</text>
+      </svg>
+    </div>
+    <div class="callout glass">
+      <h3>為什麼是「毛玻璃」？</h3>
+      <p>透明玻璃會讓你看見刺眼的 LED 顆粒；全白塑膠又把光悶死。我們花最久時間的，是那層介於兩者之間的乳白霧面——它讓光「浮」在殼裡，邊緣柔化、中心飽滿，就像清晨窗上的一層霧。這也正是液態玻璃（Glassmorphism）這個設計語言想在螢幕上重現的手感，而 Halo 把它做成了實體。</p>
+      <a class="buy" href="rewards.html">看看回饋方案 →</a>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="eyebrow">Spec Sheet</div>
+  <h2>規格，給想把鍋底看透的你。</h2>
+  <table class="specs glass">
+    <tr><th>CO₂ 感測</th><td>NDIR 非分散紅外 · 範圍 400–5000 ppm · 誤差 ±(30ppm+3%)</td></tr>
+    <tr><th>PM2.5 感測</th><td>雷射散射式 · 0–500 µg/m³ · 解析度 1 µg/m³</td></tr>
+    <tr><th>溫濕度</th><td>±0.3°C / ±2% RH · 每 2 秒更新</td></tr>
+    <tr><th>光源</th><td>RGBW 24 顆 · 毛玻璃擴散 · 0–100% 無段調光</td></tr>
+    <tr><th>連線</th><td>離線可用 · 選配 BLE 5.3 連 App 看趨勢 · 不上傳雲端</td></tr>
+    <tr><th>尺寸電力</th><td>直徑 108 mm · USB-C 供電 5V/1A · 內建 3 小時電池</td></tr>
+    <tr><th>材質</th><td>乳白霧面聚碳酸酯外殼 · 回收鋁底座 · FSC 紙包裝</td></tr>
+  </table>
+</section>
+
+<footer>
+  <div class="fgrid">
+    <div>
+      <img src="assets/logo.svg" alt="Vitreo" width="150" style="margin-bottom:14px">
+      <p style="font-size:14px;color:#3a4a4f;max-width:34ch">把空氣說給你聽的桌面光球。<br>Vitreo Design Lab · 新竹市光復路二段 385 號 7F（虛構）</p>
+    </div>
+    <div>
+      <h4>專案</h4>
+      <a href="index.html">募資首頁</a>
+      <a href="tech.html">運作原理</a>
+      <a href="rewards.html">回饋方案</a>
+    </div>
+    <div>
+      <h4>聯絡</h4>
+      <a href="mailto:hello@vitreo.studio">hello@vitreo.studio</a>
+      <a href="tel:+886356112">03-561-1288</a>
+      <a href="rewards.html">常見問題 FAQ</a>
+    </div>
+  </div>
+  <div class="disc">
+    <span>© 2026 Vitreo Design Lab — 本站為 Design Skills Center 風格示範，品牌、集資數據與人物皆為虛構示意。</span>
+    <span>Glassmorphism · 液態玻璃</span>
+  </div>
+</footer>
+</body>
+</html>

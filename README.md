@@ -35,6 +35,8 @@
 | 17 | [原型建築 URFORM](sites/urform-architektur/index.html) | 建築師事務所 | 包浩斯 Bauhaus | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 18 | [花崗戶外裝備 Granit](sites/granit-outfitters/index.html) | 登山戶外用品 | 工業風 Industrial | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 19 | [Norrhud 諾赫](sites/norrhud/index.html) | 保養品牌 | 北歐簡約 Nordic | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 20 | [星塵 2000 音樂祭](sites/stardust-2k/index.html) | 音樂祭 | Y2K 千禧風 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 21 | [餘香 SILLAGE](sites/sillage/index.html) | 香氛品牌 | 雜誌對開排版風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

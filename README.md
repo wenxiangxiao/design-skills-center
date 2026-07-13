@@ -53,6 +53,8 @@
 | 35 | [BLUNT 直說](sites/blunt/index.html) | AI 工具 | 新粗獷主義 Neo-brutalism | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 36 | [明算聯合會計師事務所](sites/mingsuan-cpa/index.html) | 會計師事務所 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 37 | [暮藤酒莊 Vesper Vale](sites/vesper-vale/index.html) | 葡萄酒莊 | 暗黑學院風 Dark Academia | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 38 | [恆嶽法律事務所 Granville & Ashe](sites/granville-ashe/index.html) | 律師事務所 | Art Deco 裝飾藝術 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 39 | [疊印咖啡 Overprint Coffee](sites/overprint-coffee/index.html) | 咖啡廳 | 復古印刷 Risograph | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

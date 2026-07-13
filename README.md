@@ -47,6 +47,8 @@
 | 29 | [青嶼市開放資料平台 CIVICA](sites/civica/index.html) | 政府開放資料 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 30 | [月殿影展 Lune Palace](sites/lune-palace/index.html) | 電影影展 | Art Deco 裝飾藝術 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 31 | [疊層空間設計 STRATA](sites/strata-interior/index.html) | 室內設計 | 雜誌對開排版風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 32 | [鐵廠 IRONHAUS](sites/ironhaus/index.html) | 健身房 | 工業風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 33 | [松紋家居 FURUHEM](sites/furuhem/index.html) | 家具品牌 | 北歐簡約 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

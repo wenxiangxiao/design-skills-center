@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLUNT — 直說・AI 文案控制台</title>
+<meta name="description" content="BLUNT 直說，一個把簡報變成草稿的 AI 文案控制台。輸入你要說的重點，BLUNT 立刻起草。新粗獷主義介面，硬邊、單刀直入。內容為虛構示範。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23C7F42B'/%3E%3Crect x='6' y='6' width='52' height='52' fill='none' stroke='%23111111' stroke-width='5'/%3E%3Ctext x='32' y='46' font-family='monospace' font-size='34' font-weight='700' text-anchor='middle' fill='%23111111'%3E%26gt;_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F7F5EF;--ink:#111111;--lime:#C7F42B;--blue:#1F1FE0;--coral:#FF5C38}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:"Space Mono","Noto Sans TC",monospace;line-height:1.55}
+a{color:inherit;text-decoration:none}
+.disp{font-family:Syne,"Noto Sans TC",sans-serif}
+h1,h2,h3{font-family:Syne,"Noto Sans TC",sans-serif;font-weight:800;line-height:.98;letter-spacing:-.02em}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+/* TOPBAR */
+header.bar{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:3px solid var(--ink)}
+.bar .in{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:0;padding:0 20px}
+.bar .brand{padding:14px 18px 14px 0}
+.bar .brand img{height:34px;display:block}
+.bar nav{display:flex;margin-left:auto}
+.bar nav a{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;padding:20px 16px;border-left:3px solid var(--ink)}
+.bar nav a:hover{background:var(--ink);color:var(--lime)}
+.bar .cta{background:var(--lime);border-left:3px solid var(--ink);padding:20px 20px;font-weight:700;text-transform:uppercase;font-size:13px}
+.bar .cta:hover{background:var(--ink);color:var(--lime)}
+.menu-btn{display:none}
+/* CONSOLE / FORM-FIRST OPENING */
+.console{border-bottom:3px solid var(--ink);padding:28px 0 40px;background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 22px,#efece3 22px,#efece3 24px)}
+.tag{display:inline-block;background:var(--ink);color:var(--lime);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.14em;padding:6px 12px;margin-bottom:16px}
+.console h1{font-size:clamp(30px,5.4vw,58px);max-width:15ch;margin-bottom:8px}
+.console .lede{font-size:15px;max-width:46ch;margin-bottom:22px}
+.term{border:3px solid var(--ink);background:#fff;box-shadow:8px 8px 0 var(--ink)}
+.term .top{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);padding:9px 14px;font-size:12px;font-weight:700;letter-spacing:.05em}
+.term .top .dot{width:12px;height:12px;border:2px solid var(--paper)}
+.term .top .dot.lime{background:var(--lime);border-color:var(--lime)}
+.term .top .spacer{margin-left:auto;opacity:.8}
+.term .field{display:flex;align-items:flex-start;gap:10px;padding:16px;border-bottom:3px dashed var(--ink);min-height:64px}
+.term .field .pr{color:var(--coral);font-weight:700}
+.term .field .txt{white-space:pre-wrap;font-size:15px}
+.term .out{padding:16px;min-height:150px}
+.term .out .oh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:10px}
+.term .out .draft{font-size:15px;white-space:pre-wrap}
+.tok{background:var(--lime);padding:0 2px;font-weight:700}
+.tok.b{background:var(--blue);color:#fff}
+.tok.c{background:var(--coral);color:#fff}
+.cur{display:inline-block;width:9px;height:18px;background:var(--ink);vertical-align:-3px;margin-left:1px}
+.cur.blink{animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.modes{display:flex;flex-wrap:wrap;gap:0;margin-top:20px;border:3px solid var(--ink);width:fit-content;max-width:100%;box-shadow:5px 5px 0 var(--ink);background:#fff}
+.modes button{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;text-transform:uppercase;background:#fff;border:0;border-right:3px solid var(--ink);padding:12px 16px;cursor:pointer}
+.modes button:last-child{border-right:0}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--lime)}
+/* HOW */
+.how{padding:52px 0;border-bottom:3px solid var(--ink)}
+.how h2{font-size:clamp(24px,3.6vw,40px);margin-bottom:8px}
+.how .sub{font-size:14px;margin-bottom:30px;max-width:50ch}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.step{border:3px solid var(--ink);background:#fff;box-shadow:6px 6px 0 var(--ink);padding:20px}
+.step:nth-child(1){box-shadow:6px 6px 0 var(--lime)}
+.step:nth-child(2){box-shadow:6px 6px 0 var(--coral)}
+.step:nth-child(3){box-shadow:6px 6px 0 var(--blue)}
+.step .num{font-family:Syne;font-weight:800;font-size:42px;line-height:1}
+.step h3{font-size:20px;margin:8px 0 8px}
+.step p{font-size:13.5px}
+/* STAT STRIP */
+.stat{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:3px solid var(--ink)}
+.stat div{padding:26px 20px;border-right:3px solid var(--ink)}
+.stat div:last-child{border-right:0}
+.stat b{font-family:Syne;font-weight:800;font-size:clamp(28px,3.6vw,44px);display:block}
+.stat span{font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stat div:nth-child(1) b{color:var(--ink)}.stat div:nth-child(2) b{color:var(--coral)}.stat div:nth-child(3) b{color:var(--blue)}
+/* QUOTES */
+.voices{padding:52px 0;border-bottom:3px solid var(--ink)}
+.voices h2{font-size:clamp(22px,3vw,34px);margin-bottom:26px}
+.qs{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.q{border:3px solid var(--ink);padding:22px;background:#fff}
+.q:nth-child(odd){background:var(--lime)}
+.q p{font-size:16px;margin-bottom:14px;font-family:Syne;font-weight:700;line-height:1.25}
+.q .who{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+/* CTA */
+.foot-cta{background:var(--ink);color:var(--paper);padding:56px 0;text-align:center}
+.foot-cta h2{color:var(--lime);font-size:clamp(28px,5vw,56px);margin-bottom:18px}
+.foot-cta a{display:inline-block;background:var(--lime);color:var(--ink);border:3px solid var(--lime);font-weight:700;text-transform:uppercase;padding:15px 30px;box-shadow:6px 6px 0 var(--coral);transition:transform .1s,box-shadow .1s}
+.foot-cta a:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--coral)}
+footer{border-top:3px solid var(--paper);background:var(--ink);color:var(--paper);padding:28px 0}
+footer .in{max-width:1160px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;font-size:12px}
+footer a:hover{color:var(--lime)}
+footer .dis{color:#8a887f;margin-top:14px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+@media(max-width:820px){
+ .bar nav,.bar .cta{display:none}
+ .menu-btn{display:block;margin-left:auto;background:var(--lime);border:3px solid var(--ink);font-family:"Space Mono";font-weight:700;padding:8px 14px;cursor:pointer}
+ .bar nav.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:var(--paper);border-bottom:3px solid var(--ink)}
+ .bar nav.open a{border-left:0;border-top:3px solid var(--ink)}
+ .steps,.qs,.stat{grid-template-columns:1fr}
+ .stat div{border-right:0;border-bottom:3px solid var(--ink)}.stat div:last-child{border-bottom:0}
+}
+@media(max-width:520px){.console h1{font-size:30px}.term .top .spacer{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto}.cur{display:none}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="in">
+    <a class="brand" href="index.html"><img src="assets/logo.svg" alt="BLUNT 直說"></a>
+    <button class="menu-btn" id="mb" aria-label="選單">MENU</button>
+    <nav id="nav">
+      <a href="index.html">控制台</a>
+      <a href="features.html">功能</a>
+      <a href="pricing.html">方案</a>
+      <a class="cta" href="pricing.html">開始試用</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="console">
+    <div class="wrap">
+      <span class="tag">&gt;_ AI 文案控制台</span>
+      <h1>把你要說的重點，直接變成草稿。</h1>
+      <p class="lede">不用開場白、不用「在當今快節奏的世界」。輸入幾行重點，BLUNT 立刻起草——單刀直入，你只負責改。</p>
+      <div class="term" aria-live="polite">
+        <div class="top"><span class="dot lime"></span><span class="dot"></span><span class="dot"></span>&nbsp;blunt://draft — 直說控制台<span class="spacer" id="modename">模式：產品文案</span></div>
+        <div class="field"><span class="pr">brief&gt;</span><span class="txt" id="brief"></span></div>
+        <div class="out"><div class="oh">// BLUNT 草稿</div><div class="draft" id="draft"></div></div>
+      </div>
+      <div class="modes" id="modes">
+        <button data-m="0" aria-pressed="true">產品文案</button>
+        <button data-m="1">Email 開場</button>
+        <button data-m="2">社群貼文</button>
+        <button data-m="3">新聞稿標題</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="how">
+    <div class="wrap">
+      <h2>三步，草稿就出來。</h2>
+      <p class="sub">BLUNT 不幫你「思考人生」，只幫你把已經知道的東西，快速變成能改的初稿。</p>
+      <div class="steps">
+        <div class="step"><div class="num">01</div><h3>丟重點</h3><p>三五行要點、幾個關鍵字，甚至一段語音轉錄的逐字稿都行。愈具體，草稿愈準。</p></div>
+        <div class="step"><div class="num">02</div><h3>選語氣</h3><p>產品文案、Email、社群貼文、新聞稿——切換模式，BLUNT 換一副口吻，但一樣不廢話。</p></div>
+        <div class="step"><div class="num">03</div><h3>改到好</h3><p>草稿是起點不是終點。標黃的地方是 BLUNT 建議你自己拍板的字眼，改完就能送出。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stat">
+    <div><b>0.9 秒</b><span>平均起草時間</span></div>
+    <div><b>4 種</b><span>語氣模式</span></div>
+    <div><b>11 國</b><span>語言支援</span></div>
+    <div><b>零</b><span>「在當今快節奏」開場白</span></div>
+  </section>
+
+  <section class="voices">
+    <div class="wrap">
+      <h2>用過的人怎麼說</h2>
+      <div class="qs">
+        <div class="q"><p>「以前寫產品頁要枯坐一小時，現在我丟五行、改十分鐘就送出。」</p><div class="who">— 何冠儒 · 獨立開發者</div></div>
+        <div class="q"><p>「它不跟我客套，這點最好。草稿一出來就是能用的骨架。」</p><div class="who">— 蔡宜庭 · 電商行銷</div></div>
+        <div class="q"><p>「四種模式切一切，一份重點能生出貼文、Email 和標題。」</p><div class="who">— Diego Vela · 新創共同創辦人</div></div>
+        <div class="q"><p>「終於有工具不強迫我用 emoji 和驚嘆號。安靜、直接。」</p><div class="who">— 林之柔 · 公關顧問</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="foot-cta">
+    <div class="wrap">
+      <h2>少講廢話，<br>多出草稿。</h2>
+      <a href="pricing.html">免費試用 14 天 &gt;_</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="in">
+    <div><b class="disp" style="font-size:16px">BLUNT 直說</b><br>台北市中正區八德路一段 22 號 5 樓<br>hello@blunt.tools · (02) 2391-0808</div>
+    <div><b>產品</b><br><a href="index.html">控制台</a> · <a href="features.html">功能</a> · <a href="pricing.html">方案</a><br>© 2026 BLUNT Tools（虛構示範品牌）</div>
+  </div>
+  <div class="in"><span class="dis">本站為設計示範・品牌 / 人名 / 引言 / 數據 / 聯絡方式皆為虛構示意，草稿內容由前端腳本模擬</span></div>
+</footer>
+
+<script>
+(function(){
+  var mb=document.getElementById('mb'),nav=document.getElementById('nav');
+  mb.addEventListener('click',function(){nav.classList.toggle('open');});
+  var MODES=[
+    {name:"產品文案",brief:"新款降噪耳機 / 續航 40hr / 台幣 3990 / 主打通勤族",
+     draft:[["直接說重點：",0],["這副耳機能安靜 ",0],["40 小時",1],["，一次充電撐過一整週通勤。",0],["\n$",0],["3,990",2],["，不玩首購倒數，看到就是這個價。",0]]},
+    {name:"Email 開場",brief:"寄給下訂後失聯三週的客戶 / 想確認要不要繼續 / 別太卑微",
+     draft:[["王先生，我直說：",0],["\n三週前的訂單還為你保留著。",0],["\n要繼續，回一個「好」；",0],["\n先擱著，回一個「等等」",1],["，我就不再打擾。",0]]},
+    {name:"社群貼文",brief:"週五新品上架 / 限量 200 份 / 想要一點急迫但不要浮誇",
+     draft:[["這批只有 ",0],["200 份",2],["。",0],["\n週五中午上架，賣完就等下一季。",0],["\n不催你，只是先講清楚。",0]]},
+    {name:"新聞稿標題",brief:"本土團隊做的離線翻譯 App / 不上傳雲端 / 隱私",
+     draft:[["你的對話，",0],["留在你手機裡",1],["。",0],["\n本土團隊推離線翻譯 App，",0],["零雲端上傳",2],["。",0]]}
+  ];
+  var briefEl=document.getElementById('brief'),draftEl=document.getElementById('draft'),modeName=document.getElementById('modeName');
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var cur=0,timer=null;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function renderFull(m){
+    briefEl.textContent=m.brief;
+    draftEl.innerHTML=m.draft.map(function(p){var c=esc(p[0]);return p[1]?'<span class="tok'+(p[1]==2?' c':p[1]==3?' b':'')+'">'+c+'</span>':c;}).join('');
+  }
+  function play(idx){
+    var m=MODES[idx];modeName.textContent="模式："+m.name;
+    if(reduce){renderFull(m);return;}
+    clearTimeout(timer);briefEl.textContent='';draftEl.innerHTML='';
+    var bi=0;
+    (function typeBrief(){
+      if(bi<=m.brief.length){briefEl.innerHTML=esc(m.brief.slice(0,bi))+'<span class="cur"></span>';bi++;timer=setTimeout(typeBrief,26);}
+      else{briefEl.textContent=m.brief;setTimeout(typeDraft,320);}
+    })();
+    function typeDraft(){
+      var parts=m.draft,pi=0,ci=0,html='';
+      (function stepD(){
+        if(pi>=parts.length){draftEl.innerHTML=html;return;}
+        var seg=parts[pi][0],cls=parts[pi][1];
+        if(ci<=seg.length){
+          var done=html;var cell=esc(seg.slice(0,ci));
+          var wrapped=cls?'<span class="tok'+(cls==2?' c':cls==3?' b':'')+'">'+cell+'</span>':cell;
+          draftEl.innerHTML=done+wrapped+'<span class="cur blink"></span>';
+          ci++;timer=setTimeout(stepD,22);
+        } else {
+          var cell2=esc(seg);html+=cls?'<span class="tok'+(cls==2?' c':cls==3?' b':'')+'">'+cell2+'</span>':cell2;
+          pi++;ci=0;timer=setTimeout(stepD,cls?140:0);
+        }
+      })();
+    }
+  }
+  var modes=document.getElementById('modes');
+  modes.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    Array.prototype.forEach.call(modes.children,function(x){x.setAttribute('aria-pressed','false');});
+    b.setAttribute('aria-pressed','true');cur=+b.dataset.m;play(cur);
+  });
+  play(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>經緯地產 MERIDIAN — 台北精選住宅仲介</title>
+<meta name="description" content="經緯地產 MERIDIAN，台北大安・信義・中山精選住宅與商辦仲介。以街廓示意地圖選屋，瑞士國際主義的清晰網格。資料皆為虛構示意。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F0EDE6'/%3E%3Cg fill='none' stroke='%2314110D' stroke-width='4'%3E%3Ccircle cx='32' cy='32' r='20'/%3E%3Cline x1='32' y1='6' x2='32' y2='58'/%3E%3Cline x1='6' y1='32' x2='58' y2='32'/%3E%3C/g%3E%3Cpath d='M32 14 l6 12 h-12 z' fill='%23DA2B1F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F0EDE6;--ink:#14110D;--red:#DA2B1F;--grey:#8F8B80;--line:#14110D;--rail:236px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:Inter,"Noto Sans TC",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.mono,.lbl{font-family:Archivo,"Noto Sans TC",sans-serif}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
+h1,h2,h3{font-family:Archivo,"Noto Sans TC",sans-serif;font-weight:900;line-height:.98;letter-spacing:-.01em}
+/* SIDE RAIL NAV */
+.rail{position:fixed;top:0;left:0;width:var(--rail);height:100vh;border-right:2px solid var(--line);background:var(--paper);display:flex;flex-direction:column;padding:22px 22px 18px;z-index:40}
+.rail .brand img{width:100%;max-width:190px;display:block}
+.rail nav{margin-top:38px;display:flex;flex-direction:column;gap:2px;border-top:2px solid var(--line)}
+.rail nav a{display:flex;gap:14px;align-items:baseline;padding:15px 2px;border-bottom:2px solid var(--line);font-family:Archivo;font-weight:700;font-size:16px;transition:color .15s}
+.rail nav a .n{font-size:11px;letter-spacing:.15em;color:var(--grey);width:22px}
+.rail nav a:hover,.rail nav a[aria-current]{color:var(--red)}
+.rail nav a:hover .n,.rail nav a[aria-current] .n{color:var(--red)}
+.rail .foot{margin-top:auto;font-size:11px;color:var(--grey);line-height:1.7}
+.rail .foot b{color:var(--ink);font-weight:600}
+.hb{display:none}
+main{margin-left:var(--rail)}
+.wrap{padding:0 clamp(20px,4vw,54px)}
+/* HERO / MAP-FIRST */
+.masthd{display:grid;grid-template-columns:1fr auto;align-items:end;gap:20px;padding:34px clamp(20px,4vw,54px) 22px;border-bottom:2px solid var(--line)}
+.masthd h1{font-size:clamp(30px,5vw,58px)}
+.masthd .meta{text-align:right;font-size:12px;color:var(--grey);line-height:1.7}
+.masthd .meta b{color:var(--red)}
+.mapgrid{display:grid;grid-template-columns:1.35fr 1fr;border-bottom:2px solid var(--line)}
+.mapcol{border-right:2px solid var(--line);position:relative;background:var(--paper)}
+.maphd{display:flex;justify-content:space-between;align-items:center;padding:12px clamp(16px,2.4vw,26px);border-bottom:2px solid var(--line)}
+.filters{display:flex;gap:0;flex-wrap:wrap}
+.filters button{font-family:Archivo;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:none;border:2px solid var(--line);border-right-width:0;padding:7px 12px;cursor:pointer;color:var(--ink)}
+.filters button:last-child{border-right-width:2px}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.mapbox{padding:18px clamp(16px,2.4vw,26px) 26px}
+svg.city{width:100%;height:auto;display:block}
+.block{fill:none;stroke:#c9c4b7;stroke-width:1.4}
+.street{stroke:#d7d2c6;stroke-width:1}
+.pin{cursor:pointer}
+.pin circle{fill:var(--paper);stroke:var(--ink);stroke-width:2.4;transition:all .18s}
+.pin.on circle,.pin:hover circle{fill:var(--red);stroke:var(--red);r:9}
+.pin text{font-family:Archivo;font-size:9px;font-weight:700;fill:var(--ink);pointer-events:none}
+.pin.on text,.pin:hover text{fill:var(--paper)}
+.cross{stroke:var(--red);stroke-width:1;stroke-dasharray:3 3;opacity:0}
+.cross.on{opacity:1}
+.readout{position:absolute;left:clamp(16px,2.4vw,26px);bottom:12px;font-family:Archivo;font-size:11px;letter-spacing:.1em;color:var(--grey)}
+.readout b{color:var(--ink);font-size:15px;font-weight:900}
+/* LISTINGS COLUMN */
+.list{display:flex;flex-direction:column}
+.card{border-bottom:2px solid var(--line);padding:16px clamp(16px,2.4vw,26px);display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:start;cursor:pointer;transition:background .15s}
+.card:hover,.card.on{background:#e7e3d9}
+.card .idx{font-family:Archivo;font-weight:900;font-size:13px;color:var(--red)}
+.card h3{font-size:17px;margin-bottom:3px}
+.card .sub{font-size:12px;color:var(--grey)}
+.card .price{font-family:Archivo;font-weight:900;font-size:15px;text-align:right;white-space:nowrap}
+.card .price small{display:block;font-size:10px;color:var(--grey);letter-spacing:.1em;font-weight:600}
+.list .listhd{padding:12px clamp(16px,2.4vw,26px);border-bottom:2px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+/* STRIP FACTS */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--line)}
+.facts div{padding:24px clamp(14px,2vw,24px);border-right:2px solid var(--line)}
+.facts div:last-child{border-right:0}
+.facts b{display:block;font-family:Archivo;font-weight:900;font-size:clamp(26px,3.4vw,40px);color:var(--red)}
+.facts span{font-size:12px;color:var(--grey)}
+/* SERVICES */
+.two{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--line)}
+.two>section{padding:34px clamp(16px,2.4vw,30px)}
+.two>section:first-child{border-right:2px solid var(--line)}
+.two h2{font-size:clamp(22px,3vw,32px);margin-bottom:14px}
+.two p{font-size:14px;max-width:44ch;margin-bottom:12px}
+.svcnum{font-family:Archivo;color:var(--grey);font-weight:700;font-size:12px;letter-spacing:.2em;margin-bottom:8px}
+ul.dash{list-style:none;font-size:14px}
+ul.dash li{padding:9px 0;border-bottom:1px solid #d3cec2;display:flex;justify-content:space-between;gap:12px}
+ul.dash li:before{content:"→";color:var(--red);margin-right:8px}
+/* FOOTER */
+footer{border-top:2px solid var(--line);padding:30px clamp(20px,4vw,54px);display:grid;grid-template-columns:1fr auto;gap:20px;font-size:12px;color:var(--grey)}
+footer b{color:var(--ink);font-weight:600}
+footer .lbl{color:var(--ink);margin-bottom:10px}
+.disclaimer{background:var(--ink);color:var(--paper);font-family:Archivo;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:9px}
+@media(max-width:900px){
+ :root{--rail:0px}
+ .rail{position:sticky;flex-direction:row;width:100%;height:auto;border-right:0;border-bottom:2px solid var(--line);align-items:center;padding:12px 16px;gap:16px}
+ .rail .brand img{max-width:150px}
+ .rail nav{margin-top:0;border-top:0;flex-direction:row;gap:0;margin-left:auto}
+ .rail nav a{border-bottom:0;border-left:2px solid var(--line);padding:6px 12px;font-size:13px}
+ .rail nav a .n{display:none}.rail .foot{display:none}
+ .mapgrid,.two{grid-template-columns:1fr}
+ .mapcol{border-right:0;border-bottom:2px solid var(--line)}
+ .two>section:first-child{border-right:0;border-bottom:2px solid var(--line)}
+ .facts{grid-template-columns:1fr 1fr}.facts div:nth-child(2){border-right:0}
+ .two>section:first-child{border-right:0}
+}
+@media(max-width:520px){.masthd{grid-template-columns:1fr}.masthd .meta{text-align:left}.card{grid-template-columns:24px 1fr}.card .price{grid-column:2;text-align:left}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<aside class="rail">
+  <a class="brand" href="index.html"><img src="assets/logo.svg" alt="經緯地產 MERIDIAN"></a>
+  <nav>
+    <a href="index.html" aria-current="page"><span class="n">01</span>選屋地圖</a>
+    <a href="listings.html"><span class="n">02</span>物件目錄</a>
+    <a href="about.html"><span class="n">03</span>關於經緯</a>
+  </nav>
+  <div class="foot"><b>經緯地產 MERIDIAN</b><br>台北市大安區信義路四段 88 號 3 樓<br>(02) 2755-6200・09:30–19:00<br>證號 北市地經字第 (114) 0421 號</div>
+</aside>
+
+<main>
+  <header class="masthd">
+    <h1>用一張街廓地圖<br>選你的台北。</h1>
+    <div class="meta"><span class="lbl">Vol. 07 — 2026 Q3 精選</span><br>大安・信義・中山 三區<br><b>18 件</b>在售物件・即時更新</div>
+  </header>
+
+  <section class="mapgrid">
+    <div class="mapcol">
+      <div class="maphd">
+        <span class="lbl">街廓示意地圖</span>
+        <div class="filters" id="filters">
+          <button data-d="all" aria-pressed="true">全區</button>
+          <button data-d="daan">大安</button>
+          <button data-d="xinyi">信義</button>
+          <button data-d="zhongshan">中山</button>
+        </div>
+      </div>
+      <div class="mapbox">
+        <svg class="city" viewBox="0 0 560 380" role="img" aria-label="台北三區街廓示意地圖與六件精選物件位置">
+          <g class="street">
+            <line x1="0" y1="95" x2="560" y2="95"/><line x1="0" y1="190" x2="560" y2="190"/><line x1="0" y1="285" x2="560" y2="285"/>
+            <line x1="150" y1="0" x2="150" y2="380"/><line x1="300" y1="0" x2="300" y2="380"/><line x1="420" y1="0" x2="420" y2="380"/>
+          </g>
+          <g class="block">
+            <rect x="24" y="24" width="106" height="52"/><rect x="170" y="24" width="112" height="52"/><rect x="320" y="24" width="82" height="52"/><rect x="440" y="24" width="96" height="52"/>
+            <rect x="24" y="118" width="106" height="52"/><rect x="170" y="118" width="112" height="52"/><rect x="320" y="118" width="82" height="52"/><rect x="440" y="118" width="96" height="52"/>
+            <rect x="24" y="212" width="106" height="52"/><rect x="170" y="212" width="112" height="52"/><rect x="320" y="212" width="82" height="52"/><rect x="440" y="212" width="96" height="52"/>
+            <rect x="24" y="306" width="106" height="50"/><rect x="170" y="306" width="112" height="50"/><rect x="320" y="306" width="82" height="50"/><rect x="440" y="306" width="96" height="50"/>
+          </g>
+          <line class="cross" id="cx" x1="0" y1="0" x2="560" y2="0"/>
+          <line class="cross" id="cy" x1="0" y1="0" x2="0" y2="380"/>
+          <g id="pins">
+            <g class="pin" data-i="0" data-d="daan" transform="translate(96,150)"><circle r="7"/><text text-anchor="middle" dy="3">A</text></g>
+            <g class="pin" data-i="1" data-d="daan" transform="translate(228,60)"><circle r="7"/><text text-anchor="middle" dy="3">B</text></g>
+            <g class="pin" data-i="2" data-d="xinyi" transform="translate(360,240)"><circle r="7"/><text text-anchor="middle" dy="3">C</text></g>
+            <g class="pin" data-i="3" data-d="xinyi" transform="translate(488,150)"><circle r="7"/><text text-anchor="middle" dy="3">D</text></g>
+            <g class="pin" data-i="4" data-d="zhongshan" transform="translate(228,330)"><circle r="7"/><text text-anchor="middle" dy="3">E</text></g>
+            <g class="pin" data-i="5" data-d="zhongshan" transform="translate(96,255)"><circle r="7"/><text text-anchor="middle" dy="3">F</text></g>
+          </g>
+        </svg>
+      </div>
+      <div class="readout" id="readout"><span class="lbl">HOVER 讀值</span>　目前指向：<b id="rprice">—</b></div>
+    </div>
+
+    <div class="mapcol list" id="list">
+      <div class="listhd"><span class="lbl">在售物件</span><span class="lbl" id="count">06 件</span></div>
+    </div>
+  </section>
+
+  <section class="facts">
+    <div><b>NT$ 68<span style="font-size:.5em">M</span></b><span>2026 上半年成交總額（示意）</span></div>
+    <div><b>21 天</b><span>平均成交週期</span></div>
+    <div><b>3 區</b><span>深耕大安・信義・中山</span></div>
+    <div><b>11 年</b><span>在地仲介經驗</span></div>
+  </section>
+
+  <section class="two">
+    <section>
+      <div class="svcnum">SERVICE 01</div>
+      <h2>買方代理</h2>
+      <p>我們只帶你看「值得看」的物件。地圖上每一枚圖釘都經過謄本、漏水與屋況實勘，成交前提供結構與管線的第三方檢測報告。</p>
+      <ul class="dash"><li>行情估價與議價策略<span>免費</span></li><li>謄本・產權・貸款試算<span>3 個工作天</span></li><li>屋況第三方檢測<span>成交前</span></li></ul>
+    </section>
+    <section>
+      <div class="svcnum">SERVICE 02</div>
+      <h2>賣方委託</h2>
+      <p>清晰的網格式物件頁、原創平面示意圖與街廓定位，讓你的物件在同區中被「看得懂」。委託期間每兩週一次書面進度回報。</p>
+      <ul class="dash"><li>專屬物件頁與平面繪製<span>含</span></li><li>帶看與回饋週報<span>每 14 天</span></li><li>成交服務費<span>1%–2%</span></li></ul>
+    </section>
+  </section>
+
+  <footer>
+    <div>
+      <div class="lbl">經緯地產 MERIDIAN</div>
+      台北市大安區信義路四段 88 號 3 樓<br>
+      <b>(02) 2755-6200</b>　service@meridian-estate.tw<br>
+      營業時間 週一–週六 09:30–19:00
+    </div>
+    <div>
+      <div class="lbl">導覽</div>
+      <a href="index.html">選屋地圖</a>・<a href="listings.html">物件目錄</a>・<a href="about.html">關於經緯</a><br>
+      證號 北市地經字第 (114) 0421 號<br>© 2026 MERIDIAN 經緯地產（虛構示範品牌）
+    </div>
+  </footer>
+  <div class="disclaimer">本站為設計示範・品牌 / 人名 / 地址 / 電話 / 物件 / 價格 / 成交數據皆為虛構示意</div>
+</main>
+
+<script>
+(function(){
+  var DATA=[
+    {c:"A",d:"daan",t:"信義路 · 光棟",s:"大安區 · 3房2廳 · 38.6坪 · 8F","p":5280},
+    {c:"B",d:"daan",t:"金華街 · 靜巷寓所",s:"大安區 · 2房2廳 · 27.1坪 · 4F","p":3680},
+    {c:"C",d:"xinyi",t:"松高 · 天際景觀",s:"信義區 · 4房2廳 · 52.4坪 · 21F","p":9860},
+    {c:"D",d:"xinyi",t:"永吉路 · 角間商辦",s:"信義區 · 開放辦公 · 44.0坪 · 6F","p":6120},
+    {c:"E",d:"zhongshan",t:"中山北路 · 綠蔭華廈",s:"中山區 · 3房2廳 · 33.8坪 · 11F","p":4450},
+    {c:"F",d:"zhongshan",t:"民生東路 · 邊間",s:"中山區 · 2房1廳 · 22.5坪 · 5F","p":2980}
+  ];
+  var list=document.getElementById('list');
+  var pins=Array.prototype.slice.call(document.querySelectorAll('.pin'));
+  var readout=document.getElementById('rprice');
+  var cx=document.getElementById('cx'),cy=document.getElementById('cy');
+  var cards=[];
+  DATA.forEach(function(o,i){
+    var a=document.createElement('a');
+    a.className='card';a.href='listings.html';a.dataset.i=i;a.dataset.d=o.d;
+    a.innerHTML='<span class="idx">'+o.c+'</span><div><h3>'+o.t+'</h3><span class="sub">'+o.s+'</span></div>'+
+      '<span class="price">NT$'+o.p.toLocaleString()+'<small>萬・總價</small></span>';
+    list.appendChild(a);cards.push(a);
+    a.addEventListener('mouseenter',function(){focus(i);});
+    a.addEventListener('mouseleave',clear);
+  });
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function focus(i){
+    clear();
+    var p=pins.filter(function(x){return x.dataset.i==i;})[0];
+    if(p){p.classList.add('on');
+      var m=/translate\(([\d.]+),([\d.]+)\)/.exec(p.getAttribute('transform'));
+      if(m){cx.setAttribute('y1',m[2]);cx.setAttribute('y2',m[2]);cy.setAttribute('x1',m[1]);cy.setAttribute('x2',m[1]);cx.classList.add('on');cy.classList.add('on');}
+    }
+    cards[i].classList.add('on');
+    rollTo(DATA[i].p);
+  }
+  function clear(){pins.forEach(function(x){x.classList.remove('on');});cards.forEach(function(x){x.classList.remove('on');});cx.classList.remove('on');cy.classList.remove('on');readout.textContent='—';}
+  var raf;
+  function rollTo(v){
+    if(reduce){readout.textContent='NT$'+v.toLocaleString()+' 萬';return;}
+    cancelAnimationFrame(raf);var start=performance.now(),from=0;
+    (function step(now){var k=Math.min((now-start)/420,1);var cur=Math.round(from+(v-from)*(k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2));readout.textContent='NT$'+cur.toLocaleString()+' 萬';if(k<1)raf=requestAnimationFrame(step);})(start);
+  }
+  pins.forEach(function(p){p.addEventListener('mouseenter',function(){focus(+p.dataset.i);});p.addEventListener('mouseleave',clear);});
+  var filters=document.getElementById('filters'),count=document.getElementById('count');
+  filters.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    Array.prototype.forEach.call(filters.children,function(x){x.setAttribute('aria-pressed','false');});
+    b.setAttribute('aria-pressed','true');
+    var d=b.dataset.d,n=0;
+    cards.forEach(function(c){var ok=(d==='all'||c.dataset.d===d);c.style.display=ok?'':'none';if(ok)n++;});
+    pins.forEach(function(p){p.style.display=(d==='all'||p.dataset.d===d)?'':'none';});
+    count.textContent=(n<10?'0'+n:n)+' 件';
+  });
+})();
+</script>
+</body>
+</html>

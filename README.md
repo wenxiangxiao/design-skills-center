@@ -49,6 +49,8 @@
 | 31 | [疊層空間設計 STRATA](sites/strata-interior/index.html) | 室內設計 | 雜誌對開排版風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 32 | [鐵廠 IRONHAUS](sites/ironhaus/index.html) | 健身房 | 工業風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 33 | [松紋家居 FURUHEM](sites/furuhem/index.html) | 家具品牌 | 北歐簡約 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 34 | [經緯地產 MERIDIAN](sites/meridian-estate/index.html) | 房地產仲介 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 35 | [BLUNT 直說](sites/blunt/index.html) | AI 工具 | 新粗獷主義 Neo-brutalism | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

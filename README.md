@@ -51,6 +51,8 @@
 | 33 | [松紋家居 FURUHEM](sites/furuhem/index.html) | 家具品牌 | 北歐簡約 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 34 | [經緯地產 MERIDIAN](sites/meridian-estate/index.html) | 房地產仲介 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 35 | [BLUNT 直說](sites/blunt/index.html) | AI 工具 | 新粗獷主義 Neo-brutalism | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 36 | [明算聯合會計師事務所](sites/mingsuan-cpa/index.html) | 會計師事務所 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 37 | [暮藤酒莊 Vesper Vale](sites/vesper-vale/index.html) | 葡萄酒莊 | 暗黑學院風 Dark Academia | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

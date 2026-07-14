@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>潮線海岸保育信託 Tidewell — 東北角海岸監測與復育</title>
+<meta name="description" content="潮線海岸保育信託是守護台灣東北角 68 公里海岸線的非營利組織。以工程藍晒圖語彙記錄潮間帶普查、石花菜復育與河口廢棄漁具清除。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E3A5F'/%3E%3Cpath d='M4 12 Q10 7 16 12 T28 12' fill='none' stroke='%23EAF3FA' stroke-width='1.6'/%3E%3Cpath d='M4 19 Q10 14 16 19 T28 19' fill='none' stroke='%238FCBE8' stroke-width='1.4'/%3E%3Cpath d='M4 26 Q10 21 16 26 T28 26' fill='none' stroke='%238FCBE8' stroke-width='1.2' opacity='.7'/%3E%3Ccircle cx='16' cy='12' r='2.4' fill='%23E23B2E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Noto+Serif+TC:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E3A5F; --deep:#0A2436; --cyan:#4FA9D8; --sky:#8FCBE8;
+  --paper:#EDF3F7; --line:#B9D3E4; --ink:#0A1721; --red:#E23B2E; --white:#F7FBFD;
+  --rail:212px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:26px 26px;background-position:-1px -1px}
+h1,h2,h3{font-family:'Archivo',sans-serif;font-weight:900;letter-spacing:-.01em;line-height:1.02}
+.serif{font-family:'Noto Serif TC',serif}
+.mono{font-family:'Space Mono',monospace}
+a{color:inherit}
+img,svg{display:block}
+/* ---- side-rail nav ---- */
+.rail{position:fixed;top:0;left:0;width:var(--rail);height:100vh;background:var(--navy);color:var(--white);
+  padding:22px 18px;display:flex;flex-direction:column;gap:26px;z-index:50;border-right:2px solid var(--ink)}
+.rail .brand{width:100%}
+.rail .brand svg{width:100%;height:auto;filter:none}
+.rail nav{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.rail nav a{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+  padding:9px 10px;border:1px solid transparent;text-decoration:none;color:var(--sky);display:flex;justify-content:space-between;transition:.18s}
+.rail nav a b{color:var(--white);font-weight:700}
+.rail nav a:hover,.rail nav a[aria-current="page"]{background:var(--deep);border-color:var(--cyan);color:var(--white)}
+.rail .foot{margin-top:auto;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--sky);line-height:1.5;letter-spacing:.03em}
+.rail .foot .co{width:9px;height:9px;background:var(--red);display:inline-block;margin-right:6px;vertical-align:middle}
+main{margin-left:var(--rail);padding:0}
+.wrap{padding:0 clamp(20px,4vw,60px)}
+/* ---- hero: map-first ---- */
+.hero{border-bottom:2px solid var(--ink);background:var(--deep);color:var(--white);position:relative;overflow:hidden}
+.hero .grid2{display:grid;grid-template-columns:1.05fr .95fr;min-height:76vh}
+.hero .left{padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;justify-content:space-between;border-right:2px solid var(--cyan)}
+.tagrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;color:var(--sky);text-transform:uppercase}
+.hero h1{font-size:clamp(38px,6.4vw,84px);margin:22px 0 10px}
+.hero h1 .ln{display:block}
+.hero h1 em{font-family:'Noto Serif TC',serif;font-style:normal;color:var(--cyan);font-weight:900}
+.hero p.lead{font-family:'Noto Serif TC',serif;font-size:clamp(16px,1.6vw,20px);max-width:34ch;color:#D6E8F3;line-height:1.7}
+.mapbox{position:relative;background:var(--navy)}
+.mapbox svg.map{width:100%;height:100%;position:absolute;inset:0}
+.pinbtn{position:absolute;transform:translate(-50%,-50%);width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--white);background:var(--red);cursor:pointer;padding:0;z-index:4;transition:.15s}
+.pinbtn:hover,.pinbtn.on{background:var(--cyan);transform:translate(-50%,-50%) scale(1.35)}
+.pinbtn:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.readout{position:absolute;left:16px;bottom:16px;right:16px;background:rgba(10,36,54,.92);border:1px solid var(--cyan);
+  padding:14px 16px;font-family:'Space Mono',monospace;font-size:12.5px;color:var(--sky);z-index:6}
+.readout b{color:var(--white);font-size:14px;letter-spacing:.04em}
+.readout .coord{color:var(--red)}
+/* ---- tide scroll bar ---- */
+.tidebar{display:flex;align-items:stretch;border-bottom:2px solid var(--ink);background:var(--white)}
+.tidebar .lab{padding:12px 18px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  border-right:2px solid var(--ink);display:flex;align-items:center;white-space:nowrap;color:var(--navy)}
+.tidebar .track{position:relative;flex:1;overflow:hidden}
+.tidebar .track svg{position:absolute;inset:0;width:100%;height:100%}
+.tidebar .val{padding:12px 18px;font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--red);
+  border-left:2px solid var(--ink);display:flex;align-items:center;white-space:nowrap;min-width:132px;justify-content:flex-end}
+/* ---- stats ---- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--ink)}
+.stats div{padding:26px 22px;border-right:2px solid var(--line)}
+.stats div:last-child{border-right:none}
+.stats b{display:block;font-size:clamp(30px,3.4vw,46px);font-weight:900;color:var(--navy);font-family:'Archivo',sans-serif}
+.stats span{font-size:13px;color:var(--ink);opacity:.72}
+/* ---- section ---- */
+section.block{padding:clamp(40px,5vw,74px) clamp(20px,4vw,60px);border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);
+  margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:34px;height:2px;background:var(--red)}
+h2.big{font-size:clamp(26px,3.6vw,46px);max-width:20ch;margin-bottom:18px}
+.two{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,4vw,56px);align-items:center}
+.prose p{font-family:'Noto Serif TC',serif;font-size:17px;line-height:1.85;margin-bottom:16px;max-width:52ch}
+/* blueprint diagram card */
+.bp{background:var(--navy);border:2px solid var(--ink);padding:18px;position:relative}
+.bp::after{content:"FIG. 01 — 潮間帶剖面示意";position:absolute;left:18px;bottom:10px;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--sky)}
+.bp svg{width:100%;height:auto}
+/* project index list */
+.plist{border-top:2px solid var(--ink)}
+.prow{display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:center;padding:20px 6px;
+  border-bottom:1px solid var(--line);transition:.18s}
+.prow:hover{background:var(--white)}
+.prow .no{font-family:'Space Mono',monospace;color:var(--red);font-weight:700}
+.prow h3{font-size:19px;font-weight:700}
+.prow .st{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;padding:5px 10px;border:1.5px solid var(--navy);
+  color:var(--navy);text-transform:uppercase;white-space:nowrap}
+.prow p{font-family:'Noto Serif TC',serif;font-size:14.5px;color:var(--ink);opacity:.8;margin-top:3px}
+/* footer */
+footer{background:var(--deep);color:var(--white);padding:clamp(34px,4vw,56px) clamp(20px,4vw,60px)}
+footer .fg{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:30px;border-bottom:1px solid var(--cyan);padding-bottom:26px}
+footer h4{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+footer p,footer a{font-size:14px;color:#CFE3F0;line-height:1.9;text-decoration:none}
+footer a:hover{color:var(--white);text-decoration:underline}
+.note{margin-top:20px;font-family:'Space Mono',monospace;font-size:11px;color:var(--sky);letter-spacing:.03em}
+.note .co{width:9px;height:9px;background:var(--red);display:inline-block;margin-right:6px;vertical-align:middle}
+/* responsive */
+@media(max-width:880px){
+  :root{--rail:0px}
+  .rail{position:static;width:100%;height:auto;flex-direction:row;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px}
+  .rail .brand{width:150px}
+  .rail nav{flex-direction:row;flex-wrap:wrap;margin-top:0;gap:4px}
+  .rail nav a{padding:7px 9px;font-size:11px}
+  .rail .foot{display:none}
+  main{margin-left:0}
+  .hero .grid2{grid-template-columns:1fr}
+  .hero .left{border-right:none;border-bottom:2px solid var(--cyan)}
+  .mapbox{min-height:60vh}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stats div:nth-child(2){border-right:none}
+  .two{grid-template-columns:1fr}
+  footer .fg{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<aside class="rail">
+  <a class="brand" href="index.html" aria-label="回首頁"><img src="assets/logo.svg" alt="潮線海岸保育信託"></a>
+  <nav>
+    <a href="index.html" aria-current="page"><span>概覽</span><b>00</b></a>
+    <a href="projects.html"><span>復育計畫</span><b>01</b></a>
+    <a href="join.html"><span>參與支持</span><b>02</b></a>
+  </nav>
+  <div class="foot"><span class="co"></span>財團法人潮線海岸<br>保育信託<br>新北市貢寮區<br>福連街 12 號<br>02-2490-3388</div>
+</aside>
+<main>
+  <!-- MAP-FIRST HERO -->
+  <section class="hero">
+    <div class="grid2">
+      <div class="left">
+        <div>
+          <div class="tagrow">EST. 2014 · 財團法人 / NON-PROFIT TRUST · 24.98°N 121.94°E</div>
+          <h1><span class="ln">量測</span><span class="ln"><em>海岸的</em></span><span class="ln">每一次呼吸</span></h1>
+          <p class="lead">我們沿著東北角 68 公里的潮線，把每一片礁石、每一次退潮、每一段被漁具纏繞的海床，畫成可以被讀懂的圖。</p>
+        </div>
+        <p class="mono" style="font-size:12px;color:var(--sky);letter-spacing:.06em;">▸ 點選右側地圖據點，展開該樣點的潮間帶剖面圖與監測數據。</p>
+      </div>
+      <div class="mapbox" id="mapbox">
+        <svg class="map" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="mgrid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M20 0H0V20" fill="none" stroke="#215a80" stroke-width="0.6"/>
+            </pattern>
+          </defs>
+          <rect width="400" height="520" fill="#0E3A5F"/>
+          <rect width="400" height="520" fill="url(#mgrid)"/>
+          <!-- coastline -->
+          <path d="M120 -10 C150 60 90 120 140 180 C185 235 110 300 160 360 C200 410 150 470 190 530 L400 530 L400 -10 Z" fill="#123a55" stroke="#4FA9D8" stroke-width="2"/>
+          <path d="M120 -10 C150 60 90 120 140 180 C185 235 110 300 160 360 C200 410 150 470 190 530" fill="none" stroke="#8FCBE8" stroke-width="1" stroke-dasharray="3 5"/>
+          <text x="250" y="60" fill="#5f89a6" font-family="'Space Mono',monospace" font-size="11" letter-spacing="2">東北角 / N.E. COAST</text>
+          <text x="40" y="500" fill="#3f6c8c" font-family="'Space Mono',monospace" font-size="10">太平洋 · PACIFIC</text>
+        </svg>
+        <button class="pinbtn on" style="left:33%;top:20%" data-site="0" aria-label="據點 馬崗潮間帶"></button>
+        <button class="pinbtn" style="left:30%;top:41%" data-site="1" aria-label="據點 鼻頭角礁區"></button>
+        <button class="pinbtn" style="left:38%;top:63%" data-site="2" aria-label="據點 卯澳河口"></button>
+        <button class="pinbtn" style="left:44%;top:82%" data-site="3" aria-label="據點 福隆沙丘"></button>
+        <div class="readout" id="readout" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIDE SCROLL BAR (signature) -->
+  <div class="tidebar" aria-hidden="true">
+    <div class="lab">實測潮位 / TIDE · 貢寮站</div>
+    <div class="track" id="tidetrack">
+      <svg viewBox="0 0 1000 60" preserveAspectRatio="none">
+        <path id="tidefill" d="" fill="#8FCBE8" opacity="0.5"></path>
+        <path id="tideline" d="" fill="none" stroke="#4FA9D8" stroke-width="2"></path>
+      </svg>
+    </div>
+    <div class="val" id="tideval">+1.24 m</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div><b>68</b><span>公里守護海岸線</span></div>
+    <div><b>11</b><span>長期監測樣點</span></div>
+    <div><b>3,240</b><span>累計志工人次</span></div>
+    <div><b>1.7 噸</b><span>清除廢棄漁具</span></div>
+  </div>
+
+  <!-- MISSION -->
+  <section class="block">
+    <div class="two">
+      <div>
+        <div class="eyebrow">使命 / MANDATE</div>
+        <h2 class="big">把看不見的潮間帶，變成看得懂的一張圖。</h2>
+        <div class="prose">
+          <p>潮線海岸保育信託成立於 2014 年，是一個沒有華麗口號的科學型組織。我們相信保育的第一步不是呼籲，而是紀錄——先量得準，才護得住。</p>
+          <p>十年來，我們的研究員與志工在退潮的兩小時窗口裡，蹲在礁石之間，用樣框、拉尺與潛水電腦，把每一個樣點的物種、覆蓋率與底質，畫成一份份藍晒工程圖存進資料庫。這些圖，就是我們對海岸許下的承諾。</p>
+        </div>
+      </div>
+      <div class="bp">
+        <svg viewBox="0 0 380 240" role="img" aria-label="潮間帶剖面示意圖">
+          <rect width="380" height="240" fill="none"/>
+          <g fill="none" stroke="#8FCBE8" stroke-width="0.6" opacity="0.5">
+            <path d="M0 40H380M0 80H380M0 120H380M0 160H380M0 200H380"/>
+            <path d="M40 0V240M120 0V240M200 0V240M280 0V240M360 0V240"/>
+          </g>
+          <path d="M0 70 L120 90 L210 150 L300 195 L380 205" fill="none" stroke="#EAF3FA" stroke-width="2"/>
+          <path d="M0 70 L120 90 L210 150 L300 195 L380 205 L380 240 L0 240 Z" fill="#12324a"/>
+          <line x1="120" y1="90" x2="120" y2="40" stroke="#E23B2E" stroke-width="1"/>
+          <circle cx="120" cy="90" r="3" fill="#E23B2E"/>
+          <text x="126" y="36" fill="#8FCBE8" font-family="'Space Mono',monospace" font-size="9">高潮線 MHW</text>
+          <line x1="300" y1="195" x2="300" y2="150" stroke="#E23B2E" stroke-width="1"/>
+          <circle cx="300" cy="195" r="3" fill="#E23B2E"/>
+          <text x="228" y="146" fill="#8FCBE8" font-family="'Space Mono',monospace" font-size="9">低潮線 MLW</text>
+          <text x="12" y="228" fill="#5f89a6" font-family="'Space Mono',monospace" font-size="9">陸 · LAND</text>
+          <text x="326" y="228" fill="#5f89a6" font-family="'Space Mono',monospace" font-size="9">海 · SEA</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT PREVIEW -->
+  <section class="block">
+    <div class="eyebrow">進行中 / ACTIVE FIELDWORK</div>
+    <h2 class="big">四個樣點，四種正在復原的海岸。</h2>
+    <div class="plist">
+      <div class="prow"><span class="no">01</span><div><h3>馬崗石花菜潮間帶普查</h3><p>逐月記錄石花菜覆蓋率與採藻強度，協助社區訂定永續採收上限。</p></div><span class="st">監測中</span></div>
+      <div class="prow"><span class="no">02</span><div><h3>鼻頭角軸孔珊瑚移植</h3><p>將斷枝珊瑚固定於人工附著基，追蹤白化與存活率。</p></div><span class="st">復育期</span></div>
+      <div class="prow"><span class="no">03</span><div><h3>卯澳河口廢棄漁具清除</h3><p>與在地漁會合作打撈刺網與蟹籠，減少幽靈漁業致死。</p></div><span class="st">季節性</span></div>
+      <div class="prow"><span class="no">04</span><div><h3>福隆沙丘馬鞍藤穩定計畫</h3><p>以在地原生植栽固沙，抵禦颱風季節的海岸線後退。</p></div><span class="st">試驗中</span></div>
+    </div>
+    <p style="margin-top:26px"><a class="mono" href="projects.html" style="font-size:13px;letter-spacing:.08em;color:var(--red);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:3px">展開完整復育計畫圖 ▸</a></p>
+  </section>
+
+  <footer>
+    <div class="fg">
+      <div>
+        <h4>潮線海岸保育信託</h4>
+        <p>Tidewell Coast Trust<br>財團法人・統一編號 82-6647019（虛構）<br>沿東北角海岸，量測、復育、公開。</p>
+      </div>
+      <div>
+        <h4>聯絡</h4>
+        <p>新北市貢寮區福連街 12 號<br>02-2490-3388<br><a href="join.html">field@tidewell.org.tw</a></p>
+      </div>
+      <div>
+        <h4>索引</h4>
+        <p><a href="index.html">概覽</a><br><a href="projects.html">復育計畫</a><br><a href="join.html">參與支持</a></p>
+      </div>
+    </div>
+    <div class="note"><span class="co"></span>本站為「Design Skills Center」設計示範，所有機構、人名、地址、電話與監測數據皆為虛構示意，不代表任何真實組織。</div>
+  </footer>
+</main>
+<script>
+(function(){
+  var sites=[
+    {n:"馬崗潮間帶樣點 · MG-01",c:"24.9931°N 122.0057°E",d:"石花菜覆蓋率 58%｜物種 41｜底質 礁盤",t:"+1.24 m"},
+    {n:"鼻頭角礁區 · BT-02",c:"25.1288°N 121.9182°E",d:"珊瑚存活率 73%｜移植枝 120｜水溫 26.4°C",t:"+0.86 m"},
+    {n:"卯澳河口 · MA-03",c:"25.0148°N 121.9436°E",d:"打撈漁具 214 件｜清除刺網 38 張｜巡查 12 次",t:"+1.05 m"},
+    {n:"福隆沙丘 · FL-04",c:"25.0221°N 121.9440°E",d:"馬鞍藤存活 81%｜固沙面積 0.6 ha｜後退 -1.2 m/yr",t:"+0.42 m"}
+  ];
+  var readout=document.getElementById('readout');
+  var pins=Array.prototype.slice.call(document.querySelectorAll('.pinbtn'));
+  var tideval=document.getElementById('tideval');
+  function show(i){
+    var s=sites[i];
+    readout.innerHTML='<b>'+s.n+'</b><br><span class="coord">'+s.c+'</span><br>'+s.d;
+    tideval.textContent=s.t;
+    pins.forEach(function(p,j){p.classList.toggle('on',j===i);});
+  }
+  pins.forEach(function(p){
+    p.addEventListener('click',function(){show(parseInt(p.getAttribute('data-site'),10));});
+    p.addEventListener('mouseenter',function(){show(parseInt(p.getAttribute('data-site'),10));});
+  });
+  show(0);
+
+  // tide scroll bar — waveform shifts with scroll, reads out tide height
+  var fill=document.getElementById('tidefill'), line=document.getElementById('tideline');
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function wave(phase){
+    var pts=[], W=1000, H=60;
+    for(var x=0;x<=W;x+=20){
+      var y=30 + Math.sin((x/95)+phase)*13 + Math.sin((x/40)+phase*1.7)*4;
+      pts.push(x+' '+y.toFixed(1));
+    }
+    line.setAttribute('d','M'+pts.join(' L'));
+    fill.setAttribute('d','M0 60 L'+pts.join(' L')+' L'+W+' 60 Z');
+  }
+  wave(0);
+  if(!reduce){
+    var ticking=false;
+    window.addEventListener('scroll',function(){
+      if(ticking) return; ticking=true;
+      requestAnimationFrame(function(){
+        var ph=window.scrollY/140;
+        wave(ph);
+        ticking=false;
+      });
+    },{passive:true});
+  }
+})();
+</script>
+</body>
+</html>

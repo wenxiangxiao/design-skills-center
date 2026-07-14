@@ -61,6 +61,8 @@
 | 43 | [STOMP 選品市集](sites/stomp-market/index.html) | 電商平台 | 新粗獷主義 Neo-brutalism | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 44 | [潮線海岸保育信託 Tidewell](sites/tidewell/index.html) | 非營利組織 | 瑞士國際主義 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 45 | [紙爪 Paper Paws](sites/paperpaws/index.html) | 寵物美容 | 兒童繪本風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 46 | [杏和堂中醫診所](sites/xinghetang/index.html) | 中醫診所 | 自然有機風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 47 | [FACET 選物](sites/facet/index.html) | 選物店 | 極簡留白 | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

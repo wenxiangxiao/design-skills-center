@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FACET 選物｜每件物有六個面・立體構成選品店</title>
+<meta name="description" content="FACET 選物：台北中山區的當代選品店。每件物件以可旋轉的六面規格方塊呈現，一面一則規格。極簡留白、立體構成。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,3 28,10 28,22 16,29 4,22 4,10' fill='%23F5F4EF' stroke='%2316150F' stroke-width='2' stroke-linejoin='round'/%3E%3Cpolygon points='16,3 28,10 16,17 4,10' fill='%232622E0'/%3E%3Cline x1='16' y1='17' x2='16' y2='29' stroke='%2316150F' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F4EF; --panel:#FBFAF6; --ink:#16150F; --cobalt:#2622E0;
+  --grey:#8C887E; --hair:#DCD9D0;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans TC",sans-serif;font-weight:300;line-height:1.8;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"Space Mono",monospace}
+.gro{font-family:"Space Grotesk",sans-serif}
+h1,h2,h3{font-family:"Space Grotesk",sans-serif;font-weight:700;line-height:1.05;margin:0;letter-spacing:-.01em}
+
+/* topbar */
+header{position:sticky;top:0;z-index:30;background:rgba(245,244,239,.9);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--ink);display:flex;align-items:center;justify-content:space-between;
+  padding:14px clamp(18px,4vw,52px)}
+header .brand img{height:34px;display:block}
+header nav{display:flex;gap:28px;align-items:center}
+header nav a{font-family:"Space Mono",monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;position:relative;padding:4px 0}
+header nav a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:2px;background:var(--cobalt);transition:width .28s ease}
+header nav a:hover::after,header nav a[aria-current]::after{width:100%}
+header nav a[aria-current]{color:var(--cobalt)}
+.navtoggle{display:none;background:none;border:1px solid var(--ink);font-family:"Space Mono",monospace;font-size:.75rem;padding:5px 10px;cursor:pointer}
+
+.pad{padding-inline:clamp(18px,4vw,52px)}
+.kick{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--cobalt)}
+
+/* SPLIT-SCREEN HERO */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 63px);border-bottom:1px solid var(--ink)}
+@media(max-width:900px){.hero{grid-template-columns:1fr;min-height:0}}
+.stagecol{border-right:1px solid var(--ink);display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:40px 24px;position:sticky;top:63px;height:calc(100vh - 63px);background:
+  linear-gradient(var(--hair) 1px,transparent 1px) 0 0/100% 46px,
+  linear-gradient(90deg,var(--hair) 1px,transparent 1px) 0 0/46px 100%,var(--panel)}
+@media(max-width:900px){.stagecol{position:static;height:auto;border-right:none;border-bottom:1px solid var(--ink)}}
+.stage{perspective:1000px;width:240px;height:240px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
+.stage.drag{cursor:grabbing}
+.cube{position:relative;width:200px;height:200px;transform-style:preserve-3d;
+  transform:rotateX(-18deg) rotateY(-28deg);transition:transform .1s linear}
+.cube.flip{transition:transform .7s cubic-bezier(.6,.02,.2,1)}
+.face{position:absolute;width:200px;height:200px;background:var(--panel);border:1.5px solid var(--ink);
+  display:flex;flex-direction:column;justify-content:space-between;padding:16px;backface-visibility:visible}
+.face .fno{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.2em;color:var(--cobalt)}
+.face .flabel{font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--grey)}
+.face .fval{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:1.15rem;line-height:1.15;letter-spacing:-.01em}
+.face .fval.zh{font-family:"Noto Sans TC",sans-serif;font-weight:500}
+.f-front{transform:translateZ(100px)}
+.f-back{transform:rotateY(180deg) translateZ(100px)}
+.f-right{transform:rotateY(90deg) translateZ(100px);background:var(--cobalt);color:#fff;border-color:var(--cobalt)}
+.f-right .flabel{color:rgba(255,255,255,.7)}.f-right .fno{color:#fff}
+.f-left{transform:rotateY(-90deg) translateZ(100px)}
+.f-top{transform:rotateX(90deg) translateZ(100px)}
+.f-bottom{transform:rotateX(-90deg) translateZ(100px)}
+.stagehint{font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.14em;color:var(--grey);margin-top:26px;text-align:center}
+
+.infocol{padding:clamp(30px,5vw,64px) clamp(22px,4vw,56px);display:flex;flex-direction:column;justify-content:center}
+.infocol h1{font-size:clamp(2rem,4.4vw,3.4rem)}
+.infocol h1 em{font-style:normal;color:var(--cobalt)}
+.objmeta{margin-top:22px;border-top:1px solid var(--ink)}
+.objmeta .row{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair)}
+.objmeta .row dt{font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--grey)}
+.objmeta .row dd{margin:0;font-size:.95rem;font-weight:400}
+.objstory{margin:22px 0;font-size:.98rem;line-height:1.95;max-width:46ch}
+.objprice{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:1.5rem}
+.objprice small{font-family:"Space Mono",monospace;font-size:.6em;color:var(--grey);font-weight:400}
+.objnav{display:flex;gap:10px;margin-top:24px;align-items:center}
+.objnav button{font-family:"Space Mono",monospace;font-size:.78rem;letter-spacing:.1em;background:var(--paper);
+  border:1.5px solid var(--ink);padding:9px 18px;cursor:pointer;transition:background .2s,color .2s}
+.objnav button:hover{background:var(--ink);color:var(--paper)}
+.objnav .count{font-family:"Space Mono",monospace;font-size:.8rem;color:var(--grey);margin-left:auto}
+
+/* dimension annotation */
+.dimwrap{margin-top:10px}
+.dimwrap svg{width:100%;max-width:360px;height:auto}
+.dimline{stroke:var(--cobalt);stroke-width:1.2;fill:none}
+.dimtick{stroke:var(--ink);stroke-width:1}
+.dimtxt{font-family:"Space Mono",monospace;font-size:9px;fill:var(--ink)}
+.objshape{stroke:var(--ink);stroke-width:1.5;fill:none}
+
+/* selling points */
+section{border-bottom:1px solid var(--ink)}
+.sec{padding-block:clamp(46px,6vw,88px)}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+@media(max-width:820px){.three{grid-template-columns:1fr}}
+.three .cell{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:30px 26px;min-height:200px;position:relative;background:var(--panel)}
+.three .cell .n{font-family:"Space Mono",monospace;color:var(--cobalt);font-size:.72rem;letter-spacing:.2em}
+.three .cell h3{font-size:1.4rem;margin:.5em 0 .5em}
+.three .cell p{font-size:.9rem;margin:0;color:#413f38}
+/* mini faceted forms */
+.mini{position:absolute;right:20px;bottom:18px;width:56px;height:56px;perspective:200px}
+.mini .m{width:56px;height:56px;position:relative;transform-style:preserve-3d;animation:spin 14s linear infinite}
+.mini .mf{position:absolute;width:56px;height:56px;border:1.4px solid var(--ink);background:rgba(38,34,224,.06)}
+.mini .mf:nth-child(1){transform:translateZ(28px)}
+.mini .mf:nth-child(2){transform:rotateY(90deg) translateZ(28px)}
+.mini .mf:nth-child(3){transform:rotateY(180deg) translateZ(28px)}
+.mini .mf:nth-child(4){transform:rotateY(270deg) translateZ(28px)}
+@keyframes spin{to{transform:rotateX(360deg) rotateY(360deg)}}
+
+/* quote */
+.quote{padding-block:clamp(50px,7vw,96px);text-align:center;background:var(--ink);color:var(--paper)}
+.quote p{font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:clamp(1.3rem,3vw,2.1rem);line-height:1.5;margin:0 auto;max-width:22ch}
+.quote span{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.2em;color:var(--grey);display:block;margin-top:20px}
+
+footer{padding:34px clamp(18px,4vw,52px);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.8rem}
+footer .gro{font-weight:700;letter-spacing:.06em}
+footer a:hover{color:var(--cobalt)}
+.disc{color:var(--grey);font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.04em}
+
+@media(max-width:760px){
+  header nav{position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:var(--paper);
+    border-bottom:1px solid var(--ink);max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 clamp(18px,4vw,52px)}
+  header nav.open{max-height:280px}
+  header nav a{padding:13px 0;border-bottom:1px solid var(--hair);width:100%}
+  .navtoggle{display:block}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}.cube{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html" aria-label="FACET 選物 首頁"><img src="assets/logo.svg" alt="FACET 選物"></a>
+  <button class="navtoggle" aria-label="選單" onclick="document.getElementById('nav').classList.toggle('open')">MENU</button>
+  <nav id="nav">
+    <a href="index.html" aria-current="page">Showcase</a>
+    <a href="objects.html">型錄 Objects</a>
+    <a href="about.html">觀點 About</a>
+  </nav>
+</header>
+
+<!-- SPLIT-SCREEN HERO -->
+<section class="hero">
+  <div class="stagecol">
+    <div class="stage" id="stage" aria-label="規格方塊，可拖曳旋轉">
+      <div class="cube" id="cube">
+        <div class="face f-front"><span class="fno">01</span><div><span class="flabel">品名 / Object</span><div class="fval zh" data-k="name">留白 文鎮</div></div></div>
+        <div class="face f-right"><span class="fno">02</span><div><span class="flabel">材質 / Material</span><div class="fval zh" data-k="material">實心黃銅</div></div></div>
+        <div class="face f-back"><span class="fno">03</span><div><span class="flabel">尺寸 / Size</span><div class="fval mono" data-k="size">60×60×18</div></div></div>
+        <div class="face f-left"><span class="fno">04</span><div><span class="flabel">產地 / Origin</span><div class="fval zh" data-k="origin">台灣・新北</div></div></div>
+        <div class="face f-top"><span class="fno">05</span><div><span class="flabel">設計 / By</span><div class="fval zh" data-k="designer">何允</div></div></div>
+        <div class="face f-bottom"><span class="fno">06</span><div><span class="flabel">定價 / Price</span><div class="fval mono" data-k="priceface">NT$1,480</div></div></div>
+      </div>
+    </div>
+    <div class="stagehint">← 拖曳旋轉方塊・六面即六則規格 →</div>
+  </div>
+
+  <div class="infocol">
+    <span class="kick">Showcase / 本週選物 No.<span id="objIndex">01</span></span>
+    <h1 id="objTitle">留白 <em>文鎮</em></h1>
+    <dl class="objmeta" id="objMeta"></dl>
+    <p class="objstory" id="objStory"></p>
+    <div class="dimwrap">
+      <svg id="dimSvg" viewBox="0 0 360 130" aria-label="物件尺寸標註圖"></svg>
+    </div>
+    <div class="objprice"><span id="objPrice">NT$1,480</span> <small id="objUnit">/ 件</small></div>
+    <div class="objnav">
+      <button type="button" id="prevBtn">← Prev</button>
+      <button type="button" id="nextBtn">Next →</button>
+      <span class="count"><span id="cur">1</span> / <span id="total">5</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- SELLING POINTS -->
+<section class="sec pad">
+  <span class="kick">Why FACET</span>
+  <h2 style="font-size:clamp(1.6rem,3.4vw,2.6rem);margin:.4em 0 .8em">我們只選六面都站得住的物</h2>
+  <div class="three">
+    <div class="cell"><div class="n">01</div><h3>一面一則規格</h3><p>每件物件都被拆成品名、材質、尺寸、產地、設計者、定價六個面。看得清楚，才買得明白。</p><div class="mini" aria-hidden="true"><div class="m"><div class="mf"></div><div class="mf"></div><div class="mf"></div><div class="mf"></div></div></div></div>
+    <div class="cell"><div class="n">02</div><h3>設計者具名</h3><p>不賣無名量產。每一件都查得到是誰做的、在哪做的。我們替設計者把名字留在物件上。</p><div class="mini" aria-hidden="true"><div class="m"><div class="mf"></div><div class="mf"></div><div class="mf"></div><div class="mf"></div></div></div></div>
+    <div class="cell"><div class="n">03</div><h3>可修可久</h3><p>選耐用、能修、越用越好的材質——黃銅、實木、陶土、玻璃。物件該陪人久一點。</p><div class="mini" aria-hidden="true"><div class="m"><div class="mf"></div><div class="mf"></div><div class="mf"></div><div class="mf"></div></div></div></div>
+  </div>
+</section>
+
+<div class="quote">
+  <p>「一件好物，禁得起你把它翻過來，看每一個面。」</p>
+  <span>FACET 選物・主理人 何允</span>
+</div>
+
+<footer>
+  <span class="gro">FACET 選物　台北市中山區赤峰街 12 巷 5 號</span>
+  <span><a href="objects.html">型錄</a>　·　<a href="about.html">觀點</a>　·　(02) 2556-0417</span>
+  <span class="disc">本站為設計示範，品牌、物件、價格、地址與人物皆為虛構示意。</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var OBJ = [
+    {name:"留白 文鎮",title:"留白 <em>文鎮</em>",material:"實心黃銅",size:"60×60×18",dims:[60,60],
+     origin:"台灣・新北",designer:"何允",price:"NT$1,480",unit:"/ 件",
+     story:"一塊實心黃銅，六面倒 45 度細角，重 420 克。壓住紙、壓住風、也壓住一桌子的忙亂。用久了氧化成溫潤的古銅色，越舊越好看。"},
+    {name:"志野 單枝花器",title:"志野 <em>單枝花器</em>",material:"志野陶土",size:"⌀80×140",dims:[80,140],
+     origin:"日本・岐阜",designer:"戸田 淳",story:"手拉坯的厚胎，釉面帶柚子皮般的細孔與緋色。口徑只容一枝——它逼你只留一朵，把其餘的留白給桌面。",
+     price:"NT$2,600",unit:"/ 件"},
+    {name:"亞麻 桌旗",title:"亞麻 <em>桌旗</em>",material:"水洗法國亞麻",size:"400×1400",dims:[400,1400],
+     origin:"立陶宛",designer:"Studio Mar",story:"密織後水洗的亞麻，垂墜而不挺，皺得剛剛好。灰白色不搶任何食器的風采，越洗越軟。",
+     price:"NT$1,180",unit:"/ 條"},
+    {name:"手工吹製 玻璃杯",title:"手工吹製 <em>玻璃杯</em>",material:"無鉛硼矽玻璃",size:"⌀72×95",dims:[72,95],
+     origin:"台灣・新竹",designer:"林洄",story:"人工吹製，杯壁厚薄帶著呼吸的痕跡，杯底一枚氣泡是不可複製的簽名。耐熱驟溫，冷熱皆宜。",
+     price:"NT$780",unit:"/ 只"},
+    {name:"楓木 托盤",title:"楓木 <em>托盤</em>",material:"硬楓實木・生漆",size:"300×220×16",dims:[300,220],
+     origin:"台灣・台中",designer:"木口 josai",story:"一塊硬楓刨挖成盤，邊緣留手感的鑿痕，內裡三道生漆。端早餐、放鑰匙、當相框底座都好。可食用級塗裝。",
+     price:"NT$2,200",unit:"/ 件"}
+  ];
+  var i = 0;
+  var cube = document.getElementById("cube");
+  var stage = document.getElementById("stage");
+  var metaEl = document.getElementById("objMeta");
+  var storyEl = document.getElementById("objStory");
+  var titleEl = document.getElementById("objTitle");
+  var priceEl = document.getElementById("objPrice");
+  var unitEl = document.getElementById("objUnit");
+  var idxEl = document.getElementById("objIndex");
+  var curEl = document.getElementById("cur");
+  document.getElementById("total").textContent = OBJ.length;
+
+  function setFaces(o){
+    var map = {name:o.name, material:o.material, size:o.size, origin:o.origin, designer:o.designer, priceface:o.price};
+    var vals = cube.querySelectorAll("[data-k]");
+    for(var k=0;k<vals.length;k++){
+      var key = vals[k].getAttribute("data-k");
+      if(map[key]!==undefined) vals[k].textContent = map[key];
+    }
+  }
+  function drawDim(o){
+    var svg = document.getElementById("dimSvg");
+    var w = o.dims[0], h = o.dims[1];
+    // scale into 260x100 box preserving ratio
+    var maxW=250, maxH=90, s=Math.min(maxW/w, maxH/h);
+    var bw=w*s, bh=h*s, ox=70, oy=110-bh;
+    var parts = [];
+    parts.push('<rect class="objshape" x="'+ox+'" y="'+oy+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'"/>');
+    // width dim (below)
+    var wy = 120;
+    parts.push('<path class="dimline dash" d="M'+ox+' '+wy+' H'+(ox+bw).toFixed(1)+'"/>');
+    parts.push('<line class="dimtick" x1="'+ox+'" y1="'+(wy-4)+'" x2="'+ox+'" y2="'+(wy+4)+'"/>');
+    parts.push('<line class="dimtick" x1="'+(ox+bw).toFixed(1)+'" y1="'+(wy-4)+'" x2="'+(ox+bw).toFixed(1)+'" y2="'+(wy+4)+'"/>');
+    parts.push('<text class="dimtxt" x="'+(ox+bw/2).toFixed(1)+'" y="'+(wy-5)+'" text-anchor="middle">'+w+' mm</text>');
+    // height dim (left)
+    var hx = ox-14;
+    parts.push('<path class="dimline dash" d="M'+hx+' '+oy.toFixed(1)+' V'+(oy+bh).toFixed(1)+'"/>');
+    parts.push('<line class="dimtick" x1="'+(hx-4)+'" y1="'+oy.toFixed(1)+'" x2="'+(hx+4)+'" y2="'+oy.toFixed(1)+'"/>');
+    parts.push('<line class="dimtick" x1="'+(hx-4)+'" y1="'+(oy+bh).toFixed(1)+'" x2="'+(hx+4)+'" y2="'+(oy+bh).toFixed(1)+'"/>');
+    parts.push('<text class="dimtxt" x="'+(hx-6)+'" y="'+(oy+bh/2).toFixed(1)+'" text-anchor="middle" transform="rotate(-90 '+(hx-6)+' '+(oy+bh/2).toFixed(1)+')">'+h+' mm</text>');
+    svg.innerHTML = parts.join("");
+    // draw-in animation on dim lines
+    if(!reduce){
+      var dl = svg.querySelectorAll(".dimline");
+      for(var d=0;d<dl.length;d++){
+        var len = dl[d].getTotalLength();
+        dl[d].style.strokeDasharray = len;
+        dl[d].style.strokeDashoffset = len;
+        dl[d].style.transition = "stroke-dashoffset .7s ease "+(d*0.15)+"s";
+        (function(el){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.style.strokeDashoffset="0"; }); }); })(dl[d]);
+      }
+    }
+  }
+  function render(o){
+    titleEl.innerHTML = o.title;
+    metaEl.innerHTML =
+      '<div class="row"><dt>Material</dt><dd>'+o.material+'</dd></div>'+
+      '<div class="row"><dt>Size mm</dt><dd class="mono">'+o.size+'</dd></div>'+
+      '<div class="row"><dt>Origin</dt><dd>'+o.origin+'</dd></div>'+
+      '<div class="row"><dt>Designer</dt><dd>'+o.designer+'</dd></div>';
+    storyEl.textContent = o.story;
+    priceEl.textContent = o.price;
+    unitEl.textContent = o.unit;
+    idxEl.textContent = ("0"+(i+1)).slice(-2);
+    curEl.textContent = (i+1);
+    drawDim(o);
+  }
+
+  // rotation state
+  var rotX=-18, rotY=-28;
+  function apply(){ cube.style.transform = "rotateX("+rotX+"deg) rotateY("+rotY+"deg)"; }
+  function go(dir){
+    i = (i + dir + OBJ.length) % OBJ.length;
+    // flip cube 180 on Y as object-switch transition
+    cube.classList.add("flip");
+    rotY += (dir>=0? 180 : -180);
+    apply();
+    setTimeout(function(){ cube.classList.remove("flip"); }, reduce?0:700);
+    setFaces(OBJ[i]);
+    render(OBJ[i]);
+  }
+  document.getElementById("nextBtn").addEventListener("click",function(){go(1);});
+  document.getElementById("prevBtn").addEventListener("click",function(){go(-1);});
+
+  // drag rotate
+  var dragging=false, lx=0, ly=0;
+  function px(ev){ return ev.touches?ev.touches[0].clientX:ev.clientX; }
+  function py(ev){ return ev.touches?ev.touches[0].clientY:ev.clientY; }
+  function down(ev){ dragging=true; lx=px(ev); ly=py(ev); stage.classList.add("drag"); cube.classList.remove("flip"); }
+  function move(ev){
+    if(!dragging) return;
+    var dx=px(ev)-lx, dy=py(ev)-ly; lx=px(ev); ly=py(ev);
+    rotY += dx*0.6; rotX -= dy*0.6;
+    if(rotX>80)rotX=80; if(rotX<-80)rotX=-80;
+    apply(); ev.preventDefault();
+  }
+  function up(){ dragging=false; stage.classList.remove("drag"); }
+  stage.addEventListener("mousedown",down);
+  window.addEventListener("mousemove",move,{passive:false});
+  window.addEventListener("mouseup",up);
+  stage.addEventListener("touchstart",down,{passive:false});
+  stage.addEventListener("touchmove",move,{passive:false});
+  stage.addEventListener("touchend",up);
+
+  setFaces(OBJ[0]); render(OBJ[0]); apply();
+})();
+</script>
+</body>
+</html>

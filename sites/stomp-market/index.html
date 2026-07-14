@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STOMP 選品市集 — 直送台灣獨立品牌的電商平台</title>
+<meta name="description" content="STOMP 是一座直送台灣獨立設計與職人品牌的選品電商平台。以品類索引開場，厚黑邊硬陰影、圖樣織紋分類，逛得直接、買得痛快。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2312C48B'/%3E%3Crect x='3' y='3' width='26' height='26' fill='none' stroke='%230B0B0B' stroke-width='3'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='18' fill='%230B0B0B'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFDF5; --ink:#0B0B0B; --orange:#FF4B1F; --blue:#2D5BFF; --green:#12C48B; --yellow:#FFC93C;
+  --sh:6px 6px 0 var(--ink);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;font-size:18px;line-height:1.5;overflow-x:hidden}
+h1,h2,h3,.disp{font-family:'Archivo Black',sans-serif;letter-spacing:-.01em;line-height:1}
+.mono{font-family:'Space Mono',monospace}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+/* topbar */
+.topbar{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:3px solid var(--ink)}
+.tb-in{max-width:1120px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-mark{width:34px;height:34px;background:var(--green);border:3px solid var(--ink);display:grid;place-items:center;font-family:'Space Mono',monospace;font-weight:700;font-size:18px;box-shadow:3px 3px 0 var(--ink)}
+.tb-name{font-family:'Archivo Black',sans-serif;font-size:22px}
+.tb-nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.tb-nav a{padding:8px 14px;font-weight:700;font-size:14px;border:2px solid transparent}
+.tb-nav a:hover{border-color:var(--ink);box-shadow:3px 3px 0 var(--ink);background:var(--yellow)}
+.tb-nav a[aria-current]{background:var(--ink);color:var(--paper)}
+.bag{background:var(--orange);color:var(--paper);border:3px solid var(--ink);padding:8px 14px;font-family:'Space Mono',monospace;font-weight:700;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+/* toc-first hero: category directory */
+.tochead{border-bottom:3px solid var(--ink);padding:40px 0 26px}
+.tochead .kick{font-family:'Space Mono',monospace;font-weight:700;background:var(--blue);color:var(--paper);display:inline-block;padding:4px 10px;font-size:13px;letter-spacing:.08em}
+.tochead h1{font-size:clamp(40px,8vw,86px);margin:14px 0 8px;text-transform:uppercase}
+.tochead h1 em{font-style:normal;color:var(--orange)}
+.tochead p{max-width:620px;font-size:19px}
+.toc{border-top:3px solid var(--ink)}
+.toc-row{display:grid;grid-template-columns:70px 1fr auto auto;align-items:center;gap:18px;padding:20px 8px;border-bottom:3px solid var(--ink);position:relative;overflow:hidden;transition:background .15s}
+.toc-row .pat{position:absolute;inset:0;opacity:0;transition:opacity .25s;z-index:0}
+.toc-row:hover .pat{opacity:1}
+.toc-row>*{position:relative;z-index:1}
+.toc-row:hover{padding-left:20px}
+.toc-num{font-family:'Space Mono',monospace;font-weight:700;font-size:20px}
+.toc-name{font-family:'Archivo Black',sans-serif;font-size:clamp(22px,4vw,38px);text-transform:uppercase}
+.toc-name small{display:block;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;text-transform:none;margin-top:4px;opacity:.7}
+.toc-count{font-family:'Space Mono',monospace;font-weight:700;background:var(--ink);color:var(--paper);padding:3px 9px;font-size:13px}
+.toc-arrow{font-family:'Archivo Black',sans-serif;font-size:26px;transition:transform .2s}
+.toc-row:hover .toc-arrow{transform:translateX(6px)}
+/* featured band */
+.band{padding:64px 0;border-bottom:3px solid var(--ink)}
+.band.alt{background:var(--ink);color:var(--paper)}
+.band h2{font-size:clamp(28px,5vw,48px);text-transform:uppercase;margin-bottom:6px}
+.band .lede{max-width:640px;font-size:18px;margin-bottom:30px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:var(--sh);display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--ink)}
+.card .thumb{height:150px;border-bottom:3px solid var(--ink);position:relative;overflow:hidden}
+.card .meta{padding:14px 16px 18px}
+.card .tag{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;background:var(--yellow);display:inline-block;padding:2px 8px;border:2px solid var(--ink)}
+.card h3{font-size:20px;margin:10px 0 4px;text-transform:uppercase}
+.card .maker{font-size:13px;opacity:.7;margin-bottom:12px}
+.card .buy{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.card .price{font-family:'Space Mono',monospace;font-weight:700;font-size:18px}
+.add{background:var(--green);border:3px solid var(--ink);font-family:'Space Mono',monospace;font-weight:700;padding:6px 12px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);font-size:13px;transition:.1s}
+.add:hover{background:var(--orange);color:var(--paper)}
+.add:active{transform:translate(3px,3px);box-shadow:none}
+/* value props */
+.props{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:3px solid var(--ink);box-shadow:var(--sh)}
+.prop{padding:28px 22px;border-right:3px solid var(--ink)}
+.prop:last-child{border-right:0}
+.prop .ic{width:52px;height:52px;border:3px solid var(--ink);margin-bottom:14px;display:block}
+.prop h3{font-size:19px;text-transform:uppercase;margin-bottom:6px}
+.prop p{font-size:15px}
+/* toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--paper);border:3px solid var(--green);padding:12px 22px;font-family:'Space Mono',monospace;font-weight:700;z-index:80;transition:transform .3s;box-shadow:var(--sh)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+footer{background:var(--ink);color:var(--paper);padding:48px 0 26px}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:26px}
+footer h4{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:12px}
+footer a,footer p{display:block;font-size:14px;color:#d8d8d0;margin-bottom:6px}
+footer a:hover{color:var(--yellow)}
+.fbrand{font-family:'Archivo Black',sans-serif;font-size:26px;color:var(--paper);margin-bottom:8px}
+.fbot{border-top:2px solid #333;margin-top:34px;padding-top:18px;font-family:'Space Mono',monospace;font-size:12px;color:#8a8a82;text-align:center}
+@media(max-width:860px){.grid{grid-template-columns:1fr 1fr}.props{grid-template-columns:1fr}.prop{border-right:0;border-bottom:3px solid var(--ink)}.fgrid{grid-template-columns:1fr 1fr}.toc-row{grid-template-columns:44px 1fr auto}.toc-arrow{display:none}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="tb-in">
+    <a class="tb-logo" href="index.html">
+      <span class="tb-mark">S</span><span class="tb-name">STOMP</span>
+    </a>
+    <nav class="tb-nav" aria-label="主導覽">
+      <a href="index.html" aria-current="page">品類</a>
+      <a href="shop.html">選物</a>
+      <a href="makers.html">賣家</a>
+      <button class="bag" id="bag" aria-label="購物袋">袋 [<span id="bagn">0</span>]</button>
+    </nav>
+  </div>
+</header>
+
+<section class="tochead">
+  <div class="wrap">
+    <span class="kick">直送台灣獨立品牌 · 免運滿 $1,200</span>
+    <h1>逛，<em>不用</em>被推薦餵</h1>
+    <p>STOMP 是一份會呼吸的目錄。沒有無限捲動、沒有演算法猜你想要——只有清清楚楚的品類索引，你自己挑。從下面開始。</p>
+  </div>
+  <div class="toc wrap" id="toc"></div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2>本週上架</h2>
+    <p class="lede">每週三上新。以下是這批我們自己也想帶回家的東西。</p>
+    <div class="grid" id="feat"></div>
+  </div>
+</section>
+
+<section class="band alt">
+  <div class="wrap">
+    <h2 style="color:var(--yellow)">為什麼是 STOMP</h2>
+    <p class="lede" style="opacity:.85">我們不是最大的市集，是最不打擾你的那個。</p>
+    <div class="props">
+      <div class="prop">
+        <svg class="ic" viewBox="0 0 52 52" aria-hidden="true"><rect width="52" height="52" fill="var(--green)"/><path d="M12 30 L22 40 L40 16" fill="none" stroke="#0B0B0B" stroke-width="5"/></svg>
+        <h3>先審後上架</h3><p>每個賣家都經人工審核，沒有一頁賣一千種東西的假店。</p>
+      </div>
+      <div class="prop">
+        <svg class="ic" viewBox="0 0 52 52" aria-hidden="true"><rect width="52" height="52" fill="var(--orange)"/><path d="M14 26 h24 M28 16 l10 10 -10 10" fill="none" stroke="#0B0B0B" stroke-width="5"/></svg>
+        <h3>島內 48 小時</h3><p>台灣本島下單後兩個工作天到貨，賣家直送不轉倉。</p>
+      </div>
+      <div class="prop">
+        <svg class="ic" viewBox="0 0 52 52" aria-hidden="true"><rect width="52" height="52" fill="var(--blue)"/><path d="M26 12 l4 10 11 1 -8 8 2 11 -11 -6 -11 6 2 -11 -8 -8 11 -1 z" fill="#0B0B0B"/></svg>
+        <h3>賺得進賣家口袋</h3><p>抽成固定 8%，比多數平台低一半，錢留在做東西的人手上。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <div class="fbrand">STOMP</div>
+        <p>直送台灣獨立品牌的選品市集。</p>
+        <p class="mono" style="color:var(--green)">EST. 2023 · TAIPEI</p>
+      </div>
+      <div><h4>逛</h4><a href="index.html">品類索引</a><a href="shop.html">全部選物</a><a href="makers.html">認識賣家</a></div>
+      <div><h4>幫助</h4><a href="#">運送與退貨</a><a href="#">尺寸指南</a><a href="#">常見問題</a></div>
+      <div><h4>賣家</h4><a href="makers.html#join">我要開店</a><a href="#">抽成方案</a><a href="#">出貨規範</a></div>
+    </div>
+    <div class="fbot">© 2026 STOMP SELECT MARKET · 台北市信義區菸廠路 6 號・本站為 Design Skills Center 去AI化設計範例，品牌與商品皆為虛構示意</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">已丟進購物袋</div>
+<script>
+var CATS=[
+  {n:"文具紙品",e:"Stationery",c:48,pat:"check",col:"var(--yellow)"},
+  {n:"廚房餐桌",e:"Kitchen & Table",c:63,pat:"zig",col:"var(--green)"},
+  {n:"包袋皮件",e:"Bags & Leather",c:31,pat:"dot",col:"var(--orange)"},
+  {n:"居家織品",e:"Home Textile",c:27,pat:"stripe",col:"var(--blue)"},
+  {n:"香氛蠟燭",e:"Scent & Candle",c:22,pat:"dot",col:"var(--orange)"},
+  {n:"陶與器皿",e:"Ceramics",c:40,pat:"check",col:"var(--yellow)"}
+];
+var PRODUCTS=[
+  {t:"方格筆記本 A5",m:"紙研所 KAMILAB",p:380,tag:"新上架",col:"var(--yellow)",pat:"check"},
+  {t:"手沖木柄濾杯",m:"燒山陶作",p:1280,tag:"熱賣",col:"var(--green)",pat:"zig"},
+  {t:"帆布側背袋",m:"重工帆布行",p:1680,tag:"補貨",col:"var(--orange)",pat:"stripe"},
+  {t:"亞麻餐墊四入",m:"晒物所",p:960,tag:"新上架",col:"var(--blue)",pat:"dot"},
+  {t:"雪松香氛蠟燭",m:"暗房香室",p:720,tag:"熱賣",col:"var(--orange)",pat:"dot"},
+  {t:"粗陶飯碗一對",m:"燒山陶作",p:1120,tag:"新上架",col:"var(--yellow)",pat:"check"}
+];
+function pat(kind,col){
+  var id='p'+Math.random().toString(36).slice(2,7);
+  var defs='';
+  if(kind==='check')defs='<pattern id="'+id+'" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="'+col+'"/><rect width="10" height="10" fill="#0B0B0B"/><rect x="10" y="10" width="10" height="10" fill="#0B0B0B"/></pattern>';
+  else if(kind==='zig')defs='<pattern id="'+id+'" width="24" height="16" patternUnits="userSpaceOnUse"><rect width="24" height="16" fill="'+col+'"/><path d="M0 12 L6 4 L12 12 L18 4 L24 12" fill="none" stroke="#0B0B0B" stroke-width="3"/></pattern>';
+  else if(kind==='dot')defs='<pattern id="'+id+'" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="'+col+'"/><circle cx="9" cy="9" r="4" fill="#0B0B0B"/></pattern>';
+  else defs='<pattern id="'+id+'" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16" fill="'+col+'"/><rect width="8" height="16" fill="#0B0B0B"/></pattern>';
+  return '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>'+defs+'</defs><rect width="100%" height="100%" fill="url(#'+id+')"/></svg>';
+}
+// build toc
+var toc=document.getElementById('toc');
+CATS.forEach(function(c,i){
+  var a=document.createElement('a');
+  a.href='shop.html';a.className='toc-row';
+  a.innerHTML='<div class="pat">'+pat(c.pat,c.col)+'</div>'+
+    '<span class="toc-num">'+String(i+1).padStart(2,'0')+'</span>'+
+    '<span class="toc-name">'+c.n+'<small>'+c.e+'</small></span>'+
+    '<span class="toc-count">'+c.c+' 件</span>'+
+    '<span class="toc-arrow">→</span>';
+  toc.appendChild(a);
+});
+// build featured
+var feat=document.getElementById('feat');
+PRODUCTS.forEach(function(p){
+  var d=document.createElement('div');d.className='card';
+  d.innerHTML='<div class="thumb">'+pat(p.pat,p.col)+'</div>'+
+    '<div class="meta"><span class="tag">'+p.tag+'</span>'+
+    '<h3>'+p.t+'</h3><div class="maker">'+p.m+'</div>'+
+    '<div class="buy"><span class="price">$'+p.p+'</span>'+
+    '<button class="add">加入袋 +</button></div></div>';
+  d.querySelector('.add').addEventListener('click',addBag);
+  feat.appendChild(d);
+});
+// bag counter with stepped flip
+var n=0,bagn=document.getElementById('bagn'),toast=document.getElementById('toast'),tt;
+function addBag(){
+  n++;bagn.textContent=n;
+  var bag=document.getElementById('bag');bag.style.transform='translateY(-4px)';
+  setTimeout(function(){bag.style.transform='';},120);
+  toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show');},1400);
+}
+document.getElementById('bag').addEventListener('click',function(){
+  toast.textContent=n?('袋內有 '+n+' 件（範例站，不會結帳）'):'購物袋是空的';
+  toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show');toast.textContent='已丟進購物袋';},1600);
+});
+</script>
+</body>
+</html>

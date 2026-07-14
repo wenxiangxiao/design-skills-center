@@ -57,6 +57,8 @@
 | 39 | [疊印咖啡 Overprint Coffee](sites/overprint-coffee/index.html) | 咖啡廳 | 復古印刷 Risograph | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 40 | [TANDVIK 丹維克牙醫](sites/tandvik/index.html) | 牙醫診所 | 北歐簡約 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 41 | [PULP CLUB](sites/pulp-club/index.html) | 服飾品牌 | 俏皮普普風 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 42 | [LASCELLE 婚禮策劃](sites/lascelle/index.html) | 婚禮顧問 | Art Deco 裝飾藝術 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 43 | [STOMP 選品市集](sites/stomp-market/index.html) | 電商平台 | 新粗獷主義 Neo-brutalism | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

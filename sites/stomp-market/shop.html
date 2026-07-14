@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選物 — STOMP 選品市集</title>
+<meta name="description" content="STOMP 選物牆：文具紙品、廚房餐桌、包袋皮件、居家織品、香氛蠟燭、陶與器皿。厚黑邊硬陰影商品磚，可依品類即時篩選。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2312C48B'/%3E%3Crect x='3' y='3' width='26' height='26' fill='none' stroke='%230B0B0B' stroke-width='3'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='18' fill='%230B0B0B'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FFFDF5;--ink:#0B0B0B;--orange:#FF4B1F;--blue:#2D5BFF;--green:#12C48B;--yellow:#FFC93C;--sh:6px 6px 0 var(--ink)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;font-size:18px;line-height:1.5;overflow-x:hidden}
+h1,h2,h3{font-family:'Archivo Black',sans-serif;line-height:1}
+.mono{font-family:'Space Mono',monospace}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.topbar{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:3px solid var(--ink)}
+.tb-in{max-width:1120px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-mark{width:34px;height:34px;background:var(--green);border:3px solid var(--ink);display:grid;place-items:center;font-family:'Space Mono',monospace;font-weight:700;font-size:18px;box-shadow:3px 3px 0 var(--ink)}
+.tb-name{font-family:'Archivo Black',sans-serif;font-size:22px}
+.tb-nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.tb-nav a{padding:8px 14px;font-weight:700;font-size:14px;border:2px solid transparent}
+.tb-nav a:hover{border-color:var(--ink);box-shadow:3px 3px 0 var(--ink);background:var(--yellow)}
+.tb-nav a[aria-current]{background:var(--ink);color:var(--paper)}
+.bag{background:var(--orange);color:var(--paper);border:3px solid var(--ink);padding:8px 14px;font-family:'Space Mono',monospace;font-weight:700;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.pagehead{border-bottom:3px solid var(--ink);padding:34px 0}
+.pagehead .kick{font-family:'Space Mono',monospace;font-weight:700;background:var(--orange);color:var(--paper);display:inline-block;padding:4px 10px;font-size:13px}
+.pagehead h1{font-size:clamp(34px,7vw,64px);text-transform:uppercase;margin-top:12px}
+/* filters */
+.filters{display:flex;gap:10px;flex-wrap:wrap;padding:22px 0;border-bottom:3px solid var(--ink);position:sticky;top:59px;background:var(--paper);z-index:40}
+.chip{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;border:3px solid var(--ink);background:var(--paper);padding:7px 14px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:.1s}
+.chip:hover{background:var(--yellow)}
+.chip.on{background:var(--ink);color:var(--paper)}
+.chip:active{transform:translate(3px,3px);box-shadow:none}
+.count{font-family:'Space Mono',monospace;font-weight:700;margin-left:auto;align-self:center;font-size:14px}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:30px 0 70px}
+.card{background:var(--paper);border:3px solid var(--ink);box-shadow:var(--sh);display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--ink)}
+.card .thumb{height:130px;border-bottom:3px solid var(--ink);overflow:hidden}
+.card .meta{padding:12px 14px 16px;display:flex;flex-direction:column;flex:1}
+.card .tag{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;background:var(--yellow);display:inline-block;padding:2px 7px;border:2px solid var(--ink);align-self:flex-start}
+.card h3{font-size:17px;margin:9px 0 3px;text-transform:uppercase;line-height:1.05}
+.card .maker{font-size:12px;opacity:.7;margin-bottom:10px}
+.card .buy{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.card .price{font-family:'Space Mono',monospace;font-weight:700;font-size:16px}
+.add{background:var(--green);border:3px solid var(--ink);font-family:'Space Mono',monospace;font-weight:700;padding:5px 10px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);font-size:12px;transition:.1s}
+.add:hover{background:var(--orange);color:var(--paper)}
+.add:active{transform:translate(3px,3px);box-shadow:none}
+.empty{grid-column:1/-1;text-align:center;padding:60px 0;font-family:'Space Mono',monospace;font-weight:700}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--paper);border:3px solid var(--green);padding:12px 22px;font-family:'Space Mono',monospace;font-weight:700;z-index:80;transition:transform .3s;box-shadow:var(--sh)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+footer{background:var(--ink);color:#8a8a82;padding:26px 0;text-align:center;font-family:'Space Mono',monospace;font-size:12px}
+@media(max-width:860px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.filters{top:59px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="tb-in">
+    <a class="tb-logo" href="index.html"><span class="tb-mark">S</span><span class="tb-name">STOMP</span></a>
+    <nav class="tb-nav" aria-label="主導覽">
+      <a href="index.html">品類</a>
+      <a href="shop.html" aria-current="page">選物</a>
+      <a href="makers.html">賣家</a>
+      <button class="bag" id="bag" aria-label="購物袋">袋 [<span id="bagn">0</span>]</button>
+    </nav>
+  </div>
+</header>
+
+<section class="pagehead">
+  <div class="wrap">
+    <span class="kick">全部選物 · 每週三上新</span>
+    <h1>選物牆</h1>
+  </div>
+</section>
+
+<div class="filters wrap" id="filters">
+  <button class="chip on" data-cat="all">全部</button>
+  <button class="chip" data-cat="文具紙品">文具紙品</button>
+  <button class="chip" data-cat="廚房餐桌">廚房餐桌</button>
+  <button class="chip" data-cat="包袋皮件">包袋皮件</button>
+  <button class="chip" data-cat="居家織品">居家織品</button>
+  <button class="chip" data-cat="香氛蠟燭">香氛蠟燭</button>
+  <button class="chip" data-cat="陶與器皿">陶與器皿</button>
+  <span class="count" id="count"></span>
+</div>
+
+<main class="wrap"><div class="grid" id="grid"></div></main>
+
+<footer>© 2026 STOMP SELECT MARKET · 本站為去AI化設計範例，商品與價格皆為虛構示意</footer>
+<div class="toast" id="toast">已丟進購物袋</div>
+<script>
+var P=[
+ {t:"方格筆記本 A5",m:"紙研所 KAMILAB",p:380,c:"文具紙品",tag:"新",col:"var(--yellow)",pat:"check"},
+ {t:"黃銅原子筆",m:"紙研所 KAMILAB",p:640,c:"文具紙品",tag:"熱賣",col:"var(--blue)",pat:"stripe"},
+ {t:"牛皮資料夾",m:"晒物所",p:290,c:"文具紙品",tag:"補貨",col:"var(--orange)",pat:"dot"},
+ {t:"手沖木柄濾杯",m:"燒山陶作",p:1280,c:"廚房餐桌",tag:"熱賣",col:"var(--green)",pat:"zig"},
+ {t:"粗陶飯碗一對",m:"燒山陶作",p:1120,c:"陶與器皿",tag:"新",col:"var(--yellow)",pat:"check"},
+ {t:"霧面馬克杯",m:"土手工坊",p:560,c:"陶與器皿",tag:"熱賣",col:"var(--orange)",pat:"dot"},
+ {t:"帆布側背袋",m:"重工帆布行",p:1680,c:"包袋皮件",tag:"補貨",col:"var(--orange)",pat:"stripe"},
+ {t:"植鞣卡夾",m:"皮件小鋪 HIDE",p:880,c:"包袋皮件",tag:"新",col:"var(--blue)",pat:"stripe"},
+ {t:"亞麻餐墊四入",m:"晒物所",p:960,c:"居家織品",tag:"新",col:"var(--blue)",pat:"dot"},
+ {t:"純棉方巾三入",m:"晒物所",p:420,c:"居家織品",tag:"熱賣",col:"var(--green)",pat:"check"},
+ {t:"雪松香氛蠟燭",m:"暗房香室",p:720,c:"香氛蠟燭",tag:"熱賣",col:"var(--orange)",pat:"dot"},
+ {t:"苦橙擴香瓶",m:"暗房香室",p:980,c:"香氛蠟燭",tag:"新",col:"var(--yellow)",pat:"zig"}
+];
+function pat(kind,col){
+  var id='p'+Math.random().toString(36).slice(2,7),defs='';
+  if(kind==='check')defs='<pattern id="'+id+'" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="'+col+'"/><rect width="10" height="10" fill="#0B0B0B"/><rect x="10" y="10" width="10" height="10" fill="#0B0B0B"/></pattern>';
+  else if(kind==='zig')defs='<pattern id="'+id+'" width="24" height="16" patternUnits="userSpaceOnUse"><rect width="24" height="16" fill="'+col+'"/><path d="M0 12 L6 4 L12 12 L18 4 L24 12" fill="none" stroke="#0B0B0B" stroke-width="3"/></pattern>';
+  else if(kind==='dot')defs='<pattern id="'+id+'" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="'+col+'"/><circle cx="9" cy="9" r="4" fill="#0B0B0B"/></pattern>';
+  else defs='<pattern id="'+id+'" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16" fill="'+col+'"/><rect width="8" height="16" fill="#0B0B0B"/></pattern>';
+  return '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>'+defs+'</defs><rect width="100%" height="100%" fill="url(#'+id+')"/></svg>';
+}
+var grid=document.getElementById('grid'),count=document.getElementById('count'),cur='all';
+function render(){
+  grid.innerHTML='';
+  var list=P.filter(function(p){return cur==='all'||p.c===cur;});
+  count.textContent=list.length+' 件商品';
+  if(!list.length){grid.innerHTML='<div class="empty">這個品類還沒有商品</div>';return;}
+  list.forEach(function(p){
+    var d=document.createElement('div');d.className='card';
+    d.innerHTML='<div class="thumb">'+pat(p.pat,p.col)+'</div>'+
+      '<div class="meta"><span class="tag">'+p.tag+'</span>'+
+      '<h3>'+p.t+'</h3><div class="maker">'+p.m+'</div>'+
+      '<div class="buy"><span class="price">$'+p.p+'</span><button class="add">加入袋 +</button></div></div>';
+    d.querySelector('.add').addEventListener('click',addBag);
+    grid.appendChild(d);
+  });
+}
+document.getElementById('filters').addEventListener('click',function(e){
+  var b=e.target.closest('.chip');if(!b)return;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
+  b.classList.add('on');cur=b.dataset.cat;render();
+});
+var n=0,bagn=document.getElementById('bagn'),toast=document.getElementById('toast'),tt;
+function addBag(){
+  n++;bagn.textContent=n;
+  toast.textContent='已丟進購物袋';toast.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show');},1300);
+}
+document.getElementById('bag').addEventListener('click',function(){
+  toast.textContent=n?('袋內有 '+n+' 件（範例站，不會結帳）'):'購物袋是空的';
+  toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show');},1600);
+});
+render();
+</script>
+</body>
+</html>

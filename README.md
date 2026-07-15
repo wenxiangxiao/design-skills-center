@@ -67,10 +67,12 @@
 | 49 | [野火當代版畫館](sites/yehuo-press/index.html) | 美術館展覽 | 野獸派 Brutalism | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 50 | [北辰數理補習班](sites/beichen/index.html) | 補習班 | 復古終端機 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 51 | [野墨花室 Wild Ink Floral](sites/yemo/index.html) | 花店 | 銅版植物誌風 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 52 | [龍鳳理容院 Lungfeng Barber](sites/lungfeng-barber/index.html) | 復古理容院 | 台式招牌美學 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 53 | [夜鳴愛樂管弦樂團 Nocturne Philharmonic](sites/nocturne-phil/index.html) | 交響樂團 | 樂譜/五線譜美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 48 個產業種子 × 28 個風格種子（1,344 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 80 個產業種子 × 48 個風格種子（3,840 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

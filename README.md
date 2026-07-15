@@ -69,6 +69,8 @@
 | 51 | [野墨花室 Wild Ink Floral](sites/yemo/index.html) | 花店 | 銅版植物誌風 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 52 | [龍鳳理容院 Lungfeng Barber](sites/lungfeng-barber/index.html) | 復古理容院 | 台式招牌美學 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 53 | [夜鳴愛樂管弦樂團 Nocturne Philharmonic](sites/nocturne-phil/index.html) | 交響樂團 | 樂譜/五線譜美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 54 | [CELESTE 藍晒天象館](sites/celeste/index.html) | 天文館 | 藍晒 Cyanotype | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 55 | [朝日湯 Asahi-yu](sites/asahiyu/index.html) | 溫泉澡堂 | 昭和喫茶風 | 中日混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

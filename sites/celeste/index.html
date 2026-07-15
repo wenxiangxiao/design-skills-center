@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CELESTE 藍晒天象館｜今夜的星圖，印在藍晒紙上</title>
+<meta name="description" content="虛構的藍晒（Cyanotype）風格天象館。可旋轉的今夜星圖、圓頂劇場選位訂票、太空時代的普魯士藍。北緯 25.0° 的星空索引。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E3568'/%3E%3Cg fill='none' stroke='%23EAF1F7' stroke-width='1.2'%3E%3Ccircle cx='16' cy='16' r='11'/%3E%3C/g%3E%3Cpath d='M16 9 l1.3 4 4.2 0 -3.4 2.5 1.3 4 -3.4 -2.5 -3.4 2.5 1.3 -4 -3.4 -2.5 4.2 0z' fill='%23EAF1F7'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,500;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --b0:#08213F; --b1:#0E3568; --b2:#17539E; --b3:#2E6FBE;
+  --paper:#EAF1F7; --dim:#A9C4E0; --dim2:#6E93BF; --glow:#7FC0F0;
+  --line:rgba(234,241,247,.22); --line2:rgba(234,241,247,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--b1);color:var(--paper);font-family:'Spectral',Georgia,serif;line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 82% -5%,rgba(127,192,240,.14),transparent 45%),radial-gradient(circle at 8% 108%,rgba(23,83,158,.35),transparent 42%)}
+a{color:inherit;text-decoration:none}
+.mono{font-family:'Space Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+h1,h2,h3{font-weight:700;line-height:1.08;letter-spacing:.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,52px)}
+section{border-top:1px solid var(--line);padding:clamp(46px,7vw,96px) 0}
+.kick{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--glow)}
+
+/* ---- bottom dock nav ---- */
+.dock{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:80;
+  display:flex;align-items:stretch;gap:0;background:rgba(8,33,63,.86);backdrop-filter:blur(9px);
+  border:1px solid var(--line2);box-shadow:0 8px 34px rgba(4,14,30,.55)}
+.dock .brand{display:flex;align-items:center;gap:9px;padding:11px 16px;border-right:1px solid var(--line)}
+.dock .brand svg{width:26px;height:26px;display:block}
+.dock .brand b{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.16em}
+.dock nav{display:flex}
+.dock nav a{padding:12px 16px;font-family:'Space Mono',monospace;font-size:12.5px;letter-spacing:.05em;
+  color:var(--dim);border-right:1px solid var(--line);transition:.24s;white-space:nowrap}
+.dock nav a:last-child{border-right:none}
+.dock nav a:hover{color:var(--paper);background:rgba(46,111,190,.28)}
+.dock nav a.on{color:var(--b0);background:var(--paper)}
+body{padding-bottom:78px}
+
+/* ---- map-first hero ---- */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,60px);align-items:center;
+  padding-top:clamp(40px,6vw,80px)}
+.hero .lede h1{font-size:clamp(34px,6vw,66px);margin:16px 0 18px}
+.hero .lede h1 em{font-style:italic;font-weight:400;color:var(--glow)}
+.hero .lede p{color:var(--dim);max-width:40ch;font-size:clamp(15px,1.6vw,18px)}
+.hero .coords{margin-top:26px;display:flex;gap:26px;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:12.5px;color:var(--dim2)}
+.hero .coords b{color:var(--paper);display:block;font-size:19px;letter-spacing:.02em}
+
+/* ---- planisphere ---- */
+.sky{position:relative;aspect-ratio:1;max-width:440px;width:100%;margin:0 auto;touch-action:none;user-select:none}
+.sky svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 24px rgba(23,83,158,.5))}
+.sky .ring{cursor:grab}
+.sky .ring:active{cursor:grabbing}
+.st{animation:tw 4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.55}50%{opacity:1}}
+.hint{margin-top:14px;text-align:center;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:var(--dim2);text-transform:uppercase}
+
+/* ---- tonight panel ---- */
+.tonight{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.tonight .cell{background:var(--b1);padding:22px 20px}
+.tonight .cell .lab{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--dim2);text-transform:uppercase}
+.tonight .cell .big{font-size:26px;margin:8px 0 4px;font-weight:500}
+.tonight .cell p{font-size:14px;color:var(--dim)}
+.readout{grid-column:1 / -1;background:var(--b0);padding:20px;display:flex;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;align-items:baseline;font-family:'Space Mono',monospace}
+.readout .now{font-size:15px;color:var(--glow);letter-spacing:.05em}
+.readout .con{font-size:13px;color:var(--dim)}
+
+/* ---- feature blocks ---- */
+.blocks{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(18px,2.4vw,34px)}
+.blk{border:1px solid var(--line);padding:26px 24px;position:relative}
+.blk:nth-child(1){grid-column:span 7}
+.blk:nth-child(2){grid-column:span 5;margin-top:34px}
+.blk:nth-child(3){grid-column:span 5}
+.blk:nth-child(4){grid-column:span 7;margin-top:-12px}
+.blk .no{font-family:'Space Mono',monospace;font-size:12px;color:var(--dim2);letter-spacing:.2em}
+.blk h3{font-size:22px;margin:12px 0 10px}
+.blk p{color:var(--dim);font-size:15px}
+.blk figure{margin:18px 0 0}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:34px}
+.sechead h2{font-size:clamp(24px,3.4vw,40px)}
+.sechead .k{font-family:'Space Mono',monospace;font-size:12px;color:var(--dim2);letter-spacing:.2em}
+
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding:13px 22px;border:1px solid var(--line2);
+  font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--paper);transition:.24s}
+.cta:hover{background:var(--paper);color:var(--b0);border-color:var(--paper)}
+
+footer{border-top:1px solid var(--line);padding:44px 0 30px;font-size:13.5px;color:var(--dim)}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:26px}
+footer b{color:var(--paper);font-family:'Space Mono',monospace;font-weight:700;letter-spacing:.04em;display:block;margin-bottom:8px}
+footer .mono{font-size:12px;color:var(--dim2)}
+.disclaimer{margin-top:26px;font-family:'Space Mono',monospace;font-size:11px;color:var(--dim2);letter-spacing:.08em}
+
+@media(max-width:820px){
+  .hero{grid-template-columns:1fr}
+  .sky{order:-1;max-width:340px}
+  .blocks .blk{grid-column:1 / -1 !important;margin:0 !important}
+  .tonight{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .dock{left:12px;right:12px;transform:none;overflow-x:auto}
+  .dock .brand b{display:none}
+}
+@media(prefers-reduced-motion:reduce){.st{animation:none;opacity:.85}*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="dock">
+  <span class="brand"><svg viewBox="0 0 64 64"><rect width="64" height="64" fill="#0E3568"/><circle cx="32" cy="32" r="22" fill="none" stroke="#EAF1F7" stroke-width="1.6"/><path d="M32 18 l2.4 7.2 7.5 0 -6 4.4 2.3 7.2 -6.2 -4.5 -6.2 4.5 2.3 -7.2 -6 -4.4 7.5 0z" fill="#EAF1F7"/></svg><b>CELESTE</b></span>
+  <nav>
+    <a href="index.html" class="on">星圖</a>
+    <a href="program.html">節目・訂票</a>
+    <a href="visit.html">參觀</a>
+  </nav>
+</div>
+
+<main class="wrap">
+  <section class="hero" style="border-top:none">
+    <div class="lede">
+      <span class="kick">北緯 25.0° · 藍晒天象館</span>
+      <h1>今夜的星空，<br><em>印在一張藍晒紙上。</em></h1>
+      <p>CELESTE 是一座把星圖當作顯影過程的天象館。轉動右邊的星盤，讓今晚八點的天空轉到你眼前——每一顆星都是曝在普魯士藍上的一點白。</p>
+      <div class="coords">
+        <div>緯度<b class="mono">25.03° N</b></div>
+        <div>經度<b class="mono">121.56° E</b></div>
+        <div>圓頂<b class="mono">Ø 18 m</b></div>
+      </div>
+      <a href="program.html" class="cta">查看今晚放映 &amp; 選位 →</a>
+    </div>
+
+    <div>
+      <div class="sky" id="sky">
+        <svg viewBox="0 0 400 400" id="skysvg" aria-label="可旋轉的今夜星圖">
+          <defs></defs>
+          <circle cx="200" cy="200" r="196" fill="var(--b0)" stroke="var(--line2)"/>
+          <circle cx="200" cy="200" r="150" fill="none" stroke="var(--line)"/>
+          <circle cx="200" cy="200" r="96" fill="none" stroke="var(--line)"/>
+          <circle cx="200" cy="200" r="44" fill="none" stroke="var(--line)"/>
+          <!-- rotating star field -->
+          <g id="field" transform="rotate(0 200 200)">
+            <!-- constellation lines -->
+            <polyline points="150,120 176,150 205,138 232,168 256,150" fill="none" stroke="var(--paper)" stroke-width="1" stroke-opacity=".5"/>
+            <polyline points="110,250 138,238 162,262 190,250 214,272" fill="none" stroke="var(--paper)" stroke-width="1" stroke-opacity=".5"/>
+            <polyline points="270,210 292,236 300,268 278,290" fill="none" stroke="var(--paper)" stroke-width="1" stroke-opacity=".5"/>
+            <g fill="var(--paper)" id="stars"></g>
+          </g>
+          <!-- fixed horizon crosshair -->
+          <g stroke="var(--glow)" stroke-width="1" stroke-opacity=".7">
+            <line x1="200" y1="6" x2="200" y2="30"/>
+            <line x1="200" y1="370" x2="200" y2="394"/>
+          </g>
+          <!-- draggable outer date ring -->
+          <g class="ring" id="ring">
+            <circle cx="200" cy="200" r="196" fill="transparent"/>
+            <g id="ticks" stroke="var(--dim)" stroke-width="1"></g>
+            <g id="handle"></g>
+          </g>
+        </svg>
+      </div>
+      <p class="hint">↻ 拖曳外環旋轉星盤</p>
+    </div>
+  </section>
+
+  <section id="now">
+    <div class="sechead">
+      <h2>此刻的天空</h2>
+      <span class="k">// LIVE READOUT</span>
+    </div>
+    <div class="tonight">
+      <div class="readout">
+        <span class="now" id="ro-time">恆星時 ST 20:00 · 07/15</span>
+        <span class="con" id="ro-con">正對子午線：天琴座 Lyra — 織女星 Vega, +38°47′</span>
+      </div>
+      <div class="cell"><span class="lab">月相</span><div class="big">上弦月</div><p>照度 52%，日落後於東南方昇起，夜半沒入。</p></div>
+      <div class="cell"><span class="lab">大氣視相</span><div class="big">III / 佳</div><p>視寧度穩定，適合觀測雙星與行星盤面。</p></div>
+      <div class="cell"><span class="lab">今夜主角</span><div class="big">木星</div><p>21:40 東昇，衝前一週，四顆伽利略衛星整列。</p></div>
+    </div>
+  </section>
+
+  <section id="dome">
+    <div class="sechead">
+      <h2>三個藍色的房間</h2>
+      <span class="k">// THE BUILDING</span>
+    </div>
+    <div class="blocks">
+      <div class="blk">
+        <span class="no">01 / 圓頂劇場</span>
+        <h3>18 米蔡司光學圓頂</h3>
+        <p>一台 1968 年出廠、仍在服役的機械式投影機，把七千顆恆星投在半球內壁。座位環形排列，沒有前後排之分，只有離天頂遠近之別。</p>
+        <figure aria-hidden="true">
+          <svg viewBox="0 0 300 120" width="100%"><g fill="none" stroke="var(--paper)" stroke-width="1.2"><path d="M20 108 A130 130 0 0 1 280 108"/><path d="M52 108 A98 98 0 0 1 248 108" stroke-opacity=".5"/><path d="M92 108 A58 58 0 0 1 208 108" stroke-opacity=".4"/><line x1="150" y1="10" x2="150" y2="108" stroke-dasharray="2 4"/></g><circle cx="150" cy="20" r="2.5" fill="var(--paper)"/></svg>
+        </figure>
+      </div>
+      <div class="blk">
+        <span class="no">02 / 藍晒暗房</span>
+        <h3>把星圖曬出來</h3>
+        <p>週末開放的實作暗房：把一張星圖負片壓在塗了鐵鹽的紙上，交給太陽十五分鐘，水洗後帶走一張只屬於你的普魯士藍。</p>
+      </div>
+      <div class="blk">
+        <span class="no">03 / 器材長廊</span>
+        <h3>從六分儀到光譜儀</h3>
+        <p>沿著弧形走廊陳列航海與天文量測史：黃銅六分儀、赤道儀、光譜盤——每件都配一張手繪藍晒圖解。</p>
+      </div>
+      <div class="blk">
+        <span class="no">04 / 頂樓平台</span>
+        <h3>晴夜開放觀測</h3>
+        <p>逢晴朗週五夜，館員架起 8 吋折射鏡帶大家看月面與土星環。天氣不佳則改為室內導覽，門票可改期。</p>
+        <a href="program.html" class="cta">預約觀測夜 →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="fgrid">
+    <div><b>CELESTE PLANETARIUM</b>藍晒天象館・將天空當成一種顯影過程。全年無休（除農曆除夕），夜間場次採預約制。</div>
+    <div><b>時間</b><span class="mono">週二–週日 10:00–21:30<br>週一休館<br>暗房場 週六・日 14:00</span></div>
+    <div><b>聯絡</b><span class="mono">觀星路 25 號<br>+886 2 2717 2503<br>hello@celeste-dome.example</span></div>
+  </div>
+  <p class="disclaimer">本站為 Design Skills Center 之風格示範。所有品牌、人名、地址、電話、星象數據皆為虛構示意，非真實觀測資料。</p>
+</footer>
+
+<script>
+(function(){
+  var svgNS='http://www.w3.org/2000/svg';
+  // seeded star field
+  var stars=document.getElementById('stars');
+  var seed=20240715;
+  function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+  var pts=[];
+  for(var i=0;i<130;i++){
+    var a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*182;
+    var x=200+Math.cos(a)*r, y=200+Math.sin(a)*r;
+    var mag=rnd(); var rad=mag<0.08?2.6:mag<0.3?1.7:1.0;
+    var c=document.createElementNS(svgNS,'circle');
+    c.setAttribute('cx',x.toFixed(1));c.setAttribute('cy',y.toFixed(1));
+    c.setAttribute('r',rad.toFixed(1));c.setAttribute('class','st');
+    c.style.animationDelay=(rnd()*4).toFixed(2)+'s';
+    stars.appendChild(c);pts.push([x,y]);
+  }
+  // date ticks + handle
+  var ticks=document.getElementById('ticks');
+  var months=['一','二','三','四','五','六','七','八','九','十','冬','臘'];
+  for(var m=0;m<12;m++){
+    var ang=(m/12)*Math.PI*2-Math.PI/2;
+    var x1=200+Math.cos(ang)*196,y1=200+Math.sin(ang)*196;
+    var x2=200+Math.cos(ang)*182,y2=200+Math.sin(ang)*182;
+    var ln=document.createElementNS(svgNS,'line');
+    ln.setAttribute('x1',x1.toFixed(1));ln.setAttribute('y1',y1.toFixed(1));
+    ln.setAttribute('x2',x2.toFixed(1));ln.setAttribute('y2',y2.toFixed(1));
+    ticks.appendChild(ln);
+  }
+  var handle=document.getElementById('handle');
+  var hx=200,hy=6;
+  var hc=document.createElementNS(svgNS,'circle');
+  hc.setAttribute('cx',hx);hc.setAttribute('cy',hy);hc.setAttribute('r','7');
+  hc.setAttribute('fill','#EAF1F7');handle.appendChild(hc);
+
+  var field=document.getElementById('field');
+  var sky=document.getElementById('sky');
+  var ring=document.getElementById('ring');
+  var angle=0, dragging=false;
+  var cons=[
+    ['天琴座 Lyra','織女星 Vega, +38°47′'],
+    ['天鵝座 Cygnus','天津四 Deneb, +45°17′'],
+    ['天鷹座 Aquila','牛郎星 Altair, +08°52′'],
+    ['武仙座 Hercules','+27°43′'],
+    ['天蠍座 Scorpius','心宿二 Antares, −26°26′'],
+    ['人馬座 Sagittarius','銀心方向, −29°'],
+    ['仙后座 Cassiopeia','+60°43′'],
+    ['英仙座 Perseus','大陵五 Algol, +40°57′'],
+    ['御夫座 Auriga','五車二 Capella, +45°60′'],
+    ['金牛座 Taurus','畢宿五 Aldebaran, +16°'],
+    ['獵戶座 Orion','參宿四 Betelgeuse, +07°'],
+    ['獅子座 Leo','軒轅十四 Regulus, +11°58′']
+  ];
+  function centre(){var r=sky.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};}
+  function pointAngle(cx,cy,px,py){return Math.atan2(py-cy,px-cx);}
+  var startPointer=0,startAngle=0;
+  function down(e){dragging=true;var c=centre();var p=e.touches?e.touches[0]:e;
+    startPointer=pointAngle(c.x,c.y,p.clientX,p.clientY);startAngle=angle;e.preventDefault();}
+  function move(e){if(!dragging)return;var c=centre();var p=e.touches?e.touches[0]:e;
+    var pa=pointAngle(c.x,c.y,p.clientX,p.clientY);
+    angle=startAngle+(pa-startPointer)*180/Math.PI;apply();e.preventDefault();}
+  function up(){dragging=false;}
+  function apply(){
+    var a=((angle%360)+360)%360;
+    field.setAttribute('transform','rotate('+a.toFixed(1)+' 200 200)');
+    handle.setAttribute('transform','rotate('+a.toFixed(1)+' 200 200)');
+    // map angle -> date + constellation
+    var frac=a/360;
+    var doy=Math.floor(frac*365);
+    var d=new Date(2026,0,1);d.setDate(d.getDate()+doy);
+    var mm=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);
+    var stH=('0'+(Math.floor(frac*24))).slice(-2);
+    document.getElementById('ro-time').textContent='恆星時 ST '+stH+':00 · '+mm+'/'+dd;
+    var ci=Math.floor(frac*cons.length)%cons.length;
+    document.getElementById('ro-con').textContent='正對子午線：'+cons[ci][0]+' — '+cons[ci][1];
+  }
+  ring.addEventListener('mousedown',down);
+  window.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',up);
+  ring.addEventListener('touchstart',down,{passive:false});
+  window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('touchend',up);
+  apply();
+})();
+</script>
+</body>
+</html>

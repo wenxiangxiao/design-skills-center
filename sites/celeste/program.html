@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>節目與訂票｜CELESTE 藍晒天象館</title>
+<meta name="description" content="CELESTE 圓頂劇場的今日場次與線上選位訂票。選擇場次、在環形座位圖上點選座位，即時結算並取得訂位代碼。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E3568'/%3E%3Cg fill='none' stroke='%23EAF1F7' stroke-width='1.2'%3E%3Ccircle cx='16' cy='16' r='11'/%3E%3C/g%3E%3Cpath d='M16 9 l1.3 4 4.2 0 -3.4 2.5 1.3 4 -3.4 -2.5 -3.4 2.5 1.3 -4 -3.4 -2.5 4.2 0z' fill='%23EAF1F7'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,500;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --b0:#08213F; --b1:#0E3568; --b2:#17539E; --b3:#2E6FBE;
+  --paper:#EAF1F7; --dim:#A9C4E0; --dim2:#6E93BF; --glow:#7FC0F0;
+  --line:rgba(234,241,247,.22); --line2:rgba(234,241,247,.4);
+  --sold:#3A567C; --pick:#7FC0F0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--b1);color:var(--paper);font-family:'Spectral',Georgia,serif;line-height:1.65;
+  -webkit-font-smoothing:antialiased;padding-bottom:78px;
+  background-image:radial-gradient(circle at 90% -10%,rgba(127,192,240,.12),transparent 45%)}
+a{color:inherit;text-decoration:none}
+.mono{font-family:'Space Mono',monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-weight:700;line-height:1.1}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,52px)}
+.kick{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--glow)}
+.dock{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:80;display:flex;background:rgba(8,33,63,.86);backdrop-filter:blur(9px);border:1px solid var(--line2);box-shadow:0 8px 34px rgba(4,14,30,.55)}
+.dock .brand{display:flex;align-items:center;gap:9px;padding:11px 16px;border-right:1px solid var(--line)}
+.dock .brand svg{width:26px;height:26px}
+.dock .brand b{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.16em}
+.dock nav{display:flex}
+.dock nav a{padding:12px 16px;font-family:'Space Mono',monospace;font-size:12.5px;color:var(--dim);border-right:1px solid var(--line);transition:.24s;white-space:nowrap}
+.dock nav a:last-child{border-right:none}
+.dock nav a:hover{color:var(--paper);background:rgba(46,111,190,.28)}
+.dock nav a.on{color:var(--b0);background:var(--paper)}
+
+.top{padding:clamp(40px,6vw,78px) 0 8px}
+.top h1{font-size:clamp(30px,5vw,54px);margin:14px 0 12px}
+.top p{color:var(--dim);max-width:52ch}
+
+/* show list */
+.shows{padding:36px 0}
+.shows h2{font-size:22px;margin-bottom:18px}
+.slist{display:grid;gap:0;border:1px solid var(--line)}
+.show{display:grid;grid-template-columns:96px 1fr auto auto;gap:18px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);cursor:pointer;transition:.2s}
+.show:last-child{border-bottom:none}
+.show:hover{background:rgba(46,111,190,.16)}
+.show.on{background:var(--paper);color:var(--b0)}
+.show.on .sub,.show.on .price{color:var(--b2)}
+.show .t{font-family:'Space Mono',monospace;font-size:19px;letter-spacing:.02em}
+.show .nm{font-size:17px;font-weight:500}
+.show .sub{font-size:13px;color:var(--dim2)}
+.show .tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--glow)}
+.show.on .tag{color:var(--b2)}
+.show .price{font-family:'Space Mono',monospace;font-size:15px;color:var(--dim)}
+
+/* booking */
+.book{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(22px,3vw,48px);padding:20px 0 70px;align-items:start}
+.mapwrap{border:1px solid var(--line);padding:22px}
+.screen{text-align:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.3em;color:var(--dim2);text-transform:uppercase;margin-bottom:6px}
+.mapwrap svg{width:100%;height:auto;display:block}
+.seat{cursor:pointer;transition:fill .15s,transform .15s}
+.seat:hover{transform:scale(1.18);transform-box:fill-box;transform-origin:center}
+.seat.sold{fill:var(--sold);cursor:not-allowed;pointer-events:none}
+.seat.pick{fill:var(--pick)}
+.legend{display:flex;gap:20px;justify-content:center;margin-top:14px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--dim)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+.panel{border:1px solid var(--line);padding:24px;position:sticky;top:20px}
+.panel h3{font-size:18px;margin-bottom:4px}
+.panel .picked{font-family:'Space Mono',monospace;font-size:13px;color:var(--dim);min-height:44px;margin:14px 0;line-height:1.9;word-spacing:2px}
+.panel .picked span{display:inline-block;border:1px solid var(--line2);padding:1px 8px;margin:2px 4px 2px 0;color:var(--paper)}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.row.total{border-top:1px solid var(--line2);font-family:'Space Mono',monospace;font-size:20px;color:var(--glow);margin-top:4px;padding-top:14px}
+.confirm{width:100%;margin-top:18px;padding:14px;background:var(--paper);color:var(--b0);border:none;font-family:'Space Mono',monospace;font-size:14px;letter-spacing:.06em;cursor:pointer;transition:.2s}
+.confirm:disabled{background:transparent;color:var(--dim2);border:1px solid var(--line);cursor:not-allowed}
+.confirm:not(:disabled):hover{background:var(--glow)}
+.ticket{margin-top:16px;border:1px dashed var(--line2);padding:16px;display:none;font-family:'Space Mono',monospace;font-size:13px;line-height:1.8}
+.ticket.show{display:block;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.ticket b{color:var(--glow);font-size:16px;letter-spacing:.12em}
+
+footer{border-top:1px solid var(--line);padding:40px 0 30px;font-size:13px;color:var(--dim)}
+.disclaimer{margin-top:20px;font-family:'Space Mono',monospace;font-size:11px;color:var(--dim2)}
+@media(max-width:820px){
+  .book{grid-template-columns:1fr}
+  .show{grid-template-columns:70px 1fr;row-gap:4px}
+  .show .price,.show .tag{grid-column:2}
+  .dock{left:12px;right:12px;transform:none;overflow-x:auto}.dock .brand b{display:none}
+  .panel{position:static}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="dock">
+  <span class="brand"><svg viewBox="0 0 64 64"><rect width="64" height="64" fill="#0E3568"/><circle cx="32" cy="32" r="22" fill="none" stroke="#EAF1F7" stroke-width="1.6"/><path d="M32 18 l2.4 7.2 7.5 0 -6 4.4 2.3 7.2 -6.2 -4.5 -6.2 4.5 2.3 -7.2 -6 -4.4 7.5 0z" fill="#EAF1F7"/></svg><b>CELESTE</b></span>
+  <nav><a href="index.html">星圖</a><a href="program.html" class="on">節目・訂票</a><a href="visit.html">參觀</a></nav>
+</div>
+
+<main class="wrap">
+  <section class="top">
+    <span class="kick">// 圓頂劇場 · 07 月 15 日（三）</span>
+    <h1>選一場星空，選一個位子。</h1>
+    <p>圓頂劇場採環形座席，愈靠內圈愈接近天頂正下方。先挑今日場次，再於下方座位圖上點選你的位子——系統會即時結算並給你一組訂位代碼。</p>
+  </section>
+
+  <section class="shows">
+    <h2>今日場次</h2>
+    <div class="slist" id="slist">
+      <div class="show on" data-price="320" data-name="今夜星空導覽">
+        <span class="t">14:00</span>
+        <span><span class="nm">今夜星空導覽</span><br><span class="sub">45 分・機械投影・現場解說</span></span>
+        <span class="tag">全票 320</span><span class="price">剩 41 席</span>
+      </div>
+      <div class="show" data-price="380" data-name="行星的一生">
+        <span class="t">16:00</span>
+        <span><span class="nm">行星的一生</span><br><span class="sub">50 分・8K 全天域影片</span></span>
+        <span class="tag">全票 380</span><span class="price">剩 28 席</span>
+      </div>
+      <div class="show" data-price="450" data-name="藍晒下的銀河">
+        <span class="t">19:30</span>
+        <span><span class="nm">藍晒下的銀河・音樂場</span><br><span class="sub">60 分・現場大提琴＋星圖投影</span></span>
+        <span class="tag">特別場 450</span><span class="price">剩 12 席</span>
+      </div>
+      <div class="show" data-price="500" data-name="頂樓觀測夜">
+        <span class="t">21:00</span>
+        <span><span class="nm">頂樓觀測夜（限晴天）</span><br><span class="sub">90 分・8 吋折射鏡・木星土星</span></span>
+        <span class="tag">觀測 500</span><span class="price">剩 9 席</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="book">
+    <div class="mapwrap">
+      <div class="screen">◗ 圓頂天幕・投影機在中心 ◖</div>
+      <svg viewBox="0 0 500 380" id="seatmap" aria-label="環形座位圖"></svg>
+      <div class="legend">
+        <span><i style="background:#EAF1F7"></i>可選</span>
+        <span><i style="background:var(--pick)"></i>已選</span>
+        <span><i style="background:var(--sold)"></i>售出</span>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <h3 id="p-show">今夜星空導覽 · 14:00</h3>
+      <p class="mono" style="font-size:12px;color:var(--dim2)">全票 <span id="p-unit">320</span> 元／席・最多 6 席</p>
+      <div class="picked" id="picked"><span style="border:none;color:var(--dim2)">尚未選位——請點座位圖</span></div>
+      <div class="row"><span>已選席數</span><span class="mono" id="p-count">0</span></div>
+      <div class="row total"><span>合計</span><span class="mono" id="p-total">NT$ 0</span></div>
+      <button class="confirm" id="confirm" disabled>確認訂位</button>
+      <div class="ticket" id="ticket"></div>
+    </aside>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div class="mono" style="font-size:12px;color:var(--dim2)">CELESTE PLANETARIUM · 觀星路 25 號 · +886 2 2717 2503</div>
+  <p class="disclaimer">本站為 Design Skills Center 之風格示範。場次、票價、座位與訂位代碼皆為虛構示意，無法真實購票。</p>
+</footer>
+
+<script>
+(function(){
+  var svgNS='http://www.w3.org/2000/svg';
+  var map=document.getElementById('seatmap');
+  var cx=250, cy=350; // projector near centre-bottom (fan)
+  var rows=[
+    {r:'A',rad:120,n:11},{r:'B',rad:150,n:15},{r:'C',rad:182,n:19},
+    {r:'D',rad:212,n:21},{r:'E',rad:242,n:25},{r:'F',rad:270,n:27}
+  ];
+  var soldSeed=987654321;
+  function srnd(){soldSeed=(soldSeed*1103515245+12345)&0x7fffffff;return soldSeed/0x7fffffff;}
+  var selected={};
+  var MAX=6;
+  var unit=320;
+
+  rows.forEach(function(row){
+    var spread=Math.PI*0.56; // fan angle
+    var start=-Math.PI/2-spread/2;
+    for(var i=0;i<row.n;i++){
+      var a=start+(row.n===1?spread/2:spread*i/(row.n-1));
+      var x=cx+Math.cos(a)*row.rad;
+      var y=cy+Math.sin(a)*row.rad;
+      var id=row.r+(i+1);
+      var c=document.createElementNS(svgNS,'circle');
+      c.setAttribute('cx',x.toFixed(1));c.setAttribute('cy',y.toFixed(1));
+      c.setAttribute('r','6.4');c.setAttribute('class','seat');
+      c.setAttribute('data-id',id);c.setAttribute('fill','#EAF1F7');
+      if(srnd()<0.22){c.setAttribute('class','seat sold');}
+      c.addEventListener('click',function(){toggle(this);});
+      map.appendChild(c);
+    }
+  });
+  // projector marker
+  var pm=document.createElementNS(svgNS,'circle');
+  pm.setAttribute('cx',cx);pm.setAttribute('cy',cy);pm.setAttribute('r','9');
+  pm.setAttribute('fill','none');pm.setAttribute('stroke','#7FC0F0');pm.setAttribute('stroke-width','1.4');
+  map.appendChild(pm);
+  var pl=document.createElementNS(svgNS,'text');
+  pl.setAttribute('x',cx);pl.setAttribute('y',cy+26);pl.setAttribute('text-anchor','middle');
+  pl.setAttribute('fill','#6E93BF');pl.setAttribute('font-size','10');pl.setAttribute('font-family','Space Mono, monospace');
+  pl.textContent='投影機';map.appendChild(pl);
+
+  function toggle(el){
+    var id=el.getAttribute('data-id');
+    if(selected[id]){delete selected[id];el.classList.remove('pick');}
+    else{
+      if(Object.keys(selected).length>=MAX){flash();return;}
+      selected[id]=true;el.classList.add('pick');
+    }
+    render();
+  }
+  var pickBox=document.getElementById('picked');
+  function flash(){pickBox.style.color='#7FC0F0';setTimeout(function(){pickBox.style.color='';},300);}
+  function render(){
+    var ids=Object.keys(selected).sort();
+    if(ids.length===0){
+      pickBox.innerHTML='<span style="border:none;color:var(--dim2)">尚未選位——請點座位圖</span>';
+    }else{
+      pickBox.innerHTML=ids.map(function(i){return '<span>'+i+'</span>';}).join('');
+    }
+    var n=ids.length, total=n*unit;
+    document.getElementById('p-count').textContent=n;
+    document.getElementById('p-total').textContent='NT$ '+total.toLocaleString();
+    var btn=document.getElementById('confirm');
+    btn.disabled=n===0;
+    document.getElementById('ticket').classList.remove('show');
+  }
+  // show selection
+  var slist=document.getElementById('slist');
+  Array.prototype.forEach.call(slist.children,function(s){
+    s.addEventListener('click',function(){
+      Array.prototype.forEach.call(slist.children,function(x){x.classList.remove('on');});
+      s.classList.add('on');
+      unit=parseInt(s.getAttribute('data-price'),10);
+      document.getElementById('p-unit').textContent=unit;
+      document.getElementById('p-show').textContent=s.getAttribute('data-name')+' · '+s.querySelector('.t').textContent;
+      render();
+    });
+  });
+  // confirm
+  document.getElementById('confirm').addEventListener('click',function(){
+    var ids=Object.keys(selected).sort();
+    if(!ids.length)return;
+    var ref='CLS-'+(Math.floor(Math.random()*9000)+1000)+'-'+ids.length+'S';
+    var show=document.getElementById('p-show').textContent;
+    var tk=document.getElementById('ticket');
+    tk.innerHTML='<b>✦ '+ref+'</b><br>訂位成功（示意）<br>'+show+'<br>座位 '+ids.join(' / ')+
+      '<br>合計 NT$ '+(ids.length*unit).toLocaleString()+'<br><span style="color:var(--dim2)">請於開演前 15 分鐘至櫃檯憑代碼取票。</span>';
+    tk.classList.add('show');
+  });
+  render();
+})();
+</script>
+</body>
+</html>

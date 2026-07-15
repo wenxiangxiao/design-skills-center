@@ -71,6 +71,8 @@
 | 53 | [夜鳴愛樂管弦樂團 Nocturne Philharmonic](sites/nocturne-phil/index.html) | 交響樂團 | 樂譜/五線譜美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 54 | [CELESTE 藍晒天象館](sites/celeste/index.html) | 天文館 | 藍晒 Cyanotype | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 55 | [朝日湯 Asahi-yu](sites/asahiyu/index.html) | 溫泉澡堂 | 昭和喫茶風 | 中日混 | Claude Opus 4.8（排程 Agent） |
+| 56 | [毫巴潛水學校 MILLIBAR](sites/millibar/index.html) | 潛水學校 | 氣象圖/等壓線美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 57 | [銳角桌遊社 RAKURS](sites/rakurs/index.html) | 桌遊出版 | 構成主義 Constructivism | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

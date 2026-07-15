@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>預約下水｜毫巴潛水學校 MILLIBAR</title>
+<meta name="description" content="選日期、選潛點、選課程——每個日期都附上模擬適潛指數與海況。看得懂再送出，取得訂位代碼。指數過低可全額改期。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='4'%20fill='%2316242E'/%3E%3Cg%20fill='none'%20stroke='%237E99A8'%20stroke-width='1.5'%3E%3Ccircle%20cx='16'%20cy='16'%20r='11'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='7.2'/%3E%3C/g%3E%3Ccircle%20cx='16'%20cy='16'%20r='3'%20fill='%23C4362B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16242E;--ink2:#263B48;--ink3:#3E5A6B;--ink4:#5E7C8C;--mist:#8FA7B4;--mist2:#B7C8D1;--ground:#E5EBEE;--panel:#EEF3F4;--panel2:#F5F8F8;--red:#C4362B;--line:#C4D2D8;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ground);color:var(--ink);font-family:'Noto Sans TC',system-ui,sans-serif;line-height:1.72;-webkit-font-smoothing:antialiased;
+  background-image:repeating-linear-gradient(0deg,transparent 0 31px,rgba(62,90,107,.055) 31px 32px),repeating-linear-gradient(90deg,transparent 0 31px,rgba(62,90,107,.055) 31px 32px);}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:1.05;letter-spacing:.01em}
+.mono{font-family:'Space Mono',monospace}
+.shell{display:flex;min-height:100vh;align-items:stretch}
+.rail{width:230px;flex:none;background:var(--ink);color:var(--mist2);border-right:2px solid var(--ink2);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:20px 0 16px}
+.rail .brand{display:flex;align-items:center;gap:11px;padding:0 20px 18px;border-bottom:1px solid rgba(143,167,180,.22)}
+.rail .brand img{width:40px;height:40px;display:block}
+.rail .brand b{font-family:'Barlow Condensed';font-weight:800;font-size:22px;letter-spacing:.02em;color:#EDF2F3;display:block;line-height:.98}
+.rail .brand span{font-size:10px;letter-spacing:.28em;color:var(--mist)}
+.rail nav{padding:14px 12px;display:flex;flex-direction:column;gap:2px}
+.rail nav a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:3px;font-size:14px;color:var(--mist2);border-left:2px solid transparent;transition:background .15s,border-color .15s,color .15s}
+.rail nav a .k{font-family:'Space Mono';font-size:10px;color:var(--ink4)}
+.rail nav a:hover{background:rgba(143,167,180,.09);color:#fff}
+.rail nav a.on{background:rgba(196,54,43,.14);border-left-color:var(--red);color:#fff}
+.rail .foot{margin-top:auto;padding:14px 20px 0;border-top:1px solid rgba(143,167,180,.22);font-size:11px;color:var(--ink4);line-height:1.7}
+.rail .foot .mono{color:var(--mist);font-size:11px}
+.railtop{display:none}
+.main{flex:1;min-width:0}
+.wrap{max-width:1000px;margin:0 auto;padding:0 clamp(16px,3.4vw,40px)}
+section{padding:clamp(28px,4vw,52px) 0}
+.ey{font-family:'Space Mono';font-size:11px;letter-spacing:.22em;color:var(--ink3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ey::before{content:"";width:22px;height:2px;background:var(--red)}
+.hd{border-bottom:2px solid var(--ink2);padding-bottom:18px;margin-bottom:8px}
+.hd h1{font-size:clamp(30px,5vw,52px)}
+.hd p{font-size:15px;color:var(--ink2);max-width:52ch;margin-top:8px}
+.bkgrid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
+.step{margin-bottom:26px}
+.step .num{font-family:'Space Mono';font-size:11px;letter-spacing:.14em;color:var(--red);margin-bottom:8px}
+.step h2{font-size:22px;margin-bottom:12px}
+.dates{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.date{border:2px solid var(--line);background:var(--panel2);padding:10px 10px;cursor:pointer;text-align:left;transition:border-color .15s,transform .12s}
+.date:hover{transform:translateY(-2px)}
+.date.on{border-color:var(--red);box-shadow:3px 3px 0 var(--ink)}
+.date .d{font-family:'Barlow Condensed';font-weight:800;font-size:20px}
+.date .w{font-family:'Space Mono';font-size:10px;color:var(--ink3)}
+.date .ix{margin-top:7px;height:6px;background:var(--ground);border:1px solid var(--line);position:relative}
+.date .ix i{position:absolute;inset:0 100% 0 0;background:var(--ink3)}
+.date .ix i.good{background:#3a7d5a}.date .ix i.bad{background:var(--red)}
+.date .ixn{font-family:'Space Mono';font-size:10px;color:var(--ink3);margin-top:3px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{border:2px solid var(--line);background:var(--panel2);padding:12px 13px;cursor:pointer;transition:border-color .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.opt:hover{border-color:var(--ink3)}
+.opt.on{border-color:var(--red);box-shadow:3px 3px 0 var(--ink)}
+.opt .t{font-family:'Barlow Condensed';font-weight:800;font-size:19px}
+.opt .s{font-size:12px;color:var(--ink2)}
+.opt .p{font-family:'Space Mono';font-size:12px;color:var(--red);white-space:nowrap}
+.opt .badge{font-family:'Space Mono';font-size:10px;padding:2px 6px;border:1px solid var(--line);color:var(--ink3);white-space:nowrap}
+.opt .badge.ok{color:#2f6b4c;border-color:#8fbfa5}
+.opt .badge.no{color:var(--red);border-color:#d79a94}
+.stepper{display:inline-flex;align-items:stretch;border:2px solid var(--ink2)}
+.stepper button{width:42px;font-family:'Barlow Condensed';font-weight:800;font-size:22px;background:var(--panel2);border:0;cursor:pointer;color:var(--ink)}
+.stepper button:hover{background:var(--ink);color:#fff}
+.stepper .cnt{min-width:56px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:800;font-size:22px;background:#fff;border-left:2px solid var(--ink2);border-right:2px solid var(--ink2)}
+.field{margin-top:14px}
+.field label{font-family:'Space Mono';font-size:11px;letter-spacing:.1em;color:var(--ink3);display:block;margin-bottom:6px}
+.field input{width:100%;padding:11px 12px;border:2px solid var(--line);background:#fff;font-family:'Noto Sans TC';font-size:15px;color:var(--ink)}
+.field input:focus{outline:none;border-color:var(--ink3)}
+.field .err{color:var(--red);font-size:12px;font-family:'Space Mono';margin-top:5px;display:none}
+.field.bad input{border-color:var(--red)}
+.field.bad .err{display:block}
+/* summary panel */
+.sumwrap{position:sticky;top:20px}
+.sum{border:2px solid var(--ink2);background:var(--ink);color:var(--mist2)}
+.sum .top{padding:14px 16px;border-bottom:1px solid rgba(143,167,180,.22);display:flex;justify-content:space-between;align-items:center}
+.sum .top b{font-family:'Barlow Condensed';font-weight:800;font-size:18px;color:#EDF2F3;letter-spacing:.04em}
+.sum .cond{padding:14px 16px;background:var(--ink2);display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sum .cond .c{}
+.sum .cond .cl{font-family:'Space Mono';font-size:9.5px;letter-spacing:.1em;color:var(--mist);text-transform:uppercase}
+.sum .cond .cv{font-family:'Barlow Condensed';font-weight:800;font-size:24px;color:#EDF2F3;line-height:1}
+.sum .cond .cv small{font-family:'Space Mono';font-weight:400;font-size:10px;color:var(--mist)}
+.sum .cond .cv.warn{color:#E58074}
+.sum .rows{padding:14px 16px;font-size:13px}
+.sum .r{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dotted rgba(143,167,180,.2)}
+.sum .r .k2{color:var(--mist)}
+.sum .r .v2{color:#EDF2F3;font-family:'Space Mono';font-size:12px;text-align:right}
+.sum .tot{display:flex;justify-content:space-between;align-items:baseline;padding:14px 16px;background:var(--ink2)}
+.sum .tot .k2{font-family:'Barlow Condensed';font-weight:700;font-size:16px;color:var(--mist2)}
+.sum .tot .v2{font-family:'Barlow Condensed';font-weight:800;font-size:30px;color:#EDF2F3}
+.sum .act{padding:14px 16px}
+.btn{display:block;width:100%;text-align:center;font-family:'Barlow Condensed';font-weight:800;font-size:19px;letter-spacing:.05em;text-transform:uppercase;padding:14px;background:var(--red);color:#fff;border:2px solid var(--red);cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:4px 4px 0 #000}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:6px 6px 0 #000}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.warnbox{margin:12px 16px 4px;background:rgba(196,54,43,.16);border:1px solid rgba(196,54,43,.5);color:#E9B4AE;font-size:12px;padding:9px 11px;font-family:'Space Mono';line-height:1.6;display:none}
+.warnbox.show{display:block}
+/* confirmation */
+.confirm{border:2px solid var(--ink2);background:var(--panel2);padding:26px;text-align:center;display:none}
+.confirm.show{display:block;animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.confirm .code{font-family:'Space Mono';font-weight:700;font-size:clamp(24px,5vw,36px);letter-spacing:.14em;color:var(--red);margin:10px 0;padding:12px;border:2px dashed var(--line);background:#fff;display:inline-block}
+.confirm .stub{text-align:left;max-width:420px;margin:18px auto 0;font-size:13.5px;color:var(--ink2)}
+.confirm .stub div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dotted var(--line)}
+.confirm .stub .mono{color:var(--ink)}
+.railtoplink{display:none}
+footer.pg{background:var(--ink);color:var(--mist2);padding:26px 0;border-top:2px solid var(--red);font-family:'Space Mono';font-size:11px;color:var(--ink4)}
+@media(max-width:860px){
+  .shell{flex-direction:column}
+  .rail{position:static;width:100%;height:auto;flex-direction:row;align-items:center;padding:0;border-right:0;border-bottom:2px solid var(--ink2)}
+  .rail .brand{border-bottom:0;padding:10px 16px;flex:1}.rail .brand span{display:none}
+  .rail nav,.rail .foot{display:none}
+  .railtop{display:flex;gap:2px;padding:0 8px 0 0}
+  .railtop a{padding:14px 11px;font-family:'Barlow Condensed';font-weight:700;font-size:15px;color:var(--mist2);border-bottom:3px solid transparent}
+  .railtop a.on{color:#fff;border-bottom-color:var(--red)}
+  .bkgrid{grid-template-columns:1fr}
+  .sumwrap{position:static}
+}
+@media(max-width:560px){.opts{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><img src="assets/logo.svg" alt="毫巴潛水學校標誌"><div><b>MILLIBAR</b><span>綠島・潛水氣象台</span></div></div>
+    <div class="railtop"><a href="index.html">氣象台</a><a href="book.html" class="on">預約</a><a href="about.html">關於</a></div>
+    <nav>
+      <a href="index.html"><span class="k">01</span>海況氣象台</a>
+      <a href="book.html" class="on"><span class="k">02</span>預約下水</a>
+      <a href="about.html"><span class="k">03</span>關於・安全簡報</a>
+    </nav>
+    <div class="foot">綠島・南寮漁港 3 分鐘<br><span class="mono">08:00–18:00 全年無休</span><br><span class="mono">089-671-940</span></div>
+  </aside>
+
+  <main class="main">
+    <section class="wrap">
+      <div class="hd">
+        <div class="ey">預約系統 · 看海況再決定</div>
+        <h1>預約下水</h1>
+        <p>每個日期都跑過一次海況模擬，附上適潛指數。指數越高越適合下水；低於 40 我們會主動幫你改期、不扣款。選好後右側即時結算，送出即取得訂位代碼。</p>
+      </div>
+
+      <div class="bkgrid">
+        <div>
+          <div class="step">
+            <div class="num">STEP 01 — 選日期</div>
+            <h2>哪一天下水？</h2>
+            <div class="dates" id="dates"></div>
+          </div>
+
+          <div class="step">
+            <div class="num">STEP 02 — 選潛點</div>
+            <h2>去綠島哪個潛點</h2>
+            <div class="opts" id="sites"></div>
+          </div>
+
+          <div class="step">
+            <div class="num">STEP 03 — 選課程與人數</div>
+            <h2>課程</h2>
+            <div class="opts" id="courses" style="margin-bottom:14px"></div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div>
+                <div style="font-family:'Space Mono';font-size:11px;letter-spacing:.1em;color:var(--ink3);margin-bottom:6px">人數</div>
+                <div class="stepper">
+                  <button type="button" id="minus" aria-label="減少人數">−</button>
+                  <div class="cnt" id="pcount">1</div>
+                  <button type="button" id="plus" aria-label="增加人數">+</button>
+                </div>
+              </div>
+              <div class="field" style="flex:1;min-width:180px;margin-top:0" id="nameField">
+                <label>報名人姓名</label>
+                <input type="text" id="pname" placeholder="例：陳彥廷">
+                <div class="err">請填寫報名人姓名</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sumwrap">
+          <div class="sum" id="summary">
+            <div class="top"><b>訂單摘要</b><span class="mono" id="s-date" style="font-size:11px;color:var(--mist)">未選日期</span></div>
+            <div class="cond">
+              <div class="c"><div class="cl">適潛指數</div><div class="cv" id="s-idx">—</div></div>
+              <div class="c"><div class="cl">中心氣壓</div><div class="cv" id="s-mslp">—</div></div>
+              <div class="c"><div class="cl">風速</div><div class="cv" id="s-wind">—</div></div>
+              <div class="c"><div class="cl">湧浪</div><div class="cv" id="s-swell">—</div></div>
+            </div>
+            <div class="warnbox" id="warn">指數警示：該日適潛指數偏低，送出後我們會聯絡你改期，訂金不扣款。</div>
+            <div class="rows">
+              <div class="r"><span class="k2">潛點</span><span class="v2" id="s-site">—</span></div>
+              <div class="r"><span class="k2">課程</span><span class="v2" id="s-course">—</span></div>
+              <div class="r"><span class="k2">人數</span><span class="v2" id="s-people">1 人</span></div>
+            </div>
+            <div class="tot"><span class="k2">合計</span><span class="v2" id="s-total">NT$ —</span></div>
+            <div class="act"><button class="btn" id="submit" disabled>送出預約</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="confirm" id="confirm">
+        <div class="ey" style="justify-content:center">預約已登記</div>
+        <h2 style="font-size:26px">看你在海裡見！</h2>
+        <div class="code" id="c-code">MB-260000-000</div>
+        <p style="font-size:13.5px;color:var(--ink2)">請截圖保存此訂位代碼。下水前一天 18:00，教練會依最新海況再與你確認一次；若指數轉差將主動改期。</p>
+        <div class="stub" id="c-stub"></div>
+        <div style="margin-top:20px"><a href="index.html" class="btn" style="max-width:260px;margin:0 auto">回氣象台</a></div>
+      </div>
+    </section>
+    <footer class="pg"><div class="wrap">© 2026 MILLIBAR DIVE SCHOOL · 綠島　—　海況資料為虛構示意，實際下水以中央氣象署與現場教練判斷為準</div></footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  // ---- seeded per-day dive index (deterministic pseudo-forecast) ----
+  var SITES=[
+    {id:'shilang',name:'石朗 Shilang',depth:'5–18m',wind:'全向皆可，最穩',best:0},
+    {id:'dabaisha',name:'大白沙 Dabaisha',depth:'8–30m',wind:'怕南流，深場',best:1},
+    {id:'chaikou',name:'柴口 Chaikou',depth:'3–12m',wind:'北風時的避風點',best:2},
+    {id:'steel',name:'鋼鐵礁 Steel Reef',depth:'12–28m',wind:'需進階證照',best:1}
+  ];
+  var COURSES=[
+    {id:'dsd',name:'體驗潛水 DSD',price:2400,per:true,sub:'無需執照 · 1 對 2',site:'shilang'},
+    {id:'ow',name:'開放水域 OW',price:14800,per:false,sub:'3 天 4 潛 · 含證照',site:null},
+    {id:'aow',name:'進階 AOW',price:13200,per:false,sub:'2 天 5 潛 · 需 OW',site:null},
+    {id:'fun',name:'潛導帶路 FUN',price:1300,per:true,sub:'持證 · 教練帶潛',site:null}
+  ];
+  var WK=['日','一','二','三','四','五','六'];
+  var MON=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  // build 8 upcoming dates from a fixed base (虛構示意)
+  var base=new Date(2026,6,18); // 2026-07-18
+  function seedIndex(i){
+    // smooth pseudo-random 20..92 with a low-pressure dip around day 3-4
+    var s=Math.sin(i*1.7+0.6)*22+Math.cos(i*0.9)*10;
+    var dip=(i===3||i===4)?-34:(i===2?-14:0);
+    return Math.max(16,Math.min(94,Math.round(64+s+dip)));
+  }
+  function cond(i){
+    var idx=seedIndex(i);
+    var mslp=Math.round(1013-(90-idx)*0.42);
+    var wind=Math.round(8+(90-idx)*0.24);
+    var swell=(0.5+(90-idx)*0.022).toFixed(1);
+    return {idx:idx,mslp:mslp,wind:wind,swell:swell};
+  }
+  var state={date:null,site:null,course:null,people:1,name:''};
+
+  // render dates
+  var dbox=document.getElementById('dates');
+  for(var i=0;i<8;i++){
+    (function(i){
+      var d=new Date(base);d.setDate(base.getDate()+i);
+      var c=cond(i);
+      var el=document.createElement('button');el.type='button';el.className='date';
+      el.innerHTML='<div class="d">'+d.getDate()+'</div><div class="w">'+MON[d.getMonth()]+' 週'+WK[d.getDay()]+'</div>'+
+        '<div class="ix"><i class="'+(c.idx>=60?'good':c.idx<40?'bad':'')+'" style="right:'+(100-c.idx)+'%"></i></div>'+
+        '<div class="ixn">指數 '+c.idx+'</div>';
+      el.addEventListener('click',function(){
+        state.date=i;
+        [].forEach.call(dbox.children,function(x){x.classList.remove('on')});
+        el.classList.add('on');
+        document.getElementById('s-date').textContent=MON[d.getMonth()]+d.getDate()+'日 (週'+WK[d.getDay()]+')';
+        render();
+      });
+      dbox.appendChild(el);
+    })(i);
+  }
+  // render sites
+  var sbox=document.getElementById('sites');
+  SITES.forEach(function(s){
+    var el=document.createElement('button');el.type='button';el.className='opt';
+    el.innerHTML='<div><div class="t">'+s.name+'</div><div class="s">'+s.wind+'</div></div>'+
+      '<div style="text-align:right"><div class="p">'+s.depth+'</div><div class="badge" data-badge>—</div></div>';
+    el.addEventListener('click',function(){
+      state.site=s.id;
+      [].forEach.call(sbox.children,function(x){x.classList.remove('on')});
+      el.classList.add('on');render();
+    });
+    sbox.appendChild(el);
+  });
+  // render courses
+  var cbox=document.getElementById('courses');
+  COURSES.forEach(function(c){
+    var el=document.createElement('button');el.type='button';el.className='opt';
+    el.innerHTML='<div><div class="t">'+c.name+'</div><div class="s">'+c.sub+'</div></div>'+
+      '<div class="p">NT$'+c.price.toLocaleString()+(c.per?' /人':'')+'</div>';
+    el.addEventListener('click',function(){
+      state.course=c.id;
+      [].forEach.call(cbox.children,function(x){x.classList.remove('on')});
+      el.classList.add('on');render();
+    });
+    cbox.appendChild(el);
+  });
+  // people stepper
+  var pc=document.getElementById('pcount');
+  document.getElementById('plus').onclick=function(){if(state.people<8){state.people++;pc.textContent=state.people;render();}};
+  document.getElementById('minus').onclick=function(){if(state.people>1){state.people--;pc.textContent=state.people;render();}};
+  document.getElementById('pname').addEventListener('input',function(e){state.name=e.target.value.trim();render();});
+
+  function courseById(id){for(var i=0;i<COURSES.length;i++)if(COURSES[i].id===id)return COURSES[i];return null;}
+  function siteById(id){for(var i=0;i<SITES.length;i++)if(SITES[i].id===id)return SITES[i];return null;}
+
+  function render(){
+    // conditions
+    if(state.date!==null){
+      var c=cond(state.date);
+      document.getElementById('s-idx').innerHTML=c.idx;
+      document.getElementById('s-idx').className='cv'+(c.idx<40?' warn':'');
+      document.getElementById('s-mslp').innerHTML=c.mslp+'<small> hPa</small>';
+      document.getElementById('s-wind').innerHTML=c.wind+'<small> kt</small>';
+      document.getElementById('s-swell').innerHTML=c.swell+'<small> m</small>';
+      document.getElementById('warn').classList.toggle('show',c.idx<40);
+      // site suitability badges
+      [].forEach.call(sbox.children,function(el,k){
+        var b=el.querySelector('[data-badge]');
+        var ok=SITES[k].best>=0 ? (c.wind< (14 - SITES[k].best*2 +10)) : true;
+        // deeper sites worse when windy
+        var good=c.idx>=50 && !(SITES[k].id!=='shilang'&&c.wind>18) && !(SITES[k].id==='steel'&&c.idx<60);
+        b.textContent=good?'適合':'今日不建議';
+        b.className='badge '+(good?'ok':'no');
+      });
+    }
+    // rows
+    var s=siteById(state.site), cs=courseById(state.course);
+    document.getElementById('s-site').textContent=s?s.name.split(' ')[0]:'—';
+    document.getElementById('s-course').textContent=cs?cs.name:'—';
+    document.getElementById('s-people').textContent=state.people+' 人';
+    // total
+    var total=0;
+    if(cs){ total = cs.per ? cs.price*state.people : cs.price; }
+    document.getElementById('s-total').textContent = total? 'NT$ '+total.toLocaleString() : 'NT$ —';
+    // enable submit
+    var ready = state.date!==null && state.site && state.course && state.name;
+    document.getElementById('submit').disabled=!ready;
+  }
+  render();
+
+  // submit → booking code
+  document.getElementById('submit').addEventListener('click',function(){
+    var nf=document.getElementById('nameField');
+    if(!state.name){nf.classList.add('bad');return;}nf.classList.remove('bad');
+    var d=new Date(base);d.setDate(base.getDate()+state.date);
+    var yy=String(d.getFullYear()).slice(2), mm=('0'+(d.getMonth()+1)).slice(-2), dd=('0'+d.getDate()).slice(-2);
+    var rnd=('000'+Math.floor(Math.random()*900+100)).slice(-3);
+    var code='MB-'+yy+mm+dd+'-'+rnd;
+    document.getElementById('c-code').textContent=code;
+    var s=siteById(state.site), cs=courseById(state.course), c=cond(state.date), total=cs.per?cs.price*state.people:cs.price;
+    document.getElementById('c-stub').innerHTML=
+      '<div><span>報名人</span><span class="mono">'+state.name+' · '+state.people+' 人</span></div>'+
+      '<div><span>日期</span><span class="mono">'+d.getFullYear()+'/'+mm+'/'+dd+'</span></div>'+
+      '<div><span>潛點 / 課程</span><span class="mono">'+s.name.split(' ')[0]+' · '+cs.name+'</span></div>'+
+      '<div><span>當日適潛指數</span><span class="mono">'+c.idx+' / 100'+(c.idx<40?'（將改期）':'')+'</span></div>'+
+      '<div><span>合計</span><span class="mono">NT$ '+total.toLocaleString()+'</span></div>';
+    document.getElementById('summary').style.opacity='.5';
+    document.getElementById('submit').disabled=true;document.getElementById('submit').textContent='已送出';
+    var cf=document.getElementById('confirm');cf.classList.add('show');
+    cf.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+})();
+</script>
+</body>
+</html>

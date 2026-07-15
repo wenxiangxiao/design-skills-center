@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>遊戲庫・多條件篩選｜銳角桌遊社 RAKURS</title>
+<meta name="description" content="RAKURS 全 14 款桌上遊戲資料庫。依人數、時長、重度、分類、機制多條件即時篩選，找到今晚要玩的那一盒。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%2317130F'/%3E%3Cpolygon%20points='4,28%204,4%2020,4'%20fill='%23E23A2E'/%3E%3Ccircle%20cx='20'%20cy='20'%20r='6'%20fill='%23ECE3CF'/%3E%3Crect%20x='2'%20y='15'%20width='28'%20height='3'%20fill='%2317130F'%20transform='rotate(-31%2016%2016)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--red:#E23A2E;--blk:#17130F;--cream:#ECE3CF;--cream2:#E2D6BC;--blue:#2B4C86;--ochre:#E0A83A;--ink2:#3B342A;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--blk);font-family:'Noto Sans TC',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.anton{font-family:'Anton',sans-serif}.osw{font-family:'Oswald',sans-serif}.mono{font-family:'Space Mono',monospace}
+h1,h2,h3{font-family:'Anton',sans-serif;font-weight:400;line-height:.94;letter-spacing:.01em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
+/* topbar */
+.top{position:sticky;top:0;z-index:80;background:var(--blk);border-bottom:4px solid var(--red)}
+.top .in{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,44px);display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:38px;height:38px;display:block}
+.brand .nm b{font-family:'Anton';color:var(--cream);font-size:23px;letter-spacing:.04em;display:block;line-height:.9}
+.brand .nm span{font-family:'Space Mono';font-size:9.5px;letter-spacing:.28em;color:var(--ochre)}
+.nav{display:flex;gap:2px}
+.nav a{font-family:'Oswald';font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--cream);padding:9px 15px;position:relative}
+.nav a::after{content:"";position:absolute;left:15px;right:15px;bottom:6px;height:3px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .22s}
+.nav a:hover::after,.nav a.on::after{transform:scaleX(1)}
+.nav a.on{color:var(--ochre)}
+.burger{display:none;background:var(--red);border:0;width:42px;height:42px;cursor:pointer}
+.burger span{display:block;width:20px;height:2.5px;background:var(--cream);margin:3.5px auto}
+/* header band */
+.band{background:var(--blk);color:var(--cream);border-bottom:5px solid var(--red);position:relative;overflow:hidden}
+.band .wrap{padding:clamp(30px,4.4vw,52px) clamp(16px,4vw,44px)}
+.band .kick{font-family:'Space Mono';font-size:12px;letter-spacing:.2em;color:var(--ochre);text-transform:uppercase}
+.band h1{font-size:clamp(40px,7vw,84px);margin:10px 0 6px}
+.band h1 em{font-style:normal;color:var(--red)}
+.band p{color:var(--cream2);max-width:56ch}
+.band .wedge{position:absolute;top:-30%;right:-6%;width:34%;height:170%;background:var(--red);transform:rotate(-31deg);opacity:.9}
+.band .dot{position:absolute;bottom:-40px;right:14%;width:120px;height:120px;border-radius:50%;background:var(--ochre)}
+/* filter bar */
+.filters{background:var(--cream2);border-bottom:4px solid var(--blk);position:sticky;top:64px;z-index:60}
+.filters .wrap{padding:16px clamp(16px,4vw,44px)}
+.frow{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:flex-start}
+.fgroup{}
+.fgroup .lab{font-family:'Space Mono';font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.fgroup .lab::before{content:"";width:12px;height:12px;background:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:'Oswald';font-weight:600;font-size:13px;letter-spacing:.03em;padding:6px 12px;border:2.5px solid var(--blk);background:var(--cream);color:var(--blk);cursor:pointer;transition:transform .1s;text-transform:uppercase}
+.chip:hover{transform:translateY(-1px)}
+.chip.on{background:var(--red);color:var(--cream)}
+.chip.on.blue{background:var(--blue)}
+.chip.on.ochre{background:var(--ochre);color:var(--blk)}
+.ftools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;padding-top:14px;border-top:2px dashed var(--blk)}
+.search{display:flex;align-items:center;border:2.5px solid var(--blk);background:var(--cream)}
+.search span{font-family:'Space Mono';font-size:12px;padding:0 10px;color:var(--ink2)}
+.search input{border:0;background:transparent;padding:9px 10px 9px 0;font-family:'Noto Sans TC';font-size:14px;color:var(--blk);outline:none;width:150px}
+.sortsel{font-family:'Oswald';font-weight:600;font-size:13px;text-transform:uppercase;border:2.5px solid var(--blk);background:var(--cream);padding:8px 10px;cursor:pointer}
+.clear{font-family:'Oswald';font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;background:var(--blk);color:var(--cream);border:2.5px solid var(--blk);padding:8px 14px;cursor:pointer}
+.clear:hover{background:var(--red);border-color:var(--red)}
+.count{margin-left:auto;font-family:'Anton';font-size:22px;color:var(--blk)}
+.count b{color:var(--red)}
+/* results */
+.results{padding:clamp(28px,4vw,48px) 0 70px}
+.games{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.game{position:relative;border:3px solid var(--blk);background:var(--cream);overflow:hidden;transition:transform .3s cubic-bezier(.2,.7,.3,1),opacity .3s}
+.game .cov{aspect-ratio:4/3;position:relative;border-bottom:3px solid var(--blk);overflow:hidden}
+.game .cov svg{position:absolute;inset:0;width:100%;height:100%}
+.game .no{position:absolute;top:0;right:0;background:var(--red);color:var(--cream);font-family:'Anton';font-size:17px;padding:3px 9px;z-index:3}
+.game .body{padding:14px 15px}
+.game .tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
+.game .tags span{font-family:'Space Mono';font-size:9px;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;background:var(--blk);color:var(--cream)}
+.game .tags span.b{background:var(--blue)}.game .tags span.o{background:var(--ochre);color:var(--blk)}
+.game h3{font-family:'Oswald';font-weight:700;font-size:21px;letter-spacing:.02em;text-transform:uppercase}
+.game p{font-size:12.5px;color:var(--ink2);margin-top:4px;min-height:2.6em}
+.game .meta{display:flex;justify-content:space-between;font-family:'Space Mono';font-size:10.5px;color:var(--ink2);margin-top:11px;border-top:2px solid var(--blk);padding-top:8px}
+.game.hide{display:none}
+.game.pop{animation:pop .34s cubic-bezier(.2,.7,.3,1) both}
+@keyframes pop{from{opacity:0;transform:translateY(18px) rotate(-1.2deg)}to{opacity:1;transform:none}}
+.empty{border:3px dashed var(--blk);padding:44px 20px;text-align:center;display:none}
+.empty.show{display:block}
+.empty .anton{font-size:40px;color:var(--red);display:block}
+.empty p{color:var(--ink2);margin-top:8px}
+footer.pg{background:var(--blk);color:var(--cream);padding:40px 0 28px;border-top:6px solid var(--red)}
+footer.pg .cols{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:26px}
+footer.pg b{font-family:'Anton';font-size:20px;color:var(--cream);display:block;margin-bottom:9px}
+footer.pg .sm{font-size:13px;color:var(--cream2);line-height:1.9}
+footer.pg .sm a:hover{color:var(--ochre)}
+footer.pg .base{margin-top:22px;padding-top:16px;border-top:2px solid rgba(236,227,207,.2);font-family:'Space Mono';font-size:11px;color:var(--cream2);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:1024px){.games{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:820px){
+  .nav{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;background:var(--blk);border-bottom:4px solid var(--red);padding:8px 0}
+  .nav.open{display:flex}.nav a{padding:13px 24px}.nav a::after{display:none}
+  .burger{display:block}
+  .filters{position:static}
+  .games{grid-template-columns:repeat(2,1fr)}
+  footer.pg .cols{grid-template-columns:1fr}
+}
+@media(max-width:560px){.games{grid-template-columns:1fr}.count{width:100%;margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.game.pop{animation:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <a class="brand" href="index.html"><img src="assets/logo.svg" alt="銳角桌遊社標誌"><span class="nm"><b>RAKURS</b><span>銳角桌遊社 · TAIPEI</span></span></a>
+    <button class="burger" id="burger" aria-label="選單"><span></span><span></span><span></span></button>
+    <nav class="nav" id="nav">
+      <a href="index.html">首頁</a>
+      <a href="catalog.html" class="on">遊戲庫</a>
+      <a href="about.html">關於工坊</a>
+      <a href="catalog.html" class="on">找遊戲 →</a>
+    </nav>
+  </div>
+</header>
+
+<div class="band">
+  <div class="wedge" aria-hidden="true"></div><div class="dot" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="kick">Каталог № 全 14 款</div>
+    <h1>遊戲<em>庫</em></h1>
+    <p>今晚幾個人、有多少時間、想動多少腦？把條件拋進來，資料庫即時把不合的盒子推開，只留下該上桌的那幾款。</p>
+  </div>
+</div>
+
+<div class="filters">
+  <div class="wrap">
+    <div class="frow">
+      <div class="fgroup">
+        <div class="lab">人數</div>
+        <div class="chips" data-f="players">
+          <button class="chip on" data-v="any">不限</button>
+          <button class="chip" data-v="1">1</button>
+          <button class="chip" data-v="2">2</button>
+          <button class="chip" data-v="3">3</button>
+          <button class="chip" data-v="4">4</button>
+          <button class="chip" data-v="5">5</button>
+          <button class="chip" data-v="6">6+</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="lab">時長</div>
+        <div class="chips" data-f="time">
+          <button class="chip on" data-v="any">不限</button>
+          <button class="chip" data-v="20">≤ 20 分</button>
+          <button class="chip" data-v="45">≤ 45 分</button>
+          <button class="chip" data-v="75">≤ 75 分</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="lab">重度</div>
+        <div class="chips" data-f="weight">
+          <button class="chip on" data-v="any">不限</button>
+          <button class="chip blue" data-v="light">輕 (&lt;2)</button>
+          <button class="chip blue" data-v="mid">中 (2–3)</button>
+          <button class="chip blue" data-v="heavy">重 (&gt;3)</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="lab">分類</div>
+        <div class="chips" data-f="cat">
+          <button class="chip on ochre" data-v="any">不限</button>
+          <button class="chip ochre" data-v="策略">策略</button>
+          <button class="chip ochre" data-v="抽象">抽象</button>
+          <button class="chip ochre" data-v="派對">派對</button>
+          <button class="chip ochre" data-v="家庭">家庭</button>
+          <button class="chip ochre" data-v="單人">單人</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="lab">機制</div>
+        <div class="chips" data-f="mech">
+          <button class="chip on" data-v="any">不限</button>
+          <button class="chip" data-v="區域控制">區域控制</button>
+          <button class="chip" data-v="版塊放置">版塊放置</button>
+          <button class="chip" data-v="工人擺放">工人擺放</button>
+          <button class="chip" data-v="手牌管理">手牌管理</button>
+          <button class="chip" data-v="即時反應">即時反應</button>
+          <button class="chip" data-v="套組收集">套組收集</button>
+          <button class="chip" data-v="骰子擲賭">骰子擲賭</button>
+          <button class="chip" data-v="引擎建構">引擎建構</button>
+          <button class="chip" data-v="社交推理">社交推理</button>
+        </div>
+      </div>
+    </div>
+    <div class="ftools">
+      <div class="search"><span>搜尋</span><input type="text" id="q" placeholder="遊戲名稱…" aria-label="搜尋遊戲名稱"></div>
+      <select class="sortsel" id="sort" aria-label="排序">
+        <option value="id">排序：出版序</option>
+        <option value="time">排序：時長短→長</option>
+        <option value="weight">排序：重度輕→重</option>
+        <option value="name">排序：名稱</option>
+      </select>
+      <button class="clear" id="clear">清除條件</button>
+      <div class="count"><b id="cnum">14</b> / 14 款符合</div>
+    </div>
+  </div>
+</div>
+
+<div class="results">
+  <div class="wrap">
+    <div class="games" id="grid"></div>
+    <div class="empty" id="empty">
+      <span class="anton">НЕТ</span>
+      <p>沒有遊戲同時符合這些條件。試著放寬人數或時長。</p>
+    </div>
+  </div>
+</div>
+
+<footer class="pg">
+  <div class="wrap">
+    <div class="cols">
+      <div><b>銳角桌遊社 RAKURS</b><p class="sm">台北的獨立桌上遊戲出版社，以構成主義的視覺語言設計每一款遊戲。</p></div>
+      <div><b>逛逛</b><p class="sm"><a href="index.html">首頁</a><br><a href="about.html">關於工坊</a></p></div>
+      <div><b>工坊</b><p class="sm">台北市大同區赤峰街 47 巷 7 號<br><a href="tel:0227110070">02-2711-0070</a><br>hello@rakurs.games</p></div>
+    </div>
+    <div class="base"><span>© 2026 RAKURS GAMES · 銳角桌遊社</span><span>遊戲資料、人物與價格皆為虛構示意</span></div>
+  </div>
+</footer>
+
+<script>
+var GAMES=[
+  {id:1,cn:"紅色十月",players:[2,4],time:45,weight:2.4,age:12,cat:"策略",mech:"區域控制",tone:"red",desc:"在一張斜切的工廠地圖上爭奪生產線。"},
+  {id:2,cn:"軸線",players:[2,2],time:20,weight:1.8,age:10,cat:"抽象",mech:"版塊放置",tone:"blue",desc:"兩人對弈，用斜角板塊切開對手的領地。"},
+  {id:3,cn:"工廠",players:[1,4],time:90,weight:3.6,age:14,cat:"策略",mech:"工人擺放",tone:"ochre",desc:"經營一座構成主義印刷廠，把海報印成勝利。"},
+  {id:4,cn:"汽笛",players:[3,6],time:30,weight:1.5,age:8,cat:"派對",mech:"即時反應",tone:"red",desc:"汽笛一響就搶——最吵最快的派對遊戲。"},
+  {id:5,cn:"海報",players:[2,5],time:40,weight:2.2,age:10,cat:"家庭",mech:"手牌管理",tone:"blue",desc:"用紅黑藍三色卡拼出你的宣傳海報。"},
+  {id:6,cn:"楔",players:[2,2],time:15,weight:1.2,age:8,cat:"抽象",mech:"版塊放置",tone:"ochre",desc:"十五分鐘的雙人斜角卡位小品。"},
+  {id:7,cn:"蒙太奇",players:[3,5],time:60,weight:2.8,age:12,cat:"策略",mech:"套組收集",tone:"red",desc:"剪接畫面成敘事，搶先完成一部默片。"},
+  {id:8,cn:"節拍",players:[2,4],time:25,weight:1.6,age:8,cat:"家庭",mech:"骰子擲賭",tone:"blue",desc:"跟著節拍下注，踩準拍子的人得分。"},
+  {id:9,cn:"車床",players:[1,1],time:35,weight:3.0,age:14,cat:"單人",mech:"引擎建構",tone:"ochre",desc:"單人解謎，一步步組出運轉的機器。"},
+  {id:10,cn:"鼓動",players:[4,8],time:45,weight:2.0,age:12,cat:"派對",mech:"社交推理",tone:"red",desc:"誰是暗中的破壞者？多人社交推理。"},
+  {id:11,cn:"稜面",players:[2,3],time:50,weight:2.6,age:12,cat:"抽象",mech:"區域控制",tone:"blue",desc:"三維稜面上的領地爭奪，角度就是武器。"},
+  {id:12,cn:"印量",players:[2,4],time:75,weight:3.2,age:14,cat:"策略",mech:"工人擺放",tone:"ochre",desc:"衝高印量、壓低成本的重度經濟策略。"},
+  {id:13,cn:"信號",players:[3,6],time:20,weight:1.3,age:8,cat:"派對",mech:"即時反應",tone:"red",desc:"用手勢傳遞信號，別讓對手截收。"},
+  {id:14,cn:"向量",players:[1,4],time:55,weight:2.7,age:12,cat:"家庭",mech:"手牌管理",tone:"blue",desc:"沿著向量鋪路，最短路徑者勝。"}
+];
+function cover(g){
+  var C={red:'#E23A2E',blue:'#2B4C86',ochre:'#E0A83A'},bg=C[g.tone],alt=g.tone==='red'?C.blue:g.tone==='blue'?C.ochre:C.red;
+  return '<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
+   +'<rect width="200" height="150" fill="#ECE3CF"/>'
+   +'<polygon points="0,0 130,0 0,150" fill="'+bg+'"/>'
+   +'<rect x="-20" y="66" width="260" height="20" fill="#17130F" transform="rotate(-31 100 75)"/>'
+   +'<circle cx="150" cy="46" r="34" fill="'+alt+'"/>'
+   +'<polygon points="150,46 184,46 150,80" fill="#ECE3CF"/>'
+   +'<polygon points="40,150 96,150 40,86" fill="'+C.ochre+'" opacity="0.95"/>'
+   +'<circle cx="60" cy="40" r="10" fill="#17130F"/>'
+   +'<text x="12" y="140" font-family="Anton,sans-serif" font-size="30" fill="#ECE3CF">'+g.cn.slice(0,2)+'</text></svg>';
+}
+var state={players:'any',time:'any',weight:'any',cat:'any',mech:'any',q:'',sort:'id'};
+var grid=document.getElementById('grid');
+
+function matches(g){
+  if(state.players!=='any'){var p=+state.players;if(p===6){if(g.players[1]<6)return false;}else{if(p<g.players[0]||p>g.players[1])return false;}}
+  if(state.time!=='any'&&g.time>+state.time)return false;
+  if(state.weight==='light'&&g.weight>=2)return false;
+  if(state.weight==='mid'&&(g.weight<2||g.weight>3))return false;
+  if(state.weight==='heavy'&&g.weight<=3)return false;
+  if(state.cat!=='any'&&g.cat!==state.cat)return false;
+  if(state.mech!=='any'&&g.mech!==state.mech)return false;
+  if(state.q&&g.cn.indexOf(state.q)<0)return false;
+  return true;
+}
+function render(){
+  var list=GAMES.filter(matches);
+  var s=state.sort;
+  list.sort(function(a,b){
+    if(s==='time')return a.time-b.time;
+    if(s==='weight')return a.weight-b.weight;
+    if(s==='name')return a.cn.localeCompare(b.cn,'zh-Hant');
+    return a.id-b.id;
+  });
+  grid.innerHTML='';
+  list.forEach(function(g,i){
+    var el=document.createElement('article');el.className='game pop';el.style.animationDelay=(i*30)+'ms';
+    el.innerHTML='<div class="no">'+String(g.id).padStart(2,'0')+'</div>'
+      +'<div class="cov">'+cover(g)+'</div>'
+      +'<div class="body"><div class="tags"><span>'+g.cat+'</span><span class="b">'+g.mech+'</span><span class="o">'+(g.players[0]===g.players[1]?g.players[0]:g.players[0]+'–'+g.players[1])+' 人</span></div>'
+      +'<h3>'+g.cn+'</h3><p>'+g.desc+'</p>'
+      +'<div class="meta"><span>'+g.time+' 分</span><span>重度 '+g.weight.toFixed(1)+'</span><span>'+g.age+'+</span></div></div>';
+    grid.appendChild(el);
+  });
+  document.getElementById('cnum').textContent=list.length;
+  document.getElementById('empty').classList.toggle('show',list.length===0);
+}
+// chip groups
+document.querySelectorAll('.chips').forEach(function(grp){
+  var key=grp.getAttribute('data-f');
+  grp.querySelectorAll('.chip').forEach(function(ch){
+    ch.addEventListener('click',function(){
+      grp.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on')});
+      ch.classList.add('on');
+      state[key]=ch.getAttribute('data-v');
+      render();
+    });
+  });
+});
+document.getElementById('q').addEventListener('input',function(e){state.q=e.target.value.trim();render();});
+document.getElementById('sort').addEventListener('change',function(e){state.sort=e.target.value;render();});
+document.getElementById('clear').addEventListener('click',function(){
+  state={players:'any',time:'any',weight:'any',cat:'any',mech:'any',q:'',sort:'id'};
+  document.getElementById('q').value='';document.getElementById('sort').value='id';
+  document.querySelectorAll('.chips').forEach(function(grp){
+    grp.querySelectorAll('.chip').forEach(function(x,i){x.classList.toggle('on',i===0)});
+  });
+  render();
+});
+document.getElementById('burger').addEventListener('click',function(){document.getElementById('nav').classList.toggle('open');});
+render();
+</script>
+</body>
+</html>

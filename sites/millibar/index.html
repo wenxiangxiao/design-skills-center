@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>毫巴潛水學校 MILLIBAR｜綠島・海況氣象台與潛水課程</title>
+<meta name="description" content="虛構的綠島潛水學校。首頁是一座讀等壓線的海況控制台——拖動預報時間軸，綜觀天氣圖即時重繪，風羽、湧浪與適潛指數同步更新。看懂天氣，再下水。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='4'%20fill='%2316242E'/%3E%3Cg%20fill='none'%20stroke='%237E99A8'%20stroke-width='1.5'%3E%3Ccircle%20cx='16'%20cy='16'%20r='11'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='7.2'/%3E%3C/g%3E%3Ccircle%20cx='16'%20cy='16'%20r='3'%20fill='%23C4362B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16242E; --ink2:#263B48; --ink3:#3E5A6B; --ink4:#5E7C8C;
+  --mist:#8FA7B4; --mist2:#B7C8D1; --ground:#E5EBEE; --panel:#EEF3F4; --panel2:#F5F8F8;
+  --red:#C4362B; --line:#C4D2D8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ground);color:var(--ink);font-family:'Noto Sans TC',system-ui,sans-serif;line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    repeating-linear-gradient(0deg,transparent 0 31px,rgba(62,90,107,.055) 31px 32px),
+    repeating-linear-gradient(90deg,transparent 0 31px,rgba(62,90,107,.055) 31px 32px);}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:1.04;letter-spacing:.01em}
+.mono{font-family:'Space Mono',monospace}
+.up{text-transform:uppercase;letter-spacing:.16em}
+
+/* ===== layout shell: side-rail + main ===== */
+.shell{display:flex;min-height:100vh;align-items:stretch}
+.rail{width:230px;flex:none;background:var(--ink);color:var(--mist2);border-right:2px solid var(--ink2);
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:20px 0 16px}
+.rail .brand{display:flex;align-items:center;gap:11px;padding:0 20px 18px;border-bottom:1px solid rgba(143,167,180,.22)}
+.rail .brand img{width:40px;height:40px;display:block}
+.rail .brand b{font-family:'Barlow Condensed';font-weight:800;font-size:22px;letter-spacing:.02em;color:#EDF2F3;display:block;line-height:.98}
+.rail .brand span{font-size:10px;letter-spacing:.28em;color:var(--mist)}
+.rail nav{padding:14px 12px;display:flex;flex-direction:column;gap:2px}
+.rail nav a{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:3px;font-size:14px;color:var(--mist2);
+  border-left:2px solid transparent;transition:background .15s,border-color .15s,color .15s}
+.rail nav a .k{font-family:'Space Mono';font-size:10px;color:var(--ink4)}
+.rail nav a:hover{background:rgba(143,167,180,.09);color:#fff}
+.rail nav a.on{background:rgba(196,54,43,.14);border-left-color:var(--red);color:#fff}
+.rail .foot{margin-top:auto;padding:14px 20px 0;border-top:1px solid rgba(143,167,180,.22);font-size:11px;color:var(--ink4);line-height:1.7}
+.rail .foot .mono{color:var(--mist);font-size:11px}
+.railtop{display:none}
+.main{flex:1;min-width:0}
+.wrap{max-width:1000px;margin:0 auto;padding:0 clamp(16px,3.4vw,40px)}
+section{padding:clamp(34px,5vw,64px) 0}
+.ey{font-family:'Space Mono';font-size:11px;letter-spacing:.22em;color:var(--ink3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.ey::before{content:"";width:22px;height:2px;background:var(--red)}
+
+/* ===== console (os-metaphor opening) ===== */
+.console{background:var(--panel);border-bottom:2px solid var(--ink2)}
+.cbar{display:flex;align-items:center;gap:14px;padding:10px clamp(16px,3.4vw,40px);background:var(--ink);color:var(--mist2);
+  font-family:'Space Mono';font-size:11.5px;letter-spacing:.05em;flex-wrap:wrap}
+.cbar .dot{width:9px;height:9px;border-radius:50%;background:var(--ink4);flex:none}
+.cbar .dot.live{background:#57c98a;box-shadow:0 0 0 0 rgba(87,201,138,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(87,201,138,.55)}70%{box-shadow:0 0 0 7px rgba(87,201,138,0)}100%{box-shadow:0 0 0 0 rgba(87,201,138,0)}}
+.cbar b{color:#EDF2F3;letter-spacing:.14em}
+.cbar .sp{margin-left:auto;color:var(--mist)}
+.cgrid{display:grid;grid-template-columns:1fr 300px;gap:0}
+.chart{position:relative;border-right:2px solid var(--line);background:
+  linear-gradient(0deg,rgba(22,36,46,.03),rgba(22,36,46,.03));min-height:430px;overflow:hidden}
+.chart canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
+.chart .tag{position:absolute;font-family:'Space Mono';font-size:10.5px;letter-spacing:.1em;color:var(--ink3);
+  background:rgba(238,243,244,.82);padding:2px 6px;border:1px solid var(--line)}
+.chart .tag.tl{top:12px;left:12px}
+.chart .tag.br{bottom:12px;right:12px}
+.readpanel{background:var(--panel2);padding:16px 18px;display:flex;flex-direction:column}
+.readpanel h2{font-size:15px;font-family:'Space Mono';font-weight:700;letter-spacing:.04em;color:var(--ink2);margin-bottom:2px}
+.readpanel .site{font-size:12px;color:var(--ink3);margin-bottom:14px}
+.reads{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.rd{border:1px solid var(--line);background:#fff;padding:9px 10px}
+.rd .l{font-family:'Space Mono';font-size:9.5px;letter-spacing:.12em;color:var(--ink4);text-transform:uppercase}
+.rd .v{font-family:'Barlow Condensed';font-weight:800;font-size:30px;line-height:1;color:var(--ink);margin-top:3px}
+.rd .v small{font-family:'Space Mono';font-weight:400;font-size:11px;color:var(--ink3);letter-spacing:0}
+.rd.warn .v{color:var(--red)}
+.gauge{margin-top:auto}
+.gauge .gl{display:flex;justify-content:space-between;font-family:'Space Mono';font-size:10px;letter-spacing:.08em;color:var(--ink3);margin-bottom:5px}
+.gtrack{height:12px;background:var(--ground);border:1px solid var(--line);position:relative;overflow:hidden}
+.gfill{position:absolute;inset:0 100% 0 0;background:repeating-linear-gradient(90deg,var(--ink3) 0 6px,var(--ink2) 6px 12px);transition:right .55s cubic-bezier(.4,.1,.2,1)}
+.gfill.good{background:repeating-linear-gradient(90deg,#3a7d5a 0 6px,#2f6b4c 6px 12px)}
+.gfill.bad{background:repeating-linear-gradient(90deg,var(--red) 0 6px,#a12a21 6px 12px)}
+.gnum{font-family:'Barlow Condensed';font-weight:800;font-size:22px;color:var(--ink);margin-top:6px}
+
+/* time slider — the signature control */
+.timebar{padding:14px clamp(16px,3.4vw,40px);background:var(--ink);color:var(--mist2);border-top:2px solid var(--ink2);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.timebar .lab{font-family:'Space Mono';font-size:11px;letter-spacing:.14em;color:var(--mist);white-space:nowrap}
+.timebar .stamp{font-family:'Barlow Condensed';font-weight:800;font-size:22px;color:#EDF2F3;min-width:150px}
+.timebar input[type=range]{flex:1;min-width:180px;-webkit-appearance:none;appearance:none;height:4px;background:linear-gradient(90deg,var(--ink4),var(--mist));border-radius:2px;outline:none}
+.timebar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--red);border:3px solid #EDF2F3;cursor:pointer}
+.timebar input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--red);border:3px solid #EDF2F3;cursor:pointer}
+.timebar .ticks{display:flex;gap:0;font-family:'Space Mono';font-size:10px;color:var(--ink4);width:100%;justify-content:space-between;order:3}
+
+/* ===== generic components ===== */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:'Barlow Condensed';font-weight:700;font-size:17px;
+  letter-spacing:.04em;text-transform:uppercase;padding:12px 22px;background:var(--red);color:#fff;border:2px solid var(--red);
+  transition:transform .12s,box-shadow .12s;box-shadow:4px 4px 0 var(--ink)}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--ink);box-shadow:4px 4px 0 rgba(62,90,107,.35)}
+.lead{font-size:clamp(19px,2.4vw,25px);line-height:1.5;max-width:40ch;color:var(--ink2)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.card{background:var(--panel2);padding:20px 18px}
+.card h3{font-size:22px;margin-bottom:6px}
+.card .n{font-family:'Space Mono';font-size:11px;color:var(--red);letter-spacing:.1em}
+.card p{font-size:14px;color:var(--ink2)}
+.crs{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.course{border:2px solid var(--ink2);background:var(--panel2);padding:18px}
+.course .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:10px;margin-bottom:10px}
+.course h3{font-size:24px}
+.course .price{font-family:'Space Mono';font-weight:700;font-size:15px;color:var(--red);white-space:nowrap}
+.course ul{list-style:none;font-size:13.5px;color:var(--ink2)}
+.course li{padding-left:16px;position:relative;margin:4px 0}
+.course li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--ink3)}
+.course .meta{margin-top:12px;font-family:'Space Mono';font-size:11px;color:var(--ink3);letter-spacing:.06em}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-family:'Space Mono';font-size:12px;color:var(--ink2);margin-top:20px}
+.legend span{display:flex;align-items:center;gap:8px}
+.iso-swatch{width:26px;height:0;border-top:1.6px solid var(--ink3)}
+.iso-swatch.r{border-top-color:var(--red)}
+.hpin{width:14px;height:14px;border:1.6px solid var(--ink3);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:800;font-size:10px}
+footer.pg{background:var(--ink);color:var(--mist2);padding:34px 0 26px;border-top:2px solid var(--red)}
+footer.pg .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px}
+footer.pg b{font-family:'Barlow Condensed';font-weight:800;font-size:19px;color:#EDF2F3;letter-spacing:.03em;display:block;margin-bottom:8px}
+footer.pg .sm{font-size:12.5px;color:var(--mist);line-height:1.9}
+footer.pg a:hover{color:#fff;text-decoration:underline}
+footer.pg .base{margin-top:22px;padding-top:16px;border-top:1px solid rgba(143,167,180,.2);font-family:'Space Mono';font-size:11px;color:var(--ink4);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.note{background:var(--panel);border-left:3px solid var(--red);padding:10px 14px;font-size:12.5px;color:var(--ink2);font-family:'Space Mono'}
+
+@media(max-width:860px){
+  .shell{flex-direction:column}
+  .rail{position:static;width:100%;height:auto;flex-direction:row;align-items:center;padding:0;border-right:0;border-bottom:2px solid var(--ink2)}
+  .rail .brand{border-bottom:0;padding:10px 16px;flex:1}
+  .rail .brand span{display:none}
+  .rail nav{display:none}
+  .rail .foot{display:none}
+  .railtop{display:flex;gap:2px;padding:0 8px 0 0}
+  .railtop a{padding:14px 11px;font-family:'Barlow Condensed';font-weight:700;font-size:15px;color:var(--mist2);border-bottom:3px solid transparent}
+  .railtop a.on{color:#fff;border-bottom-color:var(--red)}
+  .cgrid{grid-template-columns:1fr}
+  .chart{border-right:0;border-bottom:2px solid var(--line);min-height:320px}
+  .reads{grid-template-columns:1fr 1fr}
+  footer.pg .cols{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .grid3,.crs{grid-template-columns:1fr}
+  .timebar .stamp{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;scroll-behavior:auto!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="毫巴潛水學校標誌">
+      <div><b>MILLIBAR</b><span>綠島・潛水氣象台</span></div>
+    </div>
+    <div class="railtop">
+      <a href="index.html" class="on">氣象台</a>
+      <a href="book.html">預約</a>
+      <a href="about.html">關於</a>
+    </div>
+    <nav>
+      <a href="index.html" class="on"><span class="k">01</span>海況氣象台</a>
+      <a href="book.html"><span class="k">02</span>預約下水</a>
+      <a href="about.html"><span class="k">03</span>關於・安全簡報</a>
+    </nav>
+    <div class="foot">
+      綠島・南寮漁港 3 分鐘<br>
+      <span class="mono">08:00–18:00 全年無休</span><br>
+      <span class="mono">089-671-940</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- os-metaphor console opening -->
+    <div class="console">
+      <div class="cbar">
+        <span class="dot live"></span><b>MILLIBAR 綜觀海況台</b>
+        <span>模式：等壓線 + 站點</span>
+        <span class="sp mono">綠島 121.49°E / 22.66°N</span>
+      </div>
+      <div class="cgrid">
+        <div class="chart">
+          <canvas id="chart" width="700" height="430"></canvas>
+          <div class="tag tl mono">SYNOPTIC · 1000hPa</div>
+          <div class="tag br mono" id="tstamp">今日 08:00</div>
+        </div>
+        <div class="readpanel">
+          <h2 id="rp-title">石朗 · 海況讀值</h2>
+          <div class="site">SHILANG DIVE SITE · 深度 5–18m</div>
+          <div class="reads">
+            <div class="rd"><div class="l">風速 wind</div><div class="v" id="r-wind">12<small> kt</small></div></div>
+            <div class="rd"><div class="l">湧浪 swell</div><div class="v" id="r-swell">0.8<small> m</small></div></div>
+            <div class="rd"><div class="l">能見度 vis</div><div class="v" id="r-vis">22<small> m</small></div></div>
+            <div class="rd warn"><div class="l">中心氣壓 mslp</div><div class="v" id="r-mslp">1006<small> hPa</small></div></div>
+          </div>
+          <div class="gauge">
+            <div class="gl"><span>適潛指數 DIVE INDEX</span><span id="g-label">良好</span></div>
+            <div class="gtrack"><div class="gfill good" id="gfill"></div></div>
+            <div class="gnum"><span id="g-num">78</span><span class="mono" style="font-size:12px;color:var(--ink3)"> / 100</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="timebar">
+        <span class="lab">預報時間軸</span>
+        <span class="stamp" id="stamp2">今日 08:00</span>
+        <input type="range" id="tslider" min="0" max="6" step="1" value="0" aria-label="預報時間軸">
+        <div class="ticks"><span>現在</span><span>+6h</span><span>+12h</span><span>+18h</span><span>+24h</span><span>+36h</span><span>+48h</span></div>
+      </div>
+    </div>
+
+    <section class="wrap">
+      <div class="ey">看懂天氣，再下水</div>
+      <p class="lead">我們把每一堂潛水課，都從一張綜觀天氣圖開始。<b>拖動上方的預報時間軸</b>，等壓線會即時重繪——線越密、風越強，湧浪與能見度隨之改變。這不是裝飾，是我們每天早上八點真正在讀的東西。</p>
+      <div class="legend">
+        <span><i class="iso-swatch"></i>等壓線 每 4 hPa</span>
+        <span><i class="iso-swatch r"></i>低壓槽 / 大浪警示</span>
+        <span><i class="hpin">H</i>高壓中心 · 穩定</span>
+        <span><i class="hpin" style="color:var(--red);border-color:var(--red)">L</i>低壓中心 · 轉差</span>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-top:0">
+      <div class="grid3">
+        <div class="card"><div class="n">RULE 01</div><h3>先看圖</h3><p>每組下水前，教練帶你判讀當日綜觀圖與站點站點模式：風羽方向、氣壓梯度、湧浪週期。</p></div>
+        <div class="card"><div class="n">RULE 02</div><h3>再選點</h3><p>綠島四個潛點各有脾氣。北風轉強時石朗背風，南流大時改去柴口。氣象決定我們去哪，不是行程表。</p></div>
+        <div class="card"><div class="n">RULE 03</div><h3>能改期</h3><p>指數低於 40 不出海，全額改期不扣款。海不會跑掉，安全比打卡重要。</p></div>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-top:0">
+      <div class="ey">課程 · 綠島</div>
+      <div class="crs">
+        <div class="course">
+          <div class="top"><h3>體驗潛水 DSD</h3><span class="price">NT$2,400 / 人</span></div>
+          <ul>
+            <li>無需執照，10 歲以上可參加</li>
+            <li>1 對 2 教練帶領，全程握著你</li>
+            <li>石朗淺水區，最深 8 米</li>
+          </ul>
+          <div class="meta">時長 3.5 小時 · 含裝備 · 附水下照片</div>
+        </div>
+        <div class="course">
+          <div class="top"><h3>開放水域 OW</h3><span class="price">NT$14,800</span></div>
+          <ul>
+            <li>國際認證執照，3 天 4 潛</li>
+            <li>學科 + 平靜水域 + 開放水域</li>
+            <li>含每日海況簡報實作</li>
+          </ul>
+          <div class="meta">時長 3 天 · 4–6 人小班 · 含教材</div>
+        </div>
+        <div class="course">
+          <div class="top"><h3>進階 AOW</h3><span class="price">NT$13,200</span></div>
+          <ul>
+            <li>深潛、水中導航、放流潛水</li>
+            <li>解鎖大白沙、鋼鐵礁深場</li>
+            <li>教你自己讀氣壓梯度</li>
+          </ul>
+          <div class="meta">時長 2 天 · 需持 OW · 含 5 潛</div>
+        </div>
+        <div class="course">
+          <div class="top"><h3>潛導帶路 FUN</h3><span class="price">NT$1,300 / 潛</span></div>
+          <ul>
+            <li>持證潛水員，教練帶潛</li>
+            <li>依當日海況現選最佳潛點</li>
+            <li>可加租全套裝備 NT$600</li>
+          </ul>
+          <div class="meta">時長 半日 · 2 潛起 · 含氣瓶配重</div>
+        </div>
+      </div>
+      <div style="margin-top:22px;display:flex;gap:14px;flex-wrap:wrap">
+        <a href="book.html" class="btn">查海況並預約 →</a>
+        <a href="about.html" class="btn ghost">看安全簡報</a>
+      </div>
+    </section>
+
+    <footer class="pg">
+      <div class="wrap">
+        <div class="cols">
+          <div>
+            <b>毫巴潛水學校 MILLIBAR</b>
+            <p class="sm">「毫巴」是氣壓的單位，也是我們讀海的方式。開在綠島南寮，一間把天氣圖擺在最前面的潛水學校。潛點、課程、開船時間，全部跟著等壓線走。</p>
+          </div>
+          <div>
+            <b>潛點</b>
+            <p class="sm">石朗 Shilang<br>大白沙 Dabaisha<br>柴口 Chaikou<br>鋼鐵礁 Steel Reef</p>
+          </div>
+          <div>
+            <b>聯絡</b>
+            <p class="sm">綠島鄉南寮村漁港路 41 號<br><a href="tel:089671940">089-671-940</a><br>LINE：@millibar.dive<br>教練 阿湃・林信瑋</p>
+          </div>
+        </div>
+        <div class="base">
+          <span>© 2026 MILLIBAR DIVE SCHOOL · 綠島</span>
+          <span>海況資料皆為虛構示意，實際下水請以中央氣象署與現場教練判斷為準</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var cv=document.getElementById('chart');if(!cv)return;
+  var ctx=cv.getContext('2d');
+  var W,H,DPR=Math.min(window.devicePixelRatio||1,2);
+  function size(){
+    var r=cv.getBoundingClientRect();
+    W=Math.max(320,r.width);H=Math.max(300,r.height);
+    cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  // pressure field = sum of gaussian highs/lows; centers drift with forecast step t
+  function centers(t){
+    var f=t/6; // 0..1
+    return [
+      {x:0.24+0.10*f, y:0.30+0.05*f, a: 14 - 6*f, s:0.30}, // weakening high
+      {x:0.78-0.16*f, y:0.62-0.10*f, a:-(6+12*f),s:0.26},  // deepening low approaches
+      {x:0.55, y:0.16-0.02*f, a: 5 - 3*f, s:0.22}
+    ];
+  }
+  function field(px,py,cs){
+    var base=1010, v=0;
+    for(var i=0;i<cs.length;i++){
+      var c=cs[i],dx=px-c.x,dy=py-c.y,d2=(dx*dx+dy*dy)/(2*c.s*c.s);
+      v+=c.a*Math.exp(-d2);
+    }
+    return base+v;
+  }
+  var STEP=10; // grid px
+  function draw(t){
+    size();
+    ctx.clearRect(0,0,W,H);
+    var cs=centers(t);
+    var cols=Math.ceil(W/STEP), rows=Math.ceil(H/STEP);
+    var g=[];
+    for(var i=0;i<=cols;i++){g[i]=[];for(var j=0;j<=rows;j++){g[i][j]=field(i*STEP/W,j*STEP/H,cs);}}
+    // isobars every 4 hPa via marching squares
+    var levels=[];for(var L=984;L<=1024;L+=4)levels.push(L);
+    for(var li=0;li<levels.length;li++){
+      var L=levels[li];
+      var low=L<=1000;
+      ctx.strokeStyle=low?'rgba(196,54,43,'+(L===996?'.85':'.5')+')':'rgba(62,90,107,'+(L===1012?'.7':'.45')+')';
+      ctx.lineWidth=(L%12===0)?1.5:1;
+      ctx.beginPath();
+      for(i=0;i<cols;i++){for(j=0;j<rows;j++){
+        var a=g[i][j],b=g[i+1][j],c2=g[i+1][j+1],d=g[i][j+1];
+        var idx=(a>L?8:0)|(b>L?4:0)|(c2>L?2:0)|(d>L?1:0);
+        if(idx===0||idx===15)continue;
+        var x0=i*STEP,y0=j*STEP;
+        function ip(v1,v2){return (L-v1)/(v2-v1);}
+        var tp={x:x0+STEP*ip(a,b),y:y0}, rp={x:x0+STEP,y:y0+STEP*ip(b,c2)},
+            bp={x:x0+STEP*ip(d,c2),y:y0+STEP}, lp={x:x0,y:y0+STEP*ip(a,d)};
+        function seg(p,q){ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);}
+        switch(idx){
+          case 1:case 14:seg(lp,bp);break;
+          case 2:case 13:seg(bp,rp);break;
+          case 3:case 12:seg(lp,rp);break;
+          case 4:case 11:seg(tp,rp);break;
+          case 6:case 9:seg(tp,bp);break;
+          case 7:case 8:seg(lp,tp);break;
+          case 5:seg(lp,tp);seg(bp,rp);break;
+          case 10:seg(lp,bp);seg(tp,rp);break;
+        }
+      }}
+      ctx.stroke();
+    }
+    // H / L markers + station models
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    for(var k=0;k<cs.length;k++){
+      var c=cs[k],cx=c.x*W,cy=c.y*H,isLow=c.a<0;
+      ctx.font='800 26px Barlow Condensed, sans-serif';
+      ctx.fillStyle=isLow?'#C4362B':'#263B48';
+      ctx.fillText(isLow?'L':'H',cx,cy);
+      ctx.strokeStyle=isLow?'rgba(196,54,43,.5)':'rgba(62,90,107,.4)';
+      ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,15,0,7);ctx.stroke();
+    }
+    // wind barbs on a coarse grid (gradient direction)
+    ctx.strokeStyle='rgba(38,59,72,.55)';ctx.lineWidth=1.2;
+    for(i=1;i<cols-1;i+=6){for(j=1;j<rows-1;j+=6){
+      var gx=(g[i+1][j]-g[i-1][j]), gy=(g[i][j+1]-g[i][j-1]);
+      var mag=Math.sqrt(gx*gx+gy*gy);if(mag<0.002)continue;
+      // wind ~ perpendicular to gradient
+      var ang=Math.atan2(gx,-gy);
+      var px=i*STEP,py=j*STEP,len=13;
+      var ex=px+Math.cos(ang)*len, ey=py+Math.sin(ang)*len;
+      ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(ex,ey);
+      // barb
+      var bx=ex-Math.cos(ang)*5, by=ey-Math.sin(ang)*5;
+      ctx.lineTo(bx+Math.cos(ang+2.3)*6, by+Math.sin(ang+2.3)*6);
+      ctx.stroke();
+      ctx.fillStyle='rgba(38,59,72,.5)';ctx.beginPath();ctx.arc(px,py,1.6,0,7);ctx.fill();
+    }}
+  }
+
+  // readouts derived from field near Shilang site
+  var stamps=['今日 08:00','今日 14:00','今日 20:00','明日 02:00','明日 08:00','後日 20:00','第三日 08:00'];
+  function update(t){
+    draw(t);
+    var cs=centers(t);
+    var mslp=Math.round(field(0.30,0.42,cs));
+    // gradient magnitude near site -> wind
+    var gx=field(0.34,0.42,cs)-field(0.26,0.42,cs), gy=field(0.30,0.46,cs)-field(0.30,0.38,cs);
+    var grad=Math.sqrt(gx*gx+gy*gy);
+    var wind=Math.round(8+grad*3.4+t*1.1);
+    var swell=(0.6+grad*0.22+t*0.16).toFixed(1);
+    var vis=Math.max(6,Math.round(24-t*2.2-grad*1.4));
+    var idx=Math.max(8,Math.min(96,Math.round(96-t*11-grad*1.6-(mslp<1006?8:0))));
+    document.getElementById('r-wind').innerHTML=wind+'<small> kt</small>';
+    document.getElementById('r-swell').innerHTML=swell+'<small> m</small>';
+    document.getElementById('r-vis').innerHTML=vis+'<small> m</small>';
+    document.getElementById('r-mslp').innerHTML=mslp+'<small> hPa</small>';
+    var gf=document.getElementById('gfill');
+    gf.style.right=(100-idx)+'%';
+    gf.className='gfill '+(idx>=60?'good':idx>=40?'':'bad');
+    document.getElementById('g-num').textContent=idx;
+    document.getElementById('g-label').textContent=idx>=75?'極佳':idx>=60?'良好':idx>=40?'普通・留意':'不建議下水';
+    document.getElementById('tstamp').textContent=stamps[t];
+    document.getElementById('stamp2').textContent=stamps[t];
+    document.getElementById('stamp2').style.color=idx<40?'#E58074':'#EDF2F3';
+  }
+  var sl=document.getElementById('tslider');
+  sl.addEventListener('input',function(){update(+sl.value);});
+  window.addEventListener('resize',function(){update(+sl.value);});
+  update(0);
+})();
+</script>
+</body>
+</html>

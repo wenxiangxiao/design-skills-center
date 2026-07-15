@@ -63,6 +63,8 @@
 | 45 | [紙爪 Paper Paws](sites/paperpaws/index.html) | 寵物美容 | 兒童繪本風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 46 | [杏和堂中醫診所](sites/xinghetang/index.html) | 中醫診所 | 自然有機風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 47 | [FACET 選物](sites/facet/index.html) | 選物店 | 極簡留白 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 48 | [千囍補習班 CRAM2K](sites/cram2k/index.html) | 補習班 | Y2K 千禧風 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 49 | [野火當代版畫館](sites/yehuo-press/index.html) | 美術館展覽 | 野獸派 Brutalism | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

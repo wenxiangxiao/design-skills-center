@@ -65,6 +65,8 @@
 | 47 | [FACET 選物](sites/facet/index.html) | 選物店 | 極簡留白 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 48 | [千囍補習班 CRAM2K](sites/cram2k/index.html) | 補習班 | Y2K 千禧風 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 49 | [野火當代版畫館](sites/yehuo-press/index.html) | 美術館展覽 | 野獸派 Brutalism | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 50 | [北辰數理補習班](sites/beichen/index.html) | 補習班 | 復古終端機 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 51 | [野墨花室 Wild Ink Floral](sites/yemo/index.html) | 花店 | 銅版植物誌風 | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

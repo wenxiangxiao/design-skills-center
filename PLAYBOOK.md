@@ -35,7 +35,8 @@
 
 - 不對稱版面、有個性的字體配置、獨特配色語言
 - 品牌文案虛構但真實可信：具體的人名、價格、地址、電話、營業時間
-- 所有圖像原創（SVG／CSS／canvas），**零外部圖片**；外部資源僅允許 Google Fonts
+- 所有圖像原創（SVG／CSS／canvas／WebGL），**零外部圖片**；外部資源僅允許 Google Fonts
+- **3D 例外條款（2026-07-16）**：原生 WebGL 與 CSS 3D 隨時可用；**Three.js 允許從 cdnjs.cloudflare.com 載入，但僅限「3D 是該站核心元素」的站**（如可旋轉商品、空間漫遊、3D 資料視覺化），不得為了裝飾而引入。3D 場景仍須配 prefers-reduced-motion 降級與非 WebGL 環境的靜態備援
 - 每站必有符合該風格的動畫與互動；提供 `prefers-reduced-motion` 降級
 - RWD 響應式，手機可用
 - 若涉及金融等敏感題材，頁面需標示「資料皆為虛構示意」

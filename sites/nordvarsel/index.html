@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NORDVARSEL 北境極光預報台｜Tromsø 極光即時預報與觀測</title>
+<meta name="description" content="挪威特羅姆瑟的極光預報服務。中央的極光光幕是即時運算的真實天空，強度隨太陽風 Kp 指數起伏；查詢今晚各觀測點的可見度時間軸，抓住最佳爆發窗口。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23070B16'/%3E%3Cpath d='M4 27 Q13 8 20 20 Q27 32 36 13' fill='none' stroke='%2352E6A4' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M4 31 Q13 13 20 24 Q27 35 36 17' fill='none' stroke='%239B7BF2' stroke-width='2' stroke-linecap='round' opacity='.8'/%3E%3Ccircle cx='31' cy='9' r='1.1' fill='%23DCE6F5'/%3E%3Ccircle cx='9' cy='11' r='.9' fill='%23DCE6F5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#070B16; --night2:#0C1222; --panel:#0F1728; --panel2:#131D33;
+  --line:rgba(126,150,196,.16); --line2:rgba(126,150,196,.30);
+  --ink:#E7ECF7; --muted:#8697B6; --dim:#5B6B8C;
+  --aur:#52E6A4; --aur2:#38D6E8; --vio:#9B7BF2; --amber:#F2B24D; --red:#FF6B6B;
+  --mono:'Space Mono',ui-monospace,monospace;
+  --disp:'Space Grotesk','Arial Narrow',sans-serif;
+  --han:'Noto Sans TC',sans-serif;
+  --hdr:58px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--night);color:var(--ink);font-family:var(--han);font-weight:400;line-height:1.75;
+  -webkit-font-smoothing:antialiased;padding-top:var(--hdr);
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:100% 46px,46px 100%;
+}
+a{color:inherit}
+.mono{font-family:var(--mono);letter-spacing:.02em}
+.disp{font-family:var(--disp)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+
+/* ---------- console header (topbar) ---------- */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr);z-index:60;
+  background:linear-gradient(180deg,#080D1B,#070B16);border-bottom:1px solid var(--line2);
+  display:flex;align-items:stretch}
+.hdr .inner{max-width:1200px;margin:0 auto;width:100%;display:flex;align-items:stretch;padding:0 20px;gap:0}
+.brand{display:flex;align-items:center;gap:11px;padding-right:22px;border-right:1px solid var(--line);text-decoration:none}
+.brand svg{display:block}
+.brand b{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.16em;color:var(--ink)}
+.brand span{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:.22em;display:block;margin-top:1px}
+.hnav{display:flex;align-items:stretch}
+.hnav a{display:flex;align-items:center;padding:0 17px;font-family:var(--disp);font-weight:500;font-size:12.5px;
+  letter-spacing:.03em;color:var(--muted);text-decoration:none;border-right:1px solid var(--line);position:relative;transition:color .18s,background .18s}
+.hnav a small{font-family:var(--mono);font-size:8.5px;color:var(--dim);margin-left:7px;letter-spacing:.1em}
+.hnav a:hover{color:var(--ink);background:rgba(82,230,164,.05)}
+.hnav a[aria-current]{color:var(--aur)}
+.hnav a[aria-current]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--aur)}
+.hstat{margin-left:auto;display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.hstat .dot{width:7px;height:7px;border-radius:50%;background:var(--aur);box-shadow:0 0 8px var(--aur);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hstat b{color:var(--aur);font-weight:700}
+.hstat .kpv{color:var(--amber)}
+.burger{display:none}
+
+/* ---------- hero console ---------- */
+.stage{position:relative;border-bottom:1px solid var(--line2);overflow:hidden;background:var(--night)}
+.stage .sky{position:absolute;inset:0;z-index:0}
+.stage canvas{display:block;width:100%;height:100%}
+.stage .fallback{position:absolute;inset:0;z-index:0;display:none}
+.stage .grid-ov{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:46px 100%;
+  mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent)}
+.stage .content{position:relative;z-index:2;min-height:clamp(460px,72vh,660px);display:flex;flex-direction:column;justify-content:flex-end;
+  padding:36px 0 0}
+.stage .content .wrap{width:100%}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;color:var(--aur);text-transform:uppercase;margin:0 0 16px}
+.eyebrow::before{content:"◦ ";color:var(--dim)}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,7.2vw,86px);line-height:.96;letter-spacing:-.01em;margin:0;color:#F3F7FF;
+  text-shadow:0 2px 40px rgba(7,11,22,.7)}
+h1.title .cn{font-family:var(--han);font-weight:900;font-size:.44em;letter-spacing:.02em;display:block;margin-top:14px;color:var(--ink)}
+.lede{max-width:560px;margin:20px 0 0;color:#C6D2E6;font-size:16px;text-shadow:0 1px 14px rgba(7,11,22,.8)}
+
+/* live readout strip pinned to bottom of stage */
+.readout{position:relative;z-index:2;border-top:1px solid var(--line2);background:linear-gradient(180deg,rgba(9,14,26,.55),rgba(9,14,26,.9));
+  backdrop-filter:blur(3px);margin-top:34px}
+.readout .row{max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(5,1fr)}
+.gauge{padding:15px 18px;border-left:1px solid var(--line);position:relative}
+.gauge:first-child{border-left:0}
+.gauge .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.gauge .val{font-family:var(--disp);font-weight:600;font-size:26px;line-height:1.1;margin-top:3px;color:var(--ink)}
+.gauge .val .u{font-size:12px;color:var(--muted);font-weight:400;margin-left:3px}
+.gauge .bar{height:3px;background:var(--line);margin-top:9px;position:relative;overflow:hidden}
+.gauge .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--aur);transition:width .5s ease}
+.gauge.kp .val{color:var(--amber)}
+.gauge.kp .bar i{background:var(--amber)}
+
+/* Kp scrubber overlay control */
+.kpctl{position:absolute;right:24px;top:24px;z-index:3;width:212px;background:rgba(9,14,26,.78);border:1px solid var(--line2);
+  backdrop-filter:blur(4px);padding:13px 15px}
+.kpctl h4{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);margin:0 0 3px;text-transform:uppercase}
+.kpctl .big{font-family:var(--disp);font-weight:700;font-size:30px;color:var(--amber);line-height:1}
+.kpctl .big small{font-size:12px;color:var(--muted);font-weight:400;font-family:var(--han)}
+.kpctl input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--line2);margin:12px 0 6px;cursor:pointer}
+.kpctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--amber);border:2px solid var(--night);border-radius:50%;box-shadow:0 0 8px rgba(242,178,77,.7)}
+.kpctl input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--amber);border:2px solid var(--night);border-radius:50%}
+.kpctl .hint{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:.04em;line-height:1.5}
+.kpctl .live{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--aur);cursor:pointer;margin-top:6px;user-select:none}
+.kpctl .live .d{width:6px;height:6px;border-radius:50%;background:var(--aur)}
+.kpctl .live.off{color:var(--dim)}
+.kpctl .live.off .d{background:var(--dim);box-shadow:none}
+
+/* ---------- generic sections ---------- */
+section{padding:64px 0;border-bottom:1px solid var(--line)}
+.shead{display:flex;align-items:baseline;gap:16px;margin:0 0 32px;flex-wrap:wrap}
+.shead .no{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.2em}
+.shead h2{font-family:var(--disp);font-weight:600;font-size:clamp(24px,3.4vw,34px);margin:0;letter-spacing:-.01em}
+.shead .cn{font-family:var(--han);font-weight:700;color:var(--muted);font-size:15px}
+
+.lead-txt{max-width:640px;color:var(--muted);font-size:15.5px}
+.lead-txt b{color:var(--ink);font-weight:500}
+
+/* how it works — 3 measures */
+.measures{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:8px}
+.measure{background:var(--night2);padding:26px 24px}
+.measure .k{font-family:var(--mono);font-size:10px;color:var(--aur);letter-spacing:.18em;text-transform:uppercase}
+.measure h3{font-family:var(--disp);font-weight:600;font-size:19px;margin:14px 0 8px}
+.measure p{color:var(--muted);font-size:14px;margin:0;line-height:1.7}
+.measure svg{display:block;margin-bottom:6px}
+
+/* stations */
+.stations{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:start}
+.stlist{border-top:1px solid var(--line)}
+.strow{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:16px 4px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .18s}
+.strow:hover{background:rgba(82,230,164,.04)}
+.strow .idx{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.strow .nm{font-family:var(--disp);font-weight:500;font-size:16px}
+.strow .nm em{display:block;font-style:normal;font-family:var(--han);font-size:12px;color:var(--muted);margin-top:1px}
+.strow .sc{font-family:var(--mono);font-size:13px;text-align:right}
+.strow .sc b{font-family:var(--disp);font-weight:700;font-size:22px;display:block}
+.sc.g b{color:var(--aur)} .sc.a b{color:var(--amber)} .sc.r b{color:var(--red)} .sc.d b{color:var(--dim)}
+.stnote{background:var(--panel);border:1px solid var(--line);padding:24px}
+.stnote h4{font-family:var(--disp);font-weight:600;margin:0 0 10px;font-size:16px}
+.stnote p{color:var(--muted);font-size:14px;margin:0 0 14px}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.02em;
+  padding:11px 18px;background:var(--aur);color:#04120C;text-decoration:none;border:0;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(82,230,164,.25)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+.btn.ghost:hover{box-shadow:none;border-color:var(--aur);color:var(--aur)}
+
+/* kp scale ribbon */
+.kpscale{display:grid;grid-template-columns:repeat(10,1fr);border:1px solid var(--line);margin-top:8px}
+.kpcell{padding:16px 10px;border-left:1px solid var(--line);text-align:center}
+.kpcell:first-child{border-left:0}
+.kpcell .n{font-family:var(--disp);font-weight:700;font-size:22px}
+.kpcell .t{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.06em;margin-top:4px;line-height:1.4}
+.kpcell .sw{height:5px;margin-top:10px}
+
+/* faq / dispatch */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.dl dt{font-family:var(--disp);font-weight:600;font-size:15px;margin-top:18px;color:var(--ink)}
+.dl dt:first-child{margin-top:0}
+.dl dd{margin:6px 0 0;color:var(--muted);font-size:14px}
+
+/* footer */
+footer{background:#05080F;border-top:1px solid var(--line2);padding:52px 0 30px}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px}
+footer h5{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;margin:0 0 14px}
+footer a{color:var(--muted);text-decoration:none;display:block;padding:4px 0;font-size:14px}
+footer a:hover{color:var(--aur)}
+.fbrand b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.14em;display:block}
+.fbrand p{color:var(--muted);font-size:13.5px;max-width:320px;margin:12px 0 0}
+.fmeta{max-width:1200px;margin:36px auto 0;padding:18px 24px 0;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.03em}
+.disclaimer{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.02em;margin-top:8px}
+
+@media(max-width:860px){
+  .hnav{display:none}
+  .burger{display:flex;align-items:center;margin-left:auto;background:none;border:0;color:var(--ink);cursor:pointer;padding:0 6px}
+  .hstat{display:none}
+  .stations{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr;gap:24px}
+  .fgrid{grid-template-columns:1fr 1fr}
+  .kpctl{position:static;width:auto;margin:0 24px;max-width:none}
+}
+@media(max-width:560px){
+  .readout .row{grid-template-columns:repeat(2,1fr)}
+  .gauge:nth-child(odd){border-left:0}
+  .measures{grid-template-columns:1fr}
+  .kpscale{grid-template-columns:repeat(5,1fr)}
+  .kpcell:nth-child(6){border-left:0}
+  .fgrid{grid-template-columns:1fr}
+  h1.title{font-size:44px}
+}
+/* mobile drawer */
+.drawer{position:fixed;inset:var(--hdr) 0 0;background:rgba(7,11,22,.97);z-index:55;display:none;flex-direction:column;padding:14px 24px}
+.drawer.open{display:flex}
+.drawer a{font-family:var(--disp);font-weight:500;font-size:19px;padding:16px 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.drawer a small{font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:8px}
+
+@media(prefers-reduced-motion:reduce){
+  .hstat .dot{animation:none}
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="inner">
+    <a class="brand" href="index.html">
+      <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" fill="#0C1222"/>
+        <path d="M3 26 Q12 7 20 19 Q27 30 37 12" fill="none" stroke="#52E6A4" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M3 30 Q12 12 20 23 Q27 34 37 16" fill="none" stroke="#9B7BF2" stroke-width="1.8" stroke-linecap="round" opacity=".85"/>
+        <circle cx="31" cy="9" r="1" fill="#DCE6F5"/><circle cx="9" cy="11" r=".8" fill="#DCE6F5"/>
+      </svg>
+      <span style="line-height:1"><b>NORDVARSEL</b><span>N69.6°｜TROMSØ</span></span>
+    </a>
+    <nav class="hnav">
+      <a href="index.html" aria-current="page">觀測台 <small>DECK</small></a>
+      <a href="varsel.html">預報查詢 <small>VARSEL</small></a>
+      <a href="himmel.html">極光指南 <small>HIMMEL</small></a>
+      <a href="stasjon.html">觀測站 <small>STASJON</small></a>
+    </nav>
+    <div class="hstat">
+      <span><span class="dot"></span> LIVE FEED</span>
+      <span>Kp <b class="kpv" id="hdrKp">—</b></span>
+      <span id="hdrClock">--:--:-- UTC</span>
+    </div>
+    <button class="burger" id="burger" aria-label="選單">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+<div class="drawer" id="drawer">
+  <a href="index.html">觀測台 <small>DECK</small></a>
+  <a href="varsel.html">預報查詢 <small>VARSEL</small></a>
+  <a href="himmel.html">極光指南 <small>HIMMEL</small></a>
+  <a href="stasjon.html">觀測站 <small>STASJON</small></a>
+</div>
+
+<!-- ============ HERO: LIVE AURORA CONSOLE ============ -->
+<div class="stage">
+  <div class="sky"><canvas id="aur"></canvas></div>
+  <svg class="fallback" id="skyFallback" viewBox="0 0 1200 660" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div class="grid-ov"></div>
+
+  <div class="kpctl">
+    <h4>光幕強度 · Kp 驅動</h4>
+    <div class="big" id="ctlBig">3.0<small> Kp</small></div>
+    <input type="range" id="kpSlide" min="0" max="9" step="0.1" value="3" aria-label="Kp 指數">
+    <div class="hint">拖動即改變上方真實光幕。Kp 越高，光幕越亮、越低、越向紫紅偏移。</div>
+    <span class="live" id="liveToggle"><span class="d"></span> 跟隨即時串流</span>
+  </div>
+
+  <div class="content">
+    <div class="wrap">
+      <p class="eyebrow">Live aurora nowcast · 特羅姆瑟即時天空</p>
+      <h1 class="title">NORDVARSEL<span class="cn">北境極光預報台</span></h1>
+      <p class="lede">上方不是一張照片，而是此刻正在運算的天空——它的亮度、高度與色偏，由太陽風 Kp 指數即時驅動。看得見的預報，先於出門的決定。</p>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="row" id="gaugeRow">
+      <div class="gauge kp"><div class="lbl">Kp Index</div><div class="val" id="gKp">3.0</div><div class="bar"><i id="bKp" style="width:33%"></i></div></div>
+      <div class="gauge"><div class="lbl">Solar Wind</div><div class="val" id="gWind">421<span class="u">km/s</span></div><div class="bar"><i id="bWind" style="width:45%"></i></div></div>
+      <div class="gauge"><div class="lbl">Bz (IMF)</div><div class="val" id="gBz">−4.2<span class="u">nT</span></div><div class="bar"><i id="bBz" style="width:38%"></i></div></div>
+      <div class="gauge"><div class="lbl">雲量 Cloud</div><div class="val" id="gCloud">22<span class="u">%</span></div><div class="bar"><i id="bCloud" style="width:22%"></i></div></div>
+      <div class="gauge"><div class="lbl">今晚可見度</div><div class="val" id="gVis">佳</div><div class="bar"><i id="bVis" style="width:70%"></i></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how">
+  <div class="wrap">
+    <div class="shead"><span class="no">01 / 讀天空</span><h2>三個量測，一個判斷</h2><span class="cn">極光不是靠運氣，是靠讀數</span></div>
+    <p class="lead-txt">我們不承諾極光，我們把決定權交給你。太陽風把帶電粒子推向地磁極，粒子撞上高層大氣的氧與氮，激發出綠色與紫紅的光幕。<b>能不能看見，取決於三件事同時成立：磁暴夠強、天空夠暗、雲層夠薄。</b>下面是我們每三分鐘更新一次的三把尺。</p>
+    <div class="measures">
+      <div class="measure">
+        <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#233046" stroke-width="2"/><path d="M20 20 L20 8" stroke="#F2B24D" stroke-width="2.4" stroke-linecap="round"/><path d="M20 20 L29 26" stroke="#52E6A4" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="2" fill="#E7ECF7"/></svg>
+        <span class="k">尺一 · 地磁</span>
+        <h3>Kp 指數 0–9</h3>
+        <p>行星際磁場擾動的全球指標。在特羅姆瑟（磁緯 67°），Kp≥2 頭頂就可能出現弧帶，Kp≥5 是整片舞動的爆發夜。</p>
+      </div>
+      <div class="measure">
+        <svg width="40" height="40" viewBox="0 0 40 40"><path d="M6 28 Q14 12 20 22 T34 16" fill="none" stroke="#38D6E8" stroke-width="2.4" stroke-linecap="round"/><path d="M6 32 Q14 18 20 27 T34 22" fill="none" stroke="#9B7BF2" stroke-width="1.8" stroke-linecap="round" opacity=".8"/></svg>
+        <span class="k">尺二 · 太陽風</span>
+        <h3>速度與 Bz 分量</h3>
+        <p>風速 500 km/s 以上、且 Bz 轉為負值（南向）時，磁層門戶大開，注入效率最高。這是爆發前最誠實的前兆。</p>
+      </div>
+      <div class="measure">
+        <svg width="40" height="40" viewBox="0 0 40 40"><path d="M8 24 q0-7 8-7 q2-6 9-4 q7-1 7 6 q4 0 4 5" fill="none" stroke="#5B6B8C" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 30 h5 M20 30 h5 M30 30 h4" stroke="#233046" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="k">尺三 · 天氣</span>
+        <h3>雲量與月相</h3>
+        <p>再強的磁暴也穿不透厚雲。我們併入 Yr 雲量預報與月光干擾，把「理論可見」修正成「肉眼可見」。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATIONS ============ -->
+<section id="stations">
+  <div class="wrap">
+    <div class="shead"><span class="no">02 / 觀測點</span><h2>今晚各點可見度</h2><span class="cn">Nordvarsel 觀測網 · 環特羅姆瑟</span></div>
+    <div class="stations">
+      <div>
+        <div class="stlist" id="stlist"></div>
+      </div>
+      <div class="stnote">
+        <h4>分數怎麼算？</h4>
+        <p>可見度分數（0–100）= 地磁強度 × 天空黑暗度 × 晴空機率。分數會隨即時串流每三分鐘重算；點任一觀測點可帶入預報查詢頁，看今晚逐小時的爆發窗口。</p>
+        <p style="color:var(--dim);font-size:12.5px">綠 ≥70 值得專程／黃 40–69 守著看／紅 &lt;40 今晚多雲或磁靜。</p>
+        <a class="btn" href="varsel.html">開啟預報查詢 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KP SCALE ============ -->
+<section id="scale">
+  <div class="wrap">
+    <div class="shead"><span class="no">03 / 對照</span><h2>Kp 級距與頭頂天空</h2><span class="cn">在特羅姆瑟，這是你會看到的</span></div>
+    <div class="kpscale">
+      <div class="kpcell"><div class="n" style="color:#5B6B8C">0</div><div class="sw" style="background:#1a2334"></div><div class="t">磁靜<br>北方微光</div></div>
+      <div class="kpcell"><div class="n" style="color:#3f7a63">1</div><div class="sw" style="background:#2b7a5c"></div><div class="t">低弧<br>貼地平線</div></div>
+      <div class="kpcell"><div class="n" style="color:#52E6A4">2</div><div class="sw" style="background:#3fbf88"></div><div class="t">頭頂弧帶<br>肉眼可辨</div></div>
+      <div class="kpcell"><div class="n" style="color:#52E6A4">3</div><div class="sw" style="background:#52E6A4"></div><div class="t">綠幕出現<br>開始擺動</div></div>
+      <div class="kpcell"><div class="n" style="color:#7ee9bf">4</div><div class="sw" style="background:#6fe0c0"></div><div class="t">明亮舞動<br>結構分明</div></div>
+      <div class="kpcell"><div class="n" style="color:#38D6E8">5</div><div class="sw" style="background:#38D6E8"></div><div class="t">磁暴 G1<br>紫紅鑲邊</div></div>
+      <div class="kpcell"><div class="n" style="color:#7db8f2">6</div><div class="sw" style="background:#6fa8f0"></div><div class="t">整天爆發<br>覆蓋天頂</div></div>
+      <div class="kpcell"><div class="n" style="color:#9B7BF2">7</div><div class="sw" style="background:#9B7BF2"></div><div class="t">G3 強暴<br>南擴至南挪</div></div>
+      <div class="kpcell"><div class="n" style="color:#c07bf2">8</div><div class="sw" style="background:#b56ff0"></div><div class="t">罕見<br>血紅冠冕</div></div>
+      <div class="kpcell"><div class="n" style="color:#FF6B6B">9</div><div class="sw" style="background:#FF6B6B"></div><div class="t">極端<br>數年一遇</div></div>
+    </div>
+    <p class="lead-txt" style="margin-top:20px">把上方主控台的滑桿拖到不同 Kp，天空會即時切換到對應的樣貌——這正是我們預報頁在做的事：先讓你看見，再讓你決定。</p>
+  </div>
+</section>
+
+<!-- ============ DISPATCH / ABOUT teaser ============ -->
+<section id="dispatch" style="border-bottom:0">
+  <div class="wrap">
+    <div class="grid2">
+      <div>
+        <div class="shead" style="margin-bottom:22px"><span class="no">04 / 派報</span><h2>爆發警報</h2></div>
+        <p class="lead-txt">當任一觀測點的可見度分數在入夜後越過 70，我們會在幾分鐘內發出爆發警報。訂閱者在天空真正亮起來之前，就已經穿好外套站到窗邊。</p>
+        <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn" href="stasjon.html">了解觀測站 →</a>
+          <a class="btn ghost" href="himmel.html">先讀極光指南</a>
+        </div>
+      </div>
+      <div>
+        <div class="shead" style="margin-bottom:22px"><span class="no">05 / 常問</span><h2>觀測前先知道</h2></div>
+        <dl class="dl">
+          <dt>幾點看最準？</dt>
+          <dd>特羅姆瑟極夜期間，磁子夜（約當地 22:00–01:00）活動最盛，但整個暗夜都可能爆發。</dd>
+          <dt>手機拍得到嗎？</dt>
+          <dd>可以。夜景模式曝光 3–10 秒即可，感光度會拉出肉眼看不清的顏色。三腳架是最值得帶的裝備。</dd>
+          <dt>看不到會退費嗎？</dt>
+          <dd>我們賣的是預報與判斷，不是天空本身。但若預報與實況嚴重不符，隔夜行程免費順延。</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fbrand">
+        <b>NORDVARSEL</b>
+        <p>北境極光預報台。以太陽風讀數、地磁指數與在地雲量，為特羅姆瑟周邊提供逐小時的極光可見度預報。</p>
+        <p class="disclaimer">※ 本站為設計示範，所有讀數、觀測站、人名與聯絡方式皆為虛構示意，請勿用於實際觀測決策。</p>
+      </div>
+      <div>
+        <h5>導覽</h5>
+        <a href="index.html">觀測台 Deck</a>
+        <a href="varsel.html">預報查詢 Varsel</a>
+        <a href="himmel.html">極光指南 Himmel</a>
+        <a href="stasjon.html">觀測站 Stasjon</a>
+      </div>
+      <div>
+        <h5>聯絡</h5>
+        <a href="stasjon.html">Storgata 84, 9008 Tromsø</a>
+        <a href="stasjon.html">+47 77 62 40 19</a>
+        <a href="stasjon.html">natt@nordvarsel.no</a>
+        <a href="stasjon.html">極夜開放 · 09/21 – 03/21</a>
+      </div>
+    </div>
+    <div class="fmeta">
+      <span>NORDVARSEL OBSERVATORISK VARSELTJENESTE</span>
+      <span>DATA REFRESH · 180s ｜ N69.6489 E18.9551</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ================= AURORA — native WebGL fragment shader =================
+   No libraries. A full-screen quad; a GLSL fragment shader draws procedural
+   aurora curtains whose intensity/height/hue are driven by uKp (0..9).      */
+(function(){
+  var canvas=document.getElementById('aur');
+  var fallback=document.getElementById('skyFallback');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var gl=null;
+  try{ gl=canvas.getContext('webgl')||canvas.getContext('experimental-webgl'); }catch(e){ gl=null; }
+
+  var Aurora={ kp:3.0, targetKp:3.0, live:true, setKp:function(v){ this.targetKp=v; } };
+  window.Aurora=Aurora;
+
+  function buildFallback(kp){
+    // static SVG aurora ribbons — used when no WebGL or reduced-motion
+    var g='<defs>';
+    g+='<linearGradient id="fg1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#52E6A4" stop-opacity="0"/><stop offset=".5" stop-color="#52E6A4" stop-opacity="'+(0.28+kp*0.05)+'"/><stop offset="1" stop-color="#9B7BF2" stop-opacity="0"/></linearGradient>';
+    g+='<linearGradient id="fg2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#38D6E8" stop-opacity="0"/><stop offset=".55" stop-color="#38D6E8" stop-opacity="'+(0.2+kp*0.04)+'"/><stop offset="1" stop-color="#9B7BF2" stop-opacity="0"/></linearGradient>';
+    g+='</defs><rect width="1200" height="660" fill="#070B16"/>';
+    // stars
+    for(var i=0;i<90;i++){ var x=(i*137.5)%1200, y=(i*89.3)%400, r=(i%7===0)?1.4:0.8; g+='<circle cx="'+x.toFixed(0)+'" cy="'+y.toFixed(0)+'" r="'+r+'" fill="#DCE6F5" opacity="'+(0.3+(i%5)*0.12)+'"/>'; }
+    var base=360-kp*22;
+    g+='<path d="M0 '+base+' Q300 '+(base-90)+' 600 '+(base-20)+' T1200 '+(base-60)+' V660 H0 Z" fill="url(#fg1)"/>';
+    g+='<path d="M0 '+(base+40)+' Q360 '+(base-40)+' 620 '+(base+30)+' T1200 '+(base-10)+' V660 H0 Z" fill="url(#fg2)"/>';
+    fallback.innerHTML=g;
+  }
+
+  if(!gl){
+    canvas.style.display='none';
+    fallback.style.display='block';
+    buildFallback(Aurora.kp);
+    Aurora.setKp=function(v){ Aurora.kp=v; buildFallback(v); };
+    return;
+  }
+
+  var vs='attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
+  var fs=[
+  'precision highp float;',
+  'uniform vec2 uRes; uniform float uTime; uniform float uKp;',
+  'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+  'float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);',
+  ' return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),u.x),mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),u.x),u.y);}',
+  'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.0;a*=0.5;}return v;}',
+  'void main(){',
+  ' vec2 uv=gl_FragCoord.xy/uRes.xy; float aspect=uRes.x/uRes.y;',
+  ' float kp=clamp(uKp,0.0,9.0); float intensity=smoothstep(0.0,9.0,kp);',
+  ' vec3 col=vec3(0.016,0.028,0.055);',
+  ' col+=vec3(0.02,0.05,0.06)*(1.0-uv.y);',              // faint horizon airglow
+  ' float sc=hash(floor(gl_FragCoord.xy/2.0));',          // stars
+  ' float star=step(0.9965,sc);',
+  ' col+=vec3(0.85,0.9,1.0)*star*(0.5+0.5*sin(uTime*2.5+sc*40.0))*smoothstep(0.35,0.9,uv.y);',
+  ' float x=uv.x*aspect;',
+  ' float lowEdge=0.60-intensity*0.20;',                 // curtains drop lower when strong
+  ' for(int i=0;i<3;i++){ float fi=float(i);',
+  '   float wob=fbm(vec2(x*1.4+uTime*(0.04+0.015*fi)+fi*9.0, uTime*0.02+fi));',
+  '   float cy=lowEdge+0.13*fi+0.16*wob;',
+  '   float d=uv.y-cy;',
+  '   float band=smoothstep(0.0,0.05,d)*(1.0-smoothstep(0.05,0.42+0.12*intensity,d));',
+  '   float stri=0.55+0.55*fbm(vec2(x*9.0, uv.y*2.5-uTime*(0.10+0.03*fi)));',
+  '   vec3 lo=mix(vec3(0.10,0.95,0.55),vec3(0.20,0.80,0.95),fi*0.5);',   // green->cyan
+  '   vec3 hi=mix(vec3(0.55,0.35,1.0),vec3(0.95,0.35,0.65),intensity);', // violet->magenta at high kp
+  '   float topMix=smoothstep(cy,cy+0.35,uv.y);',
+  '   vec3 aur=mix(lo,hi,topMix*(0.4+0.6*intensity));',
+  '   col+=aur*band*stri*intensity*0.85;',
+  ' }',
+  ' col+=vec3(0.04,0.11,0.09)*intensity*smoothstep(0.62,0.30,uv.y);',    // ground glow
+  ' col=pow(col,vec3(0.86));',
+  ' gl_FragColor=vec4(col,1.0);',
+  '}'].join('\n');
+
+  function sh(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+  var prog=gl.createProgram();
+  gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));
+  gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){
+    canvas.style.display='none';fallback.style.display='block';buildFallback(Aurora.kp);
+    Aurora.setKp=function(v){Aurora.kp=v;buildFallback(v);};return;
+  }
+  gl.useProgram(prog);
+  var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  var loc=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  var uRes=gl.getUniformLocation(prog,'uRes'),uTime=gl.getUniformLocation(prog,'uTime'),uKp=gl.getUniformLocation(prog,'uKp');
+
+  function resize(){
+    var dpr=Math.min(window.devicePixelRatio||1,1.8);
+    var w=canvas.clientWidth,h=canvas.clientHeight;
+    canvas.width=Math.max(2,w*dpr);canvas.height=Math.max(2,h*dpr);
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+  window.addEventListener('resize',resize);
+
+  var t0=performance.now();
+  function frame(now){
+    var t=(now-t0)/1000;
+    Aurora.kp+=(Aurora.targetKp-Aurora.kp)*0.06;   // ease toward target
+    gl.uniform2f(uRes,canvas.width,canvas.height);
+    gl.uniform1f(uTime, reduce?6.0:t);             // reduced-motion: frozen frame
+    gl.uniform1f(uKp,Aurora.kp);
+    gl.drawArrays(gl.TRIANGLES,0,6);
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  // wait a tick for layout so clientHeight is correct
+  requestAnimationFrame(function(){ resize(); requestAnimationFrame(frame); });
+  window.addEventListener('load',resize);
+})();
+</script>
+
+<script>
+/* ================= LIVE DATA STREAM + CONSOLE ================= */
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // deterministic-ish pseudo stream seeded by clock so it feels alive but plausible
+  var state={ kp:3.0, wind:421, bz:-4.2, cloud:22 };
+  var el={
+    hdrKp:document.getElementById('hdrKp'), hdrClock:document.getElementById('hdrClock'),
+    gKp:document.getElementById('gKp'), bKp:document.getElementById('bKp'),
+    gWind:document.getElementById('gWind'), bWind:document.getElementById('bWind'),
+    gBz:document.getElementById('gBz'), bBz:document.getElementById('bBz'),
+    gCloud:document.getElementById('gCloud'), bCloud:document.getElementById('bCloud'),
+    gVis:document.getElementById('gVis'), bVis:document.getElementById('bVis'),
+    ctlBig:document.getElementById('ctlBig'), kpSlide:document.getElementById('kpSlide'),
+    liveToggle:document.getElementById('liveToggle')
+  };
+  var live=true;
+
+  function visLabel(score){ return score>=70?['佳','g']:score>=40?['普','a']:['低','r']; }
+
+  function render(){
+    var kp=state.kp;
+    el.hdrKp.textContent=kp.toFixed(1);
+    el.gKp.textContent=kp.toFixed(1);
+    el.bKp.style.width=(kp/9*100).toFixed(0)+'%';
+    el.gWind.innerHTML=Math.round(state.wind)+'<span class="u">km/s</span>';
+    el.bWind.style.width=Math.min(100,(state.wind-250)/550*100).toFixed(0)+'%';
+    el.gBz.innerHTML=(state.bz<0?'−':'+')+Math.abs(state.bz).toFixed(1)+'<span class="u">nT</span>';
+    el.bBz.style.width=Math.min(100,Math.abs(state.bz)/15*100).toFixed(0)+'%';
+    el.bBz.style.background=state.bz<0?'var(--aur)':'var(--dim)';
+    el.gCloud.innerHTML=Math.round(state.cloud)+'<span class="u">%</span>';
+    el.bCloud.style.width=state.cloud.toFixed(0)+'%';
+    el.bCloud.style.background=state.cloud>60?'var(--red)':state.cloud>35?'var(--amber)':'var(--aur)';
+    // overall visibility (simplified): geomagnetic * dark(assumed) * clear
+    var score=Math.round(Math.min(100,(kp/9*100)*0.6+(100-state.cloud)*0.4));
+    var vl=visLabel(score);
+    el.gVis.textContent=vl[0]; el.bVis.style.width=score+'%';
+    el.bVis.style.background=vl[1]==='g'?'var(--aur)':vl[1]==='a'?'var(--amber)':'var(--red)';
+    if(window.Aurora && live) window.Aurora.setKp(kp);
+    updateStations(kp,state.cloud);
+  }
+
+  // ------- stations -------
+  var STATIONS=[
+    {n:'Fjellheis 觀景纜車',en:'Storsteinen · 421m',c:8},
+    {n:'Kvaløya 鯨島西岸',en:'Ersfjord · 開闊北向',c:15},
+    {n:'Sommarøy 夏島',en:'外海 · 最少光害',c:30},
+    {n:'Prestvannet 城區湖',en:'市中心 · 步行可達',c:45},
+    {n:'Lyngen 峽灣營地',en:'Lyngseidet · 山影背景',c:62}
+  ];
+  var stlist=document.getElementById('stlist');
+  function stScore(kp,cloudBase,i){
+    var geo=kp/9*100; var clear=100-Math.min(95,cloudBase+ (i*3));
+    return Math.round(Math.min(100,geo*0.6+clear*0.4));
+  }
+  function stClass(s){ return s>=70?'g':s>=40?'a':(s>0?'r':'d'); }
+  function drawStations(){
+    var html='';
+    STATIONS.forEach(function(s,i){
+      var sc=stScore(state.kp,s.c,i);
+      html+='<a class="strow" href="varsel.html?stn='+i+'"><span class="idx">S'+(i+1)+'</span>'
+        +'<span class="nm">'+s.n+'<em>'+s.en+'</em></span>'
+        +'<span class="sc '+stClass(sc)+'"><b>'+sc+'</b>score</span></a>';
+    });
+    stlist.innerHTML=html;
+  }
+  function updateStations(){ drawStations(); }
+  drawStations();
+
+  // ------- clock -------
+  function tick(){
+    var d=new Date();
+    var p=function(n){return (n<10?'0':'')+n;};
+    el.hdrClock.textContent=p(d.getUTCHours())+':'+p(d.getUTCMinutes())+':'+p(d.getUTCSeconds())+' UTC';
+  }
+  tick(); setInterval(tick,1000);
+
+  // ------- simulated stream -------
+  var phase=0;
+  function step(){
+    phase+=0.02;
+    // slow wander with an occasional substorm swell
+    var swell=Math.max(0,Math.sin(phase*0.7))*Math.max(0,Math.sin(phase*0.23));
+    state.kp = 2.4 + swell*3.6 + Math.sin(phase*1.9)*0.4;
+    state.wind = 380 + swell*230 + Math.sin(phase*1.3)*40;
+    state.bz = -2.0 - swell*7.0 + Math.sin(phase*2.1)*2.0;
+    state.cloud = 30 + Math.sin(phase*0.5+2)*22;
+    if(state.cloud<3) state.cloud=3;
+    if(live){ el.kpSlide.value=state.kp.toFixed(1); el.ctlBig.innerHTML=state.kp.toFixed(1)+'<small> Kp</small>'; }
+    render();
+  }
+  render();
+  if(!reduce){ setInterval(step, 1400); } else { render(); }
+
+  // ------- manual Kp control -------
+  el.kpSlide.addEventListener('input',function(){
+    live=false; el.liveToggle.classList.add('off');
+    state.kp=parseFloat(this.value);
+    el.ctlBig.innerHTML=state.kp.toFixed(1)+'<small> Kp</small>';
+    render();
+  });
+  el.liveToggle.addEventListener('click',function(){
+    live=!live; this.classList.toggle('off',!live);
+  });
+
+  // ------- mobile drawer -------
+  var burger=document.getElementById('burger'), drawer=document.getElementById('drawer');
+  if(burger){ burger.addEventListener('click',function(){ drawer.classList.toggle('open'); }); }
+})();
+</script>
+</body>
+</html>

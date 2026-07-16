@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>構成眼鏡 Compositie Optiek｜3D 展示台</title>
+<meta name="description" content="台北・赤峰街的風格派眼鏡行。四款構成主義鏡框，在 3D 展示台上即時旋轉、換色、換鏡片。本站內容為虛構示意。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Crect width='13' height='13' fill='%23CE2B1E'/%3E%3Crect x='23' width='9' height='18' fill='%23F0C300'/%3E%3Crect y='23' width='9' height='9' fill='%231F4FA0'/%3E%3Cpath d='M0 14.5h32M14.5 0v32M22.5 0v32M0 22.5h32' stroke='%23161616' stroke-width='3'/%3E%3Ccircle cx='11' cy='23' r='5.5' fill='%23fff' stroke='%23161616' stroke-width='2.6'/%3E%3Ccircle cx='24' cy='23' r='5.5' fill='%23fff' stroke='%23161616' stroke-width='2.6'/%3E%3Cpath d='M16.5 21.5q1.5-2 3 0' fill='none' stroke='%23161616' stroke-width='2.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ADB0A8;        /* 展廳灰 */
+  --bg-stage:#A2A59C;  /* 展示台底 */
+  --card:#FFFFFF;
+  --ink:#161616;
+  --muted:#4C504A;
+  --red:#CE2B1E;
+  --blue:#1F4FA0;
+  --yellow:#F0C300;
+  --line:#161616;
+  --lw:3px;            /* 標準線寬 */
+  --lww:4px;           /* 結構粗線 */
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans TC','Archivo','PingFang TC',sans-serif;
+  line-height:1.75;font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.latin{font-family:'Archivo','Noto Sans TC',sans-serif}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--yellow);color:var(--ink)}
+
+/* ===== 蒙德里安 topbar ===== */
+.topbar{
+  position:sticky;top:0;z-index:60;background:var(--card);
+  border-bottom:var(--lww) solid var(--line);
+  display:grid;grid-template-columns:auto 1fr auto;align-items:stretch;
+}
+.brand{display:flex;align-items:center;gap:12px;padding:10px 18px;border-right:var(--lww) solid var(--line);text-decoration:none}
+.brand svg{display:block}
+.brand-name{font-weight:900;font-size:17px;letter-spacing:3px;line-height:1.2}
+.brand-name small{display:block;font-family:'Archivo',sans-serif;font-weight:600;font-size:10px;letter-spacing:2px;color:var(--muted)}
+.nav{display:flex;align-items:stretch;justify-content:flex-end}
+.nav a{
+  display:flex;align-items:center;padding:0 24px;text-decoration:none;
+  font-weight:700;font-size:15px;letter-spacing:2px;
+  border-left:var(--lww) solid var(--line);position:relative;
+}
+.nav a:hover{background:#F2F2EE}
+.nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9px;background:var(--red)}
+.nav a:nth-child(2).active::after{background:var(--blue)}
+.nav a:nth-child(3).active::after{background:var(--yellow)}
+.nav-blocks{
+  width:86px;border-left:var(--lww) solid var(--line);
+  display:grid;grid-template-columns:1.4fr 1fr;grid-template-rows:1fr 1.2fr;
+  gap:var(--lww);background:var(--line);
+}
+.nav-blocks i{display:block}
+.nav-blocks i:nth-child(1){background:var(--red)}
+.nav-blocks i:nth-child(2){background:var(--card)}
+.nav-blocks i:nth-child(3){background:var(--card)}
+.nav-blocks i:nth-child(4){background:var(--blue)}
+
+/* ===== split-screen 展示台 ===== */
+.showroom{
+  display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+  gap:var(--lww);background:var(--line);border-bottom:var(--lww) solid var(--line);
+}
+.stage{
+  position:relative;background:var(--bg-stage);
+  min-height:clamp(380px,calc(100vh - 220px),660px);
+  overflow:hidden;
+}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.stage-tag{
+  position:absolute;top:0;left:0;display:flex;align-items:center;gap:10px;
+  background:var(--card);border-right:var(--lw) solid var(--line);border-bottom:var(--lw) solid var(--line);
+  padding:8px 16px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:3px;
+}
+.stage-tag i{width:12px;height:12px;background:var(--red);display:block}
+.stage-hint{
+  position:absolute;left:0;bottom:0;
+  background:var(--card);border-top:var(--lw) solid var(--line);border-right:var(--lw) solid var(--line);
+  padding:7px 14px;font-size:12.5px;letter-spacing:1px;color:var(--muted);
+}
+.stage-fallback{
+  position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:32px;text-align:center;
+}
+.stage-fallback.on{display:flex}
+.stage-fallback .fb-art{width:min(420px,86%);background:var(--card);border:var(--lw) solid var(--line);padding:26px 18px}
+.stage-fallback p{font-size:14px;color:var(--muted);max-width:40ch}
+
+/* 右側控制面板 */
+.panel{background:var(--card);padding:30px 34px 36px;display:flex;flex-direction:column;gap:0}
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.eyebrow i{width:14px;height:14px;background:var(--yellow);border:var(--lw) solid var(--line)}
+.from-fitting{
+  display:none;margin:14px 0 0;padding:10px 14px;background:var(--yellow);
+  border:var(--lw) solid var(--line);font-size:14px;font-weight:700;
+}
+.from-fitting.on{display:block}
+.panel h1{font-size:clamp(26px,3vw,34px);font-weight:900;letter-spacing:2px;margin-top:14px;line-height:1.3}
+.panel h1 .nl{display:block;font-size:14px;font-weight:600;letter-spacing:4px;color:var(--muted);text-transform:uppercase}
+.price{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;margin-top:6px}
+.price small{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:1px;margin-left:8px}
+.desc{margin-top:12px;font-size:15px;color:var(--muted);border-left:6px solid var(--blue);padding-left:14px}
+
+.ctl-label{margin-top:22px;font-weight:900;font-size:13px;letter-spacing:3px;display:flex;align-items:center;gap:8px}
+.ctl-label::before{content:"";width:22px;height:var(--lw);background:var(--line)}
+.frame-switch{display:grid;grid-template-columns:1fr 1fr;gap:var(--lw);background:var(--line);border:var(--lw) solid var(--line);margin-top:10px}
+.frame-switch button{
+  background:var(--card);border:0;padding:11px 8px 9px;text-align:left;
+  font-weight:700;font-size:14.5px;letter-spacing:1px;position:relative;padding-left:16px;
+}
+.frame-switch button small{display:block;font-family:'Archivo',sans-serif;font-weight:600;font-size:11px;color:var(--muted);letter-spacing:1.5px}
+.frame-switch button:hover{background:#F2F2EE}
+.frame-switch button.active{background:var(--yellow)}
+.frame-switch button.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--red)}
+.swatches{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.swatch{
+  width:44px;height:36px;border:var(--lw) solid var(--line);background:#fff;position:relative;
+  display:flex;align-items:flex-end;justify-content:center;padding:0;
+}
+.swatch i{position:absolute;inset:0;display:block}
+.swatch.active{outline:var(--lw) solid var(--line);outline-offset:3px}
+.swatch span{position:absolute;top:100%;margin-top:7px;font-size:11px;letter-spacing:1px;color:var(--muted);white-space:nowrap}
+.swatches{margin-bottom:20px}
+.spec{margin-top:22px;border:var(--lw) solid var(--line)}
+.spec table{width:100%;border-collapse:collapse;font-size:14px}
+.spec th,.spec td{padding:8px 12px;border-bottom:var(--lw) solid var(--line);text-align:left}
+.spec tr:last-child th,.spec tr:last-child td{border-bottom:0}
+.spec th{width:34%;font-weight:700;background:#F2F2EE;border-right:var(--lw) solid var(--line);letter-spacing:2px}
+.panel-cta{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  display:inline-block;text-decoration:none;border:var(--lw) solid var(--line);
+  padding:11px 22px;font-weight:900;font-size:15px;letter-spacing:2px;background:var(--card);
+  transition:transform .15s ease;
+}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--line)}
+.btn.primary{background:var(--red);color:#fff}
+.btn.blue{background:var(--blue);color:#fff}
+
+/* ===== 系列總覽 ===== */
+.section{max-width:1180px;margin:0 auto;padding:56px 24px 0}
+.section-head{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.section-head h2{font-size:clamp(22px,2.6vw,30px);font-weight:900;letter-spacing:3px}
+.section-head .rule{flex:1;height:var(--lww);background:var(--line);min-width:60px;align-self:center}
+.section-head .latin{font-size:12px;letter-spacing:3px;color:var(--muted);font-weight:700}
+.series{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--lww);background:var(--line);border:var(--lww) solid var(--line)}
+.series article{background:var(--card);display:flex;flex-direction:column}
+.series .art{background:#E9EAE5;border-bottom:var(--lw) solid var(--line);padding:20px 14px}
+.series .art svg{display:block;width:100%;height:auto}
+.series .body{padding:16px 18px 20px;display:flex;flex-direction:column;flex:1}
+.series h3{font-size:18px;font-weight:900;letter-spacing:2px}
+.series h3 small{font-family:'Archivo',sans-serif;display:block;font-size:10.5px;letter-spacing:2.5px;color:var(--muted);font-weight:600}
+.series .p{font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;margin:4px 0 8px}
+.series p.blurb{font-size:13.5px;color:var(--muted);flex:1}
+.series button{
+  margin-top:14px;border:var(--lw) solid var(--line);background:var(--card);
+  padding:9px 12px;font-weight:900;font-size:13.5px;letter-spacing:2px;
+}
+.series button:hover{background:var(--yellow)}
+
+/* ===== 雙格導引 ===== */
+.duo{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--lww);background:var(--line);border:var(--lww) solid var(--line);margin-top:56px}
+.duo > div{padding:30px 32px}
+.duo .d1{background:var(--yellow)}
+.duo .d2{background:var(--card)}
+.duo h3{font-size:21px;font-weight:900;letter-spacing:2px;margin-bottom:8px}
+.duo p{font-size:14.5px;max-width:52ch}
+.duo .btn{margin-top:18px}
+.duo .d1 .btn{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ===== 原則 ===== */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--lww);background:var(--line);border:var(--lww) solid var(--line);margin-top:56px}
+.principles article{background:var(--card);padding:24px 24px 28px}
+.principles .no{font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;display:inline-block;padding:3px 10px;color:#fff;background:var(--blue);margin-bottom:12px}
+.principles article:nth-child(2) .no{background:var(--red)}
+.principles article:nth-child(3) .no{background:var(--ink)}
+.principles h3{font-size:17.5px;font-weight:900;letter-spacing:2px;margin-bottom:6px}
+.principles p{font-size:14px;color:var(--muted)}
+
+/* ===== footer ===== */
+footer{margin-top:64px;border-top:var(--lww) solid var(--line);background:var(--card)}
+.f-strip{display:grid;grid-template-columns:2fr 1fr 3fr 1.2fr 1fr;height:14px;gap:var(--lww);background:var(--line);border-bottom:var(--lww) solid var(--line)}
+.f-strip i:nth-child(1){background:var(--red)}
+.f-strip i:nth-child(2){background:var(--card)}
+.f-strip i:nth-child(3){background:var(--card)}
+.f-strip i:nth-child(4){background:var(--yellow)}
+.f-strip i:nth-child(5){background:var(--blue)}
+.f-cols{max-width:1180px;margin:0 auto;padding:34px 24px 26px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px}
+.f-cols h4{font-size:13px;font-weight:900;letter-spacing:3px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.f-cols h4::before{content:"";width:14px;height:14px;background:var(--red);border:var(--lw) solid var(--line)}
+.f-cols div:nth-child(2) h4::before{background:var(--yellow)}
+.f-cols div:nth-child(3) h4::before{background:var(--blue)}
+.f-cols p,.f-cols a{font-size:14px;color:var(--muted);text-decoration:none}
+.f-cols a{display:block;padding:3px 0;font-weight:700;color:var(--ink)}
+.f-cols a:hover{color:var(--red)}
+.f-note{border-top:var(--lw) solid var(--line);padding:14px 24px;text-align:center;font-size:12.5px;color:var(--muted);letter-spacing:1px}
+
+/* ===== RWD ===== */
+@media (max-width:980px){
+  .showroom{grid-template-columns:1fr}
+  .stage{min-height:min(72vw,520px)}
+  .series{grid-template-columns:1fr 1fr}
+  .principles{grid-template-columns:1fr}
+  .duo{grid-template-columns:1fr}
+  .f-cols{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .topbar{grid-template-columns:1fr}
+  .brand{border-right:0;border-bottom:var(--lww) solid var(--line);justify-content:flex-start}
+  .nav{justify-content:stretch}
+  .nav a{flex:1;justify-content:center;padding:12px 4px;border-left:0;border-right:var(--lww) solid var(--line);font-size:13.5px;letter-spacing:1px}
+  .nav a:last-child{border-right:0}
+  .nav-blocks{display:none}
+  .stage{min-height:74vw}
+  .panel{padding:24px 18px 30px}
+  .series{grid-template-columns:1fr}
+  .section{padding:44px 14px 0}
+  .duo > div{padding:24px 18px}
+  .f-cols{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="構成眼鏡首頁">
+    <svg width="44" height="44" viewBox="0 0 88 88" aria-hidden="true">
+      <rect x="4" y="4" width="80" height="80" fill="#fff" stroke="#161616" stroke-width="6"/>
+      <rect x="7" y="7" width="30" height="30" fill="#CE2B1E"/>
+      <rect x="62" y="7" width="19" height="46" fill="#F0C300"/>
+      <rect x="7" y="62" width="20" height="19" fill="#1F4FA0"/>
+      <line x1="4" y1="38.5" x2="84" y2="38.5" stroke="#161616" stroke-width="6"/>
+      <line x1="38.5" y1="4" x2="38.5" y2="84" stroke="#161616" stroke-width="6"/>
+      <line x1="60" y1="4" x2="60" y2="84" stroke="#161616" stroke-width="6"/>
+      <line x1="4" y1="60" x2="84" y2="60" stroke="#161616" stroke-width="6"/>
+      <circle cx="29" cy="59" r="13.5" fill="#fff" fill-opacity=".85" stroke="#161616" stroke-width="7"/>
+      <circle cx="63" cy="59" r="13.5" fill="#fff" fill-opacity=".85" stroke="#161616" stroke-width="7"/>
+      <path d="M42.5 55.5 Q46 50.5 49.5 55.5" fill="none" stroke="#161616" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <span class="brand-name">構成眼鏡<small>COMPOSITIE OPTIEK · TAIPEI</small></span>
+  </a>
+  <nav class="nav" aria-label="主導覽">
+    <a href="index.html" class="active">展示台</a>
+    <a href="fitting.html">適配診斷</a>
+    <a href="atelier.html">工坊・門市</a>
+  </nav>
+  <div class="nav-blocks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+</header>
+
+<main>
+  <!-- ===== split-screen：左 3D 展示台 / 右 規格控制 ===== -->
+  <section class="showroom" id="showroom" aria-label="3D 鏡框展示台">
+    <div class="stage" id="stage">
+      <div class="stage-tag"><i></i>TOONZAAL — 3D 展示台</div>
+      <div class="stage-hint" id="stageHint">拖曳旋轉鏡框 · 靜置 4 秒自動展示</div>
+      <div class="stage-fallback" id="fallback" role="img" aria-label="鏡框正視圖">
+        <div class="fb-art" id="fallbackArt"></div>
+        <p>此環境無法建立 WebGL 3D 檢視，改以正視圖示意。切換款式、框色與鏡片仍會即時更新此圖，其餘功能不受影響。</p>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <p class="eyebrow"><i></i>Procedureel · 程序化 3D 商品展示</p>
+      <div class="from-fitting" id="fromFitting">已載入你的適配診斷結果 — 這就是我們建議的組合。</div>
+      <h1 id="frameName">圓框・均衡<span class="nl" id="frameNl">Evenwicht — Rond</span></h1>
+      <p class="price"><span id="framePrice">NT$ 6,800</span><small>含 1.60 標準鏡片</small></p>
+      <p class="desc" id="frameDesc"></p>
+
+      <p class="ctl-label">款式 MODEL</p>
+      <div class="frame-switch" id="frameSwitch" role="group" aria-label="選擇鏡框款式"></div>
+
+      <p class="ctl-label">框色 KLEUR — 烤漆金屬</p>
+      <div class="swatches" id="colorSwatches" role="group" aria-label="選擇框色"></div>
+
+      <p class="ctl-label">鏡片 LENS</p>
+      <div class="swatches" id="lensSwatches" role="group" aria-label="選擇鏡片色"></div>
+
+      <div class="spec">
+        <table>
+          <tr><th>框面</th><td id="specFront">—</td></tr>
+          <tr><th>尺寸</th><td id="specSize">—</td></tr>
+          <tr><th>鏡腿</th><td id="specTemple">—</td></tr>
+          <tr><th>重量</th><td id="specWeight">—</td></tr>
+        </table>
+      </div>
+
+      <div class="panel-cta">
+        <a class="btn primary" href="fitting.html">不確定選哪款？做適配診斷</a>
+        <a class="btn" href="atelier.html">預約驗光</a>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ===== 系列總覽 ===== -->
+  <section class="section" id="series">
+    <div class="section-head">
+      <h2>四款構成，全部直線與正圓</h2>
+      <span class="rule"></span>
+      <span class="latin">SERIE 1926 — VIER COMPOSITIES</span>
+    </div>
+    <div class="series" id="seriesGrid"></div>
+  </section>
+
+  <!-- ===== 導引 ===== -->
+  <section class="section">
+    <div class="duo">
+      <div class="d1">
+        <h3>五題，找到你的那一款</h3>
+        <p>臉型、用途、配戴時長、風格偏好、預算——五個問題，我們直接告訴你該選哪款鏡框、配哪種鏡片，然後一鍵送上展示台看 3D。不繞路。</p>
+        <a class="btn" href="fitting.html">開始適配診斷</a>
+      </div>
+      <div class="d2">
+        <h3>驗光是工序，不是儀式</h3>
+        <p>四十分鐘、四道流程：問診、電腦驗光與視功能檢查、試片行走、取件微調。驗光費 NT$600，配鏡全額折抵。</p>
+        <a class="btn blue" href="atelier.html">看工坊與門市</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 製框三原則 ===== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>製框三原則</h2>
+      <span class="rule"></span>
+      <span class="latin">DRIE PRINCIPES</span>
+    </div>
+    <div class="principles">
+      <article>
+        <span class="no">PRINCIPE 01</span>
+        <h3>只用直線與正圓</h3>
+        <p>沒有裝飾弧線，沒有貓眼上揚。每一款框面都能還原成圓、矩形與直線段的構成——所以它們在你臉上是秩序，不是造型。</p>
+      </article>
+      <article>
+        <span class="no">PRINCIPE 02</span>
+        <h3>只上三原色與墨黑</h3>
+        <p>紅、黃、藍、黑，五道烤漆打磨在 β 鈦框材上。顏色不是點綴，是結構的一部分；不確定就選墨黑，想清楚了再選紅。</p>
+      </article>
+      <article>
+        <span class="no">PRINCIPE 03</span>
+        <h3>比例先於流行</h3>
+        <p>框面寬度對齊顴骨、鏡腿長度貼合耳廓，全部現場量測調整。我們不追季節款；一副合比例的框，十年後仍然成立。</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="f-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="f-cols">
+    <div>
+      <h4>構成眼鏡 COMPOSITIE OPTIEK</h4>
+      <p>以風格派為靈感的獨立眼鏡行。直線、正圓、三原色——把秩序戴上臉。</p>
+      <p style="margin-top:8px">台北市大同區赤峰街 17 巷 8 號 1 樓（虛構）<br>02-2558-0136（虛構）</p>
+    </div>
+    <div>
+      <h4>導覽</h4>
+      <a href="index.html">3D 展示台</a>
+      <a href="fitting.html">臉型 × 用途 適配診斷</a>
+      <a href="atelier.html">驗光工坊・門市資訊</a>
+    </div>
+    <div>
+      <h4>營業</h4>
+      <p>週二 – 週日 12:00 – 20:00<br>週一公休<br>捷運中山站 R9 出口・步行 4 分鐘</p>
+    </div>
+  </div>
+  <div class="f-note">本站內容為虛構示意 — Design Skills Center 館藏範例站 · De Stijl × Three.js 程序化 3D 展示</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =========================================================
+   構成眼鏡 — Three.js 程序化 3D 展示台（標準範本實作）
+   - 4 款鏡框全部以基本幾何體建模，零外部模型檔
+   - 自實作 pointer 拖曳旋轉 + 慣性 + 4 秒閒置自動旋轉
+   - pixelRatio ≤ 2、分頁隱藏暫停、reduced-motion 關自動旋轉
+   - WebGL 失敗 → SVG 正視圖備援（仍可切換款式/顏色）
+========================================================= */
+(function(){
+"use strict";
+
+/* ---------- 資料 ---------- */
+var FRAMES = {
+  round:{
+    name:"圓框・均衡", nl:"Evenwicht — Rond", price:"NT$ 6,800",
+    desc:"一個正圓、兩條直線，全系列最輕的一款。正圓框面不修飾稜角，反而讓方正的臉放鬆下來。整天配戴的首選。",
+    front:"β 鈦正圓框・五道烤漆", size:"47 □ 21 – 145", temple:"145 mm 直腿・耳後 12° 下折", weight:"11.8 g",
+    blurb:"正圓框面配細直鏡腿。方臉與心形臉的解答，也是極簡者的預設值。"
+  },
+  browline:{
+    name:"眉框・橫線", nl:"Lijn — Browline", price:"NT$ 7,400",
+    desc:"上緣一道水平粗線壓住視覺重心，下緣用 0.8 mm 鋼絲收尾。整副眼鏡就是一條橫線的宣言——知性，但不裝。",
+    front:"烤漆眉樑 + 不鏽鋼細圈", size:"52 □ 19 – 148", temple:"148 mm・平衡配重", weight:"16.4 g",
+    blurb:"一道粗橫線加細鋼圈。偏長臉型的比例修正器，學院風的正解。"
+  },
+  square:{
+    name:"方框・平面", nl:"Vlak — Vierkant", price:"NT$ 7,200",
+    desc:"50 × 32 mm 的矩形平面，四邊等寬直線構成。給整天面對螢幕的人：視野方正、邊界清楚，就像一份排好的版面。",
+    front:"β 鈦矩形框・等寬四邊", size:"50 □ 20 – 145", temple:"145 mm 直腿", weight:"15.2 g",
+    blurb:"等寬直線圍出的矩形。圓潤臉型的結構支撐，螢幕工作者的日常框。"
+  },
+  octagon:{
+    name:"八角框・構成", nl:"Compositie — Octagoon", price:"NT$ 8,200",
+    desc:"圓與方的折衷案：八段等長直線構成近圓。多兩個角，就多一點記憶點——全系列最敢的一款，適合想被記住的人。",
+    front:"β 鈦八角框・handmade 鉚合鉸鏈", size:"49 □ 20 – 148", temple:"148 mm・鉚合五節鉸鏈", weight:"14.6 g",
+    blurb:"八段直線構成的近圓。正式場合的記憶點，圓與方之間的第三種答案。"
+  }
+};
+var FRAME_ORDER = ["round","browline","square","octagon"];
+var COLORS = {
+  black:{label:"墨黑", hex:0x1d1d1d, css:"#1D1D1D"},
+  red:{label:"構成紅", hex:0xc0261b, css:"#CE2B1E"},
+  blue:{label:"構成藍", hex:0x1d4a99, css:"#1F4FA0"},
+  yellow:{label:"構成黃", hex:0xd9ab00, css:"#E5B400"}
+};
+var LENSES = {
+  clear:{label:"透明", hex:0xf4f7f8, css:"#EDF1F2", op:0.14, fbop:0.25},
+  gray:{label:"淡灰", hex:0x6f767a, css:"#8C9296", op:0.32, fbop:0.42},
+  yellow:{label:"淡黃", hex:0xe6c65a, css:"#E9CD6C", op:0.28, fbop:0.4}
+};
+/* 系列卡的代表配色 */
+var SERIES_PRESET = {round:["black","clear"], browline:["blue","clear"], square:["yellow","gray"], octagon:["red","clear"]};
+
+/* ---------- 狀態 ---------- */
+var state = {frame:"round", color:"black", lens:"clear"};
+(function readParams(){
+  var p = new URLSearchParams(location.search);
+  if (FRAMES[p.get("frame")]) state.frame = p.get("frame");
+  if (COLORS[p.get("color")]) state.color = p.get("color");
+  if (LENSES[p.get("lens")]) state.lens = p.get("lens");
+  if (p.get("from") === "fitting") document.getElementById("fromFitting").classList.add("on");
+})();
+
+/* ---------- SVG 正視圖（備援 + 系列卡共用） ---------- */
+function octPoints(cx, cy, r, inset){
+  var pts = [], rr = r - (inset||0);
+  for (var i=0;i<8;i++){
+    var a = Math.PI/8 + i*Math.PI/4;
+    pts.push((cx+rr*Math.cos(a)).toFixed(1)+","+(cy-rr*Math.sin(a)).toFixed(1));
+  }
+  return pts.join(" ");
+}
+function frameSVG(key, colorKey, lensKey){
+  var fc = COLORS[colorKey].css, lc = LENSES[lensKey].css, lo = LENSES[lensKey].fbop;
+  var s = '<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" role="img">';
+  var stub = '<line x1="18" y1="66" x2="52" y2="72" stroke="'+fc+'" stroke-width="7" stroke-linecap="round"/>'
+           + '<line x1="302" y1="66" x2="268" y2="72" stroke="'+fc+'" stroke-width="7" stroke-linecap="round"/>';
+  if (key==="round"){
+    s += stub
+      +'<circle cx="104" cy="78" r="44" fill="'+lc+'" fill-opacity="'+lo+'" stroke="'+fc+'" stroke-width="9"/>'
+      +'<circle cx="216" cy="78" r="44" fill="'+lc+'" fill-opacity="'+lo+'" stroke="'+fc+'" stroke-width="9"/>'
+      +'<path d="M148 68 Q160 54 172 68" fill="none" stroke="'+fc+'" stroke-width="8" stroke-linecap="round"/>';
+  } else if (key==="browline"){
+    s += stub
+      +'<circle cx="104" cy="82" r="40" fill="'+lc+'" fill-opacity="'+lo+'" stroke="#9AA0A4" stroke-width="4"/>'
+      +'<circle cx="216" cy="82" r="40" fill="'+lc+'" fill-opacity="'+lo+'" stroke="#9AA0A4" stroke-width="4"/>'
+      +'<rect x="56" y="36" width="96" height="17" fill="'+fc+'"/>'
+      +'<rect x="168" y="36" width="96" height="17" fill="'+fc+'"/>'
+      +'<rect x="146" y="40" width="28" height="10" fill="'+fc+'"/>';
+  } else if (key==="square"){
+    s += stub
+      +'<rect x="58" y="38" width="92" height="76" fill="'+lc+'" fill-opacity="'+lo+'" stroke="'+fc+'" stroke-width="9"/>'
+      +'<rect x="170" y="38" width="92" height="76" fill="'+lc+'" fill-opacity="'+lo+'" stroke="'+fc+'" stroke-width="9"/>'
+      +'<rect x="148" y="46" width="24" height="9" fill="'+fc+'"/>';
+  } else {
+    s += stub
+      +'<polygon points="'+octPoints(104,78,46)+'" fill="'+lc+'" fill-opacity="'+lo+'" stroke="'+fc+'" stroke-width="8" stroke-linejoin="miter"/>'
+      +'<polygon points="'+octPoints(216,78,46)+'" fill="'+lc+'" fill-opacity="'+lo+'" stroke="'+fc+'" stroke-width="8" stroke-linejoin="miter"/>'
+      +'<rect x="148" y="60" width="24" height="9" fill="'+fc+'"/>';
+  }
+  return s + "</svg>";
+}
+
+/* ---------- Three.js 場景 ---------- */
+var stageEl = document.getElementById("stage");
+var webglOK = false;
+var renderer, scene, camera, root, glasses;
+var mats = {paint:null, steel:null, lens:null};
+var disposables = [];
+
+function initThree(){
+  if (!window.THREE) return false;
+  try {
+    renderer = new THREE.WebGLRenderer({antialias:true});
+  } catch(e){ return false; }
+  if (!renderer.getContext()) return false;
+
+  /* 效能標準：pixelRatio 上限 2 */
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  stageEl.insertBefore(renderer.domElement, stageEl.firstChild);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9da09a);           /* 中性展廳灰 */
+  scene.fog = new THREE.Fog(0x9da09a, 9.5, 17);
+
+  camera = new THREE.PerspectiveCamera(36, 1, 0.1, 40);
+  camera.position.set(0, 0.55, 7.4);
+  camera.lookAt(0, 0, 0);
+
+  /* 柔和三點光：環境 + 主光（投影）+ 輪廓 */
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  var key = new THREE.DirectionalLight(0xfff6e8, 0.9);
+  key.position.set(3.2, 4.6, 3.6);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.left = -6; key.shadow.camera.right = 6;
+  key.shadow.camera.top = 6;   key.shadow.camera.bottom = -6;
+  key.shadow.camera.near = 0.5; key.shadow.camera.far = 20;
+  scene.add(key);
+  var rim = new THREE.DirectionalLight(0xdfe8ff, 0.5);
+  rim.position.set(-4.5, 2.2, -4);
+  scene.add(rim);
+
+  /* 展示台：只接影子的地板 */
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 30),
+    new THREE.ShadowMaterial({opacity:0.26})
+  );
+  floor.rotation.x = -Math.PI/2;
+  floor.position.y = -1.72;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  root = new THREE.Group();
+  root.rotation.set(0.08, -0.42, 0);
+  scene.add(root);
+  return true;
+}
+
+/* ---------- 程序化建模 ---------- */
+function M(geo, mat){
+  var m = new THREE.Mesh(geo, mat);
+  m.castShadow = true;
+  disposables.push(geo);
+  return m;
+}
+function addTemples(g, hx, hy, paint){
+  [-1, 1].forEach(function(side){
+    var hinge = M(new THREE.BoxGeometry(0.13, 0.17, 0.2), paint);
+    hinge.position.set(side*hx, hy, -0.06);
+    g.add(hinge);
+    var arm = M(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 12), paint);
+    arm.rotation.x = Math.PI/2;
+    arm.position.set(side*hx, hy, -1.32);
+    g.add(arm);
+    var tip = M(new THREE.CylinderGeometry(0.05, 0.042, 0.72, 12), paint);
+    tip.rotation.x = -(Math.PI/2 + 0.85);
+    tip.position.set(side*hx, hy - 0.24, -2.72);
+    g.add(tip);
+  });
+}
+function addNosePads(g, steel){
+  [-1, 1].forEach(function(side){
+    var pad = M(new THREE.BoxGeometry(0.08, 0.22, 0.06), steel);
+    pad.position.set(side*0.22, -0.18, 0.16);
+    pad.rotation.z = side*0.28;
+    g.add(pad);
+  });
+}
+var BUILDERS = {
+  round: function(g, paint, steel, lens){
+    [-1, 1].forEach(function(side){
+      var rim = M(new THREE.TorusGeometry(0.92, 0.075, 20, 56), paint);
+      rim.position.set(side*1.14, 0, 0);
+      g.add(rim);
+      var glass = M(new THREE.CylinderGeometry(0.86, 0.86, 0.05, 48), lens);
+      glass.rotation.x = Math.PI/2;
+      glass.position.set(side*1.14, 0, 0);
+      g.add(glass);
+    });
+    var bridge = M(new THREE.TorusGeometry(0.33, 0.06, 14, 28, Math.PI), paint);
+    bridge.position.set(0, 0.16, 0);
+    g.add(bridge);
+    addNosePads(g, steel);
+    addTemples(g, 2.05, 0.16, paint);
+  },
+  browline: function(g, paint, steel, lens){
+    [-1, 1].forEach(function(side){
+      var brow = M(new THREE.BoxGeometry(1.82, 0.22, 0.15), paint);
+      brow.position.set(side*1.14, 0.58, 0);
+      g.add(brow);
+      var rim = M(new THREE.TorusGeometry(0.8, 0.032, 12, 56), steel);
+      rim.position.set(side*1.14, -0.04, 0);
+      g.add(rim);
+      var glass = M(new THREE.CylinderGeometry(0.77, 0.77, 0.05, 48), lens);
+      glass.rotation.x = Math.PI/2;
+      glass.position.set(side*1.14, -0.04, 0);
+      g.add(glass);
+    });
+    var bridge = M(new THREE.BoxGeometry(0.52, 0.13, 0.12), paint);
+    bridge.position.set(0, 0.58, 0);
+    g.add(bridge);
+    var wire = M(new THREE.CylinderGeometry(0.03, 0.03, 0.72, 10), steel);
+    wire.rotation.z = Math.PI/2;
+    wire.position.set(0, 0.12, 0);
+    g.add(wire);
+    addNosePads(g, steel);
+    addTemples(g, 2.05, 0.58, paint);
+  },
+  square: function(g, paint, steel, lens){
+    [-1, 1].forEach(function(side){
+      var cx = side*1.16;
+      var top = M(new THREE.BoxGeometry(1.98, 0.1, 0.12), paint);
+      top.position.set(cx, 0.66, 0); g.add(top);
+      var bot = M(new THREE.BoxGeometry(1.98, 0.1, 0.12), paint);
+      bot.position.set(cx, -0.66, 0); g.add(bot);
+      var l = M(new THREE.BoxGeometry(0.1, 1.42, 0.12), paint);
+      l.position.set(cx - 0.94, 0, 0); g.add(l);
+      var r = M(new THREE.BoxGeometry(0.1, 1.42, 0.12), paint);
+      r.position.set(cx + 0.94, 0, 0); g.add(r);
+      var glass = M(new THREE.BoxGeometry(1.82, 1.28, 0.05), lens);
+      glass.position.set(cx, 0, 0); g.add(glass);
+    });
+    var bridge = M(new THREE.BoxGeometry(0.48, 0.11, 0.11), paint);
+    bridge.position.set(0, 0.5, 0);
+    g.add(bridge);
+    addNosePads(g, steel);
+    addTemples(g, 2.16, 0.5, paint);
+  },
+  octagon: function(g, paint, steel, lens){
+    [-1, 1].forEach(function(side){
+      var rim = M(new THREE.TorusGeometry(0.95, 0.06, 14, 8), paint);
+      rim.rotation.z = Math.PI/8;              /* 讓頂邊水平 */
+      rim.position.set(side*1.16, 0, 0);
+      g.add(rim);
+      var glass = M(new THREE.CylinderGeometry(0.9, 0.9, 0.05, 8, 1, false, Math.PI/8), lens);
+      glass.rotation.x = Math.PI/2;
+      glass.position.set(side*1.16, 0, 0);
+      g.add(glass);
+    });
+    var bridge = M(new THREE.BoxGeometry(0.5, 0.1, 0.1), paint);
+    bridge.position.set(0, 0.32, 0);
+    g.add(bridge);
+    addNosePads(g, steel);
+    addTemples(g, 2.11, 0.2, paint);
+  }
+};
+
+function buildGlasses(){
+  if (glasses){
+    root.remove(glasses);
+    disposables.forEach(function(geo){ geo.dispose(); });
+    disposables = [];
+    if (mats.paint) mats.paint.dispose();
+    if (mats.steel) mats.steel.dispose();
+    if (mats.lens)  mats.lens.dispose();
+  }
+  mats.paint = new THREE.MeshStandardMaterial({
+    color: COLORS[state.color].hex, metalness: 0.72, roughness: 0.3
+  });
+  mats.steel = new THREE.MeshStandardMaterial({
+    color: 0xb9bdc1, metalness: 0.9, roughness: 0.28
+  });
+  mats.lens = new THREE.MeshPhysicalMaterial({
+    color: LENSES[state.lens].hex, metalness: 0, roughness: 0.06,
+    clearcoat: 1, clearcoatRoughness: 0.1,
+    transparent: true, opacity: LENSES[state.lens].op,
+    side: THREE.DoubleSide, depthWrite: false
+  });
+  glasses = new THREE.Group();
+  BUILDERS[state.frame](glasses, mats.paint, mats.steel, mats.lens);
+  glasses.position.y = 0.12;
+  root.add(glasses);
+  needsRender = true;
+}
+
+/* ---------- 自實作拖曳旋轉 + 慣性 + 自動旋轉 ---------- */
+var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var dragging = false, lastX = 0, lastY = 0, velY = 0;
+var lastInteract = performance.now();
+var needsRender = true;
+
+function bindDrag(el){
+  el.addEventListener("pointerdown", function(e){
+    dragging = true; velY = 0;
+    lastX = e.clientX; lastY = e.clientY;
+    lastInteract = performance.now();
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener("pointermove", function(e){
+    if (!dragging) return;
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    root.rotation.y += dx * 0.0052;
+    root.rotation.x = Math.max(-0.55, Math.min(0.7, root.rotation.x + dy * 0.003));
+    velY = dx * 0.0052;                    /* 記錄末速度給慣性用 */
+    lastInteract = performance.now();
+    needsRender = true;
+  });
+  function up(e){
+    if (!dragging) return;
+    dragging = false;
+    lastInteract = performance.now();
+    try { el.releasePointerCapture(e.pointerId); } catch(_){}
+  }
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+}
+
+/* ---------- render loop（分頁隱藏即暫停） ---------- */
+var rafId = null, running = false;
+function tick(){
+  rafId = requestAnimationFrame(tick);
+  var now = performance.now();
+  if (!dragging){
+    if (Math.abs(velY) > 0.00004){        /* 慣性衰減 */
+      root.rotation.y += velY;
+      velY *= 0.94;
+      needsRender = true;
+    } else { velY = 0; }
+    if (!reduceMotion && now - lastInteract > 4000){   /* 閒置 4 秒自動展示 */
+      var ease = Math.min(1, (now - lastInteract - 4000) / 2200);
+      root.rotation.y += 0.0045 * ease;
+      needsRender = true;
+    }
+  }
+  if (needsRender){
+    renderer.render(scene, camera);
+    needsRender = false;
+  }
+}
+function startLoop(){ if (!running && webglOK){ running = true; tick(); } }
+function stopLoop(){ running = false; if (rafId) cancelAnimationFrame(rafId); }
+document.addEventListener("visibilitychange", function(){
+  document.hidden ? stopLoop() : startLoop();
+});
+
+/* ---------- resize ---------- */
+function resize(){
+  if (!webglOK) return;
+  var w = stageEl.clientWidth, h = stageEl.clientHeight;
+  camera.aspect = w / h;
+  camera.position.z = camera.aspect < 1 ? 8.9 : 7.4;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
+  needsRender = true;
+}
+window.addEventListener("resize", resize);
+
+/* ---------- 備援 ---------- */
+var fallbackEl = document.getElementById("fallback");
+var fallbackArt = document.getElementById("fallbackArt");
+function enableFallback(){
+  webglOK = false;
+  fallbackEl.classList.add("on");
+  document.getElementById("stageHint").textContent = "正視圖示意（此環境不支援 WebGL）";
+  updateFallback();
+}
+function updateFallback(){
+  fallbackArt.innerHTML = frameSVG(state.frame, state.color, state.lens);
+}
+
+/* ---------- UI ---------- */
+var $ = function(id){ return document.getElementById(id); };
+
+function renderInfo(){
+  var f = FRAMES[state.frame];
+  $("frameName").childNodes[0].nodeValue = f.name;
+  $("frameNl").textContent = f.nl;
+  $("framePrice").textContent = f.price;
+  $("frameDesc").textContent = f.desc;
+  $("specFront").textContent = f.front;
+  $("specSize").textContent = f.size;
+  $("specTemple").textContent = f.temple;
+  $("specWeight").textContent = f.weight;
+  document.title = "構成眼鏡 Compositie Optiek｜" + f.name;
+}
+function markActive(container, key){
+  Array.prototype.forEach.call(container.children, function(b){
+    b.classList.toggle("active", b.dataset.key === key);
+    b.setAttribute("aria-pressed", b.dataset.key === key ? "true" : "false");
+  });
+}
+function apply(what){
+  renderInfo();
+  markActive($("frameSwitch"), state.frame);
+  markActive($("colorSwatches"), state.color);
+  markActive($("lensSwatches"), state.lens);
+  if (webglOK){
+    if (what === "frame") buildGlasses();
+    else {
+      mats.paint.color.setHex(COLORS[state.color].hex);
+      mats.lens.color.setHex(LENSES[state.lens].hex);
+      mats.lens.opacity = LENSES[state.lens].op;
+      needsRender = true;
+    }
+    lastInteract = performance.now();
+  } else {
+    updateFallback();
+  }
+}
+
+/* 款式切換鈕 */
+FRAME_ORDER.forEach(function(key){
+  var b = document.createElement("button");
+  b.dataset.key = key;
+  b.innerHTML = FRAMES[key].name + "<small>" + FRAMES[key].nl.split(" — ")[0].toUpperCase() + " · " + FRAMES[key].price + "</small>";
+  b.addEventListener("click", function(){ state.frame = key; apply("frame"); });
+  $("frameSwitch").appendChild(b);
+});
+/* 框色 */
+Object.keys(COLORS).forEach(function(key){
+  var b = document.createElement("button");
+  b.className = "swatch"; b.dataset.key = key;
+  b.title = COLORS[key].label;
+  b.setAttribute("aria-label", "框色：" + COLORS[key].label);
+  b.innerHTML = '<i style="background:' + COLORS[key].css + '"></i><span>' + COLORS[key].label + "</span>";
+  b.addEventListener("click", function(){ state.color = key; apply("color"); });
+  $("colorSwatches").appendChild(b);
+});
+/* 鏡片 */
+Object.keys(LENSES).forEach(function(key){
+  var b = document.createElement("button");
+  b.className = "swatch"; b.dataset.key = key;
+  b.title = LENSES[key].label;
+  b.setAttribute("aria-label", "鏡片：" + LENSES[key].label);
+  b.innerHTML = '<i style="background:' + LENSES[key].css + '"></i><span>' + LENSES[key].label + "</span>";
+  b.addEventListener("click", function(){ state.lens = key; apply("lens"); });
+  $("lensSwatches").appendChild(b);
+});
+
+/* 系列總覽卡（含「送上展示台」） */
+FRAME_ORDER.forEach(function(key){
+  var f = FRAMES[key], preset = SERIES_PRESET[key];
+  var card = document.createElement("article");
+  card.innerHTML =
+    '<div class="art">' + frameSVG(key, preset[0], preset[1]) + "</div>" +
+    '<div class="body"><h3>' + f.name + "<small>" + f.nl.toUpperCase() + '</small></h3>' +
+    '<p class="p">' + f.price + '</p>' +
+    '<p class="blurb">' + f.blurb + "</p>" +
+    '<button type="button">送上展示台 →</button></div>';
+  card.querySelector("button").addEventListener("click", function(){
+    state.frame = key; state.color = preset[0]; state.lens = preset[1];
+    apply("frame");
+    if (!webglOK) updateFallback();
+    document.getElementById("showroom").scrollIntoView({behavior: reduceMotion ? "auto" : "smooth"});
+  });
+  $("seriesGrid").appendChild(card);
+});
+
+/* ---------- 啟動 ---------- */
+if (initThree()){
+  webglOK = true;
+  bindDrag(renderer.domElement);
+  resize();
+  buildGlasses();
+  startLoop();
+} else {
+  enableFallback();
+}
+apply("frame");   /* 同步 UI 狀態（webgl 時已建模，重建一次確保 params 生效） */
+})();
+</script>
+</body>
+</html>

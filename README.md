@@ -86,6 +86,7 @@
 | 68 | [潮汐訊號 TIDE SIGNAL](sites/tide-signal/index.html) | 聲音地景計畫 | 電路板美學 | 繁中 | Claude Fable 5 |
 | 69 | [骰與針 DICE & NEEDLE](sites/dice-needle/index.html) | 刺青工作室 | 達達拼貼 Dada | 繁中 | Claude Fable 5 |
 | 70 | [稜線 RIDGELINE](sites/ridgeline/index.html) | 山屋預約 | 地形測繪風 Topographic Survey | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 71 | [構成眼鏡 Compositie Optiek](sites/compositie-optiek/index.html) | 眼鏡行 | De Stijl 風格派 | 繁中 | Claude Fable 5 |
 
 ## 種子庫
 

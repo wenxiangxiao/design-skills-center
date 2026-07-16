@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>預約到宅訪視｜日安到宅居家護理所</title>
+<meta name="description" content="三步驟預約護理師到宅訪視：選服務項目、挑可預約時段、填基本資料，立即取得預約代號（虛構示意）。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2322343B'/%3E%3Cpath d='M12 22h22V10l20 20-20 20V38H12z' fill='%23EDF1F2'/%3E%3Ccircle cx='20' cy='54' r='4.5' fill='%23BF4522'/%3E%3Ccircle cx='32' cy='54' r='4.5' fill='%231F6FA5'/%3E%3Ccircle cx='44' cy='54' r='4.5' fill='%232E7D4F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#B9C4C9; --bg-2:#ADBAC0;
+  --panel:#EDF1F2; --panel-2:#DDE4E7;
+  --ink:#182A30; --ink-2:#42565E; --ink-3:#63767D;
+  --dock:#22343B; --dock-ink:#DCE5E8;
+  --w:#BF4522; --t:#1F6FA5; --c:#2E7D4F; --acc:#F0B429; --err:#A6321F;
+  --f-en:'Barlow Condensed','Arial Narrow',sans-serif;
+  --f-tc:'Noto Sans TC','PingFang TC',sans-serif;
+  --rad:14px;
+  --shadow:0 6px 20px rgba(23,38,43,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--f-tc);color:var(--ink);line-height:1.65;
+  background:linear-gradient(180deg,#BFCACF 0%,var(--bg) 30%,var(--bg-2) 100%);
+  padding-bottom:104px;-webkit-font-smoothing:antialiased}
+.skip{position:absolute;left:-9999px;top:0;background:var(--acc);color:var(--ink);padding:10px 18px;font-weight:700;z-index:99;border-radius:0 0 10px 0}
+.skip:focus{left:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px}
+.plate{background:linear-gradient(165deg,#F2F5F6 0%,var(--panel) 42%,#E3E9EB 100%);
+  border-radius:var(--rad);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.7);position:relative;overflow:hidden}
+.plate::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.18) 50%,rgba(255,255,255,0) 56%)}
+.band{position:relative;overflow:hidden}
+.band::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.24) 50%,rgba(255,255,255,0) 58%)}
+.site-head{background:var(--dock);color:var(--dock-ink)}
+.site-head::after{content:"";display:block;height:6px;
+  background:linear-gradient(90deg,var(--w) 0 33.4%,var(--t) 33.4% 66.7%,var(--c) 66.7% 100%)}
+.head-in{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-mark{width:46px;height:46px;border-radius:10px;background:var(--panel);display:grid;place-items:center;flex:none}
+.brand-name{font-weight:900;font-size:1.22rem;letter-spacing:.06em}
+.brand-en{font-family:var(--f-en);font-weight:600;font-size:.78rem;letter-spacing:.22em;color:#9FB3BA;display:block;line-height:1.2}
+.head-meta{margin-left:auto;text-align:right;font-size:.8rem;color:#9FB3BA;line-height:1.5}
+.head-meta strong{color:var(--dock-ink);font-family:var(--f-en);font-size:1.15rem;letter-spacing:.08em;font-weight:700}
+.fict-tag{display:inline-block;background:var(--acc);color:var(--ink);font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
+
+.page-title{padding:32px 0 8px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.plate-title{background:var(--dock);color:#fff;border-radius:12px;padding:14px 22px;display:flex;align-items:center;gap:16px}
+.page-title h1{font-size:clamp(1.35rem,3.4vw,1.9rem);font-weight:900;letter-spacing:.08em;line-height:1.25}
+.page-title .en{font-family:var(--f-en);font-weight:600;letter-spacing:.3em;font-size:.8rem;color:#9FB3BA;display:block}
+.page-title p{font-size:.92rem;color:var(--ink-2);max-width:30em}
+
+/* 進度路線（站序） */
+.progress{margin:18px 0 22px;padding:18px 26px 12px}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.pg::before{content:"";position:absolute;top:15px;left:12.5%;right:12.5%;height:8px;border-radius:4px;background:var(--panel-2)}
+.pg .fill{position:absolute;top:15px;left:12.5%;height:8px;border-radius:4px;background:var(--dock);width:0;transition:width .3s ease}
+.pstep{position:relative;text-align:center;font-size:.82rem;color:var(--ink-3);font-weight:700}
+.pstep .pd{width:38px;height:38px;border-radius:50%;background:var(--panel-2);color:var(--ink-3);
+  display:grid;place-items:center;margin:0 auto 6px;font-family:var(--f-en);font-weight:700;font-size:1.1rem;
+  box-shadow:0 0 0 4px var(--panel);position:relative}
+.pstep.done .pd,.pstep.now .pd{background:var(--dock);color:#fff}
+.pstep.now{color:var(--ink)}
+.pstep.now .pd{box-shadow:0 0 0 4px var(--acc)}
+
+/* 步驟看板 */
+.stepbox{display:none;margin-bottom:22px}
+.stepbox.active{display:block}
+.sb-head{display:flex;align-items:center;gap:12px;background:var(--dock);color:#fff;
+  padding:13px 20px;border-radius:var(--rad) var(--rad) 0 0}
+.sb-head .no{font-family:var(--f-en);font-weight:700;font-size:1.35rem;background:var(--acc);color:var(--ink);
+  border-radius:8px;padding:0 10px;line-height:1.5}
+.sb-head h2{font-size:1.12rem;font-weight:900;letter-spacing:.08em}
+.sb-head .en{font-family:var(--f-en);font-weight:600;letter-spacing:.2em;font-size:.72rem;color:#9FB3BA;margin-left:auto}
+.sb-body{background:linear-gradient(165deg,#F2F5F6 0%,var(--panel) 42%,#E3E9EB 100%);
+  border-radius:0 0 var(--rad) var(--rad);box-shadow:var(--shadow);padding:20px}
+
+/* Step1 選線 */
+.line-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.lp{border:0;cursor:pointer;border-radius:12px;padding:14px 12px;text-align:left;color:#fff;
+  display:flex;align-items:center;gap:12px;font-family:var(--f-tc);position:relative;overflow:hidden}
+.lp::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.22) 50%,rgba(255,255,255,0) 58%)}
+.lp.W{background:var(--w)} .lp.T{background:var(--t)} .lp.C{background:var(--c)}
+.lp .bc{font-family:var(--f-en);font-weight:700;font-size:1.9rem;line-height:1;background:rgba(255,255,255,.18);border-radius:9px;padding:4px 11px}
+.lp .zh{font-weight:900;font-size:1.05rem;letter-spacing:.1em;display:block}
+.lp .sub{font-size:.76rem;opacity:.85;display:block}
+.lp[aria-pressed="true"]{box-shadow:0 0 0 4px var(--acc), var(--shadow)}
+.lp[aria-pressed="false"]{opacity:.55}
+.lp[aria-pressed="false"]:hover{opacity:.85}
+.item-pick{display:grid;gap:10px}
+.ip-btn{border:0;cursor:pointer;background:var(--panel-2);border-radius:10px;padding:12px 14px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;font-family:var(--f-tc)}
+.ip-btn .codechip{display:inline-grid;place-items:center;width:2.5em;height:2.5em;border-radius:50%;color:#fff;font-family:var(--f-en);font-weight:700}
+.ip-btn.W .codechip{background:var(--w)} .ip-btn.T .codechip{background:var(--t)} .ip-btn.C .codechip{background:var(--c)}
+.ip-btn .nm{font-weight:700;font-size:.98rem}
+.ip-btn .ds{font-size:.82rem;color:var(--ink-2);display:block;font-weight:400}
+.ip-btn .pr{font-family:var(--f-en);font-weight:700;font-size:1.08rem;white-space:nowrap}
+.ip-btn[aria-pressed="true"]{background:var(--dock);color:#fff}
+.ip-btn[aria-pressed="true"] .ds{color:#B9C7CC}
+.ip-btn:hover{outline:2px solid var(--dock)}
+.ip-btn[aria-pressed="true"]:hover{outline:2px solid var(--acc)}
+
+/* Step2 週曆 */
+.week-scroll{overflow-x:auto;padding-bottom:6px}
+.week{display:grid;grid-template-columns:repeat(7,minmax(104px,1fr));gap:8px;min-width:740px}
+.day-col{background:var(--panel-2);border-radius:10px;overflow:hidden}
+.day-head{background:var(--dock);color:#fff;text-align:center;padding:7px 4px 6px;line-height:1.25}
+.day-head .dw{font-weight:700;font-size:.86rem;letter-spacing:.1em}
+.day-head .dt{font-family:var(--f-en);font-weight:600;font-size:.78rem;color:#9FB3BA;display:block}
+.day-col.closed .day-head{background:#5B6E76}
+.slots{padding:8px;display:grid;gap:6px}
+.slot{border:0;cursor:pointer;border-radius:8px;padding:7px 6px;background:#fff;font-family:var(--f-tc);
+  display:flex;flex-direction:column;align-items:center;gap:1px}
+.slot .tm{font-family:var(--f-en);font-weight:700;font-size:1rem;letter-spacing:.04em}
+.slot .rm{font-size:.7rem;font-weight:700;color:var(--c)}
+.slot .rm.low{color:var(--w)}
+.slot:hover{outline:2px solid var(--dock)}
+.slot.sel{background:var(--dock);color:#fff}
+.slot.sel .rm{color:var(--acc)}
+.slot:disabled{background:#C6CFD3;color:#7C8B91;cursor:not-allowed;outline:0}
+.slot:disabled .rm{color:#7C8B91}
+.closed-note{font-size:.74rem;color:var(--ink-3);text-align:center;padding:14px 4px}
+.wk-hint{display:flex;gap:16px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-2);margin-top:10px}
+.wk-hint span{display:flex;align-items:center;gap:6px}
+.wk-hint .k{width:14px;height:14px;border-radius:4px;flex:none}
+
+/* Step3 表單 */
+.pick-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--dock);color:#fff;
+  border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:.92rem}
+.pick-summary .codechip{display:inline-grid;place-items:center;width:2.3em;height:2.3em;border-radius:50%;color:#fff;font-family:var(--f-en);font-weight:700}
+.pick-summary .codechip.W{background:var(--w)} .pick-summary .codechip.T{background:var(--t)} .pick-summary .codechip.C{background:var(--c)}
+.pick-summary b{font-weight:700}
+.pick-summary .tmch{font-family:var(--f-en);font-weight:700;font-size:1.05rem;background:rgba(255,255,255,.14);border-radius:7px;padding:1px 10px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-weight:700;font-size:.9rem}
+.field label .req{color:var(--err);margin-left:2px}
+.field input,.field select,.field textarea{
+  font-family:var(--f-tc);font-size:1rem;padding:10px 12px;border:2px solid #C3CDD2;border-radius:9px;background:#fff;color:var(--ink)}
+.field textarea{resize:vertical;min-height:74px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:3px solid var(--acc);border-color:var(--dock)}
+.field .msg{font-size:.78rem;color:var(--err);font-weight:700;min-height:1.1em}
+.field input[aria-invalid="true"],.field select[aria-invalid="true"]{border-color:var(--err);background:#FBEFEC}
+.agree{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;background:var(--panel-2);border-radius:10px;padding:12px 14px;font-size:.86rem}
+.agree input{width:20px;height:20px;margin-top:2px;accent-color:var(--dock)}
+.agree .msg{color:var(--err);font-weight:700;font-size:.78rem}
+
+/* 導航按鈕 */
+.sb-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+.btn{border:0;cursor:pointer;font-family:var(--f-tc);font-weight:700;font-size:1rem;letter-spacing:.06em;
+  border-radius:10px;padding:12px 22px;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+.btn-next{background:var(--dock);color:#fff;margin-left:auto}
+.btn-next:hover{background:#2C4650}
+.btn-next:disabled{background:#9BAAB0;cursor:not-allowed}
+.btn-back{background:var(--panel-2);color:var(--ink-2)}
+.btn-back:hover{background:#CFD8DC}
+.btn-go{background:var(--acc);color:var(--ink)}
+.btn-go:hover{background:#F6C24A}
+
+/* 確認畫面（站牌票卡） */
+.ticket{max-width:640px;margin:0 auto}
+.tk-band{height:14px;border-radius:var(--rad) var(--rad) 0 0}
+.tk-band.W{background:var(--w)} .tk-band.T{background:var(--t)} .tk-band.C{background:var(--c)}
+.tk-body{padding:24px 26px}
+.tk-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:3px solid var(--panel-2);padding-bottom:14px;margin-bottom:14px}
+.tk-head .ok{width:52px;height:52px;border-radius:50%;background:var(--c);display:grid;place-items:center;flex:none}
+.tk-head h2{font-size:1.3rem;font-weight:900;letter-spacing:.1em}
+.tk-head .en{font-family:var(--f-en);font-weight:600;letter-spacing:.24em;font-size:.74rem;color:var(--ink-3);display:block}
+.tk-code{margin-left:auto;text-align:right}
+.tk-code .lb{font-size:.74rem;color:var(--ink-3);font-weight:700;letter-spacing:.14em}
+.tk-code .cd{font-family:var(--f-en);font-weight:700;font-size:2rem;letter-spacing:.08em;background:var(--dock);color:var(--acc);border-radius:9px;padding:2px 14px;display:inline-block}
+.tk-row{display:flex;gap:12px;padding:8px 0;font-size:.94rem;border-top:2px solid var(--panel-2)}
+.tk-row:first-of-type{border-top:0}
+.tk-k{flex:none;width:6.5em;font-weight:700;color:var(--ink-2)}
+.tk-remind{margin-top:14px;background:var(--panel-2);border-radius:10px;padding:12px 16px;font-size:.84rem;color:var(--ink-2)}
+.tk-remind b{color:var(--ink)}
+.tk-remind ul{padding-left:1.3em}
+.tk-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+
+.notice{background:var(--acc);margin-top:34px}
+.notice .wrap2{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:.9rem}
+.notice svg{flex:none}
+footer{background:var(--dock);color:#B9C7CC;font-size:.87rem}
+.foot-in{max-width:1120px;margin:0 auto;padding:30px 20px 26px;display:grid;grid-template-columns:1.3fr 1fr 1.2fr;gap:26px}
+footer h4{color:#fff;font-size:.95rem;letter-spacing:.14em;margin-bottom:10px;font-weight:700}
+footer li{list-style:none;padding:3px 0}
+footer a{color:#DCE5E8;text-decoration:none}
+footer a:hover{text-decoration:underline}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.12);padding:14px 20px;text-align:center;font-size:.78rem;color:#8CA0A8}
+.dock-nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--dock);
+  box-shadow:0 -6px 22px rgba(23,38,43,.3);display:flex}
+.dock-nav::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;
+  background:linear-gradient(90deg,var(--w) 0 33.4%,var(--t) 33.4% 66.7%,var(--c) 66.7% 100%)}
+.dock-item{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:15px 8px 13px;text-decoration:none;color:var(--dock-ink);border-left:1px solid rgba(255,255,255,.09)}
+.dock-item:first-child{border-left:0}
+.dock-item .lbl{font-weight:700;font-size:.98rem;letter-spacing:.06em}
+.dock-item .en{font-family:var(--f-en);font-weight:600;font-size:.68rem;letter-spacing:.2em;color:#8CA0A8;display:block;line-height:1.1}
+.dock-item[aria-current="page"]{background:rgba(240,180,41,.14);box-shadow:inset 0 -4px 0 var(--acc)}
+.dock-item:hover{background:rgba(255,255,255,.07)}
+.dock-item svg{flex:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+@media (max-width:900px){
+  .foot-in{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .head-meta{display:none}
+  .foot-in{grid-template-columns:1fr}
+  .dock-item .en{display:none}
+  .dock-item{padding:13px 4px 11px;gap:6px}
+  .dock-item .lbl{font-size:.86rem}
+  .line-pick{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .pstep{font-size:.7rem}
+  .tk-code{margin-left:0;text-align:left}
+  .sb-head .en{display:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+
+<header class="site-head">
+  <div class="head-in">
+    <a class="brand" href="index.html" aria-label="日安到宅居家護理所 首頁">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 64 64"><path d="M32 8 L56 26 L49 26 L49 38 L15 38 L15 26 L8 26 Z" fill="#22343B"/><rect x="27" y="27" width="10" height="11" rx="2" fill="#EDF1F2"/><path d="M12 48 h26 v-7 l14 11 -14 11 v-7 H12 Z" fill="#22343B"/><circle cx="55" cy="46" r="4" fill="#BF4522"/></svg>
+      </span>
+      <span>
+        <span class="brand-name">日安到宅居家護理所</span>
+        <span class="brand-en">GOODDAY HOME NURSING</span>
+      </span>
+    </a>
+    <div class="head-meta">
+      衛福部立案居家護理機構・北市衛護字第1090012號<span class="fict-tag">虛構示意</span><br>
+      預約專線 <strong>02-2517-3388</strong>（週一至週六 08:30–17:30）
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="page-title">
+    <div class="plate-title band">
+      <svg width="34" height="34" viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="8" width="36" height="32" rx="6" fill="#F0B429"/><rect x="10" y="4" width="6" height="10" rx="3" fill="#F0B429"/><rect x="28" y="4" width="6" height="10" rx="3" fill="#F0B429"/><rect x="10" y="20" width="7" height="7" rx="2" fill="#22343B"/><rect x="19" y="20" width="7" height="7" rx="2" fill="#EDF1F2"/><rect x="28" y="20" width="7" height="7" rx="2" fill="#EDF1F2"/><rect x="10" y="29" width="7" height="7" rx="2" fill="#EDF1F2"/></svg>
+      <h1>預約到宅訪視<span class="en">BOOK A HOME VISIT</span></h1>
+    </div>
+    <p>三步驟完成預約。送出後立即取得預約代號，護理師將於訪視前一日電話確認。</p>
+  </div>
+
+  <!-- 進度站序 -->
+  <div class="progress plate" aria-label="預約進度">
+    <div class="pg">
+      <div class="fill" id="pgFill"></div>
+      <div class="pstep now" id="ps1"><span class="pd">1</span>選服務項目</div>
+      <div class="pstep" id="ps2"><span class="pd">2</span>挑選時段</div>
+      <div class="pstep" id="ps3"><span class="pd">3</span>填寫資料</div>
+      <div class="pstep" id="ps4"><span class="pd" aria-hidden="true">✓</span>取得代號</div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 1 ═══ -->
+  <section class="stepbox active" id="step1" aria-labelledby="s1-title">
+    <div class="sb-head band">
+      <span class="no">1</span><h2 id="s1-title">選擇服務線與項目</h2><span class="en">SELECT LINE &amp; SERVICE</span>
+    </div>
+    <div class="sb-body">
+      <div class="line-pick" role="group" aria-label="選擇服務線">
+        <button type="button" class="lp W" data-line="W" aria-pressed="false">
+          <span class="bc">W</span><span><span class="zh">傷口線</span><span class="sub">傷口護理・壓傷・術後照護</span></span>
+        </button>
+        <button type="button" class="lp T" data-line="T" aria-pressed="false">
+          <span class="bc">T</span><span><span class="zh">管路線</span><span class="sub">鼻胃管・導尿管・照護教學</span></span>
+        </button>
+        <button type="button" class="lp C" data-line="C" aria-pressed="false">
+          <span class="bc">C</span><span><span class="zh">慢病線</span><span class="sub">糖尿病足・健康評估・諮詢</span></span>
+        </button>
+      </div>
+      <div class="item-pick" id="itemPick" role="group" aria-label="選擇服務項目"></div>
+      <div class="sb-nav">
+        <button type="button" class="btn btn-next" id="toStep2" disabled>下一步：挑選時段
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6h9V2l6 7-6 7v-4H2z" fill="#F0B429"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STEP 2 ═══ -->
+  <section class="stepbox" id="step2" aria-labelledby="s2-title">
+    <div class="sb-head band">
+      <span class="no">2</span><h2 id="s2-title">挑選可預約時段（未來七日）</h2><span class="en">PICK A TIME SLOT</span>
+    </div>
+    <div class="sb-body">
+      <div class="week-scroll">
+        <div class="week" id="weekGrid"></div>
+      </div>
+      <div class="wk-hint">
+        <span><span class="k" style="background:#fff;box-shadow:inset 0 0 0 2px #C3CDD2"></span>可預約（顯示剩餘名額）</span>
+        <span><span class="k" style="background:#C6CFD3"></span>已額滿／休診</span>
+        <span><span class="k" style="background:var(--dock)"></span>已選取</span>
+      </div>
+      <div class="sb-nav">
+        <button type="button" class="btn btn-back" id="backTo1">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M16 6H7V2L1 9l6 7v-4h9z" fill="#63767D"/></svg>上一步
+        </button>
+        <button type="button" class="btn btn-next" id="toStep3" disabled>下一步：填寫資料
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6h9V2l6 7-6 7v-4H2z" fill="#F0B429"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STEP 3 ═══ -->
+  <section class="stepbox" id="step3" aria-labelledby="s3-title">
+    <div class="sb-head band">
+      <span class="no">3</span><h2 id="s3-title">填寫基本資料</h2><span class="en">CONTACT DETAILS</span>
+    </div>
+    <div class="sb-body">
+      <div class="pick-summary" id="pickSummary"></div>
+      <form id="bkForm" novalidate>
+        <div class="fgrid">
+          <div class="field">
+            <label for="fName">聯絡人姓名<span class="req" aria-hidden="true">＊</span></label>
+            <input id="fName" name="name" type="text" autocomplete="name" required>
+            <span class="msg" id="mName"></span>
+          </div>
+          <div class="field">
+            <label for="fPhone">聯絡電話<span class="req" aria-hidden="true">＊</span></label>
+            <input id="fPhone" name="phone" type="tel" inputmode="tel" placeholder="0912-345-678 或 02-25173388" autocomplete="tel" required>
+            <span class="msg" id="mPhone"></span>
+          </div>
+          <div class="field">
+            <label for="fDist">服務行政區<span class="req" aria-hidden="true">＊</span></label>
+            <select id="fDist" required>
+              <option value="">請選擇</option>
+              <optgroup label="台北市">
+                <option>士林區</option><option>北投區</option><option>中山區</option><option>松山區</option>
+                <option>信義區</option><option>南港區</option><option>中正區</option><option>萬華區</option>
+                <option>大安區</option><option>文山區</option>
+              </optgroup>
+              <optgroup label="新北市">
+                <option>板橋區</option><option>中和區</option><option>新店區</option>
+              </optgroup>
+            </select>
+            <span class="msg" id="mDist"></span>
+          </div>
+          <div class="field">
+            <label for="fRel">與個案關係</label>
+            <select id="fRel">
+              <option>本人</option><option selected>子女</option><option>配偶</option><option>其他親屬</option><option>照顧服務員</option>
+            </select>
+            <span class="msg"></span>
+          </div>
+          <div class="field full">
+            <label for="fAddr">到宅地址<span class="req" aria-hidden="true">＊</span></label>
+            <input id="fAddr" type="text" placeholder="路名門牌與樓層（電訪時再次確認）" autocomplete="street-address" required>
+            <span class="msg" id="mAddr"></span>
+          </div>
+          <div class="field full">
+            <label for="fNote">個案狀況簡述（選填）</label>
+            <textarea id="fNote" placeholder="例：術後兩週，右小腿傷口約 3 公分，行動需輪椅；或希望指定護理師"></textarea>
+          </div>
+          <label class="agree">
+            <input type="checkbox" id="fAgree">
+            <span>我了解本網站為<b>虛構示意作品</b>，此預約不會安排任何實際醫療或護理服務；亦同意所填資料僅用於畫面展示。<span class="msg" id="mAgree"></span></span>
+          </label>
+        </div>
+        <div class="sb-nav">
+          <button type="button" class="btn btn-back" id="backTo2">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M16 6H7V2L1 9l6 7v-4h9z" fill="#63767D"/></svg>上一步
+          </button>
+          <button type="submit" class="btn btn-go">送出預約，取得代號
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6h9V2l6 7-6 7v-4H2z" fill="#22343B"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══ 完成票卡 ═══ -->
+  <section class="stepbox" id="step4" aria-labelledby="s4-title">
+    <div class="ticket plate">
+      <div class="tk-band" id="tkBand"></div>
+      <div class="tk-body">
+        <div class="tk-head">
+          <span class="ok" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 28 28"><path d="M4 15 L11 22 L24 7 L20 4 L11 15 L8 12 Z" fill="#fff"/></svg>
+          </span>
+          <div>
+            <h2 id="s4-title">預約已送出<span class="en">BOOKING CONFIRMED</span></h2>
+          </div>
+          <div class="tk-code">
+            <span class="lb">預約代號 CODE</span><br>
+            <span class="cd" id="tkCode">—</span>
+          </div>
+        </div>
+        <div class="tk-row"><span class="tk-k">服務項目</span><span id="tkItem">—</span></div>
+        <div class="tk-row"><span class="tk-k">訪視時段</span><span id="tkTime">—</span></div>
+        <div class="tk-row"><span class="tk-k">到宅地點</span><span id="tkAddr">—</span></div>
+        <div class="tk-row"><span class="tk-k">聯絡人</span><span id="tkName">—</span></div>
+        <div class="tk-row"><span class="tk-k">參考費用</span><span id="tkFee">—</span></div>
+        <div class="tk-remind">
+          <b>訪視前提醒</b>
+          <ul>
+            <li>護理師將於訪視前一日 17:00 前來電確認，請保持電話暢通。</li>
+            <li>請備妥健保卡、近期用藥清單；管路更換請備妥醫囑或轉介單。</li>
+            <li>取消或改期請於前一日 17:00 前來電 02-2517-3388。</li>
+          </ul>
+        </div>
+        <div class="tk-actions">
+          <button type="button" class="btn btn-back" id="againBtn">再預約一筆</button>
+          <a class="btn btn-next" href="index.html">回路網總覽
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6h9V2l6 7-6 7v-4H2z" fill="#F0B429"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="notice band" role="note">
+  <div class="wrap2">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L23 21 H1 Z" fill="#22343B"/><rect x="11" y="9" width="2.6" height="6" rx="1.3" fill="#F0B429"/><circle cx="12.3" cy="18" r="1.6" fill="#F0B429"/></svg>
+    本站內容為虛構示意，非醫療建議。所有機構、人名、字號與收費均為設計展示用途；如有醫療需求，請洽合格醫療機構或撥打 119。
+  </div>
+</div>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <h4>日安到宅居家護理所</h4>
+      <ul>
+        <li>台北市中山區龍江路 100 巷 12 號 1 樓（虛構地址）</li>
+        <li>預約專線：<a href="tel:0225173388">02-2517-3388</a></li>
+        <li>LINE 官方帳號：@goodday-care（虛構）</li>
+        <li>電子信箱：care@goodday-nursing.example.tw</li>
+      </ul>
+    </div>
+    <div>
+      <h4>快速前往</h4>
+      <ul>
+        <li><a href="index.html">服務路網總覽</a></li>
+        <li><a href="services.html">服務線與收費</a></li>
+        <li><a href="services.html#team">護理師團隊</a></li>
+        <li><a href="booking.html">預約到宅訪視</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>合作社區與據點（虛構）</h4>
+      <ul>
+        <li>榮星社區發展協會（中山）・民生社區照顧關懷據點（松山）</li>
+        <li>樟新活動中心（文山）・江翠里辦公處（板橋）</li>
+        <li>景安社區據點（中和）・安禾家醫科診所・常青骨科診所</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 日安到宅居家護理所（虛構品牌，導視系統風格設計示範）・北市衛護字第1090012號（虛構）</div>
+</footer>
+
+<nav class="dock-nav" aria-label="主導覽（月台指標列）">
+  <a class="dock-item" href="index.html">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M19 7H9V2L2 11l7 9v-5h10z" fill="#F0B429"/></svg>
+    <span><span class="lbl">路網總覽</span><span class="en">NETWORK MAP</span></span>
+  </a>
+  <a class="dock-item" href="services.html">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="5" cy="11" r="4" fill="#BF4522"/><circle cx="17" cy="5" r="4" fill="#1F6FA5"/><circle cx="17" cy="17" r="4" fill="#2E7D4F"/></svg>
+    <span><span class="lbl">服務線與收費</span><span class="en">LINES &amp; FEES</span></span>
+  </a>
+  <a class="dock-item" href="booking.html" aria-current="page">
+    <span><span class="lbl">預約到宅訪視</span><span class="en">BOOK A VISIT</span></span>
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 7h10V2l7 9-7 9v-5H3z" fill="#F0B429"/></svg>
+  </a>
+</nav>
+
+<script>
+(function(){
+  'use strict';
+  var SERVICES = {
+    W:{zh:'傷口線',items:[
+      {code:'W-1',name:'一般傷口護理',desc:'清創後傷口、慢性傷口之清潔換藥與評估',dur:'約 60 分',fee:'NT$1,200–1,600'},
+      {code:'W-2',name:'壓傷（壓瘡）照護',desc:'壓傷分級評估、敷料選用與減壓指導',dur:'約 60–90 分',fee:'NT$1,400–1,800'},
+      {code:'W-3',name:'術後傷口照護與指導',desc:'術後返家傷口照護、照顧者實作教學',dur:'約 60–90 分',fee:'NT$1,600–2,200'}]},
+    T:{zh:'管路線',items:[
+      {code:'T-1',name:'鼻胃管更換與照護指導',desc:'更換、位置確認、灌食與口腔清潔指導',dur:'約 40–60 分',fee:'NT$1,500–2,000'},
+      {code:'T-2',name:'導尿管更換與照護指導',desc:'導尿管（含尿袋）更換、感染預防指導',dur:'約 40–60 分',fee:'NT$1,400–1,900'},
+      {code:'T-3',name:'管路家屬照護教學',desc:'照顧者一對一實作教學與每日檢查清單',dur:'約 60 分',fee:'NT$1,200–1,600'}]},
+    C:{zh:'慢病線',items:[
+      {code:'C-1',name:'糖尿病足照護',desc:'足部血循檢查、趾甲修剪、厚繭處理與衛教',dur:'約 60 分',fee:'NT$1,300–1,800'},
+      {code:'C-2',name:'長輩整體健康評估',desc:'生命徵象、跌倒風險、用藥盤點、認知初篩',dur:'約 60–90 分',fee:'NT$1,000–1,500'},
+      {code:'C-3',name:'慢性病居家照護諮詢',desc:'血糖血壓自我監測指導與照護計畫討論',dur:'約 60 分',fee:'NT$1,000–1,400'}]}
+  };
+  var TIMES = ['09:00','10:30','13:30','15:00','16:30'];
+  var DW = ['日','一','二','三','四','五','六'];
+  var state = {line:null,item:null,date:null,time:null,form:{}};
+
+  /* ── 進度列 ── */
+  var fills = {1:'0%',2:'25%',3:'50%',4:'75%'};
+  function showStep(n){
+    [1,2,3,4].forEach(function(i){
+      document.getElementById('step'+i).classList.toggle('active', i===n);
+      var ps = document.getElementById('ps'+i);
+      ps.classList.toggle('now', i===n);
+      ps.classList.toggle('done', i<n);
+    });
+    document.getElementById('pgFill').style.width = fills[n];
+    var box = document.getElementById('step'+n);
+    if(box && box.getBoundingClientRect().top < 0) box.scrollIntoView();
+  }
+
+  /* ── Step 1：選線與項目 ── */
+  var lineBtns = document.querySelectorAll('.lp');
+  var itemPick = document.getElementById('itemPick');
+  var toStep2 = document.getElementById('toStep2');
+  function pickLine(line){
+    state.line = line; state.item = null; state.date = null; state.time = null;
+    toStep2.disabled = true;
+    document.querySelectorAll('.slot.sel').forEach(function(o){o.classList.remove('sel');});
+    lineBtns.forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.line===line)); });
+    itemPick.innerHTML = '';
+    SERVICES[line].items.forEach(function(it){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'ip-btn '+line; b.setAttribute('aria-pressed','false');
+      b.innerHTML = '<span class="codechip">'+it.code+'</span>'+
+        '<span class="nm">'+it.name+'<span class="ds">'+it.desc+'・'+it.dur+'</span></span>'+
+        '<span class="pr">'+it.fee+'</span>';
+      b.addEventListener('click', function(){
+        state.item = it;
+        itemPick.querySelectorAll('.ip-btn').forEach(function(o){o.setAttribute('aria-pressed','false');});
+        b.setAttribute('aria-pressed','true');
+        toStep2.disabled = false;
+      });
+      itemPick.appendChild(b);
+    });
+  }
+  lineBtns.forEach(function(b){
+    b.addEventListener('click', function(){ pickLine(b.dataset.line); });
+  });
+  // 由路網圖／服務頁帶入 ?line=
+  var ql = new URLSearchParams(location.search).get('line');
+  if(ql && SERVICES[ql]) pickLine(ql);
+
+  /* ── Step 2：週曆與名額 ── */
+  // 以日期字串+時段做確定性雜湊 → 穩定的「剩餘名額」示意資料
+  function hash(s){
+    var h = 5381;
+    for(var i=0;i<s.length;i++){ h = ((h<<5)+h+s.charCodeAt(i))>>>0; }
+    return h;
+  }
+  function remaining(dstr,time){
+    return hash(dstr+'@'+time) % 4; // 0=額滿, 1–3=剩餘名額
+  }
+  function pad(n){ return (n<10?'0':'')+n; }
+  function buildWeek(){
+    var grid = document.getElementById('weekGrid');
+    grid.innerHTML = '';
+    var today = new Date();
+    for(let d=1; d<=7; d++){
+      let day = new Date(today.getFullYear(), today.getMonth(), today.getDate()+d);
+      let dow = day.getDay();
+      let dstr = day.getFullYear()+'-'+pad(day.getMonth()+1)+'-'+pad(day.getDate());
+      var col = document.createElement('div');
+      col.className = 'day-col'+(dow===0?' closed':'');
+      var head = '<div class="day-head"><span class="dw">週'+DW[dow]+'</span><span class="dt">'+pad(day.getMonth()+1)+'/'+pad(day.getDate())+'</span></div>';
+      if(dow===0){
+        col.innerHTML = head + '<div class="closed-note">週日休診<br>急要請電話諮詢</div>';
+        grid.appendChild(col); continue;
+      }
+      var slotsHtml = document.createElement('div'); slotsHtml.className = 'slots';
+      TIMES.forEach(function(t){
+        let satOff = (dow===6 && t!=='09:00' && t!=='10:30'); // 週六僅上午
+        let rem = satOff ? 0 : remaining(dstr,t);
+        let btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'slot';
+        if(rem===0){
+          btn.disabled = true;
+          btn.innerHTML = '<span class="tm">'+t+'</span><span class="rm">'+(satOff?'休':'額滿')+'</span>';
+        }else{
+          btn.innerHTML = '<span class="tm">'+t+'</span><span class="rm'+(rem===1?' low':'')+'">剩 '+rem+' 名</span>';
+          btn.setAttribute('aria-label', dstr+' '+t+'，剩餘 '+rem+' 個名額');
+          btn.addEventListener('click', function(){
+            document.querySelectorAll('.slot.sel').forEach(function(o){o.classList.remove('sel');});
+            btn.classList.add('sel');
+            state.date = dstr; state.dateLabel = pad(day.getMonth()+1)+'/'+pad(day.getDate())+'（週'+DW[dow]+'）';
+            state.time = t;
+            document.getElementById('toStep3').disabled = false;
+          });
+        }
+        slotsHtml.appendChild(btn);
+      });
+      col.innerHTML = head;
+      col.appendChild(slotsHtml);
+      grid.appendChild(col);
+    }
+  }
+  buildWeek();
+
+  /* ── 步驟切換 ── */
+  toStep2.addEventListener('click', function(){
+    document.getElementById('toStep3').disabled = !(state.date && state.time);
+    showStep(2);
+  });
+  document.getElementById('backTo1').addEventListener('click', function(){ showStep(1); });
+  document.getElementById('toStep3').addEventListener('click', function(){
+    var ps = document.getElementById('pickSummary');
+    ps.innerHTML = '<span class="codechip '+state.line+'">'+state.item.code+'</span>'+
+      '<b>'+SERVICES[state.line].zh+'・'+state.item.name+'</b>'+
+      '<span class="tmch">'+state.dateLabel+' '+state.time+'</span>'+
+      '<span>參考費用 '+state.item.fee+'（交通費另計）</span>';
+    showStep(3);
+  });
+  document.getElementById('backTo2').addEventListener('click', function(){ showStep(2); });
+
+  /* ── Step 3：驗證與送出 ── */
+  function setErr(input,msgEl,msg){
+    input.setAttribute('aria-invalid', msg?'true':'false');
+    msgEl.textContent = msg||'';
+    return !msg;
+  }
+  document.getElementById('bkForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var ok = true;
+    var name = document.getElementById('fName');
+    var phone = document.getElementById('fPhone');
+    var dist = document.getElementById('fDist');
+    var addr = document.getElementById('fAddr');
+    var agree = document.getElementById('fAgree');
+    ok = setErr(name, document.getElementById('mName'),
+      name.value.trim().length>=2 ? '' : '請輸入聯絡人姓名（至少兩個字）') && ok;
+    var pv = phone.value.replace(/[\s-]/g,'');
+    ok = setErr(phone, document.getElementById('mPhone'),
+      /^09\d{8}$/.test(pv)||/^0\d{7,9}$/.test(pv) ? '' : '請輸入有效的台灣手機或市話號碼') && ok;
+    ok = setErr(dist, document.getElementById('mDist'),
+      dist.value ? '' : '請選擇服務行政區') && ok;
+    ok = setErr(addr, document.getElementById('mAddr'),
+      addr.value.trim().length>=6 ? '' : '請輸入完整到宅地址') && ok;
+    var mAgree = document.getElementById('mAgree');
+    if(!agree.checked){ mAgree.textContent = '（請勾選同意後送出）'; ok = false; }
+    else{ mAgree.textContent = ''; }
+    if(!ok){
+      var firstErr = document.querySelector('[aria-invalid="true"]');
+      if(firstErr) firstErr.focus();
+      return;
+    }
+    /* 產生預約代號：GD-項目-月日-隨機4碼 */
+    var md = state.date.slice(5).replace('-','');
+    var rand = '';
+    var chars = 'ACDEFHJKMNPRTUVWXY34679';
+    for(var i=0;i<4;i++){ rand += chars.charAt(Math.floor(Math.random()*chars.length)); }
+    var code = 'GD-'+state.item.code.replace('-','')+'-'+md+'-'+rand;
+    document.getElementById('tkCode').textContent = code;
+    document.getElementById('tkBand').className = 'tk-band '+state.line;
+    document.getElementById('tkItem').textContent = SERVICES[state.line].zh+'・'+state.item.code+' '+state.item.name;
+    document.getElementById('tkTime').textContent = state.dateLabel+' '+state.time+'（'+state.item.dur+'）';
+    document.getElementById('tkAddr').textContent = dist.value+'・'+addr.value.trim();
+    document.getElementById('tkName').textContent = name.value.trim()+'（'+document.getElementById('fRel').value+'）・'+phone.value.trim();
+    document.getElementById('tkFee').textContent = state.item.fee+'＋交通費（台北市 NT$150／新北 NT$250–300）';
+    showStep(4);
+  });
+
+  /* ── 再預約一筆 ── */
+  document.getElementById('againBtn').addEventListener('click', function(){
+    state = {line:null,item:null,date:null,time:null,form:{}};
+    lineBtns.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+    itemPick.innerHTML = '';
+    toStep2.disabled = true;
+    document.getElementById('toStep3').disabled = true;
+    document.getElementById('bkForm').reset();
+    buildWeek();
+    showStep(1);
+    window.scrollTo(0,0);
+  });
+})();
+</script>
+</body>
+</html>

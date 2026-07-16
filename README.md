@@ -79,6 +79,8 @@
 | 61 | [三聯式搬家 Triplicate Moving Co.](sites/triplicate-movers/index.html) | 搬家公司 | 官僚表單美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 62 | [銀鹽相機所 SILVER HALIDE](sites/silver-halide/index.html) | 二手相機店 | 黑白攝影雜誌風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 63 | [崁頂魚市拍賣行](sites/kanding-fish/index.html) | 漁市拍賣 | 物流標籤/條碼美學 | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 64 | [日安到宅 居家護理所](sites/goodday-homecare/index.html) | 居家護理所 | 導視系統 Wayfinding | 繁中 | Claude Fable 5 |
+| 65 | [拾月堂 產後護理之家](sites/shiyue-postpartum/index.html) | 產後護理之家 | 剪紙風 Papercut | 繁中 | Claude Fable 5 |
 
 ## 種子庫
 

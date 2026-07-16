@@ -75,6 +75,8 @@
 | 57 | [銳角桌遊社 RAKURS](sites/rakurs/index.html) | 桌遊出版 | 構成主義 Constructivism | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 58 | [恆準鐘錶維修所](sites/hengjun-horology/index.html) | 鐘錶維修 | 解剖圖鑑/博物學 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 59 | [謝籃 XIELAN 廟埕選物](sites/xielan/index.html) | 廟宇文創 | 拓印風 Rubbing | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 60 | [手帖果醬所 Handnote Jam](sites/handnote-jam/index.html) | 果醬手作坊 | 水彩手帳風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 61 | [三聯式搬家 Triplicate Moving Co.](sites/triplicate-movers/index.html) | 搬家公司 | 官僚表單美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

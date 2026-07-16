@@ -77,6 +77,8 @@
 | 59 | [謝籃 XIELAN 廟埕選物](sites/xielan/index.html) | 廟宇文創 | 拓印風 Rubbing | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 60 | [手帖果醬所 Handnote Jam](sites/handnote-jam/index.html) | 果醬手作坊 | 水彩手帳風 | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 61 | [三聯式搬家 Triplicate Moving Co.](sites/triplicate-movers/index.html) | 搬家公司 | 官僚表單美學 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 62 | [銀鹽相機所 SILVER HALIDE](sites/silver-halide/index.html) | 二手相機店 | 黑白攝影雜誌風 | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 63 | [崁頂魚市拍賣行](sites/kanding-fish/index.html) | 漁市拍賣 | 物流標籤/條碼美學 | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

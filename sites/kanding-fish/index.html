@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電子競標看板 ｜ 崁頂魚市拍賣行 KANDING FISH AUCTION</title>
+<meta name="description" content="崁頂魚市拍賣行的凌晨電子競標看板。上手體驗一場模擬喊價：出價、跳價、鎚定成交，即時結算你的得標筐數與總支出。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23FFFFFF'/%3E%3Cg fill='%23111'%3E%3Crect x='6' y='9' width='3' height='30'/%3E%3Crect x='11' y='9' width='2' height='30'/%3E%3Crect x='15' y='9' width='5' height='30'/%3E%3Crect x='22' y='9' width='2' height='30'/%3E%3Crect x='26' y='9' width='4' height='30'/%3E%3Crect x='32' y='9' width='2' height='30'/%3E%3Crect x='36' y='9' width='5' height='30'/%3E%3C/g%3E%3Cpath d='M24 20 h14 v8 h-14 z' fill='%23FF5A00' opacity='0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;--ink:#111111;--orange:#FF5A00;--red:#E4022B;--blue:#0090D4;
+  --mut:#6E6E6E;--pale:#F1F1EF;--line:#111111;
+  --mono:'Space Mono',ui-monospace,monospace;--disp:'Anton',sans-serif;
+  --grot:'Archivo',sans-serif;--han:'Noto Sans TC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--han);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}svg{display:block}
+::selection{background:var(--orange);color:#fff}
+/* ---------- TOPBAR ---------- */
+.top{position:sticky;top:0;z-index:60;background:var(--paper);border-bottom:4px solid var(--ink)}
+.top .bar{max-width:1360px;margin:0 auto;display:flex;align-items:stretch;justify-content:space-between}
+.top .brand{display:flex;align-items:center;gap:12px;padding:12px 20px;border-right:2px solid var(--ink)}
+.top .brand img{height:30px;width:auto}
+.top nav{display:flex}
+.top nav a{font-family:var(--grot);font-weight:800;letter-spacing:1px;font-size:12px;text-transform:uppercase;
+  padding:0 22px;display:flex;align-items:center;border-left:2px solid var(--ink);position:relative;color:var(--ink);transition:.15s}
+.top nav a .zh{font-family:var(--han);font-weight:700;letter-spacing:0;margin-left:6px;font-size:13px}
+.top nav a:hover{background:var(--ink);color:var(--paper)}
+.top nav a[aria-current]{background:var(--orange);color:#fff}
+.top nav a[aria-current]:hover{background:var(--orange)}
+/* ---------- OS-METAPHOR TERMINAL HEADER ---------- */
+.term{background:var(--ink);color:var(--paper);padding:14px 24px;display:flex;flex-wrap:wrap;gap:8px 26px;
+  align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.5px}
+.term .dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:live 1.2s steps(1) infinite}
+@keyframes live{0%,60%{opacity:1}70%,100%{opacity:.25}}
+.term b{color:var(--orange)}
+.term .rt{margin-left:auto;color:#9a9a9a}
+.wrap{max-width:1360px;margin:0 auto;padding:0 24px}
+.masthead{padding:22px 24px 8px;max-width:1360px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+.masthead h1{font-family:var(--disp);font-size:clamp(30px,5vw,58px);line-height:.9;letter-spacing:1px;text-transform:uppercase}
+.masthead h1 .zh{display:block;font-family:var(--han);font-weight:900;font-size:.42em;letter-spacing:2px;margin-top:6px}
+.masthead .note{font-family:var(--mono);font-size:11px;color:var(--mut);text-align:right;line-height:1.7}
+/* ---------- CONSOLE GRID ---------- */
+.console{max-width:1360px;margin:16px auto 0;padding:0 24px 20px;display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
+.panel{border:3px solid var(--ink);background:var(--paper)}
+.panel>.ph{background:var(--ink);color:var(--paper);font-family:var(--grot);font-weight:800;letter-spacing:1.5px;
+  font-size:12px;text-transform:uppercase;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.panel>.ph .zh{font-family:var(--han);font-weight:700}
+/* current lot label */
+.lot{padding:20px}
+.label{border:2px solid var(--ink);position:relative;overflow:hidden}
+.label .lrow{border-bottom:1px dashed #bbb;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  opacity:0;transform:translateY(-6px)}
+.label.printing .lrow{animation:print .34s steps(3) forwards}
+.label .lrow:nth-child(1){animation-delay:.02s}.label .lrow:nth-child(2){animation-delay:.14s}
+.label .lrow:nth-child(3){animation-delay:.26s}.label .lrow:nth-child(4){animation-delay:.38s}
+.label .lrow:nth-child(5){animation-delay:.50s}
+@keyframes print{to{opacity:1;transform:none}}
+.label .code{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:1px}
+.label .lot-name{font-family:var(--han);font-weight:900;font-size:26px}
+.label .tag{font-family:var(--grot);font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:var(--blue);color:#fff;padding:3px 8px}
+.label .tag.o{background:var(--orange)}
+.label .kv{font-family:var(--mono);font-size:12px;color:var(--mut)}
+.label .kv b{color:var(--ink);font-size:14px}
+.label .bc{padding:12px 16px;background:var(--pale)}
+.label .bc svg{width:100%;height:44px}
+/* price + timer */
+.bidbar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-top:18px}
+.price{font-family:var(--mono);font-weight:700}
+.price .pl{font-family:var(--grot);font-size:10px;letter-spacing:2px;color:var(--mut);text-transform:uppercase}
+.price .pv{font-size:clamp(30px,5vw,46px);line-height:1;letter-spacing:-1px}
+.price .pv.bump{animation:bump .3s ease}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.12);color:var(--red)}100%{transform:scale(1)}}
+.price .hold{font-family:var(--mono);font-size:12px;margin-top:6px}
+.price .hold.you{color:var(--blue)}.price .hold.rival{color:var(--ink)}
+.timer{text-align:center;border:2px solid var(--ink);padding:8px 16px;min-width:104px}
+.timer .tn{font-family:var(--disp);font-size:40px;line-height:.9}
+.timer .tl{font-family:var(--grot);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+.timer.warn{background:var(--red);color:#fff;border-color:var(--red)}
+.timer.warn .tl,.timer.warn .tn{color:#fff}
+.calls{font-family:var(--disp);font-size:22px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 4px;min-height:26px;color:var(--red)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.bid{font-family:var(--grot);font-weight:800;letter-spacing:1px;font-size:15px;text-transform:uppercase;
+  background:var(--orange);color:#fff;border:3px solid var(--ink);padding:16px 22px;cursor:pointer;
+  box-shadow:5px 5px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.bid:active{transform:translate(5px,5px);box-shadow:0 0 0 var(--ink)}
+.bid.sm{background:var(--paper);color:var(--ink)}
+.bid[disabled]{opacity:.4;cursor:not-allowed;box-shadow:2px 2px 0 var(--ink)}
+.hint{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:12px}
+/* side: queue + log + score */
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--ink);border:3px solid var(--ink)}
+.stat div{background:var(--paper);padding:12px 14px}
+.stat .l{font-family:var(--grot);font-size:9px;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase}
+.stat .v{font-family:var(--mono);font-weight:700;font-size:22px;margin-top:2px}
+.stat .v.blue{color:var(--blue)}
+.queue{padding:10px 0}
+.queue .qi{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid #eee;
+  font-family:var(--mono);font-size:12px}
+.queue .qi .qn{font-family:var(--han);font-weight:700;font-size:14px}
+.queue .qi.done{color:#bbb}.queue .qi.now{background:#fff3ec;border-left:4px solid var(--orange)}
+.queue .qi .st{font-family:var(--grot);font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.queue .qi .st.won{color:var(--blue)}.queue .qi .st.lost{color:var(--red)}
+.log{max-height:250px;overflow-y:auto}
+.log .li{padding:9px 16px;border-bottom:1px solid #eee;font-family:var(--mono);font-size:12px;display:flex;gap:8px}
+.log .li .stamp{color:var(--mut)}
+.log .li.win{background:#eef7fd}.log .li.win b{color:var(--blue)}
+.log .li.pass{color:#999}
+.log .empty{padding:22px 16px;color:#bbb;font-family:var(--mono);font-size:12px}
+.receipt{border-top:3px solid var(--ink);padding:14px 16px;font-family:var(--mono);font-size:12px;background:var(--pale);display:flex;justify-content:space-between}
+.receipt b{color:var(--orange)}
+/* explainer */
+.explain{border-top:4px solid var(--ink);padding:44px 24px}
+.explain .in{max-width:1360px;margin:0 auto}
+.explain h2{font-family:var(--disp);font-size:clamp(24px,3.6vw,40px);letter-spacing:1px;text-transform:uppercase}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--ink);border:3px solid var(--ink);margin-top:24px}
+.steps .s{background:var(--paper);padding:20px 18px}
+.steps .s .n{font-family:var(--disp);font-size:34px;color:var(--orange)}
+.steps .s h3{font-family:var(--han);font-weight:900;font-size:17px;margin:6px 0 8px}
+.steps .s p{font-family:var(--han);font-size:13.5px;color:var(--mut);line-height:1.75}
+.disc{max-width:1360px;margin:20px auto 0;font-family:var(--mono);font-size:11px;color:var(--mut);border:1px dashed #bbb;padding:12px 16px}
+/* footer */
+footer{background:var(--ink);color:var(--paper);padding:40px 24px 28px;margin-top:20px}
+.fin{max-width:1360px;margin:0 auto}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px;margin-bottom:28px}
+.fgrid h5{font-family:var(--grot);font-weight:800;letter-spacing:1.5px;font-size:11px;color:var(--orange);text-transform:uppercase;margin-bottom:12px}
+.fgrid p,.fgrid a{font-family:var(--mono);font-size:12.5px;color:#cfcfcf;line-height:1.9}
+.fgrid a:hover{color:#fff}
+.fbot{border-top:1px solid #333;padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  font-family:var(--mono);font-size:10.5px;color:#8a8a8a;letter-spacing:.5px}
+@media(max-width:980px){.console{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.fgrid{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .top .brand img{height:24px}.top nav a{padding:0 12px;font-size:10px}.top nav a .zh{display:none}
+  .masthead{padding-left:16px;padding-right:16px}.console{padding-left:12px;padding-right:12px}
+  .wrap,.explain,.term{padding-left:14px;padding-right:14px}.steps{grid-template-columns:1fr}
+  .bidbar{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}html{scroll-behavior:auto}
+  .label .lrow{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="index.html"><img src="assets/logo.svg" alt="崁頂魚市拍賣行"></a>
+    <nav>
+      <a href="index.html" aria-current="page">BOARD<span class="zh">拍賣看板</span></a>
+      <a href="lots.html">CATCH<span class="zh">今日漁獲</span></a>
+      <a href="rules.html">RULES<span class="zh">競標規則</span></a>
+    </nav>
+  </div>
+</header>
+
+<!-- OS-METAPHOR TERMINAL STATUS -->
+<div class="term">
+  <span class="dot" aria-hidden="true"></span>
+  <span>連線 <b>崁頂拍賣主機 / KDN-AUCTION-01</b></span>
+  <span>本場 <b id="t-total">10</b> 筐</span>
+  <span>買家牌號 <b>#38</b></span>
+  <span class="rt" id="clock">03:47:00 凌晨場</span>
+</div>
+
+<div class="masthead">
+  <h1>電子競標看板<span class="zh">凌晨拍賣 · 現流上板</span></h1>
+  <div class="note">崁頂魚市拍賣行 KANDING FISH AUCTION<br>基隆孝一路 · 每日 03:00 開拍 · 售罄為止</div>
+</div>
+
+<!-- CONSOLE -->
+<div class="console">
+  <!-- MAIN: current lot + bidding -->
+  <section class="panel">
+    <div class="ph"><span>現正競標 <span class="zh">/ NOW ON THE BLOCK</span></span><span id="lot-idx" style="font-family:var(--mono)">LOT 01 / 10</span></div>
+    <div class="lot">
+      <div class="label printing" id="label"></div>
+      <div class="bidbar">
+        <div class="price">
+          <div class="pl">目前喊價 · Current Bid</div>
+          <div class="pv" id="pv">NT$ 0</div>
+          <div class="hold" id="hold">尚無出價</div>
+        </div>
+        <div class="timer" id="timer"><div class="tn" id="tn">15</div><div class="tl">SEC 秒</div></div>
+      </div>
+      <div class="calls" id="calls"></div>
+      <div class="actions">
+        <button class="bid" id="bid100" data-inc="100">出價 ＋100</button>
+        <button class="bid sm" id="bid300" data-inc="300">＋300</button>
+        <button class="bid sm" id="skip">放棄本筐 →</button>
+      </div>
+      <p class="hint">點「出價」把喊價往上加，成為最高後撐過倒數即鎚定成交。凌晨場對手手很快，別猶豫。</p>
+    </div>
+  </section>
+
+  <!-- SIDE -->
+  <aside style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <div class="ph"><span>你的戰績 <span class="zh">/ YOUR TALLY</span></span></div>
+      <div class="stat">
+        <div><div class="l">得標筐數 Won</div><div class="v blue" id="s-won">0</div></div>
+        <div><div class="l">總支出 Spent</div><div class="v" id="s-spent">NT$ 0</div></div>
+        <div><div class="l">流標/放棄 Passed</div><div class="v" id="s-pass">0</div></div>
+        <div><div class="l">剩餘筐數 Left</div><div class="v" id="s-left">10</div></div>
+      </div>
+      <div class="receipt"><span>買家收據 RCPT</span><span id="rcpt">KDN-0716-038</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><span>待拍清單 <span class="zh">/ QUEUE</span></span></div>
+      <div class="queue" id="queue"></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><span>成交紀錄 <span class="zh">/ HAMMER LOG</span></span></div>
+      <div class="log" id="log"><div class="empty">尚無成交。開拍後每一鎚都印在這裡。</div></div>
+    </div>
+  </aside>
+</div>
+
+<!-- EXPLAINER -->
+<section class="explain">
+  <div class="in">
+    <h2>怎麼喊 / How the Block Works</h2>
+    <div class="steps">
+      <div class="s"><div class="n">01</div><h3>看板印出漁獲</h3><p>每一筐上板時，標籤如熱感印表機般逐行印出：品項、才數、產地、底價、條碼單號。</p></div>
+      <div class="s"><div class="n">02</div><h3>出價往上加</h3><p>點 ＋100 或 ＋300 把喊價墊高。成為最高出價者，你的名字會亮在「目前最高」。</p></div>
+      <div class="s"><div class="n">03</div><h3>撐過倒數</h3><p>每次出價倒數重置。喊到「一、二、」沒人加，主機就鎚定——對手阿源魚舖、三代福手都很快。</p></div>
+      <div class="s"><div class="n">04</div><h3>鎚定即結算</h3><p>成交筐入你的戰績，總支出與收據即時更新；沒過保留價則流標。收攤時給你整場總結。</p></div>
+    </div>
+    <p class="disc">※ 本站為 Design Skills Center 風格示範站。崁頂魚市拍賣行、漁獲品項、價格、買家與對手皆為虛構示意，喊價為前端模擬，未涉及任何真實交易。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="fin">
+    <div class="fgrid">
+      <div>
+        <h5>崁頂魚市拍賣行</h5>
+        <p>基隆市仁愛區孝一路 18 號（崁仔頂旁）<br>凌晨場 03:00 起 · 售罄為止<br>採買家牌號制，現場登記領牌</p>
+      </div>
+      <div>
+        <h5>登記領牌</h5>
+        <p><a href="tel:+886224280716">02-2428-0716</a><br><a href="mailto:board@kanding-fish.tw">board@kanding-fish.tw</a><br>新買家請於開拍前 30 分到場</p>
+      </div>
+      <div>
+        <h5>導覽</h5>
+        <p><a href="index.html">拍賣看板</a><br><a href="lots.html">今日漁獲</a><br><a href="rules.html">競標規則</a></p>
+      </div>
+    </div>
+    <div class="fbot">
+      <span>© 2026 崁頂魚市拍賣行 KANDING FISH AUCTION</span>
+      <span>條碼與漁獲圖像皆為程序生成 SVG · 無外部圖片</span>
+      <span>Design Skills Center · 範例館藏</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- 程序生成條碼（由單號決定，穩定） ---------- */
+function seedRand(str){var h=2166136261;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return function(){h+=0x6D2B79F5;var t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+function barcode(svg,code){
+  var ns='http://www.w3.org/2000/svg',rnd=seedRand(code),x=0,W=560,H=44;
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  var bg=document.createElementNS(ns,'rect');bg.setAttribute('width',W);bg.setAttribute('height',H);bg.setAttribute('fill','#F1F1EF');svg.appendChild(bg);
+  while(x<W-4){
+    var w=1+Math.floor(rnd()*5);
+    if(rnd()>0.35){var r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',2);r.setAttribute('width',w);r.setAttribute('height',H-16);r.setAttribute('fill','#111');svg.appendChild(r);}
+    x+=w+1+Math.floor(rnd()*3);
+  }
+  var t=document.createElementNS(ns,'text');t.setAttribute('x',2);t.setAttribute('y',H-3);
+  t.setAttribute('font-family',"'Space Mono',monospace");t.setAttribute('font-size','10');t.setAttribute('letter-spacing','3');
+  t.setAttribute('fill','#111');t.textContent=code;svg.appendChild(t);
+}
+
+/* ---------- 漁獲資料（虛構示意） ---------- */
+var LOTS=[
+ {code:'崁頂-0716-A03',name:'現流黑喉',kg:4.2,origin:'彭佳嶼',base:1800,reserve:2600},
+ {code:'崁頂-0716-A05',name:'澎湖白鯧',kg:3.6,origin:'澎湖',base:2400,reserve:3400},
+ {code:'崁頂-0716-A07',name:'紅目鰱',kg:6.0,origin:'東北角',base:900,reserve:1500},
+ {code:'崁頂-0716-A09',name:'澳底透抽',kg:5.4,origin:'澳底',base:1600,reserve:2400},
+ {code:'崁頂-0716-B02',name:'午仔魚',kg:3.0,origin:'王功',base:1200,reserve:1900},
+ {code:'崁頂-0716-B04',name:'馬頭魚',kg:4.8,origin:'南方澳',base:1500,reserve:2300},
+ {code:'崁頂-0716-B06',name:'龍膽石斑',kg:7.5,origin:'養殖・切筐',base:3000,reserve:4500},
+ {code:'崁頂-0716-B08',name:'白帶魚',kg:5.0,origin:'基隆外海',base:700,reserve:1200},
+ {code:'崁頂-0716-C01',name:'基隆鎖管',kg:4.0,origin:'棉花嶼',base:1400,reserve:2100},
+ {code:'崁頂-0716-C03',name:'現撈龍蝦',kg:2.2,origin:'龜山島',base:3800,reserve:5600}
+];
+var RIVALS=['阿源魚舖','三代福','崁頂12號','福興行','阿伯生魚片'];
+
+/* ---------- 狀態 ---------- */
+var idx=0, price=0, highest=null, timeLeft=15, rivalMax=0, settled=false, tickH=null;
+var results=[]; /* {code,name,status,amount} */
+var $=function(id){return document.getElementById(id);};
+
+function money(n){return 'NT$ '+n.toLocaleString();}
+
+function renderQueue(){
+  var q=$('queue');q.innerHTML='';
+  LOTS.forEach(function(l,i){
+    var r=results[i];
+    var cls='qi'+(i===idx&&!allDone()?' now':'')+(r?' done':'');
+    var st='待拍';var sc='';
+    if(r){st=r.status==='won'?'得標':(r.status==='lost'?'他人得標':'流標');sc=r.status==='won'?'won':(r.status==='lost'?'lost':'');}
+    else if(i===idx&&!allDone())st='競標中';
+    q.innerHTML+='<div class="'+cls+'"><span class="qn">'+l.name+'</span>'+
+      '<span class="st '+sc+'">'+st+'　'+(r&&r.status!=='pass'?money(r.amount):(l.kg+'kg'))+'</span></div>';
+  });
+}
+function renderScore(){
+  var won=results.filter(function(r){return r.status==='won';});
+  var spent=won.reduce(function(a,r){return a+r.amount;},0);
+  var pass=results.filter(function(r){return r.status==='pass';}).length;
+  var lost=results.filter(function(r){return r.status==='lost';}).length;
+  $('s-won').textContent=won.length;
+  $('s-spent').textContent=money(spent);
+  $('s-pass').textContent=pass+lost;
+  $('s-left').textContent=LOTS.length-results.length;
+}
+function logHammer(l,status,amount,winner){
+  var box=$('log');var em=box.querySelector('.empty');if(em)em.remove();
+  var t=$('clock').textContent.split(' ')[0];
+  var div=document.createElement('div');
+  if(status==='won'){div.className='li win';div.innerHTML='<span class="stamp">'+t+'</span><span><b>鎚定・你標下 '+l.name+'</b> · '+money(amount)+'</span>';}
+  else if(status==='lost'){div.className='li';div.innerHTML='<span class="stamp">'+t+'</span><span>鎚定・'+l.name+' 由 '+winner+' 得標 · '+money(amount)+'</span>';}
+  else{div.className='li pass';div.innerHTML='<span class="stamp">'+t+'</span><span>— '+l.name+' 未達保留價・流標</span>';}
+  box.insertBefore(div,box.firstChild);
+}
+
+function loadLot(){
+  if(allDone()){return finish();}
+  var l=LOTS[idx];
+  price=l.base;highest=null;settled=false;
+  rivalMax=Math.round((l.reserve+ (0.9+seedRand(l.code)()*1.4)*(l.reserve-l.base))/100)*100; /* 對手上限：保留價之上一段 */
+  timeLeft=15;
+  $('lot-idx').textContent='LOT '+('0'+(idx+1)).slice(-2)+' / '+LOTS.length;
+  var lab=$('label');
+  lab.classList.remove('printing');void lab.offsetWidth;
+  lab.innerHTML=
+    '<div class="lrow"><span class="code">'+l.code+'</span><span class="tag o">現流 FRESH</span></div>'+
+    '<div class="lrow"><span class="lot-name">'+l.name+'</span><span class="tag">'+l.origin+'</span></div>'+
+    '<div class="lrow"><span class="kv">才數 WT　<b>'+l.kg+' kg</b></span><span class="kv">底價 BASE　<b>'+money(l.base)+'</b></span></div>'+
+    '<div class="lrow"><span class="kv">保留價 RESERVE　<b>'+money(l.reserve)+'</b></span><span class="kv">單筐 1 CRATE</span></div>'+
+    '<div class="bc"><svg id="bc"></svg></div>';
+  lab.classList.add('printing');
+  barcode($('bc'),l.code);
+  updatePrice(false);
+  $('calls').textContent='';
+  setBtns(false);
+  renderQueue();renderScore();
+  clearInterval(tickH);tickH=setInterval(tick,1000);
+}
+function updatePrice(bump){
+  var pv=$('pv');pv.textContent=money(price);
+  if(bump){pv.classList.remove('bump');void pv.offsetWidth;pv.classList.add('bump');}
+  var h=$('hold');
+  if(!highest){h.textContent='尚無出價 · 底價起標';h.className='hold';}
+  else if(highest==='you'){h.textContent='● 目前最高：你（#38）';h.className='hold you';}
+  else{h.textContent='目前最高：'+highest;h.className='hold rival';}
+}
+function setBtns(dis){['bid100','bid300','skip'].forEach(function(id){$(id).disabled=dis;});}
+function setTimer(){
+  $('tn').textContent=timeLeft;
+  $('timer').className='timer'+(timeLeft<=5?' warn':'');
+}
+
+function userBid(inc){
+  if(settled||allDone())return;
+  price+=inc;highest='you';timeLeft=Math.max(timeLeft,7);
+  updatePrice(true);setTimer();$('calls').textContent='';
+}
+function rivalBid(){
+  if(settled)return;
+  var inc=Math.random()>0.5?300:100;
+  if(price+inc>rivalMax)return; /* 超過對手上限就不加 */
+  price+=inc;highest=RIVALS[Math.floor(Math.random()*RIVALS.length)];
+  timeLeft=Math.max(timeLeft,6);
+  updatePrice(true);setTimer();$('calls').textContent='';
+}
+function tick(){
+  if(settled)return;
+  /* 對手可能出價：越接近結標、對手越積極；user 為最高時對手才想搶 */
+  if(highest!=='you'||Math.random()<0.55){
+    if(highest==='you'&&price<rivalMax&&Math.random()<0.6)rivalBid();
+    else if(!highest&&Math.random()<0.5)rivalBid();
+    else if(highest&&highest!=='you'&&price<rivalMax&&Math.random()<0.4)rivalBid();
+  }
+  timeLeft--;setTimer();
+  if(timeLeft===2)$('calls').textContent='一、';
+  else if(timeLeft===1)$('calls').textContent='一、二、';
+  if(timeLeft<=0)settle();
+}
+function settle(){
+  settled=true;clearInterval(tickH);setBtns(true);
+  var l=LOTS[idx];
+  if(highest==='you'){
+    $('calls').textContent='鎚定成交！SOLD';
+    results.push({code:l.code,name:l.name,status:'won',amount:price});
+    logHammer(l,'won',price);
+  }else if(highest&&price>=l.reserve){
+    $('calls').textContent='由 '+highest+' 得標';
+    results.push({code:l.code,name:l.name,status:'lost',amount:price});
+    logHammer(l,'lost',price,highest);
+  }else{
+    $('calls').textContent='流標 PASSED';
+    results.push({code:l.code,name:l.name,status:'pass',amount:0});
+    logHammer(l,'pass',0);
+  }
+  renderQueue();renderScore();
+  setTimeout(function(){idx++;loadLot();},1600);
+}
+function skip(){ /* 放棄本筐：使用者退出，交給對手或流標 */
+  if(settled)return;
+  if(highest==='you'){highest=RIVALS[0];} /* 已是最高則讓出 */
+  timeLeft=1;setTimer();
+}
+function allDone(){return results.length>=LOTS.length;}
+function finish(){
+  clearInterval(tickH);
+  var won=results.filter(function(r){return r.status==='won';});
+  var spent=won.reduce(function(a,r){return a+r.amount;},0);
+  var lab=$('label');lab.classList.remove('printing');
+  lab.innerHTML='<div class="lrow" style="opacity:1;transform:none"><span class="lot-name">收攤 · 本場結束</span><span class="tag o">CLOSED</span></div>'+
+    '<div class="lrow" style="opacity:1;transform:none"><span class="kv">你共標下　<b>'+won.length+' 筐</b></span><span class="kv">總支出　<b>'+money(spent)+'</b></span></div>'+
+    '<div class="lrow" style="opacity:1;transform:none"><span class="kv">收據單號　<b>KDN-0716-038</b></span><span class="kv">感謝參與</span></div>'+
+    '<div class="bc"><svg id="bc2"></svg></div>';
+  barcode($('bc2'),'KDN-0716-038-CLOSED');
+  $('pv').textContent=money(spent);$('hold').textContent='本場已收攤，重新整理可再開一場';$('hold').className='hold you';
+  $('calls').textContent='';$('tn').textContent='0';$('timer').className='timer';
+  setBtns(true);
+  var again=document.createElement('button');again.className='bid';again.textContent='再開一場 ↻';
+  again.onclick=function(){location.reload();};
+  $('label').parentNode.querySelector('.actions').innerHTML='';
+  $('label').parentNode.querySelector('.actions').appendChild(again);
+}
+
+/* 凌晨時鐘 */
+function clockTick(){
+  var base=new Date();base.setHours(3,47,0);
+  var el=$('clock');var sec=(parseInt(el.dataset.s||'0',10)+1);el.dataset.s=sec;
+  var d=new Date(base.getTime()+sec*1000);
+  el.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2)+' 凌晨場';
+}
+window.addEventListener('DOMContentLoaded',function(){
+  $('t-total').textContent=LOTS.length;$('s-left').textContent=LOTS.length;
+  $('bid100').addEventListener('click',function(){userBid(100);});
+  $('bid300').addEventListener('click',function(){userBid(300);});
+  $('skip').addEventListener('click',skip);
+  setInterval(clockTick,1000);
+  loadLot();
+});
+</script>
+</body>
+</html>

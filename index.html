@@ -111,6 +111,12 @@ header{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:2p
 .drawer:hover{transform:translateY(6px)}
 .drawer.on{transform:translateY(20px);background:#BFAE84;z-index:2;
   box-shadow:inset 0 6px 0 rgba(0,0,0,.18),0 8px 0 var(--accent)}
+.spreadbtn{position:absolute;top:-15px;right:20px;background:var(--accent);color:#fff;border:2px solid var(--ink);
+  font-family:var(--grot);font-size:.7rem;letter-spacing:.16em;padding:5px 14px;cursor:pointer;text-transform:uppercase;transition:all .18s}
+.spreadbtn:hover{background:var(--ink)}
+.spreadbtn.on{background:var(--ink)}
+.drawers.dim .drawer{opacity:.45}
+.drawers.dim .drawer:hover{opacity:1}
 .cabnote{font-family:var(--grot);font-size:.7rem;letter-spacing:.12em;color:var(--muted);padding:1.6vh 4vw 3vh}
 @keyframes pullout{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
 .cards.pull{animation:pullout .38s cubic-bezier(.2,.8,.25,1)}
@@ -195,6 +201,7 @@ footer a{color:var(--ink)}
 
 <div class="cabinet" id="cabinet">
   <span class="plaque">Card Catalog · 館藏目錄櫃</span>
+  <button class="spreadbtn" id="spreadbtn">全部攤開 ▤</button>
   <div class="drawers" id="drawerbar" aria-label="館藏卷冊抽屜"></div>
 </div>
 <p class="cabnote" id="cabnote"></p>
@@ -511,8 +518,8 @@ const SITES=[
   palette:["#E7DCC4","#1E2A38","#3A5A86","#B32B22","#F3ECDA"]}
 ];
 const filter={key:null,val:null};
-let openPanel=null,drawerPos=0;
-const DRAWER_SIZE=12;
+let openPanel=null,drawerPos=0,expanded=false;
+const DRAWER_SIZE=24;
 const CN=['壹','貳','參','肆','伍','陸','柒','捌','玖','拾','拾壹','拾貳','拾參','拾肆','拾伍','拾陸','拾柒','拾捌','拾玖','貳拾'];
 function volumes(list){const v=[];for(let i=0;i<list.length;i+=DRAWER_SIZE)v.push({no:v.length,items:list.slice(i,i+DRAWER_SIZE),start:i+1,end:Math.min(i+DRAWER_SIZE,list.length)});return v}
 function displayedDrawers(){
@@ -564,21 +571,28 @@ function renderDrawerBar(){
   cab.style.display=show?'':'none';
   note.style.display=show?'':'none';
   if(!show)return;
+  bar.classList.toggle('dim',expanded);
+  const sb=document.getElementById('spreadbtn');
+  sb.textContent=expanded?'收回抽屜 ▥':'全部攤開 ▤';
+  sb.classList.toggle('on',expanded);
+  sb.onclick=()=>{expanded=!expanded;renderDrawerBar();renderCards()};
   ds.forEach((d,i)=>{
     const el=document.createElement('button');
-    el.className='drawer'+(i===drawerPos?' on':'');
+    el.className='drawer'+(!expanded&&i===drawerPos?' on':'');
     const volName=(filter.key?'檢索匣 ':'卷 ')+(CN[d.no]||(d.no+1));
     el.setAttribute('aria-label','拉開'+volName);
     el.innerHTML=(i===0&&!filter.key?'<span class="newtag">NEW</span>':'')+
       '<span class="window"><span class="vol">'+volName+'</span>'+
       '<span class="range">'+String(d.start).padStart(3,'0')+'–'+String(d.end).padStart(3,'0')+' · '+d.items.length+' 站</span></span>'+
       '<span class="pull"></span>';
-    el.onclick=()=>{if(drawerPos===i)return;drawerPos=i;renderDrawerBar();renderCards()};
+    el.onclick=()=>{if(!expanded&&drawerPos===i)return;expanded=false;drawerPos=i;renderDrawerBar();renderCards()};
     bar.appendChild(el);
   });
-  note.textContent=filter.key
-    ?('檢索「'+filter.val+'」：'+ds.reduce((a,d)=>a+d.items.length,0)+' 站，新到館在前')
-    :('館藏 '+SITES.length+' 站・最新到館排在最前，抽屜由新到舊——點拉環翻閱各卷');
+  note.textContent=expanded
+    ?('已全部攤開：'+ds.reduce((a,d)=>a+d.items.length,0)+' 站連續瀏覽（預覽會隨捲動載入/卸載，不佔記憶體）')
+    :(filter.key
+      ?('檢索「'+filter.val+'」：'+ds.reduce((a,d)=>a+d.items.length,0)+' 站，新到館在前')
+      :('館藏 '+SITES.length+' 站・最新到館排在最前，抽屜由新到舊——點拉環翻閱，或右上角全部攤開'));
 }
 function renderCards(){
   const mount=document.getElementById('cards');
@@ -587,7 +601,9 @@ function renderCards(){
   const ds=displayedDrawers();
   if(!ds.length){mount.innerHTML='<div class="empty-msg">沒有符合的館藏</div>';return}
   if(drawerPos>=ds.length)drawerPos=0;
-  const list=ds[drawerPos].items.slice().reverse(); /* 卷內也是新的在前 */
+  const list=expanded
+    ?ds.flatMap(d=>d.items.slice().reverse())
+    :ds[drawerPos].items.slice().reverse(); /* 皆為新的在前 */
   list.forEach(s=>{
     const card=document.createElement('div');card.className='card rv in';
     card.innerHTML=`
@@ -619,11 +635,13 @@ function fitPreviews(){
   });
 }
 const pio=new IntersectionObserver(es=>es.forEach(e=>{
-  if(!e.isIntersecting)return;
-  const f=e.target.querySelector('iframe');
-  if(f&&!f.src)f.src=f.dataset.src;
-  pio.unobserve(e.target);
-}),{rootMargin:'200px'});
+  const f=e.target.querySelector('iframe');if(!f)return;
+  if(e.isIntersecting){
+    if(f.getAttribute('src')!==f.dataset.src){f.src=f.dataset.src;fitPreviews()}
+  }else if(f.getAttribute('src')){
+    f.src='about:blank'; /* 離開視野即卸載，控制記憶體 */
+  }
+}),{rootMargin:'600px'});
 function loadVisiblePreviews(){document.querySelectorAll('.card .prev').forEach(p=>pio.observe(p))}
 window.addEventListener('resize',fitPreviews);
 refresh();

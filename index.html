@@ -87,6 +87,25 @@ header{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:2p
 .btn.primary:hover{background:var(--ink);border-color:var(--ink)}
 .empty-msg{grid-column:1/-1;padding:8vh 0;text-align:center;font-family:var(--grot);color:var(--muted);letter-spacing:.1em;border-right:2px solid var(--line);border-bottom:2px solid var(--line)}
 
+/* ---------- card-catalog drawers ---------- */
+.drawers{display:flex;flex-wrap:wrap;gap:14px;padding:0 4vw 3.5vh;align-items:flex-end}
+.drawer{position:relative;min-width:150px;border:2px solid var(--ink);background:#EDE6D6;cursor:pointer;
+  padding:12px 16px 20px;transition:transform .28s cubic-bezier(.2,.9,.3,1.2),background .2s,box-shadow .28s;
+  font-family:var(--grot);text-align:left}
+.drawer .vol{font-family:var(--serif);font-weight:900;font-size:1.15rem;display:block}
+.drawer .range{font-size:.68rem;letter-spacing:.14em;color:var(--muted);display:block;margin-top:2px}
+.drawer .handle{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:34px;height:7px;
+  border:2px solid var(--ink);border-radius:0 0 8px 8px;border-top:none;background:var(--paper)}
+.drawer .slot-label{position:absolute;right:8px;top:8px;width:10px;height:10px;border:1.5px solid var(--ink);background:var(--paper)}
+.drawer:hover{transform:translateY(-5px)}
+.drawer.on{background:var(--ink);color:var(--paper);transform:translateY(-9px);box-shadow:0 9px 0 var(--accent)}
+.drawer.on .range{color:#b8b2a6}
+.drawer.on .slot-label{background:var(--accent);border-color:var(--accent)}
+.drawer-note{font-family:var(--grot);font-size:.7rem;letter-spacing:.12em;color:var(--muted);width:100%;padding-top:4px}
+@keyframes pullout{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+.cards.pull{animation:pullout .38s cubic-bezier(.2,.8,.25,1)}
+@media (prefers-reduced-motion: reduce){.cards.pull{animation:none}.drawer,.drawer.on{transform:none}}
+
 /* ---------- seeds teaser ---------- */
 .seedband{background:var(--ink);color:var(--paper);padding:8vh 4vw;position:relative;overflow:hidden}
 .seedband h2{font-family:var(--serif);font-weight:900;font-size:clamp(1.8rem,4.5vw,3.4rem);max-width:14em}
@@ -163,6 +182,8 @@ footer a{color:var(--ink)}
 </div>
 
 <div class="filterbar" id="filterbar" aria-label="篩選館藏"></div>
+
+<div class="drawers" id="drawerbar" aria-label="館藏卷冊抽屜"></div>
 
 <div class="cards" id="cards"></div>
 
@@ -474,7 +495,7 @@ function buildFilters(){
   const mk=(label,key,val)=>{
     const b=document.createElement('button');b.className='fchip';b.textContent=label;
     if((filter.key===key&&filter.val===val)||(key===null&&filter.key===null))b.classList.add('on');
-    b.onclick=()=>{if(filter.key===key&&filter.val===val){filter.key=null;filter.val=null}else{filter.key=key;filter.val=val}buildFilters();renderCards()};
+    b.onclick=()=>{if(filter.key===key&&filter.val===val){filter.key=null;filter.val=null}else{filter.key=key;filter.val=val}drawerIdx=0;buildFilters();renderDrawerBar();renderCards()};
     bar.appendChild(b);
   };
   mk('全部',null,null);
@@ -485,11 +506,42 @@ function buildFilters(){
   const t2=document.createElement('span');t2.className='flabel';t2.textContent='風格';bar.appendChild(t2);
   stys.forEach(s=>mk(s,'style',s));
 }
+/* ---- 目錄卡片櫃：非傳統分頁 ---- */
+const DRAWER_SIZE=12;
+let drawerIdx=0;
+const CN=['壹','貳','參','肆','伍','陸','柒','捌','玖','拾','拾壹','拾貳','拾參','拾肆','拾伍'];
+function filteredList(){return SITES.filter(s=>!filter.key||s[filter.key]===filter.val)}
+function renderDrawerBar(){
+  const bar=document.getElementById('drawerbar');
+  const list=filteredList();
+  const n=Math.ceil(list.length/DRAWER_SIZE);
+  bar.innerHTML='';
+  if(n<=1){bar.style.display='none';return}
+  bar.style.display='';
+  for(let i=0;i<n;i++){
+    const a=i*DRAWER_SIZE+1, b=Math.min((i+1)*DRAWER_SIZE,list.length);
+    const d=document.createElement('button');
+    d.className='drawer'+(i===drawerIdx?' on':'');
+    d.setAttribute('aria-label',`打開第 ${i+1} 卷`);
+    d.innerHTML=`<span class="slot-label"></span><span class="vol">${filter.key?'檢索匣':'卷'} ${CN[i]||i+1}</span>
+      <span class="range">${String(a).padStart(3,'0')}–${String(b).padStart(3,'0')} · ${b-a+1} 站</span>
+      <span class="handle"></span>`;
+    d.onclick=()=>{if(drawerIdx===i)return;drawerIdx=i;renderDrawerBar();renderCards();
+      document.getElementById('drawerbar').scrollIntoView({behavior:'smooth',block:'nearest'})};
+    bar.appendChild(d);
+  }
+  const note=document.createElement('span');note.className='drawer-note';
+  note.textContent=filter.key?`檢索結果 ${list.length} 站，分裝 ${n} 匣`:`館藏 ${list.length} 站，按建置順序分裝 ${n} 卷——拉開抽屜翻閱`;
+  bar.appendChild(note);
+}
 function renderCards(){
   const mount=document.getElementById('cards');
   mount.innerHTML='';
-  const list=SITES.filter(s=>!filter.key||s[filter.key]===filter.val);
-  if(!list.length){mount.innerHTML='<div class="empty-msg">沒有符合的館藏</div>';return}
+  mount.classList.remove('pull');void mount.offsetWidth;mount.classList.add('pull');
+  const all=filteredList();
+  if(!all.length){mount.innerHTML='<div class="empty-msg">沒有符合的館藏</div>';return}
+  if(drawerIdx>=Math.ceil(all.length/DRAWER_SIZE))drawerIdx=0;
+  const list=all.slice(drawerIdx*DRAWER_SIZE,(drawerIdx+1)*DRAWER_SIZE);
   list.forEach(s=>{
     const card=document.createElement('div');card.className='card rv in';
     card.innerHTML=`
@@ -528,7 +580,7 @@ const pio=new IntersectionObserver(es=>es.forEach(e=>{
 }),{rootMargin:'200px'});
 function loadVisiblePreviews(){document.querySelectorAll('.card .prev').forEach(p=>pio.observe(p))}
 window.addEventListener('resize',fitPreviews);
-buildFilters();renderCards();
+buildFilters();renderDrawerBar();renderCards();
 (function(){var n=document.getElementById('n-sites');if(n)n.textContent=SITES.length;})();
 </script>
 

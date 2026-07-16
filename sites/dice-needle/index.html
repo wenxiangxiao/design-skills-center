@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>骰與針 DICE &amp; NEEDLE|台北 dotwork 點描刺青.每次載入都不一樣</title>
+<meta name="description" content="台北大同區的點描刺青工作室(虛構示意)。整個首頁由亂數種子生成:flash 拼貼、字塊、印刷雜件,每次重新整理都重洗一次。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='3' transform='rotate(-6 16 16)' fill='%231a1611'/%3E%3Ccircle cx='11' cy='11' r='2.6' fill='%23f4f0e5'/%3E%3Ccircle cx='16' cy='16' r='2.6' fill='%23f4f0e5'/%3E%3Ccircle cx='21' cy='11' r='2.6' fill='%23bf2f1c'/%3E%3Ccircle cx='21' cy='21' r='2.6' fill='%23f4f0e5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@400;600;700;900&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e7e2d5; --paper2:#f2eee2; --paper3:#dcd5c3;
+  --ink:#1a1611; --ink2:#453f33; --faint:#8d8574;
+  --red:#bf2f1c; --line:#c6bfab;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif; --mono:'Rubik Mono One',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  background-image:radial-gradient(rgba(26,22,17,.05) 1px,transparent 1px);
+  background-size:5px 5px;
+  color:var(--ink); font-family:var(--serif); line-height:1.75;
+  overflow-x:hidden;
+}
+::selection{background:var(--ink);color:var(--paper2)}
+a{color:inherit}
+button{font-family:var(--sans);cursor:pointer}
+h1,h2,h3{line-height:1.3}
+.mono{font-family:var(--mono)}
+/* ---------- 頂欄 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:80;display:flex;align-items:center;gap:18px;
+  padding:10px 20px;background:var(--paper2);
+  border-bottom:3px double var(--ink);
+}
+.brand{font-weight:900;font-size:20px;text-decoration:none;letter-spacing:2px;white-space:nowrap}
+.brand em{font-style:normal;color:var(--red)}
+.brand span{font-family:var(--mono);font-size:10px;letter-spacing:1px;display:block;line-height:1}
+.topbar nav{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+.topbar nav a{
+  font-family:var(--sans);font-weight:700;font-size:14px;text-decoration:none;
+  padding:4px 12px;border:1.5px solid transparent;
+}
+.topbar nav a:hover,.topbar nav a[aria-current]{border-color:var(--ink);background:var(--ink);color:var(--paper2)}
+.seedchip{
+  font-family:var(--mono);font-size:11px;letter-spacing:1px;background:none;
+  border:2px solid var(--red);color:var(--red);padding:5px 10px;border-radius:999px;
+  transform:rotate(-2deg);white-space:nowrap;
+}
+.seedchip:hover{background:var(--red);color:var(--paper2)}
+/* ---------- 撕紙書籤目錄 ---------- */
+.tabs{position:fixed;right:0;top:110px;z-index:70;display:flex;flex-direction:column;gap:7px}
+.tabs a{
+  font-family:var(--sans);font-weight:700;font-size:12px;text-decoration:none;
+  background:var(--ink);color:var(--paper2);padding:6px 12px 6px 16px;
+  clip-path:polygon(0 12%,5% 0,100% 0,100% 100%,7% 100%,3% 78%,6% 55%,0 34%);
+  transform:translateX(7px);transition:transform .2s,background .2s;
+}
+.tabs a:nth-child(2n){clip-path:polygon(0 22%,7% 0,100% 0,100% 100%,4% 96%,6% 66%,2% 48%)}
+.tabs a i{font-style:normal;font-family:var(--mono);font-size:9px;color:var(--red);margin-right:5px}
+.tabs a:hover{transform:translateX(0);background:var(--red)}
+.tabs a:hover i{color:var(--paper2)}
+/* ---------- 首屏拼貼 ---------- */
+#hero{position:relative;min-height:94vh;display:flex;align-items:center;overflow:hidden}
+#collage{position:absolute;inset:0;z-index:1}
+.piece{position:absolute;filter:drop-shadow(0 2px 3px rgba(26,18,8,.28));transform:rotate(var(--rot,0deg));
+  transition:left .38s cubic-bezier(.2,.8,.3,1),top .38s cubic-bezier(.2,.8,.3,1),transform .38s cubic-bezier(.2,.8,.3,1);
+  transition-delay:var(--del,0s);}
+#collage.shuffling .piece{left:42%!important;top:24%!important;transform:rotate(var(--jrot,0deg));transition:none;animation:riffle .28s linear}
+@keyframes riffle{0%{margin-left:0}25%{margin-left:-16px;margin-top:-6px}50%{margin-left:14px;margin-top:4px}75%{margin-left:-7px;margin-top:-2px}100%{margin-left:0;margin-top:0}}
+.paper{background:var(--paper2);padding:10px}
+.piece .tape{position:absolute;top:-9px;left:20%;width:58px;height:19px;background:rgba(201,192,166,.85);transform:rotate(-4deg);clip-path:polygon(3% 12%,97% 0,100% 88%,0 100%);z-index:2}
+.pcard .paper{padding:9px 9px 6px}
+.pcard svg{display:block;width:100%;color:var(--ink)}
+.pcard figcaption{font-family:var(--sans);font-size:11px;font-weight:700;display:flex;justify-content:space-between;gap:6px;padding-top:5px;border-top:1px solid var(--line)}
+.pcard figcaption b{font-weight:900}
+.pcard figcaption span{font-family:var(--mono);font-size:9px;color:var(--faint)}
+.pscrap .paper{font-family:var(--sans);font-weight:900;font-size:15px;line-height:1.35;padding:10px 14px;letter-spacing:1px}
+.pscrap.inv .paper{background:var(--ink);color:var(--paper2)}
+.porn .paper{font-size:30px;font-weight:900;padding:4px 12px;line-height:1.2}
+.pstamp{filter:none}
+.pstamp .rubber{
+  width:86px;height:86px;border:3px solid var(--red);border-radius:50%;color:var(--red);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--sans);font-weight:900;font-size:15px;letter-spacing:2px;line-height:1.25;
+  opacity:.82;background:transparent;
+}
+.ppost .rubber{border-style:dashed;border-radius:50%;font-family:var(--mono);font-size:8px;letter-spacing:0;padding:8px;color:var(--ink2);border-color:var(--ink2);width:96px;height:96px}
+.hero-front{position:relative;z-index:30;padding:40px 5vw;max-width:760px}
+.kicker{font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:4px;background:var(--ink);color:var(--paper2);display:inline-block;padding:3px 12px;transform:rotate(-1.5deg)}
+.h1wrap{margin:18px 0 6px;font-size:clamp(46px,9vw,104px);font-weight:900;line-height:1.08;letter-spacing:2px}
+.h1wrap .rl{display:inline-block;padding:0 .04em}
+.h1wrap .f0{font-family:var(--serif);font-weight:900}
+.h1wrap .f1{font-family:var(--sans);font-weight:900}
+.h1wrap .f2{font-family:var(--serif);font-weight:600;font-style:italic}
+.h1wrap .f3{font-family:var(--sans);font-weight:900;letter-spacing:-.02em}
+.h1wrap .inv{background:var(--ink);color:var(--paper2);padding:0 .08em}
+.h1latin{font-size:clamp(15px,2.6vw,26px);letter-spacing:1px;margin-bottom:14px}
+.h1latin .rl{display:inline-block;font-family:var(--mono)}
+.h1latin .inv{background:var(--ink);color:var(--paper2);padding:0 .12em}
+.h1latin .red{color:var(--red)}
+.lede{font-size:16.5px;max-width:34em;margin-bottom:22px}
+.lede b{background:linear-gradient(transparent 62%,rgba(191,47,28,.35) 62%)}
+/* seed 主控台 */
+.seed-console{
+  position:relative;background:var(--paper2);border:2px solid var(--ink);max-width:520px;
+  padding:16px 18px 14px;transform:rotate(-.8deg);
+  box-shadow:6px 6px 0 -2px var(--paper3);
+}
+.seed-console::before{content:"";position:absolute;top:-10px;right:26px;width:64px;height:20px;background:rgba(201,192,166,.85);transform:rotate(3deg);clip-path:polygon(2% 15%,98% 0,100% 85%,0 100%)}
+.sc-label{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--ink2)}
+.sc-code{font-family:var(--mono);font-size:clamp(30px,5vw,42px);letter-spacing:6px;color:var(--red);margin:2px 0 10px;line-height:1.1}
+.sc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{
+  font-weight:900;font-size:13.5px;border:2px solid var(--ink);background:var(--paper2);
+  padding:7px 14px;letter-spacing:1px;
+}
+.btn:hover{background:var(--ink);color:var(--paper2)}
+.btn.primary{background:var(--ink);color:var(--paper2)}
+.btn.primary:hover{background:var(--red);border-color:var(--red)}
+#seedForm{display:flex;gap:0;margin-top:10px}
+#seedInput{
+  font-family:var(--mono);font-size:14px;letter-spacing:2px;border:2px solid var(--ink);border-right:none;
+  background:var(--paper);padding:7px 10px;width:12em;max-width:52vw;color:var(--ink);text-transform:uppercase;
+}
+#seedInput:focus{outline:2px solid var(--red);outline-offset:-1px}
+.sc-note{font-size:12.5px;color:var(--ink2);margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+/* ---------- 區段共用 ---------- */
+section{padding:84px 5vw}
+.sechead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.secno{font-family:var(--mono);font-size:13px;color:var(--red);border:2px solid var(--red);padding:2px 8px;transform:rotate(-3deg)}
+.sechead h2{font-size:clamp(30px,5vw,52px);font-weight:900;letter-spacing:3px}
+.sechead .en{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:2px}
+.seclede{max-width:46em;font-size:16px;margin-bottom:34px}
+/* ---------- 抽卡機 ---------- */
+#machine{background:var(--ink);color:var(--paper2);position:relative}
+#machine .secno{color:var(--paper2);border-color:var(--paper2)}
+#machine .sechead .en{color:#9a917d}
+#machine .seclede{color:#cfc8b4}
+#machine .seclede b{color:var(--paper2);border-bottom:2px solid var(--red)}
+.dice-zone{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:34px}
+.roll-btn{
+  font-size:clamp(19px,3vw,26px);font-weight:900;letter-spacing:8px;
+  background:var(--paper2);color:var(--ink);border:none;padding:16px 34px;
+  clip-path:polygon(2% 8%,98% 0,100% 90%,95% 100%,3% 96%,0 30%);
+}
+.roll-btn:hover{background:var(--red);color:var(--paper2)}
+.roll-btn:active{transform:translateY(2px)}
+.roll-tag{font-family:var(--mono);font-size:12px;color:#9a917d;letter-spacing:2px}
+.roll-tag b{color:var(--red)}
+.slotgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;max-width:1080px}
+.fslot{min-height:340px;position:relative}
+.fback{
+  height:100%;min-height:340px;border:2px dashed #6b6350;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px;color:#8d8574;
+}
+.fback .q{font-family:var(--mono);font-size:56px;color:#5c5545}
+.fback p{font-family:var(--sans);font-size:13px;letter-spacing:2px}
+.fcard{
+  position:relative;background:var(--paper2);color:var(--ink);padding:12px 12px 10px;
+  transform:rotate(var(--rot,0deg));filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));
+}
+.fcard.deal{animation:dealIn .42s cubic-bezier(.2,.85,.3,1.1) backwards;animation-delay:var(--del,0s)}
+@keyframes dealIn{from{opacity:0;transform:translateY(-42px) rotate(9deg) scale(.92)}to{opacity:1;transform:translateY(0) rotate(var(--rot,0deg)) scale(1)}}
+.fcard .tape{position:absolute;top:-9px;left:30%;width:62px;height:19px;background:rgba(201,192,166,.9);transform:rotate(-3deg);clip-path:polygon(3% 12%,97% 0,100% 88%,0 100%)}
+.fcard svg{display:block;width:100%;color:var(--ink);background:var(--paper);border:1px solid var(--line)}
+.fcard h3{font-size:20px;font-weight:900;margin-top:10px;display:flex;align-items:baseline;gap:8px}
+.fcard h3 span{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px}
+.fline{font-size:12.5px;color:var(--ink2);line-height:1.6;margin:4px 0 8px;min-height:3.2em}
+.fdl{font-family:var(--sans);font-size:12.5px;border-top:1px solid var(--line);padding-top:8px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.fdl dt{font-weight:900;color:var(--ink2)}
+.fdl dd .price{font-family:var(--mono);font-size:13px;color:var(--red)}
+.fbtns{display:flex;gap:8px;margin-top:10px}
+.fbtns .btn{font-size:12px;padding:5px 10px}
+.fbtns .btn.on{background:var(--red);border-color:var(--red);color:var(--paper2)}
+.lockstamp{
+  position:absolute;top:16px;right:10px;border:2.5px solid var(--red);color:var(--red);border-radius:50%;
+  width:66px;height:66px;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--sans);font-weight:900;font-size:13px;letter-spacing:1px;transform:rotate(6deg);
+  background:rgba(242,238,226,.75);pointer-events:none;
+}
+.slotno{position:absolute;top:-13px;left:-11px;font-family:var(--mono);font-size:11px;background:var(--red);color:var(--paper2);padding:3px 8px;transform:rotate(-5deg)}
+/* 帳單 */
+.sheetbill{
+  margin-top:40px;max-width:1080px;background:var(--paper2);color:var(--ink);
+  padding:22px 24px;clip-path:polygon(0 4%,3% 0,97% 1%,100% 6%,99% 96%,96% 100%,4% 99%,0 93%);
+}
+.sheetbill h3{font-size:18px;font-weight:900;letter-spacing:2px;border-bottom:3px double var(--ink);padding-bottom:6px;margin-bottom:10px}
+.billrow{display:flex;justify-content:space-between;gap:10px;font-family:var(--sans);font-size:14px;padding:3px 0;border-bottom:1px dotted var(--line)}
+.billrow .price{font-family:var(--mono);font-size:13px}
+.billrow.total{font-weight:900;font-size:16px;border-bottom:none;margin-top:6px}
+.billrow.total .price{color:var(--red);font-size:16px}
+.fatenote{font-size:12.5px;color:var(--ink2);margin-top:8px}
+.fatenote b{color:var(--red)}
+.sharebox{margin-top:14px}
+.sharebox textarea{
+  width:100%;min-height:120px;font-family:var(--sans);font-size:13px;line-height:1.7;
+  background:var(--paper);border:2px solid var(--ink);padding:10px 12px;color:var(--ink);resize:vertical;
+}
+.sharebox .btn{margin-top:8px}
+/* ---------- 宣言 ---------- */
+#manifesto .grid{columns:2 380px;column-gap:34px;max-width:1100px}
+.mani{break-inside:avoid;background:var(--paper2);padding:18px 20px;margin-bottom:26px;position:relative}
+.mani::after{content:"";position:absolute;top:-8px;right:18px;width:52px;height:16px;background:rgba(201,192,166,.85);transform:rotate(4deg)}
+.mani h3{font-size:17px;font-weight:900;margin-bottom:6px}
+.mani h3 .no{font-family:var(--mono);font-size:11px;color:var(--red);margin-right:8px}
+.mani p{font-size:14.5px}
+.mani.dark{background:var(--ink);color:var(--paper2)}
+.mani.dark::after{opacity:.5}
+.mani .big{font-size:22px;font-weight:900;line-height:1.5}
+.mani .red{color:var(--red)}
+.mani.serious{border:2px solid var(--ink)}
+.mani.serious h3 .no{color:var(--ink)}
+/* ---------- 圖樣預覽 ---------- */
+#flash-preview{background:var(--paper3)}
+.prevgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;max-width:1080px;margin-bottom:28px}
+.prevgrid a{display:block;text-decoration:none;background:var(--paper2);padding:8px 8px 6px;transform:rotate(var(--rot,0deg));filter:drop-shadow(0 2px 3px rgba(26,18,8,.25))}
+.prevgrid a:hover{outline:3px solid var(--red);outline-offset:-3px}
+.prevgrid svg{display:block;width:100%;color:var(--ink)}
+.prevgrid figcaption{font-family:var(--sans);font-size:12px;font-weight:900;display:flex;justify-content:space-between;padding-top:5px;border-top:1px solid var(--line)}
+.prevgrid figcaption span{font-family:var(--mono);font-size:9px;color:var(--faint)}
+/* ---------- 店務 ---------- */
+#info .cols{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;max-width:1080px;align-items:start}
+.infocard{background:var(--paper2);padding:22px 24px;clip-path:polygon(1% 3%,99% 0,100% 97%,2% 100%,0 60%)}
+.infocard dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-family:var(--sans);font-size:14.5px}
+.infocard dt{font-weight:900;background:var(--ink);color:var(--paper2);padding:1px 8px;height:fit-content;font-size:12.5px}
+.infocard dd b{color:var(--red)}
+.logoplate{text-align:center;padding:26px;background:var(--paper2);transform:rotate(1.2deg);filter:drop-shadow(0 3px 4px rgba(26,18,8,.25))}
+.logoplate img{width:min(220px,60%);display:block;margin:0 auto 10px}
+.logoplate p{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--faint)}
+/* ---------- 頁腳 ---------- */
+footer{background:var(--ink);color:#cfc8b4;padding:46px 5vw 60px;border-top:6px solid var(--red)}
+footer .frow{display:flex;flex-wrap:wrap;gap:14px 40px;align-items:baseline;max-width:1100px}
+footer .fbrand{font-size:22px;font-weight:900;color:var(--paper2);letter-spacing:3px}
+footer nav{display:flex;gap:16px;font-family:var(--sans);font-size:13.5px}
+footer nav a{color:var(--paper2);text-decoration:none;border-bottom:1px dashed #6b6350}
+footer nav a:hover{color:var(--red);border-color:var(--red)}
+footer .fine{font-size:12.5px;margin-top:18px;max-width:60em;line-height:1.9}
+footer .fine .fic{display:inline-block;border:1.5px solid var(--red);color:var(--red);padding:0 8px;transform:rotate(-1deg);font-family:var(--sans);font-weight:700}
+footer .fseed{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:#8d8574;margin-top:14px}
+footer .fseed b{color:var(--red)}
+/* ---------- RWD ---------- */
+@media (max-width:900px){
+  #info .cols{grid-template-columns:1fr}
+  .slotgrid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .topbar{flex-wrap:wrap;gap:8px;padding:10px 14px}
+  .topbar nav{order:3;width:100%}
+  .tabs{position:static;flex-direction:row;overflow-x:auto;padding:8px 12px;gap:6px;background:var(--paper3);transform:none}
+  .tabs a{transform:none;flex:none}
+  #hero{min-height:auto;padding-bottom:30px}
+  #collage{height:100%}
+  .hero-front{padding:200px 6vw 30px}
+  .piece{filter:drop-shadow(0 1px 2px rgba(26,18,8,.28))}
+  .slotgrid{grid-template-columns:1fr}
+  section{padding:60px 6vw}
+  #manifesto .grid{columns:1}
+  .sc-code{letter-spacing:4px}
+}
+/* ---------- 動效降級 ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .piece{transition:none!important;animation:none!important}
+  #collage.shuffling .piece{animation:none!important}
+  .fcard.deal{animation:none!important}
+  *{transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html">骰<em>與</em>針<span>DICE &amp; NEEDLE · TAIPEI</span></a>
+  <nav>
+    <a href="index.html" class="keep-seed" aria-current="page">首頁</a>
+    <a href="flash.html" class="keep-seed">FLASH 圖庫</a>
+    <a href="studio.html" class="keep-seed">工作室與規範</a>
+  </nav>
+  <button class="seedchip" id="chipSeed" title="複製本版分享連結">SEED ······</button>
+</header>
+
+<nav class="tabs" aria-label="頁內目錄">
+  <a href="#hero"><i>01</i>開場拼貼</a>
+  <a href="#machine"><i>02</i>抽卡機</a>
+  <a href="#manifesto"><i>03</i>機遇宣言</a>
+  <a href="#flash-preview"><i>04</i>圖樣預覽</a>
+  <a href="#info"><i>05</i>店務情報</a>
+</nav>
+
+<main>
+<!-- ========== 01 開場拼貼 ========== -->
+<section id="hero" aria-label="開場拼貼">
+  <div id="collage" aria-hidden="true"></div>
+  <div class="hero-front">
+    <span class="kicker">台北・大同・點描刺青(虛構示意)</span>
+    <h1 class="h1wrap" id="h1zh">骰與針</h1>
+    <p class="h1latin" id="h1en">DICE &amp; NEEDLE</p>
+    <p class="lede">我們做 dotwork 點描刺青,也做<b>機遇美學</b>:不想選圖?擲骰,讓命運選。
+    順帶一提——<b>你現在看到的這個版面,也是擲出來的</b>。每次重新整理,拼貼重洗一次;
+    只有同一組 seed,才長出同一版。</p>
+    <div class="seed-console" role="group" aria-label="版面種子控制台">
+      <div class="sc-label">本次版面亂數種子 LAYOUT SEED</div>
+      <div class="sc-code" id="seedCode">······</div>
+      <div class="sc-row">
+        <button class="btn primary" id="btnCopy">複製分享連結</button>
+        <button class="btn" id="btnReroll">⚄ 再擲一次</button>
+      </div>
+      <form id="seedForm">
+        <input id="seedInput" maxlength="12" placeholder="輸入 SEED" aria-label="輸入 seed 重現版面" autocomplete="off" spellcheck="false">
+        <button class="btn" type="submit">重現該版</button>
+      </form>
+      <p class="sc-note">品牌不是定稿,是機率分布。這一版,全世界可能只有你看過——不留個紀念嗎?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 02 抽卡機 ========== -->
+<section id="machine" aria-label="Flash 抽卡機">
+  <div class="sechead"><span class="secno">02</span><h2>FLASH 抽卡機</h2><span class="en">CHANCE OPERATION UNIT</span></div>
+  <p class="seclede">按下擲骰,機器從 14 款點描 flash 裡抽出 3 張,組成你的命運 flash sheet——含尺寸、部位建議與報價。
+  看不順眼可以<b>單張重抽</b>,捨不得的先<b>蓋章鎖定</b>。但注意:<b>第一擲全收、不挑不換,整單打 9 折(命運價)</b>。猶豫是有成本的。</p>
+  <div class="dice-zone">
+    <button class="roll-btn" id="btnRoll">⚄ 擲 骰 抽 卡</button>
+    <span class="roll-tag" id="rollTag">SEED <b id="rollSeed">······</b> · 尚未擲出 · 同一 SEED,第一擲永遠一樣</span>
+  </div>
+  <div class="slotgrid" id="slots">
+    <div class="fslot"><div class="fback"><span class="q">?</span><p>命運尚未擲出</p></div></div>
+    <div class="fslot"><div class="fback"><span class="q">?</span><p>命運尚未擲出</p></div></div>
+    <div class="fslot"><div class="fback"><span class="q">?</span><p>命運尚未擲出</p></div></div>
+  </div>
+  <div class="sheetbill" id="bill" hidden>
+    <h3>命運 FLASH SHEET・報價單</h3>
+    <div id="billRows"></div>
+    <p class="fatenote" id="fateNote"></p>
+    <div class="sharebox">
+      <textarea id="shareText" readonly aria-label="分享文字"></textarea>
+      <button class="btn primary" id="btnShare">複製分享文字</button>
+      <button class="btn" id="btnBook" type="button">憑這張單去預約 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 03 機遇宣言 ========== -->
+<section id="manifesto" aria-label="機遇宣言">
+  <div class="sechead"><span class="secno">03</span><h2>機遇宣言</h2><span class="en">MANIFESTO OF CHANCE</span></div>
+  <p class="seclede">為什麼一間刺青店要把自己的首頁交給亂數?以下是我們的說法。你可以不同意,反正下一版你也看不到這段的位置了。</p>
+  <div class="grid" id="maniGrid">
+    <article class="mani dark"><p class="big">我們不做定稿。<br>定稿是給印刷廠的,<span class="red">皮膚是活的</span>。</p></article>
+    <article class="mani"><h3><span class="no">§1</span>剪碎,搖勻,抽出</h3><p>一百多年前,蘇黎世伏爾泰酒館有群人把詩剪碎、丟進帽子裡、抽出來唸,說這才是誠實的創作。我們深表同意,只是把帽子換成骰盅,把詩換成 flash,把朗誦換成三小時的針。</p></article>
+    <article class="mani"><h3><span class="no">§2</span>選擇疲勞是文明病</h3><p>你會問:「萬一抽到不喜歡的怎麼辦?」我們會反問:你上次「自己精挑細選」的髮型、工作、戀愛,後來都怎麼了?機率至少不會假裝懂你。</p></article>
+    <article class="mani"><h3><span class="no">§3</span>機率面前人人平等</h3><p>骰與針保證:抽卡機用的亂數,老闆娘不能重擲、刺青師不能動手腳、常客沒有隱藏機率加成。你唯一能賄賂的只有你自己的手氣。</p></article>
+    <article class="mani"><h3><span class="no">§4</span>seed 是這一版的身分證</h3><p>本頁所有拼貼、角度、字塊、雜件,都由右上那組 seed 生成。把連結傳給朋友,他看到的跟你一模一樣;按「再擲一次」,這一版就永遠消失——除非你記得 seed。像不像人生?我們也覺得像。</p></article>
+    <article class="mani serious"><h3><span class="no">§5</span>唯一不擲骰的事</h3><p>衛生沒有機率問題。針具一次性、器械高壓滅菌、檯面每客消毒,是 100%,不是 95%,更不用抽。詳見<a href="studio.html#hygiene" class="keep-seed">衛生規範</a>。嘴砲有限公司,消毒無限責任。</p></article>
+    <article class="mani"><h3><span class="no">§6</span>亂中有序</h3><p>看起來像一陣風吹過印刷廠,其實每張紙片的旋轉角都被限制在 ±6°、朱紅永遠少於 5%、點描的每一顆點都有密度場管著。混亂是設計出來的——這句話由一群控制狂寫成。</p></article>
+  </div>
+</section>
+
+<!-- ========== 04 圖樣預覽 ========== -->
+<section id="flash-preview" aria-label="圖樣預覽">
+  <div class="sechead"><span class="secno">04</span><h2>本版精選圖樣</h2><span class="en">DRAWN BY SEED</span></div>
+  <p class="seclede">seed 從 14 款館藏 flash 裡替你挑了這 4 款。全是手工點描:一顆一顆的墨點堆出明暗,沒有線稿,沒有色塊,只有密度。</p>
+  <div class="prevgrid" id="prevGrid"></div>
+  <a href="flash.html" class="btn primary keep-seed" style="text-decoration:none;display:inline-block">看全部 14 款圖庫與價目 →</a>
+</section>
+
+<!-- ========== 05 店務情報 ========== -->
+<section id="info" aria-label="店務情報">
+  <div class="sechead"><span class="secno">05</span><h2>店務情報</h2><span class="en">BUREAU OF PRACTICAL MATTERS</span></div>
+  <p class="seclede">嘴砲歸嘴砲,開店是認真的。地址、時間、規矩如下;更完整的衛生規範、術後照護與預約流程,請進<a href="studio.html" class="keep-seed">工作室頁</a>。</p>
+  <div class="cols">
+    <div class="infocard">
+      <dl>
+        <dt>店址</dt><dd>103 台北市大同區赤峰街 41 巷 7 號 2 樓(捷運中山站 4 號出口步行 6 分)</dd>
+        <dt>營業</dt><dd>週三–週一 13:00–21:00.<b>週二公休</b>(骰子也要休息)</dd>
+        <dt>預約</dt><dd>全預約制。私訊 IG 或來信,附上想刺的 flash 名稱<b>或抽卡 seed 碼</b>+部位照片</dd>
+        <dt>訂金</dt><dd>NT$1,000,折抵尾款;無故未到不退,骰子會記住你</dd>
+        <dt>聯絡</dt><dd>hello@dice-needle.example.tw.IG @dice.needle.tpe(皆為虛構)</dd>
+        <dt>命運價</dt><dd>抽卡結果<b>不挑不換直接下訂,整單 9 折</b>。同一 seed 的三連 sheet 全球唯一,刺過即在店內帳本封印</dd>
+      </dl>
+    </div>
+    <div class="logoplate">
+      <img src="assets/logo.svg" alt="骰與針店徽:一根長針貫穿點描骰子" width="220" height="220">
+      <p>DICE &amp; NEEDLE — STIPPLE MARK</p>
+      <p>手工點描.約兩千顆墨點.含一顆朱紅</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="frow">
+    <span class="fbrand">骰與針 DICE &amp; NEEDLE</span>
+    <nav>
+      <a href="index.html" class="keep-seed">首頁</a>
+      <a href="flash.html" class="keep-seed">FLASH 圖庫</a>
+      <a href="studio.html" class="keep-seed">工作室與規範</a>
+    </nav>
+  </div>
+  <p class="fine">103 台北市大同區赤峰街 41 巷 7 號 2 樓|週三–週一 13:00–21:00,週二公休|hello@dice-needle.example.tw
+  <br><span class="fic">本站內容為虛構示意</span> 店家、人物、地址、價目均為設計展示創作,如有雷同,是機率的錯。</p>
+  <p class="fseed">LAYOUT SEED <b id="ftSeed">······</b> — 每次載入,版面重洗一次;同一 SEED,永遠同一版。</p>
+</footer>
+
+<script>
+/* ================= 種子與亂數 ================= */
+function xmur3(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}return function(){h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return (h^=h>>>16)>>>0;};}
+function mulberry32(a){return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296;};}
+const rngFrom=s=>mulberry32(xmur3(String(s))());
+function newSeed(){const c='23456789ABCDEFGHJKMNPQRSTUVWXYZ';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+const QS=new URLSearchParams(location.search);
+const SEED=(()=>{const m=QS.get('seed');return (m&&/^[A-Za-z0-9]{1,12}$/.test(m))?m.toUpperCase():newSeed();})();
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const sm=(u,a,b)=>{const t=clamp((u-a)/(b-a),0,1);return t*t*(3-2*t);};
+function shuffle(arr,r){for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));const t=arr[i];arr[i]=arr[j];arr[j]=t;}return arr;}
+function shareURL(extra){const base=location.href.split('?')[0].split('#')[0];let q='?seed='+SEED+(extra||'');return base+q;}
+function copyText(t,btn,ok){const done=()=>{if(btn){const o=btn.textContent;btn.textContent=ok||'已複製 ✔';setTimeout(()=>btn.textContent=o,1400);}};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));}else fallbackCopy(t,done);}
+function fallbackCopy(t,done){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(ta);}
+
+/* ================= 幾何工具 ================= */
+function ellU(x,y,cx,cy,rx,ry,rot){rot=rot||0;const c=Math.cos(-rot),s=Math.sin(-rot);const dx=x-cx,dy=y-cy;return Math.hypot((dx*c-dy*s)/rx,(dx*s+dy*c)/ry);}
+function segD(x,y,ax,ay,bx,by){const dx=bx-ax,dy=by-ay;const L=dx*dx+dy*dy||1e-6;const t=clamp(((x-ax)*dx+(y-ay)*dy)/L,0,1);return Math.hypot(ax+t*dx-x,ay+t*dy-y);}
+function inPoly(x,y,p){let w=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const yi=p[i][1],yj=p[j][1];if((yi>y)!==(yj>y)&&x<(p[j][0]-p[i][0])*(y-yi)/(yj-yi)+p[i][0])w=!w;}return w;}
+function edgeD(x,y,p){let m=1e9;for(let i=0,j=p.length-1;i<p.length;j=i++){const d=segD(x,y,p[i][0],p[i][1],p[j][0],p[j][1]);if(d<m)m=d;}return m;}
+const rim=u=>(u>0.8&&u<=1)?0.93:0;
+function tornClip(r,j){j=j||3.2;const pts=[];function edge(x1,y1,x2,y2){const n=3+Math.floor(r()*3);for(let i=0;i<n;i++){const t=i/n;const x=clamp(x1+(x2-x1)*t+(r()-0.5)*j,0,100),y=clamp(y1+(y2-y1)*t+(r()-0.5)*j,0,100);pts.push(x.toFixed(1)+'% '+y.toFixed(1)+'%');}}
+ edge(1.5,1.5,98.5,1.5);edge(98.5,1.5,98.5,98.5);edge(98.5,98.5,1.5,98.5);edge(1.5,98.5,1.5,1.5);return 'polygon('+pts.join(',')+')';}
+
+/* ================= 點描密度場(14 款 flash) ================= */
+const SNAKE_SPINE=(()=>{const P=[];for(let i=0;i<=26;i++){const t=i/26;P.push([50+23*Math.sin(t*6.0+0.5),13+74*t,7.2-5.4*t]);}return P;})();
+function dSnake(x,y){let u=9;for(let i=0;i<SNAKE_SPINE.length-1;i++){const a=SNAKE_SPINE[i],b=SNAKE_SPINE[i+1];const d=segD(x,y,a[0],a[1],b[0],b[1])/((a[2]+b[2])/2);if(d<u)u=d;}
+ let den=0;if(u<1){den=(0.28+0.5*sm(u,0.2,1))*(0.78+0.22*Math.sin(y*1.6+x*0.7));den=Math.max(den,rim(u));}
+ const hx=SNAKE_SPINE[0][0],hy=SNAKE_SPINE[0][1];const uh=ellU(x,y,hx,hy-1.5,7.5,6,0);
+ if(uh<1)den=Math.max(den,0.3+0.55*sm(uh,0.15,1),rim(uh));
+ if(Math.hypot(x-(hx+2.5),y-(hy-3.5))<1.5)den=0;
+ if(segD(x,y,hx,hy-7,hx+1.5,hy-13)<0.9)den=0.9;
+ return den;}
+const DAG_BLADE=[[50,6],[45,18],[46.5,58],[53.5,58],[55,18]];
+function dDagger(x,y){let den=0;
+ if(inPoly(x,y,DAG_BLADE)){den=x<50?0.78:0.2;if(Math.abs(x-50)<0.8)den=0.05;if(edgeD(x,y,DAG_BLADE)<1.1)den=0.93;}
+ const G=[[38,58],[62,58],[62,62.5],[38,62.5]];
+ if(inPoly(x,y,G)){den=0.45+0.3*Math.abs(Math.sin(x*0.6));if(edgeD(x,y,G)<1)den=0.93;}
+ const uh=segD(x,y,50,62.5,50,84)/3.4;
+ if(uh<1)den=Math.max(den,0.3+0.45*(0.5+0.5*Math.sin(y*1.8)),rim(uh));
+ const up=Math.hypot(x-50,y-88)/4.2;
+ if(up<1)den=Math.max(den,0.25+0.6*sm(up,0.2,1),rim(up));
+ return den;}
+function dRose(x,y){let den=0;const dx=x-50,dy=y-36;const r=Math.hypot(dx,dy),th=Math.atan2(dy,dx);
+ if(r<24){const sw=0.5+0.5*Math.sin(3*th+r*0.55-1.2);den=0.18+0.6*sw*(0.45+0.55*r/24);if(r>20.5)den=Math.max(den,0.9);if(r<4.5)den=0.85;}
+ const l1=ellU(x,y,32,57,11,4.6,-0.55),l2=ellU(x,y,68,57,11,4.6,0.55);
+ if(l1<1)den=Math.max(den,0.25+0.45*l1,rim(l1));
+ if(l2<1)den=Math.max(den,0.25+0.45*l2,rim(l2));
+ if(l1<1&&segD(x,y,41,53,24,61)<0.7)den=0.08;
+ if(l2<1&&segD(x,y,59,53,76,61)<0.7)den=0.08;
+ if(segD(x,y,50,58,47.5,90)<1.4)den=Math.max(den,0.85);
+ if(segD(x,y,48.6,74,44,70)<1)den=Math.max(den,0.85);
+ return den;}
+const DT=[[50,12],[77,25],[50,38],[23,25]],DL=[[23,25],[50,38],[50,72],[23,59]],DR=[[50,38],[77,25],[77,59],[50,72]];
+const PIP_L=[[31,39],[36.5,48.5],[42,58]],PIP_R=[[57,45],[70,39],[63.5,48.5],[57,58],[70,52]];
+function dDice(x,y){let den=0;
+ if(inPoly(x,y,DT)){den=0.12;if(ellU(x,y,50,25,5,2.6,0)<1)den=0.9;if(edgeD(x,y,DT)<1)den=0.93;}
+ else if(inPoly(x,y,DL)){den=0.5;for(const p of PIP_L)if(Math.hypot(x-p[0],y-p[1])<2.6)den=0.04;if(edgeD(x,y,DL)<1)den=0.93;}
+ else if(inPoly(x,y,DR)){den=0.8;for(const p of PIP_R)if(Math.hypot(x-p[0],y-p[1])<2.4)den=0.04;if(edgeD(x,y,DR)<1)den=0.95;}
+ const us=ellU(x,y,50,80,26,4.5,0);if(us<1)den=Math.max(den,0.3*(1-us));
+ return den;}
+const SWL=[[46,38],[14,16],[8,25],[27,45],[45,50]],SWR=[[55,36],[86,12],[92,21],[70,44],[57,48]];
+const STL=[[46,57],[52,63],[36,90]],STR=[[54,57],[48,63],[64,90]];
+function dSwallow(x,y){let den=0;
+ const ub=ellU(x,y,50,46,10.5,15,0.1);
+ if(ub<1){den=y<44?0.75:0.16;den=Math.max(den,rim(ub));}
+ const uh=Math.hypot(x-53,y-30)/7;if(uh<1){den=0.8;if(uh>0.8)den=0.93;}
+ if(Math.hypot(x-55.5,y-28.5)<1.3)den=0.05;
+ if(segD(x,y,58,31,63,33)<1.1)den=0.85;
+ const wings=[SWL,SWR];
+ for(let k=0;k<2;k++){const W=wings[k];if(inPoly(x,y,W)){const tip=W[1];const dd=Math.hypot(x-tip[0],y-tip[1]);den=Math.max(0.3+0.5*(1-clamp(dd/40,0,1)),0.25+0.45*Math.abs(Math.sin(dd*0.55)));if(edgeD(x,y,W)<0.9)den=0.93;}}
+ const tails=[STL,STR];
+ for(let k=0;k<2;k++){const T=tails[k];if(inPoly(x,y,T)){den=0.75;if(edgeD(x,y,T)<0.8)den=0.93;}}
+ return den;}
+const TRI=[[50,8],[90,86],[10,86]];
+const RAYS=(()=>{const A=[];for(let k=0;k<14;k++){const a=k/14*Math.PI*2;const L=(k%2?7:12);A.push([50+28*Math.cos(a),54+15.5*Math.sin(a),50+(28+L)*Math.cos(a),54+(15.5+L*0.75)*Math.sin(a)]);}return A;})();
+function dEye(x,y){let den=0;const e=edgeD(x,y,TRI);
+ if(e<1.4)den=0.93;else if(inPoly(x,y,TRI)&&e>3.4&&e<4.6)den=0.6;
+ const ul=ellU(x,y,50,54,26,13,0);
+ if(ul<1){den=0.1;if(ul>0.88)den=0.92;
+  const r=Math.hypot(x-50,y-54),th=Math.atan2(y-54,x-50);
+  if(r<11){den=0.3+0.5*(0.5+0.5*Math.sin(th*9));if(r>9.4)den=0.93;if(r<4.6)den=0.95;}
+  if(Math.hypot(x-47.5,y-51)<1.5)den=0.04;}
+ else{for(const s of RAYS)if(segD(x,y,s[0],s[1],s[2],s[3])<1.2)den=Math.max(den,0.85);}
+ return den;}
+const LH_T=[[44,32],[56,32],[60,80],[40,80]];
+function dLighthouse(x,y){let den=0;
+ if(inPoly(x,y,LH_T)){den=(Math.floor((y-32)/6.8)%2===0)?0.72:0.15;if(edgeD(x,y,LH_T)<1)den=0.93;}
+ const G=[[41.5,28.5],[58.5,28.5],[58.5,32],[41.5,32]];
+ if(inPoly(x,y,G))den=0.88;
+ const L=[[45,20],[55,20],[55,28.5],[45,28.5]];
+ if(inPoly(x,y,L)){den=0.2;if(Math.abs(x-48.3)<0.7||Math.abs(x-51.7)<0.7)den=0.9;if(edgeD(x,y,L)<0.8)den=0.9;}
+ const R=[[43.5,20],[56.5,20],[50,13]];
+ if(inPoly(x,y,R)){den=0.8;if(edgeD(x,y,R)<0.8)den=0.93;}
+ const BR=[[56,22],[95,13],[95,31]],BL=[[44,22],[5,13],[5,31]];
+ if(inPoly(x,y,BR))den=Math.max(den,0.3*(1-(x-56)/39));
+ if(inPoly(x,y,BL))den=Math.max(den,0.3*(1-(44-x)/39));
+ const rocks=[[42,84,11,5.5],[59,85,12,6],[50,88,17,6.5]];
+ for(const R2 of rocks){const u=ellU(x,y,R2[0],R2[1],R2[2],R2[3],0);if(u<1&&y<=R2[1]+2)den=Math.max(den,0.35+0.4*u,rim(u));}
+ if(y>90&&y<93&&Math.sin(x*0.7)>0.4)den=Math.max(den,0.5);
+ return den;}
+function dMoth(x,y){const mx=50+Math.abs(x-50);let den=0;
+ const uw=ellU(mx,y,68,40,17,11,0.45);
+ if(uw<1){den=0.2+0.5*sm(uw,0.2,1);den=Math.max(den,rim(uw));const rr=Math.hypot(mx-70,y-40);if(rr<1.8)den=0.92;else if(rr<3.2)den=0.12;else if(rr<4.4)den=0.88;}
+ const ul=ellU(mx,y,61,61,11.5,8.5,-0.5);
+ if(ul<1){den=Math.max(den,0.2+0.45*sm(ul,0.2,1),rim(ul));const rr=Math.hypot(mx-63,y-62);if(rr<1.2)den=0.9;else if(rr<2.4)den=0.15;}
+ const ub=ellU(x,y,50,52,4.4,15,0);
+ if(ub<1)den=Math.max(den,(0.55+0.3*Math.sin(y*1.4))*(1-0.3*ub),rim(ub));
+ if(segD(mx,y,51,37,59,24)<1)den=Math.max(den,0.75+0.2*Math.sin(y*3));
+ if(Math.hypot(x-50,y-35)<3.2)den=Math.max(den,0.85);
+ return den;}
+const FLK=[[[30,66],[20,57],[34,59]],[[70,66],[80,57],[66,59]]];
+function dAnchor(x,y){let den=0;
+ if(Math.abs(Math.hypot(x-50,y-14)-4.5)<1.7)den=0.9;
+ if(segD(x,y,36,25,64,25)<2)den=Math.max(den,0.8);
+ for(const px of[36,64]){const u=Math.hypot(x-px,y-25)/2.6;if(u<1)den=Math.max(den,0.5+0.4*u);}
+ if(segD(x,y,50,18.5,50,68)<2)den=Math.max(den,0.8);
+ const ar=Math.hypot(x-50,y-50);
+ if(Math.abs(ar-23)<2.1&&y>58)den=Math.max(den,0.85);
+ for(const F of FLK)if(inPoly(x,y,F)){den=Math.max(den,0.8);if(edgeD(x,y,F)<0.7)den=0.93;}
+ return den;}
+function dMoon(x,y){let den=0;
+ const uA=Math.hypot(x-54,y-50)/30,uB=Math.hypot(x-42,y-45)/26;
+ if(uA<1&&uB>1){den=0.22+0.55*sm(uA,0.45,1);if(uA>0.92)den=0.93;if(uB<1.07)den=0.9;
+  const cr=[[66,36,3.2],[61,64,4],[71,52,2.4],[57,25,2]];
+  for(const c of cr){const d=Math.hypot(x-c[0],y-c[1]);if(d<c[2])den=0.14;else if(d<c[2]+1.1)den=0.88;}}
+ const st=[[20,22],[14,52],[24,78],[36,14],[30,60]];
+ for(const s of st)if(Math.hypot(x-s[0],y-s[1])<1.1)den=Math.max(den,0.95);
+ return den;}
+const LEGS=(()=>{const base=[[[4,-4],[20,-18],[34,-10]],[[5,-1],[24,-6],[38,4]],[[5,2],[22,10],[36,22]],[[4,5],[16,20],[26,38]]];const L=[];for(const s of[1,-1])for(const b of base)L.push([[50+s*b[0][0],42+b[0][1]],[50+s*b[1][0],42+b[1][1]],[50+s*b[2][0],42+b[2][1]]]);return L;})();
+function dSpider(x,y){let den=0;
+ const ua=ellU(x,y,50,60,9,11.5,0);
+ if(ua<1){den=0.72;if(ellU(x,y,50,57,2.8,4.6,0)<1)den=0.1;den=Math.max(den,rim(ua));}
+ const uc=Math.hypot(x-50,y-42)/5.5;if(uc<1){den=0.82;if(uc>0.8)den=0.93;}
+ for(const g of LEGS)if(segD(x,y,g[0][0],g[0][1],g[1][0],g[1][1])<1.4||segD(x,y,g[1][0],g[1][1],g[2][0],g[2][1])<1.3)den=Math.max(den,0.85);
+ if(segD(x,y,48.5,36.5,47.5,33.5)<0.8||segD(x,y,51.5,36.5,52.5,33.5)<0.8)den=Math.max(den,0.85);
+ return den;}
+const HG_T=[[36,16],[64,16],[50,49]],HG_B=[[36,84],[64,84],[50,51]];
+function dHourglass(x,y){let den=0;
+ if(segD(x,y,31,12,69,12)<2.2||segD(x,y,31,88,69,88)<2.2)den=0.85;
+ if(segD(x,y,33.5,13,33.5,87)<1.5||segD(x,y,66.5,13,66.5,87)<1.5)den=0.8;
+ if(inPoly(x,y,HG_T)){den=Math.max(den,0.05);if(edgeD(x,y,HG_T)<0.9)den=Math.max(den,0.88);if(y<30)den=Math.max(den,0.62);}
+ if(inPoly(x,y,HG_B)){den=Math.max(den,0.05);if(edgeD(x,y,HG_B)<0.9)den=Math.max(den,0.88);const up=ellU(x,y,50,85.5,12.5,11,0);if(up<1&&y<84.5)den=Math.max(den,0.62+0.2*(1-up));}
+ if(Math.abs(x-50)<1&&y>49&&y<80)den=Math.max(den,0.75);
+ return den;}
+const BOLT=[[57,6],[36,48],[48,48],[38,92],[68,38],[54,38],[66,6]];
+function dBolt(x,y){let den=0;
+ if(inPoly(x,y,BOLT)){den=Math.max(0.12,0.72-0.5*(y-6)/86);if(edgeD(x,y,BOLT)<1.1)den=0.93;}
+ const sp=[[34,90,28,84],[42,95,38,90.5],[46,93,44,88]];
+ for(const s of sp)if(segD(x,y,s[0],s[1],s[2],s[3])<0.9)den=Math.max(den,0.8);
+ return den;}
+const COF=[[39,12],[61,12],[70,34],[57,92],[43,92],[30,34]];
+function dCoffin(x,y){let den=0;
+ if(inPoly(x,y,COF)){den=0.3+0.3*(0.5+0.5*Math.sin(x*1.05+y*0.18));const e=edgeD(x,y,COF);if(e<1.2)den=0.93;else if(e>4&&e<5.4)den=Math.max(den,0.75);
+  if(segD(x,y,50,28,50,60)<2||segD(x,y,42,38,58,38)<2)den=0.06;}
+ return den;}
+
+/* ================= FLASH 目錄 ================= */
+const DESIGNS=[
+ {id:'snake',zh:'蛇',en:'SERPENT',fn:dSnake,line:'蛻皮是蛇的日常。你連換個大頭貼都要想三天。',prices:[4500,7800,12000],spots:['前臂內側','小腿肚','側腰']},
+ {id:'dagger',zh:'匕首',en:'DAGGER',fn:dDagger,line:'防身不行,防小人可以——刺在看得到的地方。',prices:[4000,6800,10500],spots:['前臂外側','小腿','上臂']},
+ {id:'rose',zh:'玫瑰',en:'ROSE',fn:dRose,line:'帶刺是玫瑰的基本禮貌,也建議你學著點。',prices:[4200,7200,11000],spots:['鎖骨下','手肘上','大腿']},
+ {id:'dice',zh:'骰子',en:'DICE',fn:dDice,line:'本店店徽。擲出去的骰子與說出口的話,一律不收回。',prices:[3800,6500,9800],spots:['手腕上','腳踝','頸後']},
+ {id:'swallow',zh:'燕子',en:'SWALLOW',fn:dSwallow,line:'水手說燕子帶你回家。我們說牠帶你回來補色。',prices:[4000,6800,10000],spots:['鎖骨','胸口','手背']},
+ {id:'eye',zh:'天眼',en:'THE EYE',fn:dEye,line:'它沒有在看你,它在看你的餘額。',prices:[4800,8200,12500],spots:['上臂','小腿正面','背部中線']},
+ {id:'lighthouse',zh:'燈塔',en:'LIGHTHOUSE',fn:dLighthouse,line:'給每一個常常迷路的人:至少皮膚上有光。',prices:[5200,8800,13500],spots:['前臂內側','小腿正面','側肋']},
+ {id:'moth',zh:'夜蛾',en:'MOTH',fn:dMoth,line:'撲火之前,麻煩先預約。',prices:[4500,7500,11500],spots:['胸口正中','後頸','前臂']},
+ {id:'anchor',zh:'錨',en:'ANCHOR',fn:dAnchor,line:'象徵穩重。刺完你還是很浮,但至少有象徵。',prices:[3800,6500,9800],spots:['手腕','腳踝','上臂']},
+ {id:'moon',zh:'弦月',en:'CRESCENT',fn:dMoon,line:'滿月太圓滿,不像人生。缺一角才有故事。',prices:[3500,6000,9000],spots:['耳後','手腕內側','肩胛']},
+ {id:'spider',zh:'蜘蛛',en:'SPIDER',fn:dSpider,line:'八隻腳,比你勤勞八倍,而且牠不用打卡。',prices:[4200,7000,10800],spots:['手肘','膝蓋外側','肩頭']},
+ {id:'hourglass',zh:'沙漏',en:'HOURGLASS',fn:dHourglass,line:'時間不多了——指的是本月檔期。',prices:[4000,6800,10500],spots:['前臂','上臂內側','小腿']},
+ {id:'bolt',zh:'閃電',en:'BOLT',fn:dBolt,line:'靈感、心動與命運,都發生在零點幾秒。',prices:[3500,5800,8800],spots:['手指側','腳踝','耳後']},
+ {id:'coffin',zh:'棺材',en:'COFFIN',fn:dCoffin,line:'遲早的事,先預習,不吃虧。',prices:[4500,7500,11500],spots:['上臂外側','小腿肚','背部']}
+];
+const SIZES=[['S','約 6–8cm',1],['M','約 12–15cm',2],['L','20cm 起',3.5]];
+const NTD=n=>'NT$'+n.toLocaleString('en-US');
+const DOT_CACHE={};
+function stipplePath(d){if(DOT_CACHE[d.id])return DOT_CACHE[d.id];
+ const r=rngFrom('ink-'+d.id);let out='';
+ for(let i=0;i<9000;i++){const x=r()*100,y=r()*100;const den=d.fn(x,y);
+  if(den>0&&r()<den*0.92){const rad=(0.42+r()*0.5)*(0.7+0.6*den);
+   out+='M'+(x-rad).toFixed(1)+' '+y.toFixed(1)+'a'+rad.toFixed(2)+' '+rad.toFixed(2)+' 0 1 0 '+(2*rad).toFixed(2)+' 0a'+rad.toFixed(2)+' '+rad.toFixed(2)+' 0 1 0 '+(-2*rad).toFixed(2)+' 0';}}
+ DOT_CACHE[d.id]=out;return out;}
+function flashSVG(d){return '<svg viewBox="0 0 100 100" role="img" aria-label="'+d.zh+'點描圖樣"><path d="'+stipplePath(d)+'" fill="currentColor"/></svg>';}
+
+/* ================= 生成式版面 ================= */
+const collage=document.getElementById('collage');
+function ransom(text,r,rotMax){return text.split('').map(ch=>{
+ if(ch===' ')return '<span style="display:inline-block;width:.35em"></span>';
+ const f='f'+Math.floor(r()*4);const inv=r()<0.26?' inv':'';
+ const rot=(r()*rotMax*2-rotMax).toFixed(1),dy=(r()*0.34-0.17).toFixed(2),fs=(0.84+r()*0.44).toFixed(2);
+ return '<span class="rl '+f+inv+'" style="transform:rotate('+rot+'deg) translateY('+dy+'em);font-size:'+fs+'em">'+ch+'</span>';}).join('');}
+const PHRASES=['機遇是最好的刺青師','先擲骰,後埋怨','痛是暫時的,版面是永久的','下針無悔','亂中有序.序中有針','定稿是懦弱的','NO SKETCH NO CRY','CHANCE OPERATIONS','點到為止 點到入魂','命運牌桌.每日開局','本日墨量充足','拒絕完美主義協會 台北分會'];
+const ORNS=['※','№','¶','†','‡','⁂','✱','§','&','◆','?!','——'];
+const STAMPS=['已消毒','機率保證','本日已擲','虛構示意'];
+function buildCollage(){
+ const r=rngFrom(SEED+'#layout');
+ const rot=()=>(r()*12-6).toFixed(1);
+ const cardSlots=shuffle([[1,4],[17,2],[36,3],[55,6],[73,2],[2,42],[14,60],[66,38],[80,58],[46,58],[58,64],[30,40]],r);
+ const scrapSlots=shuffle([[10,28],[34,24],[52,32],[84,26],[6,80],[26,82],[48,84],[68,82],[88,76],[42,16],[22,12],[62,20],[90,6],[4,20],[76,14],[38,72]],r);
+ const idx=shuffle(DESIGNS.map((_,i)=>i),r);
+ const nCards=6+Math.floor(r()*2);
+ let html='';let z=1;
+ for(let i=0;i<nCards;i++){
+  const d=DESIGNS[idx[i]];const s=cardSlots[i%cardSlots.length];
+  const w=(13+r()*7).toFixed(1);
+  html+='<figure class="piece pcard" style="left:'+s[0]+'%;top:'+s[1]+'%;width:'+w+'%;--rot:'+rot()+'deg;--jrot:'+(r()*10-5).toFixed(1)+'deg;--del:'+(r()*0.12).toFixed(2)+'s;z-index:'+(z++)+'">'
+   +'<div class="tape" style="left:'+(10+r()*50).toFixed(0)+'%"></div>'
+   +'<div class="paper" style="clip-path:'+tornClip(r)+'">'+flashSVG(d)
+   +'<figcaption><b>'+d.zh+'</b><span>'+d.en+' · No.'+String(idx[i]+1).padStart(2,'0')+'</span></figcaption></div></figure>';
+ }
+ const phr=shuffle(PHRASES.slice(),r).slice(0,5);
+ const orn=shuffle(ORNS.slice(),r).slice(0,5);
+ const stm=shuffle(STAMPS.slice(),r).slice(0,2);
+ let si=0;
+ for(const p of phr){const s=scrapSlots[si++];
+  html+='<div class="piece pscrap'+(r()<0.4?' inv':'')+'" style="left:'+s[0]+'%;top:'+s[1]+'%;--rot:'+rot()+'deg;--jrot:'+(r()*10-5).toFixed(1)+'deg;--del:'+(r()*0.12).toFixed(2)+'s;z-index:'+(z++)+'"><div class="paper" style="clip-path:'+tornClip(r,4)+'">'+p+'</div></div>';}
+ for(const o of orn){const s=scrapSlots[si++];
+  html+='<div class="piece porn" style="left:'+s[0]+'%;top:'+s[1]+'%;--rot:'+rot()+'deg;--jrot:'+(r()*10-5).toFixed(1)+'deg;--del:'+(r()*0.12).toFixed(2)+'s;z-index:'+(z++)+'"><div class="paper" style="clip-path:'+tornClip(r,5)+'">'+o+'</div></div>';}
+ for(const t of stm){const s=scrapSlots[si++];
+  html+='<div class="piece pstamp" style="left:'+s[0]+'%;top:'+s[1]+'%;--rot:'+rot()+'deg;--jrot:'+(r()*10-5).toFixed(1)+'deg;--del:'+(r()*0.12).toFixed(2)+'s;z-index:'+(z++)+'"><div class="rubber">'+t+'</div></div>';}
+ const s2=scrapSlots[si++];
+ html+='<div class="piece pstamp ppost" style="left:'+s2[0]+'%;top:'+s2[1]+'%;--rot:'+rot()+'deg;--jrot:'+(r()*10-5).toFixed(1)+'deg;--del:'+(r()*0.12).toFixed(2)+'s;z-index:'+(z++)+'"><div class="rubber">TAIPEI DATONG<br>DICE &amp; NEEDLE<br>POSTE DADA<br>SEED '+SEED+'</div></div>';
+ collage.innerHTML=html;
+ /* 洗牌開場(0.8 秒內完成;reduced-motion 直接就位) */
+ if(!REDUCED){
+  collage.classList.add('shuffling');
+  setTimeout(()=>collage.classList.remove('shuffling'),300);
+ }
+}
+function buildHeadline(){
+ const r=rngFrom(SEED+'#type');
+ document.getElementById('h1zh').innerHTML=ransom('骰與針',r,5);
+ document.getElementById('h1en').innerHTML=ransom('DICE & NEEDLE — TATTOO ATELIER',r,6)
+  .replace('&amp;','&');
+}
+function buildPreview(){
+ const r=rngFrom(SEED+'#preview');
+ const idx=shuffle(DESIGNS.map((_,i)=>i),r).slice(0,4);
+ document.getElementById('prevGrid').innerHTML=idx.map(i=>{const d=DESIGNS[i];
+  return '<a class="keep-seed" href="flash.html#'+d.id+'" style="--rot:'+(r()*8-4).toFixed(1)+'deg"><figure>'+flashSVG(d)
+   +'<figcaption>'+d.zh+'<span>'+d.en+'</span></figcaption></figure></a>';}).join('');
+}
+
+/* ================= FLASH 抽卡機 ================= */
+let rollN=0;
+let slotsState=[null,null,null];
+const slotsEl=document.getElementById('slots');
+function pickCard(r,used){let di;do{di=Math.floor(r()*DESIGNS.length);}while(used.has(di));used.add(di);
+ return {di,sizeIdx:Math.floor(r()*3),spotIdx:Math.floor(r()*DESIGNS[di].spots.length),locked:false,rerolls:0};}
+function doRoll(){
+ rollN++;
+ const r=rngFrom(SEED+'#roll'+rollN);
+ const used=new Set(slotsState.filter(s=>s&&s.locked).map(s=>s.di));
+ slotsState=slotsState.map(s=>(s&&s.locked)?s:null);
+ for(let i=0;i<3;i++)if(!slotsState[i])slotsState[i]=pickCard(r,used);
+ renderSlots(true);
+}
+function rerollSlot(i){
+ const s=slotsState[i];if(!s||s.locked)return;
+ s.rerolls++;
+ const r=rngFrom(SEED+'#roll'+rollN+'s'+i+'r'+s.rerolls);
+ const used=new Set(slotsState.filter((t,j)=>t&&j!==i).map(t=>t.di));
+ const c=pickCard(r,used);c.rerolls=s.rerolls;
+ slotsState[i]=c;
+ renderSlots(false,i);
+}
+function toggleLock(i){const s=slotsState[i];if(!s)return;s.locked=!s.locked;renderSlots(false);}
+function cardHTML(s,i,animate){
+ const d=DESIGNS[s.di];const sz=SIZES[s.sizeIdx];
+ const rot=((i-1)*1.6+(s.di%3-1)*1.2).toFixed(1);
+ return '<article class="fcard'+(animate&&!REDUCED?' deal':'')+'" style="--rot:'+rot+'deg;--del:'+(i*0.12)+'s">'
+  +'<span class="slotno">No.'+(i+1)+'</span><div class="tape"></div>'
+  +flashSVG(d)
+  +'<h3>'+d.zh+'<span>'+d.en+'</span></h3>'
+  +'<p class="fline">'+d.line+'</p>'
+  +'<dl class="fdl"><dt>尺寸</dt><dd>'+sz[0]+' · '+sz[1]+'</dd>'
+  +'<dt>建議部位</dt><dd>'+d.spots[s.spotIdx]+'</dd>'
+  +'<dt>報價</dt><dd><span class="price">'+NTD(d.prices[s.sizeIdx])+'</span> · 約 '+sz[2]+' 小時</dd></dl>'
+  +'<div class="fbtns">'
+  +'<button class="btn'+(s.locked?' on':'')+'" data-lock="'+i+'">'+(s.locked?'解除鎖定':'蓋章鎖定')+'</button>'
+  +'<button class="btn" data-rr="'+i+'"'+(s.locked?' disabled':'')+'>重抽這張</button>'
+  +'</div>'
+  +(s.locked?'<span class="lockstamp">已鎖定<br>SEALED</span>':'')
+  +'</article>';
+}
+function renderSlots(animate,only){
+ slotsEl.querySelectorAll('.fslot').forEach((el,i)=>{
+  const s=slotsState[i];
+  if(!s){el.innerHTML='<div class="fback"><span class="q">?</span><p>命運尚未擲出</p></div>';return;}
+  const anim=animate||(only===i);
+  el.innerHTML=cardHTML(s,i,anim);
+ });
+ slotsEl.querySelectorAll('[data-lock]').forEach(b=>b.onclick=()=>toggleLock(+b.dataset.lock));
+ slotsEl.querySelectorAll('[data-rr]').forEach(b=>b.onclick=()=>rerollSlot(+b.dataset.rr));
+ renderBill();
+ document.getElementById('rollTag').innerHTML='SEED <b>'+SEED+'</b> · 第 '+rollN+' 擲 · 同一 SEED,第一擲永遠一樣';
+}
+function stateCode(){return slotsState.map(s=>DESIGNS[s.di].id+'-'+s.sizeIdx+'-'+s.spotIdx).join('.');}
+function renderBill(){
+ const bill=document.getElementById('bill');
+ if(slotsState.some(s=>!s)){bill.hidden=true;return;}
+ bill.hidden=false;
+ let total=0,hours=0;
+ const rows=slotsState.map((s,i)=>{const d=DESIGNS[s.di];const sz=SIZES[s.sizeIdx];const p=d.prices[s.sizeIdx];total+=p;hours+=sz[2];
+  return '<div class="billrow"><span>No.'+(i+1)+' '+d.zh+' '+d.en+' · '+sz[0]+' · '+d.spots[s.spotIdx]+(s.rerolls?' · 重抽×'+s.rerolls:'')+(s.locked?' · 已鎖定':'')+'</span><span class="price">'+NTD(p)+'</span></div>';});
+ const virgin=rollN===1&&slotsState.every(s=>s.rerolls===0);
+ const fate=Math.round(total*0.9/100)*100;
+ document.getElementById('billRows').innerHTML=rows.join('')
+  +'<div class="billrow total"><span>合計(約 '+hours+' 小時)</span><span class="price">'+NTD(total)+'</span></div>'
+  +(virgin?'<div class="billrow total"><span>命運價(第一擲全收 9 折)</span><span class="price">'+NTD(fate)+'</span></div>':'');
+ document.getElementById('fateNote').innerHTML=virgin
+  ?'你還沒動過任何一張——<b>此刻下訂即享命運價</b>。多按一次重抽,折扣即蒸發,骰子都看在眼裡。'
+  :'你重抽過了,<b>命運價已蒸發</b>。沒關係,自由意志本來就比較貴。';
+ const url=shareURL('&r='+rollN+'&cards='+stateCode());
+ document.getElementById('shareText').value='【骰與針・命運 FLASH SHEET】\nSEED '+SEED+' · 第 '+rollN+' 擲\n'
+  +slotsState.map((s,i)=>{const d=DESIGNS[s.di];const sz=SIZES[s.sizeIdx];return (i+1)+'. '+d.zh+' '+d.en+'|'+sz[0]+' '+sz[1]+'|'+d.spots[s.spotIdx]+'|'+NTD(d.prices[s.sizeIdx]);}).join('\n')
+  +'\n合計 '+NTD(total)+(virgin?'(命運價 '+NTD(fate)+')':'')
+  +'\n這是命運的報價,不接受議價。重現連結:\n'+url;
+}
+function restoreFromURL(){
+ const cards=QS.get('cards');if(!cards)return false;
+ const parts=cards.split('.');if(parts.length!==3)return false;
+ const st=[];
+ for(const p of parts){const m=p.match(/^([a-z]+)-(\d)-(\d)$/);if(!m)return false;
+  const di=DESIGNS.findIndex(d=>d.id===m[1]);if(di<0)return false;
+  const sizeIdx=+m[2],spotIdx=+m[3];
+  if(sizeIdx>2||spotIdx>=DESIGNS[di].spots.length)return false;
+  st.push({di,sizeIdx,spotIdx,locked:false,rerolls:0});}
+ slotsState=st;rollN=clamp(parseInt(QS.get('r')||'1',10)||1,1,999);
+ renderSlots(false);
+ return true;
+}
+
+/* ================= Seed 介面 ================= */
+function gotoSeed(s){location.href=location.pathname.split('/').pop().replace(/^$/,'index.html')+'?seed='+encodeURIComponent(s);}
+document.getElementById('btnReroll').onclick=()=>gotoSeed(newSeed());
+document.getElementById('btnCopy').onclick=e=>copyText(shareURL(),e.target);
+document.getElementById('chipSeed').onclick=e=>copyText(shareURL(),e.target,'已複製');
+document.getElementById('seedForm').onsubmit=e=>{e.preventDefault();
+ const v=document.getElementById('seedInput').value.trim().toUpperCase();
+ if(/^[A-Z0-9]{1,12}$/.test(v))gotoSeed(v);};
+document.getElementById('btnRoll').onclick=doRoll;
+document.getElementById('btnShare').onclick=e=>copyText(document.getElementById('shareText').value,e.target);
+document.getElementById('btnBook').onclick=()=>{location.href='studio.html?seed='+SEED+'#booking';};
+
+/* ================= 啟動 ================= */
+document.getElementById('seedCode').textContent=SEED;
+document.getElementById('chipSeed').textContent='SEED '+SEED;
+document.getElementById('ftSeed').textContent=SEED;
+document.getElementById('rollSeed').textContent=SEED;
+document.querySelectorAll('a.keep-seed').forEach(a=>{
+ const href=a.getAttribute('href');const hi=href.indexOf('#');
+ const path=hi<0?href:href.slice(0,hi);const hash=hi<0?'':href.slice(hi);
+ if(path)a.setAttribute('href',path+'?seed='+SEED+hash);
+});
+buildHeadline();
+buildCollage();
+buildPreview();
+if(restoreFromURL())document.getElementById('machine').scrollIntoView({block:'start'});
+</script>
+</body>
+</html>

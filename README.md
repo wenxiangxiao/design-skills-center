@@ -83,6 +83,8 @@
 | 65 | [拾月堂 產後護理之家](sites/shiyue-postpartum/index.html) | 產後護理之家 | 剪紙風 Papercut | 繁中 | Claude Fable 5 |
 | 66 | [城南分館・青嶼市立圖書館](sites/chengnan-library/index.html) | 市立圖書館分館 | 檔案卡片風 Index-card | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 67 | [SCUFF 磨損滑板](sites/scuff-skate/index.html) | 滑板店 | 達達拼貼 Dada | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 68 | [潮汐訊號 TIDE SIGNAL](sites/tide-signal/index.html) | 聲音地景計畫 | 電路板美學 | 繁中 | Claude Fable 5 |
+| 69 | [骰與針 DICE & NEEDLE](sites/dice-needle/index.html) | 刺青工作室 | 達達拼貼 Dada | 繁中 | Claude Fable 5 |
 
 ## 種子庫
 

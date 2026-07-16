@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>館藏檢索・城南分館</title>
+<meta name="description" content="城南分館卡片式館藏檢索：依分類、語言、年代、在架狀態多條件篩選，翻卡看借閱記錄。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='20' fill='%23E4D8BC' stroke='%231A1712' stroke-width='2'/%3E%3Cline x1='9' y1='7' x2='9' y2='25' stroke='%239E3B2E' stroke-width='1.4'/%3E%3Cline x1='12' y1='13' x2='25' y2='13' stroke='%236A7A86' stroke-width='1'/%3E%3Cline x1='12' y1='17' x2='25' y2='17' stroke='%236A7A86' stroke-width='1'/%3E%3Cline x1='12' y1='21' x2='21' y2='21' stroke='%236A7A86' stroke-width='1'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+:root{--kraft:#E4D8BC;--kraft-2:#DCCEAC;--ink:#1A1712;--red:#9E3B2E;--faded:#5C574C;--rule:#7C8B94;--card:#EFE7D2;--shadow:rgba(26,23,18,.28)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--kraft);color:var(--ink);font-family:"Newsreader",'Noto Serif TC',serif;font-size:18px;line-height:1.62;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(124,139,148,.16) 31px 32px);mix-blend-mode:multiply;opacity:.65}
+.mono{font-family:"Courier Prime",monospace}
+a{color:inherit}
+.wrap{position:relative;z-index:1;display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:hidden;background:var(--kraft-2);border-right:2.5px solid var(--ink);display:flex;flex-direction:column}
+.rail .rod{height:8px;border-bottom:2px solid var(--ink);background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 22px)}
+.brand{padding:20px 18px 14px}
+.brand object{pointer-events:none;width:100%}
+.rail nav{padding:6px 0;border-top:1.5px dashed rgba(26,23,18,.35);margin-top:6px}
+.rail nav a{display:block;position:relative;font-family:"Courier Prime",monospace;font-size:14px;letter-spacing:.5px;text-decoration:none;color:var(--ink);padding:11px 18px 11px 22px;border-bottom:1px solid rgba(26,23,18,.18);transition:background .18s,padding .18s}
+.rail nav a .cn{font-family:"Noto Serif TC",serif;font-size:16px;margin-right:8px}
+.rail nav a:hover{background:var(--card);padding-left:30px}
+.rail nav a.here{background:var(--ink);color:var(--kraft)}
+.rail nav a.here::before{content:"▸";position:absolute;left:9px}
+.rail .stamp{margin-top:auto;padding:16px 18px;font-family:"Courier Prime",monospace;font-size:11px;color:var(--faded);line-height:1.5}
+.rail .stamp b{color:var(--red)}
+.topbar{display:none}
+.main{min-width:0;padding:0 0 60px}
+.kick{font-family:"Courier Prime",monospace;font-size:12.5px;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin:0 0 12px}
+h1{font-weight:600;font-size:clamp(30px,4.6vw,50px);margin:0;letter-spacing:1px}
+.head{border-bottom:2.5px solid var(--ink);padding:38px 46px 30px}
+.head p{max-width:56ch;color:#2b2620;margin:16px 0 0}
+
+/* search console */
+.console{padding:26px 46px 6px;display:grid;grid-template-columns:1fr;gap:18px}
+.searchrow{display:flex;gap:0;border:2.5px solid var(--ink);background:var(--card);box-shadow:5px 5px 0 var(--shadow)}
+.searchrow input{flex:1;border:none;background:transparent;font-family:"Courier Prime",monospace;font-size:16px;padding:14px 16px;color:var(--ink)}
+.searchrow input:focus{outline:none;background:#F5EEDA}
+.searchrow button{border:none;border-left:2.5px solid var(--ink);background:var(--ink);color:var(--kraft);font-family:"Courier Prime",monospace;font-size:13px;letter-spacing:1px;padding:0 22px;cursor:pointer;text-transform:uppercase}
+.searchrow button:hover{background:var(--red)}
+.facets{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.facet h4{font-family:"Courier Prime",monospace;font-size:11.5px;letter-spacing:1.5px;color:var(--red);margin:0 0 8px;border-bottom:1.4px solid var(--ink);padding-bottom:6px}
+.chip{display:inline-flex;align-items:center;font-family:"Courier Prime",monospace;font-size:12.5px;cursor:pointer;border:1.6px solid var(--ink);background:var(--kraft-2);padding:5px 10px;margin:0 6px 6px 0;transition:background .14s,transform .12s;user-select:none}
+.chip:hover{background:#F3ECD8}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--kraft)}
+.chip[aria-pressed="true"].red{background:var(--red);border-color:var(--red)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 46px 4px;border-top:1.5px dashed rgba(26,23,18,.4);margin-top:12px}
+.count{font-family:"Courier Prime",monospace;font-size:13px}
+.count b{color:var(--red);font-size:17px}
+.sortsel{font-family:"Courier Prime",monospace;font-size:12.5px;display:flex;align-items:center;gap:8px}
+.sortsel select{font-family:"Courier Prime",monospace;font-size:12.5px;border:1.6px solid var(--ink);background:var(--card);padding:6px 8px;color:var(--ink)}
+.linkbtn{font-family:"Courier Prime",monospace;font-size:12px;background:none;border:none;color:var(--red);text-decoration:underline;cursor:pointer}
+
+/* results: index cards */
+.results{padding:22px 46px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.rec{position:relative;height:222px;perspective:1200px}
+.rec .flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.3,.7,.2,1);cursor:pointer}
+.rec.flipped .flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--shadow);padding:14px 16px 14px 24px;overflow:hidden}
+.face::before{content:"";position:absolute;left:14px;top:0;bottom:0;width:1.4px;background:var(--red)}
+.face::after{content:"";position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 25px,rgba(124,139,148,.28) 25px 26px)}
+.face .cn{position:relative;z-index:2;font-family:"Courier Prime",monospace;font-size:11px;color:var(--red);letter-spacing:.5px}
+.face .ti{position:relative;z-index:2;font-size:21px;font-weight:600;line-height:1.2;margin:4px 0 3px}
+.face .au{position:relative;z-index:2;font-family:"Newsreader",serif;font-style:italic;font-size:14.5px;color:#3a342c}
+.face .meta{position:relative;z-index:2;font-family:"Courier Prime",monospace;font-size:11.5px;color:var(--faded);margin-top:auto;line-height:1.7}
+.face .row{display:flex;flex-direction:column;height:100%}
+.face .spacer{flex:1}
+.face .vig{position:absolute;right:10px;bottom:34px;width:52px;height:52px;opacity:.9;z-index:2}
+.status{position:absolute;top:10px;right:12px;z-index:3;font-family:"Courier Prime",monospace;font-size:10px;letter-spacing:.5px;padding:3px 7px;border:1.4px solid var(--ink)}
+.status.on{color:#2f5a3a;border-color:#2f5a3a;background:#e7ecd7}
+.status.out{color:var(--red);border-color:var(--red);background:#f3e2dc}
+.face.back{transform:rotateY(180deg);padding:16px 18px}
+.face.back h5{font-family:"Courier Prime",monospace;font-size:11px;letter-spacing:1px;color:var(--red);margin:0 0 8px;border-bottom:1.4px solid var(--ink);padding-bottom:5px;z-index:2;position:relative}
+.face.back::after{display:none}
+.duestamps{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.stamp2{transform:rotate(-7deg);border:1.6px solid var(--red);color:var(--red);font-family:"Courier Prime",monospace;font-size:10px;padding:3px 6px;letter-spacing:.5px;opacity:.85}
+.stamp2:nth-child(2n){transform:rotate(5deg)}
+.stamp2:nth-child(3n){transform:rotate(-3deg)}
+.face.back .foot{position:absolute;left:18px;right:18px;bottom:14px;z-index:2;font-family:"Courier Prime",monospace;font-size:11px;color:var(--faded)}
+.flip-hint{position:absolute;bottom:8px;right:12px;z-index:3;font-family:"Courier Prime",monospace;font-size:10px;color:var(--faded)}
+.empty{grid-column:1/-1;border:2px dashed var(--ink);padding:40px;text-align:center;font-family:"Courier Prime",monospace;color:var(--faded)}
+footer{border-top:2.5px solid var(--ink);margin-top:40px;padding:30px 46px;background:var(--kraft-2);font-family:"Courier Prime",monospace;font-size:12px;color:var(--faded);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer a{color:var(--ink)}
+@media(max-width:900px){
+  .wrap{grid-template-columns:1fr}.rail{display:none}
+  .topbar{display:flex;position:sticky;top:0;z-index:20;align-items:center;gap:12px;background:var(--kraft-2);border-bottom:2.5px solid var(--ink);padding:10px 16px;flex-wrap:wrap}
+  .topbar .lg{height:34px}
+  .topbar nav{display:flex;gap:2px;flex-wrap:wrap;font-family:"Courier Prime",monospace;font-size:12px}
+  .topbar nav a{text-decoration:none;color:var(--ink);border:1.5px solid var(--ink);padding:5px 9px}
+  .topbar nav a.here{background:var(--ink);color:var(--kraft)}
+  .head,.console,.toolbar,.results,footer{padding-left:18px;padding-right:18px}
+  .facets{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}.rec.flipped .flip{transform:none}.rec.flipped .face:not(.back){display:none}.rec.flipped .face.back{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="rail">
+    <div class="rod"></div>
+    <div class="brand"><a href="index.html" aria-label="首頁"><object type="image/svg+xml" data="assets/logo.svg"></object></a></div>
+    <nav>
+      <a href="index.html"><span class="cn">案</span>目錄大廳 / STACKS</a>
+      <a class="here" href="catalogue.html"><span class="cn">索</span>館藏檢索 / SEARCH</a>
+      <a href="visit.html"><span class="cn">館</span>館舍與沿革 / VISIT</a>
+    </nav>
+    <div class="stamp">RETURN&nbsp;BY<br><b>翻卡看借閱章</b><br>—<br>參考諮詢分機 12</div>
+  </aside>
+  <div class="topbar">
+    <img class="lg" src="assets/logo.svg" alt="城南分館">
+    <nav><a href="index.html">目錄大廳</a><a class="here" href="catalogue.html">館藏檢索</a><a href="visit.html">館舍</a></nav>
+  </div>
+
+  <main class="main">
+    <header class="head">
+      <p class="kick">Public Access Catalogue · 卡片式</p>
+      <h1>館藏檢索</h1>
+      <p>把想找的關鍵字打進卡槽，或直接勾抽屜條件。系統會把符合的索引卡抽出來排在桌上。想知道一本書被誰借過幾次？把卡片翻面，蓋滿的還書章都在背面。</p>
+    </header>
+
+    <section class="console">
+      <div class="searchrow">
+        <input id="q" type="search" placeholder="鍵入書名、作者或主題… 例：臺灣、潮間帶、葉石濤" aria-label="關鍵字">
+        <button id="go">檢&nbsp;索</button>
+      </div>
+      <div class="facets">
+        <div class="facet"><h4>分類 CLASS</h4><div id="fClass"></div></div>
+        <div class="facet"><h4>語言 LANG</h4><div id="fLang"></div></div>
+        <div class="facet"><h4>年代 DECADE</h4><div id="fDecade"></div></div>
+        <div class="facet"><h4>在架狀態 STATUS</h4><div id="fStatus"></div></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="count">命中 <b id="cnt">0</b> 筆　<button class="linkbtn" id="clear">清除全部條件</button></div>
+      <div class="sortsel"><span>排序</span>
+        <select id="sort">
+          <option value="rel">相關度</option>
+          <option value="year-desc">出版年（新→舊）</option>
+          <option value="year-asc">出版年（舊→新）</option>
+          <option value="pop">借閱次數（多→少）</option>
+          <option value="call">索書號</option>
+        </select>
+      </div>
+    </div>
+
+    <section class="results" id="results"></section>
+
+    <footer>
+      <span>© 2026 青嶼市立圖書館 城南分館・書目與借閱記錄皆為虛構示意</span>
+      <span>BUILT BY CLAUDE OPUS 4.8 · 排程 AGENT　|　<a href="visit.html">館舍與沿革 →</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+"use strict";
+/* ---- catalogue data (fictional) ---- */
+var BOOKS=[
+ {call:"673.2 8834",ti:"臺灣通史",au:"連橫",cls:"6",lang:"中",year:1920,pop:57,on:false},
+ {call:"863.57 4402",ti:"紅鞋子",au:"葉石濤",cls:"8",lang:"中",year:1989,pop:41,on:true},
+ {call:"367.6 2231",ti:"潮間帶生態圖誌",au:"何佳蓉",cls:"4",lang:"中",year:2014,pop:23,on:true},
+ {call:"733.9 1160",ti:"城南街庄志略",au:"青嶼文獻會 編",cls:"6",lang:"中",year:1998,pop:12,on:true},
+ {call:"901.3 7712",ti:"版畫的十二種刀法",au:"吳念樺",cls:"7",lang:"中",year:2007,pop:19,on:false},
+ {call:"415.9 5023",ti:"家庭醫學手冊",au:"林承恩",cls:"5",lang:"中",year:2011,pop:34,on:true},
+ {call:"191.9 3388",ti:"生活裡的心理學",au:"周敏",cls:"1",lang:"中",year:2003,pop:28,on:true},
+ {call:"272.09 6690",ti:"臺灣民間信仰小史",au:"陳阿海",cls:"2",lang:"中",year:1996,pop:16,on:true},
+ {call:"523.4 2077",ti:"一間教室裡的四十年",au:"郭素貞",cls:"3",lang:"中",year:2019,pop:31,on:true},
+ {call:"440.7 8081",ti:"老屋修繕全書",au:"張文彬",cls:"5",lang:"中",year:2016,pop:44,on:false},
+ {call:"813 M672",ti:"Winesburg, Ohio",au:"Sherwood Anderson",cls:"8",lang:"西",year:1919,pop:9,on:true},
+ {call:"523 D289",ti:"The Well-Trained Mind",au:"S. Wise Bauer",cls:"3",lang:"西",year:2000,pop:14,on:true},
+ {call:"748.6 3401",ti:"攝影，作為一種凝視",au:"高维明",cls:"7",lang:"中",year:2012,pop:22,on:true},
+ {call:"325 N714",au:"日本自然史学会",ti:"標本の作り方",cls:"4",lang:"日",year:1988,pop:7,on:true},
+ {call:"863.51 5570",ti:"雨港的一百個清晨",au:"許蕙如",cls:"8",lang:"中",year:2021,pop:38,on:true},
+ {call:"991.9 2044",ti:"臺灣民謠採集紀事",au:"呂泉溪",cls:"7",lang:"中",year:1978,pop:11,on:true},
+ {call:"320.9 6613",ti:"地方自治的日常",au:"蔡孟樺",cls:"3",lang:"中",year:2022,pop:26,on:true},
+ {call:"078 1120",ti:"城南舊報微縮·合輯",au:"本館特藏",cls:"0",lang:"中",year:1965,pop:5,on:false},
+ {call:"440.15 K552",ti:"Small House, Long Life",au:"K. Okada",cls:"5",lang:"西",year:2018,pop:17,on:true},
+ {call:"120.9 9987",ti:"西方哲學的散步路線",au:"董以德",cls:"1",lang:"中",year:2009,pop:20,on:true},
+ {call:"326 3390",ti:"夜空觀星第一課",au:"沈昭儀",cls:"4",lang:"中",year:2015,pop:33,on:true},
+ {call:"863.4 7025",ti:"渡船頭的詩",au:"林秀珠",cls:"8",lang:"中",year:1974,pop:8,on:true},
+ {call:"782.8 4417",ti:"延平老街人物列傳",au:"青嶼文獻會 編",cls:"6",lang:"中",year:2005,pop:15,on:false},
+ {call:"019 2200",ti:"賴永祥中文圖書分類法·簡編",au:"賴永祥",cls:"0",lang:"中",year:2001,pop:6,on:true}
+];
+BOOKS.forEach(function(b){b.decade=Math.floor(b.year/10)*10;});
+
+/* hatching engraved vignettes (original SVG, cross-hatch) per class */
+function vignette(cls){
+  var stroke='#1A1712';
+  var motifs={
+    "0":"<rect x='10' y='8' width='32' height='36' fill='none' stroke='"+stroke+"' stroke-width='1.6'/><line x1='10' y1='16' x2='42' y2='16' stroke='"+stroke+"' stroke-width='1'/>",
+    "1":"<circle cx='26' cy='26' r='15' fill='none' stroke='"+stroke+"' stroke-width='1.6'/><path d='M26 11v30M11 26h30' stroke='"+stroke+"' stroke-width='.8'/>",
+    "2":"<path d='M26 8l12 10v20H14V18z' fill='none' stroke='"+stroke+"' stroke-width='1.6'/>",
+    "4":"<path d='M14 40c6-4 6-16 12-16s6 12 12 16' fill='none' stroke='"+stroke+"' stroke-width='1.6'/><circle cx='26' cy='16' r='5' fill='none' stroke='"+stroke+"' stroke-width='1.4'/>",
+    "5":"<path d='M14 38l24-24M20 14h18v18' fill='none' stroke='"+stroke+"' stroke-width='1.6'/>",
+    "6":"<path d='M12 12h20l8 8v20H12z' fill='none' stroke='"+stroke+"' stroke-width='1.6'/><path d='M32 12v8h8' fill='none' stroke='"+stroke+"' stroke-width='1'/>",
+    "7":"<path d='M14 40V16l12-6 12 6v24' fill='none' stroke='"+stroke+"' stroke-width='1.6'/><path d='M14 22h24' stroke='"+stroke+"' stroke-width='1'/>",
+    "8":"<path d='M14 12c8 2 12 2 12 10v18c0-8-4-8-12-10zM38 12c-8 2-12 2-12 10v18c0-8 4-8 12-10z' fill='none' stroke='"+stroke+"' stroke-width='1.5'/>",
+    "3":"<circle cx='19' cy='22' r='6' fill='none' stroke='"+stroke+"' stroke-width='1.5'/><circle cx='33' cy='22' r='6' fill='none' stroke='"+stroke+"' stroke-width='1.5'/><path d='M13 40c0-8 26-8 26 0' fill='none' stroke='"+stroke+"' stroke-width='1.5'/>"
+  };
+  var hatch="<defs><pattern id='h"+cls+"' width='4' height='4' patternTransform='rotate(35)' patternUnits='userSpaceOnUse'><line x1='0' y1='0' x2='0' y2='4' stroke='"+stroke+"' stroke-width='.7' opacity='.5'/></pattern></defs>";
+  return "<svg viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'>"+hatch+
+    "<rect x='2' y='2' width='48' height='48' fill='url(#h"+cls+")' opacity='.35'/>"+
+    (motifs[cls]||motifs["0"])+"</svg>";
+}
+
+/* ---- facet setup ---- */
+var CLS={"0":"總類","1":"哲學","2":"宗教","3":"社會","4":"自然","5":"應用","6":"史地","7":"藝術","8":"語文"};
+var state={q:"",cls:new Set(),lang:new Set(),decade:new Set(),status:new Set(),sort:"rel"};
+
+function makeChips(host,items,key,red){
+  items.forEach(function(it){
+    var c=document.createElement('span');
+    c.className='chip'+(red?' red':'');
+    c.setAttribute('role','button');c.setAttribute('aria-pressed','false');
+    c.textContent=it.label;c.dataset.val=it.val;
+    c.addEventListener('click',function(){
+      var on=c.getAttribute('aria-pressed')==='true';
+      c.setAttribute('aria-pressed',String(!on));
+      if(on)state[key].delete(it.val);else state[key].add(it.val);
+      render();
+    });
+    host.appendChild(c);
+  });
+}
+makeChips(document.getElementById('fClass'),Object.keys(CLS).map(function(k){return{val:k,label:k+' '+CLS[k]};}),'cls');
+makeChips(document.getElementById('fLang'),[{val:"中",label:"中文"},{val:"西",label:"西文"},{val:"日",label:"日文"}],'lang');
+makeChips(document.getElementById('fDecade'),[{val:"1910",label:"1910s"},{val:"1960",label:"1960s"},{val:"1970",label:"1970s"},{val:"1980",label:"1980s"},{val:"1990",label:"1990s"},{val:"2000",label:"2000s"},{val:"2010",label:"2010s"},{val:"2020",label:"2020s"}],'decade');
+makeChips(document.getElementById('fStatus'),[{val:"on",label:"在架可借"},{val:"out",label:"已借出"}],'status',true);
+
+/* ---- filter + sort + render ---- */
+function score(b){
+  var q=state.q.trim();if(!q)return 1;
+  var hay=(b.ti+' '+b.au+' '+b.call+' '+CLS[b.cls]).toLowerCase();
+  var terms=q.toLowerCase().split(/\s+/),s=0;
+  terms.forEach(function(t){if(hay.indexOf(t)>-1)s+=1;});
+  return s;
+}
+function pass(b){
+  if(state.cls.size&&!state.cls.has(b.cls))return false;
+  if(state.lang.size&&!state.lang.has(b.lang))return false;
+  if(state.decade.size&&!state.decade.has(String(b.decade)))return false;
+  if(state.status.size){var st=b.on?"on":"out";if(!state.status.has(st))return false;}
+  if(state.q.trim()&&score(b)===0)return false;
+  return true;
+}
+function dueDates(b){
+  // deterministic pseudo-history from call number, count ~ pop
+  var seed=0;for(var i=0;i<b.call.length;i++)seed=(seed*31+b.call.charCodeAt(i))>>>0;
+  var n=Math.min(6,Math.max(1,Math.round(b.pop/9)));var out=[];
+  for(var k=0;k<n;k++){seed=(seed*1103515245+12345)>>>0;
+    var y=2015+seed%11,m=1+(seed>>5)%12,d=1+(seed>>9)%28;
+    out.push(y+'.'+('0'+m).slice(-2)+'.'+('0'+d).slice(-2));}
+  return out.sort();
+}
+function render(){
+  var list=BOOKS.filter(pass);
+  var s=state.sort;
+  list.sort(function(a,b){
+    if(s==='year-desc')return b.year-a.year;
+    if(s==='year-asc')return a.year-b.year;
+    if(s==='pop')return b.pop-a.pop;
+    if(s==='call')return a.call<b.call?-1:1;
+    return score(b)-score(a)||b.pop-a.pop;
+  });
+  document.getElementById('cnt').textContent=list.length;
+  var host=document.getElementById('results');host.innerHTML='';
+  if(!list.length){host.innerHTML='<div class="empty">桌上沒有符合的卡片。<br>試著放寬條件，或換個關鍵字。</div>';return;}
+  list.forEach(function(b){
+    var rec=document.createElement('div');rec.className='rec';rec.setAttribute('tabindex','0');
+    var stamps=dueDates(b).map(function(d){return '<span class="stamp2">'+d+'</span>';}).join('');
+    rec.innerHTML=
+     '<div class="flip">'+
+       '<div class="face"><div class="row">'+
+         '<span class="cn">■ '+b.call+'　'+b.cls+' '+CLS[b.cls]+'</span>'+
+         '<div class="ti">'+b.ti+'</div>'+
+         '<div class="au">'+b.au+'</div>'+
+         '<div class="spacer"></div>'+
+         '<div class="vig">'+vignette(b.cls)+'</div>'+
+         '<div class="meta">'+b.year+'　'+({中:"中文",西:"西文",日:"日文"}[b.lang])+'　借閱 '+b.pop+' 次</div>'+
+       '</div>'+
+         '<span class="status '+(b.on?'on':'out')+'">'+(b.on?'在架':'借出')+'</span>'+
+         '<span class="flip-hint">翻卡 →</span>'+
+       '</div>'+
+       '<div class="face back">'+
+         '<h5>借 閱 記 錄　CIRCULATION</h5>'+
+         '<div class="duestamps">'+stamps+'</div>'+
+         '<div class="foot">索書號 '+b.call+'<br>'+(b.on?'現於架上，可外借':'預約排隊中，可線上預約')+'</div>'+
+       '</div>'+
+     '</div>';
+    var flip=function(){rec.classList.toggle('flipped');};
+    rec.querySelector('.flip').addEventListener('click',flip);
+    rec.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();flip();}});
+    host.appendChild(rec);
+  });
+}
+
+/* wire */
+document.getElementById('q').addEventListener('input',function(e){state.q=e.target.value;render();});
+document.getElementById('go').addEventListener('click',render);
+document.getElementById('q').addEventListener('keydown',function(e){if(e.key==='Enter')render();});
+document.getElementById('sort').addEventListener('change',function(e){state.sort=e.target.value;render();});
+document.getElementById('clear').addEventListener('click',function(){
+  state={q:"",cls:new Set(),lang:new Set(),decade:new Set(),status:new Set(),sort:state.sort};
+  document.getElementById('q').value='';
+  document.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed','false');});
+  render();
+});
+// deep link from drawer wall (#c6 -> class 6)
+(function(){var h=location.hash.match(/^#c(\d)$/);if(h){state.cls.add(h[1]);
+  document.querySelectorAll('#fClass .chip').forEach(function(c){if(c.dataset.val===h[1])c.setAttribute('aria-pressed','true');});}})();
+render();
+</script>
+</body>
+</html>

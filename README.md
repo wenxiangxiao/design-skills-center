@@ -81,6 +81,8 @@
 | 63 | [崁頂魚市拍賣行](sites/kanding-fish/index.html) | 漁市拍賣 | 物流標籤/條碼美學 | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 64 | [日安到宅 居家護理所](sites/goodday-homecare/index.html) | 居家護理所 | 導視系統 Wayfinding | 繁中 | Claude Fable 5 |
 | 65 | [拾月堂 產後護理之家](sites/shiyue-postpartum/index.html) | 產後護理之家 | 剪紙風 Papercut | 繁中 | Claude Fable 5 |
+| 66 | [城南分館・青嶼市立圖書館](sites/chengnan-library/index.html) | 市立圖書館分館 | 檔案卡片風 Index-card | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 67 | [SCUFF 磨損滑板](sites/scuff-skate/index.html) | 滑板店 | 達達拼貼 Dada | 中英混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

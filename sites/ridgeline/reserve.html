@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>線上抽籤訂床｜稜線 RIDGELINE</title>
+<meta name="description" content="選路線、抽梯次、訂床位——稜線 RIDGELINE 高山山屋線上預約流程。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23243138'/%3E%3Cpath d='M4 32 L20 9 L36 32 Z' fill='none' stroke='%23DCE0DC' stroke-width='2.4'/%3E%3Cpath d='M11 32 L20 20 L29 32' fill='none' stroke='%231E7A82' stroke-width='2'/%3E%3Cpath d='M20 5 v6 M17 8 h6' stroke='%23E4572E' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--fog:#D3DAD6;--paper:#E4E8E4;--panel:#EDF0EC;--slate:#243138;--slate2:#33454D;--ink:#161D1F;
+ --teal:#1E7A82;--teal2:#2A9BA3;--rope:#E4572E;--snow:#F4F6F3;--muted:#6E7873;--hair:#BEC7C0;
+ --mono:'IBM Plex Mono',ui-monospace,monospace;--disp:'Archivo','Arial Narrow',sans-serif;--han:'Noto Sans TC',sans-serif;--rail:78px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fog);color:var(--ink);font-family:var(--han);line-height:1.7;padding-left:var(--rail);
+ background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);background-size:100% 44px,44px 100%}
+a{color:inherit}.mono{font-family:var(--mono);letter-spacing:.04em}
+.wrap{max-width:1160px;margin:0 auto;padding:0 26px}
+.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail);background:var(--slate);color:var(--snow);display:flex;flex-direction:column;align-items:center;z-index:50}
+.rail .mark{margin:14px 0 10px}.rail nav{flex:1;display:flex;flex-direction:column;gap:2px;align-items:center;margin-top:6px}
+.rail nav a{writing-mode:vertical-rl;text-orientation:upright;font-family:var(--han);font-weight:700;letter-spacing:.34em;font-size:14px;color:#9fb0ac;text-decoration:none;padding:14px 6px;transition:color .2s}
+.rail nav a:hover,.rail nav a[aria-current]{color:var(--snow)}.rail nav a[aria-current]{box-shadow:inset 2px 0 0 var(--rope)}
+.rail .scale{font-family:var(--mono);font-size:9px;color:#5f716f;line-height:1.9;text-align:center;padding:10px 0 14px}
+.rail .tick{width:22px;height:1px;background:#3a4c53;margin:3px auto}
+.phead{padding:34px 0 20px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:34px;height:2px;background:var(--rope)}
+h1{font-family:var(--disp);font-weight:900;font-size:clamp(2rem,5.4vw,3.6rem);line-height:.95;letter-spacing:-.02em;margin:.3em 0 .1em;color:var(--slate)}
+h1 .han{display:block;font-family:var(--han);font-weight:900;font-size:clamp(1.1rem,2.6vw,1.6rem);color:var(--ink);margin-top:.2em}
+.book{display:grid;grid-template-columns:1fr 1.05fr;gap:0;border:1.5px solid var(--slate);background:var(--panel);margin-bottom:60px}
+.viz{background:linear-gradient(180deg,#1a2529,#0f171a);position:relative;min-height:440px;display:flex;flex-direction:column}
+.viz .vwrap{flex:1;position:relative;cursor:grab;touch-action:none}
+.viz .vwrap.drag{cursor:grabbing}
+.viz canvas{display:block;width:100%;height:100%}
+.viz .corner{position:absolute;font-family:var(--mono);font-size:10px;color:#6b8a90;z-index:2;pointer-events:none}
+.viz .pbox{border-top:1.5px solid var(--slate2);padding:12px 16px;background:#0c1417}
+.viz .pbox h4{font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.14em;color:var(--teal2);margin:0 0 6px;text-transform:uppercase}
+.profile{width:100%;height:96px;display:block;background:#0a1215;border:1px solid #23343a}
+.plabel{font-family:var(--mono);font-size:10px;color:#6b8a90;display:flex;justify-content:space-between;margin-top:4px}
+.form{padding:26px 28px}
+.steps{display:flex;gap:0;margin-bottom:22px;border:1px solid var(--hair)}
+.steps div{flex:1;text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:8px 2px;color:var(--muted);border-right:1px solid var(--hair);background:var(--paper)}
+.steps div:last-child{border-right:0}
+.steps div[data-on]{background:var(--slate);color:var(--snow)}
+.steps div b{display:block;font-size:14px;font-weight:600}
+.step{display:none}.step.on{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.slabel{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rope);margin:0 0 12px}
+.rcard{display:block;width:100%;text-align:left;border:1.5px solid var(--slate);background:var(--paper);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;position:relative}
+.rcard:hover{background:#fff}
+.rcard[aria-pressed="true"]{background:var(--slate);color:var(--snow)}
+.rcard[aria-pressed="true"] .rc-meta{color:#a9b7b5}
+.rcard[aria-pressed="true"] .rc-name{color:var(--snow)}
+.rc-name{font-family:var(--disp);font-weight:800;font-size:1.15rem;color:var(--slate);letter-spacing:.01em}
+.rc-name em{font-style:normal;font-family:var(--han);font-weight:700;font-size:.95rem;margin-left:8px}
+.rc-meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.03em}
+.rc-tag{position:absolute;top:12px;right:14px;font-family:var(--mono);font-size:10px;padding:2px 7px;border:1px solid currentColor;color:var(--teal)}
+.dep{display:flex;align-items:center;justify-content:space-between;border:1.5px solid var(--slate);background:var(--paper);padding:11px 14px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.dep:hover:not(.full){background:#fff}
+.dep[aria-pressed="true"]{background:var(--slate);color:var(--snow)}
+.dep[aria-pressed="true"] small{color:#a9b7b5}
+.dep.full{opacity:.5;cursor:not-allowed;background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 6px,#dfe3df 6px,#dfe3df 12px)}
+.dep .dd{font-family:var(--mono);font-weight:500;font-size:13.5px;letter-spacing:.02em}
+.dep small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.dep .beds{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--teal)}
+.dep.full .beds{color:var(--rope)}
+.stepper{display:flex;align-items:center;gap:0;border:1.5px solid var(--slate);width:fit-content}
+.stepper button{width:44px;height:44px;border:0;background:var(--slate);color:var(--snow);font-size:20px;cursor:pointer;font-family:var(--mono)}
+.stepper button:disabled{opacity:.35;cursor:not-allowed}
+.stepper input{width:64px;height:44px;border:0;text-align:center;font-family:var(--mono);font-weight:600;font-size:18px;background:var(--paper);color:var(--ink)}
+.hintline{font-family:var(--mono);font-size:11px;color:var(--muted);margin:8px 0 0}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--slate2);margin-bottom:5px;text-transform:uppercase}
+.field input{width:100%;border:1.5px solid var(--slate);background:var(--paper);padding:11px 12px;font-family:var(--han);font-size:15px;color:var(--ink)}
+.field input:focus{outline:2px solid var(--teal2);outline-offset:-2px;background:#fff}
+.field .err{color:var(--rope);font-family:var(--mono);font-size:11px;margin-top:4px;display:none}
+.field.bad .err{display:block}.field.bad input{border-color:var(--rope)}
+.summary{border:1.5px solid var(--slate2);background:var(--paper);padding:14px 16px;margin:14px 0 18px;font-size:13.5px}
+.summary .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--hair)}
+.summary .row:last-child{border-bottom:0}
+.summary .row span{font-family:var(--mono);color:var(--muted)}
+.summary .tot{font-family:var(--disp);font-weight:900;font-size:1.15rem;color:var(--slate);padding-top:8px}
+.nav-btn{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
+.btn{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border:1.5px solid var(--slate);background:var(--slate);color:var(--snow);cursor:pointer;transition:.15s}
+.btn:hover{background:var(--rope);border-color:var(--rope)}
+.btn.ghost{background:transparent;color:var(--slate)}
+.btn.ghost:hover{background:var(--slate);color:var(--snow)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost:disabled:hover{background:transparent;color:var(--slate)}
+/* result */
+.result{display:none;padding:6px 2px}
+.result.on{display:block}
+.ticket{border:1.5px solid var(--slate);background:var(--paper);position:relative;overflow:hidden}
+.ticket .th{background:var(--slate);color:var(--snow);padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.ticket .th .ok{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--teal2)}
+.ticket .code{font-family:var(--mono);font-weight:600;font-size:1.5rem;letter-spacing:.06em;color:var(--snow);margin-top:2px}
+.ticket .stamp{border:2px solid var(--rope);color:var(--rope);font-family:var(--mono);font-weight:600;font-size:12px;padding:6px 10px;transform:rotate(-8deg);letter-spacing:.1em}
+.ticket .body{padding:18px 20px}
+.alloc{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 14px}
+.alloc th,.alloc td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--hair)}
+.alloc th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.alloc td.bed{font-family:var(--mono);color:var(--teal)}
+.tnote{font-size:12.5px;color:#3a474a;background:var(--panel);border-left:3px solid var(--rope);padding:10px 12px;margin-top:12px}
+.perf{padding:14px 0;font-family:var(--mono);font-size:11px;color:var(--muted)}
+footer{background:var(--slate);color:#a9b7b5;padding:34px 0 26px;border-top:3px solid var(--rope);margin-top:20px}
+footer .mono{font-size:10.5px;color:#6b8a90;letter-spacing:.03em}
+footer p{margin:0 0 6px;font-size:13px}
+@media(max-width:900px){.book{grid-template-columns:1fr}.viz{min-height:320px}.viz .vwrap{min-height:240px}}
+@media(max-width:720px){:root{--rail:0px}body{padding-left:0;padding-top:52px}
+ .rail{flex-direction:row;bottom:auto;width:100%;height:52px;align-items:center}.rail .mark{margin:0 12px 0 14px}
+ .rail nav{flex-direction:row;margin-top:0}.rail nav a{writing-mode:horizontal-tb;padding:8px 12px;letter-spacing:.14em;font-size:13px}
+ .rail nav a[aria-current]{box-shadow:inset 0 -2px 0 var(--rope)}.rail .scale{display:none}}
+@media(max-width:560px){.steps div b{font-size:12px}.steps div{font-size:9px}}
+</style>
+</head>
+<body>
+<aside class="rail">
+  <a class="mark" href="index.html" aria-label="稜線 RIDGELINE 首頁">
+    <svg width="34" height="40" viewBox="0 0 40 46"><path d="M4 34 L20 8 L36 34 Z" fill="none" stroke="#DCE0DC" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 34 L20 20 L29 34" fill="none" stroke="#1E7A82" stroke-width="2"/><path d="M20 4 v6 M17 7 h6" stroke="#E4572E" stroke-width="2.4" stroke-linecap="round"/><path d="M3 40 H37" stroke="#33454D" stroke-width="2"/></svg>
+  </a>
+  <nav>
+    <a href="index.html">概覽</a>
+    <a href="reserve.html" aria-current="page">預約</a>
+    <a href="huts.html">山屋</a>
+  </nav>
+  <div class="scale"><div class="tick"></div>訂床<br>系統<div class="tick"></div></div>
+</aside>
+
+<header class="phead wrap">
+  <p class="eyebrow">線上抽籤訂床 · RESERVATION</p>
+  <h1>抽一張稜線的床<span class="han">選路線 → 抽梯次 → 訂床位 → 取得編號</span></h1>
+</header>
+
+<div class="wrap">
+<div class="book">
+  <div class="viz">
+    <div class="vwrap" id="vp"><canvas id="terrain"></canvas>
+      <span class="corner" style="top:8px;left:10px">RELIEF PREVIEW</span>
+      <span class="corner" id="rot-read" style="bottom:8px;left:10px">AZ 000°</span>
+    </div>
+    <div class="pbox">
+      <h4 id="viz-name">海拔剖面</h4>
+      <svg class="profile" id="profile" viewBox="0 0 340 96" preserveAspectRatio="none" aria-label="海拔剖面"></svg>
+      <div class="plabel"><span id="p-lo">起登</span><span id="p-hi">最高點</span></div>
+    </div>
+  </div>
+
+  <div class="form">
+    <div class="steps" id="steps">
+      <div data-on><b>1</b>路線</div><div><b>2</b>梯次</div><div><b>3</b>人數</div><div><b>4</b>確認</div>
+    </div>
+
+    <!-- step 1 -->
+    <div class="step on" data-step="1">
+      <p class="slabel">STEP 1 — 選擇路線</p>
+      <div id="routecards"></div>
+      <div class="nav-btn"><span></span><button class="btn" id="n1" disabled>下一步 · 選梯次</button></div>
+    </div>
+
+    <!-- step 2 -->
+    <div class="step" data-step="2">
+      <p class="slabel">STEP 2 — 選擇出發梯次</p>
+      <div id="deps"></div>
+      <p class="hintline" id="dep-note"></p>
+      <div class="nav-btn"><button class="btn ghost" data-back>上一步</button><button class="btn" id="n2" disabled>下一步 · 選人數</button></div>
+    </div>
+
+    <!-- step 3 -->
+    <div class="step" data-step="3">
+      <p class="slabel">STEP 3 — 隊伍人數</p>
+      <div class="stepper"><button type="button" id="minus">–</button><input id="ppl" value="2" readonly aria-label="人數"><button type="button" id="plus">+</button></div>
+      <p class="hintline" id="ppl-note"></p>
+      <div class="summary" id="sum3"></div>
+      <div class="nav-btn"><button class="btn ghost" data-back>上一步</button><button class="btn" id="n3">下一步 · 確認</button></div>
+    </div>
+
+    <!-- step 4 -->
+    <div class="step" data-step="4">
+      <p class="slabel">STEP 4 — 聯絡資料與確認</p>
+      <div class="field" id="f-name"><label>領隊姓名</label><input id="i-name" placeholder="王小山" autocomplete="off"><span class="err">請填寫領隊姓名</span></div>
+      <div class="field" id="f-phone"><label>手機號碼</label><input id="i-phone" placeholder="0912-345-678" inputmode="numeric" autocomplete="off"><span class="err">請填寫正確的手機號碼（09 開頭 10 碼）</span></div>
+      <div class="field" id="f-emg"><label>緊急聯絡人電話</label><input id="i-emg" placeholder="市話或手機" inputmode="numeric" autocomplete="off"><span class="err">請填寫緊急聯絡電話</span></div>
+      <div class="summary" id="sum4"></div>
+      <div class="nav-btn"><button class="btn ghost" data-back>上一步</button><button class="btn" id="submit">送出抽籤申請</button></div>
+    </div>
+
+    <!-- result -->
+    <div class="result" data-step="done">
+      <div class="ticket">
+        <div class="th"><div><div class="ok">RESERVATION CONFIRMED · 抽籤成功</div><div class="code" id="r-code">RDG-000000-000</div></div><div class="stamp" id="r-stamp">已受理</div></div>
+        <div class="body">
+          <table class="alloc" id="r-alloc"></table>
+          <div class="summary" id="r-sum"></div>
+          <div class="tnote" id="r-note"></div>
+        </div>
+      </div>
+      <div class="nav-btn"><button class="btn ghost" id="again">重新預約</button><a class="btn" href="huts.html">查看山屋守則</a></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer><div class="wrap">
+  <p style="font-family:var(--disp);font-weight:900;font-size:1.2rem;color:var(--snow)">稜線 RIDGELINE</p>
+  <p>抽籤於出發前 14 日截止；結果 48 小時內以簡訊通知。未中籤者自動進入候補。</p>
+  <p class="mono" style="margin-top:12px">本頁所有梯次名額、床位編號、費用與編號皆為前端模擬示意，不會送出任何真實訂單。</p>
+</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+var HUTS=[
+ {n:"雲階山屋",en:"Yúnjiē Hut",ele:2760},
+ {n:"斷稜避難所",en:"Duànléng Shelter",ele:3180},
+ {n:"圈谷營地",en:"Cirque Camp",ele:3410},
+ {n:"鏡池山屋",en:"Jìngchí Hut",ele:3540}
+];
+var ROUTES=[
+ {id:"yj",name:"雲階線",en:"YÚNJIĒ TRAVERSE",days:"2 天 1 夜",grade:"中級",gain:"+1,180 m",dist:"12.4 km",tag:"入門過夜",
+  overnight:true,stay:[{hut:0,night:1}],
+  desc:"首日緩上雲階山屋過夜。",
+  prof:[[0,2380],[1.4,2600],[2.8,2760],[3.4,2760],[5,3050],[6.6,3360],[7.8,3540],[8.6,3542]],
+  deps:[["07/26 週六",22],["07/30 週三",8],["08/02 週六",0],["08/06 週三",26],["08/09 週六",14]]},
+ {id:"main",name:"主稜縱走",en:"MAIN RIDGE TRAVERSE",days:"3 天 2 夜",grade:"困難",gain:"+1,960 m",dist:"21.8 km",tag:"經典 O 型",
+  overnight:true,stay:[{hut:0,night:1},{hut:3,night:1}],
+  desc:"宿雲階、鏡池兩晚，連走主稜三峰。",
+  prof:[[0,2380],[2,2760],[3.6,3180],[5.2,3410],[6.4,3540],[8,3542],[9.4,3300],[11,3410],[13,3020],[15,2560]],
+  deps:[["07/25 週五",6],["08/01 週五",0],["08/08 週五",12],["08/15 週五",18],["08/22 週五",4]]},
+ {id:"cir",name:"圈谷單攻",en:"CIRQUE DAY-HIKE",days:"1 天",grade:"入門",gain:"+760 m",dist:"9.2 km",tag:"免抽床",
+  overnight:false,stay:[],
+  desc:"單日往返圈谷，不過夜、免抽床，仍須辦理入山證。",
+  prof:[[0,2650],[1.8,2860],[3.2,3120],[4.6,3410],[5,3410],[6.4,3120],[9.2,2650]],
+  deps:[["每日 05:00 前入園",999]]}
+];
+var PRICE={bed:480,permit:150};
+
+var st={route:null,dep:null,depIdx:-1,ppl:2};
+
+/* ---- profile ---- */
+function drawProfile(route){
+  var svg=document.getElementById('profile'),W=340,H=96,pad=8,p=route.prof;
+  var xs=p.map(function(d){return d[0]}),ys=p.map(function(d){return d[1]});
+  var xmax=Math.max.apply(null,xs),ymin=Math.min.apply(null,ys),ymax=Math.max.apply(null,ys);
+  function X(v){return pad+(v/xmax)*(W-2*pad)}
+  function Y(v){return H-pad-((v-ymin)/(ymax-ymin||1))*(H-2*pad-4)}
+  var line=p.map(function(d,i){return (i?'L':'M')+X(d[0]).toFixed(1)+' '+Y(d[1]).toFixed(1)}).join(' ');
+  var area=line+' L'+X(xmax).toFixed(1)+' '+(H-pad)+' L'+X(0).toFixed(1)+' '+(H-pad)+' Z';
+  var grid='';for(var g=1;g<3;g++){var yy=pad+g*(H-2*pad)/3;grid+='<line x1="0" y1="'+yy.toFixed(1)+'" x2="'+W+'" y2="'+yy.toFixed(1)+'" stroke="#1c2c31"/>'}
+  svg.innerHTML=grid+'<path d="'+area+'" fill="rgba(30,122,130,.22)"/><path d="'+line+'" fill="none" stroke="#2A9BA3" stroke-width="2"/>';
+  document.getElementById('p-lo').textContent=ymin.toLocaleString()+' m';
+  document.getElementById('p-hi').textContent='↑ '+ymax.toLocaleString()+' m';
+  document.getElementById('viz-name').textContent=route.name+'　海拔剖面';
+}
+
+/* ---- step nav ---- */
+function showStep(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.toggle('on',+s.dataset.step===n)});
+  document.querySelector('.result').classList.remove('on');
+  document.querySelectorAll('#steps div').forEach(function(d,i){if(i<n)d.setAttribute('data-on','');else d.removeAttribute('data-on')});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---- step 1: routes ---- */
+(function(){
+  var c=document.getElementById('routecards');
+  ROUTES.forEach(function(r){
+    var b=document.createElement('button');b.className='rcard';b.type='button';b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="rc-tag">'+r.tag+'</span><div class="rc-name">'+r.name+'<em>'+r.en+'</em></div>'
+      +'<div class="rc-meta">'+r.days+' · '+r.dist+' · '+r.grade+' · 爬升 '+r.gain+'</div>';
+    b.onclick=function(){
+      st.route=r;st.dep=null;st.depIdx=-1;
+      document.querySelectorAll('#routecards .rcard').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+      document.getElementById('n1').disabled=false;
+      drawProfile(r);if(window.__setRoute)window.__setRoute(r);
+      buildDeps();
+    };
+    c.appendChild(b);
+  });
+})();
+document.getElementById('n1').onclick=function(){showStep(2)};
+
+/* ---- step 2: departures ---- */
+function buildDeps(){
+  var wrap=document.getElementById('deps');wrap.innerHTML='';
+  var note=document.getElementById('dep-note');
+  st.route.deps.forEach(function(d,i){
+    var full=d[1]===0;
+    var el=document.createElement('button');el.type='button';el.className='dep'+(full?' full':'');el.setAttribute('aria-pressed','false');
+    if(!st.route.overnight){
+      el.innerHTML='<span class="dd">'+d[0]+'</span><span class="beds">免抽床 · 現場報到</span>';
+    }else{
+      el.innerHTML='<span class="dd">'+d[0]+'</span><span class="beds">'+(full?'已額滿 · 可候補':'餘 '+d[1]+' 床')+'</span>';
+    }
+    if(!full||!st.route.overnight){
+      el.onclick=function(){
+        st.dep=d;st.depIdx=i;
+        document.querySelectorAll('#deps .dep').forEach(function(x){x.setAttribute('aria-pressed','false')});
+        el.setAttribute('aria-pressed','true');document.getElementById('n2').disabled=false;
+        clampPeople();
+      };
+    }
+    wrap.appendChild(el);
+  });
+  note.textContent=st.route.overnight?'每梯次床位有限，額滿者可選候補；同梯全隊需同進退。':'單攻梯次不需抽床，於園區入口辦理入山報到即可。';
+  document.getElementById('n2').disabled=true;
+}
+document.getElementById('n2').onclick=function(){showStep(3);renderSum3()};
+
+/* ---- step 3: people ---- */
+function maxPeople(){
+  if(!st.route)return 12;
+  if(!st.route.overnight)return 12;
+  return Math.max(1,Math.min(12,st.dep?st.dep[1]:12));
+}
+function clampPeople(){var m=maxPeople();if(st.ppl>m)st.ppl=m;document.getElementById('ppl').value=st.ppl;syncStepper()}
+function syncStepper(){
+  var m=maxPeople();
+  document.getElementById('minus').disabled=st.ppl<=1;
+  document.getElementById('plus').disabled=st.ppl>=m;
+  document.getElementById('ppl-note').textContent=st.route&&st.route.overnight?('本梯次尚餘 '+(st.dep?st.dep[1]:'—')+' 床，最多可訂 '+m+' 人。'):'單攻不限床位，最多可登記 '+m+' 人。';
+}
+document.getElementById('minus').onclick=function(){if(st.ppl>1){st.ppl--;document.getElementById('ppl').value=st.ppl;syncStepper();renderSum3()}};
+document.getElementById('plus').onclick=function(){if(st.ppl<maxPeople()){st.ppl++;document.getElementById('ppl').value=st.ppl;syncStepper();renderSum3()}};
+function costOf(){
+  var beds=st.route.stay.length*st.ppl;
+  var bed=beds*PRICE.bed,permit=st.ppl*PRICE.permit;
+  return {beds:beds,bed:bed,permit:permit,total:bed+permit};
+}
+function renderSum3(){
+  var c=costOf();
+  document.getElementById('sum3').innerHTML=
+    '<div class="row">路線<span>'+st.route.name+' · '+st.route.days+'</span></div>'
+    +'<div class="row">梯次<span>'+(st.dep?st.dep[0]:'—')+'</span></div>'
+    +'<div class="row">人數<span>'+st.ppl+' 人</span></div>'
+    +'<div class="row">床位需求<span>'+(st.route.overnight?c.beds+' 床晚':'免抽床')+'</span></div>';
+  syncStepper();
+}
+document.getElementById('n3').onclick=function(){showStep(4);renderSum4()};
+
+/* ---- step 4 ---- */
+function renderSum4(){
+  var c=costOf();
+  var rows='<div class="row">床位費 '+(st.route.overnight?'NT$'+PRICE.bed+' × '+c.beds+' 床晚':'—')+'<span>NT$ '+c.bed.toLocaleString()+'</span></div>'
+    +'<div class="row">入山證代辦 NT$'+PRICE.permit+' × '+st.ppl+'<span>NT$ '+c.permit.toLocaleString()+'</span></div>'
+    +'<div class="row tot">預估總額<span style="color:var(--rope)">NT$ '+c.total.toLocaleString()+'</span></div>';
+  document.getElementById('sum4').innerHTML=rows;
+}
+function validPhone(v){return /^09\d{2}-?\d{3}-?\d{3}$/.test(v.replace(/\s/g,''))}
+document.getElementById('submit').onclick=function(){
+  var ok=true;
+  var nm=document.getElementById('i-name').value.trim();
+  var ph=document.getElementById('i-phone').value.trim();
+  var eg=document.getElementById('i-emg').value.trim();
+  toggle('f-name',!!nm);if(!nm)ok=false;
+  toggle('f-phone',validPhone(ph));if(!validPhone(ph))ok=false;
+  toggle('f-emg',eg.length>=7);if(eg.length<7)ok=false;
+  if(!ok)return;
+  finish(nm);
+};
+function toggle(id,good){document.getElementById(id).classList.toggle('bad',!good)}
+function pad(n,l){return String(n).padStart(l,'0')}
+function finish(name){
+  var now=new Date();
+  var ymd=String(now.getFullYear()).slice(2)+pad(now.getMonth()+1,2)+pad(now.getDate(),2);
+  var seq=pad(Math.floor(Math.random()*900)+100,3);
+  var code='RDG-'+ymd+'-'+seq;
+  document.getElementById('r-code').textContent=code;
+  var c=costOf();
+  // bed allocation
+  var alloc='<tr><th>山屋 / 營地</th><th>海拔</th><th>夜</th><th>配置床位</th></tr>';
+  if(st.route.overnight){
+    var start=(parseInt(seq,10)%40)+1;
+    st.route.stay.forEach(function(s){
+      var h=HUTS[s.hut];
+      var a=start,b=start+st.ppl-1;
+      alloc+='<tr><td>'+h.n+'<br><span class="mono" style="font-size:10px;color:var(--muted)">'+h.en+'</span></td><td class="mono">'+h.ele.toLocaleString()+' m</td><td class="mono">'+s.night+'</td><td class="bed">#'+pad(a,2)+'–#'+pad(b,2)+'</td></tr>';
+      start=b+3;
+    });
+  }else{
+    alloc+='<tr><td>圈谷單攻</td><td class="mono">3,410 m</td><td class="mono">0</td><td class="bed">當日往返 · 無床位</td></tr>';
+  }
+  document.getElementById('r-alloc').innerHTML=alloc;
+  document.getElementById('r-sum').innerHTML=
+    '<div class="row">領隊<span>'+name+' · '+st.ppl+' 人</span></div>'
+    +'<div class="row">路線 / 梯次<span>'+st.route.name+' · '+st.dep[0]+'</span></div>'
+    +'<div class="row tot">應繳<span style="color:var(--rope)">NT$ '+c.total.toLocaleString()+'</span></div>';
+  document.getElementById('r-stamp').textContent=st.route.overnight?'抽籤中籤':'報到受理';
+  document.getElementById('r-note').innerHTML=st.route.overnight
+    ? '請於 <b>48 小時內</b>完成繳費以保留床位；逾期名額釋出予候補。出發前 3 日以簡訊發送最新山況與撤退點資訊。'
+    : '單攻不需繳床位費，請於入園口出示本編號與入山證辦理報到。天候不佳時園方得暫停入園。';
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('on')});
+  document.querySelector('.result').classList.add('on');
+  document.querySelectorAll('#steps div').forEach(function(d){d.setAttribute('data-on','')});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('again').onclick=function(){
+  st={route:null,dep:null,depIdx:-1,ppl:2};
+  document.querySelectorAll('#routecards .rcard').forEach(function(x){x.setAttribute('aria-pressed','false')});
+  document.getElementById('n1').disabled=true;
+  document.getElementById('i-name').value='';document.getElementById('i-phone').value='';document.getElementById('i-emg').value='';
+  document.getElementById('ppl').value='2';
+  showStep(1);
+};
+document.querySelectorAll('[data-back]').forEach(function(b){b.onclick=function(){
+  var cur=+b.closest('.step').dataset.step;showStep(cur-1);
+}});
+
+drawProfile(ROUTES[1]);
+
+/* ---- 3D terrain (shared) ---- */
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var vp=document.getElementById('vp'),cv=document.getElementById('terrain');
+  function fallback(){
+    if(cv)cv.style.display='none';
+    var f=document.createElement('div');f.style.cssText='position:absolute;inset:0';
+    f.innerHTML='<svg viewBox="0 0 400 260" style="width:100%;height:100%"><rect width="400" height="260" fill="#0f171a"/><path d="M0 210 L80 170 L150 100 L210 55 L270 110 L340 175 L400 205 V260 H0 Z" fill="#2f4a38"/><path d="M150 100 L210 55 L270 110 L215 92 L175 120 Z" fill="#6e6a5c"/><path d="M182 78 L210 55 L238 82 L210 74 Z" fill="#ebefea"/><circle cx="210" cy="55" r="4" fill="#E4572E"/><text x="14" y="246" fill="#6b8a90" font-family="monospace" font-size="11">STATIC RELIEF</text></svg>';
+    vp.appendChild(f);window.__setRoute=function(){};
+  }
+  if(typeof THREE==='undefined'){fallback();return;}
+  var scene,cam,ren,pivot,spin,routeGroup,markers=[];
+  var yaw=0,tilt=-0.6,drag=false,px=0,py=0,auto=!reduce;
+  try{ren=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){fallback();return}
+  if(!ren.getContext()){fallback();return}
+  ren.setClearColor(0,0);scene=new THREE.Scene();scene.fog=new THREE.Fog(0x0f171a,15,32);
+  cam=new THREE.PerspectiveCamera(42,1,0.1,100);cam.position.set(0,4.4,15);cam.lookAt(0,0.5,0);
+  pivot=new THREE.Object3D();scene.add(pivot);spin=new THREE.Object3D();pivot.add(spin);
+  scene.add(new THREE.AmbientLight(0x94a7ad,0.72));
+  var dl=new THREE.DirectionalLight(0xffece0,0.95);dl.position.set(-6,10,4);scene.add(dl);
+  var dl2=new THREE.DirectionalLight(0x2a9ba3,0.35);dl2.position.set(6,3,-6);scene.add(dl2);
+  function hash(x,y){var n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n)}
+  function vn(x,y){var xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+    return hash(xi,yi)*(1-u)*(1-v)+hash(xi+1,yi)*u*(1-v)+hash(xi,yi+1)*(1-u)*v+hash(xi+1,yi+1)*u*v}
+  function fbm(x,y){var s=0,a=.5,f=1;for(var i=0;i<5;i++){s+=a*vn(x*f,y*f);f*=2;a*=.5}return s}
+  function height(nx,ny){var ridge=Math.exp(-Math.pow((ny-0.22*Math.sin(nx*2.1))*2.3,2));
+    var peak=Math.exp(-Math.pow((nx+0.12)*1.7,2)-Math.pow((ny-0.05)*1.9,2))*0.55;
+    var fb=fbm(nx*2.3+3,ny*2.3+7),fall=Math.max(0,1-Math.pow((nx*nx+ny*ny)*0.52,1.5));
+    return Math.max(0,(ridge*0.72+peak+fb*0.5)*(0.5+0.5*fall))}
+  var HSCALE=4.3,SPAN=9;function wY(nx,ny){return height(nx,ny)*HSCALE}
+  var SEG=92,verts=[],idx=[];
+  for(var j=0;j<=SEG;j++)for(var i=0;i<=SEG;i++){var nx=(i/SEG-0.5)*2,ny=(j/SEG-0.5)*2;verts.push(nx*SPAN/2,wY(nx,ny),ny*SPAN/2)}
+  for(var jj=0;jj<SEG;jj++)for(var ii=0;ii<SEG;ii++){var a=jj*(SEG+1)+ii,b=a+1,c=a+SEG+1,d=c+1;idx.push(a,c,b,b,c,d)}
+  var geo=new THREE.BufferGeometry();geo.setIndex(idx);geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+  geo.computeVertexNormals();geo=geo.toNonIndexed();
+  var pos=geo.attributes.position,col=[],maxH=HSCALE*0.9;
+  var C={tarn:[0.12,0.48,0.51],forest:[0.18,0.29,0.22],montane:[0.28,0.34,0.25],scree:[0.43,0.42,0.36],rock:[0.55,0.55,0.5],snow:[0.92,0.94,0.91]};
+  for(var v=0;v<pos.count;v++){var h=pos.getY(v)/maxH,cc;
+    if(h<0.045)cc=C.tarn;else if(h<0.30)cc=C.forest;else if(h<0.47)cc=C.montane;else if(h<0.63)cc=C.scree;else if(h<0.80)cc=C.rock;else cc=C.snow;
+    var jit=(hash(v*0.13,v*0.29)-0.5)*0.045;col.push(cc[0]+jit,cc[1]+jit,cc[2]+jit)}
+  geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  var terrain=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:0.94,metalness:0.02}));
+  terrain.position.y=-1.4;spin.add(terrain);
+  var plinth=new THREE.Mesh(new THREE.BoxGeometry(SPAN,0.5,SPAN),new THREE.MeshStandardMaterial({color:0x1a262b,roughness:1}));plinth.position.y=-1.75;spin.add(plinth);
+  routeGroup=new THREE.Object3D();routeGroup.position.y=-1.4;spin.add(routeGroup);
+  function ridgeXY(t){var nx=-0.72+1.44*t;return [nx,0.22*Math.sin(nx*2.1)]}
+  function buildRoute(r){
+    while(routeGroup.children.length)routeGroup.remove(routeGroup.children[0]);markers=[];
+    var pts=[];for(var t=0;t<=1.0001;t+=1/60){var xy=ridgeXY(t);pts.push(new THREE.Vector3(xy[0]*SPAN/2,wY(xy[0],xy[1])+0.12,xy[1]*SPAN/2))}
+    routeGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xe4572e})));
+    var frac=[0.14,0.42,0.62,0.86],onIdx=(r&&r.stay)?r.stay.map(function(s){return s.hut}):[];
+    HUTS.forEach(function(h,i){var t=frac[i],xy=ridgeXY(t),y=wY(xy[0],xy[1]),on=onIdx.indexOf(i)>=0;
+      var stick=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.7,6),new THREE.MeshBasicMaterial({color:on?0xe4572e:0x4a5c62}));
+      stick.position.set(xy[0]*SPAN/2,y+0.35,xy[1]*SPAN/2);routeGroup.add(stick);
+      var m=new THREE.Mesh(new THREE.ConeGeometry(0.16,0.32,4),new THREE.MeshStandardMaterial({color:on?0xe4572e:0x2f3d43,roughness:.6,emissive:on?0x511a0c:0x000000}));
+      m.position.set(xy[0]*SPAN/2,y+0.82,xy[1]*SPAN/2);m.rotation.y=Math.PI/4;m.scale.setScalar(on?1.15:0.8);routeGroup.add(m)});
+  }
+  buildRoute(ROUTES[1]);
+  window.__setRoute=function(r){buildRoute(r)};
+  function resize(){var w=vp.clientWidth,h=vp.clientHeight;ren.setPixelRatio(Math.min(window.devicePixelRatio||1,2));ren.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+  function frame(){if(auto&&!drag)yaw+=0.0016;spin.rotation.y=yaw;pivot.rotation.x=tilt;
+    var deg=((yaw*180/Math.PI)%360+360)%360;var rr=document.getElementById('rot-read');if(rr)rr.textContent='AZ '+String(Math.round(deg)).padStart(3,'0')+'°';
+    ren.render(scene,cam);requestAnimationFrame(frame)}
+  resize();window.addEventListener('resize',resize);
+  if(reduce){spin.rotation.y=yaw;pivot.rotation.x=tilt;ren.render(scene,cam)}
+  requestAnimationFrame(frame);
+  function down(e){drag=true;auto=false;vp.classList.add('drag');var t=e.touches?e.touches[0]:e;px=t.clientX;py=t.clientY}
+  function move(e){if(!drag)return;var t=e.touches?e.touches[0]:e;yaw+=(t.clientX-px)*0.006;tilt=Math.max(-1.15,Math.min(-0.18,tilt+(t.clientY-py)*0.004));px=t.clientX;py=t.clientY;if(e.cancelable&&e.touches)e.preventDefault();if(reduce){spin.rotation.y=yaw;pivot.rotation.x=tilt;ren.render(scene,cam)}}
+  function up(){drag=false;vp.classList.remove('drag')}
+  vp.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+  vp.addEventListener('touchstart',down,{passive:true});vp.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',up);
+})();
+</script>
+</body>
+</html>

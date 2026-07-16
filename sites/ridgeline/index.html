@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>稜線 RIDGELINE｜台灣高山山屋預約</title>
+<meta name="description" content="中央山脈鏡池山列高山山屋線上預約。先在立體地形上看清路線、海拔與每座山屋位置，再抽籤訂床。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23243138'/%3E%3Cpath d='M4 32 L20 9 L36 32 Z' fill='none' stroke='%23DCE0DC' stroke-width='2.4'/%3E%3Cpath d='M11 32 L20 20 L29 32' fill='none' stroke='%231E7A82' stroke-width='2'/%3E%3Cpath d='M20 5 v6 M17 8 h6' stroke='%23E4572E' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fog:#D3DAD6; --paper:#E4E8E4; --panel:#EDF0EC;
+  --slate:#243138; --slate2:#33454D; --ink:#161D1F;
+  --teal:#1E7A82; --teal2:#2A9BA3; --rope:#E4572E;
+  --snow:#F4F6F3; --muted:#6E7873; --hair:#BEC7C0;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Archivo','Arial Narrow',sans-serif;
+  --han:'Noto Sans TC',sans-serif;
+  --rail:78px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fog);color:var(--ink);font-family:var(--han);font-weight:400;line-height:1.72;
+  -webkit-font-smoothing:antialiased;padding-left:var(--rail);
+  background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);
+  background-size:100% 44px,44px 100%;background-position:0 0;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 60% -10%,transparent 55%,rgba(36,49,56,.06));z-index:0}
+a{color:inherit}
+.mono{font-family:var(--mono);letter-spacing:.04em}
+.wrap{max-width:1160px;margin:0 auto;padding:0 26px;position:relative;z-index:1}
+
+/* ---------- side rail nav ---------- */
+.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail);background:var(--slate);color:var(--snow);
+  display:flex;flex-direction:column;align-items:center;z-index:50;border-right:1px solid #0e1518}
+.rail .mark{margin:14px 0 10px}
+.rail .mark svg{display:block}
+.rail nav{flex:1;display:flex;flex-direction:column;gap:2px;align-items:center;margin-top:6px}
+.rail nav a{writing-mode:vertical-rl;text-orientation:upright;font-family:var(--han);font-weight:700;
+  letter-spacing:.34em;font-size:14px;color:#9fb0ac;text-decoration:none;padding:14px 6px;border-radius:2px;transition:color .2s}
+.rail nav a:hover,.rail nav a[aria-current]{color:var(--snow)}
+.rail nav a[aria-current]{box-shadow:inset 2px 0 0 var(--rope)}
+.rail .scale{font-family:var(--mono);font-size:9px;color:#5f716f;line-height:1.9;text-align:center;padding:10px 0 14px;letter-spacing:.02em}
+.rail .scale b{color:var(--teal2);font-weight:600}
+.rail .tick{width:22px;height:1px;background:#3a4c53;margin:3px auto}
+
+/* ---------- hero ---------- */
+.hero{padding:40px 0 26px;position:relative;z-index:1}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.eyebrow::before{content:"";width:34px;height:2px;background:var(--rope)}
+h1{font-family:var(--disp);font-weight:900;font-size:clamp(2.5rem,7vw,5.2rem);line-height:.92;letter-spacing:-.02em;
+  margin:.28em 0 .1em;color:var(--slate)}
+h1 .han{display:block;font-family:var(--han);font-weight:900;font-size:clamp(1.5rem,3.9vw,2.7rem);letter-spacing:.02em;color:var(--ink);margin-top:.18em}
+.lede{max-width:56ch;font-size:1.06rem;color:#2c3a3d}
+.lede b{font-weight:700;border-bottom:2px solid var(--teal)}
+
+/* ---------- terrain stage ---------- */
+.stage{margin:30px 0 8px;border:1.5px solid var(--slate);background:linear-gradient(180deg,#1a2529,#0f171a);
+  position:relative;overflow:hidden}
+.stage .corner{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#6b8a90;z-index:3;pointer-events:none}
+.c-tl{top:8px;left:10px}.c-tr{top:8px;right:10px;text-align:right}.c-bl{bottom:8px;left:10px}.c-br{bottom:8px;right:10px;text-align:right}
+.stagegrid{display:grid;grid-template-columns:1.55fr 1fr}
+.viewport{position:relative;min-height:430px;cursor:grab;touch-action:none}
+.viewport.drag{cursor:grabbing}
+.viewport canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;left:12px;bottom:34px;font-family:var(--mono);font-size:10.5px;color:#7e9da0;letter-spacing:.06em;z-index:3;pointer-events:none;opacity:.9}
+.readout{background:#0c1417;border-left:1.5px solid var(--slate);padding:18px 20px;color:#cdd8d6;position:relative}
+.readout h3{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal2);margin:0 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 14px}
+.chip{font-family:var(--han);font-weight:700;font-size:13px;border:1.5px solid #33454d;background:transparent;color:#b9c6c4;
+  padding:7px 12px;cursor:pointer;letter-spacing:.02em;transition:.15s;border-radius:1px}
+.chip:hover{border-color:var(--teal2);color:#eaf1ef}
+.chip[aria-pressed="true"]{background:var(--rope);border-color:var(--rope);color:#fff}
+.rname{font-family:var(--disp);font-weight:800;font-size:1.35rem;color:var(--snow);letter-spacing:.01em;margin:2px 0}
+.rmeta{font-family:var(--mono);font-size:11px;color:#8ea3a1;letter-spacing:.04em;margin-bottom:10px}
+.rmeta span{color:var(--rope)}
+.profile{width:100%;height:118px;display:block;margin:6px 0 4px;background:#0a1215;border:1px solid #23343a}
+.plabel{font-family:var(--mono);font-size:10px;color:#6b8a90;display:flex;justify-content:space-between;letter-spacing:.05em}
+.rdesc{font-size:13px;color:#a9b7b5;line-height:1.7;margin:10px 0 0}
+.go{display:inline-block;margin-top:14px;font-family:var(--mono);font-weight:600;font-size:12.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:#0c1417;background:var(--teal2);padding:10px 16px;text-decoration:none;transition:.15s}
+.go:hover{background:var(--snow)}
+.go::after{content:" →"}
+
+/* ---------- stat strip ---------- */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);border:1.5px solid var(--slate);border-top:0;background:var(--panel)}
+.strip div{padding:15px 18px;border-right:1px solid var(--hair)}
+.strip div:last-child{border-right:0}
+.strip b{display:block;font-family:var(--disp);font-weight:900;font-size:1.7rem;color:var(--slate);line-height:1}
+.strip small{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+
+/* ---------- sections ---------- */
+section{padding:52px 0;border-top:1.5px solid var(--slate);position:relative;z-index:1}
+.shead{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;flex-wrap:wrap}
+.shead .no{font-family:var(--mono);font-size:12px;color:var(--rope);letter-spacing:.1em}
+.shead h2{font-family:var(--han);font-weight:900;font-size:clamp(1.5rem,3.4vw,2.2rem);margin:0;letter-spacing:.01em;color:var(--slate)}
+.shead p{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;margin:0 0 0 auto}
+
+.huts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1.5px solid var(--slate)}
+.hut{padding:22px 20px;border-right:1.5px solid var(--slate);background:var(--paper);position:relative;min-height:210px;display:flex;flex-direction:column}
+.hut:last-child{border-right:0}
+.hut .ele{font-family:var(--mono);font-weight:600;font-size:12px;color:var(--teal);letter-spacing:.06em}
+.hut .barn{width:100%;height:3px;background:linear-gradient(90deg,var(--teal) 0,var(--teal) var(--pct,50%),var(--hair) var(--pct,50%));margin:8px 0 14px}
+.hut h4{font-family:var(--disp);font-weight:800;font-size:1.25rem;margin:0;color:var(--slate);letter-spacing:.01em}
+.hut h4 small{display:block;font-family:var(--han);font-weight:700;font-size:.82rem;color:var(--ink);letter-spacing:.06em;margin-top:2px}
+.hut ul{list-style:none;padding:0;margin:12px 0 0;font-size:13px;color:#3a474a}
+.hut li{padding:3px 0;border-bottom:1px dashed var(--hair);display:flex;justify-content:space-between}
+.hut li span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.hut .idx{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.why article h3{font-family:var(--han);font-weight:900;font-size:1.12rem;color:var(--slate);margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.why svg{flex:none}
+.why p{font-size:14px;color:#3a474a;margin:0}
+.why .k{font-family:var(--mono);font-size:11px;color:var(--rope);letter-spacing:.1em;display:block;margin-bottom:6px}
+
+/* ---------- footer ---------- */
+footer{background:var(--slate);color:#b9c6c4;padding:44px 0 30px;border-top:3px solid var(--rope);position:relative;z-index:1}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}
+footer h5{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal2);margin:0 0 12px}
+footer p,footer li{font-size:13.5px;line-height:1.85;color:#a9b7b5;margin:0}
+footer ul{list-style:none;padding:0;margin:0}
+footer a{color:#cdd8d6;text-decoration:none}footer a:hover{color:var(--snow);text-decoration:underline}
+footer .big{font-family:var(--disp);font-weight:900;font-size:1.4rem;color:var(--snow);letter-spacing:.02em}
+.note{margin-top:26px;padding-top:16px;border-top:1px solid #33454d;font-family:var(--mono);font-size:10.5px;color:#6b8a90;letter-spacing:.03em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+@media(max-width:860px){
+  .stagegrid{grid-template-columns:1fr}
+  .readout{border-left:0;border-top:1.5px solid var(--slate)}
+  .viewport{min-height:340px}
+  .huts,.why{grid-template-columns:1fr}
+  .hut{border-right:0;border-bottom:1.5px solid var(--slate)}
+  .hut:last-child{border-bottom:0}
+  footer .cols{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  :root{--rail:0px}
+  body{padding-left:0;padding-top:52px}
+  .rail{flex-direction:row;bottom:auto;width:100%;height:52px;border-right:0;border-bottom:1px solid #0e1518;align-items:center}
+  .rail .mark{margin:0 12px 0 14px}
+  .rail nav{flex-direction:row;margin-top:0;gap:0}
+  .rail nav a{writing-mode:horizontal-tb;padding:8px 12px;letter-spacing:.14em;font-size:13px}
+  .rail nav a[aria-current]{box-shadow:inset 0 -2px 0 var(--rope)}
+  .rail .scale{display:none}
+}
+@media(max-width:560px){
+  .strip{grid-template-columns:repeat(2,1fr)}
+  .strip div:nth-child(2){border-right:0}
+  .rail nav a{padding:8px 9px;letter-spacing:.06em}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<aside class="rail">
+  <a class="mark" href="index.html" aria-label="稜線 RIDGELINE 首頁">
+    <svg width="34" height="40" viewBox="0 0 40 46"><path d="M4 34 L20 8 L36 34 Z" fill="none" stroke="#DCE0DC" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 34 L20 20 L29 34" fill="none" stroke="#1E7A82" stroke-width="2"/><path d="M20 4 v6 M17 7 h6" stroke="#E4572E" stroke-width="2.4" stroke-linecap="round"/><path d="M3 40 H37" stroke="#33454D" stroke-width="2"/></svg>
+  </a>
+  <nav>
+    <a href="index.html" aria-current="page">概覽</a>
+    <a href="reserve.html">預約</a>
+    <a href="huts.html">山屋</a>
+  </nav>
+  <div class="scale">
+    <div class="tick"></div>3542<br><b>m</b>
+    <div class="tick"></div>N23°<br>28′
+    <div class="tick"></div>
+  </div>
+</aside>
+
+<header class="hero wrap">
+  <p class="eyebrow">中央山脈 · 鏡池山列 · 高山山屋預約</p>
+  <h1>RIDGELINE<span class="han">把整條稜線的床位，一次訂下來</span></h1>
+  <p class="lede">排雲、斷稜、圈谷——高山山屋一床難求。<b>稜線 RIDGELINE</b> 讓你在出發前，先在立體地形上轉一圈、看清路線起伏、海拔與每座山屋的位置，再線上抽籤與訂床。拖曳下方地形試試。</p>
+</header>
+
+<div class="wrap">
+  <div class="stage">
+    <span class="corner c-tl mono">RELIEF · 1:25,000</span>
+    <span class="corner c-tr mono">DATUM TWD97</span>
+    <span class="corner c-bl mono" id="rot-read">AZ 000°</span>
+    <span class="corner c-br mono">鏡池山列 MIRROR-TARN RANGE</span>
+    <div class="stagegrid">
+      <div class="viewport" id="vp" aria-label="可拖曳旋轉的立體高山地形">
+        <canvas id="terrain"></canvas>
+        <span class="hint mono" id="hint">拖曳旋轉 · 上下傾斜</span>
+      </div>
+      <div class="readout">
+        <h3>選擇路線</h3>
+        <div class="chips" id="chips" role="group" aria-label="路線選擇"></div>
+        <div class="rname" id="r-name">—</div>
+        <div class="rmeta mono" id="r-meta">—</div>
+        <svg class="profile" id="profile" viewBox="0 0 340 118" preserveAspectRatio="none" aria-label="海拔剖面圖"></svg>
+        <div class="plabel mono"><span id="p-lo">起登</span><span id="p-hi">最高點</span></div>
+        <p class="rdesc" id="r-desc"></p>
+        <a class="go" href="reserve.html">前往抽籤訂床</a>
+      </div>
+    </div>
+  </div>
+  <div class="strip">
+    <div><b>3,542<span style="font-size:1rem"> m</span></b><small>最高山屋海拔</small></div>
+    <div><b>5</b><small>沿線山屋 / 營地</small></div>
+    <div><b>週三‧五‧六</b><small>每週開放梯次</small></div>
+    <div><b>48 h</b><small>抽籤結果通知</small></div>
+  </div>
+</div>
+
+<section class="wrap" id="huts">
+  <div class="shead"><span class="no mono">01 / 沿線山屋</span><h2>五座山屋，一條稜線串起</h2><p class="mono">ELEV 2,760 – 3,542 m</p></div>
+  <div class="huts" id="hutgrid"></div>
+</section>
+
+<section class="wrap">
+  <div class="shead"><span class="no mono">02 / 為什麼先看地形</span><h2>訂床之前，先把山讀懂</h2></div>
+  <div class="why">
+    <article>
+      <span class="k mono">GRADIENT</span>
+      <h3><svg width="22" height="22" viewBox="0 0 22 22"><path d="M2 19 L20 3" stroke="#E4572E" stroke-width="2"/><path d="M2 19 H20" stroke="#243138" stroke-width="2"/><path d="M6 19 V15 M11 19 V11 M16 19 V7" stroke="#1E7A82" stroke-width="1.6"/></svg>看得到坡度</h3>
+      <p>平面地圖的等高線很難想像實際陡峭程度。立體浮雕讓你在報名前就知道：哪一段是碎石陡上、哪一段沿稜緩行。體力分配從螢幕上就開始。</p>
+    </article>
+    <article>
+      <span class="k mono">POSITION</span>
+      <h3><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2 L18 15 H4 Z" fill="none" stroke="#243138" stroke-width="1.8"/><circle cx="11" cy="12" r="2.4" fill="#E4572E"/></svg>看得到山屋位置</h3>
+      <p>每座山屋標在真實海拔上。你會清楚看到鏡池山屋就在主峰肩上、斷稜避難所卡在最暴露的鞍部——這些位置決定了你要不要早點出發搶時間。</p>
+    </article>
+    <article>
+      <span class="k mono">WEATHER</span>
+      <h3><svg width="22" height="22" viewBox="0 0 22 22"><path d="M3 14 h16 M5 17 h12 M7 11 h9" stroke="#1E7A82" stroke-width="1.8" stroke-linecap="round"/><circle cx="15" cy="7" r="3" fill="none" stroke="#E4572E" stroke-width="1.8"/></svg>看得到暴露段</h3>
+      <p>面北的圈谷積雪晚融、稜線段風勢強。地形著色標出雪線與裸岩帶，讓你判斷該帶的裝備與撤退點，把「臨時決定」提前變成「事前規劃」。</p>
+    </article>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <p class="big">稜線 RIDGELINE</p>
+        <p>台灣高山山屋線上抽籤與訂床服務。中央山脈鏡池山列山屋群由稜線高山服務有限公司受託管理。</p>
+        <p style="margin-top:10px">南投縣信義鄉同富村水里坑路 97 號<br>049-270-3350｜週一至週五 09:00–18:00</p>
+      </div>
+      <div>
+        <h5>路線與訂床</h5>
+        <ul>
+          <li><a href="reserve.html">線上抽籤訂床</a></li>
+          <li><a href="huts.html">山屋設施與床位</a></li>
+          <li><a href="huts.html#safety">入山安全須知</a></li>
+          <li><a href="huts.html#team">山屋管理站</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>收費（示意）</h5>
+        <ul>
+          <li>山屋床位 NT$480 / 晚</li>
+          <li>營地帳位 NT$260 / 晚</li>
+          <li>協作揹負 NT$120 / 公斤·日</li>
+          <li>入山證代辦 NT$150 / 件</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note mono">
+      <span>© 2026 稜線高山服務有限公司</span>
+      <span>本站所有品牌、山屋、路線、價格、聯絡資訊與地形皆為虛構示意</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---------- shared data ---------- */
+var HUTS=[
+  {n:"雲階山屋",en:"Yúnjiē Hut",ele:2760,cap:"48 床",feat:[["型態","山屋"],["水源","有 · 溪引"],["炊事","有炊事間"]],pct:16},
+  {n:"斷稜避難所",en:"Duànléng Shelter",ele:3180,cap:"12 床",feat:[["型態","緊急避難"],["水源","無 · 需自備"],["炊事","無"]],pct:54},
+  {n:"圈谷營地",en:"Cirque Camp",ele:3410,cap:"40 帳位",feat:[["型態","營地"],["水源","融雪水"],["炊事","露天"]],pct:83},
+  {n:"鏡池山屋",en:"Jìngchí Hut",ele:3540,cap:"60 床",feat:[["型態","山屋"],["電力","太陽能"],["通訊","衛星電話"]],pct:100}
+];
+var ROUTES=[
+  {id:"yj",name:"雲階線",en:"YÚNJIĒ TRAVERSE",days:"2 天 1 夜",grade:"中級",gain:"+1,180 m",dist:"12.4 km",
+   desc:"最短的入門縱走。首日緩上雲階山屋過夜，次日輕裝攻主峰後原路折返，適合首次挑戰過夜高山者。",
+   prof:[[0,2380],[1.4,2600],[2.8,2760],[3.4,2760],[5.0,3050],[6.6,3360],[7.8,3540],[8.6,3542]],
+   hutIdx:[0,3]},
+  {id:"main",name:"主稜縱走",en:"MAIN RIDGE TRAVERSE",days:"3 天 2 夜",grade:"困難",gain:"+1,960 m",dist:"21.8 km",
+   desc:"經典 O 型主稜。過雲階、宿鏡池山屋，第二日沿主稜連走三峰、下切圈谷，全程暴露感強、需良好體能與雪季裝備判斷。",
+   prof:[[0,2380],[2.0,2760],[3.6,3180],[5.2,3410],[6.4,3540],[8.0,3542],[9.4,3300],[11,3410],[13,3020],[15,2560]],
+   hutIdx:[0,1,2,3]},
+  {id:"cir",name:"圈谷單攻",en:"CIRQUE DAY-HIKE",days:"1 天",grade:"入門",gain:"+760 m",dist:"9.2 km",
+   desc:"單日往返圈谷營地與冰河遺跡。不過夜、不需抽床，適合高度適應日或親子健行；仍須辦理入山證。",
+   prof:[[0,2650],[1.8,2860],[3.2,3120],[4.6,3410],[5.0,3410],[6.4,3120],[9.2,2650]],
+   hutIdx:[2]}
+];
+
+/* ---------- elevation profile SVG ---------- */
+function drawProfile(svg,route){
+  var W=340,H=118,pad=8,p=route.prof;
+  var xs=p.map(function(d){return d[0]}),ys=p.map(function(d){return d[1]});
+  var xmax=Math.max.apply(null,xs),ymin=Math.min.apply(null,ys),ymax=Math.max.apply(null,ys);
+  function X(v){return pad+(v/xmax)*(W-2*pad)}
+  function Y(v){return H-pad-((v-ymin)/(ymax-ymin||1))*(H-2*pad-6)}
+  var line=p.map(function(d,i){return (i?'L':'M')+X(d[0]).toFixed(1)+' '+Y(d[1]).toFixed(1)}).join(' ');
+  var area=line+' L'+X(xmax).toFixed(1)+' '+(H-pad)+' L'+X(0).toFixed(1)+' '+(H-pad)+' Z';
+  var grid='';
+  for(var g=1;g<4;g++){var yy=pad+g*(H-2*pad)/4;grid+='<line x1="0" y1="'+yy.toFixed(1)+'" x2="'+W+'" y2="'+yy.toFixed(1)+'" stroke="#1c2c31" stroke-width="1"/>'}
+  var mk='';
+  route.hutIdx.forEach(function(hi){
+    var h=HUTS[hi];var best=0,bd=1e9;
+    p.forEach(function(d,i){var dd=Math.abs(d[1]-h.ele);if(dd<bd){bd=dd;best=i}});
+    var mx=X(p[best][0]),my=Y(p[best][1]);
+    mk+='<line x1="'+mx.toFixed(1)+'" y1="'+my.toFixed(1)+'" x2="'+mx.toFixed(1)+'" y2="'+(H-pad)+'" stroke="#33454d" stroke-width="1"/>'
+      +'<path d="M'+mx.toFixed(1)+' '+(my-9).toFixed(1)+' l4 7 h-8 Z" fill="#E4572E"/>';
+  });
+  svg.innerHTML=grid
+    +'<path d="'+area+'" fill="rgba(30,122,130,.22)"/>'
+    +'<path d="'+line+'" fill="none" stroke="#2A9BA3" stroke-width="2"/>'+mk;
+  document.getElementById('p-lo').textContent=ymin.toLocaleString()+' m 起';
+  document.getElementById('p-hi').textContent='↑ '+ymax.toLocaleString()+' m';
+}
+
+/* ---------- hut cards ---------- */
+(function(){
+  var g=document.getElementById('hutgrid');if(!g)return;
+  HUTS.forEach(function(h,i){
+    var li=h.feat.map(function(f){return '<li>'+f[0]+'<span>'+f[1]+'</span></li>'}).join('');
+    var d=document.createElement('div');d.className='hut';d.style.setProperty('--pct',h.pct+'%');
+    d.innerHTML='<span class="idx mono">'+String(i+1).padStart(2,'0')+'</span>'
+      +'<span class="ele mono">'+h.ele.toLocaleString()+' m · '+h.cap+'</span>'
+      +'<div class="barn"></div>'
+      +'<h4>'+h.en+'<small>'+h.n+'</small></h4><ul>'+li+'</ul>';
+    g.appendChild(d);
+  });
+})();
+
+/* ---------- route chips + selection ---------- */
+var current=ROUTES[1];
+(function(){
+  var c=document.getElementById('chips');
+  ROUTES.forEach(function(r){
+    var b=document.createElement('button');b.className='chip';b.type='button';b.textContent=r.name;
+    b.setAttribute('aria-pressed',r===current?'true':'false');
+    b.onclick=function(){selectRoute(r,b)};
+    b.onmouseenter=function(){if(window.__hoverRoute)window.__hoverRoute(r)};
+    b.onmouseleave=function(){if(window.__hoverRoute)window.__hoverRoute(current)};
+    c.appendChild(b);
+  });
+})();
+function selectRoute(r,btn){
+  current=r;
+  document.querySelectorAll('#chips .chip').forEach(function(b){b.setAttribute('aria-pressed','false')});
+  if(btn)btn.setAttribute('aria-pressed','true');
+  document.getElementById('r-name').textContent=r.en;
+  document.getElementById('r-meta').innerHTML=r.days+' · '+r.dist+' · <span>'+r.grade+'</span> · 爬升 '+r.gain;
+  document.getElementById('r-desc').textContent=r.desc;
+  drawProfile(document.getElementById('profile'),r);
+  if(window.__setRoute)window.__setRoute(r);
+}
+
+/* ---------- 3D terrain ---------- */
+(function(){
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var vp=document.getElementById('vp'),cv=document.getElementById('terrain');
+  function fallback(){
+    if(cv)cv.style.display='none';
+    var f=document.createElement('div');
+    f.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';
+    f.innerHTML='<svg viewBox="0 0 400 300" style="width:100%;height:100%" aria-label="鏡池山列地形剖面">'
+      +'<rect width="400" height="300" fill="#0f171a"/>'
+      +'<path d="M0 240 L70 200 L120 150 L170 90 L210 55 L250 95 L300 150 L360 200 L400 235 V300 H0 Z" fill="#2f4a38"/>'
+      +'<path d="M120 150 L170 90 L210 55 L250 95 L300 150 L280 165 L210 100 L150 165 Z" fill="#6e6a5c"/>'
+      +'<path d="M175 84 L210 55 L245 90 L210 78 Z" fill="#ebefea"/>'
+      +'<circle cx="210" cy="55" r="4" fill="#E4572E"/><path d="M210 45 v-8 M204 41 h12" stroke="#E4572E" stroke-width="2"/>'
+      +'<path d="M40 260 Q200 210 380 258" fill="none" stroke="#1E7A82" stroke-width="1.5" opacity=".6"/>'
+      +'<text x="16" y="286" fill="#6b8a90" font-family="monospace" font-size="11">STATIC RELIEF · 需支援 WebGL 才能旋轉</text></svg>';
+    vp.appendChild(f);
+    var hint=document.getElementById('hint');if(hint)hint.style.display='none';
+    window.__setRoute=function(){};window.__hoverRoute=function(){};
+  }
+  if(typeof THREE==='undefined'){fallback();return;}
+  var scene,cam,ren,pivot,spin,routeLine,markers=[],raf=0;
+  var yaw=0,tilt=-0.62,drag=false,px=0,py=0,auto=!reduce;
+  try{
+    ren=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  }catch(e){fallback();return;}
+  if(!ren.getContext()){fallback();return;}
+  ren.setClearColor(0x000000,0);
+  scene=new THREE.Scene();scene.fog=new THREE.Fog(0x0f171a,16,34);
+  cam=new THREE.PerspectiveCamera(42,1,0.1,100);cam.position.set(0,4.6,15.5);cam.lookAt(0,0.6,0);
+  pivot=new THREE.Object3D();scene.add(pivot);
+  spin=new THREE.Object3D();pivot.add(spin);
+  scene.add(new THREE.AmbientLight(0x94a7ad,0.72));
+  var dl=new THREE.DirectionalLight(0xffece0,0.95);dl.position.set(-6,10,4);scene.add(dl);
+  var dl2=new THREE.DirectionalLight(0x2a9ba3,0.35);dl2.position.set(6,3,-6);scene.add(dl2);
+
+  function hash(x,y){var n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n)}
+  function vn(x,y){var xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi;
+    var u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+    var a=hash(xi,yi),b=hash(xi+1,yi),c=hash(xi,yi+1),d=hash(xi+1,yi+1);
+    return a*(1-u)*(1-v)+b*u*(1-v)+c*(1-u)*v+d*u*v}
+  function fbm(x,y){var s=0,amp=.5,f=1;for(var i=0;i<5;i++){s+=amp*vn(x*f,y*f);f*=2;amp*=.5}return s}
+  function height(nx,ny){
+    var ridge=Math.exp(-Math.pow((ny-0.22*Math.sin(nx*2.1))*2.3,2));
+    var peak=Math.exp(-Math.pow((nx+0.12)*1.7,2)-Math.pow((ny-0.05)*1.9,2))*0.55;
+    var fb=fbm(nx*2.3+3,ny*2.3+7);
+    var fall=Math.max(0,1-Math.pow((nx*nx+ny*ny)*0.52,1.5));
+    var h=(ridge*0.72+peak+fb*0.5)*(0.5+0.5*fall);
+    return Math.max(0,h)}
+  var HSCALE=4.3,SPAN=9;
+  function worldY(nx,ny){return height(nx,ny)*HSCALE}
+
+  // build terrain
+  var SEG=104,verts=[],idx=[];
+  for(var j=0;j<=SEG;j++)for(var i=0;i<=SEG;i++){
+    var nx=(i/SEG-0.5)*2,ny=(j/SEG-0.5)*2;
+    verts.push(nx*SPAN/2,worldY(nx,ny),ny*SPAN/2);
+  }
+  for(var j2=0;j2<SEG;j2++)for(var i2=0;i2<SEG;i2++){
+    var a=j2*(SEG+1)+i2,b=a+1,c=a+SEG+1,d=c+1;
+    idx.push(a,c,b,b,c,d);
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setIndex(idx);
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+  geo.computeVertexNormals();
+  geo=geo.toNonIndexed();
+  // vertex colors by elevation
+  var pos=geo.attributes.position,col=[];
+  var maxH=HSCALE*0.9;
+  var C={tarn:[0.12,0.48,0.51],forest:[0.18,0.29,0.22],montane:[0.28,0.34,0.25],scree:[0.43,0.42,0.36],rock:[0.55,0.55,0.5],snow:[0.92,0.94,0.91]};
+  for(var v=0;v<pos.count;v++){
+    var h=pos.getY(v)/maxH,cc;
+    if(h<0.045)cc=C.tarn;else if(h<0.30)cc=C.forest;else if(h<0.47)cc=C.montane;
+    else if(h<0.63)cc=C.scree;else if(h<0.80)cc=C.rock;else cc=C.snow;
+    var jit=(hash(v*0.13,v*0.29)-0.5)*0.045;
+    col.push(cc[0]+jit,cc[1]+jit,cc[2]+jit);
+  }
+  geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  var mat=new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:0.94,metalness:0.02});
+  var terrain=new THREE.Mesh(geo,mat);terrain.position.y=-1.4;spin.add(terrain);
+
+  // base plinth
+  var plinth=new THREE.Mesh(new THREE.BoxGeometry(SPAN,0.5,SPAN),new THREE.MeshStandardMaterial({color:0x1a262b,roughness:1}));
+  plinth.position.y=-1.75;spin.add(plinth);
+
+  // route line + hut markers
+  var routeGroup=new THREE.Object3D();routeGroup.position.y=-1.4;spin.add(routeGroup);
+  function ridgeXY(t){var nx=-0.72+1.44*t;var ny=0.22*Math.sin(nx*2.1);return [nx,ny]}
+  function buildRoute(r){
+    while(routeGroup.children.length)routeGroup.remove(routeGroup.children[0]);
+    markers=[];
+    var pts=[];
+    for(var t=0;t<=1.0001;t+=1/60){var xy=ridgeXY(t);pts.push(new THREE.Vector3(xy[0]*SPAN/2,worldY(xy[0],xy[1])+0.12,xy[1]*SPAN/2))}
+    var lg=new THREE.BufferGeometry().setFromPoints(pts);
+    var ln=new THREE.Line(lg,new THREE.LineBasicMaterial({color:0xe4572e}));routeGroup.add(ln);
+    // huts along ridge by elevation order
+    var frac=[0.14,0.42,0.62,0.86];
+    HUTS.forEach(function(h,i){
+      var t=frac[i],xy=ridgeXY(t),y=worldY(xy[0],xy[1]);
+      var on=r.hutIdx.indexOf(i)>=0;
+      var stick=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.7,6),new THREE.MeshBasicMaterial({color:on?0xe4572e:0x4a5c62}));
+      stick.position.set(xy[0]*SPAN/2,y+0.35,xy[1]*SPAN/2);routeGroup.add(stick);
+      var m=new THREE.Mesh(new THREE.ConeGeometry(0.16,0.32,4),new THREE.MeshStandardMaterial({color:on?0xe4572e:0x2f3d43,roughness:.6,emissive:on?0x511a0c:0x000000}));
+      m.position.set(xy[0]*SPAN/2,y+0.82,xy[1]*SPAN/2);m.rotation.y=Math.PI/4;m.userData.on=on;m.scale.setScalar(on?0.01:0.85);
+      routeGroup.add(m);markers.push(m);
+    });
+  }
+  buildRoute(current);
+  // sequential pop-in of active markers
+  function popMarkers(){
+    var seq=markers.filter(function(m){return m.userData.on});
+    if(reduce){seq.forEach(function(m){m.scale.setScalar(1.15)});return;}
+    seq.forEach(function(m,k){setTimeout(function(){var s=0;var t=setInterval(function(){s+=0.12;m.scale.setScalar(Math.min(1.15,s));if(s>=1.15)clearInterval(t)},16)},k*140)});
+  }
+  popMarkers();
+
+  window.__setRoute=function(r){buildRoute(r);popMarkers()};
+  window.__hoverRoute=function(r){/* subtle: rebuild markers on hover */ buildRoute(r);};
+
+  function resize(){
+    var w=vp.clientWidth,h=vp.clientHeight;
+    ren.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    ren.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
+  }
+  function frame(){
+    if(auto&&!drag)yaw+=0.0016;
+    spin.rotation.y=yaw;pivot.rotation.x=tilt;
+    var deg=((yaw*180/Math.PI)%360+360)%360;
+    var rr=document.getElementById('rot-read');if(rr)rr.textContent='AZ '+String(Math.round(deg)).padStart(3,'0')+'°';
+    ren.render(scene,cam);
+    raf=requestAnimationFrame(frame);
+  }
+  resize();window.addEventListener('resize',resize);
+  if(reduce){spin.rotation.y=yaw;pivot.rotation.x=tilt;ren.render(scene,cam);} 
+  raf=requestAnimationFrame(frame);
+
+  // drag interaction
+  function down(e){drag=true;auto=false;vp.classList.add('drag');var t=e.touches?e.touches[0]:e;px=t.clientX;py=t.clientY;var hint=document.getElementById('hint');if(hint)hint.style.opacity='0';}
+  function move(e){if(!drag)return;var t=e.touches?e.touches[0]:e;yaw+=(t.clientX-px)*0.006;tilt=Math.max(-1.15,Math.min(-0.18,tilt+(t.clientY-py)*0.004));px=t.clientX;py=t.clientY;if(e.cancelable&&e.touches)e.preventDefault();if(reduce){spin.rotation.y=yaw;pivot.rotation.x=tilt;ren.render(scene,cam);} }
+  function up(){drag=false;vp.classList.remove('drag');}
+  vp.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+  vp.addEventListener('touchstart',down,{passive:true});vp.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',up);
+})();
+
+/* init readout */
+selectRoute(current,document.querySelectorAll('#chips .chip')[1]);
+</script>
+</body>
+</html>

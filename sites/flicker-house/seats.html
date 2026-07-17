@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選座訂票 — 明滅戲院 THE FLICKER HOUSE</title>
+<meta name="description" content="明滅戲院選座訂票：選片與場次，在立體座位圖點選座席，右側即時把銀幕轉成從那一席望過去的視線，取得訂位編號。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23100D14'/%3E%3Ccircle cx='16' cy='10' r='4.6' fill='none' stroke='%23F2B33C' stroke-width='2'/%3E%3Ccircle cx='16' cy='10' r='1.6' fill='%23F2B33C'/%3E%3Cpath d='M16 10 L5 29 L27 29 Z' fill='%2358B3C2' opacity='.5'/%3E%3Crect x='6' y='27' width='20' height='2.6' fill='%23ECE7DA'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Oswald:wght@300;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#100D14; --hall:#181320; --panel:#1F1826; --line:#2E2436;
+  --velvet:#7C1D2A; --velvet-lo:#5A141F;
+  --bulb:#F2B33C; --bulb-lo:#C98A1F;
+  --screen:#ECE7DA; --dim:#B4A9BF; --faint:#7E7388;
+  --beam:#58B3C2; --ok:#5AA469; --rail:92px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--screen);font-family:"Noto Serif TC",serif;line-height:1.7;padding-left:var(--rail);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"DM Mono",monospace}
+/* rail */
+.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail);
+  background:repeating-linear-gradient(180deg,transparent 0 14px,rgba(0,0,0,.55) 14px 26px) left/12px 100% no-repeat,
+  repeating-linear-gradient(180deg,transparent 0 14px,rgba(0,0,0,.55) 14px 26px) right/12px 100% no-repeat,#0A080D;
+  border-right:2px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:14px 0;z-index:50}
+.rail .brand{display:block;width:60px;text-align:center;margin:2px 0 16px}
+.rail .brand svg{width:54px;display:block;margin:0 auto}
+.rail .brand b{font-family:"Oswald";font-weight:700;font-size:9px;letter-spacing:3px;color:var(--bulb);display:block;margin-top:4px}
+.rail nav{display:flex;flex-direction:column;gap:12px;width:100%;align-items:center;flex:1}
+.frame{width:64px;height:56px;border:2px solid var(--line);background:#120E18;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--dim);position:relative;transition:.25s}
+.frame:hover{border-color:var(--bulb);color:var(--screen)}
+.frame .zh{font-size:14px;font-weight:700}
+.frame .en{font-family:"Oswald";font-size:7.5px;letter-spacing:1.5px;color:var(--faint)}
+.frame.on{border-color:var(--bulb);background:#241a10;color:var(--screen)}
+.frame.on::before{content:"";position:absolute;left:-2px;top:-2px;bottom:-2px;width:3px;background:var(--bulb)}
+.rail .foot{font-family:"Oswald";font-size:7px;letter-spacing:2px;color:var(--faint);writing-mode:vertical-rl;margin-top:8px}
+
+.head{padding:34px 40px 8px;border-bottom:2px solid var(--line)}
+.eyebrow{font-family:"Oswald";font-size:11px;letter-spacing:6px;color:var(--beam)}
+.head h1{font-size:32px;font-weight:900;letter-spacing:1px;margin:10px 0 6px}
+.head p{color:var(--faint);font-family:"DM Mono";font-size:12px}
+
+.wrap{display:grid;grid-template-columns:1fr 360px;gap:0}
+.left{padding:28px 40px 60px}
+.right{border-left:2px solid var(--line);background:#0C0910;padding:26px 26px 60px;position:sticky;top:0;align-self:start;min-height:100vh}
+
+.step{font-family:"Oswald";font-size:10px;letter-spacing:4px;color:var(--bulb);margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+.step span{width:22px;height:22px;border:2px solid var(--bulb);color:var(--bulb);display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.step:first-child{margin-top:0}
+
+/* film chips */
+.films{display:flex;flex-wrap:wrap;gap:10px}
+.film{border:2px solid var(--line);background:var(--panel);padding:12px 15px;cursor:pointer;transition:.2s;min-width:150px}
+.film:hover{border-color:var(--dim)}
+.film.on{border-color:var(--bulb);background:#221a10}
+.film .n{font-weight:700;font-size:15px}
+.film .m{font-family:"DM Mono";font-size:11px;color:var(--faint);margin-top:2px}
+.sess{display:flex;flex-wrap:wrap;gap:8px}
+.sbtn{font-family:"DM Mono";font-size:14px;padding:9px 15px;border:2px solid var(--line);background:#140f1b;color:var(--dim);cursor:pointer;transition:.2s}
+.sbtn:hover{border-color:var(--dim);color:var(--screen)}
+.sbtn.on{border-color:var(--bulb);background:var(--bulb);color:#160f06}
+.sbtn.full{opacity:.4;cursor:not-allowed;text-decoration:line-through}
+
+/* 3D seat house */
+.house{perspective:1200px;perspective-origin:50% 0%;margin:22px 0 8px;overflow:hidden;padding:8px 0 22px}
+.screen-far{width:min(72%,440px);height:34px;margin:0 auto 6px;
+  background:linear-gradient(180deg,#f4efe3,#c9c3b6);color:#2a2028;
+  display:flex;align-items:center;justify-content:center;font-family:"Oswald";font-size:11px;letter-spacing:8px;
+  box-shadow:0 -2px 60px 8px rgba(88,179,194,.28);transform:rotateX(34deg)}
+.rake{transform-style:preserve-3d;transform:rotateX(33deg);transform-origin:50% 0}
+.srow{display:flex;align-items:center;justify-content:center;gap:6px;margin:5px 0}
+.rlab{font-family:"DM Mono";font-size:11px;color:var(--faint);width:16px;text-align:center;flex:0 0 16px}
+.st{width:24px;height:22px;border-radius:5px 5px 3px 3px;border:0;cursor:pointer;
+  background:linear-gradient(180deg,#3a2f45,#291f33);box-shadow:inset 0 2px 0 rgba(255,255,255,.05);
+  transition:transform .12s,background .15s;padding:0;position:relative}
+.st:hover:not(.occ){transform:translateY(-3px)}
+.st.avail{background:linear-gradient(180deg,#463854,#332740)}
+.st.best{background:linear-gradient(180deg,#5a4a2a,#3e3117);box-shadow:inset 0 2px 0 rgba(242,179,60,.25)}
+.st.sel{background:linear-gradient(180deg,#f2b33c,#c98a1f);box-shadow:0 0 0 2px #ffd980,0 4px 8px rgba(0,0,0,.5)}
+.st.occ{background:linear-gradient(180deg,#241b2c,#181120);cursor:not-allowed;opacity:.6}
+.st.occ::after{content:"×";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#5c5266;font-size:12px}
+.aisle{width:16px;flex:0 0 16px}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-family:"DM Mono";font-size:11px;color:var(--dim);margin-top:4px}
+.legend i{width:16px;height:14px;border-radius:3px;display:inline-block;vertical-align:-2px;margin-right:6px}
+.li-a{background:#463854}.li-b{background:linear-gradient(180deg,#5a4a2a,#3e3117)}.li-s{background:#f2b33c}.li-o{background:#241b2c}
+
+/* sightline preview */
+.sight-hd{font-family:"Oswald";font-size:10px;letter-spacing:3px;color:var(--beam);margin-bottom:10px}
+.sight{height:190px;perspective:520px;perspective-origin:50% 46%;position:relative;
+  background:radial-gradient(120% 120% at 50% 20%,#1c1626,#0a0710);border:2px solid var(--line);overflow:hidden}
+.mini-world{position:absolute;inset:0;transform-style:preserve-3d}
+.mini-screen{position:absolute;left:50%;top:50%;width:200px;height:112px;margin:-56px 0 0 -100px;
+  background:linear-gradient(180deg,#f6f1e6,#d3cdc0);border:5px solid #05040a;
+  box-shadow:0 0 46px 8px rgba(88,179,194,.30);transition:transform .45s cubic-bezier(.2,.7,.2,1);
+  transform:translateZ(-160px);display:flex;align-items:center;justify-content:center;color:#241b22;text-align:center}
+.mini-screen .st2{font-family:"Oswald";font-size:9px;letter-spacing:3px;color:#7a2331}
+.mini-screen .tt2{font-weight:900;font-size:18px;line-height:1.05;margin-top:2px}
+.mini-seatback{position:absolute;left:50%;bottom:0;width:150px;height:26px;margin-left:-75px;
+  background:linear-gradient(180deg,var(--velvet),#3c0d15);border-radius:8px 8px 0 0;transform:translateZ(60px)}
+.sight-read{font-family:"DM Mono";font-size:11px;color:var(--dim);margin-top:10px;line-height:1.8;min-height:38px}
+.sight-read b{color:var(--bulb)}
+
+/* order panel */
+.order h3{font-family:"Oswald";font-size:11px;letter-spacing:4px;color:var(--bulb);margin-bottom:4px}
+.order .film-now{font-weight:700;font-size:17px;margin-bottom:2px}
+.order .sess-now{font-family:"DM Mono";font-size:12px;color:var(--faint);margin-bottom:16px}
+.picked{list-style:none;margin:0 0 12px}
+.picked li{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-family:"DM Mono";font-size:13px}
+.picked .seatid{color:var(--bulb);width:44px}
+.picked select{flex:1;background:#140f1b;color:var(--screen);border:1px solid var(--line);font-family:"DM Mono";font-size:12px;padding:5px}
+.picked .rm{background:none;border:0;color:var(--velvet);cursor:pointer;font-size:15px;font-family:"DM Mono"}
+.empty{color:var(--faint);font-family:"DM Mono";font-size:12px;padding:14px 0;border-top:1px solid var(--line)}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--line);padding-top:14px;margin-top:4px}
+.total .l{font-family:"Oswald";font-size:11px;letter-spacing:3px;color:var(--faint)}
+.total .v{font-family:"DM Mono";font-size:26px;color:var(--bulb)}
+.fld{margin-top:14px}
+.fld label{font-family:"Oswald";font-size:9px;letter-spacing:2px;color:var(--faint);display:block;margin-bottom:5px}
+.fld input{width:100%;background:#140f1b;color:var(--screen);border:2px solid var(--line);padding:11px 12px;font-family:"DM Mono";font-size:13px}
+.fld input:focus{outline:none;border-color:var(--bulb)}
+.err{color:#e58a95;font-family:"DM Mono";font-size:11px;margin-top:5px;display:none}
+.err.show{display:block}
+.confirm{width:100%;margin-top:18px;font-family:"Oswald";font-weight:700;font-size:14px;letter-spacing:3px;
+  padding:15px;background:var(--bulb);color:#160f06;border:2px solid var(--bulb);cursor:pointer;transition:.2s}
+.confirm:hover{background:transparent;color:var(--bulb)}
+.confirm:disabled{opacity:.4;cursor:not-allowed;background:transparent;color:var(--faint);border-color:var(--line)}
+
+/* ticket stub */
+.stub{margin-top:18px;background:var(--screen);color:#171019;position:relative;display:none}
+.stub.show{display:block;animation:pop .4s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stub .top{padding:16px 18px;border-bottom:2px dashed #b9b1a3}
+.stub .name{font-family:"Oswald";font-weight:700;letter-spacing:3px;font-size:12px;color:#7a2331}
+.stub .movie{font-weight:900;font-size:20px;margin:3px 0}
+.stub .meta{font-family:"DM Mono";font-size:11px;color:#4a4048}
+.stub .body{padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.stub .ref{font-family:"DM Mono";font-size:15px;letter-spacing:1px}
+.stub .ref span{display:block;font-size:9px;letter-spacing:2px;color:#7c7268}
+.stub .seats{font-family:"DM Mono";font-size:12px;text-align:right;color:#2a2028;max-width:150px}
+.stub .code{padding:0 18px 16px}
+.stub .code svg{width:100%;height:34px}
+.again{width:100%;margin-top:10px;background:none;border:2px solid var(--line);color:var(--dim);font-family:"Oswald";letter-spacing:3px;font-size:11px;padding:11px;cursor:pointer;display:none}
+.again.show{display:block}
+
+@media(max-width:960px){
+  .wrap{grid-template-columns:1fr}
+  .right{border-left:0;border-top:2px solid var(--line);position:static;min-height:0}
+}
+@media(max-width:820px){
+  :root{--rail:0px}
+  body{padding-left:0;padding-top:58px}
+  .rail{top:0;left:0;right:0;bottom:auto;width:100%;height:58px;flex-direction:row;padding:0 10px;border-right:0;border-bottom:2px solid var(--line);
+    background:repeating-linear-gradient(90deg,transparent 0 14px,rgba(0,0,0,.55) 14px 26px) top/100% 10px no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 14px,rgba(0,0,0,.55) 14px 26px) bottom/100% 10px no-repeat,#0A080D}
+  .rail .brand{margin:0 12px 0 4px}.rail .brand svg{width:38px}.rail .brand b{display:none}
+  .rail nav{flex-direction:row;gap:6px;justify-content:flex-end}
+  .frame{width:auto;min-width:56px;height:42px;padding:0 8px}.frame .en{display:none}.rail .foot{display:none}
+  .head,.left{padding-left:20px;padding-right:20px}
+  .st{width:20px;height:19px}.rlab{flex-basis:14px;width:14px}
+}
+@media(max-width:560px){
+  .house{padding-left:2px;padding-right:2px}
+  .srow{gap:3px}
+  .st{width:15px;height:15px;border-radius:4px 4px 2px 2px}
+  .rlab{flex-basis:12px;width:12px;font-size:9px}
+  .aisle{width:11px;flex:0 0 11px}
+  .head h1{font-size:26px}
+  .legend{font-size:10px;gap:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+@supports not (transform-style:preserve-3d){
+  .rake,.screen-far,.mini-screen{transform:none!important}
+  .house{perspective:none}
+}
+</style>
+</head>
+<body>
+
+<aside class="rail">
+  <a class="brand" href="index.html" aria-label="明滅戲院 首頁">
+    <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg"><rect width="54" height="54" fill="#0A080D"/><circle cx="27" cy="16" r="8" fill="none" stroke="#F2B33C" stroke-width="3"/><circle cx="27" cy="16" r="2.6" fill="#F2B33C"/><path d="M27 16 L10 48 L44 48 Z" fill="#58B3C2" opacity=".45"/><rect x="12" y="45" width="30" height="4" fill="#ECE7DA"/></svg>
+    <b>FLICKER</b>
+  </a>
+  <nav>
+    <a class="frame" href="index.html"><span class="zh">放映廳</span><span class="en">HALL</span></a>
+    <a class="frame" href="programme.html"><span class="zh">片單</span><span class="en">PROGRAMME</span></a>
+    <a class="frame on" href="seats.html"><span class="zh">選座</span><span class="en">SEATS</span></a>
+    <a class="frame" href="about.html"><span class="zh">戲院</span><span class="en">ABOUT</span></a>
+  </nav>
+  <div class="foot">EST. DADAOCHENG</div>
+</aside>
+
+<div class="head">
+  <div class="eyebrow">SEAT SELECTION</div>
+  <h1>選座訂票</h1>
+  <p>單廳 132 席 · 每席都能先看見它望向銀幕的視線</p>
+</div>
+
+<div class="wrap">
+  <div class="left">
+    <div class="step"><span>1</span>選片</div>
+    <div class="films" id="films"></div>
+
+    <div class="step"><span>2</span>選場次</div>
+    <div class="sess" id="sess"></div>
+
+    <div class="step"><span>3</span>點選座席</div>
+    <div class="house">
+      <div class="screen-far">SCREEN · 銀幕</div>
+      <div class="rake" id="rake"></div>
+    </div>
+    <div class="legend">
+      <span><i class="li-a"></i>可選</span>
+      <span><i class="li-b"></i>第 7 排・本院最佳視聽位</span>
+      <span><i class="li-s"></i>已選</span>
+      <span><i class="li-o"></i>已售</span>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="sight-hd">你這一席望過去 · SIGHTLINE</div>
+    <div class="sight">
+      <div class="mini-world">
+        <div class="mini-screen" id="miniScreen">
+          <div><div class="st2">NOW SHOWING</div><div class="tt2" id="miniTitle">霧港三號出口</div></div>
+        </div>
+        <div class="mini-seatback"></div>
+      </div>
+    </div>
+    <div class="sight-read" id="sightRead">尚未選位。點左側座位圖，這裡會轉成你那一席看銀幕的角度與距離。</div>
+
+    <div class="order" style="margin-top:20px">
+      <h3>YOUR ORDER · 訂位</h3>
+      <div class="film-now" id="orderFilm">霧港三號出口</div>
+      <div class="sess-now" id="orderSess">今日 21:40 · 深夜場</div>
+      <ul class="picked" id="picked"></ul>
+      <div class="total"><span class="l">合計 TOTAL</span><span class="v mono" id="total">NT$0</span></div>
+
+      <form id="form" novalidate>
+        <div class="fld">
+          <label for="nm">取票人姓名</label>
+          <input id="nm" type="text" autocomplete="name" placeholder="王小明">
+          <div class="err" id="errNm">請填寫取票人姓名。</div>
+        </div>
+        <div class="fld">
+          <label for="ph">手機（09 開頭十碼）</label>
+          <input id="ph" type="tel" inputmode="numeric" autocomplete="tel" placeholder="0912345678">
+          <div class="err" id="errPh">手機格式需為 09 開頭共十碼數字。</div>
+        </div>
+        <div class="err" id="errSeat">請至少點選一個座位。</div>
+        <button class="confirm" id="confirm" type="submit" disabled>確認訂位</button>
+      </form>
+
+      <div class="stub" id="stub">
+        <div class="top">
+          <div class="name">明滅戲院 · THE FLICKER HOUSE</div>
+          <div class="movie" id="stMovie">霧港三號出口</div>
+          <div class="meta" id="stMeta">今日 21:40 · 深夜場 · 保安街 47 號</div>
+        </div>
+        <div class="body">
+          <div class="ref"><span>訂位編號 REF</span><b id="stRef">MM-000000-000</b></div>
+          <div class="seats" id="stSeats">A1</div>
+        </div>
+        <div class="code">
+          <svg id="stBar" viewBox="0 0 240 34" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+      </div>
+      <button class="again" id="again" type="button">重新選位</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var FILMS=[
+    {n:"霧港三號出口",m:"1971 · 108min",sessions:[{t:"21:40",tag:"深夜場",full:false}]},
+    {n:"九月的螢火",m:"1965 · 96min",sessions:[{t:"13:30",tag:"午場",full:false},{t:"18:00",tag:"夜場",full:true}]},
+    {n:"最後一班平快車",m:"1983 · 122min",sessions:[{t:"19:00",tag:"夜場",full:false}]},
+    {n:"紅氣球公寓",m:"1978 · 101min",sessions:[{t:"16:10",tag:"日場",full:false}]},
+    {n:"明滅",m:"1969 · 88min · 鎮院之作",sessions:[{t:"20:20",tag:"特映",full:false}]}
+  ];
+  var PRICES={"全票":280,"優待票":220,"會員夜貓":200};
+  var ROWS="ABCDEFGHIJ".split(""), PERROW=14, AISLE=7, MAX=6, BEST=6; // row index 6 = G = 7th row
+
+  var curFilm=0, curSess=0, selected=[]; // selected: array of "A1"
+  var rake=document.getElementById("rake");
+
+  /* deterministic occupancy per film+session */
+  function hash(str){var h=2166136261;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h;}
+  function occupied(rowI,seatN){
+    var seed=hash(FILMS[curFilm].n+"|"+FILMS[curFilm].sessions[curSess].t+"|"+rowI+"|"+seatN);
+    return (seed%100)<24; // ~24% sold
+  }
+
+  function seatId(rowI,seatN){return ROWS[rowI]+seatN;}
+
+  function buildSeats(){
+    rake.innerHTML="";
+    for(var r=0;r<ROWS.length;r++){
+      var row=document.createElement("div"); row.className="srow";
+      var lab=document.createElement("div"); lab.className="rlab"; lab.textContent=ROWS[r]; row.appendChild(lab);
+      for(var s=1;s<=PERROW;s++){
+        if(s-1===AISLE){var g=document.createElement("div");g.className="aisle";row.appendChild(g);}
+        var b=document.createElement("button"); b.type="button"; b.className="st";
+        b.setAttribute("data-id",seatId(r,s));
+        b.setAttribute("aria-label","座位 "+seatId(r,s));
+        var occ=occupied(r,s);
+        var id=seatId(r,s);
+        if(occ){b.className+=" occ";b.disabled=true;}
+        else if(selected.indexOf(id)>=0){b.className+=" sel";}
+        else if(r===BEST){b.className+=" best";}
+        else{b.className+=" avail";}
+        b.addEventListener("click",onSeat);
+        row.appendChild(b);
+      }
+      var lab2=document.createElement("div"); lab2.className="rlab"; lab2.textContent=ROWS[r]; row.appendChild(lab2);
+      rake.appendChild(row);
+    }
+  }
+
+  function onSeat(e){
+    var id=e.currentTarget.getAttribute("data-id");
+    var i=selected.indexOf(id);
+    if(i>=0){ selected.splice(i,1); }
+    else{
+      if(selected.length>=MAX){ flash(e.currentTarget); return; }
+      selected.push(id);
+    }
+    buildSeats(); renderOrder(); updateSightline();
+  }
+  function flash(el){el.animate?el.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:220}):0;}
+
+  /* films + sessions UI */
+  function buildFilms(){
+    var host=document.getElementById("films"), h="";
+    FILMS.forEach(function(f,i){
+      h+='<div class="film'+(i===curFilm?' on':'')+'" data-i="'+i+'"><div class="n">'+f.n+'</div><div class="m">'+f.m+'</div></div>';
+    });
+    host.innerHTML=h;
+    Array.prototype.forEach.call(host.children,function(el){
+      el.addEventListener("click",function(){curFilm=+el.getAttribute("data-i");curSess=0;selected=[];buildFilms();buildSess();buildSeats();renderOrder();updateSightline();});
+    });
+  }
+  function buildSess(){
+    var host=document.getElementById("sess"), h="", ss=FILMS[curFilm].sessions;
+    if(curSess>=ss.length)curSess=0;
+    ss.forEach(function(x,i){
+      h+='<button type="button" class="sbtn'+(i===curSess?' on':'')+(x.full?' full':'')+'" data-i="'+i+'"'+(x.full?' disabled':'')+'>'+x.t+' · '+x.tag+(x.full?' · 客滿':'')+'</button>';
+    });
+    host.innerHTML=h;
+    Array.prototype.forEach.call(host.children,function(el){
+      if(el.disabled)return;
+      el.addEventListener("click",function(){curSess=+el.getAttribute("data-i");selected=[];buildSess();buildSeats();renderOrder();updateSightline();});
+    });
+  }
+
+  /* sightline preview */
+  function updateSightline(){
+    var mini=document.getElementById("miniScreen"), read=document.getElementById("sightRead");
+    document.getElementById("miniTitle").textContent=FILMS[curFilm].n;
+    if(!selected.length){
+      mini.style.transform="translateZ(-160px)";
+      read.innerHTML="尚未選位。點左側座位圖，這裡會轉成你那一席看銀幕的角度與距離。";
+      return;
+    }
+    // centroid of selected
+    var rSum=0,cSum=0;
+    selected.forEach(function(id){
+      var ri=ROWS.indexOf(id.charAt(0));
+      var cn=parseInt(id.slice(1),10);
+      rSum+=ri; cSum+=cn;
+    });
+    var rAvg=rSum/selected.length;            // 0 front .. 9 back
+    var cAvg=cSum/selected.length;            // 1..14
+    var colOff=cAvg-(PERROW+1)/2;             // - left, + right
+    // map to a viewing transform
+    var depth = -110 - rAvg*24;               // further back => screen recedes
+    var scale = 1.18 - rAvg*0.055;            // front seats: bigger screen
+    var yaw   = -colOff*2.4;                  // side seats: screen swings
+    var pitch = 6 - rAvg*0.9;                 // front rows look slightly up
+    mini.style.transform="translateZ("+depth+"px) rotateY("+yaw.toFixed(1)+"deg) rotateX("+pitch.toFixed(1)+"deg) scale("+scale.toFixed(2)+")";
+    // readout
+    var distM=(6+rAvg*1.5).toFixed(1);
+    var side = Math.abs(colOff)<1 ? "正中" : (colOff<0?"偏左 "+Math.round(Math.abs(colOff))+" 席":"偏右 "+Math.round(Math.abs(colOff))+" 席");
+    var ang = Math.abs(yaw).toFixed(0);
+    var note = (Math.round(rAvg)===BEST) ? " ・ <b>正是第 7 排的甜蜜點</b>" : (rAvg<3?" ・ 前排、銀幕壓境":(rAvg>7?" ・ 後排、全景盡收":""));
+    read.innerHTML="第 <b>"+ROWS[Math.round(rAvg)]+"</b> 排一帶・"+side+"・距銀幕約 <b>"+distM+" m</b>・偏擺 "+ang+"°"+note;
+  }
+
+  /* order + total */
+  function renderOrder(){
+    document.getElementById("orderFilm").textContent=FILMS[curFilm].n;
+    var s=FILMS[curFilm].sessions[curSess];
+    document.getElementById("orderSess").textContent="今日 "+s.t+" · "+s.tag;
+    var ul=document.getElementById("picked");
+    if(!selected.length){ ul.innerHTML='<div class="empty">尚未選位</div>'; }
+    else{
+      var h="";
+      selected.slice().sort().forEach(function(id){
+        h+='<li><span class="seatid">'+id+'</span>'
+          +'<select data-id="'+id+'">'
+          +'<option value="全票">全票 NT$280</option>'
+          +'<option value="優待票">優待 NT$220</option>'
+          +'<option value="會員夜貓">夜貓 NT$200</option>'
+          +'</select>'
+          +'<button type="button" class="rm" data-id="'+id+'" aria-label="移除 '+id+'">✕</button></li>';
+      });
+      ul.innerHTML=h;
+      Array.prototype.forEach.call(ul.querySelectorAll("select"),function(sel){sel.addEventListener("change",calcTotal);});
+      Array.prototype.forEach.call(ul.querySelectorAll(".rm"),function(b){
+        b.addEventListener("click",function(){var id=b.getAttribute("data-id");var i=selected.indexOf(id);if(i>=0)selected.splice(i,1);buildSeats();renderOrder();updateSightline();});
+      });
+    }
+    calcTotal();
+    document.getElementById("confirm").disabled = selected.length===0;
+  }
+  function calcTotal(){
+    var t=0;
+    Array.prototype.forEach.call(document.querySelectorAll("#picked select"),function(sel){t+=PRICES[sel.value]||0;});
+    document.getElementById("total").textContent="NT$"+t;
+    return t;
+  }
+
+  /* barcode svg (original, generated) */
+  function drawBar(seed){
+    var svg=document.getElementById("stBar"), s=hash(seed), x=0, h="";
+    while(x<240){ var w=1+(s%5); s=Math.imul(s,1103515245)+12345>>>0; var fill=(s%2)?"#171019":"#171019"; if((s>>3)%3===0){x+=w;continue;} h+='<rect x="'+x+'" y="0" width="'+w+'" height="34" fill="'+fill+'"/>'; x+=w+ (1+((s>>5)%3)); }
+    svg.innerHTML=h;
+  }
+
+  /* validate + confirm */
+  document.getElementById("form").addEventListener("submit",function(e){
+    e.preventDefault();
+    var nm=document.getElementById("nm"), ph=document.getElementById("ph");
+    var okN=nm.value.trim().length>0, okP=/^09\d{8}$/.test(ph.value.trim()), okS=selected.length>0;
+    document.getElementById("errNm").classList.toggle("show",!okN);
+    document.getElementById("errPh").classList.toggle("show",!okP);
+    document.getElementById("errSeat").classList.toggle("show",!okS);
+    if(!(okN&&okP&&okS))return;
+    var now=new Date();
+    var yy=String(now.getFullYear()).slice(2), mm=("0"+(now.getMonth()+1)).slice(-2), dd=("0"+now.getDate()).slice(-2);
+    var seedStr=nm.value+ph.value+selected.join("")+Date.now();
+    var num=("00"+(hash(seedStr)%1000)).slice(-3);
+    var ref="MM-"+yy+mm+dd+"-"+num;
+    var s=FILMS[curFilm].sessions[curSess];
+    document.getElementById("stMovie").textContent=FILMS[curFilm].n;
+    document.getElementById("stMeta").textContent="今日 "+s.t+" · "+s.tag+" · 保安街 47 號";
+    document.getElementById("stRef").textContent=ref;
+    document.getElementById("stSeats").innerHTML="座位 "+selected.slice().sort().join(" · ")+"<br>共 "+selected.length+" 張 · "+document.getElementById("total").textContent;
+    drawBar(ref);
+    document.getElementById("stub").classList.add("show");
+    document.getElementById("again").classList.add("show");
+    document.getElementById("form").style.display="none";
+    document.getElementById("stub").scrollIntoView({behavior:"smooth",block:"nearest"});
+  });
+
+  document.getElementById("again").addEventListener("click",function(){
+    selected=[]; document.getElementById("nm").value=""; document.getElementById("ph").value="";
+    document.getElementById("stub").classList.remove("show");
+    document.getElementById("again").classList.remove("show");
+    document.getElementById("form").style.display="block";
+    buildSeats(); renderOrder(); updateSightline();
+  });
+
+  buildFilms(); buildSess(); buildSeats(); renderOrder(); updateSightline();
+})();
+</script>
+</body>
+</html>

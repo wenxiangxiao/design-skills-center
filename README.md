@@ -93,6 +93,7 @@
 | 75 | [起步駕訓中心 FIRST GEAR](sites/first-gear/index.html) | 駕訓班 | 交通路誌風 Road-Marking | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 76 | [明滅戲院 THE FLICKER HOUSE](sites/flicker-house/index.html) | 獨立戲院 | 放映廳暗場風 Screening-Room | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 77 | [熾房 GLÜHWERK](sites/gluhwerk-glass/index.html) | 玻璃工坊 | 包浩斯 Bauhaus | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 78 | [亮記 LEUNG KEE](sites/leung-kee/index.html) | 港式冰室／大牌檔 | 港式霓虹 Hong Kong Neon | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

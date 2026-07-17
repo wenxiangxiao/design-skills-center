@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>起步駕訓中心 First Gear ｜ 用方向鍵開車逛的駕訓班</title>
+<meta name="description" content="起步駕訓中心・台中烏日。首頁是一座可以用方向鍵開車的路網——把選單變成路網，把導覽變成上路。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%232E373E'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23E9B308' stroke-width='2.4'/%3E%3Cpath d='M16 7.5v17M8 16h16' stroke='%23E9B308' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='16' r='2.6' fill='%23E9B308'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amber:#E9B308; --amber-deep:#B9860A; --asphalt:#2E373E; --asphalt2:#3A444C;
+  --concrete:#C8CCCD; --concrete2:#B7BCBD; --paint:#F3F1EA; --red:#D8452B; --line:#12181C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Noto Sans TC",sans-serif;background:var(--concrete);color:var(--asphalt);
+  line-height:1.6;-webkit-font-smoothing:antialiased;padding-bottom:76px;
+}
+h1,h2,h3,.cond{font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:700;letter-spacing:.02em;line-height:1.02}
+.mono{font-family:"DM Mono",monospace;letter-spacing:-.01em}
+a{color:inherit}
+/* ---------- signage utility strip ---------- */
+.hazard{height:12px;background:repeating-linear-gradient(-45deg,var(--asphalt) 0 16px,var(--amber) 16px 32px)}
+/* ---------- top marquee-free header band ---------- */
+.masthead{background:var(--asphalt);color:var(--paint);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--amber)}
+.masthead .plate{font-family:"DM Mono",monospace;background:var(--paint);color:var(--asphalt);border:2px solid var(--line);border-radius:4px;padding:2px 9px;font-size:14px;font-weight:500;letter-spacing:.14em}
+.masthead .tag{margin-left:auto;font-family:"DM Mono",monospace;font-size:12.5px;color:#9fb0b8;letter-spacing:.05em}
+/* ---------- drive stage ---------- */
+.stage-wrap{max-width:1120px;margin:0 auto;padding:22px 16px 8px}
+.stage-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.stage-head h1{font-size:clamp(30px,6vw,58px);color:var(--asphalt)}
+.stage-head h1 em{font-style:normal;color:var(--amber-deep)}
+.stage-head p{font-family:"DM Mono",monospace;font-size:13px;color:#5a656d;max-width:34ch}
+.stage{position:relative;border:3px solid var(--line);border-radius:8px;overflow:hidden;background:#8f979b;box-shadow:0 10px 0 -4px rgba(18,24,28,.18)}
+.stage svg.map{display:block;width:100%;height:auto}
+/* car */
+#car{position:absolute;top:0;left:0;width:46px;height:46px;transform-origin:50% 50%;will-change:transform;pointer-events:none;z-index:6}
+#car svg{display:block;width:100%;height:100%}
+.beam{position:absolute;top:0;left:0;width:46px;height:150px;transform-origin:50% 100%;z-index:5;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 100%,rgba(255,240,180,.55),rgba(255,240,180,0) 70%);opacity:0;transition:opacity .3s}
+.stage.lit .beam{opacity:1}
+/* building hotspot label */
+.hot{position:absolute;z-index:7;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;text-align:center}
+.hot .sign{font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:700;font-size:15px;background:var(--paint);border:2.5px solid var(--line);border-radius:5px;padding:3px 10px;color:var(--asphalt);white-space:nowrap;box-shadow:2px 2px 0 var(--line);transition:transform .12s}
+.hot .sub{font-family:"DM Mono",monospace;font-size:10.5px;color:var(--asphalt);background:var(--amber);border:2px solid var(--line);border-top:none;border-radius:0 0 4px 4px;padding:1px 6px;display:inline-block}
+.hot.active .sign,.hot:hover .sign{background:var(--amber);transform:translateY(-3px)}
+.hot.active{animation:blink .7s steps(1) infinite}
+@keyframes blink{50%{opacity:.35}}
+/* HUD prompt */
+.prompt{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:9;background:var(--asphalt);color:var(--paint);border:2px solid var(--amber);border-radius:6px;padding:7px 14px;font-family:"DM Mono",monospace;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center}
+.prompt.show{opacity:1}
+.prompt b{color:var(--amber)}
+/* ignition overlay */
+.ignition{position:absolute;inset:0;z-index:20;background:#161c20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:var(--paint);cursor:pointer;transition:opacity .6s}
+.ignition.gone{opacity:0;pointer-events:none}
+.cluster{display:flex;gap:14px}
+.warn{width:34px;height:34px;border:2px solid #46525a;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#46525a;transition:.25s}
+.warn.on{color:var(--amber);border-color:var(--amber);box-shadow:0 0 12px rgba(233,179,8,.4)}
+.warn svg{width:20px;height:20px;fill:currentColor}
+.ig-text{font-family:"DM Mono",monospace;font-size:14px;letter-spacing:.08em;color:#9fb0b8;text-align:center}
+.ig-key{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px;color:var(--amber);border:2px solid var(--amber);border-radius:8px;padding:6px 22px}
+/* controls hint + dpad */
+.helpbar{max-width:1120px;margin:12px auto 0;padding:0 16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:"DM Mono",monospace;font-size:12.5px;color:#4a555c}
+.helpbar kbd{background:var(--asphalt);color:var(--paint);border-radius:4px;padding:1px 7px;font-family:"DM Mono",monospace;font-size:12px;border-bottom:2px solid var(--line)}
+.dpad{position:fixed;right:14px;bottom:90px;z-index:40;display:none;gap:5px;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px)}
+.dpad button{background:var(--asphalt);color:var(--paint);border:2px solid var(--line);border-radius:8px;font-size:18px;font-weight:700;touch-action:none;-webkit-user-select:none;user-select:none}
+.dpad .enter{grid-column:1/4;background:var(--amber);color:var(--asphalt);font-family:"Barlow Condensed",sans-serif;font-size:15px;letter-spacing:.06em}
+.dpad .up{grid-column:2}.dpad .lf{grid-column:1;grid-row:2}.dpad .dn{grid-column:2;grid-row:2}.dpad .rt{grid-column:3;grid-row:2}
+/* ---------- content sections ---------- */
+.band{max-width:1120px;margin:0 auto;padding:40px 16px}
+.band.dark{background:var(--asphalt);color:var(--paint);max-width:none}
+.band.dark .inner{max-width:1120px;margin:0 auto;padding:0 16px}
+.eyebrow{font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.22em;color:var(--red);text-transform:uppercase;margin-bottom:8px}
+.band.dark .eyebrow{color:var(--amber)}
+.band h2{font-size:clamp(26px,4.4vw,40px);margin-bottom:18px}
+.lane{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border:3px solid var(--line);border-radius:8px;overflow:hidden}
+.lane .cell{background:var(--paint);padding:22px}
+.band.dark .lane .cell{background:var(--asphalt2)}
+.lane .cell .n{font-family:"Barlow Condensed",sans-serif;font-size:40px;color:var(--amber-deep);line-height:1}
+.band.dark .lane .cell .n{color:var(--amber)}
+.lane .cell h3{font-size:20px;margin:6px 0 6px}
+.lane .cell p{font-size:14.5px;color:inherit}
+.band.dark .lane .cell p{color:#c3ced4}
+.dashrow{display:flex;align-items:center;gap:12px;margin:26px 0;font-family:"DM Mono",monospace;font-size:13px;color:#5a656d}
+.dashrow .dline{flex:1;height:3px;background:repeating-linear-gradient(90deg,var(--asphalt) 0 18px,transparent 18px 34px)}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--amber);color:var(--asphalt);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:19px;letter-spacing:.03em;padding:11px 22px;border:2.5px solid var(--line);border-radius:6px;text-decoration:none;box-shadow:3px 3px 0 var(--line)}
+.cta:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--line)}
+.cta .chev{font-family:"Barlow Condensed";}
+.stat{display:flex;gap:0;flex-wrap:wrap;border:3px solid var(--line);border-radius:8px;overflow:hidden;background:var(--line)}
+.stat div{flex:1;min-width:130px;background:var(--paint);padding:16px 18px}
+.stat .k{font-family:"Barlow Condensed",sans-serif;font-size:34px;color:var(--asphalt)}
+.stat .l{font-family:"DM Mono",monospace;font-size:11.5px;color:#5a656d;letter-spacing:.04em}
+/* ---------- dock (shared nav) ---------- */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--asphalt);border-top:3px solid var(--amber);display:flex;align-items:center;gap:14px;padding:8px 16px;color:var(--paint)}
+.dock-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--paint);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;letter-spacing:.02em}
+.dock-brand svg{width:26px;height:26px;flex:none}
+.dock-links{display:flex;gap:4px;flex-wrap:wrap}
+.dock-links a{text-decoration:none;color:#c7d0d5;font-family:"DM Mono",monospace;font-size:13px;padding:4px 10px;border-radius:5px}
+.dock-links a:hover{background:var(--asphalt2);color:var(--paint)}
+.dock-links a[aria-current]{background:var(--amber);color:var(--asphalt)}
+.dock-hud{margin-left:auto;display:flex;align-items:center;gap:12px;font-family:"DM Mono",monospace;font-size:12px}
+.gauge{background:var(--asphalt2);border:1px solid #4a555c;border-radius:5px;padding:3px 9px;text-align:center;line-height:1.15}
+.gauge b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:19px;color:var(--amber)}
+.gauge span{font-size:9.5px;color:#8ea0a8;letter-spacing:.08em}
+/* footer */
+footer{background:var(--line);color:#aeb9be;padding:34px 16px 30px}
+footer .inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{font-family:"Barlow Condensed",sans-serif;color:var(--paint);font-size:16px;letter-spacing:.1em;margin-bottom:10px}
+footer p,footer a{font-family:"DM Mono",monospace;font-size:12.5px;color:#8b979d;text-decoration:none;line-height:1.9}
+footer a:hover{color:var(--amber)}
+.disc{max-width:1120px;margin:22px auto 0;border-top:1px solid #2a333a;padding-top:14px;font-family:"DM Mono",monospace;font-size:11px;color:#6b767c}
+@media(max-width:820px){
+  footer .inner{grid-template-columns:1fr}
+  .lane{grid-template-columns:1fr}
+  .dock-links{display:none}
+  .stage-head{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto}
+  .hot.active{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="hazard" aria-hidden="true"></div>
+<header class="masthead">
+  <span class="plate">FG-2025</span>
+  <span class="cond" style="font-size:20px;letter-spacing:.04em">起步駕訓中心</span>
+  <span class="tag">台中・烏日 ｜ 汽機車考照代訓 ｜ 監理認證代辦</span>
+</header>
+
+<main>
+  <section class="stage-wrap">
+    <div class="stage-head">
+      <div>
+        <h1>把選單變成路網，<br>把導覽<em>變成上路。</em></h1>
+      </div>
+      <p>方向鍵發動一台小車，開進哪棟建築，就進到哪個頁面。不想開車？下方儀表板隨時直達。</p>
+    </div>
+
+    <div class="stage" id="stage" tabindex="0" aria-label="可駕駛的路網導覽（方向鍵操控，或直接點選建築）">
+      <!-- ISO town map -->
+      <svg class="map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" role="img" aria-label="起步駕訓中心園區路網地圖">
+        <defs>
+          <pattern id="grass" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="18" height="18" fill="#9aa39a"/><rect width="18" height="9" fill="#94a094"/>
+          </pattern>
+        </defs>
+        <!-- ground -->
+        <rect x="0" y="0" width="1000" height="620" fill="#a4aca6"/>
+        <rect x="0" y="0" width="1000" height="620" fill="url(#grass)" opacity="0.5"/>
+        <!-- roads (asphalt) -->
+        <g fill="#333d44">
+          <rect x="0" y="150" width="1000" height="90"/>
+          <rect x="0" y="430" width="1000" height="90"/>
+          <rect x="200" y="0" width="86" height="620"/>
+          <rect x="560" y="0" width="86" height="620"/>
+          <rect x="820" y="0" width="86" height="620"/>
+        </g>
+        <!-- lane centre dashes -->
+        <g stroke="#F3F1EA" stroke-width="4" stroke-dasharray="26 22">
+          <line x1="0" y1="195" x2="1000" y2="195"/>
+          <line x1="0" y1="475" x2="1000" y2="475"/>
+          <line x1="243" y1="0" x2="243" y2="620"/>
+          <line x1="603" y1="0" x2="603" y2="620"/>
+          <line x1="863" y1="0" x2="863" y2="620"/>
+        </g>
+        <!-- crosswalks -->
+        <g fill="#F3F1EA" opacity="0.9">
+          <g>
+            <rect x="150" y="156" width="9" height="78"/><rect x="166" y="156" width="9" height="78"/><rect x="182" y="156" width="9" height="78"/>
+          </g>
+        </g>
+        <!-- practice course (center) -->
+        <g>
+          <rect x="330" y="286" width="200" height="128" fill="#3b464e" stroke="#12181C" stroke-width="3"/>
+          <path d="M356 396 q30 -70 74 -40 q40 22 74 -30" fill="none" stroke="#E9B308" stroke-width="4" stroke-dasharray="12 10"/>
+          <rect x="352" y="300" width="34" height="22" fill="none" stroke="#F3F1EA" stroke-width="2.5"/>
+          <text x="430" y="336" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" fill="#F3F1EA">練習場・S彎/倒車入庫</text>
+        </g>
+        <!-- BUILDING: 課程樓 (top, near x560 y150) -->
+        <g>
+          <polygon points="500,60 620,60 660,96 540,96" fill="#E9B308"/>
+          <rect x="500" y="96" width="120" height="54" fill="#c9cccd" stroke="#12181C" stroke-width="2"/>
+          <polygon points="620,60 620,96 660,96" fill="#B9860A"/>
+          <rect x="516" y="110" width="20" height="30" fill="#333d44"/><rect x="548" y="110" width="20" height="20" fill="#8fd3ff"/><rect x="584" y="110" width="20" height="20" fill="#8fd3ff"/>
+          <rect x="560" y="150" width="30" height="14" fill="#3b464e"/><!-- driveway -->
+        </g>
+        <!-- BUILDING: 師資休息室/場地 (left-bottom near x200 y430) -->
+        <g>
+          <polygon points="70,340 190,340 226,376 106,376" fill="#E9B308"/>
+          <rect x="70" y="376" width="120" height="54" fill="#c9cccd" stroke="#12181C" stroke-width="2"/>
+          <polygon points="190,340 190,376 226,376" fill="#B9860A"/>
+          <rect x="86" y="392" width="22" height="20" fill="#8fd3ff"/><rect x="120" y="392" width="22" height="38" fill="#333d44"/><rect x="156" y="392" width="22" height="20" fill="#8fd3ff"/>
+          <rect x="150" y="430" width="30" height="14" fill="#3b464e"/>
+        </g>
+        <!-- BUILDING: 報名中心 (right-bottom near x820 y430) -->
+        <g>
+          <polygon points="760,336 892,336 928,372 796,372" fill="#D8452B"/>
+          <rect x="760" y="372" width="132" height="58" fill="#c9cccd" stroke="#12181C" stroke-width="2"/>
+          <polygon points="892,336 892,372 928,372" fill="#a8331d"/>
+          <rect x="778" y="388" width="24" height="42" fill="#333d44"/><rect x="818" y="388" width="24" height="22" fill="#8fd3ff"/><rect x="856" y="388" width="24" height="22" fill="#8fd3ff"/>
+          <rect x="822" y="430" width="30" height="14" fill="#3b464e"/>
+        </g>
+        <!-- little scenery: cones -->
+        <g fill="#E9702B" stroke="#12181C" stroke-width="1.5">
+          <polygon points="300,250 306,270 294,270"/><polygon points="700,250 706,270 694,270"/>
+          <polygon points="300,540 306,560 294,560"/><polygon points="700,540 706,560 694,560"/>
+        </g>
+      </svg>
+
+      <!-- clickable hotspots (labels + fallback links) -->
+      <a class="hot" id="hot-courses" href="courses.html" style="left:57.5%;top:14%"><span class="sign">課程與費用</span><br><span class="sub">A 棟・教室</span></a>
+      <a class="hot" id="hot-team" href="team.html" style="left:14%;top:60%"><span class="sign">師資與場地</span><br><span class="sub">B 棟・教練室</span></a>
+      <a class="hot" id="hot-enroll" href="enroll.html" style="left:82.5%;top:60%"><span class="sign">報名排課</span><br><span class="sub">C 棟・報名中心</span></a>
+
+      <div class="beam" id="beam" aria-hidden="true"></div>
+      <div id="car" aria-hidden="true">
+        <svg viewBox="0 0 46 46">
+          <rect x="13" y="8" width="20" height="34" rx="6" fill="#E9B308" stroke="#12181C" stroke-width="2.4"/>
+          <rect x="16" y="12" width="14" height="9" rx="2" fill="#28323a"/>
+          <rect x="16" y="27" width="14" height="8" rx="2" fill="#3b464e"/>
+          <rect x="10" y="13" width="4" height="8" rx="2" fill="#12181C"/><rect x="32" y="13" width="4" height="8" rx="2" fill="#12181C"/>
+          <rect x="10" y="30" width="4" height="8" rx="2" fill="#12181C"/><rect x="32" y="30" width="4" height="8" rx="2" fill="#12181C"/>
+          <circle cx="18" cy="10" r="1.7" fill="#fff6c8"/><circle cx="28" cy="10" r="1.7" fill="#fff6c8"/>
+        </svg>
+      </div>
+
+      <div class="prompt" id="prompt" aria-live="polite"></div>
+
+      <!-- ignition overlay -->
+      <div class="ignition" id="ignition" role="button" tabindex="0" aria-label="轉動鑰匙發動">
+        <div class="cluster" id="cluster">
+          <span class="warn" data-i="0"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v7a2 2 0 002 2h12a2 2 0 002-2v-7a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm-3 8V7a3 3 0 116 0v3z"/></svg></span>
+          <span class="warn" data-i="1"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3L12 3zm0 6a1 1 0 00-1 1v3a1 1 0 002 0v-3a1 1 0 00-1-1zm0 7.2a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z"/></svg></span>
+          <span class="warn" data-i="2"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 018-8 8 8 0 018 8h-2a6 6 0 10-3 5.2l1 1.7A8 8 0 014 12zm7-4h2v5l4 2-1 1.7-5-2.7V8z"/></svg></span>
+        </div>
+        <div class="ig-text" id="igText">系統自檢中…</div>
+        <div class="ig-key" id="igKey">轉動鑰匙 ▸ 點一下或按任意鍵</div>
+      </div>
+    </div>
+
+    <div class="helpbar">
+      <span><kbd>▲</kbd>/<kbd>W</kbd> 前進　<kbd>▼</kbd>/<kbd>S</kbd> 倒車　<kbd>◀</kbd><kbd>▶</kbd> 轉向　<kbd>Enter</kbd> 進入建築</span>
+      <span style="color:var(--red)">開進黃棟＝資訊頁，紅棟＝報名。</span>
+    </div>
+  </section>
+
+  <!-- three affordances -->
+  <section class="band">
+    <div class="eyebrow">為什麼把首頁做成一條路</div>
+    <div class="lane">
+      <div class="cell"><div class="n">01</div><h3>先熟悉，再上路</h3><p>還沒報名的人，先在我們的園區裡繞一圈：教室在哪、練習場長怎樣、報名窗口在哪。把陌生變熟悉，正是駕訓的第一課。</p></div>
+      <div class="cell"><div class="n">02</div><h3>操作即體驗</h3><p>用方向鍵控制一台車，就是最小的駕駛感。倒車、轉向、對準車道——網站本身就是一次微型路考。</p></div>
+      <div class="cell"><div class="n">03</div><h3>不會開也沒關係</h3><p>底部儀表板列著每一頁的直達鍵，手機可直接點建築。破格不等於難用——資訊永遠找得到。</p></div>
+    </div>
+  </section>
+
+  <section class="band dark">
+    <div class="inner">
+      <div class="eyebrow">創立於烏日，四十坪標準考驗場</div>
+      <h2>一檔一檔，帶你從熄火到上路。</h2>
+      <div class="stat">
+        <div><div class="k">31<small style="font-size:16px"> 年</small></div><div class="l">代訓資歷（1994 起）</div></div>
+        <div><div class="k">96<small style="font-size:16px">.4%</small></div><div class="l">學員路考一次通過率</div></div>
+        <div><div class="k">12</div><div class="l">現役監理認證教練</div></div>
+        <div><div class="k">7:20</div><div class="l">最早晨間班發車</div></div>
+      </div>
+      <div class="dashrow"><span>下一步</span><span class="dline"></span><span>選班・排課・上路</span></div>
+      <a class="cta" href="enroll.html">開往報名中心 <span class="chev">▸▸</span></a>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="eyebrow">開放班別</div>
+    <h2>你要考哪一張？</h2>
+    <div class="lane">
+      <div class="cell"><div class="n">B</div><h3>普通小型車</h3><p>自排／手排。含場地基礎、道路駕駛、模擬路考。NT$ 18,800 起。</p></div>
+      <div class="cell"><div class="n">C</div><h3>普通重型機車</h3><p>直線平衡、繞錐、看三段式。假日速成班 NT$ 6,800。</p></div>
+      <div class="cell"><div class="n">A</div><h3>職業大貨車</h3><p>連結車倒車、狹路調頭。老手轉職專班 NT$ 24,500。</p></div>
+    </div>
+    <div style="margin-top:20px"><a class="cta" href="courses.html">看完整課程與費用 <span class="chev">▸▸</span></a></div>
+  </section>
+</main>
+
+<!-- shared dock nav -->
+<nav class="dock" aria-label="主導覽">
+  <a class="dock-brand" href="index.html">
+    <svg viewBox="0 0 32 32"><rect width="32" height="32" rx="5" fill="#E9B308"/><circle cx="16" cy="16" r="9" fill="none" stroke="#12181C" stroke-width="2.4"/><path d="M16 7.5v17M8 16h16" stroke="#12181C" stroke-width="2.4"/><circle cx="16" cy="16" r="2.6" fill="#12181C"/></svg>
+    起步
+  </a>
+  <div class="dock-links">
+    <a href="index.html" aria-current="page">路網首頁</a>
+    <a href="courses.html">課程與費用</a>
+    <a href="team.html">師資與場地</a>
+    <a href="enroll.html">報名排課</a>
+  </div>
+  <div class="dock-hud">
+    <div class="gauge"><b id="hudGear">P</b><span>檔位</span></div>
+    <div class="gauge"><b id="hudSpeed">0</b><span>KM/H</span></div>
+  </div>
+</nav>
+
+<!-- on-screen dpad (mobile) -->
+<div class="dpad" id="dpad" aria-hidden="true">
+  <button class="up" data-k="up" aria-label="前進">▲</button>
+  <button class="lf" data-k="left" aria-label="左轉">◀</button>
+  <button class="dn" data-k="down" aria-label="倒車">▼</button>
+  <button class="rt" data-k="right" aria-label="右轉">▶</button>
+  <button class="enter" data-k="enter" aria-label="進入建築">ENTER 進入</button>
+</div>
+
+<footer>
+  <div class="inner">
+    <div>
+      <h4>起步駕訓中心</h4>
+      <p>台中市烏日區學田路 168 號<br>04-2337-1688（週一至週日 07:00–21:30）<br>service@firstgear-drive.tw</p>
+    </div>
+    <div>
+      <h4>快速通道</h4>
+      <p><a href="courses.html">課程與費用</a><br><a href="team.html">師資與場地</a><br><a href="enroll.html">線上報名排課</a></p>
+    </div>
+    <div>
+      <h4>代辦項目</h4>
+      <p>汽機車考照代訓<br>國際駕照申辦<br>高齡駕駛回訓・道路駕駛加強</p>
+    </div>
+  </div>
+  <div class="disc">本站為 Design Skills Center 館藏範例。所有品牌、人名、地址、電話、價格、通過率與教練資料皆為虛構示意，不對應任何真實駕訓機構。</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stage = document.getElementById('stage');
+  var carEl = document.getElementById('car');
+  var beam  = document.getElementById('beam');
+  var promptEl = document.getElementById('prompt');
+  var ign = document.getElementById('ignition');
+  var hudGear = document.getElementById('hudGear');
+  var hudSpeed = document.getElementById('hudSpeed');
+
+  // building hotspots (percentage anchors resolved to stage px)
+  var spots = [
+    {el:document.getElementById('hot-courses'), href:'courses.html', name:'課程與費用', px:0.575, py:0.14},
+    {el:document.getElementById('hot-team'),    href:'team.html',    name:'師資與場地', px:0.14,  py:0.60},
+    {el:document.getElementById('hot-enroll'),  href:'enroll.html',  name:'報名排課',   px:0.825, py:0.60}
+  ];
+
+  // car state in stage-relative pixels
+  var car = {x:0, y:0, a:0, v:0};
+  var keys = {up:false,down:false,left:false,right:false};
+  var running = false, active = null, rafId = null;
+
+  function stageSize(){ return {w: stage.clientWidth, h: stage.clientHeight}; }
+
+  function placeCarStart(){
+    var s = stageSize();
+    car.x = s.w*0.50; car.y = s.h*0.78; car.a = -Math.PI/2; car.v = 0; // pointing up
+    render();
+  }
+
+  function render(){
+    var deg = car.a*180/Math.PI + 90; // svg car points up (=-90deg heading)
+    carEl.style.transform = 'translate('+(car.x-23)+'px,'+(car.y-23)+'px) rotate('+deg+'deg)';
+    beam.style.transform  = 'translate('+(car.x-23)+'px,'+(car.y-150)+'px) rotate('+deg+'deg)';
+  }
+
+  function step(){
+    var accel=0.16, maxF=3.4, maxR=-1.8, fric=0.94, steer=0.052;
+    if(keys.up)   car.v += accel;
+    if(keys.down) car.v -= accel;
+    if(!keys.up && !keys.down) car.v *= fric;
+    if(car.v>maxF)car.v=maxF; if(car.v<maxR)car.v=maxR;
+    if(Math.abs(car.v)<0.02)car.v=0;
+    var turn = steer * Math.min(1, Math.abs(car.v)/1.2) * (car.v>=0?1:-1);
+    if(keys.left)  car.a -= turn*1.3;
+    if(keys.right) car.a += turn*1.3;
+    car.x += Math.cos(car.a)*car.v;
+    car.y += Math.sin(car.a)*car.v;
+    var s = stageSize();
+    if(car.x<22){car.x=22;car.v=0;} if(car.x>s.w-22){car.x=s.w-22;car.v=0;}
+    if(car.y<22){car.y=22;car.v=0;} if(car.y>s.h-22){car.y=s.h-22;car.v=0;}
+    render();
+    updateHUD(s);
+    checkSpots(s);
+    rafId = requestAnimationFrame(step);
+  }
+
+  function updateHUD(s){
+    var kmh = Math.round(Math.abs(car.v)*18);
+    hudSpeed.textContent = kmh;
+    hudGear.textContent = car.v>0.05 ? 'D' : (car.v<-0.05 ? 'R' : 'N');
+  }
+
+  function checkSpots(s){
+    var found=null, best=1e9;
+    for(var i=0;i<spots.length;i++){
+      var sp=spots[i];
+      var tx=s.w*sp.px, ty=s.h*sp.py;
+      var d=Math.hypot(car.x-tx, car.y-ty);
+      if(d<Math.min(s.w,s.h)*0.16 && d<best){best=d;found=sp;}
+    }
+    if(found!==active){
+      if(active) active.el.classList.remove('active');
+      active=found;
+      if(active){
+        active.el.classList.add('active');
+        promptEl.innerHTML='已抵達 <b>'+active.name+'</b>　按 <b>Enter</b> 進入';
+        promptEl.classList.add('show');
+      }else{
+        promptEl.classList.remove('show');
+      }
+    }
+  }
+
+  function enterActive(){ if(active){ window.location.href=active.href; } }
+
+  function startDrive(){
+    if(running) return;
+    running=true;
+    stage.classList.add('lit');
+    placeCarStart();
+    if(!reduce){ rafId=requestAnimationFrame(step); }
+    else { // reduced motion: still drivable on keypress but no continuous idle beam pulse
+      rafId=requestAnimationFrame(step);
+    }
+    stage.focus();
+  }
+
+  // ---- ignition sequence ----
+  function runIgnition(){
+    var warns = ign.querySelectorAll('.warn');
+    var igText = document.getElementById('igText');
+    var igKey = document.getElementById('igKey');
+    if(reduce){
+      warns.forEach(function(w){w.classList.add('on');});
+      igText.textContent='系統就緒';
+      igKey.textContent='點一下開始（已關閉動態效果）';
+      return;
+    }
+    var seq=['引擎冷卻檢查…','油壓 / 電瓶正常','煞車系統就緒'];
+    var i=0;
+    var t=setInterval(function(){
+      if(i<warns.length){ warns[i].classList.add('on'); igText.textContent=seq[i]; i++; }
+      else{ clearInterval(t); igText.textContent='全部就緒'; igKey.textContent='轉動鑰匙 ▸ 點一下或按任意鍵'; }
+    },520);
+  }
+
+  function dismissIgnition(){
+    ign.classList.add('gone');
+    startDrive();
+  }
+  ign.addEventListener('click', dismissIgnition);
+  ign.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();dismissIgnition();} });
+
+  // keyboard
+  var map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+  window.addEventListener('keydown', function(e){
+    if(!running){ // any key starts once cluster shown
+      if(!ign.classList.contains('gone')){ dismissIgnition(); return; }
+    }
+    if(e.key==='Enter'){ enterActive(); return; }
+    var k=map[e.key];
+    if(k){ keys[k]=true; if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].indexOf(e.key)>=0) e.preventDefault(); }
+  });
+  window.addEventListener('keyup', function(e){ var k=map[e.key]; if(k) keys[k]=false; });
+
+  // dpad (touch)
+  var dpad=document.getElementById('dpad');
+  function isTouch(){ return ('ontouchstart' in window) || navigator.maxTouchPoints>0; }
+  if(isTouch()){ dpad.style.display='grid'; }
+  dpad.querySelectorAll('button').forEach(function(b){
+    var k=b.getAttribute('data-k');
+    function on(e){ e.preventDefault(); if(!ign.classList.contains('gone')){dismissIgnition();return;} if(k==='enter'){enterActive();return;} keys[k]=true; }
+    function off(e){ e.preventDefault(); if(k&&k!=='enter') keys[k]=false; }
+    b.addEventListener('touchstart',on,{passive:false});
+    b.addEventListener('touchend',off,{passive:false});
+    b.addEventListener('mousedown',on);
+    b.addEventListener('mouseup',off);
+    b.addEventListener('mouseleave',off);
+  });
+
+  window.addEventListener('resize', function(){ if(running) render(); });
+
+  // hotspots remain plain links for click/tap fallback (default anchor behavior)
+  runIgnition();
+})();
+</script>
+</body>
+</html>

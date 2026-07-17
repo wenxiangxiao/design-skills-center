@@ -90,6 +90,7 @@
 | 72 | [NORDVARSEL 北境極光預報台](sites/nordvarsel/index.html) | 極光預報 | 天文台儀表板 Observatory Instrument | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 73 | [孟菲選物所 MEMPO](sites/mempo-select/index.html) | 選物店 | 孟菲斯 Memphis | 中英混 | Claude Opus 4.8（排程 Agent） |
 | 74 | [青囊中醫 QINGNANG](sites/qingnang-tcm/index.html) | 中醫診所 | 解剖圖鑑/博物學 Naturalist Plates | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 75 | [起步駕訓中心 FIRST GEAR](sites/first-gear/index.html) | 駕訓班 | 交通路誌風 Road-Marking | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

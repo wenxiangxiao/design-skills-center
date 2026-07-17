@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>報名排課 ｜ 起步駕訓中心 First Gear</title>
+<meta name="description" content="選班別、翻週看教練時段、點選空堂、填資料，立即產生你的上課排程卡與報名編號。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%232E373E'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23E9B308' stroke-width='2.4'/%3E%3Cpath d='M16 7.5v17M8 16h16' stroke='%23E9B308' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='16' r='2.6' fill='%23E9B308'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--amber:#E9B308;--amber-deep:#B9860A;--asphalt:#2E373E;--asphalt2:#3A444C;--concrete:#C8CCCD;--paint:#F3F1EA;--red:#D8452B;--line:#12181C;--green:#2f8f5b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans TC",sans-serif;background:var(--concrete);color:var(--asphalt);line-height:1.6;padding-bottom:76px;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.cond{font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:700;letter-spacing:.02em;line-height:1.04}
+a{color:inherit}
+.hazard{height:12px;background:repeating-linear-gradient(-45deg,var(--asphalt) 0 16px,var(--amber) 16px 32px)}
+.masthead{background:var(--asphalt);color:var(--paint);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:3px solid var(--amber)}
+.masthead .plate{font-family:"DM Mono",monospace;background:var(--paint);color:var(--asphalt);border:2px solid var(--line);border-radius:4px;padding:2px 9px;font-size:14px;letter-spacing:.14em}
+.masthead .tag{margin-left:auto;font-family:"DM Mono",monospace;font-size:12.5px;color:#9fb0b8}
+.wrap{max-width:1000px;margin:0 auto;padding:30px 16px}
+.pagehead{border-bottom:3px solid var(--line);padding-bottom:14px;margin-bottom:24px}
+.pagehead h1{font-size:clamp(32px,6.5vw,60px)}
+.eyebrow{font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.22em;color:var(--red);text-transform:uppercase;margin-bottom:6px}
+/* step chips */
+.steps{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.steps .s{font-family:"DM Mono",monospace;font-size:12px;padding:5px 12px;border:2px solid var(--line);border-radius:20px;background:var(--paint);color:#5a656d}
+.steps .s.on{background:var(--asphalt);color:var(--paint)}
+.steps .s.done{background:var(--amber);color:var(--asphalt)}
+.panel{border:3px solid var(--line);border-radius:8px;background:var(--paint);padding:20px;margin-bottom:20px}
+.panel > h2{font-size:22px;margin-bottom:4px}
+.panel > .hint{font-family:"DM Mono",monospace;font-size:12px;color:#5a656d;margin-bottom:16px}
+/* class selector */
+.classes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.classes button{cursor:pointer;text-align:left;border:2.5px solid var(--line);border-radius:6px;background:#fff;padding:12px;font-family:inherit;transition:.12s}
+.classes button .cl{font-family:"Barlow Condensed",sans-serif;font-size:30px;color:var(--asphalt);line-height:.9}
+.classes button .nm{font-size:14px;font-weight:700;margin-top:3px}
+.classes button .pr{font-family:"DM Mono",monospace;font-size:11.5px;color:#5a656d}
+.classes button.sel{background:var(--amber);border-color:var(--line);box-shadow:3px 3px 0 var(--line)}
+/* week nav */
+.weekbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.weekbar .rng{font-family:"Barlow Condensed",sans-serif;font-size:22px}
+.weekbar button{cursor:pointer;font-family:"DM Mono",monospace;font-size:13px;background:var(--asphalt);color:var(--paint);border:2px solid var(--line);border-radius:5px;padding:6px 12px}
+.weekbar button:disabled{opacity:.4;cursor:not-allowed}
+/* calendar */
+.calscroll{overflow-x:auto;border:2px solid var(--line);border-radius:6px}
+table.cal{border-collapse:collapse;width:100%;min-width:680px;background:#fff}
+table.cal th,table.cal td{border:1px solid #c3c7c0;padding:0;text-align:center}
+table.cal thead th{background:var(--asphalt);color:var(--paint);font-family:"DM Mono",monospace;font-weight:500;font-size:12px;padding:7px 4px}
+table.cal thead th.today{background:var(--red)}
+table.cal tbody th{background:#e3e6e2;font-family:"DM Mono",monospace;font-size:11.5px;width:64px;padding:4px}
+.slot{width:100%;height:100%;min-height:46px;border:none;background:transparent;cursor:pointer;font-family:"DM Mono",monospace;font-size:11px;padding:6px 2px;line-height:1.25}
+.slot .st{font-weight:500}
+.slot.free{background:#eaf3ec;color:#256b44}.slot.free:hover{background:#d3ecd9}
+.slot.few{background:#fff6df;color:#9a6a08}.slot.few:hover{background:#ffedc0}
+.slot.full{background:#efe4e2;color:#a2564a;cursor:not-allowed}
+.slot.sel{background:var(--amber);color:var(--asphalt);box-shadow:inset 0 0 0 3px var(--line)}
+.slot .who{display:block;font-size:9.5px;opacity:.8;margin-top:2px}
+.callegend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-family:"DM Mono",monospace;font-size:11.5px;color:#556169}
+.callegend i{display:inline-block;width:12px;height:12px;border:1.5px solid var(--line);vertical-align:-2px;margin-right:5px}
+/* form */
+.selbar{background:var(--asphalt);color:var(--paint);border-radius:6px;padding:12px 16px;font-family:"DM Mono",monospace;font-size:13px;margin-bottom:16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.selbar b{color:var(--amber)}
+.selbar.empty{background:#e3e6e2;color:#5a656d}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field label{display:block;font-family:"DM Mono",monospace;font-size:12px;color:#4a555c;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:14px;padding:9px 11px;border:2px solid var(--line);border-radius:5px;background:#fff}
+.field.full{grid-column:1/3}
+.field .err{color:var(--red);font-family:"DM Mono",monospace;font-size:11.5px;margin-top:3px;min-height:15px}
+.submit{margin-top:18px;cursor:pointer;background:var(--amber);color:var(--asphalt);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;letter-spacing:.04em;padding:12px 26px;border:2.5px solid var(--line);border-radius:6px;box-shadow:3px 3px 0 var(--line)}
+.submit:hover{transform:translate(-1px,-1px)}
+/* ticket */
+.ticket{display:none;border:3px solid var(--line);border-radius:8px;background:var(--paint);overflow:hidden;margin-bottom:20px}
+.ticket .top{background:var(--asphalt);color:var(--paint);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.ticket .top .no{font-family:"DM Mono",monospace;font-size:16px;color:var(--amber);letter-spacing:.05em}
+.ticket .perf{height:0;border-top:3px dashed #b6bab3}
+.ticket .rows{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px 22px}
+.ticket .rows .r .k{font-family:"DM Mono",monospace;font-size:11px;color:#5a656d;letter-spacing:.06em}
+.ticket .rows .r .v{font-family:"Barlow Condensed",sans-serif;font-size:22px}
+.ticket .foot{padding:0 20px 18px;font-family:"DM Mono",monospace;font-size:12px;color:#556169}
+.ticket .again{margin:0 20px 20px;display:inline-block;font-family:"DM Mono",monospace;font-size:12.5px;color:var(--red);text-decoration:none;border-bottom:1.5px solid var(--red);cursor:pointer}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--asphalt);border-top:3px solid var(--amber);display:flex;align-items:center;gap:14px;padding:8px 16px;color:var(--paint)}
+.dock-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--paint);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px}
+.dock-brand svg{width:26px;height:26px;flex:none}
+.dock-links{display:flex;gap:4px;flex-wrap:wrap}
+.dock-links a{text-decoration:none;color:#c7d0d5;font-family:"DM Mono",monospace;font-size:13px;padding:4px 10px;border-radius:5px}
+.dock-links a:hover{background:var(--asphalt2);color:var(--paint)}
+.dock-links a[aria-current]{background:var(--amber);color:var(--asphalt)}
+.dock-hud{margin-left:auto;display:flex;align-items:center;gap:12px;font-family:"DM Mono",monospace;font-size:12px}
+.gauge{background:var(--asphalt2);border:1px solid #4a555c;border-radius:5px;padding:3px 9px;text-align:center;line-height:1.15}
+.gauge b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:19px;color:var(--amber)}
+.gauge span{font-size:9.5px;color:#8ea0a8;letter-spacing:.08em}
+footer{background:var(--line);color:#aeb9be;padding:34px 16px 30px}
+footer .inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{font-family:"Barlow Condensed",sans-serif;color:var(--paint);font-size:16px;letter-spacing:.1em;margin-bottom:10px}
+footer p,footer a{font-family:"DM Mono",monospace;font-size:12.5px;color:#8b979d;text-decoration:none;line-height:1.9}
+footer a:hover{color:var(--amber)}
+.disc{max-width:1000px;margin:22px auto 0;border-top:1px solid #2a333a;padding-top:14px;font-family:"DM Mono",monospace;font-size:11px;color:#6b767c}
+@media(max-width:720px){footer .inner{grid-template-columns:1fr}.classes{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.field.full{grid-column:1}.ticket .rows{grid-template-columns:1fr}.dock-links{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="hazard" aria-hidden="true"></div>
+<header class="masthead">
+  <span class="plate">FG-2025</span>
+  <span class="cond" style="font-size:20px;letter-spacing:.04em">起步駕訓中心</span>
+  <span class="tag">報名排課 ｜ C 棟報名中心線上系統</span>
+</header>
+
+<main class="wrap">
+  <div class="pagehead">
+    <div class="eyebrow">選班 → 翻週挑時段 → 填資料 → 出排程卡</div>
+    <h1>報名排課</h1>
+  </div>
+
+  <div class="steps">
+    <span class="s on" id="stp1">① 選擇班別</span>
+    <span class="s" id="stp2">② 挑選上課時段</span>
+    <span class="s" id="stp3">③ 填寫報名資料</span>
+    <span class="s" id="stp4">④ 取得排程卡</span>
+  </div>
+
+  <!-- ticket appears here after submit -->
+  <div class="ticket" id="ticket" aria-live="polite">
+    <div class="top">
+      <div><div style="font-family:'DM Mono',monospace;font-size:11px;color:#9fb0b8;letter-spacing:.1em">上課排程卡 / ENROLMENT TICKET</div></div>
+      <div class="no" id="tkNo">FG-000000-000</div>
+    </div>
+    <div class="perf"></div>
+    <div class="rows">
+      <div class="r"><div class="k">學員</div><div class="v" id="tkName">—</div></div>
+      <div class="r"><div class="k">班別</div><div class="v" id="tkClass">—</div></div>
+      <div class="r"><div class="k">首堂日期</div><div class="v" id="tkDate">—</div></div>
+      <div class="r"><div class="k">時段 / 教練</div><div class="v" id="tkSlot">—</div></div>
+    </div>
+    <div class="foot">報到地點：C 棟報名中心 1F 服務台，請於首堂前 15 分鐘攜身分證正本完成報到。專員將於 24 小時內致電確認。<span id="tkPhone"></span></div>
+    <a class="again" id="again">↺ 重新排一張</a>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="panel" id="panel1">
+    <h2>① 選擇班別</h2>
+    <div class="hint">先選你要考的照，系統只會顯示對應教練的可預約時段。</div>
+    <div class="classes" id="classes"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="panel" id="panel2" style="display:none">
+    <h2>② 挑選上課時段</h2>
+    <div class="hint">綠＝空堂、黃＝剩少量、灰＝額滿。點一格空堂即選為你的首堂。可翻到之後幾週。</div>
+    <div class="weekbar">
+      <button id="prevW">◀ 上一週</button>
+      <span class="rng" id="weekRange">—</span>
+      <button id="nextW">下一週 ▶</button>
+    </div>
+    <div class="calscroll">
+      <table class="cal">
+        <thead><tr id="calHead"></tr></thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+    <div class="callegend"><span><i style="background:#eaf3ec"></i>空堂</span><span><i style="background:#fff6df"></i>剩少量</span><span><i style="background:#efe4e2"></i>額滿</span><span><i style="background:#E9B308"></i>已選</span></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="panel" id="panel3" style="display:none">
+    <h2>③ 填寫報名資料</h2>
+    <div class="selbar empty" id="selbar">尚未選擇時段。</div>
+    <form id="form" novalidate>
+      <div class="form-grid">
+        <div class="field"><label>姓名（身分證用名）*</label><input id="fName" type="text" autocomplete="name"><div class="err" id="eName"></div></div>
+        <div class="field"><label>手機號碼*</label><input id="fPhone" type="tel" inputmode="numeric" placeholder="09xxxxxxxx" autocomplete="tel"><div class="err" id="ePhone"></div></div>
+        <div class="field"><label>身分證字號*</label><input id="fId" type="text" placeholder="A123456789" maxlength="10"><div class="err" id="eId"></div></div>
+        <div class="field"><label>付款方式</label><select id="fPay"><option>現場刷卡 / 現金</option><option>分期（3 期 0 利率）</option><option>公司補助 / 統編報帳</option></select></div>
+        <div class="field full"><label>備註（想指定教練、緊張程度、可上課時段…）</label><textarea id="fNote" rows="2"></textarea></div>
+      </div>
+      <button type="submit" class="submit">送出報名 ▸ 產生排程卡</button>
+    </form>
+  </div>
+</main>
+
+<nav class="dock" aria-label="主導覽">
+  <a class="dock-brand" href="index.html">
+    <svg viewBox="0 0 32 32"><rect width="32" height="32" rx="5" fill="#E9B308"/><circle cx="16" cy="16" r="9" fill="none" stroke="#12181C" stroke-width="2.4"/><path d="M16 7.5v17M8 16h16" stroke="#12181C" stroke-width="2.4"/><circle cx="16" cy="16" r="2.6" fill="#12181C"/></svg>
+    起步
+  </a>
+  <div class="dock-links">
+    <a href="index.html">路網首頁</a>
+    <a href="courses.html">課程與費用</a>
+    <a href="team.html">師資與場地</a>
+    <a href="enroll.html" aria-current="page">報名排課</a>
+  </div>
+  <div class="dock-hud">
+    <div class="gauge"><b>P</b><span>檔位</span></div>
+    <div class="gauge"><b>40</b><span>速限</span></div>
+  </div>
+</nav>
+
+<footer>
+  <div class="inner">
+    <div><h4>起步駕訓中心</h4><p>台中市烏日區學田路 168 號<br>04-2337-1688（07:00–21:30）<br>service@firstgear-drive.tw</p></div>
+    <div><h4>快速通道</h4><p><a href="index.html">路網首頁</a><br><a href="courses.html">課程與費用</a><br><a href="team.html">師資與場地</a></p></div>
+    <div><h4>代辦項目</h4><p>汽機車考照代訓<br>國際駕照申辦<br>高齡駕駛回訓・道路駕駛加強</p></div>
+  </div>
+  <div class="disc">本站為 Design Skills Center 館藏範例。報名系統為前端模擬，不會送出任何資料、不儲存任何個資；所有品牌、人名、地址、電話、價格與時段皆為虛構示意。</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var CLASSES = [
+    {id:'autoB',  cl:'B', nm:'小型車自排', pr:'NT$ 18,800', coaches:['郭婉婷','陳志明']},
+    {id:'manualB',cl:'B', nm:'小型車手排', pr:'NT$ 21,500', coaches:['林淑芬','陳志明']},
+    {id:'motoC',  cl:'C', nm:'普通重機',   pr:'NT$ 6,800',  coaches:['郭婉婷']},
+    {id:'truckA', cl:'A', nm:'職業大貨車', pr:'NT$ 24,500', coaches:['王建良']}
+  ];
+  var TIMES = ['07:20','09:30','14:00','16:10','19:00'];
+  var DAYNAMES = ['一','二','三','四','五','六','日'];
+
+  var state = {cls:null, weekOffset:0, sel:null};
+
+  // ---- date helpers ----
+  function mondayOf(d){
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var wd = (x.getDay()+6)%7; // Mon=0
+    x.setDate(x.getDate()-wd);
+    return x;
+  }
+  var BASE_MON = mondayOf(new Date());
+  function weekMonday(off){ var m=new Date(BASE_MON); m.setDate(m.getDate()+off*7); return m; }
+  function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; }
+  function fmtMD(d){ return (d.getMonth()+1)+'/'+d.getDate(); }
+  function iso(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+  function isPast(d){ var t=new Date(); t.setHours(0,0,0,0); return d < t; }
+  function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+
+  // deterministic seats for a (class,date,time)
+  function hashStr(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0); }
+  function seatsFor(clsId, d, ti){
+    var day = (d.getDay()+6)%7;
+    if(day===6) return -1; // Sunday closed
+    var h = hashStr(clsId+'|'+iso(d)+'|'+ti);
+    var v = h % 100;
+    if(v < 22) return 0;          // full
+    if(v < 40) return (h%3)+1;    // few (1-3)
+    return 4;                     // plenty (shown as 4+)
+  }
+  function coachFor(clsId, d, ti){
+    var c = CLASSES.filter(function(x){return x.id===clsId;})[0];
+    var h = hashStr('c'+clsId+iso(d)+ti);
+    return c.coaches[h % c.coaches.length];
+  }
+
+  // ---- step chips ----
+  function setStep(n){
+    ['stp1','stp2','stp3','stp4'].forEach(function(id,i){
+      var el=document.getElementById(id); el.className='s';
+      if(i+1<n) el.classList.add('done'); else if(i+1===n) el.classList.add('on');
+    });
+  }
+
+  // ---- STEP 1 ----
+  var classesEl=document.getElementById('classes');
+  CLASSES.forEach(function(c){
+    var b=document.createElement('button');
+    b.innerHTML='<div class="cl">'+c.cl+'</div><div class="nm">'+c.nm+'</div><div class="pr">'+c.pr+'</div>';
+    b.addEventListener('click',function(){
+      state.cls=c.id; state.sel=null;
+      Array.prototype.forEach.call(classesEl.children,function(x){x.classList.remove('sel');});
+      b.classList.add('sel');
+      document.getElementById('panel2').style.display='';
+      document.getElementById('panel3').style.display='';
+      renderCal(); updateSelbar(); setStep(2);
+      document.getElementById('panel2').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    classesEl.appendChild(b);
+  });
+
+  // ---- STEP 2 calendar ----
+  var calHead=document.getElementById('calHead'), calBody=document.getElementById('calBody');
+  var weekRange=document.getElementById('weekRange');
+  document.getElementById('prevW').addEventListener('click',function(){ if(state.weekOffset>0){state.weekOffset--;renderCal();} });
+  document.getElementById('nextW').addEventListener('click',function(){ if(state.weekOffset<7){state.weekOffset++;renderCal();} });
+
+  function renderCal(){
+    var mon=weekMonday(state.weekOffset);
+    var sun=addDays(mon,6);
+    weekRange.textContent=fmtMD(mon)+' – '+fmtMD(sun)+'（'+(mon.getFullYear())+'）';
+    document.getElementById('prevW').disabled=(state.weekOffset<=0);
+    document.getElementById('nextW').disabled=(state.weekOffset>=7);
+    // head
+    calHead.innerHTML='<th>時段</th>';
+    var today=new Date();
+    for(var i=0;i<7;i++){
+      var d=addDays(mon,i);
+      var th=document.createElement('th');
+      th.innerHTML='週'+DAYNAMES[i]+'<br>'+fmtMD(d);
+      if(sameDay(d,today)) th.className='today';
+      calHead.appendChild(th);
+    }
+    // body
+    calBody.innerHTML='';
+    for(var t=0;t<TIMES.length;t++){
+      var tr=document.createElement('tr');
+      var th=document.createElement('th'); th.textContent=TIMES[t]; tr.appendChild(th);
+      for(var j=0;j<7;j++){
+        var d=addDays(mon,j);
+        var td=document.createElement('td');
+        var seats=seatsFor(state.cls,d,TIMES[t]);
+        var btn=document.createElement('button'); btn.className='slot'; btn.type='button';
+        if(seats===-1 || isPast(d)){
+          btn.className='slot full'; btn.disabled=true;
+          btn.innerHTML='<span class="st">'+(seats===-1?'休':'—')+'</span>';
+        }else if(seats===0){
+          btn.className='slot full'; btn.disabled=true;
+          btn.innerHTML='<span class="st">額滿</span>';
+        }else{
+          var cls = seats<=3 ? 'few':'free';
+          btn.className='slot '+cls;
+          var coach=coachFor(state.cls,d,TIMES[t]);
+          btn.innerHTML='<span class="st">'+(seats<=3?('剩 '+seats):'可預約')+'</span><span class="who">'+coach+'</span>';
+          (function(dd,tt,co,se){
+            btn.addEventListener('click',function(){
+              state.sel={date:new Date(dd),time:tt,coach:co,seats:se};
+              renderCal(); updateSelbar(); setStep(3);
+              document.getElementById('panel3').scrollIntoView({behavior:'smooth',block:'start'});
+            });
+          })(d,TIMES[t],coach,seats);
+        }
+        // mark selected
+        if(state.sel && sameDay(state.sel.date,d) && state.sel.time===TIMES[t]) btn.className='slot sel';
+        td.appendChild(btn); tr.appendChild(td);
+      }
+      calBody.appendChild(tr);
+    }
+  }
+
+  function clsName(id){ var c=CLASSES.filter(function(x){return x.id===id;})[0]; return c?('['+c.cl+'] '+c.nm):''; }
+
+  function updateSelbar(){
+    var b=document.getElementById('selbar');
+    if(!state.sel){ b.className='selbar empty'; b.textContent='尚未選擇時段。'; return; }
+    var d=state.sel.date;
+    b.className='selbar';
+    b.innerHTML='已選 <b>'+clsName(state.cls)+'</b>　'+(d.getMonth()+1)+'/'+d.getDate()+'（週'+DAYNAMES[(d.getDay()+6)%7]+'）<b>'+state.sel.time+'</b>　教練 <b>'+state.sel.coach+'</b>';
+  }
+
+  // ---- STEP 3 validation & submit ----
+  function showErr(id,msg){ document.getElementById(id).textContent=msg||''; }
+  function validId(v){ return /^[A-Za-z][12]\d{8}$/.test(v); }
+  function validPhone(v){ return /^09\d{8}$/.test(v); }
+
+  document.getElementById('form').addEventListener('submit',function(e){
+    e.preventDefault();
+    var ok=true;
+    if(!state.cls){ ok=false; }
+    if(!state.sel){ document.getElementById('selbar').scrollIntoView({behavior:'smooth'}); return; }
+    var name=document.getElementById('fName').value.trim();
+    var phone=document.getElementById('fPhone').value.trim();
+    var pid=document.getElementById('fId').value.trim();
+    if(name.length<2){ showErr('eName','請填寫至少兩個字的姓名'); ok=false; } else showErr('eName','');
+    if(!validPhone(phone)){ showErr('ePhone','手機格式為 09 開頭共 10 碼'); ok=false; } else showErr('ePhone','');
+    if(!validId(pid)){ showErr('eId','身分證字號格式不正確（例 A123456789）'); ok=false; } else showErr('eId','');
+    if(!ok) return;
+    issueTicket(name,phone);
+  });
+
+  function pad3(n){ return ('00'+n).slice(-3); }
+  function issueTicket(name,phone){
+    var d=state.sel.date;
+    var yy=('0'+(d.getFullYear()%100)).slice(-2), mm=('0'+(d.getMonth()+1)).slice(-2), dd=('0'+d.getDate()).slice(-2);
+    var no='FG-'+yy+mm+dd+'-'+pad3(((hashStr(name+phone+state.sel.time))%899)+1);
+    document.getElementById('tkNo').textContent=no;
+    document.getElementById('tkName').textContent=name;
+    document.getElementById('tkClass').textContent=clsName(state.cls);
+    document.getElementById('tkDate').textContent=(d.getMonth()+1)+'/'+d.getDate()+'（週'+DAYNAMES[(d.getDay()+6)%7]+'）';
+    document.getElementById('tkSlot').textContent=state.sel.time+'　'+state.sel.coach+' 教練';
+    document.getElementById('tkPhone').textContent=' 聯絡電話尾碼 '+phone.slice(-3)+'。';
+    var tk=document.getElementById('ticket'); tk.style.display='block';
+    setStep(4);
+    tk.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  document.getElementById('again').addEventListener('click',function(){
+    document.getElementById('ticket').style.display='none';
+    state.sel=null; updateSelbar(); renderCal(); setStep(2);
+    document.getElementById('form').reset();
+    ['eName','ePhone','eId'].forEach(function(id){showErr(id,'');});
+    document.getElementById('panel2').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+})();
+</script>
+</body>
+</html>

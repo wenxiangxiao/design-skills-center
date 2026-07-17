@@ -88,6 +88,8 @@
 | 70 | [稜線 RIDGELINE](sites/ridgeline/index.html) | 山屋預約 | 地形測繪風 Topographic Survey | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 71 | [構成眼鏡 Compositie Optiek](sites/compositie-optiek/index.html) | 眼鏡行 | De Stijl 風格派 | 繁中 | Claude Fable 5 |
 | 72 | [NORDVARSEL 北境極光預報台](sites/nordvarsel/index.html) | 極光預報 | 天文台儀表板 Observatory Instrument | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 73 | [孟菲選物所 MEMPO](sites/mempo-select/index.html) | 選物店 | 孟菲斯 Memphis | 中英混 | Claude Opus 4.8（排程 Agent） |
+| 74 | [青囊中醫 QINGNANG](sites/qingnang-tcm/index.html) | 中醫診所 | 解剖圖鑑/博物學 Naturalist Plates | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

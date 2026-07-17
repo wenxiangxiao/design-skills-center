@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>訂製配置台 — 熾房 GLÜHWERK</title>
+<meta name="description" content="在熾房的線上爐前台親手吹製你的玻璃器：選料色、氧化上色、拉塑輪廓，系統即時判別器型、換算尺寸與試算價格，並生成訂製單。">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23141414'/><circle cx='11' cy='11' r='7' fill='%23E8480E'/><path d='M20 4 L28 20 L12 20 Z' fill='%23F2B705'/><rect x='17' y='17' width='11' height='11' fill='%230E4C92'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141414;--cream:#F4EFE3;--orange:#E8480E;--cobalt:#0E4C92;--amber:#F2B705;--green:#1F6F52;--rule:5px solid var(--ink)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--orange);color:var(--ink);font-family:"Noto Sans TC","Archivo",system-ui,sans-serif;font-weight:500;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.en{font-family:"Archivo";letter-spacing:.02em}
+h1,h2,h3{font-weight:900;line-height:1.05;letter-spacing:-.01em}
+a{color:inherit}svg{display:block}
+header{background:var(--ink);color:var(--cream);border-bottom:var(--rule)}
+.mast{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;max-width:1180px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--cream)}
+.brand .mark{width:40px;height:40px;flex:0 0 auto}
+.brand b{font-size:22px;font-weight:900;letter-spacing:.06em;display:block;line-height:1}
+.brand .sub{font-size:10px;letter-spacing:.42em;color:var(--amber);font-family:"Archivo";text-transform:uppercase}
+nav.links{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+nav.links a{text-decoration:none;font-weight:700;font-size:14px;padding:8px 14px;border:3px solid var(--cream);letter-spacing:.04em}
+nav.links a:hover{background:var(--amber);color:var(--ink);border-color:var(--amber)}
+nav.links a[aria-current]{background:var(--cream);color:var(--ink)}
+
+.page-head{background:var(--cobalt);color:var(--cream);border-bottom:var(--rule);padding:26px 18px}
+.page-head .wrap{max-width:1180px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.page-head .num{font-family:"Archivo";font-weight:900;font-size:14px;background:var(--amber);color:var(--ink);padding:4px 10px}
+.page-head h1{font-size:clamp(28px,4.4vw,46px);margin-top:12px}
+.page-head p{max-width:52ch;margin-top:8px;font-size:15px}
+.steps{display:flex;gap:0;font-family:"Archivo";font-weight:700;font-size:12px}
+.steps span{padding:8px 12px;border:3px solid var(--cream);border-right:0;letter-spacing:.08em}
+.steps span:last-child{border-right:3px solid var(--cream)}
+
+/* configurator */
+.config{display:grid;grid-template-columns:1.2fr 1fr;border-bottom:var(--rule)}
+.stage{position:relative;background:radial-gradient(120% 90% at 50% 116%,#3a1405 0%,#23120b 46%,#170d08 100%);border-right:var(--rule);display:flex;flex-direction:column;min-height:60vh}
+.stage canvas{flex:1;display:block;width:100%;touch-action:none;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.readout{position:absolute;top:12px;left:12px;font-family:"Archivo";font-size:11px;letter-spacing:.04em;color:var(--cream);background:rgba(20,20,20,.62);padding:8px 11px;line-height:1.8;border-left:4px solid var(--amber)}
+.readout b{color:var(--amber);font-weight:700}
+.hint{position:absolute;bottom:60px;left:12px;right:12px;text-align:center;font-size:11px;color:#f0d9b0;font-family:"Archivo";letter-spacing:.02em;opacity:.85;pointer-events:none}
+.presets{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px}
+.presets button{font-family:"Noto Sans TC";font-weight:700;font-size:12px;color:var(--ink);background:var(--cream);border:3px solid var(--ink);padding:5px 9px;cursor:pointer;letter-spacing:.05em}
+.presets button:hover{background:var(--amber)}
+.tools{display:flex;border-top:var(--rule);background:var(--ink)}
+.tools button{flex:1;font-family:"Noto Sans TC";font-weight:900;font-size:13px;color:var(--cream);background:var(--ink);border:0;border-right:3px solid #2c2c2c;padding:13px 6px;cursor:pointer;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:6px}
+.tools button:last-child{border-right:0}
+.tools button:hover{background:var(--cobalt)}
+.tools button.blow{background:var(--orange)}
+.tools button.blow.on,.tools button.blow:hover{background:var(--amber);color:var(--ink)}
+.tools svg{width:15px;height:15px}
+
+/* right panel */
+.panel{background:var(--cream);display:flex;flex-direction:column}
+.panel .block{padding:20px 22px;border-bottom:var(--rule)}
+.panel h2{font-size:15px;font-family:"Archivo";letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h2 .b{width:14px;height:14px;background:var(--orange)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{cursor:pointer;border:3px solid var(--ink);background:#fff;padding:7px 11px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px}
+.opt .chip{width:16px;height:16px;border:2px solid var(--ink)}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--cream)}
+.opt[aria-pressed="true"] .chip{border-color:var(--cream)}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:9px 16px;font-size:14.5px}
+.spec dt{font-family:"Archivo";font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:11px;color:#6a5f4f;padding-top:3px}
+.spec dd{font-weight:700}
+.spec dd.big{font-size:20px;color:var(--orange)}
+.pricebox{background:var(--ink);color:var(--cream);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pricebox .lbl{font-family:"Archivo";font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber)}
+.pricebox .amt{font-size:30px;font-weight:900}
+.breakdown{font-size:12.5px;color:#6a5f4f;margin-top:10px;line-height:1.9;font-family:"Archivo"}
+.breakdown span{display:flex;justify-content:space-between}
+
+/* form */
+.form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-row label{font-family:"Archivo";font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.form-row input{border:3px solid var(--ink);padding:11px 12px;font-family:"Noto Sans TC";font-size:15px;background:#fff}
+.form-row input:focus{outline:3px solid var(--amber);outline-offset:-3px}
+.form-row .err{color:#c02607;font-size:12.5px;font-weight:700;min-height:1em}
+.form-row.bad input{border-color:#c02607}
+.submit{width:100%;font-weight:900;font-size:16px;background:var(--orange);color:var(--cream);border:4px solid var(--ink);padding:15px;cursor:pointer;letter-spacing:.06em}
+.submit:hover{background:var(--amber);color:var(--ink)}
+
+/* ticket */
+.ticket{display:none;border:5px solid var(--ink);background:#fff;padding:0;margin-top:4px}
+.ticket.show{display:block;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.ticket .tk-top{background:var(--ink);color:var(--cream);padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.ticket .tk-top b{font-family:"Archivo";font-size:13px;letter-spacing:.18em}
+.ticket .tk-no{font-family:"Archivo";font-weight:900;font-size:22px;color:var(--amber)}
+.ticket .tk-body{padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:14px}
+.ticket .tk-body dt{font-family:"Archivo";text-transform:uppercase;font-size:10.5px;letter-spacing:.1em;color:#6a5f4f;padding-top:2px}
+.ticket .tk-body dd{font-weight:700}
+.ticket .barcode{display:flex;gap:2px;padding:12px 18px 18px}
+.ticket .barcode i{display:block;width:3px;background:var(--ink)}
+
+footer{background:var(--ink);color:var(--cream)}
+.foot{display:grid;grid-template-columns:2fr 1fr 1fr;gap:24px;max-width:1180px;margin:0 auto;padding:34px 18px 20px}
+.foot .brand b{color:var(--cream)}
+.foot .sub{color:var(--amber)}
+.foot h4{font-family:"Archivo";font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+.foot a{display:block;text-decoration:none;font-size:14px;padding:3px 0;opacity:.9}
+.foot a:hover{color:var(--amber)}
+.foot p{font-size:13.5px;opacity:.82;max-width:34ch}
+.legal{border-top:3px solid #2c2c2c;padding:14px 18px;max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:"Archivo";font-size:11.5px;letter-spacing:.03em;opacity:.7}
+
+@media(max-width:900px){.config{grid-template-columns:1fr}.stage{border-right:0;border-bottom:var(--rule);min-height:56vh}.foot{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){nav.links a{padding:7px 10px;font-size:13px}.steps{display:none}.foot{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="mast">
+    <a class="brand" href="index.html" aria-label="熾房 GLÜHWERK 首頁">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#F4EFE3"/><circle cx="14" cy="14" r="9" fill="#E8480E"/><path d="M25 4 L37 25 L13 25 Z" fill="#F2B705"/><rect x="21" y="21" width="15" height="15" fill="#0E4C92"/></svg>
+      <span><b>熾房</b><span class="sub">GLÜHWERK · GLASWERK</span></span>
+    </a>
+    <nav class="links" aria-label="主要導覽">
+      <a href="index.html">爐前</a>
+      <a href="commission.html" aria-current="page">訂製</a>
+      <a href="studio.html">工坊</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head"><div class="wrap">
+  <div>
+    <span class="num">配置台 · 04</span>
+    <h1>親手吹一件，再交給我們。</h1>
+    <p>在下面這座爐前台捏出你要的輪廓——吹氣充圓、拖曳塑形、換料色與氧化反應。系統會即時判別器型、換算尺寸並試算價格。滿意了就送出訂製單，由吹製師林燿宗照著你的剖面重製一件真品。</p>
+  </div>
+  <div class="steps"><span>01 取型</span><span>02 塑形</span><span>03 上色</span><span>04 送單</span></div>
+</div></div>
+
+<div class="config">
+  <!-- bench -->
+  <div class="stage">
+    <canvas id="glass" aria-label="玻璃吹製配置台：拖曳塑形、按住吹氣、選取起型模板"></canvas>
+    <div class="readout" id="readout">爐溫 <b id="rTemp">1150°C</b><br>器高 <b id="rH">—</b><br>最寬 <b id="rW">—</b><br>器型 <b id="rForm">起料中</b></div>
+    <div class="hint" id="hint">拖曳玻璃推塑輪廓・按住吹氣充圓・冷了回爐・右上取一個起型</div>
+    <div class="presets" aria-label="起型模板">
+      <button data-p="vase">花瓶起型</button>
+      <button data-p="bowl">缽碗起型</button>
+      <button data-p="cup">杯型起型</button>
+      <button data-p="bottle">細頸瓶</button>
+    </div>
+    <div class="tools">
+      <button class="blow" id="btnBlow" aria-pressed="false">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="9" r="5" fill="none" stroke="#141414" stroke-width="2"/><path d="M8 4V1M6 3l2-2 2 2" stroke="#141414" stroke-width="2" fill="none"/></svg>吹氣</button>
+      <button id="btnHeat"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1c3 3 1 5 1 6a1 1 0 01-2 0c0-2-2-1-2-4 3 1 1-1 3-2z" fill="#F2B705"/></svg>回爐</button>
+      <button id="btnReset"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 105-5" fill="none" stroke="#F4EFE3" stroke-width="2"/><path d="M8 0v6l4-3z" fill="#F4EFE3"/></svg>重取料</button>
+    </div>
+  </div>
+
+  <!-- panel -->
+  <div class="panel">
+    <div class="block">
+      <h2><span class="b"></span>料色 Glass</h2>
+      <div class="opts" id="colors">
+        <button class="opt" data-c="#1E6FB0" data-name="鈷藍" data-add="600" aria-pressed="true"><span class="chip" style="background:#1E6FB0"></span>鈷藍</button>
+        <button class="opt" data-c="#2E9E6B" data-name="銅綠" data-add="600"><span class="chip" style="background:#2E9E6B"></span>銅綠</button>
+        <button class="opt" data-c="#8E5AB8" data-name="錳紫" data-add="800"><span class="chip" style="background:#8E5AB8"></span>錳紫</button>
+        <button class="opt" data-c="#D9932B" data-name="琥珀" data-add="500"><span class="chip" style="background:#D9932B"></span>琥珀</button>
+        <button class="opt" data-c="#B9C7CE" data-name="水晶透明" data-add="0"><span class="chip" style="background:#B9C7CE"></span>水晶</button>
+      </div>
+    </div>
+    <div class="block">
+      <h2><span class="b" style="background:var(--cobalt)"></span>氧化上色 Reaction</h2>
+      <div class="opts" id="oxides">
+        <button class="opt" data-name="無" data-add="0" aria-pressed="true">素面</button>
+        <button class="opt" data-name="銅紅斑" data-add="900" data-spk="#c0402a">銅紅斑</button>
+        <button class="opt" data-name="銀霜" data-add="700" data-spk="#e8e2d2">銀霜</button>
+        <button class="opt" data-name="金箔內裹" data-add="1500" data-spk="#e7b53c">金箔內裹</button>
+      </div>
+    </div>
+    <div class="block">
+      <h2><span class="b" style="background:var(--amber)"></span>規格 Spec</h2>
+      <dl class="spec">
+        <dt>器型</dt><dd id="sForm" class="big">—</dd>
+        <dt>器高</dt><dd id="sH">—</dd>
+        <dt>最寬口徑</dt><dd id="sW">—</dd>
+        <dt>容量約</dt><dd id="sV">—</dd>
+      </dl>
+    </div>
+    <div class="pricebox">
+      <div><div class="lbl">試算單價</div><div class="breakdown" id="bd"></div></div>
+      <div class="amt" id="price">NT$—</div>
+    </div>
+    <div class="block">
+      <h2><span class="b"></span>送出訂製單</h2>
+      <form id="order" novalidate>
+        <div class="form-row" id="fr-name">
+          <label for="oname">姓名</label>
+          <input id="oname" name="name" autocomplete="name" placeholder="王小滿">
+          <span class="err" id="e-name"></span>
+        </div>
+        <div class="form-row" id="fr-phone">
+          <label for="ophone">手機（09 開頭十碼）</label>
+          <input id="ophone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="0912345678">
+          <span class="err" id="e-phone"></span>
+        </div>
+        <div class="form-row" id="fr-mail">
+          <label for="omail">Email（選填，寄成品照給你）</label>
+          <input id="omail" name="mail" type="email" autocomplete="email" placeholder="you@example.com">
+          <span class="err" id="e-mail"></span>
+        </div>
+        <button class="submit" type="submit">確認訂製・生成訂單</button>
+      </form>
+      <div class="ticket" id="ticket" aria-live="polite">
+        <div class="tk-top"><b>GLÜHWERK 訂製單</b><span class="tk-no" id="tkNo">GLW-—</span></div>
+        <dl class="tk-body" id="tkBody"></dl>
+        <div class="barcode" id="tkBar"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot">
+    <div>
+      <a class="brand" href="index.html" style="margin-bottom:14px">
+        <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#F4EFE3"/><circle cx="14" cy="14" r="9" fill="#E8480E"/><path d="M25 4 L37 25 L13 25 Z" fill="#F2B705"/><rect x="21" y="21" width="15" height="15" fill="#0E4C92"/></svg>
+        <span><b>熾房</b><span class="sub">GLÜHWERK</span></span>
+      </a>
+      <p>台北的手工吹製玻璃工坊。圓、方、三角——最簡單的形，最誠實的火。</p>
+    </div>
+    <div><h4>逛逛</h4><a href="index.html">爐前工作台</a><a href="commission.html">訂製配置台</a><a href="studio.html">工坊與製程</a></div>
+    <div><h4>聯絡</h4><a href="tel:0225864417">02-2586-4417</a><a href="mailto:hi@gluhwerk.tw">hi@gluhwerk.tw</a><a href="#">台北市中山區農安街 66 號</a></div>
+  </div>
+  <div class="legal"><span>© 2026 熾房 GLÜHWERK・訂單為前端模擬示意，不會真的送出；聯絡與價格資訊皆為虛構</span><span class="en">CIRCLE · SQUARE · TRIANGLE</span></div>
+</footer>
+
+<script>
+(function(){
+  const cv=document.getElementById('glass'); if(!cv||!cv.getContext){document.getElementById('rForm').textContent='瀏覽器不支援 canvas';return;}
+  const ctx=cv.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const DPR=Math.min(devicePixelRatio||1,2);
+  const N=48; let W,H,cx,topY,segH;
+  let r=new Float32Array(N), temp=1, blowing=false, dragging=false, dragI=-1, dragTargetX=0;
+  let color='#1E6FB0', colorAdd=600, oxideAdd=0, oxideSpk=null, oxideName='無', colorName='鈷藍';
+  const RMIN=6, RMAX=120;
+
+  function resize(){const rect=cv.getBoundingClientRect();W=Math.max(280,rect.width);H=Math.max(340,rect.height);cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);cx=W*0.5;topY=H*0.15;segH=(H*0.68)/N;}
+  function reset(){for(let i=0;i<N;i++)r[i]=8+Math.sin(i/N*Math.PI)*8;temp=1;}
+  function wBlow(i){const t=i/(N-1);return Math.pow(Math.sin(Math.min(1,t*1.25)*Math.PI),1.3);}
+
+  const presets={
+    // 掛在吹管上的懸垂形：頂端貼管、下端收底
+    vase:  [13,14,16,20,27,36,46,56,64,70,73,74,73,71,68,64,60,56,52,49,46,44,42,41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,18,15,11],
+    bowl:  [52,58,64,68,70,71,71,70,68,66,63,60,57,54,51,48,45,42,39,36,33,31,29,27,25,24,22,21,20,19,18,17,16,15,14,13,13,12,12,11,11,10,10,9,9,8,7,6],
+    cup:   [40,40,40,40,41,41,41,41,41,42,42,42,42,42,42,42,42,41,41,41,41,41,40,40,40,40,40,39,39,39,38,38,37,37,36,35,34,33,31,29,27,24,21,18,15,12,9,7],
+    bottle:[11,11,12,12,12,12,13,13,13,14,14,15,16,18,22,28,36,46,56,64,70,73,74,73,71,68,65,62,58,55,51,48,44,41,38,35,32,29,26,23,21,18,16,14,12,10,8,6]
+  };
+  function loadPreset(name){const p=presets[name];for(let i=0;i<N;i++)r[i]=p[i];temp=0.9;}
+
+  let last=performance.now();
+  function step(now){
+    let dt=Math.min(40,now-last)/16.7;last=now;if(reduce)dt=1;
+    const soft=Math.pow(temp,1.3);
+    if(blowing&&temp>0.06){for(let i=1;i<N;i++)r[i]+=1.9*soft*wBlow(i)*dt;temp-=0.004*dt;}
+    if(temp>0.15){for(let i=1;i<N-1;i++)r[i]+=0.10*soft*(i/N)*dt;segH+=0.006*soft*dt;segH=Math.min(segH,(H*0.92)/N);}
+    if(dragging&&dragI>=0){const tgt=Math.max(RMIN,Math.abs(dragTargetX-cx));const sp=4;for(let k=-sp;k<=sp;k++){const i=dragI+k;if(i<1||i>=N)continue;const w=1-Math.abs(k)/(sp+1);r[i]+=(tgt-r[i])*0.22*w*(0.35+0.65*soft);}temp-=0.0015*dt;}
+    const sm=0.10+0.16*soft;const nr=r.slice();for(let i=1;i<N-1;i++)nr[i]=r[i]+(r[i-1]+r[i+1]-2*r[i])*sm;r=nr;
+    for(let i=0;i<N;i++){if(i===0)r[i]=Math.max(4,Math.min(r[i],118));r[i]=Math.max(RMIN,Math.min(RMAX,r[i]));}
+    r[N-1]=Math.max(5,Math.min(r[N-1],r[N-2]*0.72));
+    temp=Math.max(0,temp-0.0012*dt*(1+avgR()/120));
+    draw();updateReadout();
+    if(!reduce)raf=requestAnimationFrame(step);
+  }
+  function avgR(){let s=0;for(let i=0;i<N;i++)s+=r[i];return s/N;}
+  function hexToRgb(h){h=h.replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+  function shade(c,f){return[Math.min(255,c[0]*f),Math.min(255,c[1]*f),Math.min(255,c[2]*f)];}
+  function glassFill(y0,y1){
+    const g=ctx.createLinearGradient(cx-avgR(),y0,cx+avgR(),y1),t=temp,base=hexToRgb(color);
+    const mix=(a,b)=>[Math.round(a[0]+(b[0]-a[0])*t),Math.round(a[1]+(b[1]-a[1])*t),Math.round(a[2]+(b[2]-a[2])*t)];
+    const edge=mix(shade(base,0.6),[255,190,110]),mid=mix(base,[255,240,205]),hi=mix(shade(base,1.35),[255,255,240]);
+    g.addColorStop(0,`rgb(${edge})`);g.addColorStop(0.42,`rgb(${mid})`);g.addColorStop(0.6,`rgb(${hi})`);g.addColorStop(0.78,`rgb(${mid})`);g.addColorStop(1,`rgb(${edge})`);
+    return g;
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='#8a8f96';ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx,8);ctx.lineTo(cx,topY);ctx.stroke();
+    ctx.strokeStyle='#cfd4d9';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx-1,10);ctx.lineTo(cx-1,topY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx+r[0],topY);
+    for(let i=1;i<N;i++)ctx.lineTo(cx+r[i],topY+i*segH);
+    for(let i=N-1;i>=0;i--)ctx.lineTo(cx-r[i],topY+i*segH);
+    ctx.closePath();
+    const botY=topY+(N-1)*segH;
+    ctx.save();if(temp>0.2){ctx.shadowColor='rgba(255,120,30,'+(0.55*temp)+')';ctx.shadowBlur=34*temp;}
+    ctx.fillStyle=glassFill(topY,botY);ctx.globalAlpha=0.93;ctx.fill();ctx.restore();
+    // 氧化斑點
+    if(oxideSpk){ctx.save();ctx.clip();ctx.fillStyle=oxideSpk;ctx.globalAlpha=0.5;
+      for(let i=3;i<N-2;i+=2){const y=topY+i*segH;const rad=r[i];for(let j=0;j<3;j++){const px=cx+(Math.sin(i*3.1+j*2.2)*rad*0.7);ctx.beginPath();ctx.arc(px,y,1.6+((i+j)%3),0,6.28);ctx.fill();}}ctx.restore();}
+    ctx.globalAlpha=0.5;ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=3;ctx.beginPath();
+    for(let i=1;i<N;i++){const y=topY+i*segH,x=cx-r[i]*0.45;i===1?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.globalAlpha=1;
+    ctx.strokeStyle=temp>0.5?'rgba(255,220,170,.9)':'rgba(255,255,255,.5)';ctx.lineWidth=2.5;ctx.beginPath();ctx.ellipse(cx,topY,r[0]+2,4,0,0,6.28);ctx.stroke();
+  }
+
+  // ---- 器型判別 / 尺寸 / 價格 ----
+  function analyze(){
+    let maxR=0,maxI=0,vol=0;const rim=(r[0]+r[1]+r[2])/3;
+    for(let i=0;i<N;i++){if(r[i]>maxR){maxR=r[i];maxI=i;}vol+=Math.PI*r[i]*r[i]*segH;}
+    const bodyEnd=Math.floor(N*0.72);                       // 排除底部收攏段
+    let bodyMin=999;for(let i=0;i<=bodyEnd;i++)bodyMin=Math.min(bodyMin,r[i]);
+    const hPx=N*segH, bellyF=maxI/N, spread=(maxR-bodyMin)/maxR; // 器身起伏（不含底）
+    let neck=999;for(let i=2;i<=Math.max(3,maxI);i++)neck=Math.min(neck,r[i]);
+    let form;
+    if(rim<maxR*0.6) form=(bellyF>0.38?'細頸瓶':'花瓶');    // 窄口：腹低→長頸瓶，腹高→花瓶
+    else if(spread<0.34) form='直身杯';                      // 器身近直筒
+    else if(rim>=maxR*0.78 && bellyF<0.42) form='寬口缽';    // 口最寬、上寬下窄
+    else form='圓身器';
+    const scale=26/(segH*N);                                 // 滿高≈26cm
+    return{maxR,minR,rim,vol,hPx,form,neck,bellyF,spread,
+      hcm:hPx*scale, wcm:maxR*2*scale, ml:Math.max(0,vol*Math.pow(scale,3)*0.5)}; // cm³=ml，0.5 為中空係數
+  }
+  function priceOf(a){
+    const base=2600;
+    const size=Math.round(a.ml/70)*120;                     // 依容量級距
+    const neckWork=(a.neck<a.maxR*0.5)?600:(a.neck<a.maxR*0.7?300:0);
+    const flare=(a.form==='寬口缽')?400:0;
+    let total=base+size+colorAdd+oxideAdd+neckWork+flare;
+    total=Math.round(total/100)*100;
+    return{base,size,neckWork,flare,total};
+  }
+  function updateReadout(){
+    const a=analyze(),p=priceOf(a);
+    document.getElementById('rTemp').textContent=Math.round(200+temp*950)+'°C';
+    document.getElementById('rH').textContent=a.hcm.toFixed(1)+' cm';
+    document.getElementById('rW').textContent=a.wcm.toFixed(1)+' cm';
+    document.getElementById('rForm').textContent=a.form;
+    document.getElementById('sForm').textContent=a.form;
+    document.getElementById('sH').textContent=a.hcm.toFixed(1)+' cm';
+    document.getElementById('sW').textContent=a.wcm.toFixed(1)+' cm';
+    document.getElementById('sV').textContent=Math.round(a.ml)+' ml';
+    document.getElementById('price').textContent='NT$'+p.total.toLocaleString();
+    const rows=[['基本工資',p.base],['尺寸級距',p.size],['料色 '+colorName,colorAdd],['氧化 '+oxideName,oxideAdd]];
+    if(p.neckWork)rows.push(['收頸工序',p.neckWork]);
+    if(p.flare)rows.push(['寬口成型',p.flare]);
+    document.getElementById('bd').innerHTML=rows.filter(x=>x[1]>=0).map(x=>`<span><i>${x[0]}</i><b>+${x[1].toLocaleString()}</b></span>`).join('');
+    curForm=a.form;curSpec=a;curPrice=p.total;
+  }
+  let curForm='—',curSpec=null,curPrice=0;
+
+  // ---- 互動 ----
+  function localXY(e){const rect=cv.getBoundingClientRect();const p=e.touches?e.touches[0]:e;return{x:p.clientX-rect.left,y:p.clientY-rect.top};}
+  function down(e){const{x,y}=localXY(e);dragTargetX=x;dragI=Math.round((y-topY)/segH);if(dragI>=1&&dragI<N){dragging=true;}e.preventDefault();}
+  function move(e){if(!dragging)return;const{x,y}=localXY(e);dragTargetX=x;dragI=Math.max(1,Math.min(N-1,Math.round((y-topY)/segH)));e.preventDefault();}
+  function up(){dragging=false;dragI=-1;}
+  cv.addEventListener('mousedown',down);addEventListener('mousemove',move);addEventListener('mouseup',up);
+  cv.addEventListener('touchstart',down,{passive:false});cv.addEventListener('touchmove',move,{passive:false});addEventListener('touchend',up);
+
+  const bBlow=document.getElementById('btnBlow');
+  const setBlow=v=>{blowing=v;bBlow.classList.toggle('on',v);bBlow.setAttribute('aria-pressed',v);if(v&&reduce)renderStatic();};
+  bBlow.addEventListener('mousedown',()=>setBlow(true));bBlow.addEventListener('touchstart',e=>{e.preventDefault();setBlow(true);},{passive:false});
+  addEventListener('mouseup',()=>setBlow(false));addEventListener('touchend',()=>setBlow(false));
+  addEventListener('keydown',e=>{if(e.code==='Space'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();setBlow(true);}});
+  addEventListener('keyup',e=>{if(e.code==='Space')setBlow(false);});
+  document.getElementById('btnHeat').addEventListener('click',()=>{temp=Math.min(1,temp+0.5);if(reduce)renderStatic();});
+  document.getElementById('btnReset').addEventListener('click',()=>{reset();if(reduce)renderStatic();});
+  document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{loadPreset(b.dataset.p);if(reduce)renderStatic();}));
+  document.querySelectorAll('#colors .opt').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#colors .opt').forEach(x=>x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');color=b.dataset.c;colorAdd=+b.dataset.add;colorName=b.dataset.name;if(reduce)renderStatic();
+  }));
+  document.querySelectorAll('#oxides .opt').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#oxides .opt').forEach(x=>x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');oxideAdd=+b.dataset.add;oxideName=b.dataset.name;oxideSpk=b.dataset.spk||null;if(reduce)renderStatic();
+  }));
+  function renderStatic(){draw();updateReadout();}
+
+  // ---- 表單驗證 + 訂單 ----
+  function fail(row,msg){document.getElementById('fr-'+row).classList.add('bad');document.getElementById('e-'+row).textContent=msg;}
+  function clr(row){document.getElementById('fr-'+row).classList.remove('bad');document.getElementById('e-'+row).textContent='';}
+  function seq(){const k='glw_seq';let n=+(sessionStorage.getItem(k)||Math.floor(Math.random()*40+1));n=(n%999)+1;try{sessionStorage.setItem(k,n);}catch(e){}return String(n).padStart(3,'0');}
+  document.getElementById('order').addEventListener('submit',function(e){
+    e.preventDefault();let ok=true;
+    const name=document.getElementById('oname').value.trim();
+    const phone=document.getElementById('ophone').value.trim();
+    const mail=document.getElementById('omail').value.trim();
+    clr('name');clr('phone');clr('mail');
+    if(name.length<2){fail('name','請留下至少兩個字的稱呼');ok=false;}
+    if(!/^09\d{8}$/.test(phone)){fail('phone','手機需為 09 開頭共十碼數字');ok=false;}
+    if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){fail('mail','Email 格式怪怪的，再檢查一下');ok=false;}
+    if(!curSpec||curSpec.hPx<40){fail('name','請先在爐前台吹出一件器物再送單');ok=false;}
+    if(!ok)return;
+    const d=new Date();const ymd=d.getFullYear().toString().slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+    const no='GLW-'+ymd+'-'+seq();
+    document.getElementById('tkNo').textContent=no;
+    const a=curSpec;
+    document.getElementById('tkBody').innerHTML=[
+      ['訂製人',name],['器型',a.form],['料色',colorName],['氧化',oxideName],
+      ['尺寸',a.hcm.toFixed(1)+' × ⌀'+a.wcm.toFixed(1)+' cm'],['容量約',Math.round(a.ml)+' ml'],
+      ['預估',(function(){const dd=new Date(d.getTime()+21*864e5);return (dd.getMonth()+1)+'/'+dd.getDate()+' 前可取件';})()],
+      ['試算單價','NT$'+curPrice.toLocaleString()]
+    ].map(x=>`<dt>${x[0]}</dt><dd>${x[1]}</dd>`).join('');
+    // 原創條碼（依訂號雜湊）
+    let h=0;for(let i=0;i<no.length;i++)h=(h*31+no.charCodeAt(i))>>>0;
+    let bars='';for(let i=0;i<34;i++){h=(h*1103515245+12345)>>>0;bars+='<i style="height:'+(22+ (h%18))+'px;width:'+(1+(h>>3)%3)+'px"></i>';}
+    document.getElementById('tkBar').innerHTML=bars;
+    const t=document.getElementById('ticket');t.classList.add('show');t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+  });
+
+  let raf;
+  function boot(){resize();reset();if(!reduce){last=performance.now();raf=requestAnimationFrame(step);}else{loadPreset('vase');renderStatic();}}
+  addEventListener('resize',resize);
+  boot();
+})();
+</script>
+</body>
+</html>

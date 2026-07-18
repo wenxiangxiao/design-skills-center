@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>搶風線帆船俱樂部 TACKLINE｜澎湖觀音亭・帆船教學與試航診斷</title>
+<meta name="description" content="澎湖馬公觀音亭西灣的帆船俱樂部。線上試航診斷：在程序化風場中親自開一趟三角航線，系統依 VMG 效率與換舷損失判定你的技術等級並推薦課程。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2316467F'/%3E%3Crect x='12' y='8' width='5' height='48' fill='%23C9A46A'/%3E%3Cpolygon points='17,12 56,20 17,28' fill='%23F0F1EA'/%3E%3Cpolygon points='17,32 50,38 17,44' fill='%23F5C518'/%3E%3Ccircle cx='27' cy='20' r='4' fill='%23E1362C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Azeret+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+ --sea:#16467F;--deep:#0E3260;--abyss:#08203E;--sky:#2E67AC;
+ --foam:#F0F1EA;--red:#E1362C;--yellow:#F5C518;--hemp:#C9A46A;
+ --line:rgba(240,241,234,.20);--line2:rgba(240,241,234,.38);
+ --mono:'Azeret Mono',ui-monospace,SFMono-Regular,monospace;
+ --disp:'Archivo','Noto Sans TC',sans-serif;
+ --han:'Noto Sans TC','Archivo',sans-serif;
+ --rose:216px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--sea);color:var(--foam);font-family:var(--han);font-weight:400;line-height:1.8;font-size:16px;overflow-x:hidden}
+img,svg{display:block}
+a{color:inherit}
+::selection{background:var(--yellow);color:var(--abyss)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.flg{display:inline-block;vertical-align:middle;box-shadow:0 0 0 1px rgba(8,32,62,.55)}
+.hoist{display:inline-flex;gap:5px;align-items:center;vertical-align:middle}
+
+/* ---- halyard rule: the structural divider of this language ---- */
+.halyard{position:relative;height:1px;background:var(--hemp);opacity:.55;margin:0}
+.halyard::before,.halyard::after{content:"";position:absolute;top:-3px;width:7px;height:7px;background:var(--hemp)}
+.halyard::before{left:0}.halyard::after{right:0}
+
+/* ---- compass rose navigation (new prototype) ---- */
+.rose{position:fixed;top:18px;left:18px;width:var(--rose);height:var(--rose);z-index:60;
+ background:rgba(8,32,62,.80);border:1px solid var(--line2);backdrop-filter:blur(7px)}
+.rose .disc{position:absolute;left:50%;top:50%;width:96px;height:96px;transform:translate(-50%,-50%)}
+.rose .ndl{transform-origin:50% 50%;transition:transform .8s cubic-bezier(.2,.9,.2,1)}
+.rose a{position:absolute;text-decoration:none;font-family:var(--disp);font-weight:700;
+ font-size:11px;letter-spacing:.14em;text-align:center;color:var(--foam);opacity:.66;
+ padding:4px 6px;transition:opacity .18s,background .18s;width:84px}
+.rose a b{display:block;font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.06em;color:var(--hemp)}
+.rose a span{display:block;font-family:var(--han);font-weight:700;font-size:13px;letter-spacing:.06em;line-height:1.3}
+.rose a:hover,.rose a:focus-visible{opacity:1;background:var(--red);outline:none}
+.rose a[aria-current="page"]{opacity:1;background:var(--yellow);color:var(--abyss)}
+.rose a[aria-current="page"] b{color:var(--abyss)}
+.rose .p-n{left:50%;top:6px;transform:translateX(-50%)}
+.rose .p-e{right:2px;top:50%;transform:translateY(-50%);width:76px}
+.rose .p-s{left:50%;bottom:6px;transform:translateX(-50%)}
+.rose .p-w{left:2px;top:50%;transform:translateY(-50%);width:76px}
+.rose .brand{position:absolute;left:0;right:0;bottom:-1px;display:none}
+
+.shell{padding-left:calc(var(--rose) + 40px);padding-right:40px;max-width:1400px}
+.wide{padding-left:0;padding-right:0;max-width:none}
+
+/* ---- typography ---- */
+h1,h2,h3,h4{font-family:var(--disp);font-weight:900;line-height:1.06;letter-spacing:-.015em}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--yellow);font-weight:600}
+.sect{padding:78px 0;border-top:1px solid var(--line)}
+.sect-h{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:34px}
+.sect-h h2{font-size:clamp(26px,3.6vw,46px)}
+.lead{font-size:17px;max-width:62ch;color:rgba(240,241,234,.86)}
+.small{font-size:14px;color:rgba(240,241,234,.68)}
+.hemp{color:var(--hemp)}
+.yel{color:var(--yellow)}
+
+/* ---- buttons: flag-block, no radius ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:900;
+ font-size:14px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;
+ padding:13px 20px;border:2px solid var(--foam);background:transparent;color:var(--foam);
+ cursor:pointer;transition:background .16s,color .16s,border-color .16s;font-family:var(--disp)}
+.btn:hover,.btn:focus-visible{background:var(--foam);color:var(--abyss);outline:none}
+.btn.pri{background:var(--red);border-color:var(--red)}
+.btn.pri:hover,.btn.pri:focus-visible{background:var(--yellow);border-color:var(--yellow);color:var(--abyss)}
+.btn:disabled{opacity:.34;cursor:not-allowed}
+.btn.sm{padding:8px 13px;font-size:12px;border-width:1px}
+
+.panel{background:var(--deep);border:1px solid var(--line);padding:24px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+ padding:3px 8px;background:rgba(240,241,234,.10);border:1px solid var(--line)}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--hemp);font-weight:600}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+input,select,textarea{font-family:var(--han);font-size:15px;color:var(--foam);background:var(--abyss);
+ border:1px solid var(--line2);padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--yellow);outline-offset:-2px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--hemp);margin-bottom:6px}
+
+footer.ft{border-top:4px solid var(--hemp);background:var(--abyss);padding:52px 0 40px;margin-top:0}
+footer.ft .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px}
+footer.ft h4{font-size:13px;font-family:var(--mono);font-weight:600;letter-spacing:.18em;color:var(--hemp);text-transform:uppercase;margin-bottom:12px}
+footer.ft p,footer.ft li{font-size:14px;color:rgba(240,241,234,.76);list-style:none}
+footer.ft a{text-decoration:none;border-bottom:1px solid var(--line2)}
+footer.ft a:hover{color:var(--yellow)}
+.fine{margin-top:34px;padding-top:18px;border-top:1px solid rgba(240,241,234,.14);font-size:12px;color:rgba(240,241,234,.55);font-family:var(--mono);line-height:1.9}
+
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;z-index:99;background:var(--yellow);color:var(--abyss);padding:8px 12px;font-weight:700}
+
+@media(max-width:1080px){
+ :root{--rose:170px}
+ .rose a{font-size:10px;width:70px}
+ .rose a span{font-size:12px}
+ .rose .disc{width:66px;height:66px}
+}
+@media(max-width:860px){
+ .rose{top:auto;bottom:0;left:0;width:100%;height:58px;border:none;border-top:2px solid var(--hemp);
+  display:flex;align-items:stretch;background:rgba(8,32,62,.96)}
+ .rose .disc{display:none}
+ .rose a{position:static;transform:none!important;width:auto;flex:1;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;gap:0;padding:6px 2px;border-right:1px solid var(--line)}
+ .rose a:last-child{border-right:none}
+ .rose a b{font-size:9px}
+ .rose a span{font-size:12px}
+ .shell{padding-left:20px;padding-right:20px}
+ body{padding-bottom:58px}
+ footer.ft .cols{grid-template-columns:1fr;gap:26px}
+ .sect{padding:52px 0}
+}
+@media(max-width:560px){
+ body{font-size:15px}
+ .sect{padding:40px 0}
+ .lead{font-size:15px}
+ table{font-size:13px}
+ th,td{padding:8px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+ *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+ html{scroll-behavior:auto}
+}
+
+
+.hero{position:relative;height:100svh;min-height:600px;width:100%;overflow:hidden;background:var(--abyss)}
+#sea{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero-in{position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end;
+ padding:0 40px 44px calc(var(--rose) + 40px);pointer-events:none}
+.hero-in > *{pointer-events:auto}
+.wordmark{font-family:var(--disp);font-weight:900;font-size:clamp(52px,11.5vw,168px);line-height:.82;
+ letter-spacing:-.045em;text-transform:uppercase;text-shadow:0 6px 40px rgba(8,32,62,.75)}
+.wordmark em{font-style:normal;color:var(--yellow)}
+.sub-han{font-family:var(--han);font-weight:900;font-size:clamp(18px,2.6vw,30px);letter-spacing:.16em;margin-top:10px}
+.hero p.lead{margin-top:14px;text-shadow:0 2px 18px rgba(8,32,62,.9)}
+.hero .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.wxbar{position:absolute;top:18px;right:18px;width:250px;background:rgba(8,32,62,.82);
+ border:1px solid var(--line2);padding:14px 16px;backdrop-filter:blur(7px);pointer-events:auto}
+.wxbar h3{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--hemp);font-weight:600;text-transform:uppercase;margin-bottom:10px}
+.wxrow{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:3px 0;border-bottom:1px dotted rgba(240,241,234,.16)}
+.wxrow:last-child{border:none}
+.wxrow b{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--yellow)}
+.wxbig{font-family:var(--disp);font-weight:900;font-size:40px;line-height:1;letter-spacing:-.02em}
+.scrollhint{position:absolute;left:calc(var(--rose) + 40px);bottom:14px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:rgba(240,241,234,.5)}
+
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
+.grid3 > div{background:var(--sea);padding:26px 24px}
+.grid3 h3{font-size:20px;font-family:var(--han);font-weight:900;margin:14px 0 8px}
+.stagegrid{counter-reset:st}
+.stagegrid > div::before{counter-increment:st;content:"0" counter(st);font-family:var(--mono);font-size:12px;color:var(--hemp);letter-spacing:.2em}
+
+.clock{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:44px;align-items:center}
+.clock svg{width:100%;height:auto}
+.legend{list-style:none}
+.legend li{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.legend i{flex:0 0 14px;height:14px;margin-top:6px;display:block}
+.legend b{font-family:var(--mono);font-size:12px;letter-spacing:.1em;display:block;color:var(--foam)}
+.legend span{font-size:14px;color:rgba(240,241,234,.78)}
+
+.boats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+.boats a{background:var(--deep);padding:20px;text-decoration:none;display:block;transition:background .16s}
+.boats a:hover,.boats a:focus-visible{background:var(--sky);outline:none}
+.boats h4{font-size:17px;font-family:var(--han);font-weight:900;margin:12px 0 4px}
+.boats .mono{font-size:11px;letter-spacing:.14em;color:var(--hemp)}
+
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.person{border:1px solid var(--line);padding:20px}
+.person h4{font-size:19px;font-family:var(--han);font-weight:900}
+.person .role{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--yellow);margin-bottom:10px}
+.cta{background:var(--red);padding:44px 40px;display:flex;justify-content:space-between;align-items:center;gap:26px;flex-wrap:wrap}
+.cta h2{font-size:clamp(24px,3.4vw,40px);max-width:20ch}
+@media(max-width:980px){.grid3,.boats{grid-template-columns:1fr 1fr}.people{grid-template-columns:1fr}.clock{grid-template-columns:1fr;gap:26px}}
+@media(max-width:860px){
+ .hero-in{padding:0 20px 26px}
+ .hero{height:auto;min-height:0;padding-top:0}
+ #sea{position:absolute}
+ .hero{height:92svh;min-height:520px}
+ .wxbar{position:static;width:auto;margin:0 0 18px;background:rgba(8,32,62,.86)}
+ .hero-in{justify-content:flex-end}
+ .scrollhint{left:20px}
+}
+@media(max-width:620px){.grid3,.boats{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="rose" aria-label="羅經導覽">
+<svg class="disc" viewBox="0 0 100 100" aria-hidden="true">
+ <circle cx="50" cy="50" r="47" fill="none" stroke="#C9A46A" stroke-width="1.4" opacity=".8"/>
+ <circle cx="50" cy="50" r="37" fill="none" stroke="#F0F1EA" stroke-width=".7" opacity=".3"/>
+ <g stroke="#F0F1EA" stroke-width="1" opacity=".45">
+  <path d="M50,3 L50,13 M97,50 L87,50 M50,97 L50,87 M3,50 L13,50"/>
+ </g>
+ <g stroke="#F0F1EA" stroke-width=".7" opacity=".22">
+  <path d="M83.2,16.8 L76.1,23.9 M83.2,83.2 L76.1,76.1 M16.8,83.2 L23.9,76.1 M16.8,16.8 L23.9,23.9"/>
+ </g>
+ <g class="ndl" style="transform:rotate(0deg)">
+  <polygon points="50,10 55.5,50 50,44 44.5,50" fill="#E1362C"/>
+  <polygon points="50,90 44.5,50 50,56 55.5,50" fill="#F0F1EA" opacity=".65"/>
+ </g>
+ <circle cx="50" cy="50" r="3.2" fill="#F5C518"/>
+</svg>
+<a class="p-n" href="index.html" aria-current="page"><b>000°</b><span>母港</span></a><a class="p-e" href="sail.html"><b>090°</b><span>試航診斷</span></a><a class="p-s" href="fleet.html"><b>180°</b><span>船隊與旗語</span></a><a class="p-w" href="club.html"><b>270°</b><span>課程與入社</span></a>
+</nav>
+
+<main id="main">
+<section class="hero">
+ <canvas id="sea" aria-label="觀音亭西灣即時風場示意：白色流線代表風的走向，較亮的區域是陣風帶，左上角陸塊後方為風影區"></canvas>
+ <div class="hero-in">
+  <div class="wxbar" id="wx">
+   <h3>今日風況・觀音亭西灣</h3>
+   <div class="wxrow"><span>真風向</span><b id="wx-dir">—</b></div>
+   <div class="wxrow"><span>平均風速</span><b id="wx-spd">—</b></div>
+   <div class="wxrow"><span>陣風</span><b id="wx-gst">—</b></div>
+   <div class="wxrow"><span>浪高</span><b id="wx-wav">—</b></div>
+   <div class="wxrow"><span>水溫</span><b id="wx-tmp">—</b></div>
+   <div class="wxrow"><span>滿潮</span><b id="wx-tid">—</b></div>
+   <div class="wxrow" style="margin-top:8px;border:none"><span class="small" id="wx-note" style="line-height:1.6">—</span></div>
+  </div>
+  <p class="kicker">澎湖縣馬公市・觀音亭西灣帆船基地・NO.<span class="mono">2601</span></p>
+  <h1 class="wordmark">TACK<em>LINE</em></h1>
+  <p class="sub-han">搶風線帆船俱樂部</p>
+  <p class="lead">風不會讓你直直走過去。要往上風處去，就得斜著切、切到底、換舷、再切回來——這件事沒有辦法用說的教會，只能讓你自己試一次。</p>
+  <div class="acts">
+   <a class="btn pri" href="sail.html">上船試航 →</a>
+   <a class="btn" href="club.html">課程與入社</a>
+  </div>
+ </div>
+ <p class="scrollhint">↓ 往下：為什麼帆船是一項讀風的運動</p>
+</section>
+
+<div class="shell">
+
+<section class="sect" id="why">
+ <div class="sect-h">
+  <span data-hoist="ND" data-fw="38"></span>
+  <div><p class="kicker">為什麼要學</p><h2>風不會讓你直走</h2></div>
+ </div>
+ <div class="clock">
+  <svg viewBox="0 0 400 400" role="img" aria-label="風角圖：以船為中心，標示迎風死角、搶風、橫風與順風四個角度區間，以及各區間的相對船速">
+   <defs>
+    <pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+     <rect width="7" height="7" fill="#08203E"/><rect width="3" height="7" fill="#E1362C" opacity=".55"/>
+    </pattern>
+   </defs>
+   <circle cx="200" cy="200" r="168" fill="#0E3260" stroke="#C9A46A" stroke-width="1.2"/>
+   <!-- no-go zone -->
+   <path d="M200,200 L108.6,58.7 A168,168 0 0,1 291.4,58.7 Z" fill="url(#hatch)"/>
+   <!-- speed polar outline (from POLAR table, drawn statically) -->
+   <path id="polarpath" fill="#F5C518" fill-opacity=".14" stroke="#F5C518" stroke-width="2"/>
+   <!-- rings -->
+   <circle cx="200" cy="200" r="112" fill="none" stroke="#F0F1EA" stroke-width=".6" opacity=".2"/>
+   <circle cx="200" cy="200" r="56" fill="none" stroke="#F0F1EA" stroke-width=".6" opacity=".2"/>
+   <!-- wind arrows coming from top -->
+   <g stroke="#F0F1EA" stroke-width="2" opacity=".5" fill="none">
+    <path d="M140,8 L140,44 M200,2 L200,40 M260,8 L260,44"/>
+    <path d="M134,36 L140,46 L146,36 M194,32 L200,42 L206,32 M254,36 L260,46 L266,36" fill="#F0F1EA" stroke="none" opacity=".9"/>
+   </g>
+   <text x="200" y="-4" fill="#F0F1EA"></text>
+   <!-- boat at centre -->
+   <g transform="translate(200,200)">
+    <polygon points="0,-26 9,16 0,26 -9,16" fill="#F0F1EA"/>
+    <path d="M0,-22 L0,22" stroke="#08203E" stroke-width="2"/>
+   </g>
+   <!-- labels -->
+   <text x="200" y="34" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="13" fill="#E1362C" font-weight="600">迎風死角 ±38°</text>
+   <text x="200" y="52" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="11" fill="#F0F1EA" opacity=".7">NO-GO ZONE</text>
+   <text x="330" y="120" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="12" fill="#F5C518">45° 搶風</text>
+   <text x="360" y="205" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="12" fill="#F5C518">90° 橫風</text>
+   <text x="322" y="300" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="12" fill="#F5C518">135° 大順風</text>
+   <text x="200" y="392" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="12" fill="#F5C518">180° 正順風</text>
+  </svg>
+  <div>
+   <p class="lead">上面那條黃線是這艘船的<b>極曲線（polar）</b>：從船頭往外量，線離中心越遠，代表朝那個角度航行時船跑得越快。它有兩件事違反直覺——</p>
+   <ul class="legend" style="margin-top:22px">
+    <li><i style="background:#E1362C"></i><span><b>正對著風的方向反而是零</b></span><span>船頭指進紅色斜線區，帆就只是一面在中線抖動的布，不產生任何前進的力。這叫「陷入死角（in irons）」，新手第一堂課有一半時間都花在這裡。</span></li>
+    <li><i style="background:#F5C518"></i><span><b>最快的角度不是順風，是橫風</b></span><span>90°–110° 橫風時船速最高，可以跑到接近真風速的八成。正順風反而只剩不到五成——因為帆是靠壓力差工作的，不是靠被推。</span></li>
+    <li><i style="background:#C9A46A"></i><span><b>所以往上風去，只能之字形</b></span><span>要抵達正上風的浮標，最有效率的航法是保持在 42°–45° 一路斜切，到達「延伸線（layline）」再換舷切回來。多切一次就多損失一次速度，切晚了又會多繞路。這是帆船最核心的判斷。</span></li>
+   </ul>
+   <p class="small" style="margin-top:20px">在 <a href="sail.html" style="color:var(--yellow)">試航診斷</a> 裡，你會親自把船開過一趟三角航線；系統會記錄你每一秒的角度與速度，算出你的 VMG 效率與換舷損失，再告訴你該從哪一班開始上。</p>
+  </div>
+ </div>
+</section>
+
+<section class="sect" id="how">
+ <div class="sect-h">
+  <span data-hoist="GHK" data-fw="34"></span>
+  <div><p class="kicker">訓練架構</p><h2>三個階段，一支旗子代表一階</h2></div>
+ </div>
+ <div class="grid3 stagegrid">
+  <div>
+   <span data-hoist="G" data-fw="46" style="display:block;margin-bottom:14px"></span>
+   <h3>G 旗・需要引水人</h3>
+   <p class="small">完全沒碰過船的階段。在內灣淺水區、有安全艇貼身跟著，練翻船復正、上下風判讀、繩結與帆的鬆緊。兩堂課之後你會知道風從哪來——光這件事就值回票價。</p>
+  </div>
+  <div>
+   <span data-hoist="H" data-fw="46" style="display:block;margin-bottom:14px"></span>
+   <h3>H 旗・船上有引水人</h3>
+   <p class="small">教練還在船上，但手不碰舵。開始跑完整的三角航線，學搶風、換舷、繞標與看陣風。這一階最痛苦也最有收穫，多數人在第四到第六堂課之間會突然「開竅」。</p>
+  </div>
+  <div>
+   <span data-hoist="K" data-fw="46" style="display:block;margin-bottom:14px"></span>
+   <h3>K 旗・希望與貴船通信</h3>
+   <p class="small">你自己一艘船，教練在安全艇上用旗語與無線電指導。內容是戰術：延伸線判斷、起航線搶位、陣風帶選邊、跨島航程與夜航。結業後可獨立借船出海。</p>
+  </div>
+ </div>
+</section>
+
+<section class="sect" id="fleet">
+ <div class="sect-h">
+  <span data-hoist="EF" data-fw="38"></span>
+  <div><p class="kicker">船隊</p><h2>社船 21 艘・四種船型</h2></div>
+  <a class="btn sm" href="fleet.html" style="margin-left:auto">全部船隊與旗語手冊 →</a>
+ </div>
+ <div class="boats">
+  <a href="fleet.html#HAI-01"><p class="mono">HAI-01</p><h4>逆風 NIGHAM</h4><p class="small" style="color:var(--yellow);font-size:12px">Hobie 16 雙體帆船</p><p class="small" style="margin-top:8px">雙人・4.9 m・訓練與競賽主力，本社 6 艘</p></a>
+  <a href="fleet.html#HAI-07"><p class="mono">HAI-07</p><h4>小卷 SQUID</h4><p class="small" style="color:var(--yellow);font-size:12px">Optimist 單人小帆</p><p class="small" style="margin-top:8px">兒童 7–12 歲・2.3 m・觀音亭內灣限定</p></a>
+  <a href="fleet.html#HAI-12"><p class="mono">HAI-12</p><h4>西嶼 HSIYU</h4><p class="small" style="color:var(--yellow);font-size:12px">Laser Standard</p><p class="small" style="margin-top:8px">單人・4.2 m・進階戰術與體能課用船</p></a>
+  <a href="fleet.html#HAI-20"><p class="mono">HAI-20</p><h4>三十人 SANSHIH</h4><p class="small" style="color:var(--yellow);font-size:12px">J/24 龍骨帆船</p><p class="small" style="margin-top:8px">五人・7.3 m・跨島航程與夜航訓練</p></a>
+
+ </div>
+</section>
+
+<section class="sect" id="crew">
+ <div class="sect-h">
+  <span data-hoist="MW" data-fw="38"></span>
+  <div><p class="kicker">教練群</p><h2>岸上三個人，海上一支安全艇</h2></div>
+ </div>
+ <div class="people">
+  <div class="person"><h4>陳彥廷</h4><p class="role">總教練・ISAF 二級</p><p class="small">民國 97 年起在觀音亭教帆船，帶過四屆澎湖灣帆船賽的青少年組。習慣在學員上船前先要他們在岸上站十分鐘，只看旗子。</p></div>
+  <div class="person"><h4>郭曉薇</h4><p class="role">訓練組長・救生教練</p><p class="small">前縣隊 Laser 選手，現負責初級班與安全艇調度。她的口頭禪是「翻船不是意外，是課程的一部分」。</p></div>
+  <div class="person"><h4>李明堂</h4><p class="role">船務・維修士</p><p class="small">做了二十三年漁船木工，退休後被拉來顧船隊。桅杆、舵板、帆布縫補都是他手上的活。</p></div>
+
+ </div>
+</section>
+
+<section class="sect" id="info">
+ <div class="sect-h">
+  <span data-hoist="PQ" data-fw="38"></span>
+  <div><p class="kicker">出海資訊</p><h2>時段、地點、費用摘要</h2></div>
+ </div>
+ <table>
+  <caption class="small" style="text-align:left;padding-bottom:10px;color:rgba(240,241,234,.6)">以下資料皆為虛構示意。完整課程與費用見「課程與入社」。</caption>
+  <tr><th>梯次</th><th>時段</th><th>適合</th><th>船型</th><th>費用</th></tr>
+  <tr><td class="num">A</td><td class="num">05:30–08:00</td><td>晨風平穩，初學者與兒童班</td><td>Optimist／Hobie 16</td><td class="num">NT$ 1,200</td></tr>
+  <tr><td class="num">B</td><td class="num">09:00–11:30</td><td>一般體驗與基礎班</td><td>Hobie 16</td><td class="num">NT$ 1,400</td></tr>
+  <tr><td class="num">C</td><td class="num">15:00–17:30</td><td>海風轉強，進階戰術班</td><td>Laser／J/24</td><td class="num">NT$ 1,800</td></tr>
+  <tr><td class="num">D</td><td class="num">18:00–20:30</td><td>夜航訓練（每月第二、四個週六）</td><td>J/24</td><td class="num">NT$ 2,400</td></tr>
+ </table>
+ <p class="small" style="margin-top:18px">集合地點：880 澎湖縣馬公市介壽路 14 號，觀音亭西灣帆船基地碼頭辦公室。自馬公市區步行約 12 分鐘；機場搭車約 25 分鐘。<br>
+ 風速持續超過 22 節或發布海上強風特報時全面停課，已繳費用可全額改期或退費。</p>
+</section>
+
+</div>
+
+<div class="cta">
+ <h2>不確定自己在哪一階？先開一趟看看。</h2>
+ <a class="btn" href="sail.html" style="border-color:var(--abyss);color:var(--abyss)">開始試航診斷 →</a>
+</div>
+</main>
+<footer class="ft">
+<div class="shell">
+ <div class="cols">
+  <div>
+   <h4>搶風線帆船俱樂部</h4>
+   <p style="font-family:var(--disp);font-weight:900;font-size:26px;letter-spacing:-.01em;line-height:1.15;margin-bottom:10px">TACKLINE<br><span style="font-family:var(--han);font-size:17px">觀音亭帆船俱樂部</span></p>
+   <p>880 澎湖縣馬公市介壽路 14 號・觀音亭西灣帆船基地<br>
+   (06) 927-4180｜harbour@tackline.org.tw<br>
+   出海時段 05:30–18:30（東北季風期 10–3 月請先電話確認）</p>
+  </div>
+  <div>
+   <h4>今日旗令</h4>
+   <p><span data-hoist="P" data-fw="30"></span> 藍彼得——本日 15:00 梯次即將啟航，學員請於 14:30 前至碼頭辦公室報到。</p>
+   <p style="margin-top:12px"><span data-hoist="Q" data-fw="30"></span> 全黃旗——本社所有船艇檢驗合格，可自由出港。</p>
+  </div>
+  <div>
+   <h4>索引</h4>
+   <ul>
+    <li><a href="index.html">母港・今日風況</a></li>
+    <li><a href="sail.html">試航診斷</a></li>
+    <li><a href="fleet.html">船隊與旗語手冊</a></li>
+    <li><a href="club.html">課程・教練・入社</a></li>
+    <li><a href="README.md">本站設計說明</a></li>
+    <li><a href="SKILL.md">SKILL.md 風格規格書</a></li>
+   </ul>
+  </div>
+ </div>
+ <p class="fine">
+ 本站為「Design Skills Center」網頁風格範例站。俱樂部名稱、人名、船名、電話、地址、價格、課程與所有航行資料<b>皆為虛構示意</b>，請勿據以出海或聯絡。<br>
+ 航行模擬為簡化教學模型（極曲線內插＋程序化風場），與真實海況、潮流與船舶性能不同，<b>不得作為航行訓練或安全判斷依據</b>。實際航行請依中央氣象署海象預報與合格教練指導。<br>
+ 圖形與旗幟全為原創 SVG／Canvas 繪製，零外部圖片與音檔；字體來自 Google Fonts。
+ </p>
+</div>
+</footer>
+<script>
+
+var FC={B:'#0B5FB0',R:'#DA2B24',Y:'#F5C518',W:'#F4F4EE',K:'#131519'};
+function _r(x,y,w,h,c){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+FC[c]+'"/>';}
+function _p(pts,c){return '<polygon points="'+pts+'" fill="'+FC[c]+'"/>';}
+function _c(cx,cy,r,c){return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+FC[c]+'"/>';}
+function _sal(c,w){return '<path d="M0,0 L60,40 M60,0 L0,40" stroke="'+FC[c]+'" stroke-width="'+w+'" fill="none"/>';}
+var FLAGS={
+ A:{d:function(){return _r(0,0,30,40,'W')+_p('30,0 60,0 48,20 60,40 30,40','B');},m:'我有潛水員下水，請低速遠離'},
+ B:{d:function(){return _p('0,0 60,0 48,20 60,40 0,40','R');},m:'我正在裝卸或載運危險品'},
+ C:{d:function(){return _r(0,0,60,8,'B')+_r(0,8,60,8,'W')+_r(0,16,60,8,'R')+_r(0,24,60,8,'W')+_r(0,32,60,8,'B');},m:'是（肯定）'},
+ D:{d:function(){return _r(0,0,60,10,'Y')+_r(0,10,60,20,'B')+_r(0,30,60,10,'Y');},m:'請避讓，我操縱困難'},
+ E:{d:function(){return _r(0,0,60,20,'B')+_r(0,20,60,20,'R');},m:'我正在向右轉向'},
+ F:{d:function(){return _r(0,0,60,40,'W')+_p('30,6 48,20 30,34 12,20','R');},m:'我失去操縱能力，請與我聯絡'},
+ G:{d:function(){var s='';for(var i=0;i<6;i++)s+=_r(i*10,0,10,40,i%2?'B':'Y');return s;},m:'我需要引水人'},
+ H:{d:function(){return _r(0,0,30,40,'W')+_r(30,0,30,40,'R');},m:'我船上有引水人'},
+ I:{d:function(){return _r(0,0,60,40,'Y')+_c(30,20,9,'K');},m:'我正在向左轉向'},
+ J:{d:function(){return _r(0,0,60,13,'B')+_r(0,13,60,14,'W')+_r(0,27,60,13,'B');},m:'我船失火並載有危險品，請遠離'},
+ K:{d:function(){return _r(0,0,30,40,'Y')+_r(30,0,30,40,'B');},m:'我希望與貴船通信'},
+ L:{d:function(){return _r(0,0,30,20,'Y')+_r(30,0,30,20,'K')+_r(0,20,30,20,'K')+_r(30,20,30,20,'Y');},m:'請立即停船'},
+ M:{d:function(){return _r(0,0,60,40,'B')+_sal('W',9);},m:'我船已停止，對水無航速'},
+ N:{d:function(){var s='';for(var y=0;y<4;y++)for(var x=0;x<4;x++)s+=_r(x*15,y*10,15,10,(x+y)%2?'W':'B');return s;},m:'否（否定）'},
+ O:{d:function(){return _p('0,0 60,0 0,40','R')+_p('60,0 60,40 0,40','Y');},m:'有人落水'},
+ P:{d:function(){return _r(0,0,60,40,'B')+_r(18,10,24,20,'W');},m:'藍彼得：本船即將啟航，船員請返船'},
+ Q:{d:function(){return _r(0,0,60,40,'Y');},m:'我船無疫，請發給自由入港許可'},
+ R:{d:function(){return _r(0,0,60,40,'R')+_r(24,0,12,40,'Y')+_r(0,14,60,12,'Y');},m:'（國際信號無單獨定義；本社用作「航線變更」）'},
+ S:{d:function(){return _r(0,0,60,40,'W')+_r(18,10,24,20,'B');},m:'我正在使用倒俥'},
+ T:{d:function(){return _r(0,0,20,40,'R')+_r(20,0,20,40,'W')+_r(40,0,20,40,'B');},m:'請避開我，我正在拖網作業'},
+ U:{d:function(){return _r(0,0,30,20,'W')+_r(30,0,30,20,'R')+_r(0,20,30,20,'R')+_r(30,20,30,20,'W');},m:'貴船正駛向危險'},
+ V:{d:function(){return _r(0,0,60,40,'W')+_sal('R',9);},m:'我需要援助'},
+ W:{d:function(){return _r(0,0,60,40,'B')+_r(9,6,42,28,'W')+_r(18,12,24,16,'R');},m:'我需要醫療援助'},
+ X:{d:function(){return _r(0,0,60,40,'W')+_r(24,0,12,40,'B')+_r(0,14,60,12,'B');},m:'停止你的意圖並注意我的信號'},
+ Y:{d:function(){var s=_r(0,0,60,40,'Y');for(var i=-2;i<6;i++)s+='<polygon points="'+(i*14)+',0 '+(i*14+7)+',0 '+(i*14+7+40)+',40 '+(i*14+40)+',40" fill="'+FC.R+'"/>';return s;},m:'我正在走錨'},
+ Z:{d:function(){return _p('0,0 60,0 30,20','Y')+_p('0,0 0,40 30,20','K')+_p('0,40 60,40 30,20','B')+_p('60,0 60,40 30,20','R');},m:'我需要拖船'}
+};
+function flagSVG(code,w,cls){
+ var f=FLAGS[code]; if(!f) return '';
+ var h=Math.round(w*40/60);
+ return '<svg class="flg '+(cls||'')+'" viewBox="0 0 60 40" width="'+w+'" height="'+h+'" role="img" aria-label="國際信號旗 '+code+'">'+f.d()+'</svg>';
+}
+function hoist(codes,w){
+ var s='<span class="hoist">';
+ for(var i=0;i<codes.length;i++){s+=flagSVG(codes[i],w||34);}
+ return s+'</span>';
+}
+function paintHoists(){
+ var n=document.querySelectorAll('[data-hoist]');
+ for(var i=0;i<n.length;i++){
+  var codes=n[i].getAttribute('data-hoist').split('');
+  var w=parseInt(n[i].getAttribute('data-fw')||'34',10);
+  n[i].innerHTML=hoist(codes,w);
+ }
+}
+
+/* ===== 程序化風場：基準風 + 漂移陣風胞 + 陸岬風影 + 岸邊擾流 ===== */
+function LCG(s){var x=s>>>0;return function(){x=(x*1664525+1013904223)>>>0;return x/4294967296;};}
+function brgVec(b){var r=b*Math.PI/180;return{x:Math.sin(r),y:-Math.cos(r)};}
+function wrap180(a){while(a>180)a-=360;while(a<-180)a+=360;return a;}
+function wrap360(a){while(a>=360)a-=360;while(a<0)a+=360;return a;}
+
+function WindField(cfg){
+  this.twd=cfg.twd; this.tws=cfg.tws;
+  this.w=cfg.w; this.h=cfg.h;
+  this.shadows=cfg.shadows||[];   /* [{x,y,r,len,drop}] 陸塊/岬角 */
+  this.t=0;
+  var rnd=LCG(cfg.seed||7);
+  this.cells=[];
+  var n=cfg.cells||5;
+  for(var i=0;i<n;i++){
+    this.cells.push({
+      x:rnd()*this.w, y:rnd()*this.h,
+      r:this.w*(0.13+rnd()*0.16),
+      ds:(rnd()*2-1)*cfg.gust, dd:(rnd()*2-1)*11,
+      ph:rnd()*6.28
+    });
+  }
+}
+WindField.prototype.step=function(dt){
+  this.t+=dt;
+  var v=brgVec(this.twd+180);
+  for(var i=0;i<this.cells.length;i++){
+    var c=this.cells[i];
+    var sp=this.tws*3.1;              /* 陣風胞順風漂移 */
+    c.x+=v.x*sp*dt; c.y+=v.y*sp*dt;
+    var m=this.w*0.5;
+    if(c.x<-m)c.x+=this.w+2*m; if(c.x>this.w+m)c.x-=this.w+2*m;
+    if(c.y<-m)c.y+=this.h+2*m; if(c.y>this.h+m)c.y-=this.h+2*m;
+  }
+};
+WindField.prototype.at=function(x,y){
+  var dir=this.twd, spd=this.tws;
+  /* 大尺度緩慢擺盪（風的 oscillation，真實海面每 3–6 分鐘轉一次） */
+  dir+=6.5*Math.sin(this.t*0.052+x*0.0016)+3.2*Math.sin(this.t*0.031-y*0.0021);
+  spd+=0.9*Math.sin(this.t*0.044+y*0.0018);
+  /* 陣風胞 */
+  for(var i=0;i<this.cells.length;i++){
+    var c=this.cells[i],dx=x-c.x,dy=y-c.y;
+    var w=Math.exp(-(dx*dx+dy*dy)/(c.r*c.r));
+    spd+=c.ds*w; dir+=c.dd*w;
+  }
+  /* 陸岬風影：順風方向的錐狀減速帶 */
+  var v=brgVec(this.twd+180);
+  for(var j=0;j<this.shadows.length;j++){
+    var s=this.shadows[j];
+    var ax=x-s.x, ay=y-s.y;
+    var along=ax*v.x+ay*v.y;
+    var across=Math.abs(-ax*v.y+ay*v.x);
+    if(along>0&&along<s.len){
+      var wide=s.r*(1+along/s.len*1.5);
+      if(across<wide){
+        var k=(1-along/s.len)*(1-across/wide);
+        spd*=1-s.drop*k;
+        dir+=(across>0? ((-ax*v.y+ay*v.x)>0?1:-1):1)*16*k;  /* 風影邊緣繞流偏折 */
+      }
+    }
+  }
+  if(spd<0.2)spd=0.2;
+  return {dir:wrap360(dir),spd:spd};
+};
+
+/* ===== 極曲線：TWA(度) → 船速占真風速比例（Hobie 16 級雙體船簡化） ===== */
+var POLAR=[[0,0],[28,0],[33,.26],[38,.47],[42,.55],[45,.59],[50,.63],[60,.70],[75,.77],
+           [90,.82],[100,.84],[110,.83],[120,.79],[135,.72],[150,.62],[165,.52],[180,.47]];
+function polar(twa){
+  twa=Math.abs(wrap180(twa));
+  for(var i=1;i<POLAR.length;i++){
+    if(twa<=POLAR[i][0]){
+      var a=POLAR[i-1],b=POLAR[i];
+      var k=(twa-a[0])/(b[0]-a[0]);
+      return a[1]+(b[1]-a[1])*k;
+    }
+  }
+  return POLAR[POLAR.length-1][1];
+}
+/* 最佳上風 VMG 與其對應 TWA（用於效率評分與 layline 角度） */
+function bestVMG(up){
+  var best=0,bt=45;
+  for(var a=20;a<=180;a+=0.5){
+    var v=polar(a)*Math.cos((up?a:180-a)*Math.PI/180);
+    if(v>best){best=v;bt=a;}
+  }
+  return {vmg:best,twa:bt};
+}
+var KT2MPS=0.5144;
+
+paintHoists();
+/* ---- 今日風況：以當日日期為種子的確定性數值（每天固定、逐日不同） ---- */
+(function(){
+ var d=new Date();
+ var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+ var rnd=LCG(seed);
+ var m=d.getMonth()+1;
+ var monsoon=(m>=10||m<=3);
+ var base=monsoon?(35+rnd()*30):(200+rnd()*45);   /* 冬季東北季風 / 夏季西南風 */
+ var tws=monsoon?(14+rnd()*10):(8+rnd()*8);
+ var gust=tws*(1.25+rnd()*0.3);
+ var wave=monsoon?(0.9+rnd()*1.1):(0.3+rnd()*0.7);
+ var temp=monsoon?(19+rnd()*4):(26+rnd()*4);
+ var th=Math.floor(rnd()*12)+1, tm=Math.floor(rnd()*6)*10;
+ var pts=['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'];
+ function pt(b){return pts[Math.round(wrap360(b)/22.5)%16];}
+ function set(id,v){var e=document.getElementById(id); if(e)e.textContent=v;}
+ set('wx-dir',pt(base)+' '+Math.round(base)+'°');
+ set('wx-spd',tws.toFixed(1)+' 節');
+ set('wx-gst',gust.toFixed(1)+' 節');
+ set('wx-wav',wave.toFixed(1)+' 公尺');
+ set('wx-tmp',temp.toFixed(1)+' °C');
+ set('wx-tid',(th<10?'0':'')+th+':'+(tm<10?'0':'')+tm);
+ var note = tws>20 ? '風速偏強，初級班改於內灣進行，安全艇全程貼身。'
+          : tws<6  ? '風偏弱，適合完全新手與兒童班；進階班改上戰術理論課。'
+          : '風況良好，四梯次全部照常出海。';
+ set('wx-note',note);
+ window.__TODAY={dir:base,spd:tws,gust:gust};
+})();
+
+/* ---- 極曲線輪廓（風角圖用） ---- */
+(function(){
+ var p=document.getElementById('polarpath'); if(!p)return;
+ var d='';
+ for(var side=0;side<2;side++){
+  var pts=[];
+  for(var a=0;a<=180;a+=3){
+   var r=polar(a)*205;
+   var ang=(side? -a : a)*Math.PI/180;
+   pts.push([200+Math.sin(ang)*r, 200-Math.cos(ang)*r]);
+  }
+  d+='M'+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' L')+' ';
+ }
+ p.setAttribute('d',d);
+})();
+
+/* ---- 首屏滿版風場：流線粒子 ---- */
+(function(){
+ var cv=document.getElementById('sea'); if(!cv)return;
+ var ctx=cv.getContext('2d');
+ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var W=0,H=0,dpr=1,field=null,ps=[],raf=0;
+ var today=window.__TODAY||{dir:225,spd:12};
+
+ function shoreline(w,h){
+  /* 觀音亭西灣：左上為陸地岬角，右下為開闊海面 */
+  return [[0,0],[w*0.30,0],[w*0.26,h*0.10],[w*0.34,h*0.17],[w*0.22,h*0.26],
+          [w*0.25,h*0.34],[w*0.12,h*0.44],[w*0.14,h*0.55],[0,h*0.66]];
+ }
+ function init(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  W=cv.clientWidth; H=cv.clientHeight;
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  field=new WindField({twd:today.dir,tws:today.spd,w:W,h:H,seed:1234,cells:6,gust:3.4,
+    shadows:[{x:W*0.20,y:H*0.30,r:W*0.055,len:W*0.60,drop:0.62}]});
+  ps=[];
+  var n=reduce?0:Math.round(Math.min(520,W*H/2600));
+  for(var i=0;i<n;i++)ps.push(spawn(true));
+  ctx.fillStyle='#08203E'; ctx.fillRect(0,0,W,H);
+  if(reduce)drawStatic();
+ }
+ function spawn(any){
+  return {x:Math.random()*W,y:Math.random()*H,life:any?Math.random()*260:260+Math.random()*160,px:0,py:0,seeded:false};
+ }
+ function land(){
+  var pts=shoreline(W,H);
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.lineTo(0,H); ctx.closePath();
+  ctx.fillStyle='#0B2B52'; ctx.fill();
+  ctx.strokeStyle='#C9A46A'; ctx.lineWidth=2; ctx.globalAlpha=.75;
+  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+  for(var j=1;j<pts.length;j++)ctx.lineTo(pts[j][0],pts[j][1]);
+  ctx.stroke(); ctx.globalAlpha=1;
+  /* 岬角上的觀音亭涼亭剪影 */
+  var bx=W*0.19,by=H*0.235,s=Math.max(14,W*0.014);
+  ctx.fillStyle='#C9A46A';
+  ctx.beginPath(); ctx.moveTo(bx,by-s*1.1); ctx.lineTo(bx+s*1.15,by); ctx.lineTo(bx-s*1.15,by); ctx.closePath(); ctx.fill();
+  ctx.fillRect(bx-s*0.75,by,s*0.16,s*0.9); ctx.fillRect(bx+s*0.59,by,s*0.16,s*0.9);
+  ctx.fillRect(bx-s*0.9,by+s*0.9,s*1.8,s*0.14);
+ }
+ function moored(){
+  /* 灣內三艘下錨的社船（僅剪影） */
+  var list=[[0.44,0.72,1],[0.55,0.80,.8],[0.36,0.86,.9]];
+  for(var i=0;i<list.length;i++){
+   var x=W*list[i][0],y=H*list[i][1],s=Math.max(12,W*0.012)*list[i][2];
+   ctx.save(); ctx.translate(x,y); ctx.rotate((today.dir+180)*Math.PI/180);
+   ctx.fillStyle='rgba(240,241,234,.80)';
+   ctx.beginPath(); ctx.moveTo(0,-s*1.6); ctx.lineTo(s*0.5,s*0.9); ctx.lineTo(0,s*1.3); ctx.lineTo(-s*0.5,s*0.9); ctx.closePath(); ctx.fill();
+   ctx.strokeStyle='rgba(240,241,234,.55)'; ctx.lineWidth=1.4;
+   ctx.beginPath(); ctx.moveTo(0,-s*1.2); ctx.lineTo(0,s*1.0); ctx.stroke();
+   ctx.restore();
+  }
+ }
+ function drawStatic(){
+  ctx.fillStyle='#08203E'; ctx.fillRect(0,0,W,H);
+  land();
+  var step=Math.max(46,W/26);
+  for(var x=step/2;x<W;x+=step)for(var y=step/2;y<H;y+=step){
+   var w=field.at(x,y),v=brgVec(w.dir+180);
+   var len=6+w.spd*1.5;
+   ctx.strokeStyle='rgba(240,241,234,'+(0.10+Math.min(.30,w.spd/60))+')';
+   ctx.lineWidth=1.4;
+   ctx.beginPath(); ctx.moveTo(x-v.x*len/2,y-v.y*len/2); ctx.lineTo(x+v.x*len/2,y+v.y*len/2); ctx.stroke();
+   ctx.fillStyle='rgba(245,197,24,.5)';
+   ctx.beginPath(); ctx.arc(x+v.x*len/2,y+v.y*len/2,1.6,0,6.29); ctx.fill();
+  }
+  moored();
+ }
+ var last=0;
+ function frame(ts){
+  raf=requestAnimationFrame(frame);
+  var dt=Math.min(0.05,(ts-last)/1000)||0.016; last=ts;
+  field.step(dt);
+  ctx.fillStyle='rgba(8,32,62,.16)'; ctx.fillRect(0,0,W,H);
+  for(var i=0;i<ps.length;i++){
+   var p=ps[i];
+   var w=field.at(p.x,p.y), v=brgVec(w.dir+180);
+   var sp=w.spd*7.0;
+   if(!p.seeded){p.px=p.x;p.py=p.y;p.seeded=true;}
+   p.px=p.x; p.py=p.y;
+   p.x+=v.x*sp*dt; p.y+=v.y*sp*dt; p.life-=dt*60;
+   var a=Math.min(1,p.life/60)*(0.10+Math.min(.42,(w.spd-field.tws+3)/12));
+   if(a>0.02){
+    ctx.strokeStyle='rgba(240,241,234,'+a.toFixed(3)+')';
+    ctx.lineWidth=w.spd>field.tws+1.6?1.7:1.0;
+    ctx.beginPath(); ctx.moveTo(p.px,p.py); ctx.lineTo(p.x,p.y); ctx.stroke();
+   }
+   if(p.life<=0||p.x<-20||p.x>W+20||p.y<-20||p.y>H+20)ps[i]=spawn(false);
+  }
+  land(); moored();
+ }
+ function start(){ init(); if(!reduce){ last=performance.now(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame);} }
+ start();
+ var t; window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(start,220);});
+ document.addEventListener('visibilitychange',function(){
+   if(document.hidden){cancelAnimationFrame(raf);}
+   else if(!reduce){last=performance.now();raf=requestAnimationFrame(frame);}
+ });
+})();
+
+</script>
+</body>
+</html>

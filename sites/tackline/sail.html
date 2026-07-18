@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>試航診斷｜搶風線帆船俱樂部 TACKLINE</title>
+<meta name="description" content="在程序化風場中親自開一趟迎風／順風三角航線，系統依 VMG 效率、換舷損失、死角停滯與風影帶四項判定技術等級，並給出旗令與建議課程。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2316467F'/%3E%3Crect x='12' y='8' width='5' height='48' fill='%23C9A46A'/%3E%3Cpolygon points='17,12 56,20 17,28' fill='%23F0F1EA'/%3E%3Cpolygon points='17,32 50,38 17,44' fill='%23F5C518'/%3E%3Ccircle cx='27' cy='20' r='4' fill='%23E1362C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Azeret+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+ --sea:#16467F;--deep:#0E3260;--abyss:#08203E;--sky:#2E67AC;
+ --foam:#F0F1EA;--red:#E1362C;--yellow:#F5C518;--hemp:#C9A46A;
+ --line:rgba(240,241,234,.20);--line2:rgba(240,241,234,.38);
+ --mono:'Azeret Mono',ui-monospace,SFMono-Regular,monospace;
+ --disp:'Archivo','Noto Sans TC',sans-serif;
+ --han:'Noto Sans TC','Archivo',sans-serif;
+ --rose:216px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--sea);color:var(--foam);font-family:var(--han);font-weight:400;line-height:1.8;font-size:16px;overflow-x:hidden}
+img,svg{display:block}
+a{color:inherit}
+::selection{background:var(--yellow);color:var(--abyss)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.flg{display:inline-block;vertical-align:middle;box-shadow:0 0 0 1px rgba(8,32,62,.55)}
+.hoist{display:inline-flex;gap:5px;align-items:center;vertical-align:middle}
+
+/* ---- halyard rule: the structural divider of this language ---- */
+.halyard{position:relative;height:1px;background:var(--hemp);opacity:.55;margin:0}
+.halyard::before,.halyard::after{content:"";position:absolute;top:-3px;width:7px;height:7px;background:var(--hemp)}
+.halyard::before{left:0}.halyard::after{right:0}
+
+/* ---- compass rose navigation (new prototype) ---- */
+.rose{position:fixed;top:18px;left:18px;width:var(--rose);height:var(--rose);z-index:60;
+ background:rgba(8,32,62,.80);border:1px solid var(--line2);backdrop-filter:blur(7px)}
+.rose .disc{position:absolute;left:50%;top:50%;width:96px;height:96px;transform:translate(-50%,-50%)}
+.rose .ndl{transform-origin:50% 50%;transition:transform .8s cubic-bezier(.2,.9,.2,1)}
+.rose a{position:absolute;text-decoration:none;font-family:var(--disp);font-weight:700;
+ font-size:11px;letter-spacing:.14em;text-align:center;color:var(--foam);opacity:.66;
+ padding:4px 6px;transition:opacity .18s,background .18s;width:84px}
+.rose a b{display:block;font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.06em;color:var(--hemp)}
+.rose a span{display:block;font-family:var(--han);font-weight:700;font-size:13px;letter-spacing:.06em;line-height:1.3}
+.rose a:hover,.rose a:focus-visible{opacity:1;background:var(--red);outline:none}
+.rose a[aria-current="page"]{opacity:1;background:var(--yellow);color:var(--abyss)}
+.rose a[aria-current="page"] b{color:var(--abyss)}
+.rose .p-n{left:50%;top:6px;transform:translateX(-50%)}
+.rose .p-e{right:2px;top:50%;transform:translateY(-50%);width:76px}
+.rose .p-s{left:50%;bottom:6px;transform:translateX(-50%)}
+.rose .p-w{left:2px;top:50%;transform:translateY(-50%);width:76px}
+.rose .brand{position:absolute;left:0;right:0;bottom:-1px;display:none}
+
+.shell{padding-left:calc(var(--rose) + 40px);padding-right:40px;max-width:1400px}
+.wide{padding-left:0;padding-right:0;max-width:none}
+
+/* ---- typography ---- */
+h1,h2,h3,h4{font-family:var(--disp);font-weight:900;line-height:1.06;letter-spacing:-.015em}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--yellow);font-weight:600}
+.sect{padding:78px 0;border-top:1px solid var(--line)}
+.sect-h{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:34px}
+.sect-h h2{font-size:clamp(26px,3.6vw,46px)}
+.lead{font-size:17px;max-width:62ch;color:rgba(240,241,234,.86)}
+.small{font-size:14px;color:rgba(240,241,234,.68)}
+.hemp{color:var(--hemp)}
+.yel{color:var(--yellow)}
+
+/* ---- buttons: flag-block, no radius ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:900;
+ font-size:14px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;
+ padding:13px 20px;border:2px solid var(--foam);background:transparent;color:var(--foam);
+ cursor:pointer;transition:background .16s,color .16s,border-color .16s;font-family:var(--disp)}
+.btn:hover,.btn:focus-visible{background:var(--foam);color:var(--abyss);outline:none}
+.btn.pri{background:var(--red);border-color:var(--red)}
+.btn.pri:hover,.btn.pri:focus-visible{background:var(--yellow);border-color:var(--yellow);color:var(--abyss)}
+.btn:disabled{opacity:.34;cursor:not-allowed}
+.btn.sm{padding:8px 13px;font-size:12px;border-width:1px}
+
+.panel{background:var(--deep);border:1px solid var(--line);padding:24px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+ padding:3px 8px;background:rgba(240,241,234,.10);border:1px solid var(--line)}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--hemp);font-weight:600}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+input,select,textarea{font-family:var(--han);font-size:15px;color:var(--foam);background:var(--abyss);
+ border:1px solid var(--line2);padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--yellow);outline-offset:-2px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--hemp);margin-bottom:6px}
+
+footer.ft{border-top:4px solid var(--hemp);background:var(--abyss);padding:52px 0 40px;margin-top:0}
+footer.ft .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px}
+footer.ft h4{font-size:13px;font-family:var(--mono);font-weight:600;letter-spacing:.18em;color:var(--hemp);text-transform:uppercase;margin-bottom:12px}
+footer.ft p,footer.ft li{font-size:14px;color:rgba(240,241,234,.76);list-style:none}
+footer.ft a{text-decoration:none;border-bottom:1px solid var(--line2)}
+footer.ft a:hover{color:var(--yellow)}
+.fine{margin-top:34px;padding-top:18px;border-top:1px solid rgba(240,241,234,.14);font-size:12px;color:rgba(240,241,234,.55);font-family:var(--mono);line-height:1.9}
+
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;z-index:99;background:var(--yellow);color:var(--abyss);padding:8px 12px;font-weight:700}
+
+@media(max-width:1080px){
+ :root{--rose:170px}
+ .rose a{font-size:10px;width:70px}
+ .rose a span{font-size:12px}
+ .rose .disc{width:66px;height:66px}
+}
+@media(max-width:860px){
+ .rose{top:auto;bottom:0;left:0;width:100%;height:58px;border:none;border-top:2px solid var(--hemp);
+  display:flex;align-items:stretch;background:rgba(8,32,62,.96)}
+ .rose .disc{display:none}
+ .rose a{position:static;transform:none!important;width:auto;flex:1;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;gap:0;padding:6px 2px;border-right:1px solid var(--line)}
+ .rose a:last-child{border-right:none}
+ .rose a b{font-size:9px}
+ .rose a span{font-size:12px}
+ .shell{padding-left:20px;padding-right:20px}
+ body{padding-bottom:58px}
+ footer.ft .cols{grid-template-columns:1fr;gap:26px}
+ .sect{padding:52px 0}
+}
+@media(max-width:560px){
+ body{font-size:15px}
+ .sect{padding:40px 0}
+ .lead{font-size:15px}
+ table{font-size:13px}
+ th,td{padding:8px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+ *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+ html{scroll-behavior:auto}
+}
+
+
+.page-h{padding:34px 0 26px;border-bottom:1px solid var(--line)}
+.page-h h1{font-size:clamp(28px,5vw,58px)}
+.rig{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:1px;background:var(--line);border:1px solid var(--line);margin:26px 0 0}
+.rig > *{background:var(--deep)}
+.stage{position:relative;background:var(--abyss);min-height:520px}
+#course{display:block;width:100%;height:auto;touch-action:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+ background:rgba(8,32,62,.90);padding:26px;text-align:center;flex-direction:column;gap:16px}
+.overlay.hide{display:none}
+.overlay h3{font-size:clamp(20px,3vw,32px)}
+.overlay p{max-width:52ch;font-size:15px;color:rgba(240,241,234,.85)}
+.instr{padding:18px 18px 22px;display:flex;flex-direction:column;gap:2px}
+.ins{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dotted rgba(240,241,234,.16)}
+.ins span{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;color:var(--hemp);text-transform:uppercase}
+.ins b{font-family:var(--mono);font-weight:600;font-size:17px;color:var(--foam);font-variant-numeric:tabular-nums}
+.ins b.hot{color:var(--yellow)} .ins b.bad{color:var(--red)}
+.bigspeed{font-family:var(--disp);font-weight:900;font-size:56px;line-height:.9;letter-spacing:-.03em}
+.bigspeed small{font-family:var(--mono);font-size:13px;font-weight:400;letter-spacing:.1em;margin-left:6px;color:var(--hemp)}
+.vmgbar{height:10px;background:rgba(240,241,234,.12);position:relative;margin-top:6px}
+.vmgbar i{position:absolute;left:0;top:0;bottom:0;background:var(--yellow);width:0%;transition:width .18s linear}
+.vmgbar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--red);left:100%}
+.ctrls{padding:16px 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line)}
+.tiller{display:flex;gap:8px;width:100%}
+.tiller button{flex:1;font-family:var(--disp);font-weight:900;font-size:20px;padding:16px 0;border:2px solid var(--foam);background:transparent;color:var(--foam);cursor:pointer;user-select:none;touch-action:none}
+.tiller button:active,.tiller button.on{background:var(--yellow);border-color:var(--yellow);color:var(--abyss)}
+.hint{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:rgba(240,241,234,.55);line-height:1.7}
+.callout{background:var(--red);padding:8px 12px;font-family:var(--disp);font-weight:900;font-size:14px;letter-spacing:.1em;
+ position:absolute;left:50%;top:16px;transform:translateX(-50%);white-space:nowrap;opacity:0;transition:opacity .2s}
+.callout.show{opacity:1}
+.result{margin-top:0;border:1px solid var(--line);border-top:none;background:var(--deep);padding:0}
+.result.hide{display:none}
+.rhead{display:flex;gap:20px;align-items:center;padding:26px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.score{font-family:var(--disp);font-weight:900;font-size:76px;line-height:.85;letter-spacing:-.04em;color:var(--yellow)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+.rgrid > div{background:var(--deep);padding:24px}
+.advice{list-style:none}
+.advice li{padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px;display:flex;gap:12px}
+.advice li b{flex:0 0 auto;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--yellow);padding-top:4px}
+.hoistcard{background:var(--abyss);border:1px solid var(--hemp);padding:20px;text-align:center}
+.hoistcard .hoist{gap:7px;margin:10px 0}
+.rec{background:var(--red);padding:24px}
+.rec h3{font-size:26px;margin-bottom:6px}
+.stepnums{display:flex;gap:0;background:var(--line);gap:1px;margin-top:22px}
+.stepnums div{flex:1;background:var(--deep);padding:14px 16px}
+.stepnums b{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--hemp);display:block}
+@media(max-width:980px){.rig{grid-template-columns:1fr}.rgrid{grid-template-columns:1fr}.stepnums{flex-direction:column}}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="rose" aria-label="羅經導覽">
+<svg class="disc" viewBox="0 0 100 100" aria-hidden="true">
+ <circle cx="50" cy="50" r="47" fill="none" stroke="#C9A46A" stroke-width="1.4" opacity=".8"/>
+ <circle cx="50" cy="50" r="37" fill="none" stroke="#F0F1EA" stroke-width=".7" opacity=".3"/>
+ <g stroke="#F0F1EA" stroke-width="1" opacity=".45">
+  <path d="M50,3 L50,13 M97,50 L87,50 M50,97 L50,87 M3,50 L13,50"/>
+ </g>
+ <g stroke="#F0F1EA" stroke-width=".7" opacity=".22">
+  <path d="M83.2,16.8 L76.1,23.9 M83.2,83.2 L76.1,76.1 M16.8,83.2 L23.9,76.1 M16.8,16.8 L23.9,23.9"/>
+ </g>
+ <g class="ndl" style="transform:rotate(90deg)">
+  <polygon points="50,10 55.5,50 50,44 44.5,50" fill="#E1362C"/>
+  <polygon points="50,90 44.5,50 50,56 55.5,50" fill="#F0F1EA" opacity=".65"/>
+ </g>
+ <circle cx="50" cy="50" r="3.2" fill="#F5C518"/>
+</svg>
+<a class="p-n" href="index.html"><b>000°</b><span>母港</span></a><a class="p-e" href="sail.html" aria-current="page"><b>090°</b><span>試航診斷</span></a><a class="p-s" href="fleet.html"><b>180°</b><span>船隊與旗語</span></a><a class="p-w" href="club.html"><b>270°</b><span>課程與入社</span></a>
+</nav>
+
+<main id="main"><div class="shell">
+<section class="page-h">
+ <div class="sect-h" style="margin-bottom:12px">
+  <span data-hoist="UV" data-fw="40"></span>
+  <div><p class="kicker">核心功能・技術診斷</p><h1>試航診斷</h1></div>
+ </div>
+ <p class="lead">開一趟三角航線。系統會記錄你每一秒的<b>風角、船速與朝目標的有效速度（VMG）</b>，算出效率、換舷損失與陷入死角的時間，最後給你一面旗令與一張建議課表。<br><span class="small">操作：方向鍵 ← → 打舵（或按住畫面下方左右舵鈕）、空白鍵自動換舷。第一次玩建議先按「示範領航」看電腦跑一趟。</span></p>
+</section>
+
+<div class="rig">
+ <div class="stage">
+  <canvas id="course" width="760" height="650" aria-label="航線圖：白色流線為風場、紅色浮標為上標與下標、白色三角為你的船"></canvas>
+  <p class="callout" id="callout"></p>
+  <div class="overlay" id="ov">
+   <span data-hoist="P" data-fw="52"></span>
+   <h3>藍彼得已升起——準備啟航</h3>
+   <p id="ovtext">今日風向由系統依當日日期產生。航線為標準的迎風／順風三角：<b>穿越起航線 → 繞上標（紅）→ 回到下標（黃）繞標完成</b>。<br>上風段無法直行，必須之字形搶風；左下角小島的下風處有一片<b>風影帶</b>，切進去會掉速。</p>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <button class="btn pri" id="btn-start">開始試航</button>
+    <button class="btn" id="btn-auto">示範領航（電腦開一趟）</button>
+   </div>
+   <p class="hint">若你開啟了系統的「減少動態效果」，風場流線會改以靜態箭頭網格呈現，模擬仍完整可玩。</p>
+  </div>
+ </div>
+ <div>
+  <div class="instr">
+   <p class="ins" style="border:none;padding-bottom:0"><span>船速</span></p>
+   <p class="bigspeed" id="i-spd">0.0<small>KT</small></p>
+   <div class="vmgbar" aria-hidden="true"><i id="i-vmgbar"></i><u></u></div>
+   <p class="hint" style="margin:6px 0 12px">↑ 朝下一個標的有效速度 VMG，紅線為本船理論最佳值</p>
+   <p class="ins"><span>真風向 / 風速</span><b id="i-wind">—</b></p>
+   <p class="ins"><span>本船航向</span><b id="i-hdg">—</b></p>
+   <p class="ins"><span>風角 TWA</span><b id="i-twa">—</b></p>
+   <p class="ins"><span>下一個標</span><b id="i-mark">—</b></p>
+   <p class="ins"><span>距離 / 方位</span><b id="i-dist">—</b></p>
+   <p class="ins"><span>換舷次數</span><b id="i-tacks">0</b></p>
+   <p class="ins"><span>計時</span><b id="i-time">0:00</b></p>
+  </div>
+  <div class="ctrls">
+   <div class="tiller">
+    <button id="t-l" aria-label="左舵">◀ 左舵</button>
+    <button id="t-r" aria-label="右舵">右舵 ▶</button>
+   </div>
+   <button class="btn sm" id="b-tack" style="flex:1">空白鍵・自動換舷</button>
+   <button class="btn sm" id="b-lay" style="flex:1">顯示延伸線</button>
+   <button class="btn sm" id="b-reset" style="flex:1">重來</button>
+   <p class="hint">延伸線（layline）＝從浮標畫出的兩條 45° 斜線。切到線上再換舷最省，提早換會多繞路，晚換會超過標。</p>
+  </div>
+ </div>
+</div>
+
+<div class="result hide" id="res">
+ <div class="rhead">
+  <div>
+   <p class="kicker">診斷結果</p>
+   <p class="score" id="r-score">--</p>
+  </div>
+  <div style="flex:1;min-width:240px">
+   <h2 id="r-title" style="font-size:26px;font-family:var(--han)">—</h2>
+   <p class="small" id="r-sum">—</p>
+  </div>
+  <div class="hoistcard">
+   <p class="hint">本次診斷旗令</p>
+   <span class="hoist" id="r-hoist"></span>
+   <p class="mono" style="font-size:12px;color:var(--hemp)" id="r-code">—</p>
+  </div>
+ </div>
+ <div class="rgrid">
+  <div>
+   <p class="kicker" style="margin-bottom:14px">逐項數據</p>
+   <table id="r-table"></table>
+  </div>
+  <div>
+   <p class="kicker" style="margin-bottom:14px">教練會跟你說的三件事</p>
+   <ul class="advice" id="r-advice"></ul>
+  </div>
+ </div>
+ <div class="rec">
+  <p class="kicker" style="color:var(--abyss)">建議課程</p>
+  <h3 id="r-course">—</h3>
+  <p id="r-coursedesc" style="max-width:60ch"></p>
+  <p style="margin-top:16px"><a class="btn" href="club.html" style="border-color:var(--abyss);color:var(--abyss)">看這一班的時間與費用 →</a></p>
+ </div>
+</div>
+
+<section class="sect">
+ <div class="sect-h"><span data-hoist="CN" data-fw="36"></span><div><p class="kicker">評分方式</p><h2>系統在看什麼</h2></div></div>
+ <div class="stepnums">
+  <div><b>01 ／ VMG 效率</b><p class="small">每一秒的「朝目標有效速度」除以本船在該風速下的理論最佳值。上風段理論最佳約出現在風角 43°，下風段在 145° 附近。這一項占分最重。</p></div>
+  <div><b>02 ／ 換舷損失</b><p class="small">一趟迎風段理想是 2–4 次換舷。次數過多代表你在追陣風追過頭，過少通常代表你切過了延伸線在繞遠路。</p></div>
+  <div><b>03 ／ 死角停滯</b><p class="small">風角小於 30° 的累計秒數。船在這裡不前進，還會倒退失去舵效，是新手最大的時間漏洞。</p></div>
+  <div><b>04 ／ 風影帶</b><p class="small">你待在小島下風處（風速低於平均八成）的秒數。看得懂水面顏色的人會提早繞開。</p></div>
+ </div>
+ <p class="small" style="margin-top:20px">本模擬使用簡化的極曲線內插與程序化風場（基準風＋漂移陣風胞＋陸塊風影），用於教學示意，<b>與真實海況、潮流與船舶性能不同，不得作為航行安全判斷依據</b>。所有航線、浮標位置與風況資料皆為虛構。</p>
+</section>
+
+<noscript>
+ <section class="sect">
+  <h2>未啟用 JavaScript</h2>
+  <p class="lead">試航診斷需要 JavaScript 才能執行模擬。你仍然可以了解航線與評分方式：航線為標準迎風／順風三角，起航線設在下標兩側，順序為「穿越起航線 → 繞上標 → 回下標繞標完成」。評分依 VMG 效率（占分最重）、換舷次數、陷入死角秒數與風影帶秒數四項計算，結果分為體驗課、基礎班、進階班、賽訓組四級。課程內容與費用請見<a href="club.html">課程與入社</a>。</p>
+ </section>
+</noscript>
+
+</div></main>
+<footer class="ft">
+<div class="shell">
+ <div class="cols">
+  <div>
+   <h4>搶風線帆船俱樂部</h4>
+   <p style="font-family:var(--disp);font-weight:900;font-size:26px;letter-spacing:-.01em;line-height:1.15;margin-bottom:10px">TACKLINE<br><span style="font-family:var(--han);font-size:17px">觀音亭帆船俱樂部</span></p>
+   <p>880 澎湖縣馬公市介壽路 14 號・觀音亭西灣帆船基地<br>
+   (06) 927-4180｜harbour@tackline.org.tw<br>
+   出海時段 05:30–18:30（東北季風期 10–3 月請先電話確認）</p>
+  </div>
+  <div>
+   <h4>今日旗令</h4>
+   <p><span data-hoist="P" data-fw="30"></span> 藍彼得——本日 15:00 梯次即將啟航，學員請於 14:30 前至碼頭辦公室報到。</p>
+   <p style="margin-top:12px"><span data-hoist="Q" data-fw="30"></span> 全黃旗——本社所有船艇檢驗合格，可自由出港。</p>
+  </div>
+  <div>
+   <h4>索引</h4>
+   <ul>
+    <li><a href="index.html">母港・今日風況</a></li>
+    <li><a href="sail.html">試航診斷</a></li>
+    <li><a href="fleet.html">船隊與旗語手冊</a></li>
+    <li><a href="club.html">課程・教練・入社</a></li>
+    <li><a href="README.md">本站設計說明</a></li>
+    <li><a href="SKILL.md">SKILL.md 風格規格書</a></li>
+   </ul>
+  </div>
+ </div>
+ <p class="fine">
+ 本站為「Design Skills Center」網頁風格範例站。俱樂部名稱、人名、船名、電話、地址、價格、課程與所有航行資料<b>皆為虛構示意</b>，請勿據以出海或聯絡。<br>
+ 航行模擬為簡化教學模型（極曲線內插＋程序化風場），與真實海況、潮流與船舶性能不同，<b>不得作為航行訓練或安全判斷依據</b>。實際航行請依中央氣象署海象預報與合格教練指導。<br>
+ 圖形與旗幟全為原創 SVG／Canvas 繪製，零外部圖片與音檔；字體來自 Google Fonts。
+ </p>
+</div>
+</footer>
+<script>
+
+var FC={B:'#0B5FB0',R:'#DA2B24',Y:'#F5C518',W:'#F4F4EE',K:'#131519'};
+function _r(x,y,w,h,c){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+FC[c]+'"/>';}
+function _p(pts,c){return '<polygon points="'+pts+'" fill="'+FC[c]+'"/>';}
+function _c(cx,cy,r,c){return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+FC[c]+'"/>';}
+function _sal(c,w){return '<path d="M0,0 L60,40 M60,0 L0,40" stroke="'+FC[c]+'" stroke-width="'+w+'" fill="none"/>';}
+var FLAGS={
+ A:{d:function(){return _r(0,0,30,40,'W')+_p('30,0 60,0 48,20 60,40 30,40','B');},m:'我有潛水員下水，請低速遠離'},
+ B:{d:function(){return _p('0,0 60,0 48,20 60,40 0,40','R');},m:'我正在裝卸或載運危險品'},
+ C:{d:function(){return _r(0,0,60,8,'B')+_r(0,8,60,8,'W')+_r(0,16,60,8,'R')+_r(0,24,60,8,'W')+_r(0,32,60,8,'B');},m:'是（肯定）'},
+ D:{d:function(){return _r(0,0,60,10,'Y')+_r(0,10,60,20,'B')+_r(0,30,60,10,'Y');},m:'請避讓，我操縱困難'},
+ E:{d:function(){return _r(0,0,60,20,'B')+_r(0,20,60,20,'R');},m:'我正在向右轉向'},
+ F:{d:function(){return _r(0,0,60,40,'W')+_p('30,6 48,20 30,34 12,20','R');},m:'我失去操縱能力，請與我聯絡'},
+ G:{d:function(){var s='';for(var i=0;i<6;i++)s+=_r(i*10,0,10,40,i%2?'B':'Y');return s;},m:'我需要引水人'},
+ H:{d:function(){return _r(0,0,30,40,'W')+_r(30,0,30,40,'R');},m:'我船上有引水人'},
+ I:{d:function(){return _r(0,0,60,40,'Y')+_c(30,20,9,'K');},m:'我正在向左轉向'},
+ J:{d:function(){return _r(0,0,60,13,'B')+_r(0,13,60,14,'W')+_r(0,27,60,13,'B');},m:'我船失火並載有危險品，請遠離'},
+ K:{d:function(){return _r(0,0,30,40,'Y')+_r(30,0,30,40,'B');},m:'我希望與貴船通信'},
+ L:{d:function(){return _r(0,0,30,20,'Y')+_r(30,0,30,20,'K')+_r(0,20,30,20,'K')+_r(30,20,30,20,'Y');},m:'請立即停船'},
+ M:{d:function(){return _r(0,0,60,40,'B')+_sal('W',9);},m:'我船已停止，對水無航速'},
+ N:{d:function(){var s='';for(var y=0;y<4;y++)for(var x=0;x<4;x++)s+=_r(x*15,y*10,15,10,(x+y)%2?'W':'B');return s;},m:'否（否定）'},
+ O:{d:function(){return _p('0,0 60,0 0,40','R')+_p('60,0 60,40 0,40','Y');},m:'有人落水'},
+ P:{d:function(){return _r(0,0,60,40,'B')+_r(18,10,24,20,'W');},m:'藍彼得：本船即將啟航，船員請返船'},
+ Q:{d:function(){return _r(0,0,60,40,'Y');},m:'我船無疫，請發給自由入港許可'},
+ R:{d:function(){return _r(0,0,60,40,'R')+_r(24,0,12,40,'Y')+_r(0,14,60,12,'Y');},m:'（國際信號無單獨定義；本社用作「航線變更」）'},
+ S:{d:function(){return _r(0,0,60,40,'W')+_r(18,10,24,20,'B');},m:'我正在使用倒俥'},
+ T:{d:function(){return _r(0,0,20,40,'R')+_r(20,0,20,40,'W')+_r(40,0,20,40,'B');},m:'請避開我，我正在拖網作業'},
+ U:{d:function(){return _r(0,0,30,20,'W')+_r(30,0,30,20,'R')+_r(0,20,30,20,'R')+_r(30,20,30,20,'W');},m:'貴船正駛向危險'},
+ V:{d:function(){return _r(0,0,60,40,'W')+_sal('R',9);},m:'我需要援助'},
+ W:{d:function(){return _r(0,0,60,40,'B')+_r(9,6,42,28,'W')+_r(18,12,24,16,'R');},m:'我需要醫療援助'},
+ X:{d:function(){return _r(0,0,60,40,'W')+_r(24,0,12,40,'B')+_r(0,14,60,12,'B');},m:'停止你的意圖並注意我的信號'},
+ Y:{d:function(){var s=_r(0,0,60,40,'Y');for(var i=-2;i<6;i++)s+='<polygon points="'+(i*14)+',0 '+(i*14+7)+',0 '+(i*14+7+40)+',40 '+(i*14+40)+',40" fill="'+FC.R+'"/>';return s;},m:'我正在走錨'},
+ Z:{d:function(){return _p('0,0 60,0 30,20','Y')+_p('0,0 0,40 30,20','K')+_p('0,40 60,40 30,20','B')+_p('60,0 60,40 30,20','R');},m:'我需要拖船'}
+};
+function flagSVG(code,w,cls){
+ var f=FLAGS[code]; if(!f) return '';
+ var h=Math.round(w*40/60);
+ return '<svg class="flg '+(cls||'')+'" viewBox="0 0 60 40" width="'+w+'" height="'+h+'" role="img" aria-label="國際信號旗 '+code+'">'+f.d()+'</svg>';
+}
+function hoist(codes,w){
+ var s='<span class="hoist">';
+ for(var i=0;i<codes.length;i++){s+=flagSVG(codes[i],w||34);}
+ return s+'</span>';
+}
+function paintHoists(){
+ var n=document.querySelectorAll('[data-hoist]');
+ for(var i=0;i<n.length;i++){
+  var codes=n[i].getAttribute('data-hoist').split('');
+  var w=parseInt(n[i].getAttribute('data-fw')||'34',10);
+  n[i].innerHTML=hoist(codes,w);
+ }
+}
+
+/* ===== 程序化風場：基準風 + 漂移陣風胞 + 陸岬風影 + 岸邊擾流 ===== */
+function LCG(s){var x=s>>>0;return function(){x=(x*1664525+1013904223)>>>0;return x/4294967296;};}
+function brgVec(b){var r=b*Math.PI/180;return{x:Math.sin(r),y:-Math.cos(r)};}
+function wrap180(a){while(a>180)a-=360;while(a<-180)a+=360;return a;}
+function wrap360(a){while(a>=360)a-=360;while(a<0)a+=360;return a;}
+
+function WindField(cfg){
+  this.twd=cfg.twd; this.tws=cfg.tws;
+  this.w=cfg.w; this.h=cfg.h;
+  this.shadows=cfg.shadows||[];   /* [{x,y,r,len,drop}] 陸塊/岬角 */
+  this.t=0;
+  var rnd=LCG(cfg.seed||7);
+  this.cells=[];
+  var n=cfg.cells||5;
+  for(var i=0;i<n;i++){
+    this.cells.push({
+      x:rnd()*this.w, y:rnd()*this.h,
+      r:this.w*(0.13+rnd()*0.16),
+      ds:(rnd()*2-1)*cfg.gust, dd:(rnd()*2-1)*11,
+      ph:rnd()*6.28
+    });
+  }
+}
+WindField.prototype.step=function(dt){
+  this.t+=dt;
+  var v=brgVec(this.twd+180);
+  for(var i=0;i<this.cells.length;i++){
+    var c=this.cells[i];
+    var sp=this.tws*3.1;              /* 陣風胞順風漂移 */
+    c.x+=v.x*sp*dt; c.y+=v.y*sp*dt;
+    var m=this.w*0.5;
+    if(c.x<-m)c.x+=this.w+2*m; if(c.x>this.w+m)c.x-=this.w+2*m;
+    if(c.y<-m)c.y+=this.h+2*m; if(c.y>this.h+m)c.y-=this.h+2*m;
+  }
+};
+WindField.prototype.at=function(x,y){
+  var dir=this.twd, spd=this.tws;
+  /* 大尺度緩慢擺盪（風的 oscillation，真實海面每 3–6 分鐘轉一次） */
+  dir+=6.5*Math.sin(this.t*0.052+x*0.0016)+3.2*Math.sin(this.t*0.031-y*0.0021);
+  spd+=0.9*Math.sin(this.t*0.044+y*0.0018);
+  /* 陣風胞 */
+  for(var i=0;i<this.cells.length;i++){
+    var c=this.cells[i],dx=x-c.x,dy=y-c.y;
+    var w=Math.exp(-(dx*dx+dy*dy)/(c.r*c.r));
+    spd+=c.ds*w; dir+=c.dd*w;
+  }
+  /* 陸岬風影：順風方向的錐狀減速帶 */
+  var v=brgVec(this.twd+180);
+  for(var j=0;j<this.shadows.length;j++){
+    var s=this.shadows[j];
+    var ax=x-s.x, ay=y-s.y;
+    var along=ax*v.x+ay*v.y;
+    var across=Math.abs(-ax*v.y+ay*v.x);
+    if(along>0&&along<s.len){
+      var wide=s.r*(1+along/s.len*1.5);
+      if(across<wide){
+        var k=(1-along/s.len)*(1-across/wide);
+        spd*=1-s.drop*k;
+        dir+=(across>0? ((-ax*v.y+ay*v.x)>0?1:-1):1)*16*k;  /* 風影邊緣繞流偏折 */
+      }
+    }
+  }
+  if(spd<0.2)spd=0.2;
+  return {dir:wrap360(dir),spd:spd};
+};
+
+/* ===== 極曲線：TWA(度) → 船速占真風速比例（Hobie 16 級雙體船簡化） ===== */
+var POLAR=[[0,0],[28,0],[33,.26],[38,.47],[42,.55],[45,.59],[50,.63],[60,.70],[75,.77],
+           [90,.82],[100,.84],[110,.83],[120,.79],[135,.72],[150,.62],[165,.52],[180,.47]];
+function polar(twa){
+  twa=Math.abs(wrap180(twa));
+  for(var i=1;i<POLAR.length;i++){
+    if(twa<=POLAR[i][0]){
+      var a=POLAR[i-1],b=POLAR[i];
+      var k=(twa-a[0])/(b[0]-a[0]);
+      return a[1]+(b[1]-a[1])*k;
+    }
+  }
+  return POLAR[POLAR.length-1][1];
+}
+/* 最佳上風 VMG 與其對應 TWA（用於效率評分與 layline 角度） */
+function bestVMG(up){
+  var best=0,bt=45;
+  for(var a=20;a<=180;a+=0.5){
+    var v=polar(a)*Math.cos((up?a:180-a)*Math.PI/180);
+    if(v>best){best=v;bt=a;}
+  }
+  return {vmg:best,twa:bt};
+}
+var KT2MPS=0.5144;
+
+paintHoists();
+(function(){
+var cv=document.getElementById('course'); if(!cv)return;
+var ctx=cv.getContext('2d');
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- 世界設定 ---------- */
+var WW=760, WH=650;                 /* 世界公尺 = canvas 座標 */
+var d=new Date();
+var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+var rndSeed=LCG(seed);
+var mth=d.getMonth()+1, monsoon=(mth>=10||mth<=3);
+var TWD=wrap360(monsoon?(35+rndSeed()*30):(200+rndSeed()*45));
+var TWS=monsoon?(13+rndSeed()*6):(9+rndSeed()*5);
+
+var up=brgVec(TWD);                 /* 指向上風（風來的方向） */
+var perp={x:-up.y,y:up.x};
+var C={x:WW/2,y:WH/2};
+var LEG=152;
+var M1={x:C.x+up.x*LEG,y:C.y+up.y*LEG};      /* 上標（紅） */
+var M2={x:C.x-up.x*LEG,y:C.y-up.y*LEG};      /* 下標（黃）＝起航／終點線中點 */
+var PIN={x:M2.x-perp.x*72,y:M2.y-perp.y*72};
+var BOAT_CB={x:M2.x+perp.x*72,y:M2.y+perp.y*72};   /* committee boat */
+/* 小島：置於下風側偏一邊，其風影橫掃上風段的一側 */
+var ISLE={x:C.x-up.x*20-perp.x*198, y:C.y-up.y*20-perp.y*198, r:38};
+
+var field=new WindField({twd:TWD,tws:TWS,w:WW,h:WH,seed:seed%9999,cells:6,gust:2.9,
+  shadows:[{x:ISLE.x,y:ISLE.y,r:ISLE.r*1.25,len:360,drop:0.55}]});
+
+var BEST_UP=bestVMG(true), BEST_DN=bestVMG(false);
+
+/* ---------- 狀態 ---------- */
+var S=null;
+function reset(){
+ S={
+  x:M2.x-up.x*46-perp.x*10, y:M2.y-up.y*46-perp.y*10,
+  hdg:wrap360(TWD+45), spd:0, rud:0, mode:'idle',
+  target:1,           /* 1=上標 2=下標(繞標即完成) */ started:false,
+  apSide:0, apCool:0,
+  t:0, tacks:0, lastSide:0, irons:0, shadow:0, gust:0,
+  vmgSum:0, vmgN:0, dist:0, trail:[], autopilot:false,
+  autoTackTo:null, wobble:0
+ };
+ S.lastSide=Math.sign(wrap180(S.hdg-TWD))||1;
+ S.apSide=0;S.apCool=0;
+}
+reset();
+
+/* ---------- 幾何工具 ---------- */
+function dist(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
+function bearingTo(a,b){return wrap360(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI);}
+function targetPoint(){ return S.target===1?M1:M2; }
+var TIMEOUT=420;
+
+/* ---------- 模擬步進 ---------- */
+function step(dt){
+ var w=field.at(S.x,S.y);
+ var twa=wrap180(S.hdg-w.dir);
+ var atwa=Math.abs(twa);
+
+ /* 舵：船速越低舵效越差（真實且教學上重要） */
+ var eff=0.35+0.65*Math.min(1,S.spd/3.2);
+ S.hdg=wrap360(S.hdg+S.rud*62*eff*dt);
+
+ /* 目標船速 */
+ var tgt=polar(atwa)*w.spd;
+ var tau=(tgt>S.spd)?3.4:1.5;
+ S.spd+=(tgt-S.spd)*(1-Math.exp(-dt/tau));
+ if(S.spd<0)S.spd=0;
+
+ /* 位移 */
+ var v=brgVec(S.hdg), m=S.spd*KT2MPS*dt;
+ S.x+=v.x*m; S.y+=v.y*m; S.dist+=m;
+
+ /* 邊界：軟性回推 */
+ var pad=40;
+ if(S.x<pad){S.x=pad;} if(S.x>WW-pad){S.x=WW-pad;}
+ if(S.y<pad){S.y=pad;} if(S.y>WH-pad){S.y=WH-pad;}
+
+ /* 換舷計數 */
+ var side=Math.sign(twa)||S.lastSide;
+ if(side!==S.lastSide&&atwa<150){S.tacks++;S.lastSide=side;flash(atwa<90?'換舷 TACK':'轉帆 GYBE');}
+
+ /* 統計 */
+ if(S.mode==='run'){
+  S.t+=dt;
+  if(atwa<30)S.irons+=dt;
+  if(w.spd<field.tws*0.80)S.shadow+=dt;
+  if(w.spd>field.tws*1.10)S.gust+=dt;
+  var tp=targetPoint();
+  var brg=bearingTo(S,tp);
+  var vmg=S.spd*Math.cos(wrap180(S.hdg-brg)*Math.PI/180);
+  var isUp=Math.abs(wrap180(brg-w.dir))<90;
+  var best=(isUp?BEST_UP.vmg:BEST_DN.vmg)*w.spd;
+  if(best>0.2){S.vmgSum+=Math.max(0,Math.min(1.15,vmg/best));S.vmgN++;}
+  S.lastVmg=vmg; S.lastBest=best;
+
+  /* 過線與繞標判定 */
+  if(!S.started){
+   var proj=(S.x-M2.x)*up.x+(S.y-M2.y)*up.y;
+   var lat=Math.abs((S.x-M2.x)*perp.x+(S.y-M2.y)*perp.y);
+   if(proj>2&&lat<80){S.started=true;flash('通過起航線 — 上標見紅浮標');}
+  }
+  if(S.target===1){
+   if(dist(S,M1)<32){S.target=2;S.apSide=0;S.apCool=0;flash('繞過上標 — 轉下風回終點線');}
+  } else if(S.target===2){
+   if(dist(S,M2)<32&&S.started){finish();}
+  }
+  if(S.t>TIMEOUT)finish();
+ }
+ /* 自動換舷進行中 */
+ if(S.autoTackTo!==null){
+  var diff=wrap180(S.autoTackTo-S.hdg);
+  S.rud=Math.max(-1,Math.min(1,diff/22));
+  if(Math.abs(diff)<3){S.hdg=S.autoTackTo;S.autoTackTo=null;S.rud=0;}
+ }
+ if(S.autopilot)autopilot(w,twa,dt);
+}
+
+/* ---------- 示範領航：帶遲滯與冷卻的延伸線判斷 ---------- */
+function autopilot(w,twa,dt){
+ S.apCool-=dt;
+ var tp=targetPoint();
+ var brg=bearingTo(S,tp);
+ var dd0=dist(S,tp);
+ var lay=wrap180(brg-w.dir);      /* 目標相對真風的角度 */
+ var want;
+ if(dd0<60&&Math.abs(lay)>=BEST_UP.twa-2&&Math.abs(lay)<=BEST_DN.twa+2){
+  want=brg;                        /* 逼近浮標且該方位可直航時直接指過去 */
+ } else if(Math.abs(lay)<BEST_UP.twa+3){
+  if(S.apSide===0)S.apSide=(lay>=0)?1:-1;
+  if(Math.abs(lay)>=BEST_UP.twa-1&&(Math.sign(lay)||S.apSide)!==S.apSide&&S.apCool<=0){
+   S.apSide=Math.sign(lay)||S.apSide; S.apCool=7;   /* 切到延伸線才換舷 */
+  }
+  want=wrap360(w.dir+S.apSide*BEST_UP.twa);
+ } else if(Math.abs(lay)>BEST_DN.twa){
+  if(S.apSide===0)S.apSide=(lay>=0)?1:-1;
+  if(Math.abs(lay)<=BEST_DN.twa+2&&(Math.sign(lay)||S.apSide)!==S.apSide&&S.apCool<=0){
+   S.apSide=Math.sign(lay)||S.apSide; S.apCool=7;
+  }
+  want=wrap360(w.dir+S.apSide*BEST_DN.twa);
+ } else {
+  want=brg;
+ }
+ var diff=wrap180(want-S.hdg);
+ S.rud=Math.max(-0.85,Math.min(0.85,diff/26));
+}
+
+/* ---------- 完成與診斷 ---------- */
+function finish(){
+ S.mode='done'; S.rud=0; S.autopilot=false;
+ var eff=S.vmgN? (S.vmgSum/S.vmgN) : 0;
+ var effPct=eff*100;
+ var extraTacks=Math.max(0,S.tacks-5);
+ var score=effPct - S.irons*1.5 - extraTacks*2.6 - S.shadow*0.55;
+ score=Math.max(0,Math.min(100,score));
+ render_result(score,effPct);
+}
+
+var TIERS=[
+ {min:0 ,f:'T',t:'第一次上船',c:'半日體驗課（T 級）',
+  d:'先不談效率。三小時的內灣體驗，從穿救生衣、認識帆與舵開始，教練全程同船。多數人下船時最大的收穫是「終於知道風從哪邊來」。',
+  s:'船大部分時間沒有在往目標移動——這完全正常，第一次都是這樣。'},
+ {min:38,f:'G',t:'抓到方向感了',c:'基礎航行班・G 旗（四堂）',
+  d:'你已經能讓船走起來，接下來要把角度練穩。四堂課處理三件事：固定的搶風角、乾淨的換舷、以及看得懂水面上的風。內灣進行，安全艇貼身。',
+  s:'方向感有了，但角度還在飄，速度與航向常常顧此失彼。'},
+ {min:58,f:'H',t:'開始會算路了',c:'進階戰術班・H 旗（六堂）',
+  d:'技術面已經夠用，剩下的是判斷。六堂課全在戰術：延伸線何時該切、陣風帶怎麼選邊、起航線搶位、繞標的進出角。上完可以下場比賽。',
+  s:'搶風角穩定，已經懂得把船維持在有效率的區間裡。'},
+ {min:76,f:'K',t:'可以下場了',c:'賽訓組・K 旗（每週二、四）',
+  d:'這個成績在本社已經是可以獨立借船出海的水準。賽訓組每週兩次實戰對抗，包含跨島航程與夜航，並代表俱樂部參加澎湖灣帆船賽。',
+  s:'VMG 效率接近理論值，換舷乾淨，會主動避開風影。'}
+];
+function tierOf(sc){var t=TIERS[0];for(var i=0;i<TIERS.length;i++)if(sc>=TIERS[i].min)t=TIERS[i];return t;}
+
+function render_result(score,effPct){
+ var tier=tierOf(score);
+ var dd=new Date();
+ var yy=String(dd.getFullYear()).slice(2), mm=('0'+(dd.getMonth()+1)).slice(-2), dy=('0'+dd.getDate()).slice(-2);
+ /* FNV-1a 雜湊：由成績與過程決定，同樣的表現得到同樣的旗令 */
+ var key=[Math.round(score),S.tacks,Math.round(S.irons),Math.round(S.t)].join('.');
+ var h=2166136261;
+ for(var i=0;i<key.length;i++){h^=key.charCodeAt(i);h=(h*16777619)>>>0;}
+ var L='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+ var codes=[tier.f, L[h%26], L[(h>>7)%26], L[(h>>14)%26]];
+ document.getElementById('r-hoist').innerHTML=hoist(codes,46);
+ document.getElementById('r-code').textContent='TL-'+yy+mm+dy+'-'+String(h%900+100);
+ document.getElementById('r-score').textContent=Math.round(score);
+ document.getElementById('r-title').textContent=tier.t;
+ document.getElementById('r-sum').textContent=tier.s;
+ document.getElementById('r-course').textContent=tier.c;
+ document.getElementById('r-coursedesc').textContent=tier.d;
+
+ var mn=Math.floor(S.t/60), sc2=Math.round(S.t%60);
+ var rows=[
+  ['總航行時間',mn+' 分 '+(sc2<10?'0':'')+sc2+' 秒','—'],
+  ['VMG 效率',effPct.toFixed(1)+' %',effPct>78?'優異':effPct>60?'穩定':effPct>42?'尚可':'待加強'],
+  ['換舷次數',S.tacks+' 次',(S.tacks>=2&&S.tacks<=6)?'合理':S.tacks>6?'偏多，切太頻繁':'偏少，可能繞遠了'],
+  ['陷入死角',S.irons.toFixed(1)+' 秒',S.irons<3?'幾乎沒有':S.irons<12?'偶爾':'時間漏在這裡'],
+  ['待在風影帶',S.shadow.toFixed(1)+' 秒',S.shadow<8?'避得不錯':'吃到小島的風影'],
+  ['吃到陣風',S.gust.toFixed(1)+' 秒',S.gust>20?'很會找風':'可以更主動找陣風'],
+  ['航行距離',Math.round(S.dist)+' 公尺','理論最短約 '+Math.round(LEG*2*1.30)+' 公尺']
+ ];
+ var html='<tr><th>項目</th><th>數值</th><th>評語</th></tr>';
+ for(var r=0;r<rows.length;r++)html+='<tr><td>'+rows[r][0]+'</td><td class="num">'+rows[r][1]+'</td><td>'+rows[r][2]+'</td></tr>';
+ document.getElementById('r-table').innerHTML=html;
+
+ var adv=[];
+ if(S.irons>8)adv.push(['死角','你有 '+S.irons.toFixed(0)+' 秒把船頭指進了迎風死角。船一旦停下來舵就不聽話，只能等它退出來。下次感覺帆開始抖，立刻往下風多轉 10 度，讓速度回來再說。']);
+ if(effPct<60)adv.push(['角度','上風段請盯著風角 '+Math.round(BEST_UP.twa)+'° 附近，不要一路盯著浮標。帆船最反直覺的一點就是：直接指向目標通常是最慢的走法。']);
+ if(S.tacks>7)adv.push(['換舷','換了 '+S.tacks+' 次。每次換舷大約損失兩到三個船身的距離，除非有明顯的陣風或轉向，否則一趟迎風段兩到四次就夠。']);
+ if(S.tacks<2&&S.t>60)adv.push(['延伸線','幾乎沒有換舷，代表你可能一路切過頭了。從浮標往外畫兩條 '+Math.round(BEST_UP.twa)+'° 的延伸線，切到線上再換，這樣走的路最短。']);
+ if(S.shadow>12)adv.push(['風影','你在小島下風處待了 '+S.shadow.toFixed(0)+' 秒。那一片水面顏色會比較平、比較暗，看到就往外繞——寧可多走一點路，也不要進去掉速。']);
+ if(S.gust>25)adv.push(['陣風','你很會找陣風，這是進階選手的直覺。下一步是學會判斷陣風會往哪裡走，提早去等它，而不是看到才追。']);
+ if(effPct>80)adv.push(['維持','角度控制得很好。接下來要練的是同時把速度與高度都拿到——多數人只能顧一個。']);
+ while(adv.length<3)adv.push(['基本功','上船前先在岸邊站三分鐘，只看旗子與水面，把風向記在腦子裡再出海。這是本社每一堂課都會做的第一件事。']);
+ adv=adv.slice(0,3);
+ var ah='';
+ for(var q=0;q<adv.length;q++)ah+='<li><b>'+adv[q][0]+'</b><span>'+adv[q][1]+'</span></li>';
+ document.getElementById('r-advice').innerHTML=ah;
+
+ var res=document.getElementById('res');
+ res.classList.remove('hide');
+ res.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+ var ov=document.getElementById('ov');
+ ov.classList.remove('hide');
+ ov.querySelector('h3').textContent='完成一趟——成績已算出';
+ document.getElementById('ovtext').innerHTML='結果在下方。想再開一次就按「重來」，或按「示範領航」看電腦怎麼跑同樣的風況。';
+ document.getElementById('btn-start').textContent='再開一趟';
+}
+
+/* ---------- 提示 ---------- */
+var coTimer=null;
+function flash(txt){
+ var c=document.getElementById('callout');
+ c.textContent=txt; c.classList.add('show');
+ clearTimeout(coTimer); coTimer=setTimeout(function(){c.classList.remove('show');},1500);
+}
+
+/* ---------- 繪圖 ---------- */
+var showLay=false;
+var particles=[];
+function initP(){
+ particles=[];
+ if(reduce)return;
+ for(var i=0;i<300;i++)particles.push({x:Math.random()*WW,y:Math.random()*WH,px:0,py:0,life:Math.random()*220,s:false});
+}
+initP();
+
+function drawWindStatic(){
+ var step=54;
+ for(var x=step/2;x<WW;x+=step)for(var y=step/2;y<WH;y+=step){
+  var w=field.at(x,y),v=brgVec(w.dir+180),len=8+w.spd*1.5;
+  ctx.strokeStyle='rgba(240,241,234,'+(0.10+Math.min(.28,(w.spd-TWS+3)/16)).toFixed(3)+')';
+  ctx.lineWidth=1.3;
+  ctx.beginPath();ctx.moveTo(x-v.x*len/2,y-v.y*len/2);ctx.lineTo(x+v.x*len/2,y+v.y*len/2);ctx.stroke();
+  ctx.fillStyle='rgba(245,197,24,.45)';
+  ctx.beginPath();ctx.arc(x+v.x*len/2,y+v.y*len/2,1.7,0,6.29);ctx.fill();
+ }
+}
+function drawWind(dt){
+ if(reduce){drawWindStatic();return;}
+ for(var i=0;i<particles.length;i++){
+  var p=particles[i];
+  var w=field.at(p.x,p.y),v=brgVec(w.dir+180),sp=w.spd*6.2;
+  p.px=p.x;p.py=p.y;
+  p.x+=v.x*sp*dt;p.y+=v.y*sp*dt;p.life-=dt*60;
+  var a=Math.min(1,p.life/50)*(0.09+Math.min(.40,(w.spd-TWS+2.4)/11));
+  if(a>0.02){
+   ctx.strokeStyle='rgba(240,241,234,'+a.toFixed(3)+')';
+   ctx.lineWidth=w.spd>TWS+1.4?1.6:0.9;
+   ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(p.x,p.y);ctx.stroke();
+  }
+  if(p.life<=0||p.x<-10||p.x>WW+10||p.y<-10||p.y>WH+10){
+   particles[i]={x:Math.random()*WW,y:Math.random()*WH,px:0,py:0,life:180+Math.random()*140,s:false};
+  }
+ }
+}
+function drawIsle(){
+ ctx.fillStyle='#0B2B52';
+ ctx.beginPath();
+ for(var a=0;a<=32;a++){
+  var t=a/32*Math.PI*2;
+  var rr=ISLE.r*(1+0.20*Math.sin(t*3+1.1)+0.11*Math.sin(t*5));
+  var px=ISLE.x+Math.sin(t)*rr, py=ISLE.y-Math.cos(t)*rr*0.78;
+  if(a===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+ }
+ ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#C9A46A';ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle='#C9A46A';ctx.font='600 12px Azeret Mono,monospace';ctx.textAlign='center';
+ ctx.fillText('雞籠嶼', ISLE.x, ISLE.y+4);
+ ctx.fillStyle='rgba(240,241,234,.45)';ctx.font='400 10px Azeret Mono,monospace';
+ var v=brgVec(TWD+180);
+ ctx.fillText('風影帶 →', ISLE.x+v.x*120, ISLE.y+v.y*120);
+}
+function drawMark(m,color,label,active){
+ ctx.fillStyle=color;
+ ctx.beginPath();ctx.arc(m.x,m.y,11,0,6.29);ctx.fill();
+ ctx.fillStyle='#08203E';
+ ctx.beginPath();ctx.moveTo(m.x,m.y-19);ctx.lineTo(m.x+6,m.y-9);ctx.lineTo(m.x-6,m.y-9);ctx.closePath();ctx.fill();
+ if(active){
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.globalAlpha=.55;
+  ctx.beginPath();ctx.arc(m.x,m.y,30,0,6.29);ctx.stroke();ctx.globalAlpha=1;
+ }
+ ctx.fillStyle=color;ctx.font='600 12px Azeret Mono,monospace';ctx.textAlign='center';
+ ctx.fillText(label,m.x,m.y+30);
+}
+function drawStartLine(){
+ ctx.setLineDash([9,7]);ctx.strokeStyle='rgba(240,241,234,.55)';ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(PIN.x,PIN.y);ctx.lineTo(BOAT_CB.x,BOAT_CB.y);ctx.stroke();
+ ctx.setLineDash([]);
+ /* 起航船（committee boat）與其上的 P 旗桿 */
+ ctx.fillStyle='#F0F1EA';
+ ctx.save();ctx.translate(BOAT_CB.x,BOAT_CB.y);ctx.rotate((TWD+180)*Math.PI/180);
+ ctx.fillRect(-6,-13,12,26);ctx.restore();
+ ctx.fillStyle='#0B5FB0';ctx.fillRect(PIN.x-5,PIN.y-5,10,10);
+ ctx.fillStyle='rgba(240,241,234,.6)';ctx.font='400 11px Azeret Mono,monospace';ctx.textAlign='center';
+ ctx.fillText('起航／終點線',(PIN.x+BOAT_CB.x)/2,(PIN.y+BOAT_CB.y)/2-14);
+}
+function drawLaylines(){
+ if(!showLay)return;
+ var m=targetPoint();
+ var isUp=(S.target===1);
+ var ang=isUp?BEST_UP.twa:BEST_DN.twa;
+ ctx.setLineDash([6,8]);ctx.lineWidth=1.4;ctx.strokeStyle='rgba(245,197,24,.55)';
+ for(var s=-1;s<=1;s+=2){
+  var b=wrap360(TWD+ (isUp? s*ang : 180+s*(180-ang)) );
+  var v=brgVec(b);
+  ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(m.x+v.x*620,m.y+v.y*620);ctx.stroke();
+ }
+ ctx.setLineDash([]);
+}
+function drawBoat(){
+ var w=field.at(S.x,S.y);
+ var twa=wrap180(S.hdg-w.dir);
+ /* 航跡 */
+ S.trail.push({x:S.x,y:S.y});
+ if(S.trail.length>260)S.trail.shift();
+ ctx.strokeStyle='rgba(245,197,24,.35)';ctx.lineWidth=1.6;
+ ctx.beginPath();
+ for(var i=0;i<S.trail.length;i++){var p=S.trail[i];if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);}
+ ctx.stroke();
+
+ ctx.save();ctx.translate(S.x,S.y);ctx.rotate(S.hdg*Math.PI/180);
+ /* 船身 */
+ ctx.fillStyle='#F0F1EA';
+ ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(7,9);ctx.lineTo(0,14);ctx.lineTo(-7,9);ctx.closePath();ctx.fill();
+ /* 帆：依風角鬆放，且落在下風側 */
+ var side=(twa>=0)?-1:1;
+ var ease=Math.min(78,Math.max(8,Math.abs(twa)*0.72));
+ ctx.strokeStyle=Math.abs(twa)<30?'#E1362C':'#F5C518';
+ ctx.lineWidth=3;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(0,-11);
+ ctx.quadraticCurveTo(side*Math.sin(ease*Math.PI/180)*13, 0, side*Math.sin(ease*Math.PI/180)*15, 12);
+ ctx.stroke();
+ /* 死角時帆抖動 */
+ if(Math.abs(twa)<30){
+  ctx.strokeStyle='rgba(225,54,44,.8)';ctx.lineWidth=1.4;
+  ctx.beginPath();ctx.arc(0,0,22,0,6.29);ctx.stroke();
+ }
+ ctx.restore();
+}
+function draw(dt){
+ ctx.fillStyle='rgba(8,32,62,'+(reduce?1:0.20)+')';
+ ctx.fillRect(0,0,WW,WH);
+ drawWind(dt);
+ drawIsle();
+ drawStartLine();
+ drawLaylines();
+ drawMark(M1,'#E1362C','上標 ①',S.target===1);
+ drawMark(M2,'#F5C518','下標 ②',S.target===2);
+ drawBoat();
+ /* 風向指示（左上角） */
+ var v=brgVec(TWD+180);
+ ctx.save();ctx.translate(56,52);
+ ctx.strokeStyle='#F0F1EA';ctx.lineWidth=2.4;ctx.globalAlpha=.85;
+ ctx.beginPath();ctx.moveTo(-v.x*26,-v.y*26);ctx.lineTo(v.x*26,v.y*26);ctx.stroke();
+ ctx.fillStyle='#F0F1EA';
+ ctx.beginPath();ctx.moveTo(v.x*30,v.y*30);
+ ctx.lineTo(v.x*18-v.y*8,v.y*18+v.x*8);ctx.lineTo(v.x*18+v.y*8,v.y*18-v.x*8);ctx.closePath();ctx.fill();
+ ctx.globalAlpha=1;
+ ctx.font='600 11px Azeret Mono,monospace';ctx.textAlign='center';ctx.fillStyle='#C9A46A';
+ ctx.fillText('真風 '+Math.round(TWD)+'°',0,50);
+ ctx.restore();
+}
+
+/* ---------- 儀表 ---------- */
+var pts=['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','西北','北北西'];
+function pt(b){return pts[Math.round(wrap360(b)/22.5)%16];}
+function hud(){
+ var w=field.at(S.x,S.y);
+ var twa=wrap180(S.hdg-w.dir), atwa=Math.abs(twa);
+ var tp=targetPoint(), brg=bearingTo(S,tp), dd=dist(S,tp);
+ document.getElementById('i-spd').innerHTML=S.spd.toFixed(1)+'<small>KT</small>';
+ document.getElementById('i-wind').textContent=pt(w.dir)+' '+Math.round(w.dir)+'° / '+w.spd.toFixed(1)+' kt';
+ document.getElementById('i-hdg').textContent=Math.round(S.hdg)+'°';
+ var e=document.getElementById('i-twa');
+ e.textContent=(twa>0?'右舷 ':'左舷 ')+Math.round(atwa)+'°';
+ e.className=atwa<30?'bad':(atwa>38&&atwa<52)||(atwa>130&&atwa<160)?'hot':'';
+ document.getElementById('i-mark').textContent=S.target===1?'上標 ①（紅）':'下標 ②（黃）・終點';
+ document.getElementById('i-dist').textContent=Math.round(dd)+' m / '+Math.round(brg)+'°';
+ document.getElementById('i-tacks').textContent=S.tacks;
+ var mn=Math.floor(S.t/60),sc=Math.floor(S.t%60);
+ document.getElementById('i-time').textContent=mn+':'+(sc<10?'0':'')+sc;
+ var isUp=Math.abs(wrap180(brg-w.dir))<90;
+ var best=(isUp?BEST_UP.vmg:BEST_DN.vmg)*w.spd;
+ var vmg=S.spd*Math.cos(wrap180(S.hdg-brg)*Math.PI/180);
+ var pctv=best>0.2?Math.max(0,Math.min(100,vmg/best*100)):0;
+ document.getElementById('i-vmgbar').style.width=pctv.toFixed(0)+'%';
+}
+
+/* ---------- 主迴圈 ---------- */
+var last=0,raf=0;
+function loop(ts){
+ raf=requestAnimationFrame(loop);
+ var dt=(ts-last)/1000; last=ts;
+ if(!(dt>0)||dt>0.05)dt=0.0167;
+ field.step(dt);
+ if(S.mode==='run')step(dt); else step(dt*0.6);
+ draw(dt); hud();
+}
+function start(auto){
+ document.getElementById('ov').classList.add('hide');
+ document.getElementById('res').classList.add('hide');
+ reset();
+ S.mode='run'; S.autopilot=!!auto;
+ if(auto)flash('示範領航中 — 觀察搶風角與換舷時機');
+ initP();
+ ctx.fillStyle='#08203E';ctx.fillRect(0,0,WW,WH);
+}
+document.getElementById('btn-start').addEventListener('click',function(){start(false);});
+document.getElementById('btn-auto').addEventListener('click',function(){start(true);});
+document.getElementById('b-reset').addEventListener('click',function(){
+ document.getElementById('res').classList.add('hide');
+ reset();
+ var ov=document.getElementById('ov');ov.classList.remove('hide');
+ ov.querySelector('h3').textContent='藍彼得已升起——準備啟航';
+ document.getElementById('btn-start').textContent='開始試航';
+});
+document.getElementById('b-lay').addEventListener('click',function(){
+ showLay=!showLay; this.textContent=showLay?'隱藏延伸線':'顯示延伸線';
+});
+function doTack(){
+ if(S.mode!=='run'||S.autopilot)return;
+ var w=field.at(S.x,S.y);
+ var twa=wrap180(S.hdg-w.dir);
+ S.autoTackTo=wrap360(w.dir-twa);
+}
+document.getElementById('b-tack').addEventListener('click',doTack);
+
+/* 鍵盤 */
+var keys={};
+window.addEventListener('keydown',function(e){
+ if(e.key===' '||e.code==='Space'){if(S.mode==='run'){e.preventDefault();doTack();}return;}
+ if(['ArrowLeft','ArrowRight','a','A','d','D'].indexOf(e.key)>=0){e.preventDefault();keys[e.key]=1;}
+});
+window.addEventListener('keyup',function(e){keys[e.key]=0;});
+function readKeys(){
+ var l=keys['ArrowLeft']||keys['a']||keys['A'];
+ var r=keys['ArrowRight']||keys['d']||keys['D'];
+ if(S.autoTackTo===null&&!S.autopilot)S.rud=(r?1:0)-(l?1:0);
+ requestAnimationFrame(readKeys);
+}
+readKeys();
+/* 觸控舵鈕 */
+function bindTiller(id,val){
+ var b=document.getElementById(id);
+ function on(e){e.preventDefault();b.classList.add('on');if(!S.autopilot&&S.autoTackTo===null)S.rud=val;}
+ function off(){b.classList.remove('on');if(!S.autopilot&&S.autoTackTo===null)S.rud=0;}
+ b.addEventListener('pointerdown',on);
+ b.addEventListener('pointerup',off);
+ b.addEventListener('pointerleave',off);
+ b.addEventListener('pointercancel',off);
+}
+bindTiller('t-l',-1); bindTiller('t-r',1);
+
+/* canvas 自適應：以 CSS 縮放，內部座標固定 */
+function fit(){
+ var w=cv.parentNode.clientWidth;
+ cv.style.width=w+'px';
+ cv.style.height=Math.round(w*WH/WW)+'px';
+}
+fit(); window.addEventListener('resize',fit);
+ctx.fillStyle='#08203E';ctx.fillRect(0,0,WW,WH);
+last=performance.now(); raf=requestAnimationFrame(loop);
+document.addEventListener('visibilitychange',function(){
+ if(document.hidden)cancelAnimationFrame(raf);
+ else{last=performance.now();raf=requestAnimationFrame(loop);}
+});
+})();
+
+</script>
+</body>
+</html>

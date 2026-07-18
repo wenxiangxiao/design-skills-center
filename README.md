@@ -98,6 +98,7 @@
 | 80 | [岩站 GRIP STATION](sites/grip-station/index.html) | 抱石攀岩館 | 導視系統 Wayfinding | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 81 | [齒孔祭 PERFORATION FAIR](sites/perf-fair/index.html) | 同人誌展會 | 郵票郵戳美學 Philatelic Postmark | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 82 | [搶風線 TACKLINE](sites/tackline/index.html) | 帆船俱樂部 | 信號旗語風 Signal-Flag Semaphore | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 83 | [補格 PATCHFRAME](sites/patchframe/index.html) | 影音檔案修復所 | 訊號衰減風 Signal-Decay | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

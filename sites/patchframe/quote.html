@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>修復試算｜補格影音修復所</title>
+<meta name="description" content="選載體、填長度、勾損傷，即時算出補格影音修復所的分項報價與工期，送出後取得暫定工單編號。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E0C0A'/%3E%3Cg stroke='%23EDE3D4' stroke-width='2.4'%3E%3Cpath d='M5 9h22'/%3E%3Cpath d='M5 15h9'/%3E%3Cpath d='M19 15h8'/%3E%3Cpath d='M5 21h22'/%3E%3C/g%3E%3Crect x='13' y='12' width='7' height='6' fill='%239C8570'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+ --i0:#0E0C0A; --i1:#171310; --i2:#241D17; --i3:#3A2F26; --i4:#6B5A48; --i5:#9C8570; --i6:#CFC2AF; --i7:#EDE3D4;
+ --rule:#3A2F26; --hair:#2A231C;
+ --sl:0.30;
+ --mono:'Martian Mono',ui-monospace,monospace;
+ --han:'Noto Sans TC',system-ui,sans-serif;
+}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--i0);color:var(--i6);font-family:var(--han);font-size:15px;line-height:1.75;
+ letter-spacing:.01em;overflow-x:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:900;
+ background:repeating-linear-gradient(180deg,rgba(0,0,0,.30) 0 1px,rgba(0,0,0,0) 1px 3px);
+ opacity:var(--sl);mix-blend-mode:multiply}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:899;
+ background:radial-gradient(120% 90% at 50% 0%,rgba(237,227,212,.05),rgba(0,0,0,0) 60%)}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+::selection{background:var(--i7);color:var(--i0)}
+:focus-visible{outline:2px solid var(--i7);outline-offset:2px}
+
+/* ---- transport topbar (磁帶計數器列) ---- */
+.tb{position:sticky;top:0;z-index:800;background:var(--i1);border-bottom:1px solid var(--rule);
+ display:grid;grid-template-columns:auto 1fr auto;align-items:stretch;min-height:58px}
+.tb .brand{display:flex;align-items:center;gap:10px;padding:0 16px;border-right:1px solid var(--rule)}
+.tb .brand svg{display:block}
+.tb .brand b{font-family:var(--han);font-weight:900;font-size:17px;letter-spacing:.14em;color:var(--i7)}
+.tb .brand i{font-family:var(--mono);font-style:normal;font-size:8.5px;letter-spacing:.26em;color:var(--i4);display:block;margin-top:-2px}
+.tbnav{display:flex;overflow-x:auto;scrollbar-width:none}
+.tbnav::-webkit-scrollbar{display:none}
+.tbnav a{display:flex;flex-direction:column;justify-content:center;padding:6px 18px;border-right:1px solid var(--hair);
+ white-space:nowrap;position:relative;transition:background .12s linear,color .12s linear}
+.tbnav a .t{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;color:var(--i4)}
+.tbnav a .n{font-size:13.5px;font-weight:700;letter-spacing:.1em;color:var(--i6)}
+.tbnav a:hover{background:var(--i2)}
+.tbnav a[aria-current="page"]{background:var(--i7)}
+.tbnav a[aria-current="page"] .t{color:rgba(14,12,10,.6)}
+.tbnav a[aria-current="page"] .n{color:var(--i0)}
+.tbq{display:flex;align-items:center;gap:12px;padding:0 16px;border-left:1px solid var(--rule);font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--i5)}
+.tbq b{color:var(--i7);font-weight:600}
+.ctr{font-family:var(--mono);font-size:10px;color:var(--i4);letter-spacing:.14em}
+
+/* ---- track ruler (左側磁軌尺) ---- */
+.shell{display:grid;grid-template-columns:84px 1fr;min-height:100vh}
+.rail{border-right:1px solid var(--rule);position:relative;background:
+ repeating-linear-gradient(180deg,var(--hair) 0 1px,transparent 1px 14px);background-position:0 0}
+.rail .stick{position:sticky;top:58px;padding:18px 0 22px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.rail .vtxt{writing-mode:vertical-rl;font-family:var(--mono);font-size:9px;letter-spacing:.34em;color:var(--i4)}
+.rail .tcode{writing-mode:vertical-rl;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--i6)}
+.rail .dot{width:7px;height:7px;background:var(--i5)}
+main{min-width:0}
+
+/* ---- blocks ---- */
+.sec{border-bottom:1px solid var(--rule);padding:52px 40px}
+.sec.tight{padding:30px 40px}
+.kick{font-family:var(--mono);font-size:9.5px;letter-spacing:.3em;color:var(--i4);margin-bottom:14px}
+h1{font-weight:900;line-height:1.06;letter-spacing:-.01em;color:var(--i7)}
+h2{font-weight:900;font-size:clamp(21px,3vw,30px);line-height:1.2;color:var(--i7);letter-spacing:.02em}
+h3{font-weight:700;font-size:16px;color:var(--i7);letter-spacing:.04em}
+p{max-width:62ch;color:var(--i6)}
+.dim{color:var(--i5)}
+.hr{height:1px;background:var(--rule);margin:26px 0}
+
+.panel{border:1px solid var(--rule);background:var(--i1);position:relative}
+.panel>.ph{display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:9px 14px;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:var(--i5)}
+.panel .pb{padding:18px}
+.tick{position:absolute;width:9px;height:9px;border:1px solid var(--i4);pointer-events:none}
+.tick.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.tick.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+.tick.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}
+.tick.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:.16em;padding:11px 18px;border:1px solid var(--i5);
+ background:transparent;color:var(--i7);cursor:pointer;transition:background .12s linear,color .12s linear}
+.btn:hover{background:var(--i7);color:var(--i0)}
+.btn.solid{background:var(--i7);color:var(--i0);border-color:var(--i7)}
+.btn.solid:hover{background:var(--i6);border-color:var(--i6)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:7px 12px;font-size:10px}
+
+input,select,textarea{font-family:var(--mono);font-size:12.5px;background:var(--i0);color:var(--i7);
+ border:1px solid var(--rule);padding:10px 12px;width:100%;letter-spacing:.06em}
+input:focus,select:focus{border-color:var(--i5);outline:none}
+label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--i4);margin-bottom:6px}
+.err{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--i7);background:var(--i2);
+ border-left:2px solid var(--i5);padding:5px 9px;margin-top:6px;display:none}
+.err.on{display:block}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--hair)}
+th{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--i4);font-weight:400}
+td.num{font-family:var(--mono);text-align:right;color:var(--i7)}
+
+footer{border-top:1px solid var(--rule);background:var(--i1);padding:34px 40px;font-size:13px;color:var(--i5)}
+footer .fg{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px;align-items:start}
+footer b{color:var(--i6);font-weight:700;letter-spacing:.08em}
+footer .fm{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;line-height:2;color:var(--i4)}
+footer a:hover{color:var(--i7)}
+.sig{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--i3);margin-top:22px}
+
+.notice{background:var(--i2);border:1px solid var(--rule);padding:10px 14px;font-family:var(--mono);
+ font-size:10px;letter-spacing:.1em;color:var(--i5);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.notice a{color:var(--i7);text-decoration:underline;text-underline-offset:3px}
+
+@media (max-width:900px){
+ .grid2,.grid3{grid-template-columns:1fr}
+ .shell{grid-template-columns:1fr}
+ .rail{display:none}
+ .sec{padding:38px 20px}
+ .sec.tight{padding:22px 20px}
+ footer{padding:28px 20px}
+ footer .fg{grid-template-columns:1fr}
+ .tb{grid-template-columns:1fr auto;min-height:52px}
+ .tbnav{grid-column:1/-1;border-top:1px solid var(--rule)}
+ .tbnav a{flex:1 0 auto;padding:7px 14px}
+}
+@media (prefers-reduced-motion:reduce){
+ *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+ body::after{opacity:.22}
+}
+
+.qwrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr)}
+.qform{border-right:1px solid var(--rule)}
+.qside{background:var(--i1)}
+.qside .stick{position:sticky;top:58px;padding:26px 28px}
+.fs{border-bottom:1px solid var(--rule);padding:26px 34px}
+.fs .no{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--i4);margin-bottom:10px}
+.fs h3{margin-bottom:16px;font-size:18px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.opt{background:var(--i0);padding:12px 14px;cursor:pointer;display:block;transition:background .12s linear}
+.opt:hover{background:var(--i1)}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.opt .nm{font-size:14px;color:var(--i6);font-weight:500;display:flex;align-items:center;gap:9px}
+.opt .bx{width:11px;height:11px;border:1px solid var(--i4);flex:0 0 auto}
+.opt .pr{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--i4);margin-top:5px;padding-left:20px}
+.opt input:checked ~ .nm{color:var(--i7)}
+.opt input:checked ~ .nm .bx{background:var(--i7);border-color:var(--i7)}
+.opt input:checked ~ .pr{color:var(--i5)}
+.opt input:focus-visible ~ .nm .bx{outline:2px solid var(--i7);outline-offset:2px}
+.rng{display:grid;grid-template-columns:1fr 110px;gap:14px;align-items:center}
+.rng input[type=range]{-webkit-appearance:none;appearance:none;height:28px;background:transparent;border:0;padding:0;cursor:ew-resize}
+.rng input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--i3)}
+.rng input[type=range]::-moz-range-track{height:2px;background:var(--i3)}
+.rng input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:3px;height:24px;background:var(--i7);margin-top:-11px}
+.rng input[type=range]::-moz-range-thumb{width:3px;height:24px;background:var(--i7);border:0;border-radius:0}
+.bill{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.bill .l{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--hair);color:var(--i5)}
+.bill .l b{color:var(--i7);font-weight:500}
+.bill .tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding-top:14px;border-top:1px solid var(--i5)}
+.bill .tot span{font-size:9px;letter-spacing:.24em;color:var(--i4)}
+.bill .tot b{font-size:30px;color:var(--i7);font-weight:700}
+.eta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--i5);margin-top:12px;border-top:1px solid var(--hair);padding-top:12px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.receipt{display:none;padding:34px;border-bottom:1px solid var(--rule)}
+.receipt.on{display:block}
+.rcard{border:1px solid var(--i5);background:var(--i1);padding:26px;max-width:520px;position:relative}
+.rcard .rc-no{font-family:var(--mono);font-size:26px;letter-spacing:.14em;color:var(--i7);margin:8px 0 4px}
+.rcard dl{display:grid;grid-template-columns:auto 1fr;gap:5px 16px;font-size:13px;margin:16px 0}
+.rcard dt{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--i4);padding-top:3px}
+.rcard dd{color:var(--i6)}
+@media (max-width:900px){
+ .qwrap{grid-template-columns:1fr}.qform{border-right:0}
+ .qside .stick{position:static;padding:22px 20px}
+ .fs{padding:22px 20px}.frow{grid-template-columns:1fr}.receipt{padding:22px 20px}
+}
+</style>
+</head>
+<body><header class="tb"><a class="brand" href="index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+<rect width="26" height="26" fill="none"/>
+<g stroke="#EDE3D4" stroke-width="2"><path d="M2 5h22M2 13h6M18 13h6M2 21h22"/></g>
+<rect x="9" y="9.5" width="8" height="7" fill="#9C8570"/></svg><span><b>補格</b><i>PATCHFRAME</i></span></a><nav class="tbnav" aria-label="主導覽"><a href="index.html"><span class="t">T1</span><span class="n">校正台</span></a><a href="track.html"><span class="t">T2</span><span class="n">工單追蹤</span></a><a href="quote.html" aria-current="page"><span class="t">T3</span><span class="n">修復試算</span></a><a href="lab.html"><span class="t">T4</span><span class="n">修復所</span></a></nav><div class="tbq"><span>SIG</span><b id="qread">--</b><span class="ctr" id="ctr">0000</span></div></header>
+<div class="shell">
+<aside class="rail"><div class="stick">
+<span class="vtxt">TRACK 03 / ESTIMATE</span><span class="dot"></span><span class="tcode">02:31:07:19</span>
+</div></aside>
+<main>
+
+<section class="sec">
+  <div class="kick">ESTIMATE / 修復試算</div>
+  <h1 style="font-size:clamp(28px,5vw,50px)">先算清楚<br>再決定要不要救</h1>
+  <p style="margin-top:16px">下面的數字是實際報價的算法，不是「請洽詢」。載體、長度、損傷種類各自對應一組係數；勾選越多，價格與工期就同步往上走。片子送到之後我們會驗片，若與你勾選的落差超過 15%，會重新報價並徵得同意才動工。</p>
+</section>
+
+<form id="qform" novalidate>
+<div class="qwrap">
+  <div class="qform">
+
+    <div class="fs">
+      <div class="no">01 / MEDIA</div>
+      <h3>載體</h3>
+      <div class="frow">
+        <div>
+          <label for="media">載體種類</label>
+          <select id="media">
+            <option value="super8">Super8 / Regular8（8mm 家用膠卷）</option>
+            <option value="16mm">16mm</option>
+            <option value="vhs">VHS / Video8 / Hi8</option>
+            <option value="beta">Betacam SP / DV</option>
+            <option value="reel">1/4" 盤帶</option>
+            <option value="dat">DAT / MiniDisc</option>
+          </select>
+        </div>
+        <div>
+          <label>基本費率</label>
+          <div class="mono" id="rate" style="font-size:12.5px;color:var(--i6);padding-top:10px">—</div>
+        </div>
+      </div>
+      <div style="margin-top:18px">
+        <label for="amt">數量（<span id="unit">呎</span>）</label>
+        <div class="rng">
+          <input id="amt" type="range" min="100" max="4000" step="50" value="600" aria-label="數量">
+          <input id="amtn" type="number" inputmode="numeric" aria-label="數量數值">
+        </div>
+      </div>
+    </div>
+
+    <div class="fs">
+      <div class="no">02 / CONDITION</div>
+      <h3>損傷狀況（可複選）</h3>
+      <div class="opts">
+<label class="opt"><input type="checkbox" id="d-mold"><span class="nm"><span class="bx"></span>黴斑</span><span class="pr">+22% ・ 工期 +3 天</span></label><label class="opt"><input type="checkbox" id="d-acid"><span class="nm"><span class="bx"></span>醋酸症・片基收縮</span><span class="pr">+45% ・ 工期 +9 天</span></label><label class="opt"><input type="checkbox" id="d-water"><span class="nm"><span class="bx"></span>水損・乳劑黏連</span><span class="pr">+38% ・ 工期 +7 天</span></label><label class="opt"><input type="checkbox" id="d-torn"><span class="nm"><span class="bx"></span>斷裂・缺格</span><span class="pr">+26% ・ 工期 +4 天</span></label><label class="opt"><input type="checkbox" id="d-fade"><span class="nm"><span class="bx"></span>褪色</span><span class="pr">+18% ・ 工期 +2 天</span></label><label class="opt"><input type="checkbox" id="d-stick"><span class="nm"><span class="bx"></span>黏連（需烘帶）</span><span class="pr">+30% ・ 工期 +5 天</span></label><label class="opt"><input type="checkbox" id="d-noise"><span class="nm"><span class="bx"></span>聲軌雜訊・脫磁</span><span class="pr">+20% ・ 工期 +3 天</span></label>
+      </div>
+      <p style="font-size:12.5px;color:var(--i4);margin-top:12px">聞得到明顯醋酸味、或卷心捲不開，請一定要勾。這兩種會影響我們的收件排程與隔離存放。</p>
+    </div>
+
+    <div class="fs">
+      <div class="no">03 / OPTIONS</div>
+      <h3>加購工序</h3>
+      <div class="opts">
+<label class="opt"><input type="checkbox" id="o4k"><span class="nm"><span class="bx"></span>4K 濕式閘門掃描</span><span class="pr">+30% ・ 工期 +2 天</span></label><label class="opt"><input type="checkbox" id="oframe"><span class="nm"><span class="bx"></span>逐格修復</span><span class="pr">+55% ・ 工期 +6 天</span></label><label class="opt"><input type="checkbox" id="ograde"><span class="nm"><span class="bx"></span>調光・定色</span><span class="pr">+22% ・ 工期 +3 天</span></label><label class="opt"><input type="checkbox" id="oaudio"><span class="nm"><span class="bx"></span>數位聲軌修復</span><span class="pr">+18% ・ 工期 +2 天</span></label><label class="opt"><input type="checkbox" id="odisk"><span class="nm"><span class="bx"></span>交付外接硬碟（2TB）</span><span class="pr">+NT$2,800 ・ 工期 +1 天</span></label><label class="opt"><input type="checkbox" id="rush"><span class="nm"><span class="bx"></span>加急插隊</span><span class="pr">+35% ・ 工期約六折</span></label>
+      </div>
+    </div>
+
+    <div class="fs">
+      <div class="no">04 / CONTACT</div>
+      <h3>聯絡方式</h3>
+      <div class="frow">
+        <div>
+          <label for="f-name">稱呼</label>
+          <input id="f-name" type="text" placeholder="王先生" autocomplete="name">
+          <div class="err" id="e-name" role="alert"></div>
+        </div>
+        <div>
+          <label for="f-phone">手機</label>
+          <input id="f-phone" type="tel" placeholder="0912345678" inputmode="numeric" autocomplete="tel">
+          <div class="err" id="e-phone" role="alert"></div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <label for="f-mail">Email（選填）</label>
+        <input id="f-mail" type="email" placeholder="you@example.com" autocomplete="email">
+        <div class="err" id="e-mail" role="alert"></div>
+      </div>
+      <button class="btn solid" type="submit" style="margin-top:20px">送出試算，取得暫定工單號</button>
+    </div>
+
+  </div>
+
+  <aside class="qside">
+    <div class="stick">
+      <div class="panel">
+        <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+        <div class="ph"><span>ESTIMATE</span><span>即時試算</span></div>
+        <div class="pb">
+          <div class="bill">
+            <div id="lines"></div>
+            <div class="tot"><span>估價<br>總計</span><b id="total">—</b></div>
+            <div class="eta"><span id="days">—</span><span id="perunit">—</span></div>
+          </div>
+          <p style="font-size:11.5px;color:var(--i4);margin-top:16px;line-height:1.7">未稅。驗片後若與勾選落差超過 15%，重新報價並徵得同意才動工。單一工單最低消費 NT$1,800。</p>
+        </div>
+      </div>
+      <div style="margin-top:20px;border:1px solid var(--hair);background:#0A0908" id="qart"></div>
+    </div>
+  </aside>
+</div>
+</form>
+
+<div class="receipt" id="receipt">
+  <div class="rcard">
+    <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+    <div class="kick" style="margin-bottom:0">暫定工單 · PROVISIONAL ORDER</div>
+    <div class="rc-no" id="r-no">—</div>
+    <dl>
+      <dt>載體</dt><dd id="r-media">—</dd>
+      <dt>勾選損傷</dt><dd id="r-dmg">—</dd>
+      <dt>估價</dt><dd id="r-total">—</dd>
+      <dt>估計工期</dt><dd id="r-days">—</dd>
+      <dt>聯絡</dt><dd id="r-name">—</dd>
+    </dl>
+    <div id="r-bar" style="margin:18px 0 14px"></div>
+    <p style="font-size:12.5px;color:var(--i5)">請於收件預約時報這組編號。片子送達並完成驗片後，此編號會轉為正式工單。</p>
+    <a class="btn sm" id="r-link" href="track.html" style="margin-top:14px;display:inline-block">到工單追蹤查看</a>
+  </div>
+  <p style="font-size:12px;color:var(--i4);margin-top:18px">本站為虛構品牌示範作品，報價、編號與資料皆為示意，不會送出到任何伺服器。</p>
+</div>
+
+</main>
+</div>
+<footer>
+<div class="fg">
+<div>
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+<rect width="26" height="26" fill="none"/>
+<g stroke="#EDE3D4" stroke-width="2"><path d="M2 5h22M2 13h6M18 13h6M2 21h22"/></g>
+<rect x="9" y="9.5" width="8" height="7" fill="#9C8570"/></svg>
+<span><b style="font-size:16px">補格影音修復所</b><br><span class="fm" style="letter-spacing:.24em">PATCHFRAME RESTORATION</span></span></div>
+<p style="font-size:13px;color:var(--i5);max-width:38ch">類比影音載體的清潔、掃描、逐格修復與數位保存。收件採預約制，先驗片再報價。</p>
+</div>
+<div class="fm">
+新北市三重區重新路四段 12 巷 7 號 2 樓<br>
+02-2971-4408<br>
+service@patchframe.tw<br>
+週二–週六 10:00–19:00<br>
+週日・週一 不收件
+</div>
+<div class="fm">
+<a href="index.html">訊號校正台</a><br>
+<a href="track.html">工單追蹤</a><br>
+<a href="quote.html">修復試算</a><br>
+<a href="lab.html">修復所與價目</a>
+</div>
+</div>
+<div class="sig">補格影音修復所 · 本站為虛構品牌示範作品，人名、價格、電話、工單資料皆為示意 · 2026</div>
+</footer><script>
+/* ===== 訊號狀態（跨頁沿用） ===== */
+var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SIG = {
+  raw:function(){                                   /* 未曾校正過回傳 null */
+    var v = null;
+    try{ v = sessionStorage.getItem('pf_q'); }catch(e){}
+    if(v===null||v==='') return null;
+    var n = parseInt(v,10); return isNaN(n)?null:Math.max(0,Math.min(100,n));
+  },
+  get:function(){ var v=this.raw(); return v===null ? (RM?100:0) : v; },
+  /* 非校正台頁面用：沒校正過視為乾淨，校正過但未鎖定則下限 70，避免內容不可讀 */
+  carry:function(){ var v=this.raw(); return v===null ? 100 : Math.max(70, v); },
+  set:function(q){ try{ sessionStorage.setItem('pf_q', String(Math.round(q))); }catch(e){} }
+};
+function applySignal(q){
+  var d = (100-q)/100;
+  document.documentElement.style.setProperty('--sl', (0.16 + d*0.62).toFixed(3));
+  var r = document.getElementById('qread');
+  if(r) r.textContent = q>=92 ? ('Q'+Math.round(q)) : (q>0? ('Q'+Math.round(q)) : 'NONE');
+}
+
+/* ===== 磁帶計數器 ===== */
+(function(){
+  var el = document.getElementById('ctr'); if(!el) return;
+  if(RM){ el.textContent='0000'; return; }
+  var n=0, last=0;
+  window.addEventListener('scroll', function(){
+    n = Math.round(window.scrollY/6);
+    if(n!==last){ last=n; el.textContent = String(n%10000).padStart(4,'0'); }
+  }, {passive:true});
+})();
+
+/* ===== scanline-raster 插畫引擎 =====
+   母題寫成隱函數場 f(u,v)->0..1（墨量），以等距水平掃描線取樣，
+   線本身的 y 位移與線寬即為調子；損傷值 dmg 造成逐線抖動、時基擺動與訊號脫落。 */
+var MOTIF = {
+  reel: function(u,v){
+    var x=u-0.5, y=v-0.5, r=Math.sqrt(x*x+y*y);
+    var a=Math.atan2(y,x);
+    var ring = (r>0.30&&r<0.44)?1:0;
+    var rim  = (r>0.455&&r<0.485)?0.7:0;
+    var hub  = (r<0.085)?1:0;
+    var spoke= (r>0.10&&r<0.30 && Math.abs(Math.sin(a*3))>0.86)?0.85:0;
+    return Math.max(ring,Math.max(rim,Math.max(hub,spoke)));
+  },
+  testcard: function(u,v){
+    var x=u-0.5, y=v-0.5, r=Math.sqrt(x*x+y*y);
+    var rings = (Math.abs(Math.sin(r*38))>0.72 && r<0.42)?0.8:0;
+    var cross = ((Math.abs(x)<0.011&&r<0.47)||(Math.abs(y)<0.011&&r<0.47))?1:0;
+    var box   = (Math.abs(x)>0.44&&Math.abs(x)<0.47&&Math.abs(y)<0.47)?0.6:0;
+    var bars  = (v>0.72&&v<0.86 && Math.floor(u*7)%2===0)?0.55:0;
+    return Math.max(rings,Math.max(cross,Math.max(box,bars)));
+  },
+  strip: function(u,v){
+    var perf = (v<0.13||v>0.87) ? ((Math.abs((u*9)%1-0.5)<0.24)?0.9:0.12) : 0;
+    var edge = (Math.abs(v-0.155)<0.012||Math.abs(v-0.845)<0.012)?0.8:0;
+    var img  = (v>0.20&&v<0.80) ? Math.max(0, 0.72 - Math.abs(u-0.42)*1.5 - Math.abs(v-0.5)*1.1) : 0;
+    var face = 0;
+    var fx=(u-0.42)/0.20, fy=(v-0.48)/0.30;
+    if(fx*fx+fy*fy<1) face=0.85;
+    return Math.max(perf,Math.max(edge,Math.max(img*0.5,face*0.65)));
+  },
+  wave: function(u,v){
+    var amp = 0.30*Math.sin(u*17.0)*Math.sin(u*4.1+0.6) + 0.13*Math.sin(u*41.0);
+    return Math.abs(v-0.5) < Math.abs(amp) ? 0.9 : 0;
+  },
+  lens: function(u,v){
+    var x=u-0.5,y=v-0.5,r=Math.sqrt(x*x+y*y);
+    var body=(r<0.40&&r>0.34)?0.9:0;
+    var glass=(r<0.30)?Math.max(0,0.62-r*1.2):0;
+    var glint=(r<0.28 && Math.abs((x*0.7+y*0.7)-0.10)<0.026)?0.95:0;
+    var mount=(Math.abs(y)<0.46&&Math.abs(y)>0.40&&Math.abs(x)<0.20)?0.7:0;
+    return Math.max(body,Math.max(glass,Math.max(glint,mount)));
+  }
+};
+/* 產生 SVG 掃描線群；dmg 0..1 */
+function raster(host, motifName, opts){
+  opts = opts||{};
+  var W = opts.w||360, H = opts.h||240, step = opts.step||4, amp = opts.amp||(step*2.1);
+  var dmg = Math.max(0, Math.min(1, opts.dmg===undefined?0:opts.dmg));
+  var f = MOTIF[motifName] || MOTIF.reel;
+  var seed = opts.seed===undefined?7:opts.seed;
+  function rnd(){ seed = (seed*1664525 + 1013904223) % 4294967296; return seed/4294967296; }
+  var parts = ['<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+(opts.alt||'掃描線圖')+'">'];
+  parts.push('<rect width="'+W+'" height="'+H+'" fill="'+(opts.bg||'none')+'"/>');
+  var ink = opts.ink||'#EDE3D4';
+  for(var y=step; y<H-step*0.5; y+=step){
+    var v = y/H;
+    var jitter = (rnd()-0.5)*dmg*11;                       /* 追蹤誤差：逐線水平抖動 */
+    var roll   = Math.sin(v*Math.PI*3.4 + (opts.phase||0))*dmg*16; /* 時基誤差：整體擺動 */
+    var dx = jitter + roll;
+    var drop = dmg>0.12 && rnd() < dmg*0.20;               /* 偏磁不足：整線脫落 */
+    if(drop) continue;
+    var d='', pen=false, prevGap=false;
+    for(var x=0; x<=W; x+=3){
+      var u = (x - dx)/W;
+      var dens = (u<0||u>1)?0:f(u,v);
+      var gap = (dmg>0.3 && ((x*7 + y*13 + Math.floor(dmg*90))%211) < dmg*30);
+      if(gap){ prevGap=true; pen=false; continue; }
+      var yy = y - dens*amp;
+      if(!pen){ d += 'M'+(x)+' '+yy.toFixed(2); pen=true; }
+      else d += 'L'+(x)+' '+yy.toFixed(2);
+      prevGap=false;
+    }
+    var lw = (0.9 + (1-dmg)*0.5).toFixed(2);
+    var op = (0.34 + (1-dmg)*0.5).toFixed(2);
+    parts.push('<path d="'+d+'" fill="none" stroke="'+ink+'" stroke-width="'+lw+'" opacity="'+op+'"/>');
+  }
+  parts.push('</svg>');
+  host.innerHTML = parts.join('');
+}
+
+(function(){
+  applySignal(SIG.carry());
+  var MEDIA = {
+    'super8':{n:'Super8 / Regular8',u:'呎',rate:18,min:1800,scan:'每 100 呎 NT$1,800',days:6},
+    '16mm':  {n:'16mm',            u:'呎',rate:42,min:4200,scan:'每 100 呎 NT$4,200',days:9},
+    'vhs':   {n:'VHS / Video8 / Hi8',u:'卷',rate:900,min:900,scan:'每卷 NT$900',days:4},
+    'beta':  {n:'Betacam SP / DV',  u:'卷',rate:1200,min:1200,scan:'每卷 NT$1,200',days:4},
+    'reel':  {n:'1/4" 盤帶',        u:'卷',rate:2600,min:2600,scan:'每卷 NT$2,600（含烘帶）',days:7},
+    'dat':   {n:'DAT / MiniDisc',   u:'卷',rate:1100,min:1100,scan:'每卷 NT$1,100',days:3}
+  };
+  var DMGS = {
+    mold:{n:'黴斑',p:0.22,d:3}, acid:{n:'醋酸症・片基收縮',p:0.45,d:9},
+    water:{n:'水損・乳劑黏連',p:0.38,d:7}, torn:{n:'斷裂・缺格',p:0.26,d:4},
+    fade:{n:'褪色',p:0.18,d:2}, stick:{n:'黏連（需烘帶）',p:0.30,d:5}, noise:{n:'聲軌雜訊・脫磁',p:0.20,d:3}
+  };
+  var OPTS = {
+    o4k:{n:'4K 濕式閘門掃描',f:0.30,d:2}, oframe:{n:'逐格修復',f:0.55,d:6},
+    ograde:{n:'調光・定色',f:0.22,d:3}, oaudio:{n:'數位聲軌修復',f:0.18,d:2},
+    odisk:{n:'交付外接硬碟（2TB）',fix:2800,d:1}
+  };
+  function nf(n){ return 'NT$'+Math.round(n).toLocaleString('en-US'); }
+
+  var el = function(id){ return document.getElementById(id); };
+  function readState(){
+    var mk = el('media').value, M = MEDIA[mk];
+    var amt = +el('amt').value;
+    var dm = [], op = [];
+    for(var k in DMGS){ if(el('d-'+k).checked) dm.push(k); }
+    for(var k2 in OPTS){ if(el(k2).checked) op.push(k2); }
+    return {mk:mk,M:M,amt:amt,dm:dm,op:op,rush:el('rush').checked};
+  }
+  function compute(s){
+    var base = (s.M.u==='呎') ? Math.max(s.M.min, s.amt*s.M.rate) : s.amt*s.M.rate;
+    var lines = [[s.M.n+' 清潔與掃描 · '+s.amt+' '+s.M.u, base]];
+    var days = s.M.days + (s.M.u==='呎'? Math.ceil(s.amt/400) : Math.ceil(s.amt/3));
+    var dsum = 0;
+    for(var i=0;i<s.dm.length;i++){
+      var D=DMGS[s.dm[i]]; var v = base*D.p; dsum += v; days += D.d;
+      lines.push(['　損傷處理：'+D.n+'（+'+Math.round(D.p*100)+'%）', v]);
+    }
+    var osum = 0;
+    for(var j=0;j<s.op.length;j++){
+      var O=OPTS[s.op[j]];
+      var v2 = O.fix!==undefined ? O.fix : base*O.f;
+      osum += v2; days += O.d;
+      lines.push([O.n + (O.fix!==undefined?'':'（+'+Math.round(O.f*100)+'%）'), v2]);
+    }
+    var sub = base + dsum + osum;
+    var rush = s.rush ? sub*0.35 : 0;
+    if(s.rush){ lines.push(['加急（+35%，插隊排程）', rush]); days = Math.max(5, Math.round(days*0.6)); }
+    var total = sub + rush;
+    return {lines:lines, total:total, days:days};
+  }
+  function paint(){
+    var s = readState(), r = compute(s);
+    el('unit').textContent = s.M.u;
+    el('amtn').value = s.amt;
+    el('rate').textContent = s.M.scan;
+    var out='';
+    for(var i=0;i<r.lines.length;i++) out += '<div class="l"><span>'+r.lines[i][0]+'</span><b>'+nf(r.lines[i][1])+'</b></div>';
+    el('lines').innerHTML = out;
+    el('total').textContent = nf(r.total);
+    el('days').textContent = r.days + ' 個工作天';
+    el('perunit').textContent = '平均 '+nf(r.total/Math.max(1,s.amt))+' / '+s.M.u;
+    window.__quote = {s:s, r:r};
+  }
+  el('media').addEventListener('change', function(){
+    var M = MEDIA[el('media').value];
+    var rg = el('amt');
+    if(M.u==='呎'){ rg.min=100; rg.max=4000; rg.step=50; if(+rg.value<100||+rg.value>4000) rg.value=600; }
+    else { rg.min=1; rg.max=40; rg.step=1; if(+rg.value>40) rg.value=6; if(+rg.value<1) rg.value=6; }
+    paint();
+  });
+  el('amt').addEventListener('input', paint);
+  el('amtn').addEventListener('input', function(){
+    var v=+el('amtn').value; if(isNaN(v)) return;
+    var rg=el('amt'); v=Math.max(+rg.min,Math.min(+rg.max,v)); rg.value=v; paint();
+  });
+  var boxes = document.querySelectorAll('.opt input');
+  for(var i=0;i<boxes.length;i++) boxes[i].addEventListener('change', paint);
+  el('rush').addEventListener('change', paint);
+
+  /* ---- 送出：驗證 → 生成工單 ---- */
+  function fnv(s){ var h=2166136261>>>0; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h>>>0; }
+  function pad(n,l){ return String(n).padStart(l,'0'); }
+  function barcode(seed){
+    var h=fnv(seed), out='', x=0;
+    for(var i=0;i<52;i++){
+      h = (Math.imul(h,1664525)+1013904223)>>>0;
+      var w = 1 + (h%4);
+      if(i%2===0) out += '<rect x="'+x+'" y="0" width="'+w+'" height="34" fill="#EDE3D4"/>';
+      x += w;
+    }
+    return '<svg viewBox="0 0 '+x+' 34" width="100%" height="34" role="img" aria-label="工單條碼">'+out+'</svg>';
+  }
+  el('qform').addEventListener('submit', function(e){
+    e.preventDefault();
+    var ok = true;
+    var nm = el('f-name').value.trim(), ph = el('f-phone').value.trim(), em = el('f-mail').value.trim();
+    function set(id,on,msg){ var x=el(id); x.textContent=msg||''; x.classList.toggle('on',on); if(on) ok=false; }
+    set('e-name', nm.length<2, '請填寫稱呼，至少 2 個字。');
+    set('e-phone', !/^09\d{8}$/.test(ph), '手機號碼請填 09 開頭的 10 位數字，例如 0912345678。');
+    set('e-mail', em!=='' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em), 'Email 格式看起來不完整，或留空即可。');
+    if(!ok) return;
+    var q = window.__quote, d = new Date();
+    var code = 'PF-'+pad(d.getFullYear()%100,2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2)+'-'+pad(fnv(nm+ph+q.r.total)%900+100,3);
+    el('r-no').textContent = code;
+    el('r-media').textContent = q.s.M.n+' · '+q.s.amt+' '+q.s.M.u;
+    el('r-total').textContent = nf(q.r.total)+'（未稅，驗片後可能調整）';
+    el('r-days').textContent = q.r.days+' 個工作天';
+    el('r-name').textContent = nm+'　'+ph+(em?('　'+em):'');
+    el('r-dmg').textContent = q.s.dm.length ? q.s.dm.map(function(k){return DMGS[k].n;}).join('、') : '未勾選（驗片時再判定）';
+    el('r-bar').innerHTML = barcode(code);
+    el('r-link').href = 'track.html?o='+code;
+    el('receipt').classList.add('on');
+    if(el('receipt').scrollIntoView) el('receipt').scrollIntoView({behavior: RM?'auto':'smooth', block:'start'});
+  });
+
+  paint();
+  raster(document.getElementById('qart'), 'lens', {w:300,h:180,step:4,amp:9,dmg:0.16,seed:404,alt:'鏡頭掃描線圖'});
+})();
+</script></body></html>

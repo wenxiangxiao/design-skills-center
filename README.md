@@ -96,6 +96,7 @@
 | 78 | [亮記 LEUNG KEE](sites/leung-kee/index.html) | 港式冰室／大牌檔 | 港式霓虹 Hong Kong Neon | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 79 | [金聲閣 JINSHENG](sites/jinsheng-glove/index.html) | 布袋戲團（掌中戲） | 版印民俗 Folk-Woodblock | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 80 | [岩站 GRIP STATION](sites/grip-station/index.html) | 抱石攀岩館 | 導視系統 Wayfinding | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 81 | [齒孔祭 PERFORATION FAIR](sites/perf-fair/index.html) | 同人誌展會 | 郵票郵戳美學 Philatelic Postmark | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

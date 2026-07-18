@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>郵路規劃 — 齒孔祭 PERFORATION FAIR</title>
+<meta name="description" content="把蓋過戳的攤位交給系統，依會場走道格線以最近鄰起解＋2-opt 收斂排出巡場順序，派一只郵袋替你走一遍並逐攤落戳。">
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%23C7DBD4"/><circle cx="16" cy="16" r="11.5" fill="none" stroke="%2323292B" stroke-width="2"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="%2323292B" stroke-width="1"/><path d="M2 11h28M2 16h28M2 21h28" stroke="%2323292B" stroke-width="1.4" fill="none" stroke-dasharray="3 2"/><rect x="11" y="11" width="10" height="10" fill="%23C8503F"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,700;6..96,900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#C7DBD4; --bg2:#B6CFC7; --sheet:#F7F4EC; --paper:#F0E6D2;
+  --ink:#23292B; --ink2:#4A5457; --line:#9DB4AC;
+  --z100:#C8503F; --z220:#4A6FA5; --z330:#3E7A63; --z440:#B98B2E;
+  --blush:#E3B3A6; --rule:#23292B;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --num:"Bodoni Moda",Georgia,serif;
+  --han:"Noto Serif TC",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--han);font-weight:400;font-size:15px;line-height:1.75;
+  padding-bottom:86px;
+  -webkit-text-size-adjust:100%;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:
+    repeating-linear-gradient(90deg,rgba(35,41,43,.045) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(0deg,rgba(35,41,43,.045) 0 1px,transparent 1px 4px);
+}
+a{color:inherit}
+h1,h2,h3,h4{margin:0;font-weight:900;line-height:1.15;letter-spacing:.01em}
+p{margin:0 0 .85em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+/* ── 邊紙 selvage 頭帶 ───────────────────────────── */
+.selvage{
+  position:relative;z-index:2;background:var(--sheet);
+  border-bottom:2px solid var(--ink);
+}
+.selvage::after{
+  content:"";position:absolute;left:0;right:0;bottom:-9px;height:16px;pointer-events:none;
+  background:radial-gradient(circle 5px at 8px 8px,var(--bg) 96%,transparent 100%) 0 0/16px 16px repeat-x;
+}
+.selv-in{max-width:1180px;margin:0 auto;padding:11px 22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mark svg{display:block}
+.mark b{font-family:var(--han);font-weight:900;font-size:19px;letter-spacing:.06em}
+.mark i{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.24em;color:var(--ink2);display:block;margin-top:-3px}
+.selv-meta{margin-left:auto;display:flex;gap:0;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.selv-meta span{padding:1px 12px;border-left:1px solid var(--line)}
+.selv-meta span:first-child{border-left:0}
+
+/* ── 郵局櫃台底欄 bottom-dock ─────────────────────── */
+.dock{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  background:var(--ink);border-top:3px solid var(--ink);
+  box-shadow:0 -1px 0 var(--sheet) inset;
+}
+.dock-in{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.win{
+  display:block;text-decoration:none;color:var(--sheet);
+  padding:11px 12px 10px;border-left:1px solid rgba(247,244,236,.24);
+  position:relative;transition:background .18s ease,color .18s ease;
+}
+.win:first-child{border-left:0}
+.win kbd{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
+  display:block;color:var(--blush);background:none;
+}
+.win strong{display:block;font-size:14.5px;font-weight:900;letter-spacing:.05em;line-height:1.3}
+.win em{display:block;font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;opacity:.55}
+.win:hover,.win:focus-visible{background:var(--sheet);color:var(--ink);outline:0}
+.win:hover kbd,.win:focus-visible kbd{color:var(--z100)}
+.win[aria-current="page"]{background:var(--blush);color:var(--ink)}
+.win[aria-current="page"] kbd{color:var(--ink)}
+.win[aria-current="page"]::before{
+  content:"";position:absolute;left:0;right:0;top:-3px;height:3px;background:var(--z100)
+}
+@media(max-width:700px){
+  .win strong{font-size:12px}
+  .win em{display:none}
+  .win{padding:9px 6px}
+}
+
+/* ── 通用零件 ───────────────────────────────────── */
+.plate{background:var(--sheet);border:2px solid var(--ink);position:relative}
+.plate-hd{
+  display:flex;align-items:baseline;gap:12px;padding:8px 14px;
+  border-bottom:2px solid var(--ink);background:var(--ink);color:var(--sheet)
+}
+.plate-hd h2,.plate-hd h3{font-size:15px;letter-spacing:.08em}
+.plate-hd span{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.16em;opacity:.7}
+.plate-bd{padding:14px 16px}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  padding:2px 7px;border:1px solid currentColor;vertical-align:middle
+}
+.rate{width:100%;border-collapse:collapse;font-size:13.5px}
+.rate th,.rate td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+.rate th{background:var(--paper);font-weight:700;white-space:nowrap}
+.rate td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
+.btn{
+  font-family:var(--han);font-weight:900;font-size:14px;letter-spacing:.06em;
+  background:var(--ink);color:var(--sheet);border:2px solid var(--ink);
+  padding:9px 18px;cursor:pointer;transition:background .16s,color .16s
+}
+.btn:hover:not(:disabled){background:var(--z100);border-color:var(--z100)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.gh{background:transparent;color:var(--ink)}
+.btn.gh:hover{background:var(--ink);color:var(--sheet)}
+input,select,textarea{
+  font-family:var(--han);font-size:14px;color:var(--ink);
+  background:var(--sheet);border:2px solid var(--ink);padding:8px 10px;width:100%
+}
+input:focus,select:focus{outline:2px solid var(--z100);outline-offset:1px}
+::placeholder{color:#8FA39C}
+:focus-visible{outline:2px solid var(--z100);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.foot{
+  border-top:2px solid var(--ink);margin-top:44px;padding:26px 0 34px;
+  font-size:12.5px;color:var(--ink2)
+}
+.foot .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+.foot h4{font-size:13px;letter-spacing:.1em;margin-bottom:6px}
+.foot ul{list-style:none;margin:0;padding:0}
+.foot li{padding:2px 0}
+.foot code{font-family:var(--mono);font-size:11px}
+@media(max-width:760px){.foot .wrap{grid-template-columns:1fr;gap:16px}}
+
+/* 郵戳落章 */
+@keyframes cancel{
+  0%{transform:rotate(var(--rot)) scale(2.1);opacity:0}
+  55%{opacity:1}
+  100%{transform:rotate(var(--rot)) scale(1);opacity:1}
+}
+.cancelmark{animation:cancel .22s cubic-bezier(.2,1.5,.45,1) both}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+.pgtop{padding:24px 0 14px}
+.pgtop h1{font-size:clamp(24px,3vw,34px)}
+.pgtop h1 small{display:block;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.3em;color:var(--ink2);margin-bottom:7px}
+.pgtop p{font-size:14px;max-width:64ch;margin-top:9px}
+.rt{display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:start}
+@media(max-width:960px){.rt{grid-template-columns:1fr}}
+.mapwrap{border:2px solid var(--ink);background:var(--sheet);position:sticky;top:14px}
+@media(max-width:960px){.mapwrap{position:static}}
+.mapwrap svg{display:block;width:100%;height:auto;background:var(--paper)}
+.maplg{display:flex;gap:12px;flex-wrap:wrap;padding:7px 12px;border-top:1px solid var(--line);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--ink2)}
+.maplg i{display:inline-block;width:9px;height:9px;margin-right:4px;vertical-align:-1px}
+
+.ctl{border:2px solid var(--ink);background:var(--sheet)}
+.ctl-bd{padding:13px 14px}
+.frm{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frm label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink2);margin-bottom:3px}
+.frm select{border-width:1.5px;padding:6px 8px;font-size:13px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);margin-top:14px}
+.readout div{padding:9px 12px;border-left:1px solid var(--line)}
+.readout div:first-child{border-left:0}
+.readout b{display:block;font-family:var(--num);font-weight:900;font-size:24px;line-height:1.1}
+.readout span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink2)}
+.legs{list-style:none;margin:0;padding:0}
+.legs li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);align-items:center}
+.legs li:last-child{border-bottom:0}
+.legs .no{font-family:var(--num);font-weight:900;font-size:17px;color:var(--zc);text-align:right}
+.legs .nm{font-size:13.5px;line-height:1.4}
+.legs .nm em{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--zc)}
+.legs .nm span{display:block;font-size:11.5px;color:var(--ink2)}
+.legs .dd{font-family:var(--mono);font-size:10.5px;color:var(--ink2);white-space:nowrap;text-align:right}
+.legs li.done{background:var(--paper)}
+.legs li.done .dd::after{content:"　已落戳";color:var(--z100)}
+.legs li.now{box-shadow:inset 4px 0 0 var(--z100)}
+
+.picker{border:2px solid var(--ink);background:var(--sheet);margin-top:18px}
+.pk{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:0}
+.pk button{
+  text-align:left;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:var(--sheet);padding:7px 10px;cursor:pointer;font:inherit;color:var(--ink)
+}
+.pk button:hover{background:var(--paper)}
+.pk button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.pk button em{font-style:normal;display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--zc)}
+.pk button[aria-pressed="true"] em{color:var(--blush)}
+.pk button strong{font-size:12.5px;font-weight:600;display:block;line-height:1.3}
+.cert{border:2px solid var(--ink);background:var(--sheet);margin-top:18px;display:none}
+.cert.show{display:block}
+.cert-bd{padding:16px;display:grid;grid-template-columns:1fr 168px;gap:18px;align-items:center}
+@media(max-width:560px){.cert-bd{grid-template-columns:1fr}}
+.cert h3{font-size:19px;margin-bottom:5px}
+.cert p{font-size:13px;color:var(--ink2)}
+.cert .code{font-family:var(--mono);font-size:15px;letter-spacing:.14em;border:1.5px solid var(--ink);display:inline-block;padding:4px 10px;background:var(--paper)}
+.stub{background:var(--paper);position:relative;padding:10px}
+.stub::after{
+  content:"";position:absolute;inset:-4px;pointer-events:none;
+  background:
+    radial-gradient(circle 3.6px at 4px 4px,var(--sheet) 97%,transparent 100%) 0 0/8px 8px repeat-x,
+    radial-gradient(circle 3.6px at 4px 4px,var(--sheet) 97%,transparent 100%) 0 100%/8px 8px repeat-x,
+    radial-gradient(circle 3.6px at 4px 4px,var(--sheet) 97%,transparent 100%) 0 0/8px 8px repeat-y,
+    radial-gradient(circle 3.6px at 4px 4px,var(--sheet) 97%,transparent 100%) 100% 0/8px 8px repeat-y;
+}
+.codebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--line);background:var(--paper)}
+.codebar input{font-family:var(--mono);font-size:12px;border-width:1.5px;padding:5px 8px;flex:1;min-width:180px}
+.msg{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--z330,#3E7A63)}
+
+@media(max-width:480px){.frm{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+
+<header class="selvage">
+  <div class="selv-in">
+    <a class="mark" href="index.html">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <rect x="1" y="1" width="32" height="32" fill="#F0E6D2" stroke="#23292B" stroke-width="1.5"/>
+        <circle cx="17" cy="17" r="12" fill="none" stroke="#23292B" stroke-width="1.6"/>
+        <circle cx="17" cy="17" r="8" fill="none" stroke="#23292B" stroke-width=".9"/>
+        <path d="M3 12.5h28M3 17h28M3 21.5h28" stroke="#23292B" stroke-width="1.2" stroke-dasharray="3.5 2.4"/>
+        <rect x="13" y="13" width="8" height="8" fill="#C8503F"/>
+      </svg>
+      <span><b>齒孔祭</b><i>PERFORATION FAIR</i></span>
+    </a>
+    <div class="selv-meta">
+      <span>第九屆・秋季場</span>
+      <span>2026.10.17 SAT — 10.18 SUN</span>
+      <span>南港展覽二館 5F・N 區</span>
+      <span>攤位 40</span>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="wrap pgtop">
+  <h1><small>ROUTE &amp; CANCELLATION　窗口 03</small>郵路規劃</h1>
+  <p>郵差不會照號碼順序送信，會照最省腳程的順序送。這裡也是：把你蓋過戳的攤位交給我們，系統依 5F・N 區的走道格線算出巡場順序（最近鄰起解，再以 2-opt 反覆對調路段直到縮不動為止），畫在平面圖上，並派一只郵袋替你走一遍——每到一攤就落一枚戳。</p>
+</section>
+
+<noscript><div class="wrap" style="border:2px solid #23292B;background:#F7F4EC;padding:12px 14px;font-size:13px">郵路規劃需要 JavaScript 才能運算。未啟用時請改看 <a href="circles.html">攤位名冊</a> 的攤位號，會場平面圖依郵區由上而下排列：100 區在最北、220 區次之、330 區中段、440 區最靠近入口。</div></noscript>
+<section class="wrap rt">
+  <div class="mapwrap">
+    <svg id="plan" viewBox="0 0 100 106" role="img" aria-labelledby="plantitle">
+      <title id="plantitle">南港展覽二館 5F・N 區平面圖，四十個攤位依郵區分佈，含規劃出的巡場路線。</title>
+      <rect x="2" y="2" width="96" height="94" fill="#F7F4EC" stroke="#23292B" stroke-width=".8"/>
+      <g id="zoneblocks"></g>
+      <g id="aisles" stroke="#9DB4AC" stroke-width=".35" stroke-dasharray="1.6 1.4"></g>
+      <path id="routepath" fill="none" stroke="#C8503F" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" opacity=".9"></path>
+      <g id="booths"></g>
+      <g id="marks"></g>
+      <g id="bagdot" style="display:none">
+        <circle r="2.4" fill="#23292B"/>
+        <path d="M-1.5 -.4 h3 v2.2 h-3 z" fill="#F7F4EC"/>
+      </g>
+      <g id="entry"></g>
+    </svg>
+    <div class="maplg">
+      <span><i style="background:#C8503F"></i>100 原創</span>
+      <span><i style="background:#4A6FA5"></i>220 插畫</span>
+      <span><i style="background:#3E7A63"></i>330 評論</span>
+      <span><i style="background:#B98B2E"></i>440 手工</span>
+      <span><i style="background:#23292B"></i>已蓋戳</span>
+      <span>格線 1 格 = 0.6 公尺</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="ctl">
+      <div class="plate-hd"><h2>郵路設定</h2><span>SETTINGS</span></div>
+      <div class="ctl-bd">
+        <div class="frm">
+          <div>
+            <label for="start">起點</label>
+            <select id="start">
+              <option value="50,98">主入口 N1（手扶梯側）</option>
+              <option value="8,98">側門 N4（貨梯側）</option>
+              <option value="92,98">寄物處前</option>
+            </select>
+          </div>
+          <div>
+            <label for="stay">每攤停留</label>
+            <select id="stay">
+              <option value="3">3 分（掃過去）</option>
+              <option value="5" selected>5 分（一般）</option>
+              <option value="9">9 分（要聊天）</option>
+            </select>
+          </div>
+        </div>
+        <div class="acts">
+          <button class="btn" type="button" id="solve">排出郵路</button>
+          <button class="btn gh" type="button" id="play" disabled>派郵袋巡一遍</button>
+          <button class="btn gh" type="button" id="step" disabled>單步蓋戳</button>
+          <button class="btn gh" type="button" id="clr">清空手冊</button>
+        </div>
+        <div class="readout">
+          <div><b id="rDist">—</b><span>步行公尺 METRES</span></div>
+          <div><b id="rTime">—</b><span>預估分鐘 MINUTES</span></div>
+          <div><b id="rStop">0</b><span>停靠攤位 STOPS</span></div>
+        </div>
+        <ol class="legs" id="legs"></ol>
+      </div>
+      <div class="codebar">
+        <label class="sr" for="rcode">郵路碼</label>
+        <input id="rcode" type="text" value="" aria-label="郵路碼" readonly>
+        <button class="btn gh" type="button" id="copy" style="padding:6px 12px;font-size:12.5px">複製郵路碼</button>
+        <button class="btn gh" type="button" id="load" style="padding:6px 12px;font-size:12.5px">貼上並載入</button>
+        <span class="msg" id="msg"></span>
+      </div>
+    </div>
+
+    <div class="cert" id="cert" aria-live="polite">
+      <div class="plate-hd"><h3>完戳證明</h3><span>FULL SET CANCELLED</span></div>
+      <div class="cert-bd">
+        <div>
+          <h3 id="certH">郵路走完了</h3>
+          <p id="certP"></p>
+          <p><span class="code" id="certC">PF-000000-000</span></p>
+          <p style="font-size:11.5px">憑此編號可於會場服務台（5F 電梯口右手邊）兌換本屆場限齒孔章一枚，每人限一次。</p>
+        </div>
+        <div class="stub" id="certStub"></div>
+      </div>
+    </div>
+
+    <div class="picker">
+      <div class="plate-hd"><h3>快速挑攤</h3><span>QUICK PICK　40</span></div>
+      <div class="pk" id="pk"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <h4>齒孔祭 PERFORATION FAIR</h4>
+      <p>第九屆・2026 秋季場｜主辦：齒孔編集室<br>
+      台北市南港區經貿二路 3 號　南港展覽二館 5F・N 區<br>
+      <code>(02) 2555-0417</code>　<code>post@chihkong.fair.tw</code><br>
+      辦公時間　週二至週六 13:00–19:00（週日、週一休）</p>
+      <p style="color:#7A8C86;font-size:11.5px">本站為網頁設計風格示範，齒孔祭、參展社團、刊物、價格、地址與電話皆為虛構示意，不對應任何真實活動或個人。</p>
+    </div>
+    <div>
+      <h4>四個郵區</h4>
+      <ul>
+        <li><span class="tag" style="color:#C8503F">100</span>　原創・故事</li>
+        <li><span class="tag" style="color:#4A6FA5">220</span>　插畫・畫集</li>
+        <li><span class="tag" style="color:#3E7A63">330</span>　評論・研究誌</li>
+        <li><span class="tag" style="color:#B98B2E">440</span>　手工・裝幀</li>
+      </ul>
+    </div>
+    <div>
+      <h4>櫃台</h4>
+      <ul>
+        <li><a href="index.html">窗口 01　小全張</a></li>
+        <li><a href="circles.html">窗口 02　攤位名冊</a></li>
+        <li><a href="route.html">窗口 03　郵路規劃</a></li>
+        <li><a href="info.html">窗口 04　郵資與須知</a></li>
+      </ul>
+      <p style="margin-top:10px"><code>PF-2026-AUTUMN</code></p>
+    </div>
+  </div>
+</footer>
+
+<nav class="dock" aria-label="櫃台導覽">
+  <div class="dock-in">
+    <a class="win" href="index.html" ><kbd>窗口 01</kbd><strong>小全張</strong><em>SOUVENIR SHEET</em></a>
+    <a class="win" href="circles.html" ><kbd>窗口 02</kbd><strong>攤位名冊</strong><em>DIRECTORY</em></a>
+    <a class="win" href="route.html" aria-current="page"><kbd>窗口 03</kbd><strong>郵路規劃</strong><em>ROUTE &amp; CANCEL</em></a>
+    <a class="win" href="info.html" ><kbd>窗口 04</kbd><strong>郵資與須知</strong><em>RATES &amp; RULES</em></a>
+  </div>
+</nav>
+
+<script>
+/* ── 齒孔祭・攤位資料（虛構示意） ─────────────────────────
+   b=攤位號 n=社團 pub=主打刊物 k=類型 p=定價 d=出攤日 nw=新刊
+   x,y=會場座標（100×100 格線，1 格=0.6 公尺） m=雕刻母題編號     */
+var ZONES={
+  A:{z:'100',t:'原創・故事',c:'#C8503F'},
+  B:{z:'220',t:'插畫・畫集',c:'#4A6FA5'},
+  C:{z:'330',t:'評論・研究誌',c:'#3E7A63'},
+  D:{z:'440',t:'手工・裝幀',c:'#B98B2E'}
+};
+var CIRCLES=[
+ {b:'A01',n:'白鴿通信社',pub:'海線寄信人',k:'原創小說',p:280,d:'兩日',nw:1,x:12,y:12,m:0,s:'寫給西部海線每一個小站的十二封信，附摺頁路線圖。'},
+ {b:'A02',n:'夜行列車編集部',pub:'末班車手記',k:'原創小說',p:240,d:'兩日',nw:0,x:26,y:12,m:1,s:'連載第四年，本場帶前三卷合本與未收錄短篇。'},
+ {b:'A03',n:'苔蘚地圖',pub:'濕地七日',k:'圖文小說',p:320,d:'週六',nw:1,x:40,y:12,m:2,s:'圖與文各半，關渡濕地取材，內頁採用米色道林。'},
+ {b:'A04',n:'第四月台',pub:'候車室的三個人',k:'原創小說',p:260,d:'兩日',nw:0,x:54,y:12,m:3,s:'三人同題創作，同一間候車室、三種結局。'},
+ {b:'A05',n:'錫罐文庫',pub:'鐵皮屋頂下',k:'短篇集',p:200,d:'週日',nw:0,x:68,y:12,m:4,s:'八篇短篇，皆以雨聲開場。文庫本尺寸。'},
+ {b:'A06',n:'半島郵局',pub:'寄不出去的信',k:'書信體',p:300,d:'兩日',nw:1,x:82,y:12,m:5,s:'全書即三十封信，附可撕下的實體信封與貼紙。'},
+ {b:'A07',n:'灰貓出版部',pub:'無人島的貓',k:'童話',p:220,d:'兩日',nw:0,x:12,y:22,m:0,s:'給大人的童話，二十四頁全彩，可加購書衣。'},
+ {b:'A08',n:'鹽水共同體',pub:'港邊三章',k:'原創小說',p:340,d:'週六',nw:0,x:26,y:22,m:1,s:'台南沿海方言試驗，內附語彙對照表。'},
+ {b:'A09',n:'折射光年',pub:'恆星的休假',k:'科幻',p:360,d:'兩日',nw:1,x:40,y:22,m:2,s:'軟科幻中篇，設定集另售，兩本合購折五十。'},
+ {b:'A10',n:'舊書房日誌',pub:'翻譯者之死',k:'推理',p:280,d:'兩日',nw:0,x:54,y:22,m:3,s:'書店連續殺人事件，第二刷，附書籤三枚。'},
+ {b:'A11',n:'河堤散步社',pub:'週三的堤防',k:'散文誌',p:180,d:'週日',nw:0,x:68,y:22,m:4,s:'散步紀錄第九期，本期主題「橋下的人」。'},
+ {b:'A12',n:'十一月印刷所',pub:'雪不會來',k:'原創小說',p:240,d:'兩日',nw:0,x:82,y:22,m:5,s:'冬季三部曲完結篇，前作現場僅剩少量。'},
+ {b:'B01',n:'青墨畫室',pub:'市場圖鑑',k:'畫集',p:420,d:'兩日',nw:1,x:12,y:36,m:2,s:'走訪十一座傳統市場，攤位速寫一百二十幅。'},
+ {b:'B02',n:'微光工作室',pub:'夜間動物誌',k:'插畫集',p:380,d:'兩日',nw:0,x:28,y:36,m:0,s:'夜行性動物三十六種，鉛筆與炭精筆原稿掃描。'},
+ {b:'B03',n:'銅版少女',pub:'雕刻的一百種手',k:'版畫集',p:460,d:'週六',nw:1,x:44,y:36,m:3,s:'銅版直刻，限量一百五十本，附一張原作小品。'},
+ {b:'B04',n:'蘋果核工房',pub:'靜物七十二',k:'素描集',p:340,d:'兩日',nw:0,x:60,y:36,m:1,s:'每日一物，畫滿七十二天的紀錄。'},
+ {b:'B05',n:'螢幕外的海',pub:'像素海岸線',k:'數位畫集',p:320,d:'週日',nw:0,x:76,y:36,m:4,s:'低解析度風景系列，附桌布下載卡。'},
+ {b:'B06',n:'荔枝季',pub:'南國植物筆記',k:'水彩集',p:400,d:'兩日',nw:1,x:12,y:46,m:5,s:'高屏地區果樹與野草，水彩原寸印刷。'},
+ {b:'B07',n:'折紙鳥',pub:'紙上鳥類圖鑑',k:'插畫集',p:360,d:'兩日',nw:0,x:28,y:46,m:0,s:'台灣留鳥四十八種，每種附辨識重點。'},
+ {b:'B08',n:'三色堇印象',pub:'色票日記',k:'色彩研究',p:300,d:'週六',nw:0,x:44,y:46,m:3,s:'一年份的天空色，每日一格實色印刷。'},
+ {b:'B09',n:'燈塔守',pub:'海圖與燈',k:'畫集',p:440,d:'兩日',nw:0,x:60,y:46,m:2,s:'環島燈塔十七座，鋼筆淡彩，附海圖摺頁。'},
+ {b:'B10',n:'拾光相館',pub:'底片裡的騎樓',k:'攝影誌',p:380,d:'兩日',nw:1,x:76,y:46,m:1,s:'負片掃描，全書以騎樓為框，雙色印刷。'},
+ {b:'C01',n:'齒孔研究會',pub:'台灣郵票設計小史',k:'研究誌',p:520,d:'兩日',nw:1,x:12,y:60,m:3,s:'本會第十一號，整理四十年間的郵票圖稿與設計者訪談。'},
+ {b:'C02',n:'副刊編輯室',pub:'報屁股的黃金年代',k:'評論誌',p:460,d:'兩日',nw:0,x:23,y:60,m:1,s:'副刊史料整理，附六位老編輯的口述紀錄。'},
+ {b:'C03',n:'譯者共同體',pub:'翻譯腔考',k:'語言研究',p:400,d:'週六',nw:0,x:34,y:60,m:0,s:'從日文翻譯小說中歸納出的十二種句法慣性。'},
+ {b:'C04',n:'城市考現學',pub:'招牌的字體學',k:'田野調查',p:480,d:'兩日',nw:1,x:45,y:60,m:2,s:'台北五條街的手寫招牌普查，附字形描摹。'},
+ {b:'C05',n:'電影筆記部',pub:'膠卷戲院田野',k:'影評誌',p:440,d:'兩日',nw:0,x:56,y:60,m:5,s:'全台仍在放映的膠卷戲院，逐間走訪。'},
+ {b:'C06',n:'聲音檔案館',pub:'消失的叫賣聲',k:'聲音研究',p:420,d:'週日',nw:0,x:67,y:60,m:4,s:'採集的三十七段市集叫賣，附譜例與轉寫。'},
+ {b:'C07',n:'味覺人類學',pub:'一碗麵的地理',k:'飲食研究',p:380,d:'兩日',nw:0,x:78,y:60,m:1,s:'從湯頭分佈畫出的島嶼地圖，附各縣市配方比較表。'},
+ {b:'C08',n:'書物工學',pub:'裝訂的一百年',k:'書史研究',p:500,d:'兩日',nw:0,x:89,y:60,m:3,s:'從線裝到膠裝的工法演變，含九種裝訂實樣。'},
+ {b:'D01',n:'線裝手帖',pub:'手縫筆記本套組',k:'手工書',p:650,d:'兩日',nw:1,x:12,y:74,m:3,s:'四目綴手縫本三冊，可現場挑封面紙與線色。'},
+ {b:'D02',n:'活版印刷部',pub:'活字明信片十二張',k:'活版',p:320,d:'兩日',nw:0,x:28,y:74,m:5,s:'鉛字活版印製，紙面壓痕明顯，附回郵信封。'},
+ {b:'D03',n:'藍晒工房',pub:'晒圖植物標本集',k:'藍晒',p:580,d:'週六',nw:0,x:44,y:74,m:2,s:'日光晒製，每本色差不同，附標本索引卡。'},
+ {b:'D04',n:'蠟封小舖',pub:'封蠟印章與信紙',k:'文具',p:420,d:'兩日',nw:0,x:60,y:74,m:0,s:'黃銅印章八款，現場可試蠟，信紙另計。'},
+ {b:'D05',n:'摺頁研究所',pub:'立體書：郵局',k:'立體書',p:880,d:'兩日',nw:1,x:76,y:74,m:4,s:'六個場景的紙藝立體書，手工黏貼限量六十本。'},
+ {b:'D06',n:'手抄紙人',pub:'楮皮紙五張入',k:'紙材',p:360,d:'週日',nw:0,x:12,y:84,m:1,s:'埔里手抄，含兩張帶纖維的厚磅試驗紙。'},
+ {b:'D07',n:'銅活字社',pub:'鉛字書籤組',k:'印刷品',p:280,d:'兩日',nw:0,x:28,y:84,m:5,s:'退役鉛字重鑄的書籤十二枚，可指定單字。'},
+ {b:'D08',n:'縫線裝訂室',pub:'和裝本工具包',k:'工具',p:720,d:'兩日',nw:0,x:44,y:84,m:3,s:'錐子、麻線、竹尺與圖解手冊一份，適合初學。'},
+ {b:'D09',n:'蓋章俱樂部',pub:'橡皮章十二枚',k:'印章',p:540,d:'兩日',nw:1,x:60,y:84,m:0,s:'本屆場限章：四個郵區各一，另有八枚常設圖案。'},
+ {b:'D10',n:'郵趣社',pub:'復刻郵摺與貼票冊',k:'集郵品',p:460,d:'兩日',nw:0,x:76,y:84,m:2,s:'仿舊郵摺，可收本場全部四十枚攤位郵票。'}
+];
+var ENTRY={x:50,y:96};
+var UNIT=0.6; /* 每格 0.6 公尺 */
+function zoneOf(b){return ZONES[b.charAt(0)];}
+function findC(b){for(var i=0;i<CIRCLES.length;i++){if(CIRCLES[i].b===b)return CIRCLES[i];}return null;}
+/* 郵路手冊：以 localStorage 保存跨頁選取，失敗則退回記憶體 */
+var BAG=(function(){
+  var mem=[];
+  function read(){
+    try{var v=localStorage.getItem('pf_bag');if(v)return JSON.parse(v);}catch(e){}
+    return mem;
+  }
+  function write(a){
+    mem=a;
+    try{localStorage.setItem('pf_bag',JSON.stringify(a));}catch(e){}
+  }
+  return{
+    list:function(){return read().filter(function(b){return !!findC(b);});},
+    has:function(b){return read().indexOf(b)>=0;},
+    toggle:function(b){var a=read(),i=a.indexOf(b);if(i>=0)a.splice(i,1);else a.push(b);write(a);return a.indexOf(b)>=0;},
+    set:function(a){write(a.slice());},
+    clear:function(){write([]);}
+  };
+})();
+/* 雕凹版點刻母題：以隱函數取樣，密度即調子 */
+var MOTIFS=[
+  function(x,y){return Math.max(0,1-Math.abs(y-.62)*3.2)*(x>.2&&x<.8?1:0)+Math.max(0,1-Math.hypot(x-.5,y-.34)*3.4);}, /* 郵筒 */
+  function(x,y){return Math.max(0,1-Math.abs((x-.5)*(x-.5)*3.2+.28-y)*4.5)+Math.max(0,1-Math.abs(y-.74)*7);},          /* 山與地平 */
+  function(x,y){return Math.max(0,1-Math.hypot((x-.5)*1.15,(y-.5)*.9)*2.6)*(Math.sin(x*22)*.22+.85);},                  /* 圓形花草 */
+  function(x,y){return Math.max(0,1-Math.abs(x-.5)*5)*Math.max(0,1-Math.abs(y-.5)*2.4)+Math.max(0,1-Math.abs(y-.5+ (x-.5)*.5)*9);}, /* 書冊 */
+  function(x,y){return Math.max(0,1-Math.hypot(x-.5,(y-.46)*1.5)*3)*(y<.5?1:.35)+Math.max(0,1-Math.abs(y-.8)*8);},      /* 燈塔光 */
+  function(x,y){return Math.max(0,1-Math.abs((x-.5)*2.6+Math.sin(y*8)*.35)*3.6)*Math.max(0,1-Math.abs(y-.5)*1.8);}      /* 羽毛筆 */
+];
+function stipple(mi,size,ink,seed){
+  var n=Math.round(size/3.1),o='',r,v,jx,jy,s=seed||1,f=MOTIFS[mi%MOTIFS.length];
+  function rnd(){s=(s*1664525+1013904223)%4294967296;return s/4294967296;}
+  for(var i=0;i<n;i++)for(var j=0;j<n;j++){
+    jx=(i+.5+(rnd()-.5)*.75)/n; jy=(j+.5+(rnd()-.5)*.75)/n;
+    v=f(jx,jy); if(v<=.06)continue;
+    r=Math.min(1.42,v*1.55);
+    o+='<circle cx="'+(jx*size).toFixed(1)+'" cy="'+(jy*size).toFixed(1)+'" r="'+r.toFixed(2)+'"/>';
+  }
+  return '<svg class="eng" viewBox="0 0 '+size+' '+size+'" aria-hidden="true"><g fill="'+ink+'">'+o+'</g></svg>';
+}
+
+/* ── 郵路規劃：最近鄰起解 + 2-opt 改良，走道格線（曼哈頓）計費 ── */
+(function(){
+  var SVGNS='http://www.w3.org/2000/svg';
+  var plan=document.getElementById('plan');if(!plan)return;
+  var AISLE={12:6,22:29,36:29,46:53,60:53,74:67,84:90};
+  var START={x:50,y:98,ay:96,b:'IN',n:'起點'};
+  var order=[],doneN=0,timer=null,pathEl=document.getElementById('routepath');
+
+  function ay(p){return p.ay!==undefined?p.ay:AISLE[p.y];}
+  function dist(a,b){
+    return Math.abs(a.y-ay(a))+Math.abs(ay(a)-ay(b))+Math.abs(a.x-b.x)+Math.abs(ay(b)-b.y);
+  }
+  function legPts(a,b){
+    return [[a.x,a.y],[a.x,ay(a)],[a.x,ay(b)],[b.x,ay(b)],[b.x,b.y]];
+  }
+
+  /* 平面圖底圖 */
+  (function drawBase(){
+    var zb=document.getElementById('zoneblocks'),al=document.getElementById('aisles'),
+        bo=document.getElementById('booths'),en=document.getElementById('entry');
+    var blocks=[['A',6,7,88,22],['B',6,31,88,22],['C',6,55,88,11],['D',6,69,88,22]];
+    blocks.forEach(function(z){
+      var r=document.createElementNS(SVGNS,'rect');
+      r.setAttribute('x',z[1]);r.setAttribute('y',z[2]);r.setAttribute('width',z[3]);r.setAttribute('height',z[4]);
+      r.setAttribute('fill',ZONES[z[0]].c);r.setAttribute('opacity','.07');
+      zb.appendChild(r);
+      var t=document.createElementNS(SVGNS,'text');
+      t.setAttribute('x',z[1]+1.5);t.setAttribute('y',z[2]+4);
+      t.setAttribute('font-family','IBM Plex Mono,monospace');t.setAttribute('font-size','3');
+      t.setAttribute('letter-spacing','.4');t.setAttribute('fill',ZONES[z[0]].c);
+      t.textContent=ZONES[z[0]].z+' '+ZONES[z[0]].t;
+      zb.appendChild(t);
+    });
+    [6,29,53,67,90,96].forEach(function(y){
+      var l=document.createElementNS(SVGNS,'line');
+      l.setAttribute('x1',4);l.setAttribute('x2',96);l.setAttribute('y1',y);l.setAttribute('y2',y);
+      al.appendChild(l);
+    });
+    CIRCLES.forEach(function(c){
+      var g=document.createElementNS(SVGNS,'g');
+      g.setAttribute('data-b',c.b);g.setAttribute('class','bo');
+      var r=document.createElementNS(SVGNS,'rect');
+      r.setAttribute('x',c.x-3.6);r.setAttribute('y',c.y-2.6);r.setAttribute('width',7.2);r.setAttribute('height',5.2);
+      r.setAttribute('fill','#F7F4EC');r.setAttribute('stroke',zoneOf(c.b).c);r.setAttribute('stroke-width','.5');
+      var t=document.createElementNS(SVGNS,'text');
+      t.setAttribute('x',c.x);t.setAttribute('y',c.y+.9);t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-family','IBM Plex Mono,monospace');t.setAttribute('font-size','2.6');
+      t.setAttribute('fill',zoneOf(c.b).c);t.textContent=c.b;
+      g.appendChild(r);g.appendChild(t);
+      var ti=document.createElementNS(SVGNS,'title');ti.textContent=c.b+'　'+c.n+'　《'+c.pub+'》';
+      g.appendChild(ti);
+      bo.appendChild(g);
+    });
+    var e=document.createElementNS(SVGNS,'g');
+    e.innerHTML='<rect x="44" y="96.6" width="12" height="4" fill="#23292B"/>'
+      +'<text x="50" y="99.7" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="2.6" fill="#F7F4EC">ENTRY</text>'
+      +'<text x="4" y="104" font-family="IBM Plex Mono,monospace" font-size="2.4" fill="#4A5457">南港展覽二館 5F・N 區　40 攤位　格線 1 格 = 0.6 m</text>';
+    en.appendChild(e);
+  })();
+
+  function paintBooths(){
+    var sel=BAG.list();
+    plan.querySelectorAll('.bo').forEach(function(g){
+      var b=g.getAttribute('data-b'),on=sel.indexOf(b)>=0,r=g.querySelector('rect');
+      r.setAttribute('fill',on?zoneOf(b).c:'#F7F4EC');
+      g.querySelector('text').setAttribute('fill',on?'#F7F4EC':zoneOf(b).c);
+      r.setAttribute('stroke-width',on?'.8':'.5');
+    });
+  }
+
+  /* 解 */
+  function solve(){
+    var pts=BAG.list().map(function(b){var c=findC(b);return{x:c.x,y:c.y,b:b,n:c.n,c:c};});
+    if(pts.length<2){order=pts;return pts;}
+    var left=pts.slice(),cur=START,route=[];
+    while(left.length){
+      var bi=0,bd=1e9;
+      for(var i=0;i<left.length;i++){var d=dist(cur,left[i]);if(d<bd){bd=d;bi=i;}}
+      cur=left[bi];route.push(cur);left.splice(bi,1);
+    }
+    function tour(r){
+      var t=0,prev=START;
+      for(var i=0;i<r.length;i++){t+=dist(prev,r[i]);prev=r[i];}
+      return t+dist(prev,START);
+    }
+    var best=tour(route),improved=true,guard=0;
+    while(improved&&guard<400){
+      improved=false;guard++;
+      for(var i=0;i<route.length-1;i++){
+        for(var j=i+1;j<route.length;j++){
+          var cand=route.slice(0,i).concat(route.slice(i,j+1).reverse(),route.slice(j+1));
+          var t=tour(cand);
+          if(t<best-1e-9){route=cand;best=t;improved=true;}
+        }
+      }
+    }
+    order=route;return route;
+  }
+
+  function fmt(n){return n.toFixed(0);}
+  function render(){
+    var r=order,legs=document.getElementById('legs'),h='',prev=START,total=0;
+    var stay=+document.getElementById('stay').value;
+    var pts=[];
+    for(var i=0;i<r.length;i++){
+      var d=dist(prev,r[i]);total+=d;
+      var seg=legPts(prev,r[i]);
+      if(!i)pts.push(seg[0]);
+      for(var k=1;k<seg.length;k++)pts.push(seg[k]);
+      var Z=zoneOf(r[i].b);
+      h+='<li data-i="'+i+'" style="--zc:'+Z.c+'" class="'+(i<doneN?'done':(i===doneN?'now':''))+'">'
+        +'<span class="no">'+(i+1)+'</span>'
+        +'<span class="nm"><em>'+r[i].b+'　'+Z.z+'</em>'+r[i].n
+        +'<span>《'+r[i].c.pub+'》　'+r[i].c.k+'　NT$'+r[i].c.p+'</span></span>'
+        +'<span class="dd">'+fmt(d*UNIT)+' m</span></li>';
+      prev=r[i];
+    }
+    if(r.length){
+      var back=dist(prev,START);total+=back;
+      var seg2=legPts(prev,START);
+      for(var q=1;q<seg2.length;q++)pts.push(seg2[q]);
+      h+='<li style="--zc:#23292B"><span class="no">↩</span><span class="nm"><em>OUT</em>回到起點'
+        +'<span>離場前記得到服務台換場限章</span></span><span class="dd">'+fmt(back*UNIT)+' m</span></li>';
+    }
+    legs.innerHTML=h||'<li style="--zc:#23292B"><span class="no">—</span><span class="nm">郵路手冊是空的<span>從下方「快速挑攤」勾選，或回窗口 01、02 蓋戳。</span></span><span class="dd"></span></li>';
+    pathEl.setAttribute('d',pts.length?('M'+pts.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join('L')):'');
+    var metres=total*UNIT;
+    var mins=metres/0.7/60+r.length*stay;
+    document.getElementById('rDist').textContent=r.length?fmt(metres):'—';
+    document.getElementById('rTime').textContent=r.length?fmt(mins):'—';
+    document.getElementById('rStop').textContent=r.length;
+    document.getElementById('play').disabled=!r.length;
+    document.getElementById('step').disabled=!r.length;
+    document.getElementById('rcode').value=r.length?r.map(function(p){return p.b;}).join('.'):'';
+    paintBooths();
+    drawMarks();
+  }
+
+  function drawMarks(){
+    var g=document.getElementById('marks');g.innerHTML='';
+    for(var i=0;i<doneN&&i<order.length;i++){
+      var p=order[i],rot=((p.b.charCodeAt(1)*7+p.b.charCodeAt(2)*13)%23)-11;
+      var m=document.createElementNS(SVGNS,'g');
+      m.setAttribute('transform','translate('+p.x+' '+p.y+') rotate('+rot+')');
+      m.setAttribute('class','cancelmark');m.style.setProperty('--rot',rot+'deg');
+      m.innerHTML='<circle r="4.4" fill="none" stroke="#23292B" stroke-width=".7" opacity=".85"/>'
+        +'<circle r="3.1" fill="none" stroke="#23292B" stroke-width=".35" opacity=".7"/>'
+        +'<path d="M-5.6 -1.5H5.6M-5.6 0H5.6M-5.6 1.5H5.6" stroke="#23292B" stroke-width=".5" stroke-dasharray="1.4 1" opacity=".8"/>'
+        +'<text y="-1.6" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="1.7" fill="#23292B">'+p.b+'</text>';
+      g.appendChild(m);
+    }
+  }
+
+  function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*16777619)>>>0;}return h>>>0;}
+  function finish(){
+    var code=order.map(function(p){return p.b;}).join('.');
+    var hash=fnv(code+'|PF9');
+    var no='PF-261017-'+String(hash%900+100);
+    var sum=0;order.forEach(function(p){sum+=p.c.p;});
+    document.getElementById('certC').textContent=no;
+    var walked=0,prev=START;
+    order.forEach(function(p){walked+=dist(prev,p);prev=p;});
+    walked+=dist(prev,START);
+    document.getElementById('certP').textContent=
+      '你在 '+order.length+' 個攤位落了戳，走過 '+fmt(walked*UNIT)
+      +' 公尺，主打刊物合計 NT$'+sum+'。這份郵路已登記在案。';
+    /* 齒孔票根：以郵路碼雜湊生成條碼 */
+    var bars='',x=6,h2=hash;
+    for(var i=0;i<34;i++){h2=(h2*1103515245+12345)>>>0;var w=1+(h2%3);bars+='<rect x="'+x+'" y="8" width="'+w+'" height="34" fill="#23292B"/>';x+=w+1+(h2>>7)%2;}
+    document.getElementById('certStub').innerHTML=
+      '<svg viewBox="0 0 148 96" width="100%" role="img" aria-label="完戳票根">'
+      +'<rect width="148" height="96" fill="#F0E6D2"/>'+bars
+      +'<text x="6" y="53" font-family="IBM Plex Mono,monospace" font-size="7" fill="#23292B">'+no+'</text>'
+      +'<text x="6" y="63" font-family="IBM Plex Mono,monospace" font-size="5.4" fill="#4A5457">CHIHKONG FAIR IX / FULL SET</text>'
+      +'<g transform="translate(112 74)"><circle r="17" fill="none" stroke="#C8503F" stroke-width="1.4" opacity=".9"/>'
+      +'<circle r="12" fill="none" stroke="#C8503F" stroke-width=".7" opacity=".8"/>'
+      +'<text y="-2" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="4.6" fill="#C8503F">CANCELLED</text>'
+      +'<text y="5" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="4.6" fill="#C8503F">26.10.17</text></g></svg>';
+    document.getElementById('cert').classList.add('show');
+  }
+
+  /* 郵袋行進 */
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function moveTo(i,cb){
+    var dot=document.getElementById('bagdot');
+    dot.style.display='';
+    var from=i===0?START:order[i-1],to=order[i];
+    var seg=legPts(from,to);
+    if(reduce){dot.setAttribute('transform','translate('+to.x+' '+to.y+')');cb&&cb();return;}
+    var lens=[],tot=0;
+    for(var k=1;k<seg.length;k++){var L=Math.abs(seg[k][0]-seg[k-1][0])+Math.abs(seg[k][1]-seg[k-1][1]);lens.push(L);tot+=L;}
+    var t0=performance.now(),dur=Math.max(420,Math.min(1500,tot*22));
+    (function frame(now){
+      var u=Math.min(1,(now-t0)/dur),want=u*tot,acc=0,x=seg[seg.length-1][0],y=seg[seg.length-1][1];
+      for(var k=0;k<lens.length;k++){
+        if(acc+lens[k]>=want){
+          var f=lens[k]?(want-acc)/lens[k]:1;
+          x=seg[k][0]+(seg[k+1][0]-seg[k][0])*f;
+          y=seg[k][1]+(seg[k+1][1]-seg[k][1])*f;break;
+        }
+        acc+=lens[k];
+      }
+      dot.setAttribute('transform','translate('+x.toFixed(2)+' '+y.toFixed(2)+')');
+      if(u<1)timer=requestAnimationFrame(frame);else cb&&cb();
+    })(t0);
+  }
+  function stepOnce(cb){
+    if(doneN>=order.length){cb&&cb(true);return;}
+    var i=doneN;
+    moveTo(i,function(){
+      doneN=i+1;render();
+      if(doneN>=order.length)finish();
+      cb&&cb(doneN>=order.length);
+    });
+  }
+  function playAll(){
+    if(doneN>=order.length){doneN=0;document.getElementById('cert').classList.remove('show');render();}
+    (function next(){
+      stepOnce(function(end){ if(!end)setTimeout(next,reduce?0:180); });
+    })();
+  }
+
+  /* 快速挑攤 */
+  (function pk(){
+    var el=document.getElementById('pk'),h='';
+    CIRCLES.forEach(function(c){
+      var Z=zoneOf(c.b);
+      h+='<button type="button" data-b="'+c.b+'" style="--zc:'+Z.c+'" aria-pressed="'+(BAG.has(c.b)?'true':'false')+'">'
+        +'<em>'+c.b+'　'+Z.z+'</em><strong>'+c.n+'</strong></button>';
+    });
+    el.innerHTML=h;
+    el.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b)return;
+      var code=b.getAttribute('data-b');
+      b.setAttribute('aria-pressed',BAG.toggle(code)?'true':'false');
+      doneN=0;document.getElementById('cert').classList.remove('show');
+      solve();render();
+    });
+  })();
+
+  function refreshPk(){
+    document.querySelectorAll('#pk button').forEach(function(b){
+      b.setAttribute('aria-pressed',BAG.has(b.getAttribute('data-b'))?'true':'false');
+    });
+  }
+
+  document.getElementById('solve').onclick=function(){
+    doneN=0;document.getElementById('cert').classList.remove('show');
+    document.getElementById('bagdot').style.display='none';
+    solve();render();
+    document.getElementById('msg').textContent=order.length?'已用 2-opt 收斂。':'先挑幾個攤位。';
+  };
+  document.getElementById('play').onclick=playAll;
+  document.getElementById('step').onclick=function(){stepOnce();};
+  document.getElementById('stay').onchange=render;
+  document.getElementById('start').onchange=function(){
+    var v=this.value.split(',');START.x=+v[0];START.y=+v[1];
+    doneN=0;document.getElementById('cert').classList.remove('show');
+    solve();render();
+  };
+  document.getElementById('clr').onclick=function(){
+    BAG.clear();order=[];doneN=0;
+    document.getElementById('cert').classList.remove('show');
+    document.getElementById('bagdot').style.display='none';
+    refreshPk();render();
+  };
+  document.getElementById('copy').onclick=function(){
+    var i=document.getElementById('rcode');
+    if(!i.value){document.getElementById('msg').textContent='還沒有郵路可複製。';return;}
+    i.removeAttribute('readonly');i.select();
+    try{document.execCommand('copy');}catch(e){}
+    if(navigator.clipboard)navigator.clipboard.writeText(i.value)['catch'](function(){});
+    i.setAttribute('readonly','readonly');
+    document.getElementById('msg').textContent='郵路碼已複製。';
+  };
+  document.getElementById('load').onclick=function(){
+    var i=document.getElementById('rcode');
+    i.removeAttribute('readonly');i.focus();
+    document.getElementById('msg').textContent='貼上郵路碼後按 Enter 載入。';
+    i.onkeydown=function(e){
+      if(e.key!=='Enter')return;
+      e.preventDefault();
+      var codes=i.value.toUpperCase().split(/[^A-D0-9]+/).filter(function(s){return findC(s);});
+      if(!codes.length){document.getElementById('msg').textContent='這串郵路碼裡沒有有效攤位號。';return;}
+      BAG.set(codes);doneN=0;refreshPk();
+      document.getElementById('cert').classList.remove('show');
+      solve();render();
+      i.setAttribute('readonly','readonly');
+      document.getElementById('msg').textContent='已載入 '+codes.length+' 個攤位並重排。';
+    };
+  };
+
+  /* 網址帶入 ?p=A01.B03 */
+  var qp=(location.search.match(/[?&]p=([^&]+)/)||[])[1];
+  if(qp){
+    var cs=decodeURIComponent(qp).toUpperCase().split(/[^A-D0-9]+/).filter(function(s){return findC(s);});
+    if(cs.length)BAG.set(cs);
+  }
+  refreshPk();solve();render();
+})();
+
+</script>
+</body>
+</html>

@@ -95,6 +95,7 @@
 | 77 | [熾房 GLÜHWERK](sites/gluhwerk-glass/index.html) | 玻璃工坊 | 包浩斯 Bauhaus | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 78 | [亮記 LEUNG KEE](sites/leung-kee/index.html) | 港式冰室／大牌檔 | 港式霓虹 Hong Kong Neon | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 79 | [金聲閣 JINSHENG](sites/jinsheng-glove/index.html) | 布袋戲團（掌中戲） | 版印民俗 Folk-Woodblock | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 80 | [岩站 GRIP STATION](sites/grip-station/index.html) | 抱石攀岩館 | 導視系統 Wayfinding | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

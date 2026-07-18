@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>開線台 ROUTE SETTER｜岩站 GRIP STATION</title>
+<meta name="description" content="把岩點拖到牆上，選好角度，系統當場算難度分級，並自動解出這條線的 beta——火柴人會照著手腳順序爬給你看。排完存成路線碼，貼給朋友原樣重現。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23101418'/%3E%3Cpath d='M12 40 L32 18 L52 40 L43 40 L32 28 L21 40 Z' fill='%232D8CFF'/%3E%3Ccircle cx='32' cy='48' r='6' fill='%23FF6A13'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Noto+Sans+TC:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101418; --slate:#1A2128; --slate2:#232C35; --line:#313C46;
+  --chalk:#E9E7E0; --grey:#8A939C;
+  --sign:#2D8CFF; --mark:#FF6A13;
+  --g0:#E9E7E0; --g1:#FFD400; --g2:#38C46B; --g3:#2D8CFF; --g4:#FF3B30; --g5:#9B5CFF; --g6:#0B0E11;
+  --f-sign:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-tc:'Noto Sans TC',system-ui,sans-serif;
+  --f-mono:'Roboto Mono',ui-monospace,monospace;
+  --rail:78px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--chalk);font-family:var(--f-tc);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--f-sign);font-weight:900;letter-spacing:-.01em;line-height:1.1;margin:0}
+.skip{position:absolute;left:-999px;top:0;background:var(--mark);color:#101418;padding:8px 14px;z-index:99}
+.skip:focus{left:8px;top:8px}
+
+.spine{position:fixed;left:0;top:0;bottom:0;width:var(--rail);background:var(--slate);border-right:3px solid var(--mark);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0}
+.spine .sig{width:100%;border:0;background:var(--sign);color:#fff;font-family:var(--f-sign);font-weight:800;font-size:12px;letter-spacing:.16em;padding:14px 0 12px;cursor:pointer;display:block}
+.spine .sig svg{display:block;margin:0 auto 5px}
+.spine .brandv{writing-mode:vertical-rl;font-family:var(--f-sign);font-weight:800;font-size:13px;letter-spacing:.34em;color:var(--grey);text-decoration:none}
+.spine .codes{display:flex;flex-direction:column;width:26px}
+.spine .codes i{height:15px;display:block}
+.board{position:fixed;inset:0;background:var(--ink);z-index:60;display:none;overflow:auto}
+.board.on{display:block}
+.board .bhead{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--mark);padding:16px 22px}
+.board .bhead b{font-family:var(--f-sign);font-size:13px;letter-spacing:.3em;color:var(--grey)}
+.board .bclose{background:none;border:2px solid var(--line);color:var(--chalk);font-family:var(--f-mono);font-size:13px;padding:7px 14px;cursor:pointer}
+.dest{display:grid;grid-template-columns:64px 1fr auto;gap:0 18px;align-items:center;border-bottom:1px solid var(--line);padding:20px 22px;text-decoration:none}
+.dest:hover{background:var(--slate)}
+.dest .ar{width:44px;height:44px;background:var(--sign);clip-path:polygon(0 0,66% 0,100% 50%,66% 100%,0 100%,34% 50%)}
+.dest[aria-current="page"] .ar{background:var(--mark)}
+.dest .zh{font-family:var(--f-tc);font-weight:900;font-size:26px}
+.dest .en{font-family:var(--f-sign);font-weight:800;font-size:11px;letter-spacing:.24em;color:var(--grey);display:block;margin-top:2px}
+.dest .no{font-family:var(--f-mono);font-size:12px;color:var(--grey)}
+
+main{margin-left:var(--rail);padding:0 26px}
+.crumb{border-bottom:1px solid var(--line);margin:0 -26px 0;padding:12px 26px;font-family:var(--f-mono);font-size:12px;color:var(--grey)}
+.crumb a{text-decoration:none;color:var(--sign)}
+.phead{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:end;padding:26px 0 20px}
+.plate{background:var(--mark);color:#101418;padding:12px 20px 14px;border-left:8px solid var(--sign);display:inline-block}
+.plate .t1{font-family:var(--f-tc);font-weight:900;font-size:34px;line-height:1}
+.plate .t2{font-family:var(--f-sign);font-weight:800;font-size:11.5px;letter-spacing:.3em;margin-top:5px}
+.phead p{margin:0 0 4px;color:var(--grey);font-size:14px;max-width:60ch}
+
+/* ── 開線台三欄 ── */
+.rig{display:grid;grid-template-columns:236px minmax(320px,1fr) 340px;gap:2px;background:var(--line);border:3px solid var(--line)}
+.col{background:var(--slate);padding:16px 15px}
+.col.wallcol{background:var(--ink);padding:0;position:relative}
+.ttl{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--grey);border-bottom:1px solid var(--line);padding-bottom:7px;margin:0 0 12px}
+.ttl.mt{margin-top:20px}
+
+.angs{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);border:1px solid var(--line)}
+.angs button{background:var(--slate2);border:0;color:var(--chalk);font-family:var(--f-mono);font-size:11.5px;padding:9px 4px;cursor:pointer;line-height:1.4}
+.angs button b{display:block;font-family:var(--f-sign);font-size:16px}
+.angs button[aria-pressed="true"]{background:var(--sign);color:#fff}
+
+.tray{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);border:1px solid var(--line);touch-action:none}
+.tray button{background:var(--slate2);border:0;color:var(--chalk);padding:10px 5px 8px;cursor:grab;font-family:var(--f-mono);font-size:10.5px;line-height:1.35;display:flex;flex-direction:column;align-items:center;gap:5px;touch-action:none}
+.tray button[aria-pressed="true"]{background:var(--sign);color:#fff}
+.tray button svg{display:block}
+.tray button:active{cursor:grabbing}
+.hint{font-size:12px;color:var(--grey);line-height:1.65;margin:10px 0 0}
+.hint kbd{font-family:var(--f-mono);background:var(--slate2);border:1px solid var(--line);padding:0 5px;font-size:11px}
+
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tools button{flex:1 1 auto;background:none;border:1px solid var(--line);color:var(--chalk);font-family:var(--f-mono);font-size:11.5px;padding:8px 6px;cursor:pointer}
+.tools button:hover{border-color:var(--mark);color:var(--mark)}
+
+.presets{display:flex;flex-direction:column;gap:2px;background:var(--line);border:1px solid var(--line)}
+.presets button{background:var(--slate2);border:0;color:var(--chalk);text-align:left;padding:9px 11px;cursor:pointer;font-family:var(--f-tc);font-size:13px;display:flex;align-items:center;gap:9px}
+.presets button:hover{background:var(--sign);color:#fff}
+.presets .vg{font-family:var(--f-sign);font-weight:800;font-size:11px;padding:2px 8px;border-radius:999px;color:#101418}
+
+#wall{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair;user-select:none}
+.wbar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:9px 14px;font-family:var(--f-mono);font-size:11px;color:var(--grey)}
+.wbar b{color:var(--mark)}
+
+.grade{display:flex;align-items:center;gap:14px;border:1px solid var(--line);background:var(--slate2);padding:14px}
+.gbig{font-family:var(--f-sign);font-weight:800;font-size:44px;line-height:.9;width:86px;text-align:center;padding:10px 0;border-radius:999px;color:#101418}
+.gtxt{font-size:13px;color:#b8c1c9}
+.gtxt b{display:block;font-family:var(--f-sign);font-size:13px;letter-spacing:.14em;color:var(--chalk);margin-bottom:2px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:12px}
+.stats div{background:var(--slate2);padding:8px 10px}
+.stats dt{font-family:var(--f-mono);font-size:10.5px;color:var(--grey);margin:0}
+.stats dd{margin:0;font-family:var(--f-sign);font-weight:800;font-size:16px}
+
+.beta{border:1px solid var(--line);background:var(--slate2);margin-top:12px}
+.betahead{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:9px 11px}
+.betahead b{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--grey);flex:1}
+.betahead button{background:var(--mark);border:0;color:#101418;font-family:var(--f-sign);font-weight:800;font-size:11.5px;letter-spacing:.1em;padding:6px 13px;cursor:pointer}
+.betahead button.ghost{background:none;border:1px solid var(--line);color:var(--chalk)}
+.steps{max-height:270px;overflow:auto;margin:0;padding:0;list-style:none}
+.steps li{display:grid;grid-template-columns:26px 46px 1fr;gap:9px;align-items:baseline;padding:7px 11px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer}
+.steps li:hover{background:#2a343d}
+.steps li.on{background:var(--sign);color:#fff}
+.steps li .n{font-family:var(--f-mono);font-size:10.5px;color:var(--grey)}
+.steps li.on .n{color:#dbeaff}
+.steps li .lb{font-family:var(--f-sign);font-weight:800;font-size:11px;letter-spacing:.08em}
+.steps li .dy{color:var(--mark);font-weight:700}
+.steps li.on .dy{color:#ffd9c0}
+
+.codebox{margin-top:12px}
+.codebox input{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--chalk);font-family:var(--f-mono);font-size:12px;padding:9px 10px}
+.codebox input:focus{outline:2px solid var(--sign);outline-offset:-1px}
+.codebox .cr{display:flex;gap:6px;margin-top:6px}
+.codebox .cr button{flex:1;background:none;border:1px solid var(--line);color:var(--chalk);font-family:var(--f-mono);font-size:11.5px;padding:8px;cursor:pointer}
+.codebox .cr button:hover{border-color:var(--mark);color:var(--mark)}
+.msg{font-family:var(--f-mono);font-size:11.5px;color:var(--mark);min-height:19px;padding-top:5px}
+
+/* ── 送審 ── */
+.submit{border:3px solid var(--line);background:var(--slate);margin-top:2px;padding:22px 20px}
+.frm{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.fld label{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;color:var(--grey);margin-bottom:5px}
+.fld input,.fld select{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--chalk);font-family:var(--f-tc);font-size:14px;padding:10px}
+.fld input:focus,.fld select:focus{outline:2px solid var(--sign);outline-offset:-1px}
+.fld .err{font-family:var(--f-mono);font-size:11px;color:var(--g4);min-height:17px;padding-top:3px}
+.sbtn{background:var(--mark);border:0;color:#101418;font-family:var(--f-sign);font-weight:800;letter-spacing:.14em;font-size:14px;padding:15px 30px;cursor:pointer;margin-top:6px}
+.sbtn:hover{background:var(--chalk)}
+.sbtn:disabled{background:var(--line);color:var(--grey);cursor:not-allowed}
+.ticket{display:none;border:3px solid var(--mark);background:var(--ink);margin-top:18px;padding:20px}
+.ticket.on{display:block}
+.ticket .tno{font-family:var(--f-mono);font-size:12px;color:var(--mark);letter-spacing:.18em}
+.ticket h3{font-size:26px;margin:6px 0 10px}
+.ticket dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:13.5px;margin:0 0 14px}
+.ticket dt{font-family:var(--f-mono);font-size:11px;color:var(--grey)}
+.ticket dd{margin:0;font-weight:700}
+.ticket svg{display:block}
+
+.bandline{height:9px;display:flex;margin-left:var(--rail);margin-top:56px}
+.bandline i{flex:1}
+footer{margin-left:var(--rail);border-top:3px solid var(--mark);padding:30px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px;font-size:13px;color:var(--grey)}
+footer b{display:block;color:var(--chalk);font-family:var(--f-sign);font-size:11px;letter-spacing:.24em;margin-bottom:10px}
+footer a{text-decoration:none;display:block;padding:3px 0}
+footer a:hover{color:var(--mark)}
+.fnote{grid-column:1/-1;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;font-family:var(--f-mono);line-height:1.9}
+noscript p{border:2px solid var(--mark);padding:12px;font-size:13px}
+
+@media (max-width:1080px){
+  .rig{grid-template-columns:1fr}
+  .col.wallcol{order:-1}
+  .tray{grid-template-columns:repeat(4,1fr)}
+  .angs{grid-template-columns:repeat(4,1fr)}
+  .frm{grid-template-columns:1fr 1fr}
+}
+@media (max-width:700px){
+  :root{--rail:0px}
+  .spine{left:0;right:0;bottom:auto;top:0;width:auto;height:58px;flex-direction:row;border-right:0;border-bottom:3px solid var(--mark);padding:0 0 0 14px}
+  .spine .sig{width:auto;padding:0 18px;height:58px;order:3;display:flex;align-items:center;gap:8px}
+  .spine .sig svg{margin:0}
+  .spine .brandv{writing-mode:horizontal-tb;letter-spacing:.2em;order:1;font-size:12px}
+  .spine .codes{flex-direction:row;width:auto;order:2;margin-left:auto;margin-right:12px}
+  .spine .codes i{height:26px;width:8px}
+  main{margin-left:0;padding:58px 14px 0}
+  .crumb{margin:0 -14px;padding:12px 14px}
+  footer{margin-left:0;grid-template-columns:1fr;padding:24px 16px}
+  .bandline{margin-left:0}
+  .phead{grid-template-columns:1fr;gap:14px}
+  .plate .t1{font-size:28px}
+  .tray{grid-template-columns:repeat(3,1fr)}
+  .frm{grid-template-columns:1fr}
+  .dest .zh{font-size:20px}
+  .dest{grid-template-columns:44px 1fr;gap:0 14px}
+  .dest .no{display:none}
+  .dest .ar{width:34px;height:34px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳至內容</a>
+
+<nav class="spine" aria-label="場館指標">
+  <button class="sig" id="sigBtn" aria-expanded="false" aria-controls="board">
+    <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><rect width="20" height="2.6" fill="#fff"/><rect y="5.7" width="20" height="2.6" fill="#fff"/><rect y="11.4" width="14" height="2.6" fill="#fff"/></svg>
+    指標
+  </button>
+  <a class="brandv" href="index.html">GRIP STATION ・ 岩站</a>
+  <div class="codes" aria-hidden="true">
+    <i style="background:var(--g0)"></i><i style="background:var(--g1)"></i><i style="background:var(--g2)"></i><i style="background:var(--g3)"></i><i style="background:var(--g4)"></i><i style="background:var(--g5)"></i>
+  </div>
+</nav>
+
+<div class="board" id="board" role="dialog" aria-modal="true" aria-label="場館指標板">
+  <div class="bhead"><b>GRIP STATION ／ 場館指標 DIRECTORY</b><button class="bclose" id="bClose">關閉 ✕</button></div>
+  <a class="dest" href="index.html"><span class="ar"></span><span><span class="zh">路網圖</span><span class="en">STATION MAP</span></span><span class="no">B1 ／ 全場六區</span></a>
+  <a class="dest" href="wall.html"><span class="ar"></span><span><span class="zh">路線牌</span><span class="en">ROUTE BOARD</span></span><span class="no">119 條在牆</span></a>
+  <a class="dest" href="setter.html" aria-current="page"><span class="ar"></span><span><span class="zh">開線台</span><span class="en">ROUTE SETTER</span></span><span class="no">拖岩點・自動分級・解 beta</span></a>
+  <a class="dest" href="visit.html"><span class="ar"></span><span><span class="zh">入場資訊</span><span class="en">VISIT &amp; RATES</span></span><span class="no">票價／時段／交通</span></a>
+</div>
+
+<main id="main">
+  <div class="crumb"><a href="index.html">路網圖</a> ／ 開線台 ROUTE SETTER</div>
+
+  <div class="phead">
+    <div class="plate"><div class="t1">開線台</div><div class="t2">ROUTE SETTER TERMINAL</div></div>
+    <p>把左邊的岩點拖到牆上。系統會依岩點種類、步距、牆面角度算出分級，並解出這條線的 beta——右邊的火柴人會照著手腳順序爬一次給你看。構不到的一步會被標記成動態。</p>
+  </div>
+
+  <noscript><p>開線台需要 JavaScript 才能拖放岩點與演算 beta。你仍然可以瀏覽 <a href="wall.html">路線牌</a> 與 <a href="visit.html">入場資訊</a>。</p></noscript>
+
+  <div class="rig">
+    <!-- ── 左：工具 ── -->
+    <div class="col">
+      <p class="ttl">牆面角度 WALL ANGLE</p>
+      <div class="angs" id="angs" role="group" aria-label="牆面角度">
+        <button data-a="90" aria-pressed="true"><b>90°</b>直牆</button>
+        <button data-a="75" aria-pressed="false"><b>75°</b>平板</button>
+        <button data-a="55" aria-pressed="false"><b>55°</b>斜板</button>
+        <button data-a="35" aria-pressed="false"><b>35°</b>洞穴</button>
+      </div>
+
+      <p class="ttl mt">岩點盤 HOLD TRAY　<span style="color:var(--mark)">↓ 拖到牆上</span></p>
+      <div class="tray" id="tray"></div>
+      <p class="hint">拖曳岩點盤上的岩點到牆面即可放置；牆上的岩點也能直接拖動。點一下岩點選取，按 <kbd>Delete</kbd> 或「刪除選取」移除。</p>
+
+      <div class="tools">
+        <button id="btnDel" type="button">刪除選取</button>
+        <button id="btnClear" type="button">清空牆面</button>
+        <button id="btnUndo" type="button">還原一步</button>
+      </div>
+
+      <p class="ttl mt">開線師示範 PRESETS</p>
+      <div class="presets" id="presets"></div>
+    </div>
+
+    <!-- ── 中：牆面 ── -->
+    <div class="col wallcol">
+      <div class="wbar">
+        <span>牆面 3.1 m × 3.9 m ／ 岩點 <b id="wCount">0</b></span>
+        <span id="wSel">未選取</span>
+      </div>
+      <svg id="wall" viewBox="0 0 620 780" role="application" aria-label="開線牆面：拖放岩點以編排路線"></svg>
+    </div>
+
+    <!-- ── 右：分級 + beta ── -->
+    <div class="col">
+      <p class="ttl">分級演算 GRADE</p>
+      <div class="grade">
+        <div class="gbig" id="gBig" style="background:var(--line);color:var(--grey)">—</div>
+        <div class="gtxt"><b id="gName">尚未成線</b><span id="gDesc">至少放兩個手點（最低的兩個是起攀點，最高的是終點）。</span></div>
+      </div>
+      <dl class="stats">
+        <div><dt>手點／腳點</dt><dd id="sHold">0 ／ 0</dd></div>
+        <div><dt>最長一步</dt><dd id="sMax">—</dd></div>
+        <div><dt>平均步距</dt><dd id="sAvg">—</dd></div>
+        <div><dt>動態步數</dt><dd id="sDyno">—</dd></div>
+      </dl>
+
+      <div class="beta">
+        <div class="betahead">
+          <b>BETA 解算 ／ 分解動作</b>
+          <button id="btnPlay" type="button">播放</button>
+          <button id="btnReset" class="ghost" type="button">回起攀</button>
+        </div>
+        <ol class="steps" id="steps"><li style="grid-template-columns:1fr;color:var(--grey)">牆上還沒有路線。</li></ol>
+      </div>
+
+      <p class="ttl mt">路線碼 ROUTE CODE</p>
+      <div class="codebox">
+        <input id="code" type="text" spellcheck="false" aria-label="路線碼" placeholder="GS1A…">
+        <div class="cr">
+          <button id="btnCopy" type="button">複製</button>
+          <button id="btnLoad" type="button">載入此碼</button>
+        </div>
+        <div class="msg" id="codeMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 送審 ── -->
+  <div class="submit">
+    <h2 style="font-size:24px;margin-bottom:4px">送審這條線</h2>
+    <p style="color:var(--grey);font-size:13.5px;margin:0 0 18px">路線排好之後填單送審。岩站的線務會排進換線班表，通過後會貼上實體色碼牌。</p>
+    <form class="frm" id="frm" novalidate>
+      <div class="fld">
+        <label for="fName">路線名稱（2–12 字）</label>
+        <input id="fName" type="text" maxlength="12" placeholder="例：週三的長路">
+        <div class="err" id="eName"></div>
+      </div>
+      <div class="fld">
+        <label for="fSetter">開線師</label>
+        <select id="fSetter">
+          <option value="">請選擇</option>
+          <option>周奕安</option><option>林郁真</option><option>蔡博丞</option><option>田邊涼</option><option>訪客投稿</option>
+        </select>
+        <div class="err" id="eSetter"></div>
+      </div>
+      <div class="fld">
+        <label for="fZone">預定上牆岩區</label>
+        <select id="fZone">
+          <option value="">請選擇</option>
+          <option value="A">A 大斜板 45°</option><option value="B">B 直牆 90°</option>
+          <option value="C">C 洞穴 35°</option><option value="D">D 拱形 60°</option><option value="E">E 平板 75°</option>
+        </select>
+        <div class="err" id="eZone"></div>
+      </div>
+    </form>
+    <button class="sbtn" id="btnSubmit" type="button">送出開線單</button>
+    <div class="msg" id="subMsg"></div>
+
+    <div class="ticket" id="ticket" role="status">
+      <div class="tno" id="tNo">GS-260718-000</div>
+      <h3 id="tName">—</h3>
+      <dl>
+        <dt>分級</dt><dd id="tGrade">—</dd>
+        <dt>岩區／角度</dt><dd id="tZone">—</dd>
+        <dt>開線師</dt><dd id="tSetter">—</dd>
+        <dt>岩點</dt><dd id="tHold">—</dd>
+        <dt>路線碼</dt><dd id="tCode" style="font-family:var(--f-mono);font-size:12px;word-break:break-all">—</dd>
+      </dl>
+      <svg id="tBar" viewBox="0 0 300 46" width="300" height="46" aria-label="開線單條碼"></svg>
+      <p style="font-family:var(--f-mono);font-size:11px;color:var(--grey);margin:8px 0 0">此為前端模擬示意，未送出任何資料。</p>
+    </div>
+  </div>
+</main>
+
+<div class="bandline" aria-hidden="true">
+  <i style="background:var(--g0)"></i><i style="background:var(--g1)"></i><i style="background:var(--g2)"></i><i style="background:var(--g3)"></i><i style="background:var(--g4)"></i><i style="background:var(--g5)"></i><i style="background:var(--g6)"></i>
+</div>
+
+<footer>
+  <div>
+    <b>GRIP STATION 岩站</b>
+    台北市內湖區行善路 158 號 B1<br>
+    (02) 2793-6620／service@gripstation.tw<br>
+    平日 12:00–23:00　週末 09:00–22:00　週二 14:00 前休館換線
+  </div>
+  <div>
+    <b>場館</b>
+    <a href="index.html">路網圖</a><a href="wall.html">路線牌</a><a href="setter.html">開線台</a><a href="visit.html">入場資訊</a>
+  </div>
+  <div>
+    <b>指南</b>
+    <a href="visit.html#rates">票價與月票</a><a href="visit.html#first">第一次抱石</a><a href="visit.html#rules">場館規則</a><a href="visit.html#route">交通指引</a>
+  </div>
+  <div class="fnote">
+    岩站 GRIP STATION 為設計示範用之虛構品牌。分級演算法為本站自訂的示意模型，僅供設計展示，不等同任何真實抱石分級標準。<br>
+    設計與建置：Claude Opus 4.8（排程 Agent）・2026-07-18
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ══ 導覽 ══ */
+var board=document.getElementById('board'),sig=document.getElementById('sigBtn'),bc=document.getElementById('bClose');
+sig.addEventListener('click',function(){board.classList.add('on');sig.setAttribute('aria-expanded','true');bc.focus();});
+bc.addEventListener('click',function(){board.classList.remove('on');sig.setAttribute('aria-expanded','false');sig.focus();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&board.classList.contains('on')){board.classList.remove('on');sig.setAttribute('aria-expanded','false');}});
+
+/* ══ 常數 ══ */
+var W=620,H=780,SNAP=20,CM=0.5;              /* 1 unit = 0.5 cm */
+var REACH_OK=150, REACH_LONG=210;            /* 一步距離門檻（unit） */
+var GCOL=['#E9E7E0','#FFD400','#38C46B','#2D8CFF','#FF3B30','#9B5CFF','#0B0E11'];
+var GNAME=['入門','入門','基礎','進階','進階','高強度','高強度'];
+var TYPES={
+  jug   :{n:'大水槽',en:'JUG',   d:1.0,r:21,c:'#38C46B'},
+  edge  :{n:'邊條',  en:'EDGE',  d:1.9,r:16,c:'#2D8CFF'},
+  crimp :{n:'指扣',  en:'CRIMP', d:3.2,r:12,c:'#FF3B30'},
+  sloper:{n:'圓弧',  en:'SLOPER',d:2.2,r:23,c:'#9B5CFF'},
+  pinch :{n:'捏點',  en:'PINCH', d:2.2,r:17,c:'#FF6A13'},
+  pocket:{n:'洞點',  en:'POCKET',d:2.8,r:15,c:'#FFD400'},
+  foot  :{n:'腳點',  en:'FOOT',  d:0.6,r:10,c:'#8A939C'}
+};
+var ORDER=['jug','edge','crimp','sloper','pinch','pocket','foot'];
+var TCODE={jug:'J',edge:'E',crimp:'C',sloper:'S',pinch:'P',pocket:'O',foot:'F'};
+var CTYPE={J:'jug',E:'edge',C:'crimp',S:'sloper',P:'pinch',O:'pocket',F:'foot'};
+var ANGC={90:'A',75:'B',55:'C',35:'D'},CANG={A:90,B:75,C:55,D:35};
+var ANGADD={90:0,75:0.3,55:1.2,35:2.0};
+var ANGN={90:'直牆 90°',75:'平板 75°',55:'斜板 55°',35:'洞穴 35°'};
+
+/* ══ 狀態 ══ */
+var holds=[],uid=1,angle=90,sel=null,cur='jug',hist=[],poses=[],stepInfo=[],curStep=0,anim=null;
+var wall=document.getElementById('wall');
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+/* ══ 岩點外形（stencil 噴模：鏤空橋接 + 噴霧邊） ══ */
+function holdShape(t,r,c,idp){
+  var s='';
+  if(t==='jug'){
+    s+='<path d="M'+(-r)+' '+(r*0.45)+' Q'+(-r*1.05)+' '+(-r*0.9)+' 0 '+(-r)+' Q'+(r*1.05)+' '+(-r*0.9)+' '+r+' '+(r*0.45)+' Q0 '+(r*0.95)+' '+(-r)+' '+(r*0.45)+' Z" fill="'+c+'"/>';
+    s+='<path d="M'+(-r*0.6)+' '+(-r*0.1)+' Q0 '+(-r*0.55)+' '+(r*0.6)+' '+(-r*0.1)+'" stroke="#101418" stroke-width="'+(r*0.24)+'" fill="none" stroke-linecap="round"/>';
+  }else if(t==='edge'){
+    s+='<path d="M'+(-r)+' '+(-r*0.5)+' H'+r+' V'+(r*0.55)+' Q0 '+(r*0.95)+' '+(-r)+' '+(r*0.55)+' Z" fill="'+c+'"/>';
+    s+='<rect x="'+(-r*0.72)+'" y="'+(-r*0.22)+'" width="'+(r*1.44)+'" height="'+(r*0.26)+'" fill="#101418"/>';
+  }else if(t==='crimp'){
+    s+='<path d="M'+(-r)+' '+(-r*0.32)+' H'+r+' L'+(r*0.72)+' '+(r*0.72)+' H'+(-r*0.72)+' Z" fill="'+c+'"/>';
+    s+='<rect x="'+(-r*0.62)+'" y="'+(-r*0.14)+'" width="'+(r*1.24)+'" height="'+(r*0.18)+'" fill="#101418"/>';
+  }else if(t==='sloper'){
+    s+='<path d="M'+(-r)+' '+(r*0.42)+' A'+r+' '+(r*0.95)+' 0 0 1 '+r+' '+(r*0.42)+' Z" fill="'+c+'"/>';
+    s+='<path d="M'+(-r*0.55)+' '+(r*0.42)+' A'+(r*0.55)+' '+(r*0.5)+' 0 0 1 '+(r*0.55)+' '+(r*0.42)+'" fill="none" stroke="#101418" stroke-width="'+(r*0.16)+'"/>';
+  }else if(t==='pinch'){
+    s+='<path d="M'+(-r)+' '+(-r*0.75)+' H'+(-r*0.2)+' V'+(r*0.8)+' H'+(-r)+' Z M'+(r*0.2)+' '+(-r*0.75)+' H'+r+' V'+(r*0.8)+' H'+(r*0.2)+' Z" fill="'+c+'"/>';
+  }else if(t==='pocket'){
+    s+='<circle r="'+r+'" fill="'+c+'"/><circle r="'+(r*0.4)+'" fill="#101418"/>';
+  }else{
+    s+='<path d="M'+(-r)+' '+(-r*0.55)+' H'+r+' L'+(r*0.6)+' '+(r*0.6)+' H'+(-r*0.6)+' Z" fill="'+c+'"/>';
+  }
+  return '<g filter="url(#sp)">'+s+'</g>';
+}
+
+/* ══ 牆面繪製 ══ */
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function draw(){
+  var s='';
+  s+='<defs>'
+   + '<filter id="sp" x="-25%" y="-25%" width="150%" height="150%">'
+   + '<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="11" result="n"/>'
+   + '<feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>'
+   + '<pattern id="ply" width="40" height="40" patternUnits="userSpaceOnUse">'
+   + '<rect width="40" height="40" fill="#161B21"/><circle cx="20" cy="20" r="2.4" fill="#0d1116"/><circle cx="20" cy="20" r="1.1" fill="#232C35"/></pattern>'
+   + '</defs>';
+  s+='<rect width="'+W+'" height="'+H+'" fill="url(#ply)"/>';
+  /* 牆面角度標記帶 */
+  s+='<rect x="0" y="0" width="'+W+'" height="34" fill="#1A2128"/>';
+  s+='<text x="14" y="23" font-family="Roboto Mono" font-size="13" fill="#8A939C">'+ANGN[angle]+' ／ TOP OUT ↑</text>';
+  s+='<rect x="0" y="'+(H-30)+'" width="'+W+'" height="30" fill="#1A2128"/>';
+  s+='<text x="14" y="'+(H-10)+'" font-family="Roboto Mono" font-size="13" fill="#8A939C">軟墊 MAT ／ 起攀線</text>';
+  s+='<path d="M0 '+(H-30)+' H'+W+'" stroke="#FF6A13" stroke-width="3"/>';
+
+  var hands=holds.filter(function(h){return h.type!=='foot';}).sort(function(a,b){return b.y-a.y;});
+  var starts=hands.slice(0,2),top=hands.length?hands[hands.length-1]:null;
+
+  /* 路線連線 */
+  if(hands.length>1){
+    s+='<path d="M'+hands.map(function(h){return h.x+' '+h.y;}).join(' L')+'" stroke="#3a4650" stroke-width="2" fill="none" stroke-dasharray="6 6"/>';
+  }
+  /* 火柴人（在岩點下層） */
+  s+=figureSVG();
+
+  /* 岩點 */
+  holds.forEach(function(h){
+    var T=TYPES[h.type];
+    s+='<g class="hd" data-id="'+h.id+'" transform="translate('+h.x+','+h.y+') rotate('+h.rot+')">'
+     + (sel===h.id?'<circle r="'+(T.r+9)+'" fill="none" stroke="#FF6A13" stroke-width="3"/>':'')
+     + holdShape(h.type,T.r,T.c,h.id)
+     + '<circle r="'+Math.max(T.r+8,28)+'" fill="transparent" style="cursor:grab"/>'
+     + '</g>';
+  });
+  /* 起攀 / 終點 標籤 */
+  starts.forEach(function(h){
+    s+='<g transform="translate('+h.x+','+(h.y+TYPES[h.type].r+16)+')"><rect x="-15" y="-11" width="30" height="17" fill="#FF6A13"/><text x="0" y="2" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="12" fill="#101418">S</text></g>';
+  });
+  if(top&&hands.length>2){
+    s+='<g transform="translate('+top.x+','+(top.y-TYPES[top.type].r-14)+')"><rect x="-26" y="-13" width="52" height="18" fill="#2D8CFF"/><text x="0" y="1" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="12" fill="#fff">TOP</text></g>';
+  }
+  wall.innerHTML=s;
+  document.getElementById('wCount').textContent=holds.length;
+  var selh=holds.filter(function(h){return h.id===sel;})[0];
+  document.getElementById('wSel').textContent=selh?('選取中：'+TYPES[selh.type].n+' '+TYPES[selh.type].en):'未選取';
+}
+
+/* ══ 人體：兩節 IK ══ */
+var UA=62,FA=62,TH=78,SH=78,TORSO=104,SHW=42,HIPW=32;
+function ik(ax,ay,bx,by,l1,l2,sgn){
+  var dx=bx-ax,dy=by-ay,d=Math.sqrt(dx*dx+dy*dy)||0.001;
+  var max=l1+l2-0.01; if(d>max){d=max;}
+  var a=(l1*l1-l2*l2+d*d)/(2*d),h2=l1*l1-a*a,h=Math.sqrt(h2>0?h2:0);
+  var ux=dx/Math.sqrt(dx*dx+dy*dy||1),uy=dy/Math.sqrt(dx*dx+dy*dy||1);
+  return {x:ax+ux*a-uy*h*sgn, y:ay+uy*a+ux*h*sgn};
+}
+function clampLen(ox,oy,px,py,max){
+  var dx=px-ox,dy=py-oy,d=Math.sqrt(dx*dx+dy*dy);
+  if(d<=max||d===0)return {x:px,y:py};
+  return {x:ox+dx/d*max, y:oy+dy/d*max};
+}
+function bodyFrom(p){
+  /* p = {LH,RH,LF,RF}；以兩次鬆弛求肩心與髖心 */
+  var sc={x:(p.LH.x+p.RH.x)/2, y:(p.LH.y+p.RH.y)/2+82};
+  var hc={x:(p.LF.x+p.RF.x)/2, y:(p.LF.y+p.RF.y)/2-118};
+  var i;
+  for(i=0;i<3;i++){
+    sc=clampLen(p.LH.x,p.LH.y,sc.x,sc.y,UA+FA-4);
+    sc=clampLen(p.RH.x,p.RH.y,sc.x,sc.y,UA+FA-4);
+    hc=clampLen(p.LF.x,p.LF.y,hc.x,hc.y,TH+SH-4);
+    hc=clampLen(p.RF.x,p.RF.y,hc.x,hc.y,TH+SH-4);
+    var dx=hc.x-sc.x,dy=hc.y-sc.y,d=Math.sqrt(dx*dx+dy*dy)||0.001;
+    var corr=(d-TORSO)/d*0.5;
+    sc={x:sc.x+dx*corr, y:sc.y+dy*corr};
+    hc={x:hc.x-dx*corr, y:hc.y-dy*corr};
+  }
+  var tx=hc.x-sc.x,ty=hc.y-sc.y,tl=Math.sqrt(tx*tx+ty*ty)||1;
+  var px=-ty/tl,py=tx/tl;
+  return {
+    sc:sc,hc:hc,
+    LS:{x:sc.x-px*SHW/2,y:sc.y-py*SHW/2}, RS:{x:sc.x+px*SHW/2,y:sc.y+py*SHW/2},
+    LP:{x:hc.x-px*HIPW/2,y:hc.y-py*HIPW/2}, RP:{x:hc.x+px*HIPW/2,y:hc.y+py*HIPW/2},
+    head:{x:sc.x-tx/tl*30, y:sc.y-ty/tl*30}
+  };
+}
+var pose=null;
+function figureSVG(){
+  if(!pose)return '';
+  var b=bodyFrom(pose);
+  var le=ik(b.LS.x,b.LS.y,pose.LH.x,pose.LH.y,UA,FA,-1);
+  var re=ik(b.RS.x,b.RS.y,pose.RH.x,pose.RH.y,UA,FA,1);
+  var lk=ik(b.LP.x,b.LP.y,pose.LF.x,pose.LF.y,TH,SH,-1);
+  var rk=ik(b.RP.x,b.RP.y,pose.RF.x,pose.RF.y,TH,SH,1);
+  function P(a,b2,c){return 'M'+a.x.toFixed(1)+' '+a.y.toFixed(1)+' L'+b2.x.toFixed(1)+' '+b2.y.toFixed(1)+' L'+c.x.toFixed(1)+' '+c.y.toFixed(1);}
+  var st='stroke="#E9E7E0" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+  return '<g opacity="0.95">'
+   +'<path d="M'+b.LS.x.toFixed(1)+' '+b.LS.y.toFixed(1)+' L'+b.RS.x.toFixed(1)+' '+b.RS.y.toFixed(1)+' L'+b.RP.x.toFixed(1)+' '+b.RP.y.toFixed(1)+' L'+b.LP.x.toFixed(1)+' '+b.LP.y.toFixed(1)+' Z" fill="#E9E7E0" opacity="0.92"/>'
+   +'<path d="'+P(b.LS,le,pose.LH)+'" '+st+'/>'
+   +'<path d="'+P(b.RS,re,pose.RH)+'" '+st+'/>'
+   +'<path d="'+P(b.LP,lk,pose.LF)+'" '+st+'/>'
+   +'<path d="'+P(b.RP,rk,pose.RF)+'" '+st+'/>'
+   +'<circle cx="'+b.head.x.toFixed(1)+'" cy="'+b.head.y.toFixed(1)+'" r="19" fill="#E9E7E0"/>'
+   +'<circle cx="'+pose.LH.x.toFixed(1)+'" cy="'+pose.LH.y.toFixed(1)+'" r="7" fill="#FF6A13"/>'
+   +'<circle cx="'+pose.RH.x.toFixed(1)+'" cy="'+pose.RH.y.toFixed(1)+'" r="7" fill="#FF6A13"/>'
+   +'<circle cx="'+pose.LF.x.toFixed(1)+'" cy="'+pose.LF.y.toFixed(1)+'" r="6" fill="#2D8CFF"/>'
+   +'<circle cx="'+pose.RF.x.toFixed(1)+'" cy="'+pose.RF.y.toFixed(1)+'" r="6" fill="#2D8CFF"/>'
+   +'</g>';
+}
+
+/* ══ Beta 解算 ══ */
+function dist(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
+function pickFeet(hL,hR,feet,prev){
+  var hy=Math.max(hL.y,hR.y), hx=(hL.x+hR.x)/2;
+  var cand=feet.filter(function(f){return f.y>hy+70;});
+  if(cand.length>=2){
+    var want=hy+215;
+    cand=cand.slice().sort(function(a,b){return Math.abs(a.y-want)-Math.abs(b.y-want);}).slice(0,4);
+    cand.sort(function(a,b){return a.x-b.x;});
+    var l=cand[0],r=cand[cand.length-1];
+    return {LF:{x:l.x,y:l.y,smear:false},RF:{x:r.x,y:r.y,smear:false}};
+  }
+  if(cand.length===1){
+    var f=cand[0];
+    return {LF:{x:f.x,y:f.y,smear:false},RF:{x:Math.min(W-24,hx+46),y:Math.min(H-46,hy+235),smear:true}};
+  }
+  return {LF:{x:Math.max(24,hx-48),y:Math.min(H-46,hy+235),smear:true},
+          RF:{x:Math.min(W-24,hx+48),y:Math.min(H-46,hy+225),smear:true}};
+}
+function solve(){
+  poses=[];stepInfo=[];
+  var hands=holds.filter(function(h){return h.type!=='foot';}).sort(function(a,b){return b.y-a.y;});
+  var feet=holds.filter(function(h){return h.type==='foot';});
+  if(hands.length<2)return false;
+  var LH,RH;
+  var a=hands[0],b=hands[1];
+  if(a.x<=b.x){LH=a;RH=b;}else{LH=b;RH=a;}
+  var st=pickFeet(LH,RH,feet);
+  poses.push({LH:{x:LH.x,y:LH.y},RH:{x:RH.x,y:RH.y},LF:st.LF,RF:st.RF});
+  stepInfo.push({limb:'起攀',lb:'START',txt:'雙手上起攀點（S），腳'+(st.LF.smear?'踩牆面摩擦':'踩最低的腳點')+'，重心壓低。',dy:0});
+
+  var cLH={x:LH.x,y:LH.y},cRH={x:RH.x,y:RH.y},i;
+  for(i=2;i<hands.length;i++){
+    var t=hands[i];
+    var useLeft=(cLH.y>cRH.y)||(cLH.y===cRH.y&&Math.abs(t.x-cLH.x)<Math.abs(t.x-cRH.x));
+    var from=useLeft?cLH:cRH;
+    var d=dist(from,t);
+    var kind=d>REACH_LONG?2:(d>REACH_OK?1:0);
+    if(useLeft){cLH={x:t.x,y:t.y};}else{cRH={x:t.x,y:t.y};}
+    var ft=pickFeet(cLH,cRH,feet);
+    poses.push({LH:{x:cLH.x,y:cLH.y},RH:{x:cRH.x,y:cRH.y},LF:ft.LF,RF:ft.RF});
+    var hand=useLeft?'左手':'右手';
+    var tn=TYPES[t.type].n;
+    var txt=hand+'出 '+tn+'（'+Math.round(d*CM)+' cm）';
+    if(kind===2)txt+='　→ 超出臂展，這步得跳（dyno）';
+    else if(kind===1)txt+='　→ 長手，先把重心帶過去';
+    else txt+='　→ 靜態可及';
+    stepInfo.push({limb:hand,lb:useLeft?'LH':'RH',txt:txt,dy:kind});
+  }
+  /* 終點雙手 */
+  var last=hands[hands.length-1];
+  var f2=pickFeet({x:last.x,y:last.y},{x:last.x,y:last.y},feet);
+  poses.push({LH:{x:last.x-16,y:last.y+4},RH:{x:last.x+16,y:last.y+4},LF:f2.LF,RF:f2.RF});
+  stepInfo.push({limb:'完成',lb:'TOP',txt:'雙手上終點（TOP），穩住三秒即完攀。',dy:0});
+  return true;
+}
+
+/* ══ 分級 ══ */
+function analyze(){
+  var hands=holds.filter(function(h){return h.type!=='foot';}).sort(function(a,b){return b.y-a.y;});
+  var feet=holds.filter(function(h){return h.type==='foot';});
+  var gB=document.getElementById('gBig'),gN=document.getElementById('gName'),gD=document.getElementById('gDesc');
+  document.getElementById('sHold').textContent=hands.length+' ／ '+feet.length;
+  if(hands.length<2){
+    gB.style.background='var(--line)';gB.style.color='var(--grey)';gB.textContent='—';
+    gN.textContent='尚未成線';gD.textContent='至少放兩個手點（最低的兩個是起攀點，最高的是終點）。';
+    document.getElementById('sMax').textContent='—';
+    document.getElementById('sAvg').textContent='—';
+    document.getElementById('sDyno').textContent='—';
+    return null;
+  }
+  var spans=[],i;
+  for(i=1;i<hands.length;i++){spans.push(dist(hands[i-1],hands[i]));}
+  var maxS=Math.max.apply(null,spans),avgS=spans.reduce(function(a,b){return a+b;},0)/spans.length;
+  var avgD=hands.reduce(function(a,h){return a+TYPES[h.type].d;},0)/hands.length;
+  var ratio=feet.length/Math.max(1,hands.length-1);
+  var pen=ratio<0.7?(0.7-ratio)*1.6:0;
+  var score=avgD*1.15+(avgS/190)*1.5+(maxS/260)*1.3+pen+ANGADD[angle];
+  var g=Math.round(score)-2; if(g<0)g=0; if(g>10)g=10;
+  var ci=Math.min(g,6);
+  gB.style.background=GCOL[ci];gB.style.color=(ci===6?'#E9E7E0':'#101418');
+  gB.textContent='V'+g;
+  gN.textContent=GNAME[ci]+'　'+ANGN[angle];
+  var traits=[];
+  if(hands.length>=11)traits.push('長線，耐力取向');
+  if(maxS>REACH_LONG)traits.push('含大動態');
+  if(avgD>=2.8)traits.push('手點小，指力吃重');
+  if(ratio<0.6)traits.push('腳點稀，重心難帶');
+  if(angle<=55)traits.push('仰角壓身，核心要收');
+  if(!traits.length)traits.push('點位穩，動作乾淨');
+  gD.textContent=traits.join('・');
+  document.getElementById('sMax').textContent=Math.round(maxS*CM)+' cm';
+  document.getElementById('sAvg').textContent=Math.round(avgS*CM)+' cm';
+  var dyn=spans.filter(function(s){return s>REACH_LONG;}).length;
+  document.getElementById('sDyno').textContent=dyn+' 步';
+  return {g:g,ci:ci};
+}
+
+/* ══ 步驟清單 ══ */
+function renderSteps(){
+  var ol=document.getElementById('steps');
+  if(!stepInfo.length){ol.innerHTML='<li style="grid-template-columns:1fr;color:var(--grey)">牆上還沒有路線。放兩個以上的手點就會自動解 beta。</li>';return;}
+  ol.innerHTML=stepInfo.map(function(s,i){
+    return '<li data-i="'+i+'" class="'+(i===curStep?'on':'')+'" tabindex="0"><span class="n">'+(i+1)+'</span>'
+      +'<span class="lb">'+s.lb+'</span><span'+(s.dy===2?' class="dy"':'')+'>'+esc(s.txt)+'</span></li>';
+  }).join('');
+}
+
+/* ══ 動畫 ══ */
+function lerpPose(a,b,t){
+  function L(p,q){return {x:p.x+(q.x-p.x)*t, y:p.y+(q.y-p.y)*t, smear:q.smear};}
+  return {LH:L(a.LH,b.LH),RH:L(a.RH,b.RH),LF:L(a.LF,b.LF),RF:L(a.RF,b.RF)};
+}
+function gotoStep(i,animate){
+  if(!poses.length)return;
+  if(i<0)i=0; if(i>=poses.length)i=poses.length-1;
+  var from=pose||poses[i];
+  curStep=i;
+  if(anim){cancelAnimationFrame(anim);anim=null;}
+  if(!animate||reduce){pose=poses[i];draw();renderSteps();return;}
+  var t0=performance.now(),dur=420;
+  (function run(now){
+    var k=Math.min(1,(now-t0)/dur);
+    var e=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    pose=lerpPose(from,poses[i],e);
+    draw();
+    if(k<1)anim=requestAnimationFrame(run); else {pose=poses[i];draw();anim=null;}
+  })(t0);
+  renderSteps();
+}
+var playing=false,playTimer=null;
+function play(){
+  if(!poses.length)return;
+  if(playing){stop();return;}
+  playing=true;document.getElementById('btnPlay').textContent='暫停';
+  var i=(curStep>=poses.length-1)?0:curStep;
+  gotoStep(i,false);
+  function next(){
+    if(!playing)return;
+    if(curStep>=poses.length-1){stop();return;}
+    gotoStep(curStep+1,true);
+    playTimer=setTimeout(next,reduce?700:520);
+  }
+  playTimer=setTimeout(next,reduce?400:300);
+}
+function stop(){playing=false;clearTimeout(playTimer);document.getElementById('btnPlay').textContent='播放';}
+
+/* ══ 重算全部 ══ */
+function refresh(keepStep){
+  var ok=solve();
+  if(!ok){poses=[];stepInfo=[];pose=null;curStep=0;}
+  else{
+    if(!keepStep||curStep>=poses.length)curStep=0;
+    pose=poses[curStep];
+  }
+  analyze();renderSteps();draw();
+  document.getElementById('code').value=encode();
+}
+
+/* ══ 路線碼 ══ */
+function b36(n,w){var s=Math.max(0,Math.round(n)).toString(36);while(s.length<w)s='0'+s;return s;}
+function encode(){
+  if(!holds.length)return '';
+  return 'GS1'+ANGC[angle]+holds.map(function(h){
+    return TCODE[h.type]+b36(h.x/10,2)+b36(h.y/10,2);
+  }).join('');
+}
+function decode(str){
+  str=(str||'').trim().toUpperCase();
+  if(str.indexOf('GS1')!==0||str.length<9)return null;
+  var ang=CANG[str.charAt(3)];if(!ang)return null;
+  var body=str.slice(4);
+  if(body.length%5!==0)return null;
+  var out=[],i;
+  for(i=0;i<body.length;i+=5){
+    var t=CTYPE[body.charAt(i)];if(!t)return null;
+    var x=parseInt(body.substr(i+1,2),36),y=parseInt(body.substr(i+3,2),36);
+    if(isNaN(x)||isNaN(y))return null;
+    out.push({type:t,x:Math.min(W-14,Math.max(14,x*10)),y:Math.min(H-40,Math.max(44,y*10))});
+  }
+  return {angle:ang,holds:out};
+}
+function loadRoute(r,quiet){
+  angle=r.angle;
+  var btns=document.querySelectorAll('#angs button'),i;
+  for(i=0;i<btns.length;i++)btns[i].setAttribute('aria-pressed',String(+btns[i].getAttribute('data-a')===angle));
+  holds=r.holds.map(function(h){return {id:uid++,type:h.type,x:h.x,y:h.y,rot:((h.x*7+h.y*13)%40)-20};});
+  sel=null;curStep=0;stop();refresh();
+  if(!quiet)msg('已載入路線碼。');
+}
+function msg(t){var m=document.getElementById('codeMsg');m.textContent=t;clearTimeout(msg._t);msg._t=setTimeout(function(){m.textContent='';},2600);}
+
+/* ══ 岩點盤 ══ */
+var tray=document.getElementById('tray');
+tray.innerHTML=ORDER.map(function(t){
+  var T=TYPES[t];
+  return '<button type="button" data-t="'+t+'" aria-pressed="'+(t===cur)+'">'
+   +'<svg width="42" height="34" viewBox="-24 -18 48 36" aria-hidden="true">'+holdShape(t,15,T.c,'t'+t)+'</svg>'
+   +T.n+'<br>'+T.en+'</button>';
+}).join('');
+tray.addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  cur=b.getAttribute('data-t');
+  var bs=tray.querySelectorAll('button'),i;
+  for(i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',String(bs[i]===b));
+});
+
+/* ══ 角度 ══ */
+document.getElementById('angs').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  angle=+b.getAttribute('data-a');
+  var bs=this.querySelectorAll('button'),i;
+  for(i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',String(bs[i]===b));
+  refresh(true);
+});
+
+/* ══ 拖放 ══ */
+function toWall(cx,cy){
+  var r=wall.getBoundingClientRect();
+  return {x:(cx-r.left)/r.width*W, y:(cy-r.top)/r.height*H};
+}
+function snap(v,lo,hi){v=Math.round(v/SNAP)*SNAP;return Math.min(hi,Math.max(lo,v));}
+var drag=null,moved=false;
+function pushHist(){hist.push(JSON.stringify({a:angle,h:holds}));if(hist.length>40)hist.shift();}
+
+tray.addEventListener('pointerdown',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  e.preventDefault();
+  var t=b.getAttribute('data-t');
+  pushHist();
+  var p=toWall(e.clientX,e.clientY);
+  var h={id:uid++,type:t,x:snap(p.x,16,W-16),y:snap(p.y,44,H-40),rot:((uid*37)%40)-20};
+  holds.push(h);sel=h.id;
+  drag={id:h.id,dx:0,dy:0,fresh:true};moved=true;
+  try{document.body.setPointerCapture&&document.body.setPointerCapture(e.pointerId);}catch(err){}
+  refresh(true);
+});
+wall.addEventListener('pointerdown',function(e){
+  var g=e.target.closest('.hd');
+  var p=toWall(e.clientX,e.clientY);
+  if(g){
+    var id=+g.getAttribute('data-id');
+    var h=holds.filter(function(x){return x.id===id;})[0];
+    if(!h)return;
+    pushHist();
+    sel=id;drag={id:id,dx:h.x-p.x,dy:h.y-p.y,fresh:false};moved=false;
+    e.preventDefault();
+    try{wall.setPointerCapture(e.pointerId);}catch(err){}
+    draw();
+  }else{
+    /* 空白處：放置目前選定的岩點種類 */
+    if(p.y<40||p.y>H-34)return;
+    pushHist();
+    var nh={id:uid++,type:cur,x:snap(p.x,16,W-16),y:snap(p.y,44,H-40),rot:((uid*37)%40)-20};
+    holds.push(nh);sel=nh.id;drag={id:nh.id,dx:0,dy:0,fresh:true};moved=true;
+    e.preventDefault();
+    try{wall.setPointerCapture(e.pointerId);}catch(err){}
+    refresh(true);
+  }
+});
+document.addEventListener('pointermove',function(e){
+  if(!drag)return;
+  var h=holds.filter(function(x){return x.id===drag.id;})[0];if(!h)return;
+  var p=toWall(e.clientX,e.clientY);
+  h.x=snap(p.x+drag.dx,16,W-16);
+  h.y=snap(p.y+drag.dy,44,H-40);
+  moved=true;
+  refresh(true);
+});
+document.addEventListener('pointerup',function(){
+  if(!drag)return;
+  var h=holds.filter(function(x){return x.id===drag.id;})[0];
+  if(drag.fresh&&h&&(h.y<44||h.y>H-40)){holds=holds.filter(function(x){return x.id!==h.id;});}
+  drag=null;refresh(true);
+});
+
+/* ══ 工具鈕 ══ */
+document.getElementById('btnDel').addEventListener('click',function(){
+  if(sel===null)return;pushHist();
+  holds=holds.filter(function(h){return h.id!==sel;});sel=null;refresh();
+});
+document.getElementById('btnClear').addEventListener('click',function(){
+  pushHist();holds=[];sel=null;stop();refresh();
+});
+document.getElementById('btnUndo').addEventListener('click',function(){
+  if(!hist.length)return;
+  var s=JSON.parse(hist.pop());
+  angle=s.a;holds=s.h;sel=null;
+  var bs=document.querySelectorAll('#angs button'),i;
+  for(i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',String(+bs[i].getAttribute('data-a')===angle));
+  stop();refresh();
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if((e.key==='Delete'||e.key==='Backspace')&&sel!==null){e.preventDefault();pushHist();holds=holds.filter(function(h){return h.id!==sel;});sel=null;refresh();}
+});
+document.getElementById('btnPlay').addEventListener('click',play);
+document.getElementById('btnReset').addEventListener('click',function(){stop();gotoStep(0,false);});
+document.getElementById('steps').addEventListener('click',function(e){
+  var li=e.target.closest('li');if(!li||!li.hasAttribute('data-i'))return;
+  stop();gotoStep(+li.getAttribute('data-i'),true);
+});
+document.getElementById('steps').addEventListener('keydown',function(e){
+  var li=e.target.closest('li');if(!li||!li.hasAttribute('data-i'))return;
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();stop();gotoStep(+li.getAttribute('data-i'),true);}
+});
+document.getElementById('btnCopy').addEventListener('click',function(){
+  var inp=document.getElementById('code');
+  if(!inp.value){msg('牆上還沒有岩點。');return;}
+  inp.select();
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(inp.value).then(function(){msg('已複製路線碼。');},function(){msg('請手動複製（已選取）。');});}
+  else msg('請手動複製（已選取）。');
+});
+document.getElementById('btnLoad').addEventListener('click',function(){
+  var r=decode(document.getElementById('code').value);
+  if(!r){msg('路線碼格式不正確。');return;}
+  pushHist();loadRoute(r);
+});
+
+/* ══ 預設路線 ══ */
+var PRESETS=[
+  {n:'示範｜長線・直牆',g:2,c:'GS1AJ0m1yJ101yE0u1oJ161iE0o1cJ1216E0u10J160uE0q0oJ0y0gF0o1uF121sF0u1iF141aF0q14F100wF0u0o'},
+  {n:'示範｜腳法・平板',g:3,c:'GS1BS0o1yS121yS0u1nS141fS0o17S0y0yS0q0pS100gF0u1tF121gF0o12'},
+  {n:'示範｜強度・洞穴',g:6,c:'GS1DC0o1yC121yC0u1kP1a1bC0q14O140sC0u0kF0w1uF161kF0q1b'}
+];
+var pw=document.getElementById('presets');
+pw.innerHTML=PRESETS.map(function(p,i){
+  var ci=Math.min(p.g,6);
+  return '<button type="button" data-i="'+i+'"><span class="vg" style="background:'+GCOL[ci]+';color:'+(ci===6?'#E9E7E0':'#101418')+';box-shadow:'+(ci===6?'inset 0 0 0 1px #5b6670':'none')+'">V'+p.g+'</span>'+p.n+'</button>';
+}).join('');
+pw.addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var p=PRESETS[+b.getAttribute('data-i')],r=decode(p.c);
+  if(r){pushHist();loadRoute(r,true);msg('已載入示範路線：'+p.n);}
+});
+
+/* ══ 送審 ══ */
+function hash(s){var h=2166136261,i;for(i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function pad(n,w){var s=String(n);while(s.length<w)s='0'+s;return s;}
+document.getElementById('btnSubmit').addEventListener('click',function(){
+  var name=document.getElementById('fName').value.trim();
+  var setter=document.getElementById('fSetter').value;
+  var zone=document.getElementById('fZone').value;
+  var ok=true;
+  document.getElementById('eName').textContent='';
+  document.getElementById('eSetter').textContent='';
+  document.getElementById('eZone').textContent='';
+  var sm=document.getElementById('subMsg');sm.textContent='';
+  if(name.length<2||name.length>12){document.getElementById('eName').textContent='請填 2–12 字的路線名稱';ok=false;}
+  if(!setter){document.getElementById('eSetter').textContent='請選擇開線師';ok=false;}
+  if(!zone){document.getElementById('eZone').textContent='請選擇岩區';ok=false;}
+  var g=analyze();
+  if(!g){sm.textContent='牆上至少要有兩個手點才能送審。';ok=false;}
+  if(!ok)return;
+  var code=encode(),hh=hash(code+name+setter);
+  var d=new Date(),no='GS-'+String(d.getFullYear()).slice(2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2)+'-'+pad(hh%900+100,3);
+  var hands=holds.filter(function(h){return h.type!=='foot';}).length;
+  var feet=holds.length-hands;
+  document.getElementById('tNo').textContent=no;
+  document.getElementById('tName').textContent=name;
+  document.getElementById('tGrade').textContent='V'+g.g+'（'+GNAME[g.ci]+'）';
+  document.getElementById('tZone').textContent=zone+' 區 ／ '+ANGN[angle];
+  document.getElementById('tSetter').textContent=setter;
+  document.getElementById('tHold').textContent='手點 '+hands+' ／ 腳點 '+feet;
+  document.getElementById('tCode').textContent=code;
+  /* 條碼：由單號雜湊決定條寬，全原創 SVG */
+  var s='',x=4,r=hh,i;
+  for(i=0;i<52&&x<292;i++){
+    r=(r*1103515245+12345)>>>0;
+    var w=1+(r%4),gap=1+((r>>3)%3);
+    s+='<rect x="'+x+'" y="2" width="'+w+'" height="30" fill="#E9E7E0"/>';
+    x+=w+gap;
+  }
+  s+='<text x="4" y="43" font-family="Roboto Mono" font-size="11" fill="#8A939C">'+no+'　GRIP STATION ROUTE SUBMISSION</text>';
+  document.getElementById('tBar').innerHTML=s;
+  document.getElementById('ticket').classList.add('on');
+  sm.textContent='開線單已生成（前端模擬）。';
+  var tk=document.getElementById('ticket');
+  if(tk.scrollIntoView)tk.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});
+});
+
+/* ══ 啟動 ══ */
+(function init(){
+  var q=location.search.match(/[?&]r=([A-Za-z0-9]+)/);
+  var r=q?decode(decodeURIComponent(q[1])):null;
+  loadRoute(r||decode(PRESETS[0].c),true);
+})();
+})();
+</script>
+</body>
+</html>

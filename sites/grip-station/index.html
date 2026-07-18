@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>岩站 GRIP STATION｜台北內湖抱石場・場館路網圖</title>
+<meta name="description" content="岩站 GRIP STATION 是台北內湖的抱石場（虛構示意）。六個岩區像六個月台，119 條路線各有色碼。從路網圖開始找你的下一條線。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23101418'/%3E%3Cpath d='M12 40 L32 18 L52 40 L43 40 L32 28 L21 40 Z' fill='%232D8CFF'/%3E%3Ccircle cx='32' cy='48' r='6' fill='%23FF6A13'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Noto+Sans+TC:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101418; --slate:#1A2128; --slate2:#232C35; --line:#313C46;
+  --chalk:#E9E7E0; --grey:#8A939C;
+  --sign:#2D8CFF; --mark:#FF6A13;
+  --g0:#E9E7E0; --g1:#FFD400; --g2:#38C46B; --g3:#2D8CFF; --g4:#FF3B30; --g5:#9B5CFF; --g6:#0B0E11;
+  --f-sign:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-tc:'Noto Sans TC',system-ui,sans-serif;
+  --f-mono:'Roboto Mono',ui-monospace,monospace;
+  --rail:78px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--chalk);font-family:var(--f-tc);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--f-sign);font-weight:900;letter-spacing:-.01em;line-height:1.1;margin:0}
+.mono{font-family:var(--f-mono)}
+.skip{position:absolute;left:-999px;top:0;background:var(--mark);color:#101418;padding:8px 14px;z-index:99}
+.skip:focus{left:8px;top:8px}
+
+.spine{position:fixed;left:0;top:0;bottom:0;width:var(--rail);background:var(--slate);border-right:3px solid var(--mark);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0}
+.spine .sig{width:100%;border:0;background:var(--sign);color:#fff;font-family:var(--f-sign);font-weight:800;font-size:12px;letter-spacing:.16em;padding:14px 0 12px;cursor:pointer;display:block}
+.spine .sig svg{display:block;margin:0 auto 5px}
+.spine .brandv{writing-mode:vertical-rl;font-family:var(--f-sign);font-weight:800;font-size:13px;letter-spacing:.34em;color:var(--grey);text-decoration:none}
+.spine .codes{display:flex;flex-direction:column;gap:0;width:26px}
+.spine .codes i{height:15px;display:block}
+.board{position:fixed;inset:0;background:var(--ink);z-index:60;display:none;overflow:auto}
+.board.on{display:block}
+.board .bhead{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--mark);padding:16px 22px}
+.board .bhead b{font-family:var(--f-sign);font-size:13px;letter-spacing:.3em;color:var(--grey)}
+.board .bclose{background:none;border:2px solid var(--line);color:var(--chalk);font-family:var(--f-mono);font-size:13px;padding:7px 14px;cursor:pointer}
+.board .bclose:hover{border-color:var(--mark);color:var(--mark)}
+.dest{display:grid;grid-template-columns:64px 1fr auto;gap:0 18px;align-items:center;border-bottom:1px solid var(--line);padding:20px 22px;text-decoration:none}
+.dest:hover{background:var(--slate)}
+.dest .ar{width:44px;height:44px;background:var(--sign);clip-path:polygon(0 0,66% 0,100% 50%,66% 100%,0 100%,34% 50%)}
+.dest[aria-current="page"] .ar{background:var(--mark)}
+.dest .zh{font-family:var(--f-tc);font-weight:900;font-size:26px;letter-spacing:.02em}
+.dest .en{font-family:var(--f-sign);font-weight:800;font-size:11px;letter-spacing:.24em;color:var(--grey);display:block;margin-top:2px}
+.dest .no{font-family:var(--f-mono);font-size:12px;color:var(--grey)}
+
+main{margin-left:var(--rail);max-width:1240px;padding:0 30px}
+
+.status{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:0 -30px;padding:0 30px}
+.status div{padding:13px 26px 13px 0;margin-right:26px;border-right:1px solid var(--line);font-size:12.5px;color:var(--grey);font-family:var(--f-mono)}
+.status div:last-child{border-right:0}
+.status b{color:var(--chalk);font-weight:700}
+.dotlive{display:inline-block;width:8px;height:8px;background:var(--g2);margin-right:7px;vertical-align:1px}
+
+.namebar{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:end;padding:34px 0 22px}
+.plate{background:var(--sign);color:#fff;padding:14px 22px 16px;border-left:8px solid var(--mark);display:inline-block}
+.plate .t1{font-family:var(--f-tc);font-weight:900;font-size:40px;letter-spacing:.04em;line-height:1}
+.plate .t2{font-family:var(--f-sign);font-weight:800;font-size:12.5px;letter-spacing:.32em;margin-top:6px;opacity:.92}
+.namebar p{margin:0 0 4px;color:var(--grey);font-size:14px;max-width:52ch}
+
+.mapwrap{display:grid;grid-template-columns:1fr 320px;border:3px solid var(--line);background:var(--slate)}
+.mapbox{background:var(--ink)}
+.mapbox svg{display:block;width:100%;height:auto}
+.zone{cursor:pointer}
+.zone .zfill{transition:fill .16s linear}
+.zone:hover .zfill,.zone.on .zfill{fill:var(--sign)}
+.zone:focus{outline:none}
+.zone:focus .zfill{fill:var(--sign)}
+.zone .zlab{font-family:var(--f-sign);font-weight:800;font-size:26px;fill:var(--chalk);pointer-events:none}
+.zone .zsub{font-family:var(--f-mono);font-size:11px;fill:var(--grey);pointer-events:none;letter-spacing:.05em}
+.zone:hover .zsub,.zone.on .zsub{fill:#d6e8ff}
+.panel{padding:22px 20px;border-left:3px solid var(--line);display:flex;flex-direction:column}
+.panel .pz{font-family:var(--f-sign);font-weight:800;font-size:52px;line-height:.9;color:var(--mark)}
+.panel h3{font-size:22px;margin:6px 0 2px}
+.panel .pen{font-family:var(--f-sign);font-size:11px;letter-spacing:.24em;color:var(--grey);margin-bottom:14px}
+.panel dl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0 0 16px;font-size:13px}
+.panel dt{color:var(--grey);font-family:var(--f-mono);font-size:11.5px}
+.panel dd{margin:0;font-weight:700}
+.dist{display:flex;align-items:flex-end;gap:5px;height:64px;margin-bottom:8px}
+.dist i{flex:1;display:block;min-height:3px;transition:height .25s cubic-bezier(.2,.7,.3,1)}
+.distlab{display:flex;gap:5px;font-family:var(--f-mono);font-size:10px;color:var(--grey)}
+.distlab span{flex:1;text-align:center}
+.panel .go{margin-top:auto;display:block;background:var(--mark);color:#101418;text-decoration:none;font-family:var(--f-sign);font-weight:800;letter-spacing:.12em;font-size:13px;padding:14px 16px;text-align:center}
+.panel .go:hover{background:var(--chalk)}
+
+.key{display:flex;flex-wrap:wrap;border:3px solid var(--line);border-top:0;background:var(--slate)}
+.key .kt{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--grey);padding:11px 16px;border-right:1px solid var(--line)}
+.key .kc{display:flex;align-items:center;gap:7px;padding:11px 14px;font-family:var(--f-mono);font-size:11.5px;border-right:1px solid var(--line)}
+.key .kc i{width:14px;height:14px;display:block;border:1px solid #00000055}
+
+section{padding:56px 0;border-top:1px solid var(--line);margin-top:56px}
+.shead{display:flex;align-items:baseline;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.shead h2{font-size:30px}
+.shead .en{font-family:var(--f-sign);font-weight:800;font-size:11px;letter-spacing:.28em;color:var(--grey)}
+.shead .more{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--sign);text-decoration:none;border-bottom:1px solid var(--sign)}
+
+.newlines{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border:3px solid var(--line)}
+.rcard{background:var(--slate);padding:18px;display:flex;flex-direction:column;gap:10px;text-decoration:none}
+.rcard:hover{background:var(--slate2)}
+.rtop{display:flex;align-items:center;gap:10px}
+.vg{font-family:var(--f-sign);font-weight:800;font-size:13px;letter-spacing:.06em;padding:4px 11px;border-radius:999px;color:#101418}
+.rcard h4{font-size:19px}
+.rmeta{font-family:var(--f-mono);font-size:11.5px;color:var(--grey);line-height:1.7}
+.topo{background:var(--ink);border:1px solid var(--line);display:block;width:100%;height:auto}
+
+.cta{display:grid;grid-template-columns:1.15fr .85fr;border:3px solid var(--mark);background:var(--slate)}
+.cta .ctxt{padding:34px 30px}
+.cta h2{font-size:34px;margin-bottom:12px}
+.cta p{color:#c3ccd4;max-width:46ch}
+.cta .btn{display:inline-block;margin-top:14px;background:var(--mark);color:#101418;text-decoration:none;font-family:var(--f-sign);font-weight:800;letter-spacing:.14em;font-size:14px;padding:15px 26px}
+.cta .btn:hover{background:var(--chalk)}
+.cta .cimg{border-left:3px solid var(--mark);background:var(--ink);display:flex;align-items:center;justify-content:center;padding:18px}
+.cta .cimg svg{width:100%;height:auto;max-width:280px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);border:3px solid var(--line)}
+.two>div{background:var(--slate);padding:24px 22px}
+.two h3{font-size:20px;margin-bottom:10px}
+.two p{color:#b8c1c9;font-size:14.5px;margin:0 0 10px}
+.two ul{margin:0;padding-left:0;list-style:none}
+.two li{border-top:1px solid var(--line);padding:9px 0;font-size:14px;display:flex;gap:12px}
+.two li b{font-family:var(--f-mono);font-size:11.5px;color:var(--mark);min-width:64px}
+
+.bandline{height:9px;display:flex;margin-left:var(--rail)}
+.bandline i{flex:1}
+footer{margin-left:var(--rail);border-top:3px solid var(--mark);padding:30px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px;font-size:13px;color:var(--grey)}
+footer b{display:block;color:var(--chalk);font-family:var(--f-sign);font-size:11px;letter-spacing:.24em;margin-bottom:10px}
+footer a{text-decoration:none;display:block;padding:3px 0}
+footer a:hover{color:var(--mark)}
+.fnote{grid-column:1/-1;border-top:1px solid var(--line);padding-top:16px;font-size:11.5px;font-family:var(--f-mono);line-height:1.9}
+
+@media (max-width:980px){
+  .mapwrap{grid-template-columns:1fr}
+  .panel{border-left:0;border-top:3px solid var(--line)}
+  .newlines{grid-template-columns:1fr}
+  .cta{grid-template-columns:1fr}
+  .cta .cimg{border-left:0;border-top:3px solid var(--mark)}
+  .two{grid-template-columns:1fr}
+  footer{grid-template-columns:1fr 1fr}
+}
+@media (max-width:700px){
+  :root{--rail:0px}
+  .spine{left:0;right:0;bottom:auto;top:0;width:auto;height:58px;flex-direction:row;border-right:0;border-bottom:3px solid var(--mark);padding:0 0 0 14px}
+  .spine .sig{width:auto;padding:0 18px;height:58px;order:3;display:flex;align-items:center;gap:8px}
+  .spine .sig svg{margin:0}
+  .spine .brandv{writing-mode:horizontal-tb;letter-spacing:.2em;order:1;font-size:12px}
+  .spine .codes{flex-direction:row;width:auto;order:2;margin-left:auto;margin-right:12px}
+  .spine .codes i{height:26px;width:8px}
+  main{margin-left:0;padding:58px 16px 0}
+  footer{margin-left:0;grid-template-columns:1fr;padding:24px 16px}
+  .bandline{margin-left:0}
+  .status{margin:0 -16px;padding:0 16px}
+  .namebar{grid-template-columns:1fr;gap:14px;padding:26px 0 18px}
+  .plate .t1{font-size:32px}
+  .shead h2{font-size:24px}
+  .dest .zh{font-size:20px}
+  .dest{grid-template-columns:44px 1fr;gap:0 14px}
+  .dest .no{display:none}
+  .dest .ar{width:34px;height:34px}
+  section{padding:38px 0;margin-top:38px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳至內容</a>
+
+<nav class="spine" aria-label="場館指標">
+  <button class="sig" id="sigBtn" aria-expanded="false" aria-controls="board">
+    <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><rect width="20" height="2.6" fill="#fff"/><rect y="5.7" width="20" height="2.6" fill="#fff"/><rect y="11.4" width="14" height="2.6" fill="#fff"/></svg>
+    指標
+  </button>
+  <a class="brandv" href="index.html">GRIP STATION ・ 岩站</a>
+  <div class="codes" aria-hidden="true">
+    <i style="background:var(--g0)"></i><i style="background:var(--g1)"></i><i style="background:var(--g2)"></i><i style="background:var(--g3)"></i><i style="background:var(--g4)"></i><i style="background:var(--g5)"></i>
+  </div>
+</nav>
+
+<div class="board" id="board" role="dialog" aria-modal="true" aria-label="場館指標板">
+  <div class="bhead"><b>GRIP STATION ／ 場館指標 DIRECTORY</b><button class="bclose" id="bClose">關閉 ✕</button></div>
+  <a class="dest" href="index.html" aria-current="page"><span class="ar"></span><span><span class="zh">路網圖</span><span class="en">STATION MAP</span></span><span class="no">B1 ／ 全場六區</span></a>
+  <a class="dest" href="wall.html"><span class="ar"></span><span><span class="zh">路線牌</span><span class="en">ROUTE BOARD</span></span><span class="no">119 條在牆</span></a>
+  <a class="dest" href="setter.html"><span class="ar"></span><span><span class="zh">開線台</span><span class="en">ROUTE SETTER</span></span><span class="no">拖岩點・自動分級・解 beta</span></a>
+  <a class="dest" href="visit.html"><span class="ar"></span><span><span class="zh">入場資訊</span><span class="en">VISIT &amp; RATES</span></span><span class="no">票價／時段／交通</span></a>
+</div>
+
+<main id="main">
+
+  <div class="status" role="status">
+    <div><span class="dotlive"></span>今日 <b id="stTime">12:00–23:00</b></div>
+    <div>現場人流 <b id="stFlow">中等</b></div>
+    <div>在牆路線 <b>119</b></div>
+    <div>本週新線 <b>12</b></div>
+    <div>下次換線 <b>週四 14:00・C 洞穴</b></div>
+  </div>
+
+  <div class="namebar">
+    <div class="plate">
+      <div class="t1">岩站</div>
+      <div class="t2">GRIP STATION ／ 內湖 B1</div>
+    </div>
+    <p>六個岩區，像六個月台。119 條路線，每條都有自己的顏色、自己的角度、自己的開線師。<br>先看路網圖，再決定今天要爬哪一段。</p>
+  </div>
+
+  <div class="mapwrap">
+    <div class="mapbox">
+      <svg viewBox="0 0 900 540" role="img" aria-label="岩站 B1 場館路網圖，含六個岩區、櫃台、更衣室與休息區">
+        <defs>
+          <filter id="spray" x="-12%" y="-12%" width="124%" height="124%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <pattern id="mat" width="16" height="16" patternUnits="userSpaceOnUse">
+            <rect width="16" height="16" fill="#151A1F"/><circle cx="4" cy="4" r="1" fill="#232C35"/><circle cx="12" cy="12" r="1" fill="#232C35"/>
+          </pattern>
+          <marker id="arh" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#FF6A13"/></marker>
+        </defs>
+
+        <rect width="900" height="540" fill="url(#mat)"/>
+
+        <path d="M120 470 L120 400 L280 400" stroke="#FF6A13" stroke-width="3" fill="none" stroke-dasharray="9 7" marker-end="url(#arh)"/>
+        <text x="128" y="492" font-family="Roboto Mono" font-size="11" fill="#8A939C">動線 →</text>
+
+        <g class="zone" data-z="A" tabindex="0" role="button" aria-label="A 區 大斜板，45 度，28 條路線">
+          <path class="zfill" filter="url(#spray)" d="M36 36 H300 V150 L258 196 H36 Z" fill="#2A343E"/>
+          <text class="zlab" x="56" y="82">A</text><text class="zsub" x="56" y="104">大斜板 45° ／ 28 條</text>
+        </g>
+        <g class="zone" data-z="B" tabindex="0" role="button" aria-label="B 區 直牆，90 度，34 條路線">
+          <path class="zfill" filter="url(#spray)" d="M322 36 H566 V170 H322 Z" fill="#2A343E"/>
+          <text class="zlab" x="342" y="82">B</text><text class="zsub" x="342" y="104">直牆 90° ／ 34 條</text>
+        </g>
+        <g class="zone" data-z="C" tabindex="0" role="button" aria-label="C 區 洞穴，35 度，16 條路線">
+          <path class="zfill" filter="url(#spray)" d="M588 36 H864 V212 H716 V128 H588 Z" fill="#2A343E"/>
+          <text class="zlab" x="608" y="82">C</text><text class="zsub" x="608" y="104">洞穴 35° ／ 16 條</text>
+        </g>
+        <g class="zone" data-z="D" tabindex="0" role="button" aria-label="D 區 拱形，60 度，19 條路線">
+          <path class="zfill" filter="url(#spray)" d="M716 236 H864 V392 H716 Z" fill="#2A343E"/>
+          <text class="zlab" x="734" y="282">D</text><text class="zsub" x="734" y="304">拱形 60°</text><text class="zsub" x="734" y="320">19 條</text>
+        </g>
+        <g class="zone" data-z="E" tabindex="0" role="button" aria-label="E 區 平板，75 度，22 條路線">
+          <path class="zfill" filter="url(#spray)" d="M540 416 H864 V504 H540 Z" fill="#2A343E"/>
+          <text class="zlab" x="560" y="460">E</text><text class="zsub" x="560" y="482">平板 75° ／ 22 條</text>
+        </g>
+        <g class="zone" data-z="F" tabindex="0" role="button" aria-label="F 區 訓練區">
+          <path class="zfill" filter="url(#spray)" d="M312 300 H508 V490 H312 Z" fill="#2A343E"/>
+          <text class="zlab" x="330" y="346">F</text><text class="zsub" x="330" y="368">訓練區</text><text class="zsub" x="330" y="384">指力板／校園板</text>
+        </g>
+
+        <g>
+          <rect x="36" y="416" width="212" height="88" fill="#1A2128" stroke="#313C46" stroke-width="2"/>
+          <text x="52" y="452" font-family="Archivo" font-weight="800" font-size="15" fill="#E9E7E0">櫃台 ／ 租鞋</text>
+          <text x="52" y="474" font-family="Roboto Mono" font-size="11" fill="#8A939C">RECEPTION</text>
+          <rect x="36" y="228" width="120" height="70" fill="#1A2128" stroke="#313C46" stroke-width="2"/>
+          <text x="50" y="264" font-family="Archivo" font-weight="800" font-size="14" fill="#E9E7E0">更衣室</text>
+          <text x="50" y="284" font-family="Roboto Mono" font-size="10" fill="#8A939C">LOCKERS</text>
+          <rect x="176" y="228" width="112" height="70" fill="#1A2128" stroke="#313C46" stroke-width="2"/>
+          <text x="190" y="264" font-family="Archivo" font-weight="800" font-size="14" fill="#E9E7E0">休息區</text>
+          <text x="190" y="284" font-family="Roboto Mono" font-size="10" fill="#8A939C">LOUNGE</text>
+          <text x="588" y="256" font-family="Roboto Mono" font-size="11" fill="#8A939C">↑ 出口 ／ 電梯至 1F</text>
+          <path d="M596 272 L596 306" stroke="#8A939C" stroke-width="2" stroke-dasharray="5 5"/>
+        </g>
+      </svg>
+    </div>
+
+    <aside class="panel" aria-live="polite">
+      <div class="pz" id="pZ">A</div>
+      <h3 id="pName">大斜板</h3>
+      <div class="pen" id="pEn">OVERHANG SECTOR</div>
+      <dl>
+        <dt>牆面角度</dt><dd id="pAng">45°（仰角）</dd>
+        <dt>在牆路線</dt><dd id="pCount">28 條</dd>
+        <dt>牆高</dt><dd id="pH">4.2 m</dd>
+        <dt>主開線師</dt><dd id="pSetter">周奕安</dd>
+        <dt>最近換線</dt><dd id="pDate">2026-07-14</dd>
+      </dl>
+      <div style="font-family:var(--f-mono);font-size:11px;color:var(--grey);letter-spacing:.1em;margin-bottom:6px">難度分佈 GRADE SPREAD</div>
+      <div class="dist" id="pDist"></div>
+      <div class="distlab"><span>V0</span><span>V1</span><span>V2</span><span>V3</span><span>V4</span><span>V5</span><span>V6+</span></div>
+      <a class="go" id="pGo" href="wall.html?z=A">看 A 區路線牌 →</a>
+    </aside>
+  </div>
+
+  <div class="key">
+    <div class="kt">難度色碼 GRADE CODE</div>
+    <div class="kc"><i style="background:var(--g0)"></i>V0 白</div>
+    <div class="kc"><i style="background:var(--g1)"></i>V1 黃</div>
+    <div class="kc"><i style="background:var(--g2)"></i>V2 綠</div>
+    <div class="kc"><i style="background:var(--g3)"></i>V3 藍</div>
+    <div class="kc"><i style="background:var(--g4)"></i>V4 紅</div>
+    <div class="kc"><i style="background:var(--g5)"></i>V5 紫</div>
+    <div class="kc"><i style="background:var(--g6);border-color:#5b6670"></i>V6+ 黑</div>
+  </div>
+
+  <section>
+    <div class="shead">
+      <h2>本週新線</h2><span class="en">NEW THIS WEEK</span>
+      <a class="more" href="wall.html">全部 119 條路線牌 →</a>
+    </div>
+    <div class="newlines">
+      <a class="rcard" href="wall.html?z=C">
+        <div class="rtop"><span class="vg" style="background:var(--g6);color:var(--chalk);box-shadow:inset 0 0 0 1px #5b6670">V6</span><span class="rmeta">C 洞穴 ／ 35°</span></div>
+        <h4>鐵鎚落地</h4>
+        <svg class="topo" viewBox="0 0 240 150" aria-label="鐵鎚落地路線示意圖"></svg>
+        <div class="rmeta">開線 周奕安 ／ 2026-07-16<br>強度取向．一步大動態接指扣</div>
+      </a>
+      <a class="rcard" href="wall.html?z=B">
+        <div class="rtop"><span class="vg" style="background:var(--g2)">V2</span><span class="rmeta">B 直牆 ／ 90°</span></div>
+        <h4>週三的長路</h4>
+        <svg class="topo" viewBox="0 0 240 150" aria-label="週三的長路路線示意圖"></svg>
+        <div class="rmeta">開線 林郁真 ／ 2026-07-15<br>13 手長線．適合練耐力與換手</div>
+      </a>
+      <a class="rcard" href="wall.html?z=E">
+        <div class="rtop"><span class="vg" style="background:var(--g3)">V3</span><span class="rmeta">E 平板 ／ 75°</span></div>
+        <h4>踩豆腐</h4>
+        <svg class="topo" viewBox="0 0 240 150" aria-label="踩豆腐路線示意圖"></svg>
+        <div class="rmeta">開線 蔡博丞 ／ 2026-07-13<br>沒有好手點，全靠腳法與重心</div>
+      </a>
+    </div>
+  </section>
+
+  <section style="border-top:0;padding-top:0">
+    <div class="cta">
+      <div class="ctxt">
+        <h2>開線台</h2>
+        <div style="font-family:var(--f-sign);font-size:12px;letter-spacing:.28em;color:var(--mark);margin:8px 0 14px">ROUTE SETTER TERMINAL</div>
+        <p>岩站把開線師的工作台搬上網路：把岩點拖到牆上、選好牆面角度，系統當場算出難度分級，並且<b>自動解出這條線的 beta</b>——一個火柴人會照著你排的順序，手腳一步一步爬給你看。</p>
+        <p style="color:var(--grey);font-size:13.5px">構不到的一步會被標成「超出臂展」，要嘛改點位、要嘛承認它就是一步 dyno。排完存成路線碼，貼給朋友原樣重現。</p>
+        <a class="btn" href="setter.html">進開線台 →</a>
+      </div>
+      <div class="cimg">
+        <svg viewBox="0 0 260 220" aria-hidden="true">
+          <defs><filter id="spray2"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3" result="n2"/><feDisplacementMap in="SourceGraphic" in2="n2" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
+          <rect x="10" y="10" width="240" height="200" fill="#101418" stroke="#313C46" stroke-width="2"/>
+          <g stroke="#232C35" stroke-width="1">
+            <path d="M10 50h240M10 90h240M10 130h240M10 170h240M50 10v200M90 10v200M130 10v200M170 10v200M210 10v200"/>
+          </g>
+          <path d="M70 176 L96 112 L140 150 L168 86 L118 52" stroke="#E9E7E0" stroke-width="1.5" fill="none" stroke-dasharray="4 4" opacity=".5"/>
+          <g filter="url(#spray2)">
+            <circle cx="70" cy="176" r="11" fill="#FFD400"/>
+            <circle cx="140" cy="150" r="9" fill="#FF6A13"/>
+            <circle cx="96" cy="112" r="13" fill="#2D8CFF"/>
+            <circle cx="168" cy="86" r="8" fill="#FF3B30"/>
+            <circle cx="118" cy="52" r="12" fill="#38C46B"/>
+          </g>
+          <g stroke="#E9E7E0" stroke-width="2.4" fill="none" stroke-linecap="round">
+            <circle cx="112" cy="92" r="8" fill="#E9E7E0" stroke="none"/>
+            <path d="M112 100 L110 138"/>
+            <path d="M112 106 L96 112M112 104 L140 150"/>
+            <path d="M110 138 L70 176M110 138 L136 172"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>關於岩站</h2><span class="en">ABOUT</span></div>
+    <div class="two">
+      <div>
+        <h3>一間只做抱石的場子</h3>
+        <p>岩站沒有繩子、沒有確保、沒有上攀。整個 B1 就是 480 坪的軟墊與六面牆，最高 4.6 公尺。開線師團隊每週四換一區，一年把全館輪過十二次。</p>
+        <p>我們把場館當成一套指標系統來設計：每條路線一個色碼、每個岩區一個編號、每塊牆一組角度。不必問人，看牌子就知道自己站在哪、下一步往哪走。</p>
+        <ul>
+          <li><b>地址</b>台北市內湖區行善路 158 號 B1</li>
+          <li><b>電話</b>(02) 2793-6620</li>
+          <li><b>時間</b>平日 12:00–23:00／週末 09:00–22:00</li>
+        </ul>
+      </div>
+      <div>
+        <h3>開線師</h3>
+        <p style="color:var(--grey);font-size:13.5px">四位常駐開線師，各自守著不同的牆與不同的脾氣。</p>
+        <ul>
+          <li><b>周奕安</b>A 大斜板／C 洞穴。喜歡把人逼到腳離牆，路線常常只有一種解法。</li>
+          <li><b>林郁真</b>B 直牆。長線與換手是她的簽名，13 手以上的路線多半出自她手。</li>
+          <li><b>蔡博丞</b>E 平板。信奉「手點是拿來平衡的，不是拿來拉的」。</li>
+          <li><b>田邊涼</b>D 拱形。從大阪移住的開線師，擅長把立體牆面做成連續的流動。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="bandline" aria-hidden="true">
+  <i style="background:var(--g0)"></i><i style="background:var(--g1)"></i><i style="background:var(--g2)"></i><i style="background:var(--g3)"></i><i style="background:var(--g4)"></i><i style="background:var(--g5)"></i><i style="background:var(--g6)"></i>
+</div>
+
+<footer>
+  <div>
+    <b>GRIP STATION 岩站</b>
+    台北市內湖區行善路 158 號 B1<br>
+    (02) 2793-6620／service@gripstation.tw<br>
+    平日 12:00–23:00　週末 09:00–22:00　週二 14:00 前休館換線
+  </div>
+  <div>
+    <b>場館</b>
+    <a href="index.html">路網圖</a>
+    <a href="wall.html">路線牌</a>
+    <a href="setter.html">開線台</a>
+    <a href="visit.html">入場資訊</a>
+  </div>
+  <div>
+    <b>指南</b>
+    <a href="visit.html#rates">票價與月票</a>
+    <a href="visit.html#first">第一次抱石</a>
+    <a href="visit.html#rules">場館規則</a>
+    <a href="visit.html#route">交通指引</a>
+  </div>
+  <div class="fnote">
+    岩站 GRIP STATION 為設計示範用之虛構品牌。地址、電話、價格、開線師姓名、路線資料與所有營運資訊皆為虛構示意，不對應任何真實場館或個人。<br>
+    設計與建置：Claude Opus 4.8（排程 Agent）・2026-07-18　／　風格規格書見 SKILL.md
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var board=document.getElementById('board'),sig=document.getElementById('sigBtn'),bc=document.getElementById('bClose');
+  function openB(){board.classList.add('on');sig.setAttribute('aria-expanded','true');bc.focus();}
+  function closeB(){board.classList.remove('on');sig.setAttribute('aria-expanded','false');sig.focus();}
+  sig.addEventListener('click',openB); bc.addEventListener('click',closeB);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&board.classList.contains('on'))closeB();});
+
+  var h=new Date().getHours(),flow='寬鬆';
+  if(h>=19&&h<22)flow='偏滿'; else if((h>=17&&h<19)||(h>=13&&h<17))flow='中等'; else if(h<9||h>=22)flow='空曠';
+  document.getElementById('stFlow').textContent=flow;
+  var day=new Date().getDay();
+  document.getElementById('stTime').textContent=(day===0||day===6)?'09:00–22:00':'12:00–23:00';
+
+  var ZONES={
+    A:{name:'大斜板',en:'OVERHANG SECTOR',ang:'45°（仰角）',n:28,hh:'4.2 m',set:'周奕安',date:'2026-07-14',dist:[1,3,6,7,6,3,2]},
+    B:{name:'直牆',en:'VERTICAL SECTOR',ang:'90°（垂直）',n:34,hh:'4.6 m',set:'林郁真',date:'2026-07-15',dist:[6,8,8,6,4,2,0]},
+    C:{name:'洞穴',en:'CAVE SECTOR',ang:'35°（強仰角）',n:16,hh:'3.4 m',set:'周奕安',date:'2026-07-16',dist:[0,0,1,3,5,4,3]},
+    D:{name:'拱形',en:'ARCH SECTOR',ang:'60°（連續變角）',n:19,hh:'4.0 m',set:'田邊涼',date:'2026-07-11',dist:[1,2,4,5,4,2,1]},
+    E:{name:'平板',en:'SLAB SECTOR',ang:'75°（緩仰／垂直）',n:22,hh:'4.4 m',set:'蔡博丞',date:'2026-07-13',dist:[4,5,5,4,3,1,0]},
+    F:{name:'訓練區',en:'TRAINING AREA',ang:'指力板／校園板',n:0,hh:'—',set:'全體',date:'常設',dist:[0,0,0,0,0,0,0]}
+  };
+  var GC=['--g0','--g1','--g2','--g3','--g4','--g5','--g6'];
+  var dist=document.getElementById('pDist'),i;
+  for(i=0;i<7;i++){var b=document.createElement('i');b.style.background='var('+GC[i]+')';dist.appendChild(b);}
+
+  function paint(z){
+    var d=ZONES[z]; if(!d)return;
+    document.getElementById('pZ').textContent=z;
+    document.getElementById('pName').textContent=d.name;
+    document.getElementById('pEn').textContent=d.en;
+    document.getElementById('pAng').textContent=d.ang;
+    document.getElementById('pCount').textContent=d.n?d.n+' 條':'器材區';
+    document.getElementById('pH').textContent=d.hh;
+    document.getElementById('pSetter').textContent=d.set;
+    document.getElementById('pDate').textContent=d.date;
+    var mx=Math.max.apply(null,d.dist.concat([1])),bars=dist.children,k;
+    for(k=0;k<7;k++){bars[k].style.height=(d.dist[k]?d.dist[k]/mx*100:2)+'%';}
+    var go=document.getElementById('pGo');
+    go.href='wall.html?z='+z;
+    go.textContent=d.n?('看 '+z+' 區路線牌 →'):'訓練區無在牆路線 →';
+    var zs=document.querySelectorAll('.zone'),j;
+    for(j=0;j<zs.length;j++){zs[j].classList.toggle('on',zs[j].getAttribute('data-z')===z);}
+  }
+  var zs=document.querySelectorAll('.zone'),k2;
+  for(k2=0;k2<zs.length;k2++){
+    (function(el){
+      var z=el.getAttribute('data-z');
+      el.addEventListener('mouseenter',function(){paint(z);});
+      el.addEventListener('focus',function(){paint(z);});
+      el.addEventListener('click',function(){location.href='wall.html?z='+z;});
+      el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();location.href='wall.html?z='+z;}});
+    })(zs[k2]);
+  }
+  paint('A');
+
+  function prng(seed){var s=seed>>>0;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+  var COL=['#9B5CFF','#38C46B','#2D8CFF'],cards=document.querySelectorAll('.topo'),seeds=[91,44,17],counts=[7,13,9],c;
+  for(c=0;c<cards.length;c++){
+    var svg=cards[c],r=prng(seeds[c]),col=COL[c],n=counts[c],pts=[],s='',p;
+    for(p=0;p<n;p++){pts.push([24+r()*192, 134-p*(118/(n-1))+(r()-0.5)*10]);}
+    var g;
+    for(g=0;g<28;g++){s+='<circle cx="'+((g%7)*34+22)+'" cy="'+(Math.floor(g/7)*36+18)+'" r="1" fill="#232C35"/>';}
+    s+='<path d="M'+pts.map(function(q){return q[0].toFixed(1)+' '+q[1].toFixed(1);}).join(' L')+'" stroke="#3a4650" stroke-width="1.2" fill="none" stroke-dasharray="3 4"/>';
+    var q2;
+    for(q2=0;q2<pts.length;q2++){
+      s+='<circle cx="'+pts[q2][0].toFixed(1)+'" cy="'+pts[q2][1].toFixed(1)+'" r="'+(4+r()*5).toFixed(1)+'" fill="'+col+'" opacity="'+(q2===pts.length-1?1:0.82)+'"/>';
+    }
+    s+='<rect x="'+(pts[0][0]-13).toFixed(1)+'" y="'+(pts[0][1]+8).toFixed(1)+'" width="26" height="7" fill="'+col+'"/>';
+    svg.innerHTML=s;
+  }
+})();
+</script>
+</body>
+</html>

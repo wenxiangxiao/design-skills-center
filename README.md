@@ -102,6 +102,7 @@
 | 84 | [節線 NODAL](sites/nodal-luthier/index.html) | 手工提琴製作工坊 | 共振節線風 Nodal-Resonance | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 85 | [八片織研所 SHAFT EIGHT](sites/shaft-eight/index.html) | 手工織造工坊 | 紋織意匠圖 Jacquard Point-Paper | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 86 | [摺點紙器結構所 FOLDPOINT](sites/foldpoint/index.html) | 紙器結構打樣廠 | 刀模展開圖 Dieline | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 87 | [梅溪號誌樓保存會](sites/meixi-signalbox/index.html) | 鐵道號誌樓保存 | 機械連鎖桿架風 Interlocking-Frame | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>節線提琴製作所 NODAL｜共振台</title>
+<meta name="description" content="台北中山區手工提琴製作與修復。以模態沙圖檢驗面板調音，看得見的共振。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23171B1C'/%3E%3Cellipse cx='16' cy='16' rx='7' ry='11' fill='none' stroke='%23E8E4D6' stroke-width='2.4' stroke-dasharray='1.4 2.2'/%3E%3Ccircle cx='16' cy='5.5' r='1.4' fill='%23C9A26B'/%3E%3Ccircle cx='16' cy='26.5' r='1.4' fill='%23C9A26B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Serif+TC:wght@400;600;900&family=Spectral:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#171B1C;--ink2:#21282A;--line:#2C3537;--sand:#E8E4D6;--spruce:#C9A26B;--verd:#5E8C86;--dim:#8B948F}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--sand);font-family:"Noto Serif TC",Spectral,serif;font-size:16px;line-height:1.85;font-weight:400}
+a{color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.shell{display:grid;grid-template-columns:106px 1fr;min-height:100vh}
+/* ---- rail ---- */
+.rail{border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;background:var(--ink)}
+.rail .brand{padding:16px 0 10px;text-align:center;border-bottom:1px solid var(--line)}
+.rail .brand svg{width:44px;height:auto;display:block;margin:0 auto}
+.rail .brand b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:3px;margin-top:8px;font-weight:400;color:var(--dim)}
+.scale{flex:1;position:relative;padding:26px 0}
+.scale .axis{position:absolute;left:38px;top:26px;bottom:26px;width:1px;background:var(--line)}
+.sitem{position:absolute;left:0;right:0;display:flex;align-items:center;gap:6px;text-decoration:none;padding:2px 0}
+.sitem .hz{width:36px;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--dim);letter-spacing:.5px}
+.sitem .tick{width:11px;height:1px;background:var(--line);flex:none;margin-left:1px}
+.sitem .lb{writing-mode:vertical-rl;text-orientation:upright;font-size:13px;letter-spacing:4px;color:var(--dim);line-height:1;padding:2px 0}
+.sitem:hover .lb,.sitem:focus-visible .lb{color:var(--sand)}
+.sitem:hover .tick{background:var(--sand);width:20px}
+.sitem[aria-current="page"] .lb{color:var(--spruce)}
+.sitem[aria-current="page"] .hz{color:var(--spruce)}
+.sitem[aria-current="page"] .tick{background:var(--spruce);width:24px}
+.needle{position:absolute;left:31px;margin-top:9px;width:0;height:0;border-left:7px solid var(--spruce);border-top:5px solid transparent;border-bottom:5px solid transparent}
+/* ---- main ---- */
+main{max-width:1120px;padding:0 40px 90px}
+section{border-bottom:1px solid var(--line);padding:52px 0}
+section:first-of-type{padding-top:34px}
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:3.5px;color:var(--verd);text-transform:uppercase}
+h2{font-size:27px;font-weight:600;letter-spacing:2px;line-height:1.5;margin:10px 0 18px}
+h3{font-size:17px;font-weight:600;letter-spacing:1.5px;margin-bottom:8px}
+p{max-width:62ch;color:#D6D2C6}
+.lead{font-size:17.5px}
+.dim{color:var(--dim)}
+/* ---- bench (canvas) ---- */
+.bench{display:grid;grid-template-columns:1fr 300px;gap:0;border:1px solid var(--line);margin-top:6px}
+.stage{position:relative;background:#121516;border-right:1px solid var(--line);min-height:430px}
+.stage canvas{display:block;width:100%;height:430px}
+.stagenote{position:absolute;left:14px;top:12px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:2px;color:#5a6462}
+.readout{padding:18px 18px 20px;display:flex;flex-direction:column;gap:14px}
+.bigf{font-family:"IBM Plex Mono",monospace;font-size:40px;line-height:1;letter-spacing:-1px}
+.bigf small{font-size:14px;letter-spacing:2px;color:var(--dim);margin-left:6px}
+.modelist{border-top:1px solid var(--line)}
+.moderow{display:grid;grid-template-columns:34px 1fr 56px;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:9px 0;font-size:13px}
+.moderow .id{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1.5px;color:var(--dim)}
+.moderow .amp{height:3px;background:var(--line);position:relative;overflow:hidden}
+.moderow .amp i{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--verd);transition:width .12s linear}
+.moderow .hz{font-family:"IBM Plex Mono",monospace;font-size:12px;text-align:right;color:var(--dim)}
+.moderow.on .id,.moderow.on .hz{color:var(--spruce)}
+.moderow.on .amp i{background:var(--spruce)}
+.sweepwrap{padding:16px 18px 20px;border-top:1px solid var(--line)}
+.sweepwrap label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:2.5px;color:var(--dim);margin-bottom:10px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:ew-resize}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line)}
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:3px;height:22px;background:var(--spruce);margin-top:-10px}
+input[type=range]::-moz-range-thumb{width:3px;height:22px;border:0;border-radius:0;background:var(--spruce)}
+input[type=range]:focus-visible{outline:1px solid var(--verd);outline-offset:4px}
+.ticks{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:10px;color:#59615f;margin-top:2px}
+.btn{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:2px;background:transparent;color:var(--sand);border:1px solid var(--line);padding:9px 14px;cursor:pointer}
+.btn:hover{border-color:var(--sand)}
+.btn:focus-visible{outline:1px solid var(--verd);outline-offset:3px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+/* ---- mode cards ---- */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:26px}
+.card{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 18px;transition:background .25s}
+.card.lit{background:#1E2426}
+.card .no{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:2.5px;color:var(--verd)}
+.card.lit .no{color:var(--spruce)}
+.card svg{margin:12px 0 10px}
+.card p{font-size:14.5px;line-height:1.8;color:#C8C4B8}
+/* ---- tables ---- */
+table{border-collapse:collapse;width:100%;margin-top:18px;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:11px 10px;text-align:left;vertical-align:top}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:2px;color:var(--dim);font-weight:400;text-transform:uppercase}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1.15fr .85fr;gap:44px}
+.hang{border-left:1px solid var(--line);padding-left:20px}
+.hang dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:2px;color:var(--verd);margin-top:16px}
+.hang dt:first-child{margin-top:0}
+.hang dd{font-size:14.5px;color:#C8C4B8}
+footer{padding:34px 40px 46px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}
+footer .fgrid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:30px;max-width:1120px}
+footer b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:2px;color:var(--verd);font-weight:400;margin-bottom:8px}
+footer a{text-decoration:none;border-bottom:1px solid var(--line)}
+footer a:hover{border-color:var(--sand);color:var(--sand)}
+.note{font-size:12.5px;color:#5f6866;margin-top:26px;max-width:70ch}
+noscript .ns{border:1px solid var(--spruce);padding:14px 16px;margin:14px 0;font-size:14px}
+@media(max-width:900px){
+ .shell{grid-template-columns:1fr}
+ .rail{position:fixed;left:0;right:0;bottom:0;top:auto;height:60px;width:100%;flex-direction:row;border-right:0;border-top:1px solid var(--line);z-index:60}
+ .rail .brand{display:none}
+ .scale{display:flex;padding:0;position:static}
+ .scale .axis,.needle{display:none}
+ .sitem{position:static!important;flex:1;flex-direction:column;justify-content:center;gap:2px;border-right:1px solid var(--line)}
+ .sitem .tick{display:none}
+ .sitem .hz{width:auto;text-align:center}
+ .sitem .lb{writing-mode:horizontal-tb;font-size:12.5px;letter-spacing:2px}
+ main{padding:0 20px 96px;max-width:100%}
+ .bench{grid-template-columns:1fr}
+ .stage{border-right:0;border-bottom:1px solid var(--line);min-height:0}
+ .stage canvas{height:340px}
+ .cards{grid-template-columns:1fr}
+ .two{grid-template-columns:1fr;gap:26px}
+ .hang{border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:18px}
+ footer{padding:28px 20px 90px}
+ footer .fgrid{grid-template-columns:1fr;gap:22px}
+ h2{font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="rail" aria-label="主導覽">
+  <div class="brand">
+    <svg viewBox="0 0 60 72" aria-hidden="true"><path d="M30 6 C41 6 47 13 47 21 C47 27 43 31 39 34 C43 37 48 42 48 51 C48 61 40 67 30 67 C20 67 12 61 12 51 C12 42 17 37 21 34 C17 31 13 27 13 21 C13 13 19 6 30 6 Z" fill="#C9A26B"/><ellipse cx="30" cy="36" rx="12.5" ry="21" fill="none" stroke="#171B1C" stroke-width="2.2" stroke-dasharray="1.6 2.6"/><path d="M23 27 C20 31 20 41 23 45" fill="none" stroke="#171B1C" stroke-width="2" stroke-linecap="round"/><path d="M37 27 C40 31 40 41 37 45" fill="none" stroke="#171B1C" stroke-width="2" stroke-linecap="round"/></svg>
+    <b>NODAL</b>
+  </div>
+  <div class="scale">
+    <div class="axis" aria-hidden="true"></div>
+    <div class="needle" style="top:6%" aria-hidden="true"></div>
+    <a class="sitem" href="index.html" aria-current="page" style="top:6%"><span class="hz">82</span><span class="tick"></span><span class="lb">共振台</span></a>
+    <a class="sitem" href="bench.html" style="top:32%"><span class="hz">147</span><span class="tick"></span><span class="lb">調音檯</span></a>
+    <a class="sitem" href="instruments.html" style="top:62%"><span class="hz">345</span><span class="tick"></span><span class="lb">在庫琴</span></a>
+    <a class="sitem" href="workshop.html" style="top:86%"><span class="hz">440</span><span class="tick"></span><span class="lb">工坊</span></a>
+  </div>
+</nav>
+
+<main>
+<section id="top">
+  <span class="kicker">Chladni Bench — Free Plate</span>
+  <h2>面板還沒裝上琴以前，先讓它自己講話。</h2>
+  <p class="lead">這塊雲杉面板厚 3.0 公釐、還沒挖音樑、還沒合箱。撒一層細砂，用揚聲器由 60 赫茲慢慢掃上去——大部分頻率它都不理你。掃到它自己的模態頻率時，整塊板會突然震起來，砂被震離振幅大的地方，只留在不動的那條線上。那條線就是節線。</p>
+  <p class="lead" style="margin-top:12px">拖下面那根掃頻桿。板會自己回答。</p>
+
+  <div class="bench">
+    <div class="stage">
+      <canvas id="cv" width="720" height="430" role="img" aria-label="自由面板模態沙圖模擬：拖動掃頻桿改變激振頻率，砂粒會在共振時聚集成節線"></canvas>
+      <div class="stagenote mono" id="stagenote">SPRUCE TOP · 3.00mm · FREE-FREE</div>
+    </div>
+    <div class="readout">
+      <div>
+        <div class="bigf mono"><span id="fnow">60</span><small>Hz</small></div>
+        <div class="mono" style="font-size:11px;letter-spacing:2px;color:var(--dim);margin-top:6px" id="statetxt">砂靜止・未進入模態</div>
+      </div>
+      <div class="modelist">
+        <div class="moderow" data-m="0"><span class="id">M1</span><span class="amp"><i></i></span><span class="hz">— Hz</span></div>
+        <div class="moderow" data-m="1"><span class="id">M2</span><span class="amp"><i></i></span><span class="hz">— Hz</span></div>
+        <div class="moderow" data-m="2"><span class="id">M5</span><span class="amp"><i></i></span><span class="hz">— Hz</span></div>
+      </div>
+      <p class="mono" style="font-size:11px;line-height:1.9;color:#6b7472;letter-spacing:.5px">M1 扭轉／M2 長軸／M5 環模。三者的頻率與間距決定這塊板將來的反應速度與音色重心。</p>
+      <div class="btnrow">
+        <button class="btn" id="btap" type="button">敲一下</button>
+        <button class="btn" id="bfind" type="button">跳到下一個模態</button>
+      </div>
+    </div>
+  </div>
+  <div class="sweepwrap">
+    <label for="sweep">掃頻 SWEEP　60 – 420 Hz</label>
+    <input id="sweep" type="range" min="60" max="420" step="1" value="60" aria-describedby="fnow">
+    <div class="ticks mono"><span>60</span><span>150</span><span>240</span><span>330</span><span>420</span></div>
+  </div>
+  <noscript><div class="ns">此頁的共振模擬需要 JavaScript。以下三段模態說明與全站資訊在無腳本環境下皆完整可讀，工坊資訊請見「工坊」頁。</div></noscript>
+
+  <div class="cards">
+    <article class="card" data-m="0">
+      <span class="no">MODE 1 — 扭轉</span>
+      <svg viewBox="0 0 120 150" width="120" height="150" aria-hidden="true"><path d="M60 6 C82 6 94 21 94 36 C94 48 86 55 78 61 C86 67 96 79 96 98 C96 122 80 144 60 144 C40 144 24 122 24 98 C24 79 34 67 42 61 C34 55 26 48 26 36 C26 21 38 6 60 6 Z" fill="none" stroke="#2C3537" stroke-width="1"/><path d="M60 10 V140" stroke="#C9A26B" stroke-width="1.6" stroke-dasharray="3 4"/><path d="M27 75 H93" stroke="#C9A26B" stroke-width="1.6" stroke-dasharray="3 4"/><g fill="#5E8C86"><circle cx="40" cy="40" r="2"/><circle cx="80" cy="40" r="2"/><circle cx="40" cy="112" r="2"/><circle cx="80" cy="112" r="2"/></g></svg>
+      <h3>對角互相反著走</h3>
+      <p>四個象限兩兩反相，砂會排成一個十字。這個模態最軟，聽起來只是一聲悶響。它告訴我做的是這塊板的橫向剛性夠不夠——太低，將來高把位會糊。</p>
+    </article>
+    <article class="card" data-m="1">
+      <span class="no">MODE 2 — 長軸</span>
+      <svg viewBox="0 0 120 150" width="120" height="150" aria-hidden="true"><path d="M60 6 C82 6 94 21 94 36 C94 48 86 55 78 61 C86 67 96 79 96 98 C96 122 80 144 60 144 C40 144 24 122 24 98 C24 79 34 67 42 61 C34 55 26 48 26 36 C26 21 38 6 60 6 Z" fill="none" stroke="#2C3537" stroke-width="1"/><path d="M30 44 C45 38 76 38 90 44" fill="none" stroke="#C9A26B" stroke-width="1.6" stroke-dasharray="3 4"/><path d="M28 108 C45 114 76 114 92 108" fill="none" stroke="#C9A26B" stroke-width="1.6" stroke-dasharray="3 4"/><g fill="#5E8C86"><circle cx="60" cy="22" r="2"/><circle cx="60" cy="76" r="2"/><circle cx="60" cy="128" r="2"/></g></svg>
+      <h3>上下兩道橫線</h3>
+      <p>板沿長軸彎成三段。砂在上下腰各排出一道弧。自由板的 M2 我抓 <span class="mono">145–165</span> Hz；低於這個帶，合箱之後低音會鬆散而慢。</p>
+    </article>
+    <article class="card" data-m="2">
+      <span class="no">MODE 5 — 環模</span>
+      <svg viewBox="0 0 120 150" width="120" height="150" aria-hidden="true"><path d="M60 6 C82 6 94 21 94 36 C94 48 86 55 78 61 C86 67 96 79 96 98 C96 122 80 144 60 144 C40 144 24 122 24 98 C24 79 34 67 42 61 C34 55 26 48 26 36 C26 21 38 6 60 6 Z" fill="none" stroke="#2C3537" stroke-width="1"/><ellipse cx="60" cy="75" rx="27" ry="49" fill="none" stroke="#C9A26B" stroke-width="1.6" stroke-dasharray="3 4"/><g fill="#5E8C86"><circle cx="60" cy="14" r="2"/><circle cx="60" cy="136" r="2"/><circle cx="30" cy="75" r="2"/><circle cx="90" cy="75" r="2"/></g></svg>
+      <h3>一圈閉合的環</h3>
+      <p>中央整片上下鼓動，四周不動，砂圍成一個閉環。環要對稱、要收在腰內。<span class="mono">340–360</span> Hz 是我要的窗口，環歪掉就代表某一側刨過頭了。</p>
+    </article>
+  </div>
+  <p class="note">模擬說明：頻率以瑞利商（Rayleigh quotient）估算——分子為假設模態形狀的彎曲應變能、分母為質量分佈，兩者都隨你在「調音檯」刨出的厚度分佈改變。砂粒依 −∇|w| 移動，這是真的節線聚集行為，不是預先畫好的圖。數值以自由雲杉面板的實測 tap tone 區間校準，供理解用途，非量測儀器。</p>
+</section>
+
+<section>
+  <span class="kicker">Why we look at sand</span>
+  <div class="two">
+    <div>
+      <h2>我不用耳朵記，我用砂記。</h2>
+      <p>敲板聽音高這件事，每個製琴師都會，問題是隔一週你就記不得上次那一下到底是幾赫茲。砂圖不一樣：它會告訴你「哪裡太厚」。M5 的環如果偏向低音側，代表那一側剛性過剩，我就知道該從哪裡下刨刀——不是憑手感，是憑那條線歪掉的方向。</p>
+      <p style="margin-top:14px">一塊面板從 4.5 公釐刨到 2.4 公釐，中間我會上檯量七到九次。每一次刨掉的木屑都回不來，所以每一刀之前都要知道自己在追什麼數字。這面工作牆上貼的不是設計圖，是每塊板的模態履歷。</p>
+      <p style="margin-top:14px">如果你想自己試試看那種「刨一刀、頻率就掉三赫茲」的手感，右邊那條路徑走到底就是我的<a href="bench.html" style="color:var(--spruce)">調音檯</a>。</p>
+    </div>
+    <dl class="hang">
+      <dt>MATERIAL</dt><dd>面板：義大利 Val di Fiemme 雲杉，自然乾燥 8 年以上。背板／側板：波士尼亞楓，虎斑中至強。</dd>
+      <dt>METHOD</dt><dd>整板手工刨削，不用砂帶機。厚度以卡尺配合模態量測交叉確認，每塊板留一份紙本履歷。</dd>
+      <dt>VARNISH</dt><dd>自製油性清漆，樹脂與亞麻仁油比例依季節微調，日曬固化 5–7 週。不做人工作舊。</dd>
+      <dt>LEAD TIME</dt><dd>全新小提琴約 7 個月，中提琴 8 個月，大提琴 14 個月起。同時最多接四把。</dd>
+    </dl>
+  </div>
+</section>
+
+<section>
+  <span class="kicker">On the bench this week</span>
+  <h2>本週檯上</h2>
+  <p>三塊正在調的板，數字是最近一次上檯的讀數。目標帶依琴體型號與客戶要的反應速度個別設定。</p>
+  <table>
+    <thead><tr><th>編號</th><th>板</th><th>平均厚度</th><th>M2</th><th>M5</th><th>狀態</th></tr></thead>
+    <tbody>
+      <tr><td class="n">NL-2604</td><td>雲杉面板・4/4 Guarneri 型</td><td class="n">2.88 mm</td><td class="n">151 Hz</td><td class="n">344 Hz</td><td>M5 再降 6 Hz</td></tr>
+      <tr><td class="n">NL-2607</td><td>楓木背板・4/4 Strad 型</td><td class="n">3.42 mm</td><td class="n">168 Hz</td><td class="n">371 Hz</td><td>低音側偏硬，續刨</td></tr>
+      <tr><td class="n">NL-2611</td><td>雲杉面板・中提琴 40.5cm</td><td class="n">3.05 mm</td><td class="n">138 Hz</td><td class="n">318 Hz</td><td>已達標，等挖音樑</td></tr>
+    </tbody>
+  </table>
+  <p class="note">修復件不列於此表。若您的琴需要開箱檢查、音柱調整或指板整平，請直接來電，我通常在工坊。</p>
+</section>
+</main>
+</div>
+
+<footer>
+  <div class="fgrid">
+    <div>
+      <b>節線提琴製作所 NODAL LUTHIERIE</b>
+      台北市中山區農安街 168 巷 5 號 2 樓<br>
+      02-2586-4417　施承翰 製琴師<br>
+      週二–週六 13:00–20:00（週日、週一休；試奏請先來電）
+    </div>
+    <div>
+      <b>PAGES</b>
+      <a href="index.html">共振台</a>　<a href="bench.html">調音檯</a><br>
+      <a href="instruments.html">在庫琴</a>　<a href="workshop.html">工坊與價目</a>
+    </div>
+    <div>
+      <b>NOTE</b>
+      本站為設計範例，品牌、人物、價格與數據皆為虛構示意。模態數值以公開文獻的自由板實測區間校準，僅供說明。
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var cv=document.getElementById('cv');if(!cv)return;
+var ctx=cv.getContext('2d');
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- geometry: violin free plate outline ---------- */
+/* ---- violin plate geometry: half-width profile (mm from bottom edge) ---- */
+var PROF=[[0,0],[4,26],[10,48],[18,68],[28,84],[40,95],[52,102],[62,103.5],[74,103],[86,99],
+[98,91],[108,81],[116,74],[121,71.5],[124,66],[128,60],[133,56],[140,53],[148,51.5],[156,51],
+[164,51.5],[172,53],[180,55.5],[188,59],[194,63],[198,66],[201,62],[206,67],[214,74],[224,80],
+[234,83],[244,84],[254,83.5],[266,81],[278,76],[290,70],[302,62],[312,54],[322,46],[330,39],
+[338,32],[344,26],[348,21]];
+var PLEN=348,PHALF=177.5,PUNIT=110;
+function crom(a,b,c,d,t){var t2=t*t,t3=t2*t;
+  return 0.5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t2+(-a+3*b-3*c+d)*t3);}
+function halfW(y){
+  var mm=y*PUNIT+PHALF;
+  if(mm<=0||mm>=PLEN)return 0;
+  var i=0;while(i<PROF.length-2&&PROF[i+1][0]<mm)i++;
+  var p1=PROF[i],p2=PROF[i+1],p0=PROF[i-1]||p1,p3=PROF[i+2]||p2;
+  var t=(mm-p1[0])/(p2[0]-p1[0]);
+  var w=crom(p0[1],p1[1],p2[1],p3[1],t);
+  return w>0?w/PUNIT:0;
+}
+var YMIN=-1.615,YMAX=1.615;
+function inside(x,y){var w=halfW(y);return w>0.03&&Math.abs(x)<=w-0.018;}
+function uu(x,y){
+  /* normalise x by a gently shape-following width, so the nodal ring widens in
+     the bouts and pinches at the waist without creating curvature spikes */
+  var hs=0.22+0.72*halfW(y);if(hs<0.26)hs=0.26;
+  var u=x/hs;return u>1.4?1.4:(u<-1.4?-1.4:u);
+}
+function shape(m,x,y){
+  var u=uu(x,y),v=y/1.55;
+  if(m===0)return u*v;
+  if(m===1)return v*v-0.42-0.16*u*u;
+  return 1-(u/0.60)*(u/0.60)-(v/0.86)*(v/0.86);
+}
+/* ---- grid ---- */
+var NX=48,NY=92;
+var gx=new Float32Array(NX),gy=new Float32Array(NY);
+var i,j,k,m2;
+for(i=0;i<NX;i++)gx[i]=-1.05+2.10*i/(NX-1);
+for(j=0;j<NY;j++)gy[j]=YMIN-0.02+(YMAX-YMIN+0.04)*j/(NY-1);
+var IN=new Uint8Array(NX*NY);
+for(j=0;j<NY;j++)for(i=0;i<NX;i++)IN[j*NX+i]=inside(gx[i],gy[j])?1:0;
+var W=[],ABSW=[],GX=[],GY=[],U=[];
+for(m2=0;m2<3;m2++){W.push(new Float32Array(NX*NY));ABSW.push(new Float32Array(NX*NY));GX.push(new Float32Array(NX*NY));GY.push(new Float32Array(NX*NY));U.push(new Float32Array(NX*NY));}
+var m2;
+for(m2=0;m2<3;m2++){
+  var w=W[m2],mx=0;
+  for(j=0;j<NY;j++)for(i=0;i<NX;i++){var v=shape(m2,gx[i],gy[j]);w[j*NX+i]=v;if(IN[j*NX+i]&&Math.abs(v)>mx)mx=Math.abs(v);}
+  if(mx<1e-6)mx=1;
+  for(k=0;k<w.length;k++){w[k]/=mx;ABSW[m2][k]=Math.abs(w[k]);}
+}
+var hx=gx[1]-gx[0],hy=gy[1]-gy[0];
+for(m2=0;m2<3;m2++){
+  var w=W[m2],aw=ABSW[m2],ux=GX[m2],uy=GY[m2],ue=U[m2];
+  for(j=1;j<NY-1;j++)for(i=1;i<NX-1;i++){
+    var id=j*NX+i;
+    ux[id]=(aw[id+1]-aw[id-1])/(2*hx);
+    uy[id]=(aw[id+NX]-aw[id-NX])/(2*hy);
+    var wxx=(w[id+1]-2*w[id]+w[id-1])/(hx*hx);
+    var wyy=(w[id+NX]-2*w[id]+w[id-NX])/(hy*hy);
+    var wxy=(w[id+NX+1]-w[id+NX-1]-w[id-NX+1]+w[id-NX-1])/(4*hx*hy);
+    ue[id]=wxx*wxx+wyy*wyy+2*0.30*wxx*wyy+2*0.70*wxy*wxy;
+  }
+}
+/* smooth the bending-energy field: assumed-mode Rayleigh estimates are
+   over-sensitive to single-cell spikes, so regularise before use */
+(function(){
+  function pass(a){var b=new Float32Array(a.length),di,dj,q,s,n,id;
+    for(j=1;j<NY-1;j++)for(i=1;i<NX-1;i++){id=j*NX+i;if(!IN[id]){b[id]=0;continue;}
+      s=0;n=0;
+      for(dj=-1;dj<=1;dj++)for(di=-1;di<=1;di++){q=id+dj*NX+di;if(!IN[q])continue;s+=a[q];n++;}
+      b[id]=n?s/n:0;}
+    return b;}
+  for(var mm=0;mm<3;mm++){var a=U[mm];for(var p=0;p<4;p++)a=pass(a);U[mm]=a;}
+})();
+/* ---------- Rayleigh quotient frequency ---------- */
+var CAL=[0,0,0];
+function rawFreq(m,thick){
+  var num=0,den=0,id;
+  for(j=1;j<NY-1;j++)for(i=1;i<NX-1;i++){id=j*NX+i;if(!IN[id])continue;
+    var t=thick(gx[i],gy[j]);
+    num+=U[m][id]*t*t*t;
+    den+=W[m][id]*W[m][id]*t;}
+  if(den<=0)return 0;
+  return Math.sqrt(num/den);
+}
+var uniform=function(){return 3.0;};
+var TARGET=[82,152,347];
+for(m2=0;m2<3;m2++){var r=rawFreq(m2,uniform);CAL[m2]=r>0?TARGET[m2]/r:0;}
+var F=[TARGET[0],TARGET[1],TARGET[2]];
+
+/* ---------- particles ---------- */
+var N=reduce?1500:2400;
+var px=new Float32Array(N),py=new Float32Array(N),vx=new Float32Array(N),vy=new Float32Array(N);
+function seedParticles(){
+  var n=0,guard=0;
+  while(n<N&&guard<N*60){guard++;
+    var x=-1.05+2.10*Math.random(),y=YMIN+(YMAX-YMIN)*Math.random();
+    if(!inside(x,y))continue;
+    px[n]=x;py[n]=y;vx[n]=0;vy[n]=0;n++;}
+}
+seedParticles();
+
+function samp(arr,x,y){
+  var fi=(x-gx[0])/hx,fj=(y-gy[0])/hy;
+  var i0=Math.floor(fi),j0=Math.floor(fj);
+  if(i0<1)i0=1;if(i0>NX-3)i0=NX-3;if(j0<1)j0=1;if(j0>NY-3)j0=NY-3;
+  var ax=fi-i0,ay=fj-j0;if(ax<0)ax=0;if(ax>1)ax=1;if(ay<0)ay=0;if(ay>1)ay=1;
+  var a=arr[j0*NX+i0],b=arr[j0*NX+i0+1],c=arr[(j0+1)*NX+i0],d=arr[(j0+1)*NX+i0+1];
+  return (a*(1-ax)+b*ax)*(1-ay)+(c*(1-ax)+d*ax)*ay;
+}
+
+/* ---------- drive ---------- */
+var freq=60,amp=[0,0,0],tap=0;
+function updateAmps(){
+  var best=-1,bv=0;
+  for(var m=0;m<3;m++){
+    var bw=F[m]*0.030;
+    var d=(freq-F[m])/bw;
+    amp[m]=1/(1+d*d);
+    if(amp[m]>bv){bv=amp[m];best=m;}
+  }
+  return {best:best,val:bv};
+}
+
+/* ---------- canvas mapping ---------- */
+var DPR=Math.min(window.devicePixelRatio||1,2),CW=0,CH=0,SC=1,OX=0,OY=0;
+function resize(){
+  var r=cv.getBoundingClientRect();
+  CW=Math.max(280,Math.round(r.width));CH=Math.round(r.height);
+  cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  SC=Math.min(CW/2.6,CH/3.55);
+  OX=CW/2;OY=CH/2;
+  drawStatic();
+}
+function TX(x){return OX+x*SC;}
+function TY(y){return OY-y*SC;}
+
+var outlinePath=null,grainSeed=[];
+(function(){for(var q=0;q<118;q++)grainSeed.push(Math.random());})();
+function buildOutline(){
+  var p=new Path2D(),first=true,y;
+  for(y=YMIN;y<=YMAX;y+=0.015){var w=halfW(y);if(w<0.012)continue;if(first){p.moveTo(TX(w),TY(y));first=false;}else p.lineTo(TX(w),TY(y));}
+  for(y=YMAX;y>=YMIN;y-=0.015){var w2v=halfW(y);if(w2v<0.012)continue;p.lineTo(TX(-w2v),TY(y));}
+  p.closePath();outlinePath=p;
+}
+function drawStatic(){buildOutline();}
+
+function fhole(sign){
+  var p=new Path2D();
+  var cx=sign*0.42;
+  p.moveTo(TX(cx-0.02),TY(-0.52));
+  p.bezierCurveTo(TX(cx+0.10),TY(-0.30),TX(cx-0.10),TY(0.16),TX(cx+0.02),TY(0.44));
+  return p;
+}
+
+function render(){
+  ctx.clearRect(0,0,CW,CH);
+  if(!outlinePath)buildOutline();
+  /* plate body */
+  ctx.save();
+  ctx.fillStyle="#8E6F45";ctx.fill(outlinePath);
+  ctx.clip(outlinePath);
+  /* wood grain */
+  ctx.lineWidth=1;
+  for(var q=0;q<grainSeed.length;q++){
+    var xx=-1.05+2.10*q/(grainSeed.length-1);
+    var jitter=(grainSeed[q]-0.5)*0.012;
+    ctx.strokeStyle=q%7===0?"rgba(28,20,10,0.22)":"rgba(28,20,10,0.085)";
+    ctx.beginPath();
+    ctx.moveTo(TX(xx+jitter),TY(YMIN));
+    ctx.bezierCurveTo(TX(xx-jitter*2.2),TY(-0.5),TX(xx+jitter*2.2),TY(0.5),TX(xx+jitter),TY(YMAX));
+    ctx.stroke();
+  }
+  /* subtle arching shade */
+  var g=ctx.createRadialGradient(TX(0),TY(0),SC*0.15,TX(0),TY(0),SC*1.7);
+  g.addColorStop(0,"rgba(201,162,107,0.30)");g.addColorStop(1,"rgba(12,14,15,0.45)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
+  ctx.restore();
+  /* f-holes */
+  ctx.strokeStyle="#14100C";ctx.lineWidth=Math.max(3,SC*0.030);ctx.lineCap="round";
+  ctx.stroke(fhole(-1));ctx.stroke(fhole(1));
+  ctx.lineWidth=1;
+  /* outline */
+  ctx.strokeStyle="#3B4547";ctx.stroke(outlinePath);
+  /* sand */
+  var s=Math.max(1.1,SC*0.0085);
+  ctx.fillStyle="rgba(232,228,214,0.92)";
+  for(var n=0;n<N;n++){
+    ctx.fillRect(TX(px[n])-s/2,TY(py[n])-s/2,s,s);
+  }
+}
+
+function settleStatic(){
+  /* reduced-motion / static placement: rejection sample near nodal line of dominant mode */
+  var r=updateAmps();
+  if(r.val<0.16){seedParticles();render();return;}
+  var m=r.best,n=0,guard=0;
+  while(n<N&&guard<N*220){guard++;
+    var x=-1.05+2.10*Math.random(),y=YMIN+(YMAX-YMIN)*Math.random();
+    if(!inside(x,y))continue;
+    var a=Math.abs(samp(W[m],x,y));
+    var pr=Math.exp(-(a*a)/(2*0.055*0.055));
+    if(Math.random()<pr*0.98+0.012){px[n]=x;py[n]=y;n++;}
+  }
+  while(n<N){px[n]=0;py[n]=YMIN+0.1;n++;}
+  render();
+}
+
+function step(){
+  var r=updateAmps();
+  var drive=r.val+tap;
+  tap*=0.955;
+  if(drive>0.035){
+    var m=r.best;
+    /* real Chladni behaviour: a grain sitting where the plate moves gets thrown
+       and lands somewhere random; a grain on the nodal line is never thrown.
+       So the motion is a random hop scaled by local amplitude, plus a small
+       drift down the amplitude gradient. Grains stop dead when |w| -> 0. */
+    var hop=0.150*drive,bias=0.014*drive;
+    for(var n=0;n<N;n++){
+      var a=samp(ABSW[m],px[n],py[n]);
+      var ux=samp(GX[m],px[n],py[n]),uy=samp(GY[m],px[n],py[n]);
+      var gm=Math.sqrt(ux*ux+uy*uy)+1e-6;
+      /* a/gm estimates the distance to the nodal line: capture at a fixed
+         distance so every line comes out the same width */
+      if(a/gm<0.028){vx[n]=0;vy[n]=0;continue;}
+      vx[n]=vx[n]*0.55+(Math.random()-0.5)*hop*a-(ux/gm)*bias*a;
+      vy[n]=vy[n]*0.55+(Math.random()-0.5)*hop*a-(uy/gm)*bias*a;
+      var nx=px[n]+vx[n],ny=py[n]+vy[n];
+      if(!inside(nx,ny)){
+        /* the plate edge stops the grain; never drag it toward the centre */
+        nx=px[n];ny=py[n];
+        vx[n]*=-0.20;vy[n]*=-0.20;
+      }
+      px[n]=nx;py[n]=ny;
+    }
+  }
+  render();
+  raf=requestAnimationFrame(step);
+}
+
+/* ---------- UI ---------- */
+var rows=[].slice.call(document.querySelectorAll('.moderow'));
+var cards=[].slice.call(document.querySelectorAll('.card'));
+var fnow=document.getElementById('fnow'),statetxt=document.getElementById('statetxt');
+var STATE=["砂靜止・未進入模態","接近模態・砂開始跳動","模態成形・砂已收在節線上"];
+function refreshUI(){
+  var r=updateAmps();
+  fnow.textContent=freq;
+  for(var m=0;m<3;m++){
+    rows[m].querySelector('i').style.width=(amp[m]*100).toFixed(0)+'%';
+    rows[m].querySelector('.hz').textContent=Math.round(F[m])+' Hz';
+    var on=amp[m]>0.42;
+    rows[m].classList.toggle('on',on);
+    cards[m].classList.toggle('lit',on);
+  }
+  statetxt.textContent=r.val>0.72?STATE[2]:(r.val>0.2?STATE[1]:STATE[0]);
+}
+var sweep=document.getElementById('sweep');
+sweep.addEventListener('input',function(){
+  freq=parseInt(sweep.value,10);refreshUI();
+  if(reduce)settleStatic();
+});
+document.getElementById('btap').addEventListener('click',function(){
+  tap=0.85;if(reduce)settleStatic();
+});
+document.getElementById('bfind').addEventListener('click',function(){
+  var order=[F[0],F[1],F[2]],nx=null,m;
+  for(m=0;m<3;m++){if(order[m]>freq+2){nx=order[m];break;}}
+  if(nx===null)nx=order[0];
+  freq=Math.round(nx);sweep.value=freq;refreshUI();
+  if(reduce)settleStatic();
+});
+var raf=null;
+window.addEventListener('resize',function(){resize();if(reduce)render();});
+resize();refreshUI();
+if(reduce){settleStatic();}else{raf=requestAnimationFrame(step);}
+})();
+</script>
+</body>
+</html>

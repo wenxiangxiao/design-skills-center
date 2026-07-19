@@ -101,6 +101,7 @@
 | 83 | [補格 PATCHFRAME](sites/patchframe/index.html) | 影音檔案修復所 | 訊號衰減風 Signal-Decay | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 84 | [節線 NODAL](sites/nodal-luthier/index.html) | 手工提琴製作工坊 | 共振節線風 Nodal-Resonance | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 85 | [八片織研所 SHAFT EIGHT](sites/shaft-eight/index.html) | 手工織造工坊 | 紋織意匠圖 Jacquard Point-Paper | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 86 | [摺點紙器結構所 FOLDPOINT](sites/foldpoint/index.html) | 紙器結構打樣廠 | 刀模展開圖 Dieline | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>摺台：把刀模摺起來看｜摺點紙器結構所 FOLDPOINT</title>
+<meta name="description" content="摺點紙器結構所的摺台。輸入長寬高，即時生成可裁的刀模展開圖，拖動摺疊桿讓它在你眼前立成盒子——同一份幾何的兩個投影。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%232F4A52'/%3E%3Cpath%20d='M5%209h14v14H5z'%20fill='%23EDE9DF'%20stroke='%23E8006E'%20stroke-width='2'/%3E%3Cpath%20d='M19%209l8%204v14l-8-4z'%20fill='%23DBD4C4'%20stroke='%23E8006E'%20stroke-width='2'%20stroke-linejoin='round'/%3E%3Cpath%20d='M19%209v14'%20stroke='%2317B9E8'%20stroke-width='2'%20stroke-dasharray='3%202.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;600&family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --bed:#2F4A52; --bed2:#1E343A; --bed3:#3B5A63;
+  --cut:#E8006E; --crease:#17B9E8; --glue:#F2C200;
+  --paper:#EDE9DF; --paper2:#DBD4C4; --ink:#16262B; --ink2:#4A5F66;
+}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bed);color:var(--paper);
+  font-family:"Noto Sans TC","Barlow Condensed",sans-serif;font-size:16px;line-height:1.75;
+  background-image:linear-gradient(var(--bed3) 1px,transparent 1px),linear-gradient(90deg,var(--bed3) 1px,transparent 1px);
+  background-size:48px 48px;background-position:-1px -1px;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 22% 8%,rgba(255,255,255,.07),transparent 62%);}
+.wrap{max-width:1240px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+h1,h2,h3,h4{font-family:"Barlow Condensed","Noto Sans TC",sans-serif;font-weight:700;line-height:1.12;margin:0;letter-spacing:.01em}
+.mono{font-family:"Azeret Mono","Barlow Condensed",monospace;font-variant-numeric:tabular-nums}
+a{color:inherit}
+/* --- 頁首：規格橫條，非置中大標 --- */
+.slug{border-bottom:1.5px solid var(--cut);padding:14px 0 10px;display:flex;flex-wrap:wrap;gap:10px 26px;align-items:baseline}
+.slug .bm{font-family:"Azeret Mono",monospace;font-size:11px;letter-spacing:.22em;color:var(--glue)}
+.slug .bn{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:30px;letter-spacing:.06em;text-transform:uppercase}
+.slug .bz{font-size:12px;color:#A9BEC4;letter-spacing:.06em}
+.slug .sp{flex:1}
+/* --- 紙面卡 --- */
+.sheet{background:var(--paper);color:var(--ink);border:1.5px solid var(--ink);position:relative}
+.sheet.k{background:var(--paper2)}
+.sheet::after{content:"";position:absolute;inset:5px;border:1px dashed rgba(22,38,43,.28);pointer-events:none}
+.sheet>*{position:relative;z-index:1}
+.pad{padding:26px 24px}
+.corner{position:absolute;width:13px;height:13px;border:0;z-index:2}
+/* --- 線型圖例 --- */
+.lt{display:flex;gap:20px;flex-wrap:wrap;font-size:12px;letter-spacing:.08em;align-items:center}
+.lt i{display:inline-block;width:34px;height:0;border-top-width:2.5px;margin-right:7px;vertical-align:middle}
+.lt .c1 i{border-top-style:solid;border-top-color:var(--cut)}
+.lt .c2 i{border-top-style:dashed;border-top-color:var(--crease)}
+.lt .c3 i{border-top-style:dotted;border-top-color:var(--glue);border-top-width:3.5px}
+label{display:block;font-size:12px;letter-spacing:.14em;color:var(--ink2);margin:0 0 4px;text-transform:uppercase}
+input[type=text],input[type=number],input[type=tel],input[type=email],select,textarea{
+  width:100%;padding:9px 10px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);
+  font-family:"Azeret Mono",monospace;font-size:14px;border-radius:0}
+input:focus,select:focus,textarea:focus{outline:2.5px solid var(--cut);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--cut);height:26px}
+.btn{display:inline-block;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);
+  padding:9px 17px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;letter-spacing:.1em;
+  cursor:pointer;border-radius:0;text-decoration:none;transition:background .13s,color .13s}
+.btn:hover{background:var(--cut);border-color:var(--cut);color:#fff}
+.btn.g{background:transparent;color:var(--ink)}
+.btn.g:hover{background:var(--ink);color:var(--paper)}
+.btn.g[aria-pressed=true]{background:var(--cut);border-color:var(--cut);color:#fff}
+.err{color:#B3005A;font-size:12.5px;margin-top:4px;min-height:1.2em;font-family:"Azeret Mono",monospace}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid rgba(22,38,43,.22);padding:7px 8px;text-align:left}
+th{font-size:11.5px;letter-spacing:.14em;color:var(--ink2);text-transform:uppercase;border-bottom:1.5px solid var(--ink)}
+td.n{text-align:right;font-family:"Azeret Mono",monospace}
+/* --- 導覽：盒面 --- */
+#navbox{position:fixed;top:14px;right:16px;z-index:60;width:150px;height:140px}
+#navbox svg{width:100%;height:100%;overflow:visible;cursor:grab}
+#navbox .fl{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.02em}
+#navbar{display:none}
+@media(max-width:860px){
+  #navbox{display:none}
+  #navbar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bed2);
+    border-top:1.5px solid var(--cut);padding:5px 5px 6px}
+  #navbar ul{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0;padding:0;list-style:none}
+  #navbar a{display:block;text-align:center;padding:8px 2px;text-decoration:none;font-size:13px;
+    border:1.5px solid var(--paper);color:var(--paper);letter-spacing:.06em}
+  #navbar a[aria-current=page]{background:var(--cut);border-color:var(--cut);color:#fff}
+  #navbar .cd{display:block;font-family:"Azeret Mono",monospace;font-size:9px;letter-spacing:.1em;opacity:.72}
+  body{padding-bottom:74px}
+}
+footer{border-top:1.5px solid var(--cut);margin-top:64px;padding:30px 0 48px;font-size:14px}
+footer a{text-decoration:none;border-bottom:1px dashed rgba(237,233,223,.5)}
+footer a:hover{color:var(--glue);border-bottom-color:var(--glue)}
+.fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:26px}
+@media(max-width:760px){.fgrid{grid-template-columns:1fr}}
+.tag{display:inline-block;font-family:"Azeret Mono",monospace;font-size:10.5px;letter-spacing:.16em;
+  border:1px solid currentColor;padding:2px 7px;vertical-align:middle}
+.dim{font-family:"Azeret Mono",monospace;font-size:11px;letter-spacing:.1em;color:var(--ink2)}
+.hr{height:0;border-top:1.5px solid var(--cut);margin:0}
+.hrd{height:0;border-top:1.5px dashed var(--crease);margin:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+.note{font-size:12.5px;color:#A9BEC4;letter-spacing:.02em}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+/* --- 版面保險：導覽方管佔位、長代號斷行 --- */
+@media(min-width:861px){.slug{padding-right:172px}}
+.stagebar .dim,#s-code,.card .cno{word-break:break-all}
+img{max-width:100%}
+table{table-layout:auto}
+td,th{overflow-wrap:break-word}
+@media(max-width:560px){
+  .pad{padding:18px 15px}
+  h2{font-size:24px!important}
+  .stagebar{font-size:11px}
+  .lt{gap:10px}
+  .lt i{width:22px}
+}
+
+.benchgrid{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:18px;margin-top:20px;align-items:start}
+.stagewrap{position:relative}
+.stagewrap::after{display:none}
+#stage{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
+.stagebar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  border-top:1.5px solid var(--ink);padding:8px 12px;background:var(--paper);color:var(--ink)}
+.typegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tybtn{text-align:left;padding:7px 9px;line-height:1.25}
+.tybtn .ty{display:block;font-size:14.5px;letter-spacing:.02em}
+.tybtn .cd{display:block;font-family:"Azeret Mono",monospace;font-size:9.5px;letter-spacing:.08em;opacity:.66}
+.dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.ctrl label{margin-top:2px}
+.statbar{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border:1.5px solid var(--cut);
+  border-top:0;margin-top:0;background:var(--bed2)}
+.statbar>div{padding:10px 12px;border-left:1px dashed rgba(23,185,232,.45)}
+.statbar>div:first-child{border-left:0}
+.statbar .dim{display:block;color:#8FAAB2;font-size:10.5px;letter-spacing:.13em}
+.statbar b{font-size:17px;letter-spacing:.02em;color:var(--paper)}
+.presets{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.presets .btn{background:transparent;color:var(--paper);border-color:var(--paper);font-size:13.5px;padding:5px 11px}
+.presets .btn:hover{background:var(--glue);border-color:var(--glue);color:var(--ink)}
+.secttl{display:grid;grid-template-columns:1.1fr 1fr;gap:26px;align-items:end}
+.secttl h2{font-size:32px}
+.ill{width:100%;height:auto;display:block}
+.stepic{width:66px;height:64px;display:block}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1080px){
+  .benchgrid{grid-template-columns:1fr}
+  .statbar{grid-template-columns:repeat(4,1fr)}
+  .statbar>div:nth-child(4n+1){border-left:0}
+  .steps{grid-template-columns:1fr 1fr}
+}
+@media(max-width:860px){.secttl{grid-template-columns:1fr}.secttl h2{font-size:26px}}
+@media(max-width:560px){
+  .statbar{grid-template-columns:1fr 1fr}
+  .statbar>div:nth-child(2n+1){border-left:0}
+  .steps{grid-template-columns:1fr}
+  .typegrid{grid-template-columns:1fr}
+  .slug .bn{font-size:23px}
+}
+
+</style>
+</head>
+<body>
+<a href="#main-skip" style="position:absolute;left:-9999px">跳至內容</a>
+<header class="wrap">
+  <div class="slug">
+    <svg width="46" height="46" viewBox="0 0 56 56" aria-hidden="true" style="flex:0 0 auto">
+      <path d="M4 10h30v34H4z" fill="#EDE9DF" stroke="#E8006E" stroke-width="2.4"/>
+      <path d="M34 10l18 8v34l-18-8z" fill="#C9C0AD" stroke="#E8006E" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M34 10v34" stroke="#17B9E8" stroke-width="2.4" stroke-dasharray="5 3.5"/>
+    </svg>
+    <span>
+      <span class="bm">FP ／ F-01</span><br>
+      <span class="bn">摺點紙器結構所</span>
+    </span>
+    <span class="bz">FOLDPOINT　結構打樣・刀模・彩盒<br>台中市大里區工業路 12 巷 8 號</span>
+    <span class="sp"></span>
+    <span class="bz mono">FOLD BENCH ／ 摺台</span>
+  </div>
+</header>
+<span id="main-skip"></span>
+<main class="wrap">
+
+<!-- ============ 摺台：首屏即刀模，不設大標 hero ============ -->
+<section id="bench" aria-label="摺台">
+  <div class="benchgrid">
+    <div class="stagewrap sheet k" style="padding:0;overflow:hidden">
+      <svg id="stage" viewBox="0 0 920 600" role="img"
+           aria-label="刀模展開圖與立體成品的即時摺疊視圖"></svg>
+      <div class="stagebar">
+        <div class="lt">
+          <span class="c1"><i></i>刀線 CUT</span>
+          <span class="c2"><i></i>壓線 CREASE</span>
+          <span class="c3"><i></i>糊區 GLUE</span>
+        </div>
+        <span class="dim" id="s-code">FP1.window.150x60x210.GB350</span>
+      </div>
+    </div>
+
+    <div class="ctrl sheet">
+      <div class="pad" style="padding:20px 18px">
+        <p class="dim" style="margin:0 0 3px">STEP 1 ／ 結構</p>
+        <div class="typegrid" id="typebtns"></div>
+
+        <p class="dim" style="margin:18px 0 3px">STEP 2 ／ 內尺寸（mm）</p>
+        <div class="dims">
+          <div><label for="in-L">長 L</label><input type="number" id="in-L" min="20" max="900" step="1" value="150"></div>
+          <div><label for="in-W">寬 W</label><input type="number" id="in-W" min="20" max="900" step="1" value="60"></div>
+          <div><label for="in-H">高 H</label><input type="number" id="in-H" min="20" max="900" step="1" value="210"></div>
+        </div>
+        <label for="in-mat" style="margin-top:14px">STEP 3 ／ 材質</label>
+        <select id="in-mat"></select>
+        <div class="err" id="s-warn" style="display:none"></div>
+
+        <div class="hrd" style="margin:16px 0 14px"></div>
+
+        <label for="in-fold">摺疊度 <span class="mono" id="lab-fold">0%</span>　·　拖到底＝成品</label>
+        <input type="range" id="in-fold" min="0" max="100" value="0" step="1">
+        <div class="row2">
+          <div><label for="in-yaw">水平轉角</label><input type="range" id="in-yaw" min="-180" max="180" value="0" step="1"></div>
+          <div><label for="in-pitch">俯仰</label><input type="range" id="in-pitch" min="-80" max="80" value="0" step="1"></div>
+        </div>
+        <p style="margin:10px 0 0"><button class="btn g" type="button" id="b-flat">攤平</button>
+          <button class="btn g" type="button" id="b-iso">等角</button>
+          <button class="btn g" type="button" id="b-run">自動摺</button></p>
+
+        <div class="hrd" style="margin:16px 0 14px"></div>
+        <p class="dim" style="margin:0 0 6px">顯示</p>
+        <p style="margin:0"><button class="btn g" type="button" id="t-lt" aria-pressed="true">線型</button>
+          <button class="btn g" type="button" id="t-nm" aria-pressed="true">面片名</button>
+          <button class="btn g" type="button" id="t-dim" aria-pressed="true">尺寸</button></p>
+
+        <div class="hrd" style="margin:16px 0 14px"></div>
+        <label for="in-code">盒型碼</label>
+        <input type="text" id="in-code" value="FP1.window.150x60x210.GB350" spellcheck="false">
+        <div class="err" id="code-err"></div>
+        <p style="margin:8px 0 0"><button class="btn g" type="button" id="b-load">載入</button>
+          <button class="btn g" type="button" id="b-copy">複製</button>
+          <a class="btn" id="b-quote" href="quote.html">帶去算落數 →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="statbar" role="group" aria-label="本結構量測值">
+    <div><span class="dim">展開尺寸 mm</span><b class="mono" id="s-flat">—</b></div>
+    <div><span class="dim">面片數</span><b class="mono" id="s-pan">—</b></div>
+    <div><span class="dim">刀線總長</span><b class="mono" id="s-cut">—</b></div>
+    <div><span class="dim">壓線總長</span><b class="mono" id="s-cre">—</b></div>
+    <div><span class="dim">滿版用料</span><b class="mono" id="s-area">—</b></div>
+    <div><span class="dim">單片紙重</span><b class="mono" id="s-gw">—</b></div>
+    <div><span class="dim">內容積</span><b class="mono" id="s-vol">—</b></div>
+  </div>
+
+  <div class="presets">
+    <span class="dim" style="padding-right:6px">常見件：</span>
+    <span id="presetbtns"></span>
+  </div>
+  <noscript><p class="note" style="margin-top:12px">摺台需要 JavaScript 才能運算摺疊。六種結構的尺寸範圍、材質與價格都完整列在
+    <a href="boxes.html" style="color:#F2C200">盒型庫</a> 與 <a href="quote.html" style="color:#F2C200">落數試算</a>，
+    或直接來電 04-2496-3187 由打樣師報結構。</p></noscript>
+</section>
+
+<div class="hr" style="margin:52px 0 0"></div>
+
+<!-- ============ 線型語意 ============ -->
+<section class="pad0" style="padding:34px 0 10px">
+  <div class="secttl">
+    <h2>一張刀模上只有三種線，<br>每一種都是一道工。</h2>
+    <p class="note" style="max-width:44ch;margin:0">
+      客戶送來的檔案十件有八件把壓線畫成實線。那不是畫風問題——實線進了模切機就是切斷，
+      整批貨會從壓線的位置裂開。上面那台摺台把三種線分開上色，摺起來的時候你會看到哪一條線在動。</p>
+  </div>
+  <div class="grid3" style="margin-top:22px">
+    <div class="sheet"><div class="pad">
+      <svg viewBox="0 0 240 108" class="ill" role="img" aria-label="刀線：連續實線，鋼刀高度 23.8mm，把紙完全切斷">
+        <rect x="14" y="20" width="212" height="46" fill="#DBD4C4"/>
+        <line x1="14" y1="43" x2="226" y2="43" stroke="#E8006E" stroke-width="3"/>
+        <path d="M120 6 v14 M116 20 l4 6 4-6" stroke="#16262B" stroke-width="1.4" fill="none"/>
+        <text x="14" y="88" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">鋼刀 23.8mm × 2pt</text>
+        <text x="226" y="88" text-anchor="end" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">全切</text>
+      </svg>
+      <h3 style="font-size:21px;margin:10px 0 4px">刀線 CUT</h3>
+      <p style="margin:0;font-size:14.5px">連續實線。鑲在木模上的鋼刀，刃口把紙完全切斷，成品外輪廓與開窗都走這條。
+        轉角小於 3mm 一律改圓角，否則刀尖會鈍在那一點。</p>
+    </div></div>
+    <div class="sheet"><div class="pad">
+      <svg viewBox="0 0 240 108" class="ill" role="img" aria-label="壓線：虛線，鈍刀配壓線槽把纖維壓陷不切斷">
+        <rect x="14" y="20" width="212" height="46" fill="#DBD4C4"/>
+        <line x1="14" y1="43" x2="226" y2="43" stroke="#17B9E8" stroke-width="3" stroke-dasharray="11 6"/>
+        <path d="M14 55 q106 12 212 0" stroke="#16262B" stroke-width="1.2" fill="none" opacity=".55"/>
+        <text x="14" y="88" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">壓線刀 23.3mm ＋ 槽寬 1.5t</text>
+        <text x="226" y="88" text-anchor="end" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">壓陷</text>
+      </svg>
+      <h3 style="font-size:21px;margin:10px 0 4px">壓線 CREASE</h3>
+      <p style="margin:0;font-size:14.5px">虛線。刀比鋼刀矮 0.5mm，配底下的壓線槽把纖維壓陷成一道溝，紙沿著它彎而不裂。
+        槽寬要抓 1.5 倍板厚，抓錯了 400g 象牙卡摺下去正面就爆白。</p>
+    </div></div>
+    <div class="sheet"><div class="pad">
+      <svg viewBox="0 0 240 108" class="ill" role="img" aria-label="糊區：斜線網點區，糊盒機噴膠的位置">
+        <defs><pattern id="gp2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#F2C200" stroke-width="2.6"/></pattern></defs>
+        <rect x="14" y="20" width="212" height="46" fill="#DBD4C4"/>
+        <rect x="14" y="20" width="72" height="46" fill="url(#gp2)"/>
+        <line x1="86" y1="20" x2="86" y2="66" stroke="#17B9E8" stroke-width="2.6" stroke-dasharray="9 5"/>
+        <text x="14" y="88" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">糊耳寬 16mm</text>
+        <text x="226" y="88" text-anchor="end" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">熱熔膠</text>
+      </svg>
+      <h3 style="font-size:21px;margin:10px 0 4px">糊區 GLUE</h3>
+      <p style="margin:0;font-size:14.5px">斜線網區。糊盒機的膠輪只認這塊面積，所以這裡不能上亮膜——膠咬不住膜，
+        客戶收到會是一箱自己彈開的盒子。要上膜就得留「避膜區」。</p>
+    </div></div>
+  </div>
+</section>
+
+<div class="hr" style="margin:44px 0 0"></div>
+
+<!-- ============ 結構先於印刷 ============ -->
+<section style="padding:34px 0 6px">
+  <div class="grid2" style="align-items:start;gap:30px">
+    <div>
+      <h2 style="font-size:34px;margin-bottom:12px">紙會不會撐住，<br>跟印得漂不漂亮沒有關係。</h2>
+      <p style="max-width:50ch">
+        我們接到最多的急件，是設計已經完稿、印刷也報好價，才發現盒子疊三層會塌。
+        瓦楞的抗壓來自楞的方向：楞管必須站著承重，躺著的那一面幾乎不出力。
+        同樣一張 B 楞，落機方向轉 90 度，堆疊強度差到四成。</p>
+      <p style="max-width:50ch">
+        所以我們的順序是反過來的——先量你要裝的東西，決定結構跟楞別，
+        刀模畫完、白樣摺出來、放進去搖一搖，再回頭談印刷。
+        <strong>白樣不收費，寄送我們出郵資</strong>，因為改結構的成本永遠比改刀模低。</p>
+      <p style="margin-top:18px">
+        <a class="btn" href="boxes.html">看 24 種現成結構 →</a>
+        <a class="btn g" href="workshop.html" style="border-color:var(--paper);color:var(--paper)">工坊與設備</a></p>
+    </div>
+    <div class="sheet"><div class="pad">
+      <svg viewBox="0 0 420 260" class="ill" role="img"
+           aria-label="A楞、B楞、E楞三種瓦楞剖面比較，楞高與每公尺楞數不同">
+        <text x="0" y="14" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">楞別剖面 ／ 1:1 實際比例放大 6 倍</text>
+        <g id="fl-a" transform="translate(0,34)">
+          <rect x="0" y="0" width="330" height="3" fill="#16262B"/>
+          <rect x="0" y="31" width="330" height="3" fill="#16262B"/>
+          <path d="M0 31 Q11 3 22 31 Q33 3 44 31 Q55 3 66 31 Q77 3 88 31 Q99 3 110 31 Q121 3 132 31 Q143 3 154 31 Q165 3 176 31 Q187 3 198 31 Q209 3 220 31 Q231 3 242 31 Q253 3 264 31 Q275 3 286 31 Q297 3 308 31 Q319 3 330 31"
+                fill="none" stroke="#B79A6C" stroke-width="2.6"/>
+          <text x="344" y="14" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="19" fill="#16262B">A 楞</text>
+          <text x="344" y="30" font-family="Azeret Mono,monospace" font-size="10.5" fill="#4A5F66">4.8mm／110 楞</text>
+        </g>
+        <g id="fl-b" transform="translate(0,100)">
+          <rect x="0" y="0" width="330" height="3" fill="#16262B"/>
+          <rect x="0" y="21" width="330" height="3" fill="#16262B"/>
+          <path d="M0 21 Q7 3 14 21 Q21 3 28 21 Q35 3 42 21 Q49 3 56 21 Q63 3 70 21 Q77 3 84 21 Q91 3 98 21 Q105 3 112 21 Q119 3 126 21 Q133 3 140 21 Q147 3 154 21 Q161 3 168 21 Q175 3 182 21 Q189 3 196 21 Q203 3 210 21 Q217 3 224 21 Q231 3 238 21 Q245 3 252 21 Q259 3 266 21 Q273 3 280 21 Q287 3 294 21 Q301 3 308 21 Q315 3 322 21 Q329 3 336 21"
+                fill="none" stroke="#B79A6C" stroke-width="2.4"/>
+          <text x="344" y="12" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="19" fill="#16262B">B 楞</text>
+          <text x="344" y="28" font-family="Azeret Mono,monospace" font-size="10.5" fill="#4A5F66">3.0mm／150 楞</text>
+        </g>
+        <g id="fl-e" transform="translate(0,158)">
+          <rect x="0" y="0" width="330" height="3" fill="#16262B"/>
+          <rect x="0" y="12" width="330" height="3" fill="#16262B"/>
+          <path d="M0 12 Q4 3 8 12 Q12 3 16 12 Q20 3 24 12 Q28 3 32 12 Q36 3 40 12 Q44 3 48 12 Q52 3 56 12 Q60 3 64 12 Q68 3 72 12 Q76 3 80 12 Q84 3 88 12 Q92 3 96 12 Q100 3 104 12 Q108 3 112 12 Q116 3 120 12 Q124 3 128 12 Q132 3 136 12 Q140 3 144 12 Q148 3 152 12 Q156 3 160 12 Q164 3 168 12 Q172 3 176 12 Q180 3 184 12 Q188 3 192 12 Q196 3 200 12 Q204 3 208 12 Q212 3 216 12 Q220 3 224 12 Q228 3 232 12 Q236 3 240 12 Q244 3 248 12 Q252 3 256 12 Q260 3 264 12 Q268 3 272 12 Q276 3 280 12 Q284 3 288 12 Q292 3 296 12 Q300 3 304 12 Q308 3 312 12 Q316 3 320 12 Q324 3 328 12"
+                fill="none" stroke="#B79A6C" stroke-width="2"/>
+          <text x="344" y="8" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="19" fill="#16262B">E 楞</text>
+          <text x="344" y="24" font-family="Azeret Mono,monospace" font-size="10.5" fill="#4A5F66">1.6mm／295 楞</text>
+        </g>
+        <g transform="translate(0,206)">
+          <line x1="0" y1="8" x2="330" y2="8" stroke="#E8006E" stroke-width="1.6"/>
+          <line x1="0" y1="4" x2="0" y2="12" stroke="#E8006E" stroke-width="1.6"/>
+          <line x1="330" y1="4" x2="330" y2="12" stroke="#E8006E" stroke-width="1.6"/>
+          <text x="165" y="30" text-anchor="middle" font-family="Azeret Mono,monospace" font-size="11" fill="#4A5F66">55 mm 實寬</text>
+        </g>
+      </svg>
+      <p style="margin:10px 0 0;font-size:13.5px;color:#4A5F66">
+        楞越細，印刷面越平整、越適合精裝彩盒；楞越粗，抗壓越好但表面會出現洗衣板紋。
+        E 楞是彩盒的常用解，A 楞留給堆高機底下的貨。</p>
+    </div></div>
+  </div>
+</section>
+
+<div class="hr" style="margin:46px 0 0"></div>
+
+<!-- ============ 五道工序 ============ -->
+<section style="padding:32px 0 0">
+  <h2 style="font-size:30px;margin-bottom:16px">從一張刀模到一車貨</h2>
+  <ol class="steps" id="steps"></ol>
+</section>
+</main>
+<footer class="wrap">
+  <div class="fgrid">
+    <div>
+      <p style="margin:0 0 6px"><span class="tag">FOLDPOINT</span></p>
+      <p style="margin:0"><strong>摺點紙器結構所</strong>　結構打樣・刀模製作・彩盒代工<br>
+      412 台中市大里區工業路 12 巷 8 號<br>
+      <span class="mono">04-2496-3187</span>　傳真 04-2496-3190<br>
+      <a href="mailto:fold@foldpoint.example">fold@foldpoint.example</a><br>
+      週一至週五 08:30–17:30，週六 08:30–12:00（打樣室週六不開機）</p>
+    </div>
+    <div>
+      <p class="mono" style="margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:#8FAAB2">頁面</p>
+      <p style="margin:0;line-height:2">
+        <a href="index.html">F-01　摺台</a><br>
+        <a href="boxes.html">B-02　盒型庫</a><br>
+        <a href="quote.html">Q-03　落數與報價試算</a><br>
+        <a href="workshop.html">W-04　工坊與設備</a></p>
+    </div>
+    <div>
+      <p class="mono" style="margin:0 0 6px;font-size:11px;letter-spacing:.16em;color:#8FAAB2">窗口</p>
+      <p style="margin:0;line-height:1.9">
+        結構師　郭承翰　分機 11<br>
+        打樣師　林淑貞　分機 14<br>
+        業務　陳彥廷　分機 21<br>
+        白樣製作 2 個工作天，寄送我們出郵資。</p>
+    </div>
+  </div>
+  <div class="hrd" style="margin:22px 0 12px"></div>
+  <p class="note" style="margin:0">
+    本站為網頁設計風格範例站。摺點紙器結構所、其人員、地址、電話、價格與所有報價數字皆為虛構示意，
+    非真實商業資訊；試算結果僅供結構教學，不可作為採購依據。刀模幾何由本站的摺疊引擎即時運算，
+    與實際生產仍有公差。<br>
+    本站由 <strong>Claude Opus 4.8</strong> 設計與建置（排程 Agent 自動執行，2026-07-19）。
+    收錄於 <a href="../../index.html">Design Skills Center</a>。</p>
+</footer>
+<div id="navbox" aria-hidden="false"></div>
+<nav id="navbar" aria-label="頁面導覽"></nav>
+<script>
+var FP_PAGE=0;
+/* ===== FOLDPOINT 摺疊引擎 fold-engine v1 =====
+   一組面片 + 摺線 + 二面角 => 同一份資料同時是 2D 刀模與 3D 成品。
+   panel: {id,pts,parent,hinge,ang,kind,holes}
+   pts / hinge 皆為攤平座標 (mm)，x 向右、y 向下。 */
+function fpCentroid(p){var x=0,y=0,i;for(i=0;i<p.length;i++){x+=p[i][0];y+=p[i][1];}return [x/p.length,y/p.length];}
+function fpSign(pn){
+  if(!pn.hinge) return 1;
+  var A=pn.hinge[0],B=pn.hinge[1];
+  var ux=B[0]-A[0],uy=B[1]-A[1],L=Math.sqrt(ux*ux+uy*uy);if(L<1e-9)return 1;ux/=L;uy/=L;
+  var c=fpCentroid(pn.pts),rx=c[0]-A[0],ry=c[1]-A[1],d=rx*ux+ry*uy;
+  rx-=d*ux;ry-=d*uy;
+  var cr=ux*ry-uy*rx;
+  return cr>0?1:-1;
+}
+function fpMatId(){return [1,0,0,0,0,1,0,0,0,0,1,0];}
+function fpMatMul(a,b){
+  var r=[],i,j;
+  for(i=0;i<3;i++){
+    for(j=0;j<3;j++){r[i*4+j]=a[i*4]*b[j]+a[i*4+1]*b[4+j]+a[i*4+2]*b[8+j];}
+    r[i*4+3]=a[i*4]*b[3]+a[i*4+1]*b[7]+a[i*4+2]*b[11]+a[i*4+3];
+  }
+  return r;
+}
+function fpApply(m,x,y,z){
+  return {x:m[0]*x+m[1]*y+m[2]*z+m[3],y:m[4]*x+m[5]*y+m[6]*z+m[7],z:m[8]*x+m[9]*y+m[10]*z+m[11]};
+}
+function fpRotAxis(ax,ay,ux,uy,ang){
+  var c=Math.cos(ang),s=Math.sin(ang),k=1-c,x=ux,y=uy,z=0;
+  var R=[c+x*x*k, x*y*k-z*s, x*z*k+y*s,0,
+         y*x*k+z*s, c+y*y*k, y*z*k-x*s,0,
+         z*x*k-y*s, z*y*k+x*s, c+z*z*k,0];
+  R[3]=ax-(R[0]*ax+R[1]*ay);
+  R[7]=ay-(R[4]*ax+R[5]*ay);
+  R[11]=0-(R[8]*ax+R[9]*ay);
+  return R;
+}
+/* 求每一片在 t (0..1) 摺疊度下的世界矩陣 */
+function fpSolve(panels,t){
+  var M=new Array(panels.length),i;
+  for(i=0;i<panels.length;i++){
+    var pn=panels[i];
+    if(pn.parent===null||pn.parent===undefined){M[i]=fpMatId();continue;}
+    var A=pn.hinge[0],B=pn.hinge[1];
+    var ux=B[0]-A[0],uy=B[1]-A[1],L=Math.sqrt(ux*ux+uy*uy);ux/=L;uy/=L;
+    if(pn._s===undefined)pn._s=fpSign(pn);
+    /* 負號：讓面片朝視點（+z）這一側摺起，成品正面才會朝著使用者，攤平時的正／反面也不會顛倒 */
+    var ang=-pn._s*(pn.rev?-1:1)*(pn.ang*Math.PI/180)*t;
+    M[i]=fpMatMul(M[pn.parent],fpRotAxis(A[0],A[1],ux,uy,ang));
+  }
+  return M;
+}
+/* 相機：先繞 Y (yaw) 再繞 X (pitch)，正交投影（面片投影保持仿射） */
+function fpCam(p,ay,ax){
+  var ca=Math.cos(ay),sa=Math.sin(ay);
+  var x=p.x*ca+p.z*sa,z=-p.x*sa+p.z*ca,y=p.y;
+  var cb=Math.cos(ax),sb=Math.sin(ax);
+  return {x:x,y:y*cb-z*sb,z:y*sb+z*cb};
+}
+function fpOnSeg(p,h){
+  var ax=h[0][0],ay=h[0][1],bx=h[1][0],by=h[1][1];
+  var dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;if(L2<1e-9)return false;
+  var u=((p[0]-ax)*dx+(p[1]-ay)*dy)/L2;
+  if(u<-0.02||u>1.02)return false;
+  var px=ax+u*dx-p[0],py=ay+u*dy-p[1];
+  return px*px+py*py<0.5;
+}
+/* 邊分類：與任一摺線重合者為壓線，其餘為刀線 */
+function fpClassify(panels){
+  var hs=[],i,j;
+  for(i=0;i<panels.length;i++){if(panels[i].hinge)hs.push(panels[i].hinge);}
+  function near(a,b){return Math.abs(a[0]-b[0])<0.6&&Math.abs(a[1]-b[1])<0.6;}
+  function isCrease(p,q){
+    for(var k=0;k<hs.length;k++){
+      var h=hs[k];
+      if(fpOnSeg(p,h)&&fpOnSeg(q,h))return true;
+      if((near(p,h[0])&&near(q,h[1]))||(near(p,h[1])&&near(q,h[0])))return true;
+    }
+    return false;
+  }
+  for(i=0;i<panels.length;i++){
+    var pt=panels[i].pts,cls=[];
+    for(j=0;j<pt.length;j++){cls.push(isCrease(pt[j],pt[(j+1)%pt.length])?1:0);}
+    panels[i].edge=cls;
+  }
+  return panels;
+}
+/* ---- 盒型產生器：由 長×寬×高×材厚 生出真實可裁的刀模 ---- */
+function fpRect(x0,y0,x1,y1){return [[x0,y0],[x1,y0],[x1,y1],[x0,y1]];}
+function fpOct(cx,cy,w,h){
+  var a=w/2,b=h/2,c=Math.min(a,b)*0.55;
+  return [[cx-a+c,cy-b],[cx+a-c,cy-b],[cx+a,cy-b+c],[cx+a,cy+b-c],[cx+a-c,cy+b],[cx-a+c,cy+b],[cx-a,cy+b-c],[cx-a,cy-b+c]];
+}
+var FP_TYPES={
+  tuck:{name:'反插式折盒',code:'ECMA A20.20',cls:'折盒',note:'上蓋自後板、底蓋自前板反向插入，紙盒裡最通用的結構。'},
+  window:{name:'開窗反插盒',code:'ECMA A20.20/W',cls:'折盒',note:'前板模切開窗，需另貼 PET 0.2mm 透明片，本廠代貼。'},
+  rsc:{name:'標準開槽箱',code:'FEFCO 0201',cls:'瓦楞箱',note:'四片上下蓋各半、中央對合，出貨外箱的通用結構。'},
+  tray:{name:'四角盤式盒',code:'ECMA B1.1',cls:'盤式',note:'角耳內折後貼合，常作天地蓋的底盤或禮盒內襯。'},
+  sleeve:{name:'書套式外套',code:'ECMA A50.10',cls:'套式',note:'兩端開口的環狀套，套在抽屜盒或盤式盒外當腰帶。'},
+  handle:{name:'提把手提盒',code:'ECMA B2.30',cls:'手提',note:'長邊牆延伸出提把，提孔須留圓角，否則一提就撕。'}
+};
+function fpBuild(type,L,W,H,t){
+  var P=[],push=function(o){P.push(o);return P.length-1;},i,k;
+  t=t||0.5;
+  if(type==='rsc'){
+    var g=34,fh=W/2,xs=[g,g+L,g+L+W,g+2*L+W,g+2*L+2*W];
+    var b1=push({pts:fpRect(xs[0],0,xs[1],H),parent:null,kind:'body',nm:'前板'});
+    var b2=push({pts:fpRect(xs[1],0,xs[2],H),parent:b1,hinge:[[xs[1],0],[xs[1],H]],ang:90,kind:'body',nm:'右側板'});
+    var b3=push({pts:fpRect(xs[2],0,xs[3],H),parent:b2,hinge:[[xs[2],0],[xs[2],H]],ang:90,kind:'body',nm:'後板'});
+    var b4=push({pts:fpRect(xs[3],0,xs[4],H),parent:b3,hinge:[[xs[3],0],[xs[3],H]],ang:90,kind:'body',nm:'左側板'});
+    push({pts:fpRect(xs[0]-g,3,xs[0],H-3),parent:b1,hinge:[[xs[0],0],[xs[0],H]],ang:90,kind:'glue',nm:'糊耳'});
+    var bs=[b1,b2,b3,b4];
+    for(i=0;i<4;i++){
+      var a=xs[i],b=xs[i+1];
+      push({pts:fpRect(a+t/2,-fh,b-t/2,0),parent:bs[i],hinge:[[a,0],[b,0]],ang:90,kind:'flap',nm:'上蓋'});
+      push({pts:fpRect(a+t/2,H,b-t/2,H+fh),parent:bs[i],hinge:[[a,H],[b,H]],ang:90,kind:'flap',nm:'下蓋'});
+    }
+  } else if(type==='tuck'||type==='window'){
+    var g2=16,xs2=[g2,g2+L,g2+L+W,g2+2*L+W,g2+2*L+2*W],dust=Math.max(8,W-6),tg=14,holes=null;
+    if(type==='window'){
+      var iw=Math.max(18,L-30),ih=Math.max(18,H-34);
+      holes=[fpOct(g2+L/2,H/2,iw,ih)];
+    }
+    var f1=push({pts:fpRect(xs2[0],0,xs2[1],H),parent:null,kind:'body',nm:'前板',holes:holes});
+    var f2=push({pts:fpRect(xs2[1],0,xs2[2],H),parent:f1,hinge:[[xs2[1],0],[xs2[1],H]],ang:90,kind:'body',nm:'右側板'});
+    var f3=push({pts:fpRect(xs2[2],0,xs2[3],H),parent:f2,hinge:[[xs2[2],0],[xs2[2],H]],ang:90,kind:'body',nm:'後板'});
+    var f4=push({pts:fpRect(xs2[3],0,xs2[4],H),parent:f3,hinge:[[xs2[3],0],[xs2[3],H]],ang:90,kind:'body',nm:'左側板'});
+    push({pts:fpRect(xs2[0]-g2,3,xs2[0],H-3),parent:f1,hinge:[[xs2[0],0],[xs2[0],H]],ang:90,kind:'glue',nm:'糊耳'});
+    var lid=push({pts:fpRect(xs2[2],-W,xs2[3],0),parent:f3,hinge:[[xs2[2],0],[xs2[3],0]],ang:90,kind:'flap',nm:'上蓋'});
+    push({pts:[[xs2[2]+2,-W],[xs2[3]-2,-W],[xs2[3]-8,-W-tg],[xs2[2]+8,-W-tg]],parent:lid,hinge:[[xs2[2],-W],[xs2[3],-W]],ang:100,kind:'flap',nm:'上插舌'});
+    var bot=push({pts:fpRect(xs2[0],H,xs2[1],H+W),parent:f1,hinge:[[xs2[0],H],[xs2[1],H]],ang:90,kind:'flap',nm:'底蓋'});
+    push({pts:[[xs2[0]+2,H+W],[xs2[1]-2,H+W],[xs2[1]-8,H+W+tg],[xs2[0]+8,H+W+tg]],parent:bot,hinge:[[xs2[0],H+W],[xs2[1],H+W]],ang:100,kind:'flap',nm:'底插舌'});
+    var sd=[[f2,xs2[1],xs2[2]],[f4,xs2[3],xs2[4]]];
+    for(k=0;k<2;k++){
+      push({pts:fpRect(sd[k][1]+t/2,-dust,sd[k][2]-t/2,0),parent:sd[k][0],hinge:[[sd[k][1],0],[sd[k][2],0]],ang:90,kind:'flap',nm:'上防塵翼'});
+      push({pts:fpRect(sd[k][1]+t/2,H,sd[k][2]-t/2,H+dust),parent:sd[k][0],hinge:[[sd[k][1],H],[sd[k][2],H]],ang:90,kind:'flap',nm:'下防塵翼'});
+    }
+  } else if(type==='tray'||type==='handle'){
+    var hh=(type==='handle')?H+72:H,hn=null,hs2=null;
+    var base=push({pts:fpRect(0,0,L,W),parent:null,kind:'body',nm:'底板'});
+    if(type==='handle'){
+      hn=[fpOct(L/2,-(H+40),Math.min(96,L*0.55),26)];
+      hs2=[fpOct(L/2,W+H+40,Math.min(96,L*0.55),26)];
+    }
+    push({pts:fpRect(0,-hh,L,0),parent:base,hinge:[[0,0],[L,0]],ang:90,kind:'body',nm:'後牆',holes:hn});
+    push({pts:fpRect(0,W,L,W+hh),parent:base,hinge:[[0,W],[L,W]],ang:90,kind:'body',nm:'前牆',holes:hs2});
+    var ww=push({pts:fpRect(-H,0,0,W),parent:base,hinge:[[0,0],[0,W]],ang:90,kind:'body',nm:'左牆'});
+    var we=push({pts:fpRect(L,0,L+H,W),parent:base,hinge:[[L,0],[L,W]],ang:90,kind:'body',nm:'右牆'});
+    push({pts:fpRect(-H,-H,0,0),parent:ww,hinge:[[-H,0],[0,0]],ang:90,kind:'glue',nm:'左後角耳'});
+    push({pts:fpRect(-H,W,0,W+H),parent:ww,hinge:[[-H,W],[0,W]],ang:90,kind:'glue',nm:'左前角耳'});
+    push({pts:fpRect(L,-H,L+H,0),parent:we,hinge:[[L,0],[L+H,0]],ang:90,kind:'glue',nm:'右後角耳'});
+    push({pts:fpRect(L,W,L+H,W+H),parent:we,hinge:[[L,W],[L+H,W]],ang:90,kind:'glue',nm:'右前角耳'});
+  } else {
+    var g3=16,xs3=[g3,g3+L,g3+L+W,g3+2*L+W,g3+2*L+2*W];
+    var s1=push({pts:fpRect(xs3[0],0,xs3[1],H),parent:null,kind:'body',nm:'正面'});
+    var s2=push({pts:fpRect(xs3[1],0,xs3[2],H),parent:s1,hinge:[[xs3[1],0],[xs3[1],H]],ang:90,kind:'body',nm:'右書背'});
+    var s3=push({pts:fpRect(xs3[2],0,xs3[3],H),parent:s2,hinge:[[xs3[2],0],[xs3[2],H]],ang:90,kind:'body',nm:'背面'});
+    push({pts:fpRect(xs3[3],0,xs3[4],H),parent:s3,hinge:[[xs3[3],0],[xs3[3],H]],ang:90,kind:'body',nm:'左書背'});
+    push({pts:fpRect(xs3[0]-g3,3,xs3[0],H-3),parent:s1,hinge:[[xs3[0],0],[xs3[0],H]],ang:90,kind:'glue',nm:'糊耳'});
+  }
+  for(var q=0;q<P.length;q++){P[q].id=q;}
+  fpClassify(P);
+  return P;
+}
+function fpBBox(panels){
+  var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(var i=0;i<panels.length;i++){var p=panels[i].pts;for(var j=0;j<p.length;j++){
+    if(p[j][0]<x0)x0=p[j][0];if(p[j][0]>x1)x1=p[j][0];
+    if(p[j][1]<y0)y0=p[j][1];if(p[j][1]>y1)y1=p[j][1];}}
+  return {x0:x0,y0:y0,x1:x1,y1:y1,w:x1-x0,h:y1-y0};
+}
+function fpRuleLen(panels){
+  var cut=0,cre=0,i,j,k,m;
+  for(i=0;i<panels.length;i++){
+    var p=panels[i].pts,e=panels[i].edge;
+    for(j=0;j<p.length;j++){
+      var a=p[j],b=p[(j+1)%p.length];
+      var d=Math.sqrt((a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]));
+      if(e[j])cre+=d/2;else cut+=d/2;
+    }
+    if(panels[i].holes){for(k=0;k<panels[i].holes.length;k++){
+      var hp=panels[i].holes[k];
+      for(m=0;m<hp.length;m++){var a2=hp[m],b2=hp[(m+1)%hp.length];
+        cut+=Math.sqrt((a2[0]-b2[0])*(a2[0]-b2[0])+(a2[1]-b2[1])*(a2[1]-b2[1]));}
+    }}
+  }
+  return {cut:cut,crease:cre};
+}
+function fpHash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+/* ---- 投影 + 排序：回傳可直接畫的面片 ----
+   先把摺好的模型平移到自身重心，再進相機：如此旋轉是繞著物件自轉，
+   而不是繞世界原點公轉，面片的深度 z 才真的代表「有沒有正對鏡頭」。 */
+function fpProject(panels,t,ay,ax){
+  var M=fpSolve(panels,t),W=[],HW=[],i,j,k;
+  var cx=0,cy=0,cz=0,n=0;
+  for(i=0;i<panels.length;i++){
+    var pn=panels[i],w=[];
+    for(j=0;j<pn.pts.length;j++){
+      var p3=fpApply(M[i],pn.pts[j][0],pn.pts[j][1],0);
+      w.push(p3);cx+=p3.x;cy+=p3.y;cz+=p3.z;n++;
+    }
+    W.push(w);
+    var hw=null;
+    if(pn.holes){hw=[];for(k=0;k<pn.holes.length;k++){var hp=[];
+      for(j=0;j<pn.holes[k].length;j++)hp.push(fpApply(M[i],pn.holes[k][j][0],pn.holes[k][j][1],0));
+      hw.push(hp);}}
+    HW.push(hw);
+  }
+  cx/=n;cy/=n;cz/=n;
+  var out=[];
+  for(i=0;i<panels.length;i++){
+    var v=[],zs=0;
+    for(j=0;j<W[i].length;j++){
+      var q=W[i][j];
+      var c=fpCam({x:q.x-cx,y:q.y-cy,z:q.z-cz},ay,ax);
+      v.push(c);zs+=c.z;
+    }
+    var hv=null;
+    if(HW[i]){hv=[];for(k=0;k<HW[i].length;k++){var h2=[];
+      for(j=0;j<HW[i][k].length;j++){var r=HW[i][k][j];h2.push(fpCam({x:r.x-cx,y:r.y-cy,z:r.z-cz},ay,ax));}
+      hv.push(h2);}}
+    var nz=fpNormal(v);
+    out.push({p:panels[i],v:v,holes:hv,z:zs/v.length,shade:0.62+0.38*Math.abs(nz),front:nz<0,nz:nz});
+  }
+  out.sort(function(a,b){return a.z-b.z;});/* 視點在 +z：z 小者較遠，先畫 */
+  return out;
+}
+function fpNormal(v){
+  if(v.length<3)return 1;
+  var ax=v[1].x-v[0].x,ay=v[1].y-v[0].y,az=v[1].z-v[0].z;
+  var bx=v[2].x-v[0].x,by=v[2].y-v[0].y,bz=v[2].z-v[0].z;
+  var nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+  var L=Math.sqrt(nx*nx+ny*ny+nz*nz);if(L<1e-9)return 1;
+  return nz/L;
+}
+
+/* ===== 摺台 fold bench ===== */
+var FP_MATS={
+  WB300:{n:'白牛皮卡 300g',t:0.38,cls:'紙板',gsm:300,kg:52,fit:['tuck','window','sleeve']},
+  GB350:{n:'灰底白 350g',t:0.45,cls:'紙板',gsm:350,kg:41,fit:['tuck','window','sleeve','tray']},
+  IV400:{n:'象牙卡 400g',t:0.52,cls:'紙板',gsm:400,kg:63,fit:['tuck','window','tray','sleeve']},
+  EF:{n:'E 楞（面 250g 白牛）',t:1.6,cls:'瓦楞',gsm:560,kg:34,fit:['tuck','window','tray','handle','rsc']},
+  BF:{n:'B 楞（面 200g 牛皮）',t:3.0,cls:'瓦楞',gsm:640,kg:29,fit:['rsc','tray','handle']},
+  AB:{n:'AB 雙層瓦楞',t:7.0,cls:'瓦楞',gsm:1080,kg:27,fit:['rsc']}
+};
+var FP_PRESETS=[
+  {t:'tuck',L:62,W:62,H:118,m:'IV400',n:'30ml 精油單支盒'},
+  {t:'window',L:150,W:60,H:210,m:'GB350',n:'手沖濾紙開窗盒'},
+  {t:'tray',L:265,W:185,H:42,m:'EF',n:'12 入蛋捲禮盤'},
+  {t:'sleeve',L:268,W:46,H:190,m:'WB300',n:'禮盒腰帶外套'},
+  {t:'handle',L:230,W:150,H:95,m:'BF',n:'六瓶裝提把箱'},
+  {t:'rsc',L:390,W:290,H:230,m:'AB',n:'外銷出貨箱'}
+];
+var ST={type:'window',L:150,W:60,H:210,mat:'GB350',fold:0,yaw:0,pitch:0,lt:1,nm:1,dim:1,panels:null};
+/* 等角視角：根面片是牆的結構平視即可；根面片是底板的（盤式／手提）必須俯視 */
+function fpIso(type){
+  if(type==='tray'||type==='handle')return [-0.55,-0.95];
+  return [-0.56,0.42];
+}
+function fpRound(v){return Math.round(v*10)/10;}
+function fpClamp(v,a,b){return v<a?a:v>b?b:v;}
+function benchRebuild(){
+  var m=FP_MATS[ST.mat];
+  ST.panels=fpBuild(ST.type,ST.L,ST.W,ST.H,m.t);
+  benchDraw();benchStats();
+}
+function benchDraw(){
+  var svg=document.getElementById('stage');if(!svg)return;
+  var P=ST.panels,pr=fpProject(P,ST.fold,ST.yaw,ST.pitch),i,j;
+  var VW=920,VH=600;
+  var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+  for(i=0;i<pr.length;i++)for(j=0;j<pr[i].v.length;j++){
+    var p=pr[i].v[j];
+    if(p.x<minx)minx=p.x;if(p.x>maxx)maxx=p.x;
+    if(p.y<miny)miny=p.y;if(p.y>maxy)maxy=p.y;}
+  var s=Math.min((VW-150)/(maxx-minx||1),(VH-130)/(maxy-miny||1));
+  var ox=VW/2-(minx+maxx)/2*s,oy=VH/2-(miny+maxy)/2*s;
+  function S(p){return [p.x*s+ox,p.y*s+oy];}
+  var flat=ST.fold<0.03,creaseOp=fpClamp(1.25-ST.fold*1.9,0.16,1);
+  var o='';
+  o+='<rect x="0" y="0" width="'+VW+'" height="'+VH+'" fill="#24393F"/>';
+  o+='<g opacity=".5">';
+  for(i=0;i<=VW;i+=40)o+='<line x1="'+i+'" y1="0" x2="'+i+'" y2="'+VH+'" stroke="#33525B" stroke-width="1"/>';
+  for(i=0;i<=VH;i+=40)o+='<line x1="0" y1="'+i+'" x2="'+VW+'" y2="'+i+'" stroke="#33525B" stroke-width="1"/>';
+  o+='</g>';
+  for(i=0;i<pr.length;i++){
+    var fc=pr[i],pn=fc.p,d='';
+    for(j=0;j<fc.v.length;j++){var q=S(fc.v[j]);d+=(j?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1);}
+    d+='Z';
+    if(fc.holes)for(var k=0;k<fc.holes.length;k++){
+      var hp=fc.holes[k];
+      for(j=0;j<hp.length;j++){var q2=S(hp[j]);d+=(j?'L':'M')+q2[0].toFixed(1)+' '+q2[1].toFixed(1);}
+      d+='Z';}
+    var base=pn.kind==='glue'?'#DBD4C4':'#EDE9DF';
+    o+='<path d="'+d+'" fill="'+fpShade(base,fc.shade)+'" fill-rule="evenodd" stroke="none"/>';
+    if(pn.kind==='glue'){
+      o+='<path d="'+d+'" fill="url(#gluepat)" fill-rule="evenodd" opacity="'+(0.35+0.5*creaseOp).toFixed(2)+'"/>';
+    }
+    /* 逐邊依線型語意上色 */
+    for(j=0;j<fc.v.length;j++){
+      var a=S(fc.v[j]),b=S(fc.v[(j+1)%fc.v.length]);
+      var isC=pn.edge[j];
+      if(isC&&!ST.lt)continue;
+      var col=ST.lt?(isC?'#17B9E8':'#E8006E'):'#16262B';
+      var op=isC?creaseOp:1;
+      o+='<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+
+         '" stroke="'+col+'" stroke-width="'+(isC?1.8:2.1)+'"'+(isC?' stroke-dasharray="9 5"':'')+' opacity="'+op.toFixed(2)+'"/>';
+    }
+    if(fc.holes&&ST.lt)for(k=0;k<fc.holes.length;k++){
+      var h2=fc.holes[k];
+      for(j=0;j<h2.length;j++){var a2=S(h2[j]),b2=S(h2[(j+1)%h2.length]);
+        o+='<line x1="'+a2[0].toFixed(1)+'" y1="'+a2[1].toFixed(1)+'" x2="'+b2[0].toFixed(1)+'" y2="'+b2[1].toFixed(1)+'" stroke="#E8006E" stroke-width="2.1"/>';}
+    }
+    if(ST.nm&&pn.pts.length===4){
+      var Q=pn.pts,w=Q[1][0]-Q[0][0],h=Q[3][1]-Q[0][1];
+      if(Math.abs(w)>14&&Math.abs(h)>14){
+        var q0=S(fc.v[0]),q1=S(fc.v[1]),q3=S(fc.v[3]);
+        var mm=[(q1[0]-q0[0])/w,(q1[1]-q0[1])/w,(q3[0]-q0[0])/h,(q3[1]-q0[1])/h,q0[0],q0[1]];
+        var det=mm[0]*mm[3]-mm[1]*mm[2];
+        o+='<g transform="matrix('+mm.map(function(v){return v.toFixed(5);}).join(',')+')" opacity="'+(Math.abs(det)<0.02?0:0.82)+'">'+
+           '<text x="'+(w/2)+'" y="'+(h/2)+'" text-anchor="middle" dominant-baseline="middle" font-size="'+
+           Math.max(9,Math.min(16,Math.min(Math.abs(w),Math.abs(h))*0.22)).toFixed(1)+
+           '" font-family="Azeret Mono,monospace" fill="#4A5F66">'+pn.nm+'</text></g>';
+      }
+    }
+  }
+  if(flat&&ST.dim){
+    var bb=fpBBox(P);
+    var x0=bb.x0*s*0+0;
+    /* 以投影後外框直接標註（攤平時投影即為原尺寸的等比縮放） */
+    var L1=minx*s+ox,R1=maxx*s+ox,T1=miny*s+oy,B1=maxy*s+oy;
+    o+='<g stroke="#F2C200" stroke-width="1.4" fill="#F2C200" font-family="Azeret Mono,monospace" font-size="13">';
+    o+='<line x1="'+L1+'" y1="'+(B1+34)+'" x2="'+R1+'" y2="'+(B1+34)+'"/>';
+    o+='<line x1="'+L1+'" y1="'+(B1+28)+'" x2="'+L1+'" y2="'+(B1+40)+'"/>';
+    o+='<line x1="'+R1+'" y1="'+(B1+28)+'" x2="'+R1+'" y2="'+(B1+40)+'"/>';
+    o+='<text x="'+((L1+R1)/2)+'" y="'+(B1+52)+'" text-anchor="middle" stroke="none">'+fpRound(bb.w)+' mm</text>';
+    o+='<line x1="'+(R1+34)+'" y1="'+T1+'" x2="'+(R1+34)+'" y2="'+B1+'"/>';
+    o+='<line x1="'+(R1+28)+'" y1="'+T1+'" x2="'+(R1+40)+'" y2="'+T1+'"/>';
+    o+='<line x1="'+(R1+28)+'" y1="'+B1+'" x2="'+(R1+40)+'" y2="'+B1+'"/>';
+    o+='<text x="'+(R1+46)+'" y="'+((T1+B1)/2)+'" text-anchor="start" stroke="none">'+fpRound(bb.h)+' mm</text>';
+    o+='</g>';
+  }
+  o+='<defs><pattern id="gluepat" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'+
+     '<line x1="0" y1="0" x2="0" y2="7" stroke="#F2C200" stroke-width="2.4"/></pattern></defs>';
+  svg.innerHTML=o;
+}
+function fpShade(hex,k){
+  var r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);
+  function c(v){v=Math.round(v*k);return (v<0?0:v>255?255:v).toString(16).padStart(2,'0');}
+  return '#'+c(r)+c(g)+c(b);
+}
+function benchStats(){
+  var P=ST.panels,bb=fpBBox(P),rl=fpRuleLen(P),m=FP_MATS[ST.mat];
+  var area=bb.w*bb.h/1e6;
+  var vol=ST.L*ST.W*ST.H/1e3;
+  function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  set('s-flat',fpRound(bb.w)+' × '+fpRound(bb.h));
+  set('s-pan',P.length);
+  set('s-cut',Math.round(rl.cut)+' mm');
+  set('s-cre',Math.round(rl.crease)+' mm');
+  set('s-area',area.toFixed(4)+' m²');
+  set('s-vol',Math.round(vol)+' cm³');
+  set('s-gw',Math.round(area*m.gsm)+' g');
+  set('s-code',fpCode());
+  var warn=document.getElementById('s-warn');
+  if(warn){
+    if(m.fit.indexOf(ST.type)<0){
+      warn.innerHTML='<strong>結構／材質不相容：</strong>'+FP_TYPES[ST.type].name+'不建議走 '+m.n+
+        '。'+(FP_MATS[ST.mat].cls==='瓦楞'?'瓦楞太厚，插舌會頂住、糊耳也貼不平。':'紙板太薄，堆疊三層就凹給你看。')+
+        ' 建議改用 '+benchSuggest()+'。';
+      warn.style.display='block';
+    } else {warn.style.display='none';}
+  }
+}
+function benchSuggest(){
+  for(var k in FP_MATS){if(FP_MATS[k].fit.indexOf(ST.type)>=0)return FP_MATS[k].n;}
+  return 'E 楞';
+}
+function fpCode(){return 'FP1.'+ST.type+'.'+ST.L+'x'+ST.W+'x'+ST.H+'.'+ST.mat;}
+function fpParseCode(c){
+  var m=/^FP1\.([a-z]+)\.(\d+)x(\d+)x(\d+)\.([A-Z0-9]+)$/.exec((c||'').trim());
+  if(!m)return null;
+  if(!FP_TYPES[m[1]]||!FP_MATS[m[5]])return null;
+  var L=parseInt(m[2],10),W=parseInt(m[3],10),H=parseInt(m[4],10);
+  if(L<20||L>900||W<20||W>900||H<20||H>900)return null;
+  return {type:m[1],L:L,W:W,H:H,mat:m[5]};
+}
+
+function fpThumb(t,L,W,H,mat,fold,yaw,pitch,vw,vh){
+  var P=fpBuild(t,L,W,H,FP_MATS[mat].t);
+  var pr=fpProject(P,fold,yaw,pitch),i,j;
+  var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+  for(i=0;i<pr.length;i++)for(j=0;j<pr[i].v.length;j++){var p=pr[i].v[j];
+    if(p.x<minx)minx=p.x;if(p.x>maxx)maxx=p.x;if(p.y<miny)miny=p.y;if(p.y>maxy)maxy=p.y;}
+  var s=Math.min((vw-16)/(maxx-minx||1),(vh-16)/(maxy-miny||1));
+  var ox=vw/2-(minx+maxx)/2*s,oy=vh/2-(miny+maxy)/2*s;
+  var o='';
+  for(i=0;i<pr.length;i++){
+    var fc=pr[i],d='';
+    for(j=0;j<fc.v.length;j++){var q=fc.v[j];d+=(j?'L':'M')+(q.x*s+ox).toFixed(1)+' '+(q.y*s+oy).toFixed(1);}
+    d+='Z';
+    if(fc.holes)for(var k=0;k<fc.holes.length;k++){var hp=fc.holes[k];
+      for(j=0;j<hp.length;j++){var q2=hp[j];d+=(j?'L':'M')+(q2.x*s+ox).toFixed(1)+' '+(q2.y*s+oy).toFixed(1);}d+='Z';}
+    o+='<path d="'+d+'" fill="'+fpShade(fc.p.kind==='glue'?'#C9C0AD':'#EDE9DF',fc.shade)+
+       '" fill-rule="evenodd" stroke="#16262B" stroke-width="1" stroke-linejoin="miter"/>';
+    for(j=0;j<fc.v.length;j++){
+      if(!fc.p.edge[j])continue;
+      var a=fc.v[j],b=fc.v[(j+1)%fc.v.length];
+      o+='<line x1="'+(a.x*s+ox).toFixed(1)+'" y1="'+(a.y*s+oy).toFixed(1)+'" x2="'+(b.x*s+ox).toFixed(1)+
+         '" y2="'+(b.y*s+oy).toFixed(1)+'" stroke="#17B9E8" stroke-width="1.1" stroke-dasharray="5 3" opacity=".85"/>';
+    }
+  }
+  return '<svg viewBox="0 0 '+vw+' '+vh+'" class="thumb" role="img" aria-label="'+
+    FP_TYPES[t].name+' '+L+'×'+W+'×'+H+' 公釐的立體示意">'+o+'</svg>';
+}
+
+(function(){
+  var $=function(i){return document.getElementById(i);};
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* 結構鈕 */
+  var tb='',k;
+  for(k in FP_TYPES){
+    tb+='<button class="btn g tybtn" type="button" data-t="'+k+'" aria-pressed="false">'+
+        '<span class="ty">'+FP_TYPES[k].name+'</span><span class="cd">'+FP_TYPES[k].code+'</span></button>';
+  }
+  $('typebtns').innerHTML=tb;
+  /* 材質 */
+  var so='';
+  for(k in FP_MATS)so+='<option value="'+k+'">'+FP_MATS[k].n+'　'+FP_MATS[k].t+'mm</option>';
+  $('in-mat').innerHTML=so;
+  /* 常見件 */
+  var pb='';
+  for(var i=0;i<FP_PRESETS.length;i++){
+    var p=FP_PRESETS[i];
+    pb+='<button class="btn g pbtn" type="button" data-i="'+i+'">'+p.n+'</button>';
+  }
+  $('presetbtns').innerHTML=pb;
+  /* 五道工序 */
+  var STEPS=[
+    ['結構打樣','切割樣機一片一片割，當天可取。白樣不印刷，只驗尺寸、插舌鬆緊與堆疊。','M6 30 h44 v28 H6z|M14 30 v28|M50 30 l14 -9 v28 l-14 9'],
+    ['刀模製作','雷射在 18mm 樺木夾板上燒出刀縫，鋼刀壓線刀手工鑲入，貼海綿彈紙。','M8 18 h56 v34 H8z|M18 18 v34 M36 18 v34 M54 18 v34'],
+    ['印刷','四色平版；瓦楞走裱合（先印面紙再貼楞），大面積實色改網印避免爆墨。','M10 22 h52 v22 H10z|M10 50 h52 M16 14 h40'],
+    ['模切','平壓平模切機，每小時 4500 張。清廢由人工，開窗盒的廢料靠橋接點連著。','M12 16 h48 v18 H12z|M20 34 v18 M36 34 v22 M52 34 v18'],
+    ['糊盒與包裝','直線糊機每分鐘 180 個，自動底盒改用預折機。每 50 個一束，束帶不打死結。','M10 20 h30 v32 H10z|M40 20 l22 8 v32 l-22 -8']
+  ];
+  var so2='';
+  for(i=0;i<STEPS.length;i++){
+    var s=STEPS[i],seg=s[2].split('|');
+    so2+='<li class="sheet"><div class="pad" style="padding:18px 16px">'+
+      '<svg viewBox="0 0 72 70" class="stepic" role="img" aria-label="'+s[0]+' 工序示意">'+
+      '<path d="'+seg[0]+'" fill="#DBD4C4" stroke="#E8006E" stroke-width="2.2" stroke-linejoin="miter"/>'+
+      '<path d="'+seg[1]+'" fill="none" stroke="#17B9E8" stroke-width="2" stroke-dasharray="7 4"/>'+
+      '<text x="66" y="66" text-anchor="end" font-family="Azeret Mono,monospace" font-size="10" fill="#4A5F66">0'+(i+1)+'</text></svg>'+
+      '<h3 style="font-size:19px;margin:8px 0 4px">'+s[0]+'</h3>'+
+      '<p style="margin:0;font-size:14px">'+s[1]+'</p></div></li>';
+  }
+  $('steps').innerHTML=so2;
+
+  function syncUI(){
+    var b=document.querySelectorAll('.tybtn'),i;
+    for(i=0;i<b.length;i++)b[i].setAttribute('aria-pressed',b[i].getAttribute('data-t')===ST.type?'true':'false');
+    $('in-L').value=ST.L;$('in-W').value=ST.W;$('in-H').value=ST.H;$('in-mat').value=ST.mat;
+    $('in-code').value=fpCode();
+    $('b-quote').href='quote.html?d='+encodeURIComponent(fpCode());
+    $('lab-fold').textContent=Math.round(ST.fold*100)+'%';
+    var dl=['長 L','寬 W','高 H'];
+    if(ST.type==='sleeve'){dl=['正面寬 L','書背寬 W','高 H'];}
+    document.querySelector('label[for=in-L]').textContent=dl[0];
+    document.querySelector('label[for=in-W]').textContent=dl[1];
+    document.querySelector('label[for=in-H]').textContent=dl[2];
+  }
+  function readDims(){
+    ST.L=fpClamp(parseInt($('in-L').value,10)||150,20,900);
+    ST.W=fpClamp(parseInt($('in-W').value,10)||60,20,900);
+    ST.H=fpClamp(parseInt($('in-H').value,10)||210,20,900);
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target.closest?e.target.closest('.tybtn'):null;
+    if(t){ST.type=t.getAttribute('data-t');benchRebuild();syncUI();return;}
+    var p=e.target.closest?e.target.closest('.pbtn'):null;
+    if(p){
+      var d=FP_PRESETS[parseInt(p.getAttribute('data-i'),10)];
+      ST.type=d.t;ST.L=d.L;ST.W=d.W;ST.H=d.H;ST.mat=d.m;
+      benchRebuild();syncUI();return;
+    }
+  });
+  ['in-L','in-W','in-H'].forEach(function(id){
+    $(id).addEventListener('input',function(){readDims();benchRebuild();syncUI();});
+  });
+  $('in-mat').addEventListener('change',function(){ST.mat=this.value;benchRebuild();syncUI();});
+  $('in-fold').addEventListener('input',function(){ST.fold=this.value/100;benchDraw();syncUI();});
+  $('in-yaw').addEventListener('input',function(){ST.yaw=this.value*Math.PI/180;benchDraw();});
+  $('in-pitch').addEventListener('input',function(){ST.pitch=this.value*Math.PI/180;benchDraw();});
+  $('b-flat').addEventListener('click',function(){
+    ST.fold=0;ST.yaw=0;ST.pitch=0;$('in-fold').value=0;$('in-yaw').value=0;$('in-pitch').value=0;benchDraw();syncUI();});
+  $('b-iso').addEventListener('click',function(){
+    var iv=fpIso(ST.type);
+    ST.fold=1;ST.yaw=iv[0];ST.pitch=iv[1];$('in-fold').value=100;
+    $('in-yaw').value=Math.round(iv[0]*180/Math.PI);$('in-pitch').value=Math.round(iv[1]*180/Math.PI);
+    benchDraw();syncUI();});
+  var running=null;
+  $('b-run').addEventListener('click',function(){
+    if(running){cancelAnimationFrame(running);running=null;return;}
+    if(reduce){ST.fold=1;$('in-fold').value=100;benchDraw();syncUI();return;}
+    var iv2=fpIso(ST.type);ST.pitch=iv2[1];$('in-pitch').value=Math.round(iv2[1]*180/Math.PI);
+    var t0=null;
+    (function step(ts){
+      if(t0===null)t0=ts;
+      var u=Math.min(1,(ts-t0)/2200);
+      ST.fold=u<0.5?u*2:(2-u*2);
+      ST.yaw=iv2[0]*u;
+      $('in-fold').value=Math.round(ST.fold*100);
+      $('in-yaw').value=Math.round(ST.yaw*180/Math.PI);
+      benchDraw();syncUI();
+      if(u<1){running=requestAnimationFrame(step);}else{running=null;}
+    })(performance.now());
+  });
+  function tog(id,key){
+    $(id).addEventListener('click',function(){
+      ST[key]=ST[key]?0:1;this.setAttribute('aria-pressed',ST[key]?'true':'false');benchDraw();});
+  }
+  tog('t-lt','lt');tog('t-nm','nm');tog('t-dim','dim');
+  $('b-load').addEventListener('click',function(){
+    var c=fpParseCode($('in-code').value);
+    if(!c){$('code-err').textContent='格式應為 FP1.結構.長x寬x高.材質，例：FP1.tray.265x185x42.EF';return;}
+    $('code-err').textContent='';
+    ST.type=c.type;ST.L=c.L;ST.W=c.W;ST.H=c.H;ST.mat=c.mat;benchRebuild();syncUI();
+  });
+  $('b-copy').addEventListener('click',function(){
+    var el=$('in-code');el.select();
+    try{document.execCommand('copy');$('code-err').textContent='已複製 '+fpCode()+'（貼給我們就知道你要什麼）';}
+    catch(err){$('code-err').textContent='請手動複製上面的盒型碼。';}
+  });
+  $('b-quote').addEventListener('click',function(){
+    try{sessionStorage.setItem('fp_code',fpCode());}catch(err){}
+  });
+  /* 拖曳畫布轉視角 */
+  var stage=$('stage'),dg=null;
+  stage.addEventListener('pointerdown',function(e){
+    dg={x:e.clientX,y:e.clientY,ya:ST.yaw,pi:ST.pitch};stage.setPointerCapture(e.pointerId);});
+  stage.addEventListener('pointermove',function(e){
+    if(!dg)return;
+    ST.yaw=dg.ya+(e.clientX-dg.x)*0.008;
+    ST.pitch=fpClamp(dg.pi+(e.clientY-dg.y)*0.006,-1.4,1.4);
+    $('in-yaw').value=Math.round(((ST.yaw*180/Math.PI)%360+540)%360-180);
+    $('in-pitch').value=Math.round(ST.pitch*180/Math.PI);
+    benchDraw();});
+  stage.addEventListener('pointerup',function(){dg=null;});
+  stage.addEventListener('pointercancel',function(){dg=null;});
+  /* 起始：?d= 帶入 */
+  var q=/[?&]d=([^&]+)/.exec(location.search);
+  if(q){var c0=fpParseCode(decodeURIComponent(q[1]));
+    if(c0){ST.type=c0.type;ST.L=c0.L;ST.W=c0.W;ST.H=c0.H;ST.mat=c0.mat;}}
+  ST.yaw=0;ST.pitch=0;
+  benchRebuild();syncUI();
+})();
+
+/* ===== box-face 盒面導覽 =====
+   同一支摺疊引擎渲染的方管：四個面就是四個頁面。
+   面片投影為仿射，故頁名可用 3 點解出的 matrix() 直接貼在面上。 */
+(function(){
+  var PAGES=[{h:'index.html',t:'摺台',c:'F-01',e:'FOLD BENCH'},
+             {h:'boxes.html',t:'盒型',c:'B-02',e:'BOX LIBRARY'},
+             {h:'quote.html',t:'試算',c:'Q-03',e:'IMPOSITION'},
+             {h:'workshop.html',t:'工坊',c:'W-04',e:'WORKSHOP'}];
+  var cur=(typeof FP_PAGE==='number')?FP_PAGE:0;
+  var host=document.getElementById('navbox');
+  var bar=document.getElementById('navbar');
+  if(bar){
+    var ul='<ul>';
+    for(var q=0;q<PAGES.length;q++){
+      ul+='<li><a href="'+PAGES[q].h+'"'+(q===cur?' aria-current="page"':'')+'>'+PAGES[q].t+
+          '<span class="cd">'+PAGES[q].c+'</span></a></li>';
+    }
+    bar.innerHTML=ul+'</ul>';
+  }
+  if(!host||typeof fpBuild!=='function')return;
+  var box=fpBuild('sleeve',40,40,34,0.4);
+  var bodies=[0,1,2,3];
+  var SVGNS='http://www.w3.org/2000/svg';
+  var svg=document.createElementNS(SVGNS,'svg');
+  svg.setAttribute('viewBox','0 0 150 140');
+  svg.setAttribute('role','navigation');
+  svg.setAttribute('aria-label','盒面導覽');
+  host.appendChild(svg);
+  var pitch=0.38,yaw=0,target=0,drag=null,hoverIdx=-1;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* 每一面的最佳觀看角：掃 96 個 yaw，取該面投影面積最大且離視點最近者 */
+  function faceYaw(fi){
+    var best=0,bs=-1e9;
+    for(var k=0;k<96;k++){
+      var y=k/96*Math.PI*2;
+      var pr=fpProject(box,1,y,pitch),i;
+      for(i=0;i<pr.length;i++){
+        if(pr[i].p.id!==fi)continue;
+        var sc=pr[i].z;  /* 面心離視點最近＝正對鏡頭，方管上唯一解 */
+        if(sc>bs){bs=sc;best=y;}
+      }
+    }
+    return best;
+  }
+  function area(v){var a=0,j;for(j=0;j<v.length;j++){var b=v[(j+1)%v.length];a+=v[j].x*b.y-b.x*v[j].y;}return Math.abs(a)/2;}
+  var YAWS=[];for(var f=0;f<4;f++)YAWS.push(faceYaw(bodies[f]));
+  yaw=target=YAWS[cur];
+  function render(){
+    var pr=fpProject(box,1,yaw,pitch),i,j;
+    var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+    for(i=0;i<pr.length;i++)for(j=0;j<pr[i].v.length;j++){
+      var p=pr[i].v[j];
+      if(p.x<minx)minx=p.x;if(p.x>maxx)maxx=p.x;
+      if(p.y<miny)miny=p.y;if(p.y>maxy)maxy=p.y;}
+    var s=Math.min(112/(maxx-minx||1),104/(maxy-miny||1));
+    var ox=75-(minx+maxx)/2*s,oy=70-(miny+maxy)/2*s;
+    function S(p){return [p.x*s+ox,p.y*s+oy];}
+    var zs=[];for(i=0;i<pr.length;i++){if(pr[i].p.kind==='body')zs.push(pr[i].z);}
+    zs.sort(function(a,b){return a-b;});
+    var zmed=zs[Math.floor(zs.length/2)];
+    var out='';
+    for(i=0;i<pr.length;i++){
+      var fc=pr[i],pn=fc.p,d='';
+      for(j=0;j<fc.v.length;j++){var q=S(fc.v[j]);d+=(j?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1);}
+      d+='Z';
+      var isBody=pn.kind==='body',fi=bodies.indexOf(pn.id);
+      var near=fc.z>=zmed;
+      var lit=(fi>=0&&fi===hoverIdx)||(fi===cur&&hoverIdx<0);
+      var base=lit?'#E8006E':(isBody?'#EDE9DF':'#C9C0AD');
+      var sh=fc.shade;
+      var col=shade(base,sh);
+      out+='<path d="'+d+'" fill="'+col+'" stroke="#16262B" stroke-width="1.1" stroke-linejoin="miter"/>';
+      if(isBody&&fi>=0&&near){
+        var P=pn.pts,w=P[1][0]-P[0][0],h=P[3][1]-P[0][1];
+        var q0=S(fc.v[0]),q1=S(fc.v[1]),q3=S(fc.v[3]);
+        var m=[(q1[0]-q0[0])/w,(q1[1]-q0[1])/w,(q3[0]-q0[0])/h,(q3[1]-q0[1])/h,q0[0],q0[1]];
+        out+='<g transform="matrix('+m.map(function(v){return v.toFixed(4);}).join(',')+')">'+
+             '<text class="fl" x="'+(w/2)+'" y="'+(h/2-1)+'" text-anchor="middle" font-size="13" '+
+             'fill="'+(lit?'#FFFFFF':'#16262B')+'">'+PAGES[fi].t+'</text>'+
+             '<text class="fl" x="'+(w/2)+'" y="'+(h/2+10)+'" text-anchor="middle" font-size="6.4" '+
+             'letter-spacing="1" fill="'+(lit?'#FFD9EA':'#4A5F66')+'">'+PAGES[fi].c+'</text></g>';
+      }
+      if(isBody&&fi>=0){
+        out+='<a href="'+PAGES[fi].h+'" data-i="'+fi+'" aria-label="前往 '+PAGES[fi].t+' '+PAGES[fi].e+'">'+
+             '<path d="'+d+'" fill="transparent" stroke="none"><title>'+PAGES[fi].t+'　'+PAGES[fi].c+'</title></path></a>';
+      }
+    }
+    out+='<text class="fl" x="75" y="133" text-anchor="middle" font-size="8.5" letter-spacing="2.2" fill="#A9BEC4">FOLDPOINT</text>';
+    svg.innerHTML=out;
+    var links=svg.querySelectorAll('a');
+    for(i=0;i<links.length;i++){
+      links[i].addEventListener('mouseenter',onEnter);
+      links[i].addEventListener('focus',onEnter);
+      links[i].addEventListener('mouseleave',onLeave);
+      links[i].addEventListener('blur',onLeave);
+    }
+  }
+  function onEnter(e){
+    var i=parseInt(e.currentTarget.getAttribute('data-i'),10);
+    hoverIdx=i;target=nearest(YAWS[i]);if(reduce){yaw=target;}tick();
+  }
+  function onLeave(){hoverIdx=-1;target=nearest(YAWS[cur]);if(reduce){yaw=target;}tick();}
+  function nearest(t){
+    var d=t-yaw,TAU=Math.PI*2;
+    while(d>Math.PI)d-=TAU;while(d<-Math.PI)d+=TAU;
+    return yaw+d;
+  }
+  function shade(hex,k){
+    var r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);
+    function c(v){v=Math.round(v*k);return (v<0?0:v>255?255:v).toString(16).padStart(2,'0');}
+    return '#'+c(r)+c(g)+c(b);
+  }
+  var raf=null;
+  function tick(){
+    if(raf)return;
+    raf=requestAnimationFrame(function step(){
+      raf=null;
+      var d=target-yaw;
+      if(Math.abs(d)<0.002||reduce){yaw=target;render();return;}
+      yaw+=d*0.17;render();
+      raf=requestAnimationFrame(step);
+    });
+  }
+  svg.addEventListener('pointerdown',function(e){
+    if(e.target.closest&&e.target.closest('a'))return;
+    drag={x:e.clientX,y:yaw};svg.setPointerCapture(e.pointerId);svg.style.cursor='grabbing';
+  });
+  svg.addEventListener('pointermove',function(e){
+    if(!drag)return;yaw=drag.y+(e.clientX-drag.x)*0.016;target=yaw;render();
+  });
+  svg.addEventListener('pointerup',function(){drag=null;svg.style.cursor='grab';target=nearest(YAWS[hoverIdx>=0?hoverIdx:cur]);tick();});
+  render();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>比對台｜永石鑄字所</title>
+<meta name="description" content="把兩套中文字疊在同一張紙上看它們在哪裡分開：並排、疊字、字級三種檢視與逐項規格表。">
+<link id="fav" rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2314131A'/><path d='M50 22V72L38 82M28 30h27M34 30 27 47 15 78M50 44 66 36 85 80' stroke='%23DEDBE4' stroke-width='9' fill='none'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pb:#C9C5D4; --pl:#DEDBE4; --pp:#B7B2C6; --ink:#14131A;
+  --red:#D8323C; --blue:#3D4E85; --rule:#14131A;
+  --mono:"Space Mono",ui-monospace,monospace;
+  --disp:"Fraunces",Georgia,serif;
+  --tc:"Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--pb);color:var(--ink);
+  font-family:var(--tc);font-size:15px;line-height:1.75;
+  padding-bottom:132px;
+  background-image:repeating-linear-gradient(90deg,rgba(20,19,26,.045) 0 1px,transparent 1px 48px);}
+a{color:var(--ink)}
+.wrap{max-width:1220px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono)}
+.lab{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#4B4757}
+hr.r{border:0;border-top:2px solid var(--rule);margin:0}
+hr.t{border:0;border-top:1px solid rgba(20,19,26,.28);margin:0}
+
+/* ── 檔頭：字樣單抬頭，非 hero ── */
+.sheet-head{border-bottom:2px solid var(--rule);padding:14px 0 10px;
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px 30px}
+.sh-mark{display:flex;align-items:center;gap:10px}
+.sh-mark .gl{display:block}
+.sh-name{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.02em;line-height:1.1}
+.sh-name small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;font-weight:400;color:#4B4757;margin-top:3px}
+.sh-meta{margin-left:auto;display:flex;gap:26px;flex-wrap:wrap}
+.sh-meta div{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#4B4757;line-height:1.5}
+.sh-meta b{display:block;color:var(--ink);font-size:12px;letter-spacing:.06em}
+
+/* ── mirror-slug 排字盤導覽（底部固定） ── */
+.stick{position:fixed;left:0;right:0;bottom:0;z-index:60;
+  background:var(--pp);border-top:2px solid var(--rule);
+  box-shadow:0 -1px 0 rgba(255,255,255,.35) inset}
+.stick .inner{max-width:1220px;margin:0 auto;padding:9px 22px 8px;
+  display:flex;align-items:flex-end;gap:0}
+.stick .rail{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:#3B3746;
+  writing-mode:vertical-rl;margin-right:14px;padding-bottom:4px;opacity:.8}
+.slug{flex:1 1 0;min-width:0;text-decoration:none;display:block;padding:0 6px}
+.slug .body{background:var(--pl);border:2px solid var(--rule);border-bottom-width:6px;
+  padding:8px 4px 5px;display:flex;justify-content:center;align-items:center;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease}
+.slug .gl{display:block;transform:scaleX(-1);transition:transform .22s cubic-bezier(.2,.7,.3,1)}
+.slug .cap{display:block;text-align:center;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.18em;margin-top:5px;color:#3B3746}
+.slug .cap i{font-style:normal;font-family:var(--tc);letter-spacing:.14em;font-size:11px;color:var(--ink)}
+.slug:hover .gl,.slug:focus-visible .gl{transform:scaleX(1)}
+.slug:hover .body,.slug:focus-visible .body{background:var(--ink);color:var(--pl);border-bottom-width:2px;transform:translateY(4px)}
+.slug:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.slug[aria-current="page"] .body{background:var(--ink);color:var(--pl);border-bottom-width:2px;transform:translateY(4px)}
+.slug[aria-current="page"] .gl{transform:scaleX(1)}
+.slug[aria-current="page"] .cap i{color:var(--red)}
+@media(max-width:620px){
+  .stick .rail{display:none}
+  .stick .inner{padding:7px 10px 6px}
+  .slug{padding:0 3px}
+  .slug .gl{transform:scaleX(1)}
+  .slug .cap{font-size:8px;letter-spacing:.1em}
+}
+
+/* ── 通用面板 ── */
+.panel{background:var(--pl);border:2px solid var(--rule)}
+.panel h2,.panel h3{margin:0}
+.sec-h{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--rule);
+  padding:26px 0 8px;margin:0 0 18px}
+.sec-h .no{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--red)}
+.sec-h h2{font-size:19px;letter-spacing:.14em;font-weight:700;margin:0}
+.sec-h .en{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:#4B4757}
+
+button,.btn{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:var(--pl);color:var(--ink);border:2px solid var(--rule);padding:9px 15px;cursor:pointer;
+  text-decoration:none;display:inline-block;transition:background .13s,color .13s}
+button:hover,.btn:hover{background:var(--ink);color:var(--pl)}
+button[disabled]{opacity:.4;cursor:not-allowed}
+button.on{background:var(--ink);color:var(--pl)}
+button.warn{border-color:var(--red);color:var(--red)}
+button.warn:hover{background:var(--red);color:var(--pl)}
+input[type=text],select{font-family:var(--mono);font-size:12px;background:#F0EEF4;color:var(--ink);
+  border:2px solid var(--rule);padding:8px 10px;width:100%}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--red);outline-offset:1px}
+
+table.spec{width:100%;border-collapse:collapse;font-size:13px}
+table.spec th,table.spec td{border:1px solid rgba(20,19,26,.32);padding:7px 10px;text-align:left;vertical-align:top}
+table.spec th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--pp);font-weight:400}
+table.spec td.num{font-family:var(--mono);text-align:right}
+
+.foot{border-top:2px solid var(--rule);margin-top:44px;padding:26px 0 30px;font-size:12.5px;line-height:1.9}
+.foot .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+.foot a{color:var(--ink)}
+.foot .fine{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#4B4757;margin-top:16px;line-height:1.8}
+@media(max-width:760px){.foot .cols{grid-template-columns:1fr}}
+.gl{vertical-align:middle}
+.miss{display:inline-flex;align-items:center;justify-content:center;
+  background:repeating-linear-gradient(45deg,var(--pp) 0 4px,transparent 4px 8px);
+  border:1px dashed rgba(20,19,26,.4);color:transparent;width:1em;height:1em}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.001ms !important;animation-duration:.001ms !important}
+}
+
+.intro{max-width:66ch;font-size:15px;line-height:2;margin:22px 0 24px;border-left:3px solid var(--red);padding-left:16px}
+.picker{display:grid;grid-template-columns:repeat(4,1fr);border-left:2px solid var(--rule);border-top:2px solid var(--rule)}
+.picker button{border:0;border-right:2px solid var(--rule);border-bottom:2px solid var(--rule);
+  background:var(--pl);padding:12px 10px;text-align:left;font-family:var(--tc);
+  text-transform:none;letter-spacing:.02em;display:flex;flex-direction:column;gap:6px}
+.picker button .pv{display:flex;align-items:center;gap:2px;color:var(--ink)}
+.picker button .pn{font-size:13px;font-weight:700}
+.picker button .pe{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#5A5566}
+.picker button.on{background:var(--ink)}
+.picker button.on .pn,.picker button.on .pv{color:var(--pl)}
+.picker button.on .pe{color:#9E99AD}
+.pick-note{font-size:10.5px;letter-spacing:.16em;color:#4B4757;margin:8px 0 0}
+.tools{display:flex;flex-wrap:wrap;gap:22px;align-items:center;margin-bottom:12px}
+.tool-g{display:flex;align-items:center;gap:9px}
+.tool-g button{border-width:1px;padding:6px 11px;font-size:10px;margin-left:-1px;text-transform:none;font-family:var(--tc);letter-spacing:.08em}
+.stone{border:2px solid var(--rule);background:var(--pl);min-height:250px;padding:22px 16px;
+  display:flex;gap:0;justify-content:center;align-items:center;flex-wrap:wrap;position:relative;overflow-x:auto}
+.col{flex:1 1 0;min-width:180px;text-align:center;padding:0 10px;border-right:1px dotted rgba(20,19,26,.35)}
+.col:last-child{border-right:0}
+.col .cn{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#5A5566;margin-bottom:10px}
+.col .cn b{display:block;font-family:var(--tc);font-size:13px;letter-spacing:.1em;color:var(--ink)}
+.col .line{display:flex;justify-content:center;align-items:flex-end;flex-wrap:wrap;gap:2px;color:var(--ink)}
+.ov{position:relative;display:flex;justify-content:center;align-items:center}
+.ov .lay{position:absolute;inset:0;display:flex;justify-content:center;align-items:center}
+.ov .lay.b{mix-blend-mode:multiply;opacity:.72}
+.ov .base{visibility:hidden}
+.ov-key{display:flex;gap:20px;justify-content:center;margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:.12em}
+.ov-key i{display:inline-block;width:22px;height:9px;margin-right:6px;vertical-align:-1px}
+.empty{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:#5A5566;padding:40px 10px;text-align:center}
+.stone-note{font-size:12.5px;color:#332F3E;margin:10px 0 0;max-width:70ch}
+.tbl-wrap{overflow-x:auto;border:2px solid var(--rule);background:var(--pl)}
+table.spec td.hi{color:var(--red);font-weight:700}
+table.spec td.lo{color:var(--blue)}
+.verdict{border:2px solid var(--rule);border-left:8px solid var(--red);background:var(--pl);padding:18px 20px}
+.verdict p{margin:0 0 10px;max-width:70ch;font-size:14.5px;line-height:1.95}
+.verdict p:last-child{margin-bottom:0}
+.verdict .q{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#5A5566;display:block;margin-bottom:8px}
+@media(max-width:820px){.picker{grid-template-columns:repeat(2,1fr)}.col{min-width:130px}}
+@media(max-width:480px){.picker{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<header class="wrap sheet-head">
+  <div class="sh-mark"><span id="shmark" aria-hidden="true"></span>
+    <span class="sh-name">永石鑄字所<small>YONGSHI TYPE FOUNDRY · 台南</small></span></div>
+  <div class="sh-meta">
+    <div>頁次<b>比對台 02</b></div>
+    <div>現行鑄體<b data-house-name>永石黑體</b></div>
+    <div>可比對<b>6 套 + 自訂</b></div>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+<div class="sec-h"><span class="no">01</span><h2>上台</h2><span class="en">PUT ON THE STONE</span></div>
+<p class="intro">選字體不是看字樣單上那一句「快速的棕色狐狸」——是把兩套字疊在同一張透光紙上，看它們在哪裡分開。
+本台可同時上三套，最多兩套進疊字模式。台上比的都是同一批字骨，差別只在沖模參數。</p>
+
+<div class="picker" id="picker"></div>
+<p class="pick-note mono" id="picknote" role="status" aria-live="polite">已上台 0 套</p>
+
+<div class="sec-h"><span class="no">02</span><h2>台面</h2><span class="en">THE STONE</span></div>
+<div class="tools">
+  <div class="tool-g"><span class="lab">檢視</span>
+    <span id="modes"></span></div>
+  <div class="tool-g"><span class="lab">樣張</span>
+    <span id="samples"></span></div>
+</div>
+<div class="stone" id="stone"></div>
+<p class="stone-note" id="stonenote"></p>
+
+<div class="sec-h"><span class="no">03</span><h2>規格逐項</h2><span class="en">SPEC SHEET</span></div>
+<div class="tbl-wrap"><table class="spec" id="spectab"><tbody></tbody></table></div>
+
+<div class="sec-h"><span class="no">04</span><h2>結論</h2><span class="en">READING</span></div>
+<div class="verdict" id="verdict"></div>
+</main>
+
+<footer class="foot"><div class="wrap"><div class="cols">
+  <div><b>永石鑄字所</b><br>台南市中西區民生路二段 118 巷 7 號 2 樓<br>
+    <span class="mono">06-221 4076</span>　字體授權洽詢：<span class="mono">cast@yongshi-type.tw</span><br>
+    看字時間：週二至週五 13:00–19:00（需先來電）</div>
+  <div><b>頁面</b><br><a href="index.html">字樣</a>　SPECIMEN<br><a href="compare.html">比對</a>　COMPARE<br>
+    <a href="foundry.html">鑄字</a>　FOUNDRY<br><a href="license.html">授權</a>　LICENCE</div>
+  <div><b>字體庫</b><br>永石黑體 W1–W9<br>永石明體<br>永石圓體／超黑<br>永石細等／斜宋</div>
+</div>
+<p class="fine">本站所有中文字符由本站自寫的字骨引擎即時合成，未使用任何中文字型檔；拉丁字母與數字使用 Google Fonts。<br>
+本站為網頁設計風格示範站，永石鑄字所、人名、電話、地址、價格、字體名稱與年份均為虛構示意，非真實商號。</p>
+</div></footer>
+
+<noscript><div style="position:fixed;left:0;right:0;bottom:0;background:#14131A;color:#DEDBE4;padding:12px 18px;font-size:13px;z-index:99">
+比對台需要 JavaScript 才能鑄出字樣。 頁面連結：<a style="color:#fff" href="index.html">字樣</a>／<a style="color:#fff" href="compare.html">比對</a>／<a style="color:#fff" href="foundry.html">鑄字</a>／<a style="color:#fff" href="license.html">授權</a>。字體洽詢請電 06-221 4076。</div></noscript>
+<script>
+/* ===== 字骨引擎 GLYPH ENGINE =====
+   全站所有漢字（logo／導覽鉛字／字樣盤／比對台／鑄字檯／favicon）
+   皆非字型檔，而是由「筆畫骨架 + 八項參數」即時合成的 SVG。
+   骨架格式："t|x,y x,y ..."  t: h橫 v豎 d斜(撇捺) z折(多折點) p點
+   座標系 1000×1000，字身框；字面約 860。                       */
+var GK={
+"一":["h|140,500 860,500"],
+"二":["h|210,330 790,330","h|140,670 860,670"],
+"三":["h|230,270 770,270","h|270,500 730,500","h|140,730 860,730"],
+"十":["h|120,500 880,500","v|500,140 500,880"],
+"口":["v|235,250 235,775","z|235,250 765,250 765,775","h|235,775 765,775"],
+"日":["v|285,215 285,795","z|285,215 715,215 715,795","h|285,505 715,505","h|285,795 715,795"],
+"田":["v|235,250 235,770","z|235,250 765,250 765,770","h|235,510 765,510","v|500,250 500,770","h|235,770 765,770"],
+"目":["v|305,195 305,815","z|305,195 695,195 695,815","h|305,400 695,400","h|305,605 695,605","h|305,815 695,815"],
+"回":["v|175,200 175,830","z|175,200 825,200 825,830","h|175,830 825,830","v|345,370 345,660","z|345,370 655,370 655,660","h|345,660 655,660"],
+"山":["v|500,190 500,720","z|235,300 235,765 790,765","v|790,325 790,765"],
+"川":["d|245,195 190,810","v|500,235 500,845","v|800,205 800,790"],
+"人":["d|520,185 185,840","d|505,345 830,840"],
+"大":["h|120,375 880,375","d|565,165 185,855","d|430,470 830,855"],
+"中":["v|300,235 300,655","z|300,235 700,235 700,655","h|300,655 700,655","v|500,110 500,905"],
+"木":["h|120,375 880,375","v|500,150 500,885","d|475,420 185,840","d|525,420 815,840"],
+"本":["h|120,375 880,375","v|500,150 500,885","d|475,420 185,840","d|525,420 815,840","h|330,735 670,735"],
+"東":["h|160,245 840,245","v|280,245 280,650","z|280,245 720,245 720,650","h|280,450 720,450","h|160,650 840,650","v|500,115 500,905","d|470,665 190,870","d|530,665 810,870"],
+"方":["p|470,120 425,215","h|140,330 860,330","z|470,330 755,330 755,745 655,800","d|500,330 175,880"],
+"白":["p|455,125 340,265","v|285,265 285,835","z|285,265 715,265 715,835","h|285,470 715,470","h|285,835 715,835"],
+"六":["p|500,105 500,195","h|150,335 850,335","p|345,445 235,700","p|655,445 765,700"],
+"土":["h|255,300 745,300","v|500,300 500,765","h|140,765 860,765"],
+"王":["h|215,240 785,240","h|280,505 720,505","v|500,240 500,780","h|145,780 855,780"],
+"上":["v|445,190 445,760","h|445,475 800,475","h|150,760 850,760"],
+"下":["h|150,255 850,255","v|480,255 480,860","p|490,435 625,520"],
+"小":["v|500,175 500,830","p|305,290 230,690","p|700,290 775,690"],
+"火":["p|265,240 190,470","p|740,245 815,475","d|525,190 195,855","d|475,455 820,855"],
+"永":["p|485,95 525,195","h|280,290 545,290","z|500,290 500,780 400,855","z|340,300 275,470 150,785","z|505,440 665,360 850,800"],
+"比":["v|250,255 250,835","h|250,470 455,470","z|565,300 565,835 835,835","d|830,275 570,530"],
+"刀":["z|280,245 685,245 645,655 515,720","d|430,245 175,845"],
+"印":["v|230,245 230,810","h|230,325 565,325","h|230,565 565,565","z|625,285 835,285 835,570","v|625,285 625,880"],
+"字":["p|500,90 500,180","v|258,185 258,290","z|258,185 748,185 748,295","z|300,398 690,398 585,545 578,790 465,862","h|228,612 792,612"],
+"文":["p|500,110 500,215","h|175,335 825,335","d|565,335 190,865","d|450,480 815,865"],
+"石":["h|140,255 860,255","d|400,255 175,860","v|350,520 350,830","z|350,520 760,520 760,830","h|350,830 760,830"],
+"金":["d|500,105 220,375","d|500,105 780,375","h|265,375 735,375","h|330,530 670,530","v|500,375 500,790","h|150,790 850,790","p|330,650 265,740","p|670,650 735,740"],
+"手":["p|265,225 400,165","h|215,375 785,375","h|175,590 825,590","z|500,225 500,830 385,900"],
+"工":["h|180,255 820,255","v|500,255 500,745","h|150,745 850,745"],
+"月":["v|300,215 300,905","z|300,215 700,215 700,830 590,900","h|300,435 700,435","h|300,650 700,650"],
+"用":["v|265,215 265,905","z|265,215 735,215 735,830 625,900","h|265,470 735,470","h|265,690 735,690","v|500,215 500,830"],
+"生":["d|420,150 195,400","h|235,400 830,400","h|300,590 760,590","v|500,150 500,800","h|150,800 850,800"],
+"平":["h|165,285 835,285","p|318,395 250,548","p|682,395 750,548","h|205,600 795,600","v|500,285 500,890"],
+"工":["h|180,255 820,255","v|500,255 500,745","h|150,745 850,745"]
+};
+function stkW(t,P){var w=P.w;
+  if(t==="h")return Math.max(5,w*(1-P.c*0.78));
+  if(t==="d"||t==="p")return Math.max(5,w*(1-P.c*0.34));
+  return w;}
+function parseG(ch){var raw=GK[ch];if(!raw)return null;
+  return raw.map(function(s){var i=s.indexOf("|");var t=s.slice(0,i);
+    var pts=s.slice(i+1).trim().split(/\s+/).map(function(p){var a=p.split(",");return [+a[0],+a[1]];});
+    return {t:t,pts:pts};});}
+function xf(p,P){return [(p[0]-500)*P.g*P.x+500,(p[1]-500)*P.g+500];}
+function glyphSVG(ch,P,color){
+  var g=parseG(ch);if(!g)return "";
+  var cap=P.e>0.5?"round":"butt", join=P.j>0.5?"round":"miter";
+  var out=[],serifs=[];
+  for(var i=0;i<g.length;i++){
+    var st=g[i],w=stkW(st.t,P),pts=st.pts.map(function(p){return xf(p,P);});
+    var d="M"+pts.map(function(p){return p[0].toFixed(1)+" "+p[1].toFixed(1);}).join("L");
+    out.push('<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="'+w.toFixed(1)+
+      '" stroke-linecap="'+cap+'" stroke-linejoin="'+join+'"/>');
+    if(P.s>0.02){
+      var s=P.s,vw=P.w;
+      if(st.t==="h"){
+        var a=pts[0],b=pts[pts.length-1];
+        var hh=w*(0.85+2.30*s), th=vw*(0.34+0.62*s);
+        serifs.push('<polygon points="'+
+          (a[0]-th*0.15).toFixed(1)+','+(a[1]-hh).toFixed(1)+' '+(a[0]+th).toFixed(1)+','+(a[1]-w/2).toFixed(1)+' '+
+          (a[0]+th).toFixed(1)+','+(a[1]+w/2).toFixed(1)+' '+(a[0]-th*0.15).toFixed(1)+','+(a[1]+hh*0.5).toFixed(1)+
+          '" fill="'+color+'"/>');
+        serifs.push('<polygon points="'+
+          (b[0]+th*0.2).toFixed(1)+','+(b[1]-hh*1.1).toFixed(1)+' '+(b[0]-th*1.05).toFixed(1)+','+(b[1]-w/2).toFixed(1)+' '+
+          (b[0]-th*1.05).toFixed(1)+','+(b[1]+w/2).toFixed(1)+' '+(b[0]+th*0.2).toFixed(1)+','+(b[1]+w/2).toFixed(1)+
+          '" fill="'+color+'"/>');
+      } else if(st.t==="v"){
+        var c0=pts[0],ww=w*(0.55+1.05*s);
+        serifs.push('<polygon points="'+(c0[0]-ww).toFixed(1)+','+(c0[1]+w*0.30).toFixed(1)+' '+
+          (c0[0]-w/2).toFixed(1)+','+(c0[1]-w*0.32).toFixed(1)+' '+(c0[0]+w/2).toFixed(1)+','+(c0[1]-w*0.32).toFixed(1)+' '+
+          (c0[0]+ww*0.5).toFixed(1)+','+(c0[1]+w*0.30).toFixed(1)+'" fill="'+color+'"/>');
+      }
+    }
+  }
+  return out.join("")+serifs.join("");
+}
+function glyphTag(ch,P,size,color,cls){
+  var inner=glyphSVG(ch,P,color||"currentColor");
+  if(!inner)return '<span class="miss">'+ch+'</span>';
+  var sk=P.k?' transform="skewX('+(-P.k)+') translate('+(P.k*8).toFixed(0)+',0)"':'';
+  return '<svg class="gl '+(cls||"")+'" viewBox="-50 -50 1100 1100" width="'+size+'" height="'+size+
+    '" role="img" aria-label="'+ch+'"><g'+sk+'>'+inner+'</g></svg>';
+}
+var FACES=[
+ {id:"heiti", n:"永石黑體", en:"Yongshi Gothic", P:{w:96,c:0.10,x:1.00,e:0,s:0,g:1.02,k:0,j:0}, use:"標題、標示系統、螢幕介面", yr:"2019", cut:"六號沖", price:18000},
+ {id:"mingti",n:"永石明體", en:"Yongshi Ming",  P:{w:104,c:0.62,x:0.98,e:0,s:0.72,g:1.00,k:0,j:0}, use:"內文書籍、長文排版", yr:"2016", cut:"九號沖", price:24000},
+ {id:"yuanti",n:"永石圓體", en:"Yongshi Round", P:{w:104,c:0.06,x:1.02,e:1,s:0,g:1.04,k:0,j:1}, use:"兒童讀物、包裝、標語", yr:"2021", cut:"四號沖", price:16000},
+ {id:"chao",  n:"永石超黑", en:"Yongshi Ultra", P:{w:170,c:0.08,x:1.06,e:0,s:0,g:1.08,k:0,j:0}, use:"海報大字、封面書名", yr:"2022", cut:"三號沖", price:14000},
+ {id:"xi",    n:"永石細等", en:"Yongshi Thin",  P:{w:38,c:0.02,x:0.86,e:0,s:0,g:0.94,k:0,j:0}, use:"表格、規格書、圖說", yr:"2023", cut:"十二號沖", price:15000},
+ {id:"xieti", n:"永石斜宋", en:"Yongshi Slant", P:{w:82,c:0.55,x:0.92,e:0,s:0.45,g:0.98,k:9,j:0}, use:"引文、註記、副標", yr:"2024", cut:"八號沖", price:20000}
+];
+function clone(P){return {w:P.w,c:P.c,x:P.x,e:P.e,s:P.s,g:P.g,k:P.k,j:P.j};}
+
+/* ===== 全站識別接管 ===== */
+var NAVP=[["index.html","永","字樣","SPECIMEN"],["compare.html","比","比對","COMPARE"],
+          ["foundry.html","刀","鑄字","FOUNDRY"],["license.html","印","授權","LICENCE"]];
+var PKEYS=["w","c","x","e","s","g","k","j"];
+function encP(P){return PKEYS.map(function(k){return Math.round(P[k]*100);}).join("-");}
+function decP(s){var a=String(s||"").split("-").map(Number);
+  if(a.length!==8||a.some(function(n){return !isFinite(n);}))return null;
+  var P={};PKEYS.forEach(function(k,i){P[k]=a[i]/100;});
+  if(P.w<20||P.w>200||P.g<0.8||P.g>1.25)return null;return P;}
+var HOUSE=null;   /* 目前生效的鑄體 */
+var HOUSE_NAME="永石黑體";
+function loadHouse(){
+  var q=new URLSearchParams(location.search).get("f");
+  var P=q?decP(q):null, nm=null;
+  if(!P){try{var raw=sessionStorage.getItem("yz.house");
+    if(raw){var o=JSON.parse(raw);P=decP(o.p);nm=o.n;}}catch(e){}}
+  if(!P){P=clone(FACES[0].P);nm=FACES[0].n;}
+  HOUSE=P;HOUSE_NAME=nm||"自訂鑄體";return P;
+}
+function saveHouse(P,name){
+  HOUSE=clone(P);HOUSE_NAME=name||"自訂鑄體";
+  try{sessionStorage.setItem("yz.house",JSON.stringify({p:encP(P),n:HOUSE_NAME}));}catch(e){}
+  paintIdentity();
+}
+/* favicon：以目前鑄體即時鑄出 */
+function paintFavicon(){
+  var P=clone(HOUSE);P.w=Math.max(P.w,86);
+  var inner=glyphSVG("永",P,"%23DEDBE4");
+  var svg="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 1100 1100'>"+
+    "<rect x='-50' y='-50' width='1100' height='1100' fill='%2314131A'/>"+inner+"</svg>";
+  var l=document.getElementById("fav");if(l)l.setAttribute("href",svg);
+}
+function paintIdentity(){
+  /* logo */
+  var m=document.getElementById("shmark");
+  if(m)m.innerHTML=glyphTag("永",HOUSE,34,"var(--ink)")+glyphTag("石",HOUSE,34,"var(--ink)");
+  /* 導覽鉛字 */
+  document.querySelectorAll(".slug .body").forEach(function(el){
+    el.innerHTML=glyphTag(el.getAttribute("data-ch"),HOUSE,30,"currentColor");
+  });
+  document.querySelectorAll("[data-house-name]").forEach(function(el){el.textContent=HOUSE_NAME;});
+  document.querySelectorAll("[data-house-code]").forEach(function(el){el.textContent=encP(HOUSE);});
+  paintFavicon();
+}
+function buildNav(cur){
+  var h='<nav class="stick" aria-label="排字盤導覽"><div class="inner">'+
+    '<span class="rail" aria-hidden="true">COMPOSING STICK · 排字盤</span>';
+  NAVP.forEach(function(p){
+    var isc=p[0]===cur;
+    h+='<a class="slug" href="'+p[0]+'"'+(isc?' aria-current="page"':'')+
+       ' aria-label="'+p[2]+' '+p[3]+'">'+
+       '<span class="body" data-ch="'+p[1]+'"></span>'+
+       '<span class="cap"><i>'+p[2]+'</i><br>'+p[3]+'</span></a>';
+  });
+  h+='</div></nav>';
+  document.body.insertAdjacentHTML("beforeend",h);
+}
+/* 灰度覆蓋率：筆畫長度×筆寬 ÷ 字面積，全站規格表共用 */
+function inkCover(ch,P){
+  var g=parseG(ch);if(!g)return 0;var area=0;
+  g.forEach(function(st){var w=stkW(st.t,P);
+    for(var i=0;i<st.pts.length-1;i++){
+      var a=xf(st.pts[i],P),b=xf(st.pts[i+1],P);
+      area+=Math.hypot(b[0]-a[0],b[1]-a[1])*w;}
+  });
+  return Math.min(0.99,area/(860*860));
+}
+function avgCover(P,set){var s=0;set.forEach(function(c){s+=inkCover(c,P);});return s/set.length;}
+function castStore(){try{return JSON.parse(sessionStorage.getItem("yz.cast")||"[]");}catch(e){return[];}}
+function restoreCast(){
+  try{var m=JSON.parse(sessionStorage.getItem("yz.castdata")||"{}");
+    Object.keys(m).forEach(function(k){GK[k]=m[k];});}catch(e){}
+}
+
+var SEL=[], MODE="side", SAMP=0;
+var SAMPLES=[
+ {n:"主字樣 永",  s:["永"], sz:150},
+ {n:"八法測字",  s:["永","東","字","石"], sz:78},
+ {n:"基本筆形",  s:["一","十","口","日","人","方"], sz:62},
+ {n:"一句話",    s:["東","方","山","川","日","月","生","火"], sz:54}
+];
+function el(id){return document.getElementById(id);}
+function faceList(){
+  var L=FACES.slice();
+  var mine=null;try{var raw=sessionStorage.getItem("yz.house");
+    if(raw){var o=JSON.parse(raw);var P=decP(o.p);
+      if(P&&o.n&&!FACES.some(function(f){return f.n===o.n;}))
+        mine={id:"mine",n:o.n,en:"YOUR CAST",P:P,use:"你在鑄字檯上調出來的沖模",yr:"—",cut:"未上沖",price:0};}}catch(e){}
+  if(mine)L.push(mine);
+  return L;
+}
+var ALL=[];
+function drawPicker(){
+  el("picker").innerHTML=ALL.map(function(f){
+    var on=SEL.indexOf(f.id)>=0;
+    return '<button type="button" class="'+(on?"on":"")+'" data-id="'+f.id+'" aria-pressed="'+on+'">'+
+      '<span class="pv">'+["永","東","字"].map(function(c){return glyphTag(c,f.P,30,"currentColor");}).join("")+'</span>'+
+      '<span class="pn">'+f.n+'</span><span class="pe">'+f.en+'</span></button>';}).join("");
+  el("picker").querySelectorAll("button").forEach(function(b){
+    b.onclick=function(){
+      var id=b.getAttribute("data-id"),i=SEL.indexOf(id);
+      if(i>=0)SEL.splice(i,1);
+      else{if(SEL.length>=3){el("picknote").textContent="台面只放得下三套。先把一套拿下來。";return;}SEL.push(id);}
+      render();
+    };});
+}
+function got(){return SEL.map(function(id){return ALL.filter(function(f){return f.id===id;})[0];});}
+function drawTools(){
+  var M=[["side","並排"],["over","疊字"],["wf","字級"]];
+  el("modes").innerHTML=M.map(function(m){
+    return '<button type="button" data-m="'+m[0]+'" class="'+(MODE===m[0]?"on":"")+'">'+m[1]+'</button>';}).join("");
+  el("modes").querySelectorAll("button").forEach(function(b){
+    b.onclick=function(){MODE=b.getAttribute("data-m");render();};});
+  el("samples").innerHTML=SAMPLES.map(function(s,i){
+    return '<button type="button" data-s="'+i+'" class="'+(SAMP===i?"on":"")+'">'+s.n+'</button>';}).join("");
+  el("samples").querySelectorAll("button").forEach(function(b){
+    b.onclick=function(){SAMP=+b.getAttribute("data-s");render();};});
+}
+function drawStone(){
+  var fs=got(),S=SAMPLES[SAMP],box=el("stone");
+  if(!fs.length){box.innerHTML='<div class="empty">台面是空的。上面選一套字上台。</div>';
+    el("stonenote").textContent="";return;}
+  if(MODE==="side"){
+    box.innerHTML=fs.map(function(f){
+      return '<div class="col"><div class="cn"><b>'+f.n+'</b>'+f.en+'</div><div class="line">'+
+        S.s.map(function(c){return glyphTag(c,f.P,S.sz,"var(--ink)");}).join("")+'</div></div>';}).join("");
+    el("stonenote").textContent="並排：同一批字骨、不同沖模。先看整體灰度，再看單一筆畫的起收。";
+  } else if(MODE==="over"){
+    if(fs.length<2){box.innerHTML='<div class="empty">疊字要兩套。再上一套。</div>';
+      el("stonenote").textContent="";return;}
+    var a=fs[0],b=fs[1],sz=Math.min(S.sz*1.5,190);
+    box.innerHTML='<div style="width:100%"><div class="ov" style="min-height:'+(sz+20)+'px">'+
+      '<div class="base line">'+S.s.map(function(c){return glyphTag(c,a.P,sz,"var(--ink)");}).join("")+'</div>'+
+      '<div class="lay"><span class="line">'+S.s.map(function(c){return glyphTag(c,a.P,sz,"var(--ink)");}).join("")+'</span></div>'+
+      '<div class="lay b"><span class="line">'+S.s.map(function(c){return glyphTag(c,b.P,sz,"var(--red)");}).join("")+'</span></div>'+
+      '</div><div class="ov-key"><span><i style="background:var(--ink)"></i>'+a.n+'</span>'+
+      '<span><i style="background:var(--red);opacity:.72"></i>'+b.n+'</span></div></div>';
+    var dw=Math.abs(a.P.w-b.P.w),dc=Math.abs(a.P.c-b.P.c),dx=Math.abs(a.P.x-b.P.x);
+    var big=dw>26?"字重":(dc>0.2?"橫豎對比":(dx>0.06?"字面率":"中宮"));
+    el("stonenote").textContent="疊字：紅色壓在黑色上，露出來的紅邊就是兩套字分開的地方。這一對差最多的是「"+big+"」——"+
+      (fs.length>2?"（第三套在疊字模式下不上台）":"");
+  } else {
+    var sizes=[110,72,48,32,22,16];
+    box.innerHTML='<div style="width:100%">'+fs.map(function(f){
+      return '<div style="margin-bottom:14px"><div class="cn" style="text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#5A5566;margin-bottom:6px"><b style="font-family:var(--tc);font-size:13px;color:var(--ink)">'+f.n+'</b></div>'+
+        '<div style="display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap;color:var(--ink)">'+
+        sizes.map(function(s){return glyphTag("永",f.P,s,"var(--ink)");}).join("")+'</div></div>';}).join("")+'</div>';
+    el("stonenote").textContent="字級：由大到小 110→16 pt。細筆在 16 pt 會不會斷、對比高的字會不會糊，只有縮下去才看得出來。";
+  }
+}
+var ROWS=[
+ {n:"豎筆寬",u:"u",v:function(f){return f.P.w;},d:0,dir:1},
+ {n:"橫豎對比",u:"%",v:function(f){return f.P.c*100;},d:0,dir:1},
+ {n:"字面率",u:"%",v:function(f){return f.P.x*100;},d:0,dir:1},
+ {n:"中宮",u:"%",v:function(f){return f.P.g*100;},d:0,dir:1},
+ {n:"襯線量",u:"%",v:function(f){return f.P.s*100;},d:0,dir:1},
+ {n:"傾斜",u:"°",v:function(f){return f.P.k;},d:1,dir:1},
+ {n:"平均灰度",u:"%",v:function(f){return avgCover(f.P,["永","東","字","口","人"])*100;},d:1,dir:1},
+ {n:"16pt 最細筆",u:"px",v:function(f){return stkW("h",f.P)/1000*16;},d:2,dir:1}
+];
+var TEXTROWS=[
+ {n:"視覺分級",v:function(f){var s=avgCover(f.P,["永","東","字","口","人"]);
+   return s<0.14?"特細 W1":s<0.20?"細 W2":s<0.27?"書 W3":s<0.34?"中 W5":s<0.46?"粗 W7":"特粗 W9";}},
+ {n:"筆端／轉角",v:function(f){return (f.P.e>.5?"圓收":"平切")+"／"+(f.P.j>.5?"圓角":"方角");}},
+ {n:"建議用途",v:function(f){return f.use;}},
+ {n:"開沖年",v:function(f){return f.yr;}},
+ {n:"沖模級數",v:function(f){return f.cut;}},
+ {n:"單機授權",v:function(f){return f.price?("NT$ "+f.price.toLocaleString()):"未開放（自訂沖模）";}}
+];
+function drawSpec(){
+  var fs=got(),tb=el("spectab").querySelector("tbody");
+  if(!fs.length){tb.innerHTML='<tr><td class="mono" style="color:#5A5566">台面是空的。</td></tr>';return;}
+  var h='<tr><th>項目</th>'+fs.map(function(f){return '<th>'+f.n+'</th>';}).join("")+'</tr>';
+  ROWS.forEach(function(R){
+    var vals=fs.map(R.v),mx=Math.max.apply(null,vals),mn=Math.min.apply(null,vals);
+    h+='<tr><th>'+R.n+'</th>'+vals.map(function(v){
+      var cls=(fs.length>1&&v===mx&&mx!==mn)?"num hi":(fs.length>1&&v===mn&&mx!==mn)?"num lo":"num";
+      return '<td class="'+cls+'">'+v.toFixed(R.d)+' '+R.u+'</td>';}).join("")+'</tr>';
+  });
+  TEXTROWS.forEach(function(R){
+    h+='<tr><th>'+R.n+'</th>'+fs.map(function(f){return '<td>'+R.v(f)+'</td>';}).join("")+'</tr>';
+  });
+  tb.innerHTML=h;
+}
+function drawVerdict(){
+  var fs=got(),v=el("verdict");
+  if(!fs.length){v.innerHTML='<p><span class="q">READING</span>還沒上台，沒得比。</p>';return;}
+  if(fs.length===1){
+    var f=fs[0],s=avgCover(f.P,["永","東","字","口","人"])*100,thin=stkW("h",f.P)/1000*16;
+    v.innerHTML='<p><span class="q">READING · 單套</span><b>'+f.n+'</b>平均灰度 '+s.toFixed(1)+
+      '%，16 pt 時最細的橫筆只有 '+thin.toFixed(2)+' px'+
+      (thin<0.9?'——這個尺寸螢幕上會斷，內文請往上加一級。':'——內文尺寸站得住。')+
+      '</p><p>要看出它的脾氣，再上一套疊起來比。</p>';return;}
+  var a=fs[0],b=fs[1];
+  var sa=avgCover(a.P,["永","東","字","口","人"])*100,sb=avgCover(b.P,["永","東","字","口","人"])*100;
+  var heavier=sa>sb?a:b, lighter=sa>sb?b:a, dg=Math.abs(sa-sb);
+  var dc=Math.abs(a.P.c-b.P.c)*100, dx=Math.abs(a.P.x-b.P.x)*100;
+  var t1='<p><span class="q">READING · '+fs.length+' 套</span>'+
+    '<b>'+heavier.n+'</b>比<b>'+lighter.n+'</b>重 '+dg.toFixed(1)+' 個灰度百分點'+
+    (dg<1.5?'——兩套幾乎同一階，混排時讀者不會察覺換了字，這是好事也是壞事：想拉層級就拉不開。'
+     :dg<5?'——差一階左右，剛好可以做標題與內文的分工。':'——差超過兩階，同頁並用會直接分出主從。')+'</p>';
+  var t2='<p>橫豎對比相差 '+dc.toFixed(0)+' 個百分點'+
+    (dc>25?'，這是兩套字最明顯的分界：對比高的那一套印在紙上好看，縮到手機上橫筆先消失。'
+     :dc>8?'，差距中等，主要影響長文的節奏感。':'，幾乎一致，兩套都屬同一個造字邏輯。')+
+    ' 字面率相差 '+dx.toFixed(0)+' 個百分點'+
+    (dx>6?'，同樣一行字排下來會差出將近半個字的長度，改字要重新走版。':'，換字不必重新走版。')+'</p>';
+  var t3='<p class="mono" style="font-size:11px;letter-spacing:.1em;color:#5A5566">'+
+    '灰度為本站引擎實算：所有筆畫長度乘筆寬除以字面積，取「永東字口人」五字平均。此數值用於分級，不等同印刷實測濃度。</p>';
+  v.innerHTML=t1+t2+t3;
+}
+function render(){drawPicker();drawTools();drawStone();drawSpec();drawVerdict();
+  el("picknote").textContent="已上台 "+SEL.length+" 套"+(SEL.length?"："+got().map(function(f){return f.n;}).join("、"):"");}
+function init(){
+  loadHouse();buildNav("compare.html");paintIdentity();
+  ALL=faceList();SEL=["heiti","mingti"];
+  render();
+}
+
+if(document.readyState!=="loading")init();else document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

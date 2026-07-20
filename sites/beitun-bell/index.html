@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>拍賣場｜北屯花卉拍賣市場</title>
+<meta name="description" content="降價鐘花卉拍賣示範：價格由高往低走，先按先得，你的對手是七位各有預算與性格的承銷人。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230B0D0C'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%232E3833' stroke-width='3'/%3E%3Cpath d='M16 5 A11 11 0 0 1 25.5 21.5 L16 16 Z' fill='%23E01B22'/%3E%3Cline x1='16' y1='16' x2='23.4' y2='24' stroke='%23FFC61A' stroke-width='2.8' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='2.8' fill='%23F2F5F1'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Noto+Sans+TC:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --ink:#0B0D0C;--panel:#141917;--panel2:#1C2320;--line:#2E3833;
+ --red:#E01B22;--amber:#FFC61A;--green:#00A86B;--white:#F2F5F1;--dim:#8B9A93;
+ --mono:'Share Tech Mono',ui-monospace,monospace;
+ --sign:'Big Shoulders Display','Noto Sans TC',sans-serif;
+ --han:'Noto Sans TC',sans-serif;
+ --rail:96px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--white);font-family:var(--han);font-size:15px;line-height:1.62;
+ -webkit-font-smoothing:antialiased;padding-left:var(--rail);
+ background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 4px);}
+a{color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(255,198,26,.35)}
+a:hover,a:focus-visible{color:var(--ink);background:var(--amber);border-bottom-color:var(--amber)}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--amber);color:var(--ink);padding:10px 16px;z-index:99}
+.skip:focus{left:8px;top:8px}
+h1,h2,h3{font-weight:900;line-height:1.12;letter-spacing:-.01em}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sign{font-family:var(--sign);font-weight:800;letter-spacing:.02em}
+
+/* ---- trolley-lane nav ---- */
+.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail);background:#0F1412;border-right:2px solid var(--line);z-index:40;
+ display:flex;flex-direction:column;align-items:center;padding:14px 0 10px}
+.rail .dock{font-family:var(--mono);font-size:9.5px;color:var(--red);letter-spacing:.18em;writing-mode:horizontal-tb;
+ border:1px solid var(--red);padding:3px 6px;margin-bottom:6px}
+.rail .track{position:absolute;left:50%;top:60px;bottom:44px;width:2px;margin-left:-1px;
+ background:repeating-linear-gradient(180deg,var(--line) 0 9px,transparent 9px 15px)}
+.rail .carts{position:relative;z-index:2;display:flex;flex-direction:column;gap:6px;margin-top:6px;flex:1}
+.cart{display:block;position:relative;width:76px;padding:8px 4px 7px;border:1px solid var(--line);background:#131816;
+ color:var(--dim);text-align:center;transform:translateX(-10px);transition:transform .28s cubic-bezier(.2,.9,.3,1),background .2s,border-color .2s;
+ border-bottom:1px solid var(--line)}
+.cart:hover,.cart:focus-visible{transform:translateX(-2px);border-color:var(--amber);color:var(--white);background:#1A211E}
+.cart[aria-current="page"]{transform:translateX(6px);border-color:var(--amber);background:#202723;color:var(--white);box-shadow:-4px 0 0 0 var(--red)}
+.cart svg{display:block;margin:0 auto 3px}
+.cart .lb{font-family:var(--han);font-weight:700;font-size:12px;line-height:1.25;display:block}
+.cart .en{font-family:var(--mono);font-size:8.5px;color:var(--dim);letter-spacing:.1em;display:block}
+.cart[aria-current="page"] .en{color:var(--amber)}
+.rail .tail{font-family:var(--mono);font-size:9px;color:#4E5A55;letter-spacing:.1em;margin-top:auto}
+
+/* ---- shell ---- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.floorbar{border-bottom:2px solid var(--line);background:#0F1412;position:sticky;top:0;z-index:30}
+.floorbar .in{max-width:1180px;margin:0 auto;padding:9px 22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+ font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--dim)}
+.floorbar b{color:var(--white);font-weight:400}
+.floorbar .live{color:var(--red)}
+.brandbar{padding:18px 22px 10px;max-width:1180px;margin:0 auto;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.brandbar img{height:52px;width:auto}
+.brandbar p{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;margin-bottom:5px}
+section{padding:26px 0}
+.rule{height:2px;background:var(--line);margin:0}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--green);margin-bottom:8px}
+.panel{background:var(--panel);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--dim);font-weight:400;background:#111614;white-space:nowrap}
+td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:1px 6px;border:1px solid currentColor}
+.t-red{color:var(--red)}.t-amb{color:var(--amber)}.t-grn{color:var(--green)}.t-dim{color:var(--dim)}
+.btn{font-family:var(--sign);font-weight:800;font-size:17px;letter-spacing:.06em;background:var(--amber);color:var(--ink);
+ border:2px solid var(--amber);padding:9px 20px;cursor:pointer;display:inline-block}
+.btn:hover{background:var(--ink);color:var(--amber)}
+.btn.ghost{background:transparent;color:var(--white);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--amber);color:var(--amber)}
+footer{border-top:2px solid var(--line);background:#0F1412;margin-top:28px}
+footer .in{max-width:1180px;margin:0 auto;padding:24px 22px 34px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--green);font-weight:400;margin-bottom:8px}
+footer p,footer li{font-size:12.5px;color:var(--dim);line-height:1.75}
+footer ul{list-style:none}
+footer a{color:var(--dim);border-bottom-color:transparent}
+footer a:hover{color:var(--ink)}
+.disclaim{border-top:1px solid var(--line);padding:10px 22px 26px;max-width:1180px;margin:0 auto;
+ font-family:var(--mono);font-size:10.5px;color:#5C6863;letter-spacing:.06em}
+@media (max-width:900px){
+ body{padding-left:0;padding-bottom:66px}
+ .rail{top:auto;left:0;right:0;bottom:0;width:100%;height:64px;flex-direction:row;border-right:0;border-top:2px solid var(--line);padding:0}
+ .rail .dock,.rail .track,.rail .tail{display:none}
+ .rail .carts{flex-direction:row;margin:0;gap:0;width:100%}
+ .cart{flex:1;width:auto;transform:none;border:0;border-right:1px solid var(--line);padding:7px 2px}
+ .cart:hover,.cart:focus-visible,.cart[aria-current="page"]{transform:none;box-shadow:none;border-bottom:3px solid var(--amber)}
+ footer .in{grid-template-columns:1fr;gap:18px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
+
+.hall{display:grid;grid-template-columns:minmax(320px,1fr) 268px 296px;gap:0;border:1px solid var(--line);border-left:0;border-right:0}
+.hall>div{padding:16px 18px;border-left:1px solid var(--line)}
+.hall>div:first-child{border-left:0}
+.clockbox{position:relative;background:radial-gradient(circle at 50% 40%,#161D1A 0%,#0C100E 72%)}
+.clocksvg{display:block;width:100%;max-width:380px;margin:0 auto}
+.readout{position:absolute;left:0;right:0;top:0;padding:14px 18px;display:flex;justify-content:space-between;
+ font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--dim)}
+.phase{font-family:var(--sign);font-weight:800;font-size:15px;letter-spacing:.1em;text-align:center;padding:3px 0}
+.p-red{color:var(--red)}.p-grn{color:var(--green)}.p-amb{color:var(--amber)}.p-dim{color:var(--dim)}
+#winner{text-align:center;font-size:12.5px;color:var(--dim);min-height:38px;padding:0 6px}
+.bigprice{font-family:var(--sign);font-weight:800;font-size:64px;line-height:.9;text-align:center;color:var(--white);
+ font-variant-numeric:tabular-nums}
+.unit{text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--dim);margin-top:4px}
+.lotkey{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.16em}
+.lotname{font-size:23px;font-weight:900;margin:2px 0 6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.kv dt{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.1em;padding-top:2px}
+.kv dd{text-align:right;font-family:var(--mono)}
+.infbox{text-align:center;padding:6px 0 2px;min-height:150px}
+.infcap{font-family:var(--mono);font-size:9.5px;color:#5C6863;letter-spacing:.08em;text-align:center}
+#seats{list-style:none;margin-top:8px}
+.seat{display:grid;grid-template-columns:9px 26px 1fr auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #1E2422;font-size:12.5px}
+.seat .lamp{width:9px;height:9px;border-radius:50%;background:#2E3833;display:block}
+.seat.lean .lamp{background:var(--amber)}
+.seat.won .lamp{background:var(--red)}
+.seat.out{opacity:.34}
+.seat .sid{color:var(--dim);font-size:11px}
+.seat .snm{line-height:1.25}
+.seat .snm em{display:block;font-style:normal;font-size:10px;color:#5C6863;font-family:var(--mono);letter-spacing:.04em}
+.seat .sw{color:var(--dim);font-size:11.5px}
+.seat.won .sw{color:var(--red)}
+.bidbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 22px;background:#111614;border-bottom:2px solid var(--line);max-width:1180px;margin:0 auto}
+#bid{font-family:var(--sign);font-weight:800;font-size:26px;letter-spacing:.08em;background:var(--red);color:#fff;
+ border:0;padding:14px 44px;cursor:pointer;box-shadow:0 4px 0 #7C0E12}
+#bid:hover:not(:disabled){background:#FF2A32}
+#bid:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #7C0E12}
+#bid:disabled{background:#242C29;color:#5C6863;box-shadow:0 4px 0 #171D1B;cursor:not-allowed}
+.bidhint{font-size:12.5px;color:var(--dim);max-width:430px}
+#msg{font-family:var(--mono);font-size:12px;color:var(--amber);opacity:0;transition:opacity .2s}
+#msg.on{opacity:1}
+#awaynote{background:#2A1A08;border:1px solid var(--amber);color:var(--amber);font-size:12.5px;padding:8px 12px;margin:14px 0}
+.two{display:grid;grid-template-columns:1.35fr 1fr;gap:20px}
+.settle{border:1px solid var(--line);padding:14px 16px;background:var(--panel)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.sgrid div{border:1px solid var(--line);padding:8px 10px}
+.sgrid b{display:block;font-family:var(--sign);font-weight:800;font-size:26px;line-height:1.1}
+.sgrid span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim)}
+tr.mine td{background:#0E2A1E}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.cols3 h3{font-size:15px;margin-bottom:6px}
+.cols3 p{font-size:13px;color:#B9C4BF}
+@media(max-width:1060px){.hall{grid-template-columns:1fr 1fr}.hall>div:nth-child(3){grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.two{grid-template-columns:1fr}.cols3{grid-template-columns:1fr}}
+@media(max-width:700px){.hall{grid-template-columns:1fr}.hall>div{border-left:0;border-top:1px solid var(--line)}.bigprice{font-size:50px}#bid{width:100%}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+
+<nav class="rail" aria-label="主導覽（台車軌道）"><span class="dock">拍賣台</span><span class="track" aria-hidden="true"></span><div class="carts"><a class="cart" href="index.html" aria-current="page"><svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><rect x="3" y="4" width="18" height="9" fill="currentColor" opacity=".5"/><path d="M6 4 L9 0 M12 4 L12 0 M18 4 L15 0" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="2" y="13" width="24" height="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="21" cy="18" r="2" fill="currentColor"/></svg><span class="lb">拍賣場</span><span class="en">FLOOR</span></a><a class="cart" href="lots.html"><svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><rect x="4" y="2" width="8" height="11" fill="currentColor" opacity=".45"/><rect x="14" y="5" width="8" height="8" fill="currentColor" opacity=".8"/><rect x="2" y="13" width="24" height="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="21" cy="18" r="2" fill="currentColor"/></svg><span class="lb">今日批次</span><span class="en">LOTS</span></a><a class="cart" href="rules.html"><svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><rect x="6" y="1" width="14" height="12" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 4h8M9 7h8M9 10h5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="13" width="24" height="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="21" cy="18" r="2" fill="currentColor"/></svg><span class="lb">拍賣規則</span><span class="en">RULES</span></a><a class="cart" href="market.html"><svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><path d="M4 13V6l10-5 10 5v7" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="10" y="8" width="8" height="5" fill="currentColor" opacity=".6"/><rect x="2" y="13" width="24" height="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="21" cy="18" r="2" fill="currentColor"/></svg><span class="lb">市場與承銷</span><span class="en">MARKET</span></a></div><span class="tail">TRACK&nbsp;01</span></nav>
+<div class="floorbar"><div class="in">
+ <span class="live">● 開拍中</span>
+ <span>場次 <b class="num">0721-A</b></span>
+ <span>批號 <b class="num" id="lotno">— / 24</b></span>
+ <span>場內時間 <b class="num" id="sesst">0:00</b></span>
+ <span>承銷 <b class="num">88</b>（你）</span>
+ <span>可用額度 <b class="num" id="remain">$9,000</b></span>
+ <span>鐘位 <b class="num" id="clockread">0/100</b></span>
+</div></div>
+<div class="brandbar">
+ <img src="assets/logo.svg" alt="北屯花卉拍賣市場" width="240" height="64">
+ <p>台中市北屯區松竹路二段 388 號　　週一・三・五 03:20 開拍</p>
+</div>
+<main id="main">
+<div class="wrap"><p style="font-size:13px;color:#B9C4BF;max-width:760px;margin-bottom:12px">
+這裡用的是<b style="color:#F2F5F1">降價鐘</b>：價格從高處往下走，<b style="color:#F2F5F1">誰先按鐘，貨就是誰的</b>。
+沒有人跟你喊價，你的對手是另外七位承銷人和一根不會停的指針。前兩批是練習批，不列入對帳。
+</p></div>
+
+<section style="padding-top:0">
+<div class="hall">
+ <div class="clockbox">
+  <div class="readout"><span>拍賣鐘 CLOCK No.1</span><span>每格 0.15 秒</span></div>
+  <svg class="clocksvg" viewBox="0 0 100 100" role="img" aria-label="降價拍賣鐘：指針由高價往低價走，燈位顯示目前價格">
+   <circle cx="50" cy="50" r="46" fill="none" stroke="#2E3833" stroke-width="1"/>
+   <circle cx="50" cy="50" r="34" fill="none" stroke="#1E2422" stroke-width="1"/>
+   <g id="bulbs"></g>
+   <text x="50" y="8.5" text-anchor="middle" font-family="Share Tech Mono" font-size="4" fill="#8B9A93">起拍</text>
+   <text x="50" y="97" text-anchor="middle" font-family="Share Tech Mono" font-size="4" fill="#8B9A93">底價</text>
+   <text x="95" y="51.5" text-anchor="end" font-family="Share Tech Mono" font-size="4" fill="#8B9A93">1/4</text>
+   <text x="5" y="51.5" font-family="Share Tech Mono" font-size="4" fill="#8B9A93">3/4</text>
+   <line id="hand" x1="50" y1="50" x2="50" y2="14" stroke="#F2F5F1" stroke-width="1.6" stroke-linecap="round"/>
+   <circle cx="50" cy="50" r="2.6" fill="#F2F5F1"/>
+  </svg>
+  <p class="phase p-amb" id="phase">上台 READY</p>
+  <p class="bigprice" id="price">$0</p>
+  <p class="unit">元 / 把（每把 10 支）</p>
+  <p id="winner" style="margin-top:8px"></p>
+  <p class="sr" id="live" aria-live="polite" style="position:absolute;left:-9999px"></p>
+ </div>
+ <div>
+  <p class="lotkey" id="lotcode">A-01</p>
+  <h2 class="lotname" id="lotname">—</h2>
+  <p style="font-size:12.5px;color:#8B9A93" id="lotmeta">—</p>
+  <div class="infbox" id="inf"></div>
+  <p class="infcap">花序型態程序生成圖／同批號恆得同圖</p>
+  <dl class="kv">
+   <dt>數量</dt><dd id="lotqty">—</dd>
+   <dt>參考價</dt><dd id="lotfair">—</dd>
+   <dt>價帶</dt><dd id="lotrange">—</dd>
+   <dt>結算</dt><dd>當日 09:30</dd>
+  </dl>
+ </div>
+ <div>
+  <p class="eyebrow">買家席 ／ BUYERS ON FLOOR</p>
+  <p style="font-size:12px;color:#8B9A93">燈亮琥珀＝那家的手已經在按鈕上。右欄是他上一批的得標價，這是你唯一能看到的情報。</p>
+  <ul id="seats"></ul>
+ </div>
+</div>
+</section>
+
+<div class="bidbar">
+ <button id="bid" type="button">按　鐘</button>
+ <p class="bidhint">按下即成交，<b style="color:#F2F5F1">不得反悔、不得議價</b>。鍵盤按 <b class="num" style="color:#FFC61A">B</b> 也可以。<br>晚一格便宜 <span class="num">1%</span>，但可能整批已經是別人的。</p>
+ <p id="msg" role="status"></p>
+ <p style="font-family:var(--mono);font-size:10.5px;color:#5C6863;flex-basis:100%;margin-top:2px">計時是拍賣機制本身，關掉就不是拍賣了，因此無法暫停。不想被計時的話，<a href="lots.html">今日批次表</a>與<a href="rules.html">拍賣規則</a>是完整的靜態頁面，內容一樣多。</p>
+ <button class="btn ghost" id="reset" type="button" style="margin-left:auto">重新開場</button>
+</div>
+
+<div class="wrap">
+<p id="awaynote" hidden></p>
+<section class="two">
+ <div>
+  <p class="eyebrow">成交紀錄 ／ SALES LOG</p>
+  <table><thead><tr><th>批號</th><th>品項</th><th style="text-align:right">成交價</th><th>得標</th><th style="text-align:right">金額</th></tr></thead>
+  <tbody id="log"></tbody></table>
+ </div>
+ <div>
+  <p class="eyebrow">對帳單 ／ SETTLEMENT</p>
+  <div class="settle">
+   <div class="sgrid">
+    <div><b id="s_lots">0 / 0</b><span>得標 / 正式批數</span></div>
+    <div><b id="s_spend">$0</b><span>本場支出</span></div>
+    <div><b id="s_prem">—</b><span>平均溢價（vs 參考價）</span></div>
+    <div><b id="s_miss">—</b><span>空手率</span></div>
+   </div>
+   <p style="font-size:12.5px;color:#B9C4BF" id="s_note"></p>
+   <p style="font-family:var(--mono);font-size:10px;color:#5C6863;margin-top:8px">手續費 3.5% 與運費未計入本表。正式對帳單於 09:30 由承銷服務窗口列印。</p>
+  </div>
+ </div>
+</section>
+<hr class="rule">
+<section class="cols3">
+ <div><h3>為什麼是往下走</h3><p>往上喊價的拍賣，一批花要喊兩分鐘。北屯一個早上要出清四百多批、九點前全部得上車。降價鐘把「猶豫」變成有代價的事：你多想一秒，價格掉一格，同時有七個人跟你想同一件事。</p></div>
+ <div><h3>鐘沒有在等你</h3><p>你切到別的頁面時，這場拍賣照樣在跑。回來時你會看到自己錯過了哪幾批、被誰買走、多少錢。這不是懲罰，是這行的常態——凌晨三點二十分，人到場才算數。</p></div>
+ <div><h3>先按先得的代價</h3><p>怕買不到就早按，早按就買貴。所有承銷人一輩子都在這條線上來回。對帳單只做一件事：把你今天站在線的哪一邊，算成一個百分比給你看。</p></div>
+</section>
+<hr class="rule">
+<section>
+ <p class="eyebrow">下一步</p>
+ <p style="font-size:13.5px">看今天出的貨與行情帶：<a href="lots.html">今日批次表</a>　·　
+ 搞懂鐘位、代號與費用：<a href="rules.html">拍賣規則</a>　·　
+ 想拿買家證進場：<a href="market.html">市場與承銷</a></p>
+</section>
+</div>
+<noscript><div class="wrap"><p style="border:1px solid #FFC61A;color:#FFC61A;padding:12px;margin:16px 0">
+拍賣鐘需要 JavaScript 才能走。今天的批次、價格帶、拍賣規則與市場資訊都是靜態頁面，
+請直接看 <a href="lots.html">今日批次表</a> 與 <a href="rules.html">拍賣規則</a>。</p></div></noscript>
+</main>
+<footer><div class="in">
+<div><h4>市場</h4><p><b style="color:#F2F5F1">北屯花卉拍賣市場</b><br>台中市北屯區松竹路二段 388 號<br>拍賣場電話 04-2246-3157<br>承銷業務 04-2246-3160</p>
+<p style="margin-top:10px">開拍：週一・三・五 03:20（花材）／05:40（盆花）<br>清場：09:00　　週日休市</p></div>
+<div><h4>頁面</h4><ul><li><a href="index.html">拍賣場</a></li><li><a href="lots.html">今日批次</a></li><li><a href="rules.html">拍賣規則</a></li><li><a href="market.html">市場與承銷</a></li></ul></div>
+<div><h4>現場</h4><p>拍賣員　林進男<br>市場長　蔡秀桃<br>驗品組　邱文彬<br>承銷服務　簡淑貞</p></div>
+</div><p class="disclaim">本站為網頁設計風格範例。市場、承銷人、批號、成交價與所有交易紀錄皆為虛構示意，不代表任何真實市場行情。</p></footer>
+
+<script>
+/* ===== 花序排列構圖引擎 phyllotaxis-inflorescence =====
+   所有圖像皆由真實花序型態學規則程序生成，非描摹外形。
+   色彩僅用場內四色（白/琥珀/正紅/綠），差異由「排列結構」承擔而非顏色。 */
+function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){var a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var GOLD=137.507764;
+function pet(cx,cy,ang,len,wid,fill,op){
+  var r=ang*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
+  function P(u,v){return [(cx+u*c-v*s).toFixed(1),(cy+u*s+v*c).toFixed(1)].join(' ')}
+  return '<path d="M'+P(0,0)+' Q'+P(len*0.45,wid)+' '+P(len,0)+' Q'+P(len*0.45,-wid)+' '+P(0,0)+'Z" fill="'+fill+'" opacity="'+op+'"/>';
+}
+function stem(x1,y1,x2,y2,w){return '<path d="M'+x1+' '+y1+' Q'+((x1+x2)/2-2)+' '+((y1+y2)/2)+' '+x2+' '+y2+'" fill="none" stroke="#00A86B" stroke-width="'+w+'" stroke-linecap="round"/>'}
+/* 單一花：花瓣數 n、輪數 wh、以黃金角錯開 */
+function floret(cx,cy,rad,n,wh,fill,ctr){
+  var o='',k=0;
+  /* 小花在縮圖尺度下退化為單點：花序的辨識訊息在「排列」不在單朵花瓣 */
+  if(rad<4.8)return '<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+rad.toFixed(1)+'" fill="'+fill+'"/>'+
+    '<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(rad*0.34).toFixed(1)+'" fill="'+(ctr||'#FFC61A')+'"/>';
+  for(var w=wh-1;w>=0;w--){
+    var rr=rad*(0.55+0.45*(w+1)/wh), wid=rr*0.42;
+    for(var i=0;i<n;i++){ o+=pet(cx,cy,i*(360/n)+w*GOLD/2,rr,wid,fill,(0.55+0.45*(wh-w)/wh).toFixed(2)); k++; }
+  }
+  o+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(rad*0.2).toFixed(1)+'" fill="'+(ctr||'#FFC61A')+'"/>';
+  return o;
+}
+/* 各花序型 */
+var INFLOR={
+ /* 頭狀花序：黃金角 137.508° 排列的管狀花盤 + 舌狀花輪 */
+ capitulum:function(R,c1,c2){
+   var o=stem(50,120,50,72,3.4),i,n=Math.round(70+R()*45),ray=[13,21,34][Math.floor(R()*3)],disc=26;
+   for(i=0;i<ray;i++) o+=pet(50,60,i*360/ray+R()*3,30,7.5,c1,0.9);
+   for(i=0;i<ray;i++) o+=pet(50,60,i*360/ray+180/ray,22,5.5,c1,0.55);
+   for(i=0;i<n;i++){var t=i*GOLD*Math.PI/180,r=disc*Math.sqrt(i/n);
+     o+='<circle cx="'+(50+r*Math.cos(t)).toFixed(1)+'" cy="'+(60+r*Math.sin(t)).toFixed(1)+'" r="'+(1.5-0.7*r/disc).toFixed(1)+'" fill="'+c2+'"/>';}
+   return o;},
+ /* 單生花：同心花瓣輪，每輪以黃金角一半錯位 */
+ solitary:function(R,c1,c2){
+   var o=stem(50,120,50,74,3.6),i;
+   o+=pet(50,96,205,20,7,'#00A86B',.85)+pet(50,92,-25,18,6,'#00A86B',.85);
+   o+=floret(50,58,34,[5,8,13][Math.floor(R()*3)],4,c1,c2);
+   return o;},
+ /* 繖形花序：等長花梗自同一點放射 */
+ umbel:function(R,c1,c2){
+   var o=stem(50,120,50,78,3.2),k=Math.round(9+R()*6),i;
+   for(i=0;i<k;i++){var a=(-160+320*i/(k-1))*Math.PI/180,x=50+Math.sin(a)*36,y=72-Math.cos(a)*30;
+     o+='<path d="M50 78 Q'+((50+x)/2).toFixed(1)+' '+(y+8).toFixed(1)+' '+x.toFixed(1)+' '+y.toFixed(1)+'" fill="none" stroke="#00A86B" stroke-width="1.3"/>';
+     o+=floret(x,y,7.5,5,1,c1,c2);}
+   return o;},
+ /* 總狀花序：主軸 + 由下而上漸短的花梗，左右互生 */
+ raceme:function(R,c1,c2){
+   var o=stem(50,120,50,20,3.4),k=Math.round(5+R()*3),i;
+   for(i=0;i<k;i++){var y=104-i*(78/k),L=26-i*2.4,d=(i%2?1:-1);
+     o+='<path d="M50 '+y+' Q'+(50+d*L*0.5)+' '+(y-4)+' '+(50+d*L)+' '+(y-9)+'" fill="none" stroke="#00A86B" stroke-width="1.5"/>';
+     o+=floret(50+d*L,y-9,10-i*0.9,6,2,c1,c2);}
+   return o;},
+ /* 穗狀花序：無花梗，小花直接著生於主軸，下部先開 */
+ spike:function(R,c1,c2){
+   var o=stem(50,120,50,16,3.6),k=Math.round(9+R()*4),i;
+   for(i=0;i<k;i++){var y=108-i*(92/k),d=(i%2?1:-1),sz=11-i*0.75;
+     o+=pet(50,y,d>0?-8:188,sz*1.5,sz*0.55,c1,(1-i*0.05).toFixed(2));
+     o+='<circle cx="'+(50+d*sz*0.7).toFixed(1)+'" cy="'+y+'" r="'+(sz*0.22).toFixed(2)+'" fill="'+c2+'"/>';}
+   return o;},
+ /* 圓錐花序：主軸分枝，各分枝自成總狀 */
+ panicle:function(R,c1,c2){
+   var o=stem(50,120,50,22,3),k=Math.round(4+R()*2),i,j;
+   for(i=0;i<k;i++){var y=100-i*(76/k),d=(i%2?1:-1),L=30-i*4;
+     o+='<path d="M50 '+y+' Q'+(50+d*L*.6)+' '+(y-3)+' '+(50+d*L)+' '+(y-12)+'" fill="none" stroke="#00A86B" stroke-width="1.4"/>';
+     for(j=0;j<3;j++){var t=(j+1)/3,x=50+d*L*t,yy=y-12*t*t-2;o+=floret(x,yy,6.5-j*1.1,5,1,c1,c2);}}
+   return o;},
+ /* 聚繖花序：中央花先開，兩側各遞迴分枝（滿天星型） */
+ cyme:function(R,c1,c2){
+   var o=stem(50,120,50,86,2.6),parts=[];
+   (function br(x,y,a,L,dep){
+     if(dep<=0){parts.push(floret(x,y,4.2,5,1,c1,c2));return}
+     var r=a*Math.PI/180,x2=x+Math.cos(r)*L,y2=y-Math.sin(r)*L;
+     parts.push('<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="#00A86B" stroke-width="'+(dep*0.42).toFixed(2)+'"/>');
+     parts.push(floret(x2,y2,2.6,5,1,c1,c2));
+     br(x2,y2,a-30-R()*10,L*0.62,dep-1); br(x2,y2,a+30+R()*10,L*0.62,dep-1);
+   })(50,86,90,24,4);
+   return o+parts.join('');},
+ /* 肉穗花序：佛焰苞 + 密生小花的肉穗 */
+ spadix:function(R,c1,c2){
+   var o=stem(50,120,52,80,3.6),i;
+   o+='<path d="M52 80 C18 76 14 34 44 20 C58 13 74 24 76 44 C78 62 68 78 52 80Z" fill="'+c1+'" opacity=".92"/>';
+   o+='<path d="M52 80 C34 70 30 44 46 30" fill="none" stroke="#0B0D0C" stroke-width="1.1" opacity=".35"/>';
+   o+='<path d="M50 74 C50 60 54 40 62 26" fill="none" stroke="'+c2+'" stroke-width="7" stroke-linecap="round"/>';
+   for(i=0;i<46;i++){var t=i/45,x=50+(2+8*t)*1.5*t+2,y=74-48*t;
+     o+='<circle cx="'+(50+(t*13)).toFixed(1)+'" cy="'+(74-48*t).toFixed(1)+'" r="1.05" fill="#0B0D0C" opacity=".5"/>';}
+   return o;}
+};
+/* 品項 → 花序型與配色（顏色只取場內四色） */
+var SPECIES={
+ anth:{zh:'火鶴',type:'spadix',c1:'#E01B22',c2:'#FFC61A'},
+ onci:{zh:'文心蘭',type:'panicle',c1:'#FFC61A',c2:'#E01B22'},
+ eust:{zh:'洋桔梗',type:'cyme',c1:'#F2F5F1',c2:'#FFC61A'},
+ rose:{zh:'玫瑰',type:'solitary',c1:'#E01B22',c2:'#FFC61A'},
+ glad:{zh:'唐菖蒲',type:'spike',c1:'#E01B22',c2:'#F2F5F1'},
+ gyps:{zh:'滿天星',type:'cyme',c1:'#F2F5F1',c2:'#F2F5F1'},
+ chry:{zh:'大菊',type:'capitulum',c1:'#FFC61A',c2:'#E01B22'},
+ lily:{zh:'百合',type:'raceme',c1:'#F2F5F1',c2:'#FFC61A'},
+ sunf:{zh:'向日葵',type:'capitulum',c1:'#FFC61A',c2:'#0B0D0C'},
+ stat:{zh:'星辰花',type:'umbel',c1:'#F2F5F1',c2:'#FFC61A'}
+};
+/* 對外：以批號為種子，同批號恆得同一張圖 */
+function drawInflor(spKey,seedStr,px){
+  var sp=SPECIES[spKey]||SPECIES.rose,R=rng(fnv(seedStr+'|'+spKey));
+  var body=INFLOR[sp.type](R,sp.c1,sp.c2);
+  return '<svg class="inf" viewBox="0 0 100 124" width="'+px+'" height="'+Math.round(px*1.24)+'" role="img" aria-label="'+sp.zh+'（'+({capitulum:'頭狀花序',solitary:'單生花',umbel:'繖形花序',raceme:'總狀花序',spike:'穗狀花序',panicle:'圓錐花序',cyme:'聚繖花序',spadix:'肉穗花序'})[sp.type]+'）程序生成圖">'+body+'</svg>';
+}
+
+/* ===== 降價鐘拍賣引擎 =====
+   全場是 (種子, 起場時刻, 使用者按鐘紀錄) 的純函數：
+   離開頁面它照跑，回來時把你不在的那幾批重算出來給你看。 */
+var LOT_MS=21000, READY_MS=3000, TICK=150, TICKS=100, BUDGET=9000;
+var LOTDATA=[
+ ['A-01','anth','火鶴・大輪紅','特級','南投埔里',60],['A-02','chry','大菊・黃金','一級','彰化田尾',120],
+ ['A-03','rose','玫瑰・卡羅拉','特級','南投仁愛',45],['A-04','gyps','滿天星・雪紗','一級','雲林古坑',30],
+ ['A-05','onci','文心蘭・南西','特級','嘉義竹崎',50],['A-06','eust','洋桔梗・白雪','一級','台中新社',70],
+ ['A-07','glad','唐菖蒲・紅劍','二級','屏東九如',90],['A-08','lily','百合・西伯利亞','特級','南投埔里',36],
+ ['A-09','sunf','向日葵・大黃','一級','雲林古坑',80],['A-10','stat','星辰花・紫萼','二級','彰化田尾',110],
+ ['A-11','rose','玫瑰・黑魔術','特級','南投仁愛',40],['A-12','anth','火鶴・粉冠','一級','嘉義竹崎',55],
+ ['A-13','chry','大菊・白扇','特級','彰化田尾',100],['A-14','eust','洋桔梗・重瓣','特級','台中新社',48],
+ ['A-15','gyps','滿天星・千代','特級','雲林古坑',26],['A-16','glad','唐菖蒲・粉浪','一級','屏東九如',75],
+ ['A-17','onci','文心蘭・黃金雨','一級','嘉義竹崎',65],['A-18','lily','百合・香水','一級','南投埔里',44],
+ ['A-19','sunf','向日葵・無粉','特級','雲林古坑',60],['A-20','stat','星辰花・銀葉','一級','彰化田尾',95],
+ ['A-21','rose','玫瑰・茱麗葉','特級','南投仁愛',28],['A-22','chry','大菊・銅賞','二級','台中新社',130],
+ ['A-23','anth','火鶴・綠精靈','一級','嘉義竹崎',52],['A-24','eust','洋桔梗・香檳','一級','台中新社',66]
+];
+var BASEPRICE={anth:240,onci:180,eust:160,rose:300,glad:120,gyps:220,chry:90,lily:260,sunf:150,stat:110};
+var GRADEK={'特級':1.22,'一級':1.0,'二級':0.8};
+var BUYERS=[
+ {id:'07',nm:'金蘭花坊',ar:'台中西區',bias:1.02,r0:210,r1:380,bud:4200,part:.52,pref:['rose','eust'],st:'零售・出手穩'},
+ {id:'12',nm:'阿源花藝',ar:'豐原',bias:0.90,r0:260,r1:540,bud:3200,part:.48,pref:['chry','glad'],st:'零售・等便宜'},
+ {id:'19',nm:'大有婚禮',ar:'台中北區',bias:1.15,r0:175,r1:300,bud:4600,part:.40,pref:['rose','lily','gyps'],st:'婚宴・怕買不到'},
+ {id:'23',nm:'松竹通路',ar:'量販',bias:0.96,r0:240,r1:440,bud:5200,part:.46,pref:['chry','sunf'],st:'量販・吃量'},
+ {id:'31',nm:'立森花材',ar:'彰化',bias:1.05,r0:200,r1:360,bud:4400,part:.62,pref:['stat','gyps'],st:'批發・全品項'},
+ {id:'44',nm:'好日花店',ar:'太平',bias:0.88,r0:310,r1:620,bud:2400,part:.58,pref:['eust'],st:'小店・保守'},
+ {id:'52',nm:'中區花販',ar:'台中中區',bias:0.99,r0:230,r1:470,bud:3600,part:.55,pref:['glad','stat'],st:'雜貨・看價'},
+ {id:'66',nm:'東勢外銷',ar:'外銷倉',bias:1.10,r0:185,r1:320,bud:4800,part:.44,pref:['anth','onci'],st:'外銷・指定品項'}
+];
+function lotOf(i){
+  var d=LOTDATA[i%LOTDATA.length],fair=Math.round(BASEPRICE[d[1]]*GRADEK[d[3]]);
+  return {i:i,code:d[0],sp:d[1],nm:d[2],gr:d[3],org:d[4],qty:d[5],fair:fair,
+          start:Math.round(fair*1.9/5)*5,floor:Math.round(fair*0.42/5)*5};
+}
+function priceAt(L,k){var st=(L.start-L.floor)/TICKS;return Math.max(L.floor,Math.round(L.start-st*k))}
+/* 某一批中，每位承銷人的心理價與按鐘時刻（同種子恆同） */
+function plan(L,seed){
+  var out=[];
+  for(var b=0;b<BUYERS.length;b++){
+    var B=BUYERS[b],R=rng(fnv(seed+':'+L.i+':'+B.id));
+    var pf=B.pref.indexOf(L.sp)>=0?1.10:0.96;
+    /* 這批他要不要？沒有人每一批都要——偏好品項才會幾乎每批都進場 */
+    if(R()>=B.part*(pf>1?1.5:0.85)){out.push({b:b,t:null,tgt:0});continue}
+    var tgt=L.fair*B.bias*pf*(0.62+0.34*R());
+    if(tgt<L.floor){out.push({b:b,t:null,tgt:tgt});continue}
+    var st=(L.start-L.floor)/TICKS,k=Math.ceil((L.start-tgt)/st);
+    if(k<0)k=0; if(k>TICKS){out.push({b:b,t:null,tgt:tgt});continue}
+    out.push({b:b,t:READY_MS+k*TICK+Math.round(B.r0+(B.r1-B.r0)*R()),tgt:tgt,k:k});
+  }
+  return out;
+}
+/* 從第 0 批重算到第 n 批：回傳每批結果與各家累計 */
+function replay(S,upto){
+  var res=[],spent=0,bbud=BUYERS.map(function(B){return B.bud}),i,j;
+  for(i=0;i<=upto&&i<LOTDATA.length;i++){
+    var L=lotOf(i),P=plan(L,S.seed),best=null;
+    for(j=0;j<P.length;j++){
+      var p=P[j]; if(p.t===null)continue;
+      var k=Math.min(TICKS,Math.max(0,Math.round((p.t-READY_MS)/TICK))),pr=priceAt(L,k);
+      if(pr*L.qty/10>bbud[p.b])continue;
+      if(!best||p.t<best.t)best={t:p.t,b:p.b,k:k,pr:pr};
+    }
+    var up=S.presses[i],mine=false;
+    if(up!=null){
+      var uk=Math.min(TICKS,Math.max(0,Math.round((up-READY_MS)/TICK))),upr=priceAt(L,uk),cost=Math.round(upr*L.qty/10);
+      if(cost<=BUDGET-spent&&(!best||up<=best.t)){best={t:up,b:-1,k:uk,pr:upr};mine=true}
+    }
+    if(best){
+      var cst=Math.round(best.pr*L.qty/10);
+      if(mine){if(i>=2)spent+=cst;} else bbud[best.b]-=cst;   /* 前兩批為練習批，不扣額度也不列入對帳 */
+      res.push({i:i,L:L,win:best.b,price:best.pr,cost:cst,mine:mine,t:best.t});
+    }else res.push({i:i,L:L,win:null,price:L.floor,cost:0,mine:false,t:null});
+  }
+  return {res:res,spent:spent,bbud:bbud};
+}
+
+/* ===== 拍賣場 UI ===== */
+var SK='beitun.auction.v1';
+function loadS(){
+  try{var r=sessionStorage.getItem(SK);if(r){var o=JSON.parse(r);if(o&&o.t0)return o}}catch(e){}
+  var o={seed:'S'+Math.floor(Math.random()*1e9),t0:Date.now(),presses:{}};saveS(o);return o;
+}
+function saveS(o){try{sessionStorage.setItem(SK,JSON.stringify(o))}catch(e){}}
+var S=loadS(),$=function(id){return document.getElementById(id)};
+var hand=$('hand'),bulbs=[],i;
+for(i=0;i<TICKS;i++){
+  var a=(-90+i*3.6)*Math.PI/180,x=(50+Math.cos(a)*41).toFixed(2),y=(50+Math.sin(a)*41).toFixed(2);
+  var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','1.5');c.setAttribute('fill','#2E3833');
+  $('bulbs').appendChild(c);bulbs.push(c);
+}
+var seatEls=[];
+(function(){
+  var h='';
+  for(var b=0;b<BUYERS.length;b++){var B=BUYERS[b];
+    h+='<li class="seat" id="st'+b+'"><span class="lamp"></span><span class="sid num">'+B.id+'</span>'+
+       '<span class="snm">'+B.nm+'<em>'+B.ar+'・'+B.st+'</em></span><span class="sw num" id="sw'+b+'">—</span></li>';}
+  $('seats').innerHTML=h;
+  for(b=0;b<BUYERS.length;b++)seatEls.push($('st'+b));
+})();
+var curLi=-1,curPlan=null,curL=null,hist=null,resolved=null,logged={},lastK=-1,started=false;
+function fmt(n){return n.toLocaleString('en-US')}
+function rebuild(li){
+  hist=replay(S,li-1);
+  curL=lotOf(li);curPlan=plan(curL,S.seed);resolved=null;lastK=-1;
+  $('lotcode').textContent=curL.code;
+  $('lotname').textContent=curL.nm;
+  $('lotmeta').textContent=curL.gr+'　'+curL.org+(li<2?'　／　練習批・不扣額度、不列入對帳':'');
+  $('lotqty').textContent=curL.qty+' 把（'+curL.qty*10+' 支）';
+  $('lotfair').textContent='$'+curL.fair;
+  $('lotrange').textContent='$'+curL.start+' → $'+curL.floor;
+  $('inf').innerHTML=drawInflor(curL.sp,curL.code,132);
+  $('remain').textContent='$'+fmt(BUDGET-hist.spent);
+  drawLog();drawSettle();
+}
+function drawLog(){
+  var r=hist.res,h='',n=0;
+  for(var i=r.length-1;i>=0&&n<12;i--,n++){var x=r[i];
+    h+='<tr'+(x.mine?' class="mine"':'')+'><td class="num">'+x.L.code+(x.i<2?' <span class="tag t-dim">練</span>':'')+'</td><td>'+x.L.nm+'</td>'+
+       '<td class="n num">'+(x.win===null?'—':'$'+x.price)+'</td>'+
+       '<td>'+(x.win===null?'<span class="tag t-dim">流標</span>':(x.mine?'<span class="tag t-grn">你</span>':'<span class="tag t-dim">'+BUYERS[x.win].id+'　'+BUYERS[x.win].nm+'</span>'))+'</td>'+
+       '<td class="n num">'+(x.win===null?'—':fmt(x.cost))+'</td></tr>';
+  }
+  $('log').innerHTML=h||'<tr><td colspan="5" style="color:#8B9A93">尚無成交紀錄。</td></tr>';
+}
+function drawSettle(){
+  var r=hist.res,mine=[],prem=0,cnt=0,miss=0;
+  for(var i=0;i<r.length;i++){ if(r[i].i<2)continue; cnt++;
+    if(r[i].mine){mine.push(r[i]);prem+=(r[i].price/r[i].L.fair-1)} else miss++; }
+  var avg=mine.length?(prem/mine.length*100):0;
+  $('s_lots').textContent=mine.length+' / '+cnt;
+  $('s_spend').textContent='$'+fmt(hist.spent);
+  $('s_prem').textContent=mine.length?(avg>=0?'+':'')+avg.toFixed(1)+'%':'—';
+  $('s_miss').textContent=cnt?Math.round(miss/cnt*100)+'%':'—';
+  var m='';
+  if(!cnt)m='正式批次尚未開始。前兩批是練習批，不列入對帳。';
+  else if(!mine.length)m='整場空手。鐘掉到底價前你一次都沒按——在這裡「不買」也是一種成本，明天的貨不會比較便宜。';
+  else if(avg>12)m='買得到，但買貴了。溢價 '+avg.toFixed(1)+'%：你按得太早，鐘還在你負擔得起的區間裡繼續往下走。';
+  else if(avg<-6)m='撿到便宜 '+Math.abs(avg).toFixed(1)+'%。代價是空手率 '+Math.round(miss/cnt*100)+'%——同一招在婚宴檔期會讓你交不出貨。';
+  else m='溢價 '+avg.toFixed(1)+'%，在合理帶內。這是承銷人第一年會被要求做到的數字。';
+  $('s_note').textContent=m;
+}
+function setPhase(t,cls){var e=$('phase');e.textContent=t;e.className='phase '+cls}
+function press(){
+  if(!curL||resolved||curLi>=LOTDATA.length)return;
+  var tin=Date.now()-S.t0-curLi*LOT_MS;
+  if(tin<READY_MS){flash('還沒開拍——鐘還沒開始走。');return}
+  var k=Math.floor((tin-READY_MS)/TICK); if(k>=TICKS){flash('已經到底價，這批結束了。');return}
+  var cost=Math.round(priceAt(curL,k)*curL.qty/10);
+  if(cost>BUDGET-hist.spent){flash('額度不足：這批要 $'+fmt(cost)+'，你只剩 $'+fmt(BUDGET-hist.spent)+'。');return}
+  S.presses[curLi]=tin;saveS(S);
+}
+function flash(m){var e=$('msg');e.textContent=m;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},2600)}
+function tick(){
+  var el=Date.now()-S.t0,li=Math.floor(el/LOT_MS),tin=el-li*LOT_MS;
+  if(li>=LOTDATA.length){
+    if(curLi!==999){curLi=999;hist=replay(S,LOTDATA.length-1);drawLog();drawSettle();
+      setPhase('散場 CLOSED','p-dim');$('price').textContent='—';$('bid').disabled=true;
+      $('lotname').textContent='本場拍賣結束';$('lotcode').textContent='——';$('inf').innerHTML='';
+      $('awaynote').textContent='全部 24 批已拍完。按「重新開場」可再排一場新的批次。';$('awaynote').hidden=false;}
+    requestAnimationFrame(tick);return;
+  }
+  if(li!==curLi){
+    var jump=(curLi>=0&&li>curLi+1);
+    curLi=li;rebuild(li);
+    if(jump||(!started&&li>0)){
+      $('awaynote').textContent='拍賣鐘不等人：你不在畫面前的這段時間，A-01 到 '+lotOf(li-1).code+' 共 '+li+' 批已經拍完（其中你有出手的批次仍算數）。紀錄在下方。';
+      $('awaynote').hidden=false;
+    }
+    started=true;
+  }
+  var k=tin<READY_MS?-1:Math.min(TICKS,Math.floor((tin-READY_MS)/TICK));
+  /* 解算本批 */
+  if(!resolved){
+    var best=null,j;
+    for(j=0;j<curPlan.length;j++){var p=curPlan[j];if(p.t===null||p.t>tin)continue;
+      var kk=Math.min(TICKS,Math.max(0,Math.round((p.t-READY_MS)/TICK))),pr=priceAt(curL,kk);
+      if(pr*curL.qty/10>hist.bbud[p.b])continue;
+      if(!best||p.t<best.t)best={t:p.t,b:p.b,k:kk,pr:pr};}
+    var up=S.presses[curLi];
+    if(up!=null&&up<=tin){var uk=Math.min(TICKS,Math.max(0,Math.round((up-READY_MS)/TICK)));
+      var upr=priceAt(curL,uk);if(!best||up<=best.t)best={t:up,b:-1,k:uk,pr:upr};}
+    if(best)resolved=best;
+    else if(k>=TICKS)resolved={t:null,b:null,k:TICKS,pr:curL.floor};
+  }
+  /* 畫面 */
+  var showK=resolved?resolved.k:k;
+  if(showK!==lastK){
+    lastK=showK;
+    for(var i2=0;i2<TICKS;i2++){var c=bulbs[i2];
+      if(showK<0){c.setAttribute('fill','#2E3833');c.setAttribute('r','1.5')}
+      else if(i2<showK){c.setAttribute('fill','#E01B22');c.setAttribute('r','1.7');c.setAttribute('opacity','.55')}
+      else if(i2===showK){c.setAttribute('fill','#FFC61A');c.setAttribute('r','4.2');c.setAttribute('opacity','1')}
+      else {c.setAttribute('fill','#2E3833');c.setAttribute('r','1.5');c.setAttribute('opacity','1')}}
+    hand.setAttribute('transform','rotate('+(showK<0?0:showK*3.6)+' 50 50)');
+    hand.style.opacity=showK<0?'.25':'1';
+  }
+  if(resolved){
+    if(resolved.b===null){setPhase('流標 NO SALE','p-dim');$('price').textContent='$'+curL.floor;$('winner').textContent='無人出手，退回原供應戶。';}
+    else{setPhase(resolved.b===-1?'你得標 SOLD TO YOU':'成交 SOLD','p-'+(resolved.b===-1?'grn':'red'));
+      $('price').textContent='$'+resolved.pr;
+      $('winner').textContent=(resolved.b===-1?'承銷 88（你）':'承銷 '+BUYERS[resolved.b].id+'　'+BUYERS[resolved.b].nm)+'　　'+curL.qty+' 把 × $'+resolved.pr+' ＝ $'+fmt(Math.round(resolved.pr*curL.qty/10));}
+    $('bid').disabled=true;
+    if(!logged[curLi]){logged[curLi]=1;$('live').textContent=curL.code+' '+curL.nm+' '+(resolved.b===null?'流標':'以每把 '+resolved.pr+' 元成交');}
+  }else if(k<0){
+    setPhase('上台 READY','p-amb');$('price').textContent='$'+curL.start;$('winner').textContent='台車進場，驗品組覆核中。鐘 '+((READY_MS-tin)/1000).toFixed(1)+' 秒後開始走。';$('bid').disabled=true;
+  }else{
+    setPhase('開拍中 RUNNING','p-red');$('price').textContent='$'+priceAt(curL,k);
+    $('winner').textContent='鐘走到第 '+k+'／100 格。先按先得，按下即成交，不得反悔。';$('bid').disabled=false;
+  }
+  /* 買家席 */
+  var pnow=priceAt(curL,showK<0?0:showK);
+  for(var b=0;b<BUYERS.length;b++){
+    var e=seatEls[b],w='—',cl='seat';
+    var out=hist.bbud[b]<curL.floor*curL.qty/10;
+    if(resolved&&resolved.b===b){cl='seat won';w='$'+resolved.pr}
+    else if(out){cl='seat out'}
+    else{var pp=curPlan[b];
+      if(!resolved&&showK>=0&&pp&&pp.t!==null&&pnow<=pp.tgt*1.09)cl='seat lean';
+      var lastw=null;
+      for(var q=hist.res.length-1;q>=0;q--){if(hist.res[q].win===b){lastw='$'+hist.res[q].price;break}}
+      w=lastw||'—';}
+    if(e.className!==cl)e.className=cl;
+    var swe=$('sw'+b);if(swe.textContent!==w)swe.textContent=w;
+  }
+  $('clockread').textContent=(showK<0?0:showK)+'/100';
+  $('lotno').textContent=(li+1)+' / '+LOTDATA.length;
+  $('sesst').textContent=Math.floor(el/60000)+':'+('0'+Math.floor(el/1000)%60).slice(-2);
+  $('remain').textContent='$'+fmt(BUDGET-hist.spent);
+  requestAnimationFrame(tick);
+}
+$('bid').addEventListener('click',press);
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='b'||e.key==='B'){e.preventDefault();press()}
+});
+$('reset').addEventListener('click',function(){
+  try{sessionStorage.removeItem(SK)}catch(e){}
+  S=loadS();curLi=-1;logged={};started=false;$('awaynote').hidden=true;$('bid').disabled=false;
+});
+requestAnimationFrame(tick);
+
+</script>
+</body>
+</html>

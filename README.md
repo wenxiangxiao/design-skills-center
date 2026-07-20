@@ -106,6 +106,7 @@
 | 88 | [永石鑄字所 YONGSHI](sites/yongzi-foundry/index.html) | 中文字體鑄造所 | 字骨規格書 Skeleton-Spec | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 89 | [牧線工作站 DROVELINE](sites/droveline/index.html) | 牧羊犬訓練場 | 軌跡疊印風 Trace-Overlay | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 90 | [木理樹況檢測所 MULI](sites/muli-arbor/index.html) | 樹木風險評估事務所 | 木質斷層風 Xylem-Tomogram | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 91 | [北屯花卉拍賣市場 BEITUN](sites/beitun-bell/index.html) | 花卉批發拍賣市場 | 拍賣電光牌風 Auction-Board | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

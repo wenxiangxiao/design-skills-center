@@ -451,14 +451,69 @@ var BAG=(function(){
     clear:function(){write([]);}
   };
 })();
-/* 雕凹版點刻母題：以隱函數取樣，密度即調子 */
+/* 雕凹版點刻母題：隱函數場取樣，點密度即調子 */
+function seg(px,py,ax,ay,bx,by){
+  var vx=bx-ax,vy=by-ay,wx=px-ax,wy=py-ay,t=(wx*vx+wy*vy)/(vx*vx+vy*vy);
+  t=t<0?0:(t>1?1:t);
+  return Math.hypot(px-(ax+vx*t),py-(ay+vy*t));
+}
+function segT(px,py,ax,ay,bx,by){
+  var vx=bx-ax,vy=by-ay,wx=px-ax,wy=py-ay,t=(wx*vx+wy*vy)/(vx*vx+vy*vy);
+  return t<0?0:(t>1?1:t);
+}
 var MOTIFS=[
-  function(x,y){return Math.max(0,1-Math.abs(y-.62)*3.2)*(x>.2&&x<.8?1:0)+Math.max(0,1-Math.hypot(x-.5,y-.34)*3.4);}, /* 郵筒 */
-  function(x,y){return Math.max(0,1-Math.abs((x-.5)*(x-.5)*3.2+.28-y)*4.5)+Math.max(0,1-Math.abs(y-.74)*7);},          /* 山與地平 */
-  function(x,y){return Math.max(0,1-Math.hypot((x-.5)*1.15,(y-.5)*.9)*2.6)*(Math.sin(x*22)*.22+.85);},                  /* 圓形花草 */
-  function(x,y){return Math.max(0,1-Math.abs(x-.5)*5)*Math.max(0,1-Math.abs(y-.5)*2.4)+Math.max(0,1-Math.abs(y-.5+ (x-.5)*.5)*9);}, /* 書冊 */
-  function(x,y){return Math.max(0,1-Math.hypot(x-.5,(y-.46)*1.5)*3)*(y<.5?1:.35)+Math.max(0,1-Math.abs(y-.8)*8);},      /* 燈塔光 */
-  function(x,y){return Math.max(0,1-Math.abs((x-.5)*2.6+Math.sin(y*8)*.35)*3.6)*Math.max(0,1-Math.abs(y-.5)*1.8);}      /* 羽毛筆 */
+  /* 0 郵筒 */
+  function(x,y){
+    var v=0;
+    if(x>.34&&x<.66&&y>.30&&y<.82)v=.76;
+    if(Math.hypot(x-.5,(y-.32)*1.15)<.17)v=Math.max(v,.76);
+    if(x>.395&&x<.605&&y>.395&&y<.445)v=0;
+    if(((x>.355&&x<.425)||(x>.575&&x<.645))&&y>.82&&y<.90)v=Math.max(v,.66);
+    return v;
+  },
+  /* 1 山與地平 */
+  function(x,y){
+    var h=Math.max(0,1-Math.abs(y-.80)*24)*.85;
+    var m1=(y>.32+Math.abs(x-.38)*1.45&&y<.80)?.70:0;
+    var m2=(y>.44+Math.abs(x-.68)*1.55&&y<.80)?.52:0;
+    return Math.max(h,Math.max(m1,m2));
+  },
+  /* 2 花環 */
+  function(x,y){
+    var dx=x-.5,dy=y-.50,r=Math.hypot(dx,dy),a=Math.atan2(dy,dx);
+    var ring=Math.max(0,1-Math.abs(r-.31)*10)*.8;
+    var pet=Math.max(0,1-Math.abs(r-.15+.06*Math.cos(a*5))*8)*.75;
+    var stem=(y>.50&&y<.90&&Math.abs(x-.5)<.02)?.7:0;
+    return Math.max(ring,Math.max(pet,stem));
+  },
+  /* 3 書冊 */
+  function(x,y){
+    var tex=(Math.sin(y*52)>0?1:.42);
+    var spine=(y>.28&&y<.78&&Math.abs(x-.5)<.022)?.9:0;
+    var L=(x>.14&&x<.478&&y>.30+(x-.14)*.16&&y<.76-(x-.14)*.08)?.60*tex:0;
+    var R=(x>.522&&x<.86&&y>.30+(.86-x)*.16&&y<.76-(.86-x)*.08)?.60*tex:0;
+    return Math.max(spine,Math.max(L,R));
+  },
+  /* 4 燈塔 */
+  function(x,y){
+    var w=.075+(y-.24)*.14;
+    var tower=(y>.24&&y<.84&&Math.abs(x-.5)<w)?.72:0;
+    var lamp=(y>.13&&y<.24&&Math.abs(x-.5)<.085)?.85:0;
+    var base=(y>.82&&y<.90&&Math.abs(x-.5)<.27)?.68:0;
+    var bl=Math.max(0,1-Math.abs((y-.185)+(x-.5)*.5)*20)*(x<.36?.48:0);
+    var br=Math.max(0,1-Math.abs((y-.185)-(x-.5)*.5)*20)*(x>.64?.48:0);
+    return Math.max(Math.max(tower,lamp),Math.max(base,Math.max(bl,br)));
+  },
+  /* 5 羽毛筆 */
+  function(x,y){
+    var d=seg(x,y,.28,.84,.74,.22),t=segT(x,y,.28,.84,.74,.22);
+    var u=(t-.18)/.80,wid=u>0&&u<1?.155*Math.sin(Math.PI*u):0;
+    var comb=(Math.sin((x*.46-y*.62)*105)>0)?.66:.20;
+    var feather=d<wid?comb:0;
+    var shaft=Math.max(0,1-d*34)*.9;
+    var nib=t<.15?Math.max(0,1-d*18)*.85:0;
+    return Math.max(shaft,Math.max(feather,nib));
+  }
 ];
 function stipple(mi,size,ink,seed){
   var n=Math.round(size/3.1),o='',r,v,jx,jy,s=seed||1,f=MOTIFS[mi%MOTIFS.length];

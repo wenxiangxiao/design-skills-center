@@ -720,12 +720,18 @@ function stipple(mi,size,ink,seed){
     var dot=document.getElementById('bagdot');
     dot.style.display='';
     var from=i===0?START:order[i-1],to=order[i];
-    var seg=legPts(from,to);
-    if(reduce){dot.setAttribute('transform','translate('+to.x+' '+to.y+')');cb&&cb();return;}
+    var seg=legPts(from,to),ended=false;
+    function land(){
+      if(ended)return; ended=true;
+      dot.setAttribute('transform','translate('+to.x+' '+to.y+')');
+      cb&&cb();
+    }
+    if(reduce){land();return;}
     var lens=[],tot=0;
     for(var k=1;k<seg.length;k++){var L=Math.abs(seg[k][0]-seg[k-1][0])+Math.abs(seg[k][1]-seg[k-1][1]);lens.push(L);tot+=L;}
     var t0=performance.now(),dur=Math.max(420,Math.min(1500,tot*22));
     (function frame(now){
+      if(ended)return;
       var u=Math.min(1,(now-t0)/dur),want=u*tot,acc=0,x=seg[seg.length-1][0],y=seg[seg.length-1][1];
       for(var k=0;k<lens.length;k++){
         if(acc+lens[k]>=want){
@@ -736,8 +742,10 @@ function stipple(mi,size,ink,seed){
         acc+=lens[k];
       }
       dot.setAttribute('transform','translate('+x.toFixed(2)+' '+y.toFixed(2)+')');
-      if(u<1)timer=requestAnimationFrame(frame);else cb&&cb();
+      if(u<1)timer=requestAnimationFrame(frame);else land();
     })(t0);
+    /* 保險：分頁被切到背景時 rAF 會停擺，仍要讓巡場走完 */
+    setTimeout(land,dur+420);
   }
   function stepOnce(cb){
     if(doneN>=order.length){cb&&cb(true);return;}

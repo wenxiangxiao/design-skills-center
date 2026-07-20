@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老樹名錄｜木理樹況檢測所</title>
+<meta name="description" content="本所完成單斷面應力波檢測的 24 株列管老樹，可依縣市、樹種、判定等級、狀態與關鍵字篩選並排序。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%232A301B'/%3E%3Cg transform='translate(32,32)'%3E%3Ccircle r='25' fill='none' stroke='%23EDE6CE' stroke-width='2.4'/%3E%3Ccircle r='18' fill='none' stroke='%23EDE6CE' stroke-width='1.4' opacity='.55'/%3E%3Ccircle r='11' fill='none' stroke='%23EDE6CE' stroke-width='1.4' opacity='.4'/%3E%3Ccircle r='8' cx='-1' cy='2' fill='%23A93F30'/%3E%3Cline x1='-22' y1='-11' x2='19' y2='16' stroke='%23C6D45E' stroke-width='2.6'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bark:#3B4327; --deep:#2A301B; --sap:#EDE6CE; --sound:#C6D45E; --decay:#A93F30;
+  --ink:#1B1F12; --line:rgba(237,230,206,.20); --line2:rgba(237,230,206,.42);
+  --mono:'DM Mono',ui-monospace,Menlo,monospace;
+  --slab:'Zilla Slab',Georgia,'Noto Serif TC',serif;
+  --sans:'Noto Sans TC','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bark);color:var(--sap);font-family:var(--sans);font-size:15px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--sap)}
+h1,h2,h3{font-family:var(--slab);font-weight:700;line-height:1.24;margin:0}
+.mono{font-family:var(--mono);letter-spacing:.04em}
+.wrap{max-width:1200px;margin:0 auto;padding:0 26px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── ring-depth 年輪環導覽 ── */
+.ringnav{position:fixed;top:16px;right:16px;z-index:60;width:176px;height:176px}
+.ringnav svg{display:block;width:176px;height:176px}
+.ringnav a{outline:none}
+.ringnav .rg{fill:none;stroke:var(--line2);stroke-width:15;transition:stroke .16s linear}
+.ringnav a:hover .rg,.ringnav a:focus-visible .rg{stroke:var(--sap)}
+.ringnav a.cur .rg{stroke:var(--sound)}
+.ringnav .rt{font-family:var(--sans);font-weight:700;font-size:9.6px;letter-spacing:.34em;fill:var(--bark)}
+.ringnav a:hover .rt,.ringnav a:focus-visible .rt{fill:var(--ink)}
+.ringnav .hub{fill:var(--deep);stroke:var(--line2);stroke-width:1}
+.ringnav .hublab{font-family:var(--mono);font-size:8px;letter-spacing:.14em;fill:var(--sound);text-anchor:middle}
+.dock{display:none}
+
+/* ── head ── */
+.mast{border-bottom:1px solid var(--line);padding:22px 0 18px}
+.mast .wrap{display:flex;align-items:flex-end;gap:22px}
+.mast img{height:56px;width:auto}
+.mast .meta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:rgba(237,230,206,.6);
+  margin-left:auto;text-align:right;line-height:1.9;padding-right:190px}
+
+/* ── bench ── */
+.bench{padding:26px 0 8px}
+.benchgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.stage{background:var(--deep);border:1px solid var(--line2);padding:14px}
+.stagehd{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:rgba(237,230,206,.62);
+  border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:12px}
+.stagehd b{color:var(--sound);font-weight:500}
+#cv{display:block;width:100%;height:auto;background:#22280F;touch-action:none;cursor:crosshair}
+.layers{display:flex;gap:0;margin-top:12px;flex-wrap:wrap}
+.layers button{flex:1 1 auto;background:transparent;border:1px solid var(--line2);border-right:none;
+  color:var(--sap);font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:8px 4px;cursor:pointer;
+  transition:background .13s linear,color .13s linear}
+.layers button:last-child{border-right:1px solid var(--line2)}
+.layers button[aria-pressed="true"]{background:var(--sound);color:var(--ink)}
+.layers button:hover{background:rgba(198,212,94,.22)}
+.layers button[aria-pressed="true"]:hover{background:var(--sound)}
+
+/* ── panel ── */
+.panel{border:1px solid var(--line2);background:var(--deep)}
+.pblk{border-bottom:1px solid var(--line);padding:14px 15px}
+.pblk:last-child{border-bottom:none}
+.plab{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:rgba(237,230,206,.55);
+  text-transform:uppercase;margin:0 0 9px}
+select,input[type=text],input[type=email],input[type=tel],textarea{
+  width:100%;background:#22280F;border:1px solid var(--line2);color:var(--sap);
+  font-family:var(--sans);font-size:14px;padding:8px 9px;border-radius:0}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--sound);outline-offset:-2px}
+input[type=range]{width:100%;accent-color:var(--sound);background:transparent}
+.rowv{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:12px;
+  padding:2px 0;color:rgba(237,230,206,.7)}
+.rowv b{color:var(--sap);font-weight:500}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px}
+.sgrid button{background:#22280F;border:1px solid var(--line2);color:rgba(237,230,206,.72);
+  font-family:var(--mono);font-size:11px;padding:7px 2px;cursor:pointer;transition:.12s linear}
+.sgrid button.hit{background:var(--sound);border-color:var(--sound);color:var(--ink)}
+.sgrid button:hover{border-color:var(--sap);color:var(--sap)}
+.sgrid button.hit:hover{color:var(--ink)}
+.btn{display:block;width:100%;text-align:center;background:var(--sound);color:var(--ink);border:1px solid var(--sound);
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;padding:11px 8px;cursor:pointer;
+  transition:background .13s linear,color .13s linear;text-decoration:none;margin-top:8px}
+.btn:hover{background:transparent;color:var(--sound)}
+.btn.ghost{background:transparent;color:var(--sap);border-color:var(--line2)}
+.btn.ghost:hover{background:var(--sap);color:var(--ink);border-color:var(--sap)}
+
+/* ── readout ── */
+.readout{margin-top:22px;border:1px solid var(--line2)}
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr)}
+.rgrid div{padding:16px 18px;border-right:1px solid var(--line)}
+.rgrid div:last-child{border-right:none}
+.rgrid span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:rgba(237,230,206,.55)}
+.rgrid b{display:block;font-family:var(--slab);font-size:31px;font-weight:700;line-height:1.15;margin-top:5px}
+.rgrid em{display:block;font-style:normal;font-size:12px;color:rgba(237,230,206,.62);margin-top:2px}
+.verdict{border-top:1px solid var(--line2);padding:15px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;padding:5px 11px;border:1px solid currentColor}
+.v-low{color:var(--sound)} .v-mid{color:#D98E33} .v-high{color:#E2705E} .v-na{color:rgba(237,230,206,.5)}
+#vtext{font-size:14px;color:rgba(237,230,206,.86);flex:1 1 320px;min-width:0}
+
+/* ── report ── */
+#report{display:none;margin-top:20px;border:1px solid var(--sound);padding:20px 22px;background:var(--deep)}
+#report.on{display:block}
+#report h3{font-size:20px;margin-bottom:4px}
+.rptmeta{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--sound);margin-bottom:14px}
+.rpttab{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0 14px}
+.rpttab th,.rpttab td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}
+.rpttab th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:rgba(237,230,206,.6);font-weight:400;width:36%}
+.rptrec{margin:0;padding-left:19px}
+.rptrec li{margin-bottom:6px}
+
+/* ── prose ── */
+section.body{padding:56px 0;border-top:1px solid var(--line);margin-top:52px}
+.h2{font-size:clamp(26px,3.4vw,40px);letter-spacing:-.01em}
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--sound);margin:0 0 12px}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:34px}
+.cols2{display:grid;grid-template-columns:1.15fr .85fr;gap:46px;margin-top:30px}
+.cols3 h3{font-size:17px;margin-bottom:8px}
+.cols3 p,.cols2 p{margin:0 0 12px;color:rgba(237,230,206,.84)}
+.fig{border:1px solid var(--line);background:var(--deep);padding:12px}
+.fig svg{display:block;width:100%;height:auto}
+.figcap{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:rgba(237,230,206,.55);margin-top:8px;line-height:1.7}
+.itab{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:18px}
+.itab th,.itab td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left}
+.itab th{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:rgba(237,230,206,.58);font-weight:400}
+.itab td.k{font-family:var(--mono);color:var(--sound)}
+.note{font-size:12.5px;color:rgba(237,230,206,.55);line-height:1.8}
+
+footer{border-top:1px solid var(--line2);padding:44px 0 60px;margin-top:10px}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px}
+footer h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:rgba(237,230,206,.55);margin:0 0 12px;font-weight:400}
+footer ul{list-style:none;margin:0;padding:0;font-size:13.5px}
+footer li{margin-bottom:7px}
+footer a{text-decoration:none;border-bottom:1px solid var(--line)}
+footer a:hover{border-bottom-color:var(--sound);color:var(--sound)}
+.fine{font-size:12px;color:rgba(237,230,206,.45);margin-top:30px;line-height:1.85}
+.err{color:#E2705E;font-size:12.5px;font-family:var(--mono);min-height:17px;display:block;margin-top:3px}
+
+@media (max-width:1040px){
+  .benchgrid{grid-template-columns:1fr}
+  .mast .meta{padding-right:0}
+  .cols2{grid-template-columns:1fr;gap:28px}
+}
+@media (max-width:900px){
+  .ringnav{display:none}
+  .dock{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:70;grid-template-columns:repeat(4,1fr);
+    background:var(--deep);border-top:1px solid var(--line2)}
+  .dock a{display:block;text-align:center;padding:11px 2px 12px;text-decoration:none;
+    font-size:12px;border-right:1px solid var(--line);color:rgba(237,230,206,.75)}
+  .dock a:last-child{border-right:none}
+  .dock a.cur{background:var(--sound);color:var(--ink);font-weight:700}
+  .dock small{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;opacity:.65}
+  body{padding-bottom:60px}
+  .mast .wrap{flex-wrap:wrap;gap:12px}
+  .mast .meta{text-align:left;margin-left:0}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .rgrid{grid-template-columns:repeat(2,1fr)}
+  .rgrid div{border-bottom:1px solid var(--line)}
+  .cols3{grid-template-columns:1fr;gap:26px}
+  .sgrid{grid-template-columns:repeat(3,1fr)}
+  section.body{padding:40px 0;margin-top:36px}
+  .fgrid{grid-template-columns:1fr}
+  .mast img{height:46px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.001ms !important;animation-duration:.001ms !important}
+}
+</style>
+<style>
+.filters{border:1px solid var(--line2);background:var(--deep);padding:16px 18px;margin-top:26px;
+  display:grid;grid-template-columns:repeat(5,1fr) 1.3fr;gap:12px;align-items:end}
+.filters label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:rgba(237,230,206,.55);margin-bottom:5px}
+.fcount{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;
+  font-family:var(--mono);font-size:12px;color:rgba(237,230,206,.7);display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.fcount b{color:var(--sound);font-weight:500}
+.fcount button{background:transparent;border:1px solid var(--line2);color:var(--sap);
+  font-family:var(--mono);font-size:11px;padding:5px 12px;cursor:pointer}
+.fcount button:hover{background:var(--sap);color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:22px}
+.card{display:grid;grid-template-columns:104px 1fr;gap:14px;border:1px solid var(--line2);
+  background:var(--deep);padding:14px}
+.card.off{display:none}
+.cstamp svg{display:block;width:100%;height:auto;border:1px solid var(--line)}
+.cno{font-size:11px;letter-spacing:.16em;color:var(--sound);margin:0 0 3px}
+.card h3{font-size:18px;margin:0 0 3px}
+.card h3 span{font-family:var(--mono);font-size:10.5px;font-weight:400;color:rgba(237,230,206,.5);letter-spacing:.04em}
+.cloc{margin:0 0 9px;font-size:12.5px;color:rgba(237,230,206,.62)}
+.cdl{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 10px;margin:0 0 9px}
+.cdl div{border-top:1px solid var(--line);padding-top:4px}
+.cdl dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:rgba(237,230,206,.5)}
+.cdl dd{margin:1px 0 0;font-family:var(--mono);font-size:13px}
+.cnote{margin:0 0 9px;font-size:12.5px;color:rgba(237,230,206,.72)}
+.ctags{margin:0;display:flex;gap:8px}
+.ctags .tag{font-size:10px;padding:3px 8px}
+.empty{display:none;border:1px dashed var(--line2);padding:34px;text-align:center;
+  color:rgba(237,230,206,.6);margin-top:22px}
+.empty.on{display:block}
+@media(max-width:980px){.filters{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:520px){.card{grid-template-columns:1fr}.cstamp{max-width:96px}.cdl{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<nav class="ringnav" aria-label="年輪環導覽">
+<svg viewBox="0 0 176 176">
+  <defs>
+    <path id="p1" d="M 88 88 m -74,0 a 74,74 0 0 1 148,0" fill="none"/>
+    <path id="p2" d="M 88 88 m -57,0 a 57,57 0 0 1 114,0" fill="none"/>
+    <path id="p3" d="M 88 88 m -40,0 a 40,40 0 0 1 80,0" fill="none"/>
+    <path id="p4" d="M 88 88 m -23,0 a 23,23 0 0 1 46,0" fill="none"/>
+  </defs>
+  <a href="index.html"><title>檢測台</title><circle class="rg" cx="88" cy="88" r="74"/><text class="rt"><textPath href="#p1" startOffset="50%" text-anchor="middle">檢測台</textPath></text></a>
+  <a href="method.html"><title>判讀方法</title><circle class="rg" cx="88" cy="88" r="57"/><text class="rt"><textPath href="#p2" startOffset="50%" text-anchor="middle">判讀方法</textPath></text></a>
+  <a href="registry.html" class="cur" aria-current="page"><title>老樹名錄</title><circle class="rg" cx="88" cy="88" r="40"/><text class="rt"><textPath href="#p3" startOffset="50%" text-anchor="middle">老樹名錄</textPath></text></a>
+  <a href="service.html"><title>委託與收費</title><circle class="rg" cx="88" cy="88" r="23"/><text class="rt"><textPath href="#p4" startOffset="50%" text-anchor="middle">委託</textPath></text></a>
+  <circle class="hub" cx="88" cy="88" r="14"/>
+  <text class="hublab" x="88" y="91">MULI</text>
+</svg>
+</nav>
+<nav class="dock" aria-label="頁面導覽">
+  <a href="index.html">檢測台<small>BENCH</small></a>
+  <a href="method.html">判讀方法<small>METHOD</small></a>
+  <a href="registry.html" class="cur">老樹名錄<small>REGISTRY</small></a>
+  <a href="service.html">委託收費<small>SERVICE</small></a>
+</nav>
+
+<header class="mast">
+  <div class="wrap">
+    <a href="index.html" aria-label="木理樹況檢測所首頁"><img src="assets/logo.svg" alt="木理樹況檢測所"></a>
+    <p class="meta">台南市中西區府前路二段 118 巷 7 號<br>06-215-4471　週二–週六 09:00–17:30</p>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<section class="body" style="border-top:none;margin-top:0;padding-top:40px" aria-labelledby="h1">
+  <p class="kick">REGISTRY ／ 老樹名錄</p>
+  <h1 class="h2" id="h1">本所受理過的 24 株列管個體</h1>
+  <p class="lead" style="font-size:16px;max-width:64ch;margin-top:16px;color:rgba(237,230,206,.86)">
+    以下為 2025 年至今經本所完成單斷面應力波檢測的列管老樹。每一筆的 t/R 與劣化面積皆為當次檢測值，
+    不代表現況；判定第二、三級者列入追蹤，複測後數值會更新。左側方框為案件的年輪印記，
+    環寬由案號雜湊決定，用來在紙本報告上做視覺比對。
+  </p>
+
+  <form class="filters" id="ff" role="search" aria-label="名錄篩選">
+    <div><label for="f-city">縣市</label>
+      <select id="f-city"><option value="">全部</option><option value="TN">台南市</option><option value="CY">嘉義縣</option><option value="KH">高雄市</option></select></div>
+    <div><label for="f-sp">樹種</label>
+      <select id="f-sp"><option value="">全部</option><option value="刺桐">刺桐</option><option value="大葉欖仁">大葉欖仁</option><option value="樟樹">樟樹</option><option value="白千層">白千層</option><option value="芒果">芒果</option><option value="苦楝">苦楝</option><option value="茄苳">茄苳</option><option value="雨豆樹">雨豆樹</option><option value="鳳凰木">鳳凰木</option></select></div>
+    <div><label for="f-grade">判定等級</label>
+      <select id="f-grade"><option value="">全部</option><option value="1">第一級</option><option value="2">第二級</option><option value="3">第三級</option></select></div>
+    <div><label for="f-st">狀態</label>
+      <select id="f-st"><option value="">全部</option><option value="追蹤中">追蹤中</option><option value="待複測">待複測</option><option value="已結案">已結案</option></select></div>
+    <div><label for="f-sort">排序</label>
+      <select id="f-sort">
+        <option value="date">最近檢測日（新→舊）</option>
+        <option value="tr">最小 t/R（低→高）</option>
+        <option value="dbh">胸徑（大→小）</option>
+        <option value="age">推估樹齡（老→新）</option>
+        <option value="no">編號（A→Z）</option>
+      </select></div>
+    <div><label for="f-key">關鍵字</label>
+      <input id="f-key" type="text" placeholder="樹種、地點、備註…" autocomplete="off"></div>
+    <div class="fcount" style="grid-column:1/-1">
+      <span>符合 <b id="fn">24</b> / 24 筆</span>
+      <span id="fsum"></span>
+      <button type="button" id="freset">清除條件</button>
+    </div>
+  </form>
+
+  <div class="grid" id="grid">
+<article class="card" data-city="TN" data-sp="刺桐" data-grade="2" data-st="追蹤中"
+   data-tr="0.28" data-dbh="152" data-age="85" data-date="2026-02-11" data-no="TN-0823"
+   data-key="TN-0823 刺桐 Erythrina variegata 台南市佳里區延平路 舊截枝傷口未癒合">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="3.70" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="10.10" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="11.80" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="13.55" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="15.17" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="17.46" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="23.37" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="27.52" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.51" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.39" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0823</p>
+    <h3>刺桐　<span>Erythrina variegata</span></h3>
+    <p class="cloc">台南市佳里區延平路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>152 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>85 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.28</dd></div>
+      <div><dt>劣化面積</dt><dd>21.3%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-02-11</dd></div>
+    </dl>
+    <p class="cnote">舊截枝傷口未癒合</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="芒果" data-grade="1" data-st="追蹤中"
+   data-tr="0.51" data-dbh="159" data-age="134" data-date="2026-05-28" data-no="CY-0341"
+   data-key="CY-0341 芒果 Mangifera indica 嘉義縣梅山鄉太平 路面鋪設工程前評估">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="3.02" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="5.24" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="7.90" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="10.83" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="16.07" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="17.76" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="22.79" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="24.04" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.33" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="33.37" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0341</p>
+    <h3>芒果　<span>Mangifera indica</span></h3>
+    <p class="cloc">嘉義縣梅山鄉太平</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>159 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>134 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.51</dd></div>
+      <div><dt>劣化面積</dt><dd>11.3%</dd></div>
+      <div><dt>感測器</dt><dd>12 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-05-28</dd></div>
+    </dl>
+    <p class="cnote">路面鋪設工程前評估</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="芒果" data-grade="1" data-st="已結案"
+   data-tr="0.67" data-dbh="191" data-age="183" data-date="2025-11-27" data-no="KH-0688"
+   data-key="KH-0688 芒果 Mangifera indica 高雄市旗津區廟前路 鄰地開挖後樹勢衰弱">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="1.84" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="4.98" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="7.19" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="12.53" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="16.01" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="19.41" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="20.90" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="24.96" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.26" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="35.42" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0688</p>
+    <h3>芒果　<span>Mangifera indica</span></h3>
+    <p class="cloc">高雄市旗津區廟前路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>191 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>183 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.67</dd></div>
+      <div><dt>劣化面積</dt><dd>14.7%</dd></div>
+      <div><dt>感測器</dt><dd>10 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-11-27</dd></div>
+    </dl>
+    <p class="cnote">鄰地開挖後樹勢衰弱</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">已結案</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="刺桐" data-grade="1" data-st="已結案"
+   data-tr="0.43" data-dbh="138" data-age="207" data-date="2026-03-14" data-no="CY-0672"
+   data-key="CY-0672 刺桐 Erythrina variegata 嘉義縣朴子市文明路 颱風後主幹出現新裂縫">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="2.06" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="8.03" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="9.79" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="15.90" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="19.66" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="24.27" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="28.31" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="32.18" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="33.67" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="37.16" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0672</p>
+    <h3>刺桐　<span>Erythrina variegata</span></h3>
+    <p class="cloc">嘉義縣朴子市文明路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>138 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>207 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.43</dd></div>
+      <div><dt>劣化面積</dt><dd>8.7%</dd></div>
+      <div><dt>感測器</dt><dd>10 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-03-14</dd></div>
+    </dl>
+    <p class="cnote">颱風後主幹出現新裂縫</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">已結案</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="芒果" data-grade="3" data-st="追蹤中"
+   data-tr="0.16" data-dbh="197" data-age="144" data-date="2026-05-06" data-no="KH-0902"
+   data-key="KH-0902 芒果 Mangifera indica 高雄市美濃區中正路 移植後追蹤第三年">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="1.40" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="6.27" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="8.44" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="11.02" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="15.45" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="20.52" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="22.43" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.09" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="27.93" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.65" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0902</p>
+    <h3>芒果　<span>Mangifera indica</span></h3>
+    <p class="cloc">高雄市美濃區中正路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>197 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>144 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.16</dd></div>
+      <div><dt>劣化面積</dt><dd>26.9%</dd></div>
+      <div><dt>感測器</dt><dd>12 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-05-06</dd></div>
+    </dl>
+    <p class="cnote">移植後追蹤第三年</p>
+    <p class="ctags"><span class="tag v-high">第三級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="白千層" data-grade="2" data-st="追蹤中"
+   data-tr="0.31" data-dbh="74" data-age="176" data-date="2026-07-11" data-no="KH-0500"
+   data-key="KH-0500 白千層 Melaleuca leucadendra 高雄市六龜區新發 路面鋪設工程前評估">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="1.53" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="3.37" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="8.94" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="13.51" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="18.08" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="20.92" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.65" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="29.04" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.37" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="35.99" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0500</p>
+    <h3>白千層　<span>Melaleuca leucadendra</span></h3>
+    <p class="cloc">高雄市六龜區新發</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>74 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>176 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.31</dd></div>
+      <div><dt>劣化面積</dt><dd>26.8%</dd></div>
+      <div><dt>感測器</dt><dd>12 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-07-11</dd></div>
+    </dl>
+    <p class="cnote">路面鋪設工程前評估</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="白千層" data-grade="2" data-st="追蹤中"
+   data-tr="0.26" data-dbh="138" data-age="236" data-date="2026-02-27" data-no="CY-0622"
+   data-key="CY-0622 白千層 Melaleuca leucadendra 嘉義縣番路鄉公興 鄰地開挖後樹勢衰弱">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="5.25" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="9.62" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="12.47" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="16.27" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="17.45" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="22.86" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="24.14" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="27.19" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="31.34" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="35.36" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0622</p>
+    <h3>白千層　<span>Melaleuca leucadendra</span></h3>
+    <p class="cloc">嘉義縣番路鄉公興</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>138 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>236 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.26</dd></div>
+      <div><dt>劣化面積</dt><dd>14.8%</dd></div>
+      <div><dt>感測器</dt><dd>12 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-02-27</dd></div>
+    </dl>
+    <p class="cnote">鄰地開挖後樹勢衰弱</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="雨豆樹" data-grade="1" data-st="追蹤中"
+   data-tr="0.83" data-dbh="107" data-age="143" data-date="2026-07-08" data-no="CY-0789"
+   data-key="CY-0789 雨豆樹 Samanea saman 嘉義縣梅山鄉太平 路面鋪設工程前評估">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.53" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="9.19" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="11.19" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="15.58" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="18.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.80" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.65" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="31.24" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="33.19" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="36.56" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0789</p>
+    <h3>雨豆樹　<span>Samanea saman</span></h3>
+    <p class="cloc">嘉義縣梅山鄉太平</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>107 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>143 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.83</dd></div>
+      <div><dt>劣化面積</dt><dd>11.7%</dd></div>
+      <div><dt>感測器</dt><dd>10 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-07-08</dd></div>
+    </dl>
+    <p class="cnote">路面鋪設工程前評估</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="雨豆樹" data-grade="1" data-st="追蹤中"
+   data-tr="0.63" data-dbh="127" data-age="107" data-date="2026-07-25" data-no="KH-0293"
+   data-key="KH-0293 雨豆樹 Samanea saman 高雄市六龜區新發 例行三年期複檢">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.46" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="6.61" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="12.94" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="15.36" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="18.83" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.12" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.76" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="29.50" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="32.45" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="35.15" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0293</p>
+    <h3>雨豆樹　<span>Samanea saman</span></h3>
+    <p class="cloc">高雄市六龜區新發</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>127 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>107 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.63</dd></div>
+      <div><dt>劣化面積</dt><dd>10.8%</dd></div>
+      <div><dt>感測器</dt><dd>10 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-07-25</dd></div>
+    </dl>
+    <p class="cnote">例行三年期複檢</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="苦楝" data-grade="3" data-st="追蹤中"
+   data-tr="0.11" data-dbh="128" data-age="176" data-date="2026-03-23" data-no="KH-0409"
+   data-key="KH-0409 苦楝 Melia azedarach 高雄市旗津區廟前路 舊截枝傷口未癒合">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.50" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="8.37" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="9.77" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="15.41" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="19.65" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="22.95" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="25.28" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.82" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="32.38" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="35.13" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0409</p>
+    <h3>苦楝　<span>Melia azedarach</span></h3>
+    <p class="cloc">高雄市旗津區廟前路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>128 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>176 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.11</dd></div>
+      <div><dt>劣化面積</dt><dd>24.4%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-03-23</dd></div>
+    </dl>
+    <p class="cnote">舊截枝傷口未癒合</p>
+    <p class="ctags"><span class="tag v-high">第三級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="茄苳" data-grade="2" data-st="追蹤中"
+   data-tr="0.25" data-dbh="97" data-age="108" data-date="2025-05-09" data-no="KH-0466"
+   data-key="KH-0466 茄苳 Bischofia javanica 高雄市六龜區新發 路面鋪設工程前評估">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.24" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="7.58" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="11.89" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="14.88" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="20.21" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="21.72" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.39" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="29.87" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="33.26" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="36.25" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0466</p>
+    <h3>茄苳　<span>Bischofia javanica</span></h3>
+    <p class="cloc">高雄市六龜區新發</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>97 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>108 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.25</dd></div>
+      <div><dt>劣化面積</dt><dd>15.5%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-05-09</dd></div>
+    </dl>
+    <p class="cnote">路面鋪設工程前評估</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="TN" data-sp="大葉欖仁" data-grade="3" data-st="追蹤中"
+   data-tr="0.15" data-dbh="125" data-age="121" data-date="2026-02-02" data-no="TN-0505"
+   data-key="TN-0505 大葉欖仁 Terminalia catappa 台南市中西區南門路 舊截枝傷口未癒合">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="5.21" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="8.50" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="11.55" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="14.79" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="19.86" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="23.81" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="26.40" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.80" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="31.97" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="36.53" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0505</p>
+    <h3>大葉欖仁　<span>Terminalia catappa</span></h3>
+    <p class="cloc">台南市中西區南門路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>125 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>121 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.15</dd></div>
+      <div><dt>劣化面積</dt><dd>49.2%</dd></div>
+      <div><dt>感測器</dt><dd>12 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-02-02</dd></div>
+    </dl>
+    <p class="cnote">舊截枝傷口未癒合</p>
+    <p class="ctags"><span class="tag v-high">第三級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="TN" data-sp="刺桐" data-grade="3" data-st="追蹤中"
+   data-tr="0.23" data-dbh="194" data-age="231" data-date="2025-03-26" data-no="TN-0631"
+   data-key="TN-0631 刺桐 Erythrina variegata 台南市新化區中正路 舊截枝傷口未癒合">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="6.24" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="11.05" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="13.28" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="18.24" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="22.81" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="25.05" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="27.50" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.24" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.75" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="35.67" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0631</p>
+    <h3>刺桐　<span>Erythrina variegata</span></h3>
+    <p class="cloc">台南市新化區中正路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>194 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>231 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.23</dd></div>
+      <div><dt>劣化面積</dt><dd>40.1%</dd></div>
+      <div><dt>感測器</dt><dd>10 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-03-26</dd></div>
+    </dl>
+    <p class="cnote">舊截枝傷口未癒合</p>
+    <p class="ctags"><span class="tag v-high">第三級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="TN" data-sp="樟樹" data-grade="1" data-st="追蹤中"
+   data-tr="0.54" data-dbh="150" data-age="183" data-date="2026-07-27" data-no="TN-0732"
+   data-key="TN-0732 樟樹 Cinnamomum camphora 台南市新化區中正路 校方申請活動使用前健檢">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.24" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="8.59" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="14.12" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="17.22" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.08" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.35" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="27.76" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.26" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="35.47" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="36.92" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0732</p>
+    <h3>樟樹　<span>Cinnamomum camphora</span></h3>
+    <p class="cloc">台南市新化區中正路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>150 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>183 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.54</dd></div>
+      <div><dt>劣化面積</dt><dd>15.4%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-07-27</dd></div>
+    </dl>
+    <p class="cnote">校方申請活動使用前健檢</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="TN" data-sp="鳳凰木" data-grade="2" data-st="追蹤中"
+   data-tr="0.27" data-dbh="173" data-age="153" data-date="2025-03-03" data-no="TN-0444"
+   data-key="TN-0444 鳳凰木 Delonix regia 台南市佳里區延平路 颱風後主幹出現新裂縫">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="3.44" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="5.97" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="7.74" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="15.04" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="16.89" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="19.51" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.23" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="27.97" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.84" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.30" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0444</p>
+    <h3>鳳凰木　<span>Delonix regia</span></h3>
+    <p class="cloc">台南市佳里區延平路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>173 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>153 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.27</dd></div>
+      <div><dt>劣化面積</dt><dd>14.7%</dd></div>
+      <div><dt>感測器</dt><dd>10 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-03-03</dd></div>
+    </dl>
+    <p class="cnote">颱風後主幹出現新裂縫</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="樟樹" data-grade="1" data-st="待複測"
+   data-tr="0.71" data-dbh="135" data-age="122" data-date="2025-06-04" data-no="CY-0719"
+   data-key="CY-0719 樟樹 Cinnamomum camphora 嘉義縣大林鎮中山路 鄰地開挖後樹勢衰弱">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.78" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="6.50" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="12.02" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="14.85" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="17.81" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.27" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="23.75" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="25.84" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="27.93" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="33.70" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0719</p>
+    <h3>樟樹　<span>Cinnamomum camphora</span></h3>
+    <p class="cloc">嘉義縣大林鎮中山路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>135 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>122 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.71</dd></div>
+      <div><dt>劣化面積</dt><dd>11.1%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-06-04</dd></div>
+    </dl>
+    <p class="cnote">鄰地開挖後樹勢衰弱</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">待複測</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="刺桐" data-grade="2" data-st="追蹤中"
+   data-tr="0.31" data-dbh="133" data-age="232" data-date="2025-11-18" data-no="CY-0144"
+   data-key="CY-0144 刺桐 Erythrina variegata 嘉義縣番路鄉公興 舊截枝傷口未癒合">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="5.59" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="7.92" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="13.63" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="16.10" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="20.48" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="22.28" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="23.83" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="27.94" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="31.87" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.03" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0144</p>
+    <h3>刺桐　<span>Erythrina variegata</span></h3>
+    <p class="cloc">嘉義縣番路鄉公興</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>133 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>232 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.31</dd></div>
+      <div><dt>劣化面積</dt><dd>23.2%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-11-18</dd></div>
+    </dl>
+    <p class="cnote">舊截枝傷口未癒合</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="茄苳" data-grade="1" data-st="追蹤中"
+   data-tr="0.59" data-dbh="100" data-age="67" data-date="2025-01-27" data-no="KH-0347"
+   data-key="KH-0347 茄苳 Bischofia javanica 高雄市旗津區廟前路 移植後追蹤第三年">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="3.70" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="6.06" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="9.75" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="11.78" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="17.02" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="20.68" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="23.21" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="25.62" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.57" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="36.71" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0347</p>
+    <h3>茄苳　<span>Bischofia javanica</span></h3>
+    <p class="cloc">高雄市旗津區廟前路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>100 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>67 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.59</dd></div>
+      <div><dt>劣化面積</dt><dd>6.2%</dd></div>
+      <div><dt>感測器</dt><dd>8 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-01-27</dd></div>
+    </dl>
+    <p class="cnote">移植後追蹤第三年</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="TN" data-sp="白千層" data-grade="1" data-st="已結案"
+   data-tr="0.56" data-dbh="147" data-age="177" data-date="2025-03-09" data-no="TN-0782"
+   data-key="TN-0782 白千層 Melaleuca leucadendra 台南市新化區中正路 舊截枝傷口未癒合">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="3.79" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="6.64" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="11.65" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="16.59" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="20.60" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="22.39" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="25.27" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.80" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="31.61" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.76" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0782</p>
+    <h3>白千層　<span>Melaleuca leucadendra</span></h3>
+    <p class="cloc">台南市新化區中正路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>147 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>177 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.56</dd></div>
+      <div><dt>劣化面積</dt><dd>2.7%</dd></div>
+      <div><dt>感測器</dt><dd>8 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-03-09</dd></div>
+    </dl>
+    <p class="cnote">舊截枝傷口未癒合</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">已結案</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="白千層" data-grade="3" data-st="追蹤中"
+   data-tr="0.24" data-dbh="186" data-age="188" data-date="2026-07-10" data-no="CY-0730"
+   data-key="CY-0730 白千層 Melaleuca leucadendra 嘉義縣民雄鄉興中村 颱風後主幹出現新裂縫">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="4.18" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="8.58" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="12.71" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="17.66" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="20.87" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="24.83" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="27.77" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.41" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.90" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.16" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0730</p>
+    <h3>白千層　<span>Melaleuca leucadendra</span></h3>
+    <p class="cloc">嘉義縣民雄鄉興中村</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>186 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>188 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.24</dd></div>
+      <div><dt>劣化面積</dt><dd>44.3%</dd></div>
+      <div><dt>感測器</dt><dd>12 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-07-10</dd></div>
+    </dl>
+    <p class="cnote">颱風後主幹出現新裂縫</p>
+    <p class="ctags"><span class="tag v-high">第三級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="TN" data-sp="苦楝" data-grade="2" data-st="追蹤中"
+   data-tr="0.32" data-dbh="174" data-age="60" data-date="2025-05-24" data-no="TN-0089"
+   data-key="TN-0089 苦楝 Melia azedarach 台南市佳里區延平路 例行三年期複檢">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="1.22" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="5.98" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="9.35" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="14.40" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="18.36" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="23.78" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="26.80" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.13" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="32.30" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="33.72" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">TN-0089</p>
+    <h3>苦楝　<span>Melia azedarach</span></h3>
+    <p class="cloc">台南市佳里區延平路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>174 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>60 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.32</dd></div>
+      <div><dt>劣化面積</dt><dd>16.7%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-05-24</dd></div>
+    </dl>
+    <p class="cnote">例行三年期複檢</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="刺桐" data-grade="1" data-st="待複測"
+   data-tr="0.71" data-dbh="140" data-age="113" data-date="2025-05-17" data-no="CY-0131"
+   data-key="CY-0131 刺桐 Erythrina variegata 嘉義縣大林鎮中山路 路面鋪設工程前評估">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="2.74" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="7.14" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="8.23" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="13.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="16.44" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.50" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="24.48" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="29.25" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="31.54" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.55" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0131</p>
+    <h3>刺桐　<span>Erythrina variegata</span></h3>
+    <p class="cloc">嘉義縣大林鎮中山路</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>140 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>113 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.71</dd></div>
+      <div><dt>劣化面積</dt><dd>10.6%</dd></div>
+      <div><dt>感測器</dt><dd>16 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-05-17</dd></div>
+    </dl>
+    <p class="cnote">路面鋪設工程前評估</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">待複測</span></p>
+  </div>
+</article>
+<article class="card" data-city="KH" data-sp="鳳凰木" data-grade="2" data-st="追蹤中"
+   data-tr="0.29" data-dbh="160" data-age="93" data-date="2025-04-21" data-no="KH-0487"
+   data-key="KH-0487 鳳凰木 Delonix regia 高雄市岡山區壽天里 校方申請活動使用前健檢">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="2.31" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="7.27" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="10.81" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="16.44" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="18.45" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.15" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="24.90" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="27.56" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="30.60" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="35.29" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">KH-0487</p>
+    <h3>鳳凰木　<span>Delonix regia</span></h3>
+    <p class="cloc">高雄市岡山區壽天里</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>160 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>93 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.29</dd></div>
+      <div><dt>劣化面積</dt><dd>26.5%</dd></div>
+      <div><dt>感測器</dt><dd>8 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2025-04-21</dd></div>
+    </dl>
+    <p class="cnote">校方申請活動使用前健檢</p>
+    <p class="ctags"><span class="tag v-mid">第二級</span><span class="tag v-na">追蹤中</span></p>
+  </div>
+</article>
+<article class="card" data-city="CY" data-sp="苦楝" data-grade="1" data-st="待複測"
+   data-tr="0.81" data-dbh="96" data-age="215" data-date="2026-03-09" data-no="CY-0098"
+   data-key="CY-0098 苦楝 Melia azedarach 嘉義縣竹崎鄉內埔 鄰地開挖後樹勢衰弱">
+  <div class="cstamp"><svg viewBox="0 0 88 88" role="img" aria-label="年輪印記"><rect width="88" height="88" fill="#22280F"/><circle cx="44.0" cy="44.0" r="2.88" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="5.80" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="10.27" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="15.24" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="18.50" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="21.38" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="24.32" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="26.50" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="28.77" fill="none" stroke="#EDE6CE" stroke-width="0.8" opacity="0.50"/><circle cx="44.0" cy="44.0" r="34.57" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="39.00" fill="none" stroke="#EDE6CE" stroke-width="1.6" opacity="0.85"/><circle cx="44.0" cy="44.0" r="2.2" fill="#A93F30"/></svg></div>
+  <div class="cbody">
+    <p class="cno mono">CY-0098</p>
+    <h3>苦楝　<span>Melia azedarach</span></h3>
+    <p class="cloc">嘉義縣竹崎鄉內埔</p>
+    <dl class="cdl">
+      <div><dt>胸徑</dt><dd>96 cm</dd></div>
+      <div><dt>推估樹齡</dt><dd>215 年</dd></div>
+      <div><dt>最小 t/R</dt><dd>0.81</dd></div>
+      <div><dt>劣化面積</dt><dd>10.2%</dd></div>
+      <div><dt>感測器</dt><dd>8 顆</dd></div>
+      <div><dt>最近檢測</dt><dd>2026-03-09</dd></div>
+    </dl>
+    <p class="cnote">鄰地開挖後樹勢衰弱</p>
+    <p class="ctags"><span class="tag v-low">第一級</span><span class="tag v-na">待複測</span></p>
+  </div>
+</article>
+  </div>
+  <p class="empty" id="empty">沒有符合條件的個體。請放寬條件，或來電 06-215-4471 詢問是否有未上線的案件。</p>
+
+  <p class="note" style="margin-top:30px">
+    名錄僅收錄委託人同意公開的案件，實際受理量高於此數。個體編號依縣市列管系統編定；
+    本頁所有資料為虛構示意，不對應任何真實受保護樹木。
+  </p>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <h4>MULI TREE DIAGNOSTICS</h4>
+        <p style="margin:0 0 8px">木理樹況檢測所<br>台南市中西區府前路二段 118 巷 7 號</p>
+        <p class="mono" style="margin:0;font-size:13px">06-215-4471</p>
+      </div>
+      <div>
+        <h4>頁面</h4>
+        <ul>
+          <li><a href="index.html">檢測台</a></li>
+          <li><a href="method.html">判讀方法</a></li>
+          <li><a href="registry.html">老樹名錄</a></li>
+          <li><a href="service.html">委託與收費</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>服務時間</h4>
+        <ul>
+          <li>週二–週六　09:00–17:30</li>
+          <li>週日、週一　休</li>
+          <li>颱風後急件　另行排程</li>
+        </ul>
+      </div>
+    </div>
+    <p class="fine">
+      本站為網頁設計風格範例，機構名稱、人名、地址、電話、價格、樹木列管編號與檢測數據均為虛構示意，
+      不對應任何真實單位或個體。檢測台為教學用簡化模型：採直線射線假設，未計入波的繞射、木材的正交異向性
+      與含水率影響，數值不等同實地儀器量測結果，不得作為任何樹木風險評估之依據。
+    </p>
+  </div>
+</footer>
+<script>
+(function(){
+"use strict";
+var grid=document.getElementById("grid"),
+    cards=Array.prototype.slice.call(grid.querySelectorAll(".card")),
+    ids=["f-city","f-sp","f-grade","f-st","f-sort","f-key"],
+    el={};
+ids.forEach(function(i){el[i]=document.getElementById(i);});
+function apply(){
+  var c=el["f-city"].value,s=el["f-sp"].value,g=el["f-grade"].value,st=el["f-st"].value,
+      k=el["f-key"].value.trim().toLowerCase(),n=0,shown=[];
+  cards.forEach(function(x){
+    var ok=(!c||x.dataset.city===c)&&(!s||x.dataset.sp===s)&&(!g||x.dataset.grade===g)&&
+           (!st||x.dataset.st===st)&&(!k||x.dataset.key.toLowerCase().indexOf(k)>=0);
+    x.classList.toggle("off",!ok);
+    if(ok){n++;shown.push(x);}
+  });
+  document.getElementById("fn").textContent=n;
+  document.getElementById("empty").classList.toggle("on",n===0);
+  var sm="";
+  if(n){
+    var t=0,d=0,g3=0;
+    shown.forEach(function(x){t+=parseFloat(x.dataset.tr);d+=parseInt(x.dataset.dbh,10);
+      if(x.dataset.grade==="3")g3++;});
+    sm="平均最小 t/R "+(t/n).toFixed(2)+"　平均胸徑 "+Math.round(d/n)+" cm　第三級 "+g3+" 株";
+  }
+  document.getElementById("fsum").textContent=sm;
+  var mode=el["f-sort"].value;
+  var sorted=cards.slice().sort(function(a,b){
+    if(mode==="tr")return parseFloat(a.dataset.tr)-parseFloat(b.dataset.tr);
+    if(mode==="dbh")return parseInt(b.dataset.dbh,10)-parseInt(a.dataset.dbh,10);
+    if(mode==="age")return parseInt(b.dataset.age,10)-parseInt(a.dataset.age,10);
+    if(mode==="no")return a.dataset.no<b.dataset.no?-1:1;
+    return a.dataset.date<b.dataset.date?1:-1;
+  });
+  sorted.forEach(function(x){grid.appendChild(x);});
+}
+ids.forEach(function(i){
+  el[i].addEventListener(i==="f-key"?"input":"change",apply);
+});
+document.getElementById("freset").addEventListener("click",function(){
+  ids.forEach(function(i){el[i].value=i==="f-sort"?"date":"";});apply();
+});
+document.getElementById("ff").addEventListener("submit",function(e){e.preventDefault();});
+apply();
+})();
+</script>
+</body>
+</html>

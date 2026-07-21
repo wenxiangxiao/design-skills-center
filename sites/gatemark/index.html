@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>修復檯｜剪口玩具修復所 GATEMARK</title>
+<meta name="description" content="新莊剪口玩具修復所・首頁是一整框還沒剪下的零件；接手一件舊玩具，決定動哪幾道工序、用什麼順序動——沒有還原鍵。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23171310'/%3E%3Cg fill='none' stroke='%23EFE3C6' stroke-width='2.6'%3E%3Cpath d='M6 5h20v22H6z'/%3E%3Cpath d='M16 5v22'/%3E%3C/g%3E%3Crect x='8.5' y='9' width='6' height='6' fill='%232FB39B'/%3E%3Crect x='8.5' y='19' width='6' height='6' fill='%23EFE3C6'/%3E%3Cpath d='M18 12h4' stroke='%23E8781F' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--ivory);
+ font-family:"Noto Sans TC","Helvetica Neue",sans-serif;font-weight:400;
+ font-size:16px;line-height:1.78;letter-spacing:.01em;
+ -webkit-font-smoothing:antialiased}
+:root{
+ --ink:#171310; --bench:#241C16; --bench2:#31251A;
+ --ivory:#EFE3C6; --dim:#9C8C74; --teal:#2FB39B; --orange:#E8781F;
+ --line:rgba(239,227,198,.17); --line2:rgba(239,227,198,.34);
+ --mono:"IBM Plex Mono",ui-monospace,monospace;
+ --disp:"Archivo Black","Noto Sans TC",sans-serif;
+}
+img,svg{max-width:100%}
+a{color:var(--ivory);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--teal)}
+h1,h2,h3,h4{font-weight:900;line-height:1.14;letter-spacing:-.01em;margin:0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:-.02em;line-height:.92}
+
+/* ---- 外框：非置中、左重右輕的不對稱骨架 ---- */
+.wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.slab{border-top:2px solid var(--line2);margin-top:0}
+.sec{padding:74px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:26px}
+.c7{grid-column:span 7}.c5{grid-column:span 5}.c6{grid-column:span 6}
+.c4{grid-column:span 4}.c8{grid-column:span 8}.c12{grid-column:span 12}
+.c3{grid-column:span 3}
+.off1{grid-column-start:2}
+
+/* ---- 站頭 ---- */
+.top{display:flex;align-items:flex-end;gap:20px;padding:22px 0 18px;flex-wrap:wrap}
+.brandline{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
+.brandline svg{width:40px;height:44px;flex:0 0 auto}
+.bn{font-weight:900;font-size:19px;letter-spacing:.04em;line-height:1.1}
+.be{font-family:var(--disp);font-size:11px;letter-spacing:.3em;color:var(--teal);text-transform:uppercase}
+.topmeta{margin-left:auto;text-align:right}
+
+/* ---- gate-snip 剪口導覽（桌機右側固定） ---- */
+.gnav{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:60;
+ background:rgba(23,19,16,.9);border:1px solid var(--line);padding:10px 8px 8px}
+.gnav .gt{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--dim);
+ text-align:center;margin-bottom:6px;text-transform:uppercase}
+.gnav a{display:block;text-decoration:none}
+.gnav svg{display:block}
+.gpart{cursor:pointer}
+.gpart .body{fill:var(--bench2);stroke:var(--ivory);stroke-width:2.2;
+ transition:transform .42s cubic-bezier(.2,.9,.25,1),fill .2s}
+.gpart:hover .body,.gpart:focus-visible .body{fill:#3B2C1E}
+.gpart .cap{font-family:var(--mono);font-size:8.5px;fill:var(--ivory);letter-spacing:.06em}
+.gpart.cut .body{fill:var(--ivory);stroke:var(--ivory)}
+.gpart.cut .cap{fill:var(--ink);font-weight:600}
+.gnav .snip{stroke:var(--orange);stroke-width:3;stroke-linecap:butt}
+.navfoot{display:none}
+@media (min-width:901px){body{padding-right:120px}}
+
+/* ---- 頁尾 ---- */
+footer{border-top:2px solid var(--line2);margin-top:88px;padding:34px 0 60px;color:var(--dim);font-size:14px}
+footer a{color:var(--ivory);text-decoration:none;border-bottom:1px solid var(--line2)}
+.fgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+.flinks{display:flex;flex-wrap:wrap;gap:10px 22px}
+
+/* ---- 元件 ---- */
+.rule{height:0;border-top:1px solid var(--line);margin:22px 0}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+ text-transform:uppercase;border:1px solid var(--line2);padding:3px 8px;color:var(--dim)}
+.tag.on{border-color:var(--teal);color:var(--teal)}
+.tag.warn{border-color:var(--orange);color:var(--orange)}
+.btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+ background:var(--ivory);color:var(--ink);border:0;padding:12px 20px;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--teal)}
+.btn.ghost{background:transparent;color:var(--ivory);border:1px solid var(--line2)}
+.btn.ghost:hover{color:var(--teal);border-color:var(--teal);background:transparent}
+.btn:disabled{opacity:.34;cursor:not-allowed}
+.panel{background:var(--bench);border:1px solid var(--line);padding:22px}
+.panel.hard{border:2px solid var(--line2)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:500}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.note{font-size:13.5px;color:var(--dim);line-height:1.7}
+ul.plain{list-style:none;padding:0;margin:0}
+ul.plain li{padding-left:18px;position:relative;margin-bottom:9px}
+ul.plain li:before{content:"";position:absolute;left:0;top:.72em;width:9px;height:2px;background:var(--teal)}
+
+@media (max-width:900px){
+ .grid{gap:18px}
+ .c7,.c5,.c6,.c4,.c8,.c3{grid-column:span 12}
+ .off1{grid-column-start:auto}
+ .gnav{position:static;transform:none;display:none}
+ .navfoot{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line2);
+  position:sticky;bottom:0;z-index:60;border-top:2px solid var(--line2)}
+ .navfoot a{background:var(--ink);padding:11px 4px;text-align:center;text-decoration:none;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--dim)}
+ .navfoot a[aria-current]{background:var(--ivory);color:var(--ink);font-weight:600}
+ .sec{padding:48px 0 8px}
+ .wrap{padding:0 18px}
+}
+@media (prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+  transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+.sprue{width:100%;height:auto;overflow:visible}
+.sprue .runner{fill:none;stroke:var(--dim);stroke-width:7;stroke-linejoin:miter;opacity:.55}
+.sprue .sprupt{fill:var(--dim);opacity:.7}
+.sprue .gate{stroke:var(--dim);stroke-width:5;opacity:.6}
+.sprue .snip{fill:none;stroke:var(--orange);stroke-width:2.4;stroke-linecap:round}
+.sprue .pt path,.sprue .pt circle,.sprue .pt line{}
+.sprue .pt>path{fill:var(--bench2);stroke:var(--ivory);stroke-width:2}
+.sprue .pt>circle{fill:var(--bench2);stroke:var(--ivory);stroke-width:2}
+.sprue .pt .hole{fill:var(--ink);stroke:var(--ivory);stroke-width:1.4}
+.sprue .pt .ej{fill:none;stroke:var(--dim);stroke-width:1;opacity:.85}
+.sprue .pt .pl{stroke:var(--dim);stroke-width:.9;opacity:.5}
+.sprue .pt .rib{stroke:var(--ivory);stroke-width:1.4;opacity:.7}
+.sprue .pt .coil{fill:none;stroke:var(--ivory);stroke-width:2.6}
+.sprue .ghost>*{fill:none;stroke:var(--dim);stroke-width:1;opacity:.22;stroke-dasharray:4 4}
+.sprue .pcode{font-family:var(--mono);font-size:10px;fill:var(--teal);letter-spacing:.1em}
+.sprue .pcap{font-family:"Noto Sans TC",sans-serif;font-size:13px;font-weight:700;fill:var(--ivory)}
+.sprue .cut .pcap{fill:var(--dim)}
+
+/* ---------- sprue-frame 開場：整個首屏是一副還沒剪開的零件框 ---------- */
+.frame{position:relative;border:3px solid var(--dim);padding:30px 26px 34px;margin-top:6px;
+ background:linear-gradient(180deg,rgba(49,37,26,.55),rgba(36,28,22,.25))}
+.frame:before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:7px;margin-left:-3.5px;
+ background:var(--dim);opacity:.55}
+.frame .moldtxt{position:absolute;left:-3px;top:-3px;right:-3px;display:flex;justify-content:space-between;
+ font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;color:var(--dim);
+ padding:5px 10px;pointer-events:none;text-transform:uppercase}
+.frame .moldbot{top:auto;bottom:-3px}
+.cells{display:grid;grid-template-columns:1fr 1fr;gap:34px 76px;position:relative;z-index:2}
+.cellslot{position:relative}
+.cell{position:relative;height:100%;background:var(--bench);border:2px solid var(--ivory);padding:20px 20px 22px;
+ clip-path:polygon(0 12px,12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+.cellslot:nth-child(odd):after{content:"";position:absolute;right:-38px;top:44px;width:38px;height:5px;background:var(--dim);opacity:.6}
+.cellslot:nth-child(even):after{content:"";position:absolute;left:-38px;top:44px;width:38px;height:5px;background:var(--dim);opacity:.6}
+.cell h3{font-size:19px;margin:10px 0 8px}
+.cell p{margin:0 0 8px;font-size:14.6px}
+.cell .pic{width:64px;height:44px}
+.cell .code{position:absolute;top:-1px;right:10px;font-family:var(--mono);font-size:10px;color:var(--teal);letter-spacing:.12em}
+.pic path,.pic circle,.pic line{vector-effect:non-scaling-stroke}
+.pic>g>path,.pic>g>circle{fill:var(--bench2);stroke:var(--ivory);stroke-width:2}
+.pic .hole{fill:var(--ink)}
+.pic .ej{fill:none;stroke:var(--dim);stroke-width:1}
+.pic .pl{stroke:var(--dim);stroke-width:.8}
+.pic .rib{stroke:var(--ivory);stroke-width:1.3}
+.pic .coil{fill:none;stroke:var(--ivory);stroke-width:2.4}
+
+/* ---------- 修復檯 ---------- */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:30px;align-items:start}
+.ticket{background:var(--bench);border:2px solid var(--line2);padding:0}
+.ticket .th{display:flex;gap:0;border-bottom:2px solid var(--line2)}
+.ticket .th button{flex:1;background:transparent;border:0;border-right:1px solid var(--line);
+ color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:11px 6px;cursor:pointer}
+.ticket .th button:last-child{border-right:0}
+.ticket .th button[aria-selected=true]{background:var(--ivory);color:var(--ink);font-weight:600}
+.ticket .tb{padding:20px}
+.bars{margin-top:16px}
+.bar{margin-bottom:13px}
+.bar .bh{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.bar .bh b{font-weight:700}
+.bar .bh .v{font-family:var(--mono);font-size:13px}
+.track{position:relative;height:12px;background:var(--ink);border:1px solid var(--line);margin-top:5px}
+.fill{position:absolute;left:0;top:0;bottom:0;background:var(--teal);transition:width .5s cubic-bezier(.2,.9,.25,1)}
+.fill.lowv{background:var(--orange)}
+.mark{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ivory);opacity:.8}
+
+.opsframe{position:relative;border:3px solid var(--dim);padding:22px 16px}
+.opsframe:before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:6px;margin-left:-3px;background:var(--dim);opacity:.5}
+.ops{display:grid;grid-template-columns:1fr 1fr;gap:14px 46px;position:relative;z-index:2}
+.opslot{position:relative}
+.op{position:relative;display:block;width:100%;text-align:left;background:var(--bench2);
+ border:2px solid var(--ivory);color:var(--ivory);
+ padding:11px 12px 12px;cursor:pointer;font:inherit;font-size:13px;
+ clip-path:polygon(0 9px,9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);
+ transition:transform .42s cubic-bezier(.2,.9,.25,1),background .18s,opacity .3s}
+.opslot:nth-child(odd):after{content:"";position:absolute;right:-24px;top:22px;width:24px;height:4px;background:var(--dim);opacity:.6}
+.opslot:nth-child(even):after{content:"";position:absolute;left:-24px;top:22px;width:24px;height:4px;background:var(--dim);opacity:.6}
+.op:hover:not(:disabled){background:#3E2F20}
+.op .oc{font-family:var(--mono);font-size:9.5px;color:var(--teal);letter-spacing:.12em;display:block}
+.op .on{font-weight:700;font-size:14px;display:block;margin:2px 0 1px}
+.op .oh{font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.op:disabled{cursor:not-allowed;opacity:.42;background:transparent;border-style:dashed;border-color:var(--dim)}
+.op.used{opacity:.32;border-style:dashed;border-color:var(--dim);background:transparent;
+ transform:translate(10px,9px) rotate(2.4deg);pointer-events:none}
+.opslot.snipped:after{background:var(--orange)!important;width:12px!important;opacity:1!important}
+.oppic{position:absolute;right:8px;bottom:6px;width:38px;height:26px;opacity:.85}
+
+.roll{border-left:4px solid var(--orange);padding:0 0 0 16px;margin-top:6px}
+.roll li{list-style:none;padding:11px 0;border-bottom:1px solid var(--line)}
+.roll .rn{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.1em}
+.roll .rd{font-size:13.6px;color:var(--dim);margin-top:3px}
+.roll .rl{font-size:13.6px;color:var(--orange);margin-top:4px}
+.roll ol{margin:0;padding:0}
+
+.meter{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;margin:14px 0 4px}
+.meter .mt{flex:1;height:8px;background:var(--ink);border:1px solid var(--line);position:relative}
+.meter .mf{position:absolute;left:0;top:0;bottom:0;background:var(--ivory);transition:width .4s}
+.report{border:2px solid var(--teal);padding:24px;margin-top:22px;background:var(--bench)}
+.report h3{font-size:22px;margin-bottom:6px}
+.lostlist li{padding:9px 0;border-bottom:1px dashed var(--line);color:var(--orange);font-size:14.5px;list-style:none}
+.said{border-left:3px solid var(--ivory);padding:4px 0 4px 16px;margin:18px 0 0;font-size:16px;line-height:1.85}
+.undo{margin-top:16px;border:1px dashed var(--orange);padding:16px;display:none}
+.undo.show{display:block}
+@media (max-width:900px){
+ .cells{grid-template-columns:1fr;gap:22px}
+ .cell:after{display:none!important}
+ .frame:before{display:none}
+ .bench{grid-template-columns:1fr}
+ .ops{grid-template-columns:1fr;gap:12px}
+ .opslot:after{display:none!important}
+ .opsframe:before{display:none}
+ .op.used{transform:translate(6px,5px) rotate(1.6deg)}
+}
+</style>
+</head>
+<body>
+<nav class="gnav" aria-label="主導覽（剪口）"><div class="gt">SPRUE</div><svg viewBox="0 0 92 264" width="92" height="264"><line x1="14" y1="14" x2="14" y2="254" stroke="#9C8C74" stroke-width="6" opacity=".6"/><circle cx="14" cy="14" r="5" fill="#9C8C74" opacity=".7"/><a href="index.html" class="gpart cut" data-page="index.html" aria-current="page" aria-label="修復檯"><g transform="translate(0,26)"><line x1="14" y1="20" x2="28" y2="20" stroke="#9C8C74" stroke-width="4"/><g class="pw" transform="translate(34,2) rotate(3.5,26,18)"><rect class="body" x="0" y="0" width="52" height="38" rx="1"/><text class="cap" x="26" y="16" text-anchor="middle">R-01</text><text class="cap" x="26" y="28" text-anchor="middle" style="font-family:Noto Sans TC,sans-serif;font-size:10.5px">修復檯</text></g><path class="snip" d="M28 15l-5 5l5 5"/><path class="nub" data-nub="index.html" d="M22 20h5" stroke="#E8781F" stroke-width="3" opacity="0" stroke-linecap="butt"/></g></a><a href="method.html" class="gpart" data-page="method.html" aria-label="修復準則"><g transform="translate(0,84)"><line x1="14" y1="20" x2="30" y2="20" stroke="#9C8C74" stroke-width="4"/><g class="pw" transform="translate(30,0) rotate(0,26,18)"><rect class="body" x="0" y="0" width="52" height="38" rx="1"/><text class="cap" x="26" y="16" text-anchor="middle">R-02</text><text class="cap" x="26" y="28" text-anchor="middle" style="font-family:Noto Sans TC,sans-serif;font-size:10.5px">修復準則</text></g><path class="nub" data-nub="method.html" d="M22 20h5" stroke="#E8781F" stroke-width="3" opacity="0" stroke-linecap="butt"/></g></a><a href="casebook.html" class="gpart" data-page="casebook.html" aria-label="案例簿"><g transform="translate(0,142)"><line x1="14" y1="20" x2="30" y2="20" stroke="#9C8C74" stroke-width="4"/><g class="pw" transform="translate(30,0) rotate(0,26,18)"><rect class="body" x="0" y="0" width="52" height="38" rx="1"/><text class="cap" x="26" y="16" text-anchor="middle">R-03</text><text class="cap" x="26" y="28" text-anchor="middle" style="font-family:Noto Sans TC,sans-serif;font-size:10.5px">案例簿</text></g><path class="nub" data-nub="casebook.html" d="M22 20h5" stroke="#E8781F" stroke-width="3" opacity="0" stroke-linecap="butt"/></g></a><a href="shop.html" class="gpart" data-page="shop.html" aria-label="收件與價目"><g transform="translate(0,200)"><line x1="14" y1="20" x2="30" y2="20" stroke="#9C8C74" stroke-width="4"/><g class="pw" transform="translate(30,0) rotate(0,26,18)"><rect class="body" x="0" y="0" width="52" height="38" rx="1"/><text class="cap" x="26" y="16" text-anchor="middle">R-04</text><text class="cap" x="26" y="28" text-anchor="middle" style="font-family:Noto Sans TC,sans-serif;font-size:10.5px">收件與價</text></g><path class="nub" data-nub="shop.html" d="M22 20h5" stroke="#E8781F" stroke-width="3" opacity="0" stroke-linecap="butt"/></g></a></svg></nav>
+<header class="wrap top">
+ <a class="brandline" href="index.html">
+  <svg viewBox="0 0 120 132" aria-hidden="true"><rect width="120" height="132" fill="none"/>
+<g fill="none" stroke="#9C8C74" stroke-width="8"><path d="M14 12h92v108H14z"/><path d="M60 12v108"/></g>
+<g fill="#31251A" stroke="#EFE3C6" stroke-width="4"><path d="M24 30h26l6 8-6 8H24z"/><circle cx="37" cy="80" r="13"/></g>
+<rect x="70" y="28" width="24" height="18" fill="#2FB39B"/>
+<path d="M60 37h6" stroke="#E8781F" stroke-width="6"/></svg>
+  <span><span class="bn">剪口玩具修復所</span><br><span class="be">Gatemark Toy Restoration</span></span>
+ </a>
+ <div class="topmeta">
+  <div class="lbl">R-01　修復檯</div>
+  <div class="mono" style="font-size:12px;color:var(--dim)">新莊區中正路 512 巷 7 號　(02) 2998-4137</div>
+ </div>
+</header>
+<main class="wrap">
+<section class="frame" aria-label="本所零件框">
+ <div class="moldtxt"><span>ABS · MOLD No.7 · 新莊化成路</span><span>GATEMARK 剪口玩具修復所</span></div>
+ <div class="moldtxt moldbot"><span>一經剪下・不可復原</span><span>CYCLE 1979–</span></div>
+ <div class="cells">
+  <div class="cellslot"><article class="cell">
+   <span class="code">Z-01</span>
+   <svg class="pic" viewBox="0 0 64 44" aria-hidden="true" data-part="plate"></svg>
+   <h3>這裡是什麼</h3>
+   <p>一間只做舊玩具的修復所。鐵皮發條、賽璐璐、早期 ABS 射出件——1950 到 1995 年之間、在新莊與三重這一帶被做出來的東西，我們大多認得。</p><p>莊維中的父親在化成路的大裕塑膠開模具，開了二十九年。所以這裡的判斷方式偏向製造端：先看它是怎麼被做出來的，再決定能怎麼修。</p>
+  </article></div>
+  <div class="cellslot"><article class="cell">
+   <span class="code">Z-02</span>
+   <svg class="pic" viewBox="0 0 64 44" aria-hidden="true" data-part="clip"></svg>
+   <h3>在哪裡・幾點</h3>
+   <p>新北市新莊區中正路 512 巷 7 號 1 樓。巷口是一間麵店，鐵捲門上有一塊沒有招牌的白鐵板。</p><p>週三至週日 13:00–20:00 收件。週一、週二不對外——那兩天在修東西。</p>
+  </article></div>
+  <div class="cellslot"><article class="cell">
+   <span class="code">Z-03</span>
+   <svg class="pic" viewBox="0 0 64 44" aria-hidden="true" data-part="gear"></svg>
+   <h3>收費怎麼算</h3>
+   <p>初診 NT$300（狀況記錄與拍照建檔，抵修復費）。發條機構整理 NT$1,800 起、裂縫接合 NT$1,200 起、舊料移植補件 NT$600／件。</p><p>工時以 NT$800／小時計。完整價目與付款方式在收件與價目那一頁。</p>
+  </article></div>
+  <div class="cellslot"><article class="cell">
+   <span class="code">Z-04</span>
+   <svg class="pic" viewBox="0 0 64 44" aria-hidden="true" data-part="shell"></svg>
+   <h3>不接的委託</h3>
+   <p>「請幫我弄得跟新的一樣」——這句話我們會請你再想一想。全面重噴會把原廠印刷、日期戳、你外婆用麥克筆寫在底盤的名字一起蓋掉。</p><p>我們不是不會噴。是噴完之後，那件東西剩下的只有形狀。</p>
+  </article></div>
+  <div class="cellslot"><article class="cell">
+   <span class="code">Z-05</span>
+   <svg class="pic" viewBox="0 0 64 44" aria-hidden="true" data-part="arm"></svg>
+   <h3>檯上現在有三件</h3>
+   <p>往下捲，架上有三件委託品：一具 1979 年的鐵皮發條機器人、一個 1966 年的賽璐璐娃娃、一台 1991 年的 ABS 消防雲梯車。</p><p>你可以接手其中一件，決定要動哪幾道工序、用什麼順序動。工期上限 14 小時。</p>
+  </article></div>
+  <div class="cellslot"><article class="cell">
+   <span class="code">Z-06</span>
+   <svg class="pic" viewBox="0 0 64 44" aria-hidden="true" data-part="spring"></svg>
+   <h3>為什麼沒有還原鍵</h3>
+   <p>因為修復沒有。溶劑接合的那一秒，兩個斷面就是同一塊塑膠了；漆一噴下去，底下那層 1979 年的印刷就在漆的下面。</p><p>這個網站照著這條規則做：剪下去的零件不會回到流道上。詳細理由在修復準則。</p>
+  </article></div>
+ </div>
+</section>
+<p class="note" style="margin:14px 0 0;max-width:56ch">上面這一框是本所的零件框。每一顆零件上印著你需要知道的一件事——它們還連在流道上，所以都還在。往下是工作檯。</p>
+
+<section class="sec" id="bench" aria-label="修復檯">
+ <div class="slab" style="padding-top:18px"></div>
+ <div class="grid" style="margin-bottom:26px">
+  <div class="c7">
+   <div class="lbl">工作檯 · BENCH</div>
+   <h2 style="font-size:clamp(28px,4.4vw,46px);margin:8px 0 12px">接手一件，動到你願意停手為止</h2>
+   <p style="margin:0;max-width:60ch">選一件委託品，從右邊的工序框剪下你要用的零件。<b>工序的順序會改變結果</b>——先補色再接合，接著劑會被封在漆底下；灰沒清乾淨就上油，油會變成研磨膏。四項狀態互相拉扯，不可能四項都拉滿。</p>
+  </div>
+  <div class="c4 off1">
+   <div class="panel" style="padding:16px">
+    <div class="lbl">四項狀態</div>
+    <ul class="plain" style="margin-top:10px;font-size:13.6px">
+     <li><b>動作</b>　機構還會不會動、走得準不準</li>
+     <li><b>原貌</b>　還有多少是原廠當年出模的樣子</li>
+     <li><b>結構</b>　拿起來會不會再裂一次</li>
+     <li><b>痕跡</b>　使用者留在上面的東西：手垢、刮痕、名字</li>
+    </ul>
+   </div>
+  </div>
+ </div>
+
+ <div class="bench">
+  <div>
+   <div class="ticket">
+    <div class="th" role="tablist" aria-label="委託品">
+     <button role="tab" id="tab-robot" aria-selected="true" data-toy="robot">B-1141 機器人</button>
+     <button role="tab" id="tab-doll" aria-selected="false" data-toy="doll">B-1142 娃娃</button>
+     <button role="tab" id="tab-truck" aria-selected="false" data-toy="truck">B-1143 雲梯車</button>
+    </div>
+    <div class="tb">
+     <div class="lbl" id="tk-code">收件單</div>
+     <h3 id="tk-name" style="font-size:22px;margin:8px 0 4px"></h3>
+     <div class="mono" id="tk-meta" style="font-size:12px;color:var(--dim)"></div>
+     <p id="tk-cond" style="font-size:14.5px;margin:12px 0 0"></p>
+     <div class="rule"></div>
+     <div class="lbl">委託人</div>
+     <p id="tk-who" style="font-size:14.5px;margin:6px 0 0"></p>
+     <p class="said" id="tk-say"></p>
+     <div class="bars" id="bars"></div>
+     <div class="meter">
+      <span>工期</span><span class="mt"><span class="mf" id="hf" style="width:0%"></span></span>
+      <span id="ht">0.0 / 14.0 h</span>
+     </div>
+     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+      <button class="btn" id="close">結案・出具報告</button>
+      <button class="btn ghost" id="undoBtn">還原上一步</button>
+      <button class="btn ghost" id="reset">換一件重來</button>
+     </div>
+     <div class="undo" id="undoBox">
+      <b style="color:var(--orange)">沒有還原。</b>
+      <p class="note" style="margin:8px 0 0">溶劑接合的那一秒，兩個斷面已經是同一塊塑膠。漆蓋上去之後，底下的原廠印刷就在漆的下面。這個網站不提供你在檯面上得不到的東西——所以這顆鍵只會告訴你這件事。<br>你可以換一件重來，但這一件已經是現在這樣了。</p>
+     </div>
+    </div>
+   </div>
+   <div style="margin-top:24px">
+    <div class="lbl">工序卷 · 依執行順序，不可刪除</div>
+    <div class="roll"><ol id="roll"><li class="rn" style="border:0;padding-top:10px">尚未動工。</li></ol></div>
+   </div>
+  </div>
+
+  <div>
+   <div class="lbl">工序零件框 · 剪下即用掉</div>
+   <div class="opsframe" style="margin-top:10px">
+    <div class="ops" id="ops"></div>
+   </div>
+   <p class="note" id="opnote" style="margin-top:12px">點一顆零件把它從流道上剪下來。虛線的零件是現在不能用的——把游標移上去會說原因。</p>
+  </div>
+ </div>
+
+ <div id="reportBox"></div>
+</section>
+</main>
+<footer class="wrap">
+ <div class="fgrid">
+  <div class="c5">
+   <div class="lbl">剪口玩具修復所</div>
+   <p style="margin:10px 0 0">新北市新莊區中正路 512 巷 7 號 1 樓<br>
+   (02) 2998-4137　週三至週日 13:00–20:00<br>
+   週一、週二為修復日，不對外收件。</p>
+   <p class="note" style="margin-top:14px">主理：莊維中（1968 年生）　助理：廖亭妤<br>
+   本站所載玩具、委託人、案號與價目皆為虛構示意。</p>
+  </div>
+  <div class="c4">
+   <div class="lbl">頁面</div>
+   <div class="flinks" style="margin-top:10px"><a href="index.html">修復檯</a><a href="method.html">修復準則</a><a href="casebook.html">案例簿</a><a href="shop.html">收件與價目</a></div>
+   <p class="note" style="margin-top:14px">本站沒有「還原」鍵。理由寫在<a href="method.html">修復準則</a>。</p>
+  </div>
+  <div class="c3">
+   <div class="lbl">流道</div>
+   <p class="note" style="margin-top:10px">本站每一張圖——招牌、圖示、案例縮圖、favicon——都由同一支流道引擎生成，沒有一張是畫的。</p>
+  </div>
+ </div>
+</footer>
+<nav class="navfoot" aria-label="主導覽（行動版）"><a href="index.html" aria-current="page">修復檯</a><a href="method.html">修復準則</a><a href="casebook.html">案例簿</a><a href="shop.html">收件與價目</a></nav>
+<script>
+/* 剪口導覽：造訪過的頁面在流道上留下不會消失的剪口 */
+(function(){
+ try{
+  var k='gm_visited', v=JSON.parse(sessionStorage.getItem(k)||'[]');
+  var cur='index.html'; if(v.indexOf(cur)<0){v.push(cur);sessionStorage.setItem(k,JSON.stringify(v));}
+  v.forEach(function(p){
+   var n=document.querySelector('.nub[data-nub="'+p+'"]');
+   if(n) n.setAttribute('opacity','.9');
+  });
+ }catch(e){}
+})();
+</script>
+
+<script>
+
+/* GATEMARK 流道引擎 — 全站每一張圖都是一副射出成型的流道框。
+   零件不是「畫」出來的，是由模具原語 + 種子生成的。 */
+function gmHash(s){var h=2166136261,i;for(i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function gmRng(seed){var a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);
+ t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gmN(r,a,b){return a+(b-a)*r();}
+
+/* 零件原語：每種都是真的射出件形狀，不是裝飾圖形 */
+function gmPart(kind,w,h,r){
+ var s='',cx=w/2,cy=h/2,i,n,a,x,y,pts;
+ if(kind==='plate'){
+  var ch=Math.min(w,h)*0.18;
+  s+='<path d="M'+ch+' 0H'+(w-ch)+'L'+w+' '+ch+'V'+(h-ch)+'L'+(w-ch)+' '+h+'H'+ch+'L0 '+(h-ch)+'V'+ch+'Z"/>';
+  s+='<circle cx="'+(w*0.26)+'" cy="'+(h*0.5)+'" r="'+(Math.min(w,h)*0.10)+'" class="hole"/>';
+  s+='<circle cx="'+(w*0.74)+'" cy="'+(h*0.5)+'" r="'+(Math.min(w,h)*0.10)+'" class="hole"/>';
+ } else if(kind==='gear'){
+  n=Math.round(gmN(r,9,13));var R=Math.min(w,h)/2,ri=R*0.78;pts=[];
+  for(i=0;i<n;i++){for(var k=0;k<4;k++){a=(i+k/4)*2*Math.PI/n;var rad=(k===1||k===2)?R:ri;
+   pts.push((cx+Math.cos(a)*rad).toFixed(1)+' '+(cy+Math.sin(a)*rad).toFixed(1));}}
+  s+='<path d="M'+pts.join('L')+'Z"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(R*0.22)+'" class="hole"/>';
+ } else if(kind==='wheel'){
+  var Rw=Math.min(w,h)/2;
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Rw+'"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(Rw*0.52)+'" class="hole"/>';
+  for(i=0;i<5;i++){a=i*2*Math.PI/5+0.3;
+   s+='<line class="rib" x1="'+(cx+Math.cos(a)*Rw*0.55)+'" y1="'+(cy+Math.sin(a)*Rw*0.55)+
+      '" x2="'+(cx+Math.cos(a)*Rw*0.94)+'" y2="'+(cy+Math.sin(a)*Rw*0.94)+'"/>';}
+ } else if(kind==='arm'){
+  var t=h*0.42;
+  s+='<path d="M'+(h*0.5)+' '+(cy-t/2)+'H'+(w-h*0.5)+'A'+(t/2)+' '+(t/2)+' 0 0 1 '+(w-h*0.5)+' '+(cy+t/2)+
+     'H'+(h*0.5)+'A'+(t/2)+' '+(t/2)+' 0 0 1 '+(h*0.5)+' '+(cy-t/2)+'Z"/>';
+  s+='<circle cx="'+(h*0.5)+'" cy="'+cy+'" r="'+(t*0.30)+'" class="hole"/>';
+  s+='<circle cx="'+(w-h*0.5)+'" cy="'+cy+'" r="'+(t*0.30)+'" class="hole"/>';
+ } else if(kind==='shell'){
+  s+='<path d="M0 '+h+'V'+(h*0.46)+'A'+cx+' '+(h*0.46)+' 0 0 1 '+w+' '+(h*0.46)+'V'+h+'Z"/>';
+  s+='<line class="rib" x1="'+(w*0.2)+'" y1="'+(h*0.72)+'" x2="'+(w*0.8)+'" y2="'+(h*0.72)+'"/>';
+ } else if(kind==='head'){
+  s+='<path d="M'+(w*0.10)+' '+(h*0.30)+'A'+(w*0.40)+' '+(h*0.30)+' 0 0 1 '+(w*0.90)+' '+(h*0.30)+
+     'V'+(h*0.78)+'A'+(w*0.16)+' '+(h*0.16)+' 0 0 1 '+(w*0.74)+' '+h+'H'+(w*0.26)+
+     'A'+(w*0.16)+' '+(h*0.16)+' 0 0 1 '+(w*0.10)+' '+(h*0.78)+'Z"/>';
+  s+='<circle cx="'+(w*0.36)+'" cy="'+(h*0.46)+'" r="'+(w*0.065)+'" class="hole"/>';
+  s+='<circle cx="'+(w*0.64)+'" cy="'+(h*0.46)+'" r="'+(w*0.065)+'" class="hole"/>';
+ } else if(kind==='spring'){
+  n=7;var p='M0 '+cy;
+  for(i=0;i<n;i++){x=w*(i+0.5)/n;p+='Q'+x+' '+(cy-(i%2?h*0.42:-h*0.42))+' '+(w*(i+1)/n)+' '+cy;}
+  s+='<path class="coil" d="'+p+'"/>';
+ } else if(kind==='ladder'){
+  var g=w*0.22;
+  s+='<path d="M'+g+' 0h'+(w*0.10)+'v'+h+'h-'+(w*0.10)+'Z"/>';
+  s+='<path d="M'+(w-g-w*0.10)+' 0h'+(w*0.10)+'v'+h+'h-'+(w*0.10)+'Z"/>';
+  n=5;for(i=0;i<n;i++){y=h*(i+0.6)/(n+0.2);
+   s+='<path d="M'+(g+w*0.10)+' '+y+'h'+(w-2*g-w*0.20)+'v'+(h*0.045)+'h-'+(w-2*g-w*0.20)+'Z"/>';}
+ } else if(kind==='clip'){
+  var tk=Math.min(w,h)*0.24;
+  s+='<path d="M0 0h'+tk+'v'+(h-tk)+'h'+(w-2*tk)+'V0h'+tk+'v'+h+'H0Z"/>';
+ } else { /* bracket */
+  s+='<path d="M0 0h'+w+'v'+(h*0.30)+'H'+(w*0.42)+'V'+h+'H0Z"/>';
+  s+='<circle cx="'+(w*0.20)+'" cy="'+(h*0.15)+'" r="'+(Math.min(w,h)*0.07)+'" class="hole"/>';
+ }
+ /* 頂針痕與分模線 — 真實射出件必有 */
+ s+='<circle class="ej" cx="'+(w*0.5+gmN(r,-w*0.18,w*0.18))+'" cy="'+(h*0.5+gmN(r,-h*0.2,h*0.2))+'" r="'+(Math.min(w,h)*0.055)+'"/>';
+ s+='<line class="pl" x1="0" y1="'+(h*(0.42+r()*0.18)).toFixed(1)+'" x2="'+w+'" y2="'+(h*(0.42+r()*0.18)).toFixed(1)+'"/>';
+ return s;
+}
+
+/* 一整副流道框：外框 + 中央主流道 + 支道(gate) + 零件
+   cells: [{id,kind,cap,code,side,cut}]   side: 'L'|'R' */
+function gmFrame(opt){
+ var W=opt.w,cells=opt.cells,r=gmRng(gmHash(opt.seed||'gm')),
+     rows=Math.ceil(cells.length/2),
+     pad=opt.pad||16, spineX=W/2,
+     rowH=opt.rowH||96, H=pad*2+rows*rowH,
+     colW=(W/2)-pad-opt.gate-6,
+     out='',i,c,px,py,pw,ph,gx1,gx2;
+ out+='<svg viewBox="0 0 '+W+' '+H+'" class="sprue" role="img" aria-label="'+(opt.alt||'流道零件框')+'">';
+ /* 外框（射出流道的外環） */
+ out+='<path class="runner" d="M'+pad+' '+pad+'H'+(W-pad)+'V'+(H-pad)+'H'+pad+'Z"/>';
+ out+='<line class="runner" x1="'+spineX+'" y1="'+pad+'" x2="'+spineX+'" y2="'+(H-pad)+'"/>';
+ /* 澆口（注入點） */
+ out+='<circle class="sprupt" cx="'+spineX+'" cy="'+pad+'" r="7"/>';
+ for(i=0;i<cells.length;i++){
+  c=cells[i];
+  var row=Math.floor(i/2), left=(i%2===0);
+  pw=colW*(c.wide?1:0.86); ph=rowH*0.56;
+  py=pad+row*rowH+rowH*0.22;
+  px=left?(pad+opt.gate+ (colW-pw)) : (spineX+opt.gate);
+  gx1=left?(spineX-opt.gate-(spineX-opt.gate-(px+pw))) : (spineX);
+  var gxa=left?spineX:spineX, gxb=left?(px+pw):px;
+  out+='<g class="gcell'+(c.cut?' cut':'')+'" data-id="'+c.id+'">';
+  /* 支道 */
+  out+='<line class="gate" x1="'+gxa+'" y1="'+(py+ph/2)+'" x2="'+(c.cut?(gxa+(left?-8:8)):gxb)+'" y2="'+(py+ph/2)+'"/>';
+  if(c.cut){
+   out+='<path class="snip" d="M'+(gxa+(left?-10:10))+' '+(py+ph/2-5)+'l'+(left?-4:4)+' 5l'+(left?4:-4)+' 5"/>';
+   out+='<g class="ghost" transform="translate('+px+','+py+')">'+gmPart(c.kind,pw,ph,gmRng(gmHash(c.id)))+'</g>';
+  } else {
+   out+='<g class="pt" transform="translate('+px+','+py+')">'+gmPart(c.kind,pw,ph,gmRng(gmHash(c.id)))+'</g>';
+  }
+  out+='<text class="pcode" x="'+(left?px:px)+'" y="'+(py-7)+'">'+(c.code||'')+'</text>';
+  out+='<text class="pcap" x="'+(left?px:px)+'" y="'+(py+ph+17)+'">'+(c.cap||'')+'</text>';
+  out+='</g>';
+ }
+ out+='</svg>';
+ return out;
+}
+
+/* 零件框上的小零件圖：同一支引擎 */
+document.querySelectorAll('svg.pic[data-part]').forEach(function(sv){
+ var k=sv.getAttribute('data-part');
+ sv.innerHTML='<g>'+gmPart(k,60,40,gmRng(gmHash(k+'cell')))+'</g>';
+ sv.setAttribute('viewBox','0 0 62 42');
+});
+
+/* ================= 委託品 ================= */
+var TOYS={
+ robot:{code:'B-1141',name:'鐵皮發條機器人「宇宙號」',
+  meta:'1979　新莊大裕塑膠代工外銷版　鐵皮＋ABS　高 24 cm',
+  cond:'發條上滿只走半圈就停，聽得到齒輪空轉。左臂鍍層起泡，胸前印刷完整。底盤有原子筆寫的「阿明 68.7」。',
+  who:'陳美雲　61 歲　中和　父親遺物',
+  say:'「他過世前那半年，每天早上都上一次發條讓它走一走。我不需要它變新，我想知道它還能不能再走一次。」',
+  v:{f:12,o:74,i:58,p:88}},
+ doll:{code:'B-1142',name:'賽璐璐娃娃「阿蘭」',
+  meta:'1966　台北大稻埕嫁妝品　賽璐璐吹製　高 31 cm',
+  cond:'頭部自右耳後至頂心一道 6 cm 縱裂，兩側微翹。四肢橡皮筋鬆脫、關節不定位。臉部彩繪原色尚存，右頰有淺褪色。',
+  who:'何家瑜　34 歲　板橋　外婆嫁妝，外婆去年過世',
+  say:'「我媽說她小時候也只能看不能碰。可以修，但她的臉不要變成別人的臉。」',
+  v:{f:40,o:82,i:26,p:71}},
+ truck:{code:'B-1143',name:'ABS 消防雲梯車 No.318',
+  meta:'1991　三重合益工業　ABS 射出　長 42 cm',
+  cond:'雲梯第二節斷裂遺失，轉盤齒條脆化。車身未經日曬、原印刷極佳。輪胎軟化黏手。',
+  who:'林柏勳　39 歲　收藏者　十月要進玩具聯展',
+  say:'「我要它能在展場上把雲梯升起來給人看。但只要有人看得出補件，這台就不值錢了。」',
+  v:{f:55,o:90,i:34,p:41}}
+};
+var DIM=[['f','動作'],['o','原貌'],['i','結構'],['p','痕跡']];
+
+/* ================= 工序 ================= */
+function D(f,o,i,p){return {f:f||0,o:o||0,i:i||0,p:p||0};}
+var OPS=[
+ {id:'dismantle',code:'P-01',name:'拆解',kind:'plate',h:3.0,
+  desc:'鑽開鉚釘、鬆開卡榫，把外殼與機構分開。所有機構工序都要先拆。',
+  lock:function(S){return S.flags.dis?'已經拆過了。':null;},
+  run:function(S){S.flags.dis=1;return {d:D(0,0,-6,0),
+   lost:['結構 −6　鉚釘孔被鑽開過，之後只能靠螺絲把它鎖回去。']};}},
+
+ {id:'dryclean',code:'P-02',name:'乾式除塵',kind:'clip',h:1.0,
+  desc:'羊毛刷與微吸塵，只帶走浮塵，不碰表面。',
+  lock:function(S){return null;},
+  run:function(S){S.flags.cleaned=1;var d=D(2,0,0,-4),l=['痕跡 −4　表面的浮灰是它待過的那個櫃子。'];
+   if(S.flags.painted){d.o-=3;l.push('原貌 −3　新漆比原漆軟，刷過會留下方向。');}
+   return {d:d,lost:l};}},
+
+ {id:'ultrasonic',code:'P-03',name:'超音波清洗',kind:'wheel',h:2.0,
+  desc:'零件浸槽震洗，油垢與陳年手垢會一次脫落。',
+  lock:function(S){return S.flags.wax?'已封蠟，蠟層會在槽裡乳化。':(!S.flags.dis?'要先拆解才能下槽。':null);},
+  run:function(S){S.flags.cleaned=1;S.flags.deep=1;var d=D(10,0,0,-20),
+   l=['痕跡 −20　六十年的手垢一次洗掉了，包含握把上那層被摸亮的地方。'];
+   if(S.flags.painted){d.o-=24;l.push('原貌 −24　補上去的漆膜被超音波打花，邊緣浮起。');}
+   if(S.flags.bonded){d.i-=10;l.push('結構 −10　剛接合的縫在槽裡被震鬆。');}
+   return {d:d,lost:l};}},
+
+ {id:'lubricate',code:'P-04',name:'原發條機構上油整理',kind:'gear',h:2.5,
+  desc:'保留原發條，清膠、校正齒隙、點錶油。',
+  lock:function(S){return !S.flags.dis?'要先拆解。':(S.flags.lub?'已整理過。':null);},
+  run:function(S){S.flags.lub=1;
+   if(S.flags.cleaned) return {d:D(22,0,2,0),lost:[],note:'齒面乾淨，油進得去，走得順。'};
+   return {d:D(6,0,-3,0),lost:['結構 −3　灰混進新油變成研磨膏，齒面會被慢慢磨掉。'],
+    note:'沒清就上油——油把灰帶進齒隙了。'};}},
+
+ {id:'newspring',code:'P-05',name:'更換非原廠發條',kind:'spring',h:2.0,
+  desc:'換一根現代碳鋼發條，力矩足、可靠。',
+  lock:function(S){return !S.flags.dis?'要先拆解。':(S.flags.ns?'已更換。':null);},
+  run:function(S){S.flags.ns=1;return {d:D(32,-26,4,0),
+   lost:['原貌 −26　裡面那根 1979 年的發條，從現在起不在這具機器人裡了。']};}},
+
+ {id:'donor',code:'P-06',name:'舊料移植補件',kind:'arm',h:3.5,
+  desc:'從同型報廢機取下年份相符的零件補上。',
+  lock:function(S){return S.flags.wax?'已封蠟，接合面上不了。':null;},
+  run:function(S){S.flags.filled=1;return {d:D(8,-6,18,-5),
+   lost:['原貌 −6　補上的零件年份對得上，但它來自另一台。']};}},
+
+ {id:'printed',code:'P-07',name:'掃描重製補件',kind:'ladder',h:4.0,
+  desc:'三維掃描對稱側，樹脂列印後修面補色。',
+  lock:function(S){return S.flags.wax?'已封蠟，接合面上不了。':null;},
+  run:function(S){S.flags.filled=1;return {d:D(10,-18,22,-3),
+   lost:['原貌 −18　新料的表面在斜光下和旁邊差了三十年，內行人看得出來。']};}},
+
+ {id:'bond',code:'P-08',name:'裂縫溶劑接合',kind:'bracket',h:2.5,
+  desc:'以同材質溶劑讓兩個斷面重新熔成一塊。',
+  lock:function(S){return S.flags.wax?'已封蠟，溶劑咬不進去。':(S.flags.bonded?'已接合。':null);},
+  run:function(S){S.flags.bonded=1;
+   if(S.flags.painted) return {d:D(0,-12,8,0),
+    lost:['結構 只補回 8　接著劑被封在新漆底下，兩三年後會從漆面下鼓起來。',
+          '原貌 −12　鼓起的那一塊之後只能再補一次色。'],
+    note:'先補色再接合——這是本所看過最多的一種順序錯誤。'};
+   return {d:D(0,-4,26,-2),lost:['原貌 −4　接合線在強光下看得到一條。']};}},
+
+ {id:'stabilize',code:'P-09',name:'原漆清潔與穩定',kind:'shell',h:2.0,
+  desc:'只清潔、只固定起翹的原漆，不補任何顏色。',
+  lock:function(S){return S.flags.painted?'已經補過色，原漆層下面已經不是原狀。':(S.flags.wax?'已封蠟。':null);},
+  run:function(S){return {d:D(0,8,2,-6),lost:['痕跡 −6　起翹處旁邊的積垢一起清掉了。'],
+   note:'原漆留著，只是不再繼續掉。'};}},
+
+ {id:'touchup',code:'P-10',name:'局部補色',kind:'head',h:3.0,
+  desc:'僅在缺損處點補，四周原漆不動。',
+  lock:function(S){return S.flags.wax?'已封蠟，漆上不去。':null;},
+  run:function(S){S.flags.painted=1;return {d:D(0,-14,0,-16),
+   lost:['原貌 −14　補過的地方，之後永遠是補過的地方。',
+         '痕跡 −16　缺損本身也是痕跡，補起來就沒了。']};}},
+
+ {id:'respray',code:'P-11',name:'全面重噴',kind:'plate',h:4.5,
+  desc:'整體遮蔽後重新噴塗。本所原則上不接，但你可以要求。',
+  lock:function(S){return S.flags.wax?'已封蠟。':null;},
+  run:function(S){S.flags.painted=1;S.flags.resprayed=1;return {d:D(0,-38,2,-34),
+   lost:['原貌 −38　原廠印刷、日期戳與批號一起蓋掉了。',
+         '痕跡 −34　底盤那行原子筆字在第一道漆下面。'],
+   note:'本所已在報告書上註記：此為委託人指定，非本所建議。'};}},
+
+ {id:'wax',code:'P-12',name:'封蠟保護',kind:'clip',h:1.5,
+  desc:'微晶蠟薄封，隔絕濕氣。封完之後表面不再接受任何處理。',
+  lock:function(S){return S.flags.wax?'已封蠟。':null;},
+  run:function(S){S.flags.wax=1;return {d:D(0,0,4,2),lost:[],
+   note:'封蠟之後，接合、清洗與原漆穩定都做不了了。'};}},
+
+ {id:'reassemble',code:'P-13',name:'組裝與校時',kind:'gear',h:2.0,
+  desc:'機構復位、鎖回外殼、校發條行程。',
+  lock:function(S){return !S.flags.dis?'還沒拆，不用組。':(S.flags.reass?'已組裝。':null);},
+  run:function(S){S.flags.reass=1;return {d:D(6,0,6,0),lost:[]};}}
+];
+var BUDGET=14.0;
+var MAT={donor:600,printed:1500,newspring:900,respray:2200,touchup:800,bond:400,wax:300,ultrasonic:200,stabilize:250};
+
+/* ================= 狀態 ================= */
+var S=null;
+function newState(toy){
+ var t=TOYS[toy];
+ return {toy:toy,init:{f:t.v.f,o:t.v.o,i:t.v.i,p:t.v.p},
+  v:{f:t.v.f,o:t.v.o,i:t.v.i,p:t.v.p},flags:{},log:[],hours:0,done:false};
+}
+function clamp(x){return Math.max(0,Math.min(100,Math.round(x)));}
+
+function renderTicket(){
+ var t=TOYS[S.toy];
+ document.getElementById('tk-code').textContent='收件單　'+t.code;
+ document.getElementById('tk-name').textContent=t.name;
+ document.getElementById('tk-meta').textContent=t.meta;
+ document.getElementById('tk-cond').textContent=t.cond;
+ document.getElementById('tk-who').textContent=t.who;
+ document.getElementById('tk-say').textContent=t.say;
+ document.querySelectorAll('.th button').forEach(function(b){
+  b.setAttribute('aria-selected', b.dataset.toy===S.toy?'true':'false');});
+}
+function renderBars(){
+ var h='';
+ DIM.forEach(function(d){
+  var k=d[0],v=S.v[k],iv=S.init[k],dd=v-iv;
+  h+='<div class="bar"><div class="bh"><b>'+d[1]+'</b><span class="v">'+v+
+   '<span style="color:'+(dd>0?'var(--teal)':(dd<0?'var(--orange)':'var(--dim)'))+
+   '">　'+(dd>0?'+':'')+(dd===0?'±0':dd)+'</span></span></div>'+
+   '<div class="track"><span class="fill'+(v<35?' lowv':'')+'" style="width:'+v+'%"></span>'+
+   '<span class="mark" style="left:'+iv+'%"></span></div></div>';
+ });
+ document.getElementById('bars').innerHTML=h;
+ var pc=Math.min(100,S.hours/BUDGET*100);
+ document.getElementById('hf').style.width=pc+'%';
+ document.getElementById('ht').textContent=S.hours.toFixed(1)+' / '+BUDGET.toFixed(1)+' h';
+}
+function renderOps(){
+ var box=document.getElementById('ops');box.innerHTML='';
+ OPS.forEach(function(op){
+  var used=S.log.some(function(l){return l.id===op.id;});
+  var lockMsg=used?null:op.lock(S);
+  var over=(S.hours+op.h)>BUDGET+1e-9;
+  var slot=document.createElement('div');
+  slot.className='opslot'+(used?' snipped':'');
+  var b=document.createElement('button');
+  b.className='op'+(used?' used':'');
+  b.type='button';
+  b.disabled=used||!!lockMsg||over||S.done;
+  var reason=used?'已剪下':(lockMsg||(over?'剩餘工期不足（需 '+op.h.toFixed(1)+' h）':op.desc));
+  b.title=reason;
+  b.setAttribute('aria-label',op.name+'　'+op.h.toFixed(1)+' 小時。'+reason);
+  b.innerHTML='<span class="oc">'+op.code+'</span><span class="on">'+op.name+
+   '</span><span class="oh">'+op.h.toFixed(1)+' h</span>'+
+   '<svg class="oppic" viewBox="0 0 38 26" aria-hidden="true"><g>'+
+    gmPart(op.kind,36,24,gmRng(gmHash(op.id)))+'</g></svg>';
+  b.addEventListener('click',function(){doOp(op);});
+  b.addEventListener('mouseenter',function(){document.getElementById('opnote').textContent=op.code+'　'+reason;});
+  b.addEventListener('focus',function(){document.getElementById('opnote').textContent=op.code+'　'+reason;});
+  slot.appendChild(b);
+  box.appendChild(slot);
+ });
+}
+function renderRoll(){
+ var ol=document.getElementById('roll');
+ if(!S.log.length){ol.innerHTML='<li class="rn" style="border:0;padding-top:10px">尚未動工。</li>';return;}
+ ol.innerHTML=S.log.map(function(l,i){
+  var ds=DIM.map(function(d){var x=l.d[d[0]];return x?d[1]+' '+(x>0?'+':'')+x:null;})
+    .filter(Boolean).join('　');
+  return '<li><div class="rn">'+String(i+1).padStart(2,'0')+'　'+l.code+'　'+l.name+
+   '　'+l.h.toFixed(1)+' h</div>'+
+   (ds?'<div class="rd">'+ds+'</div>':'')+
+   (l.note?'<div class="rd">'+l.note+'</div>':'')+
+   (l.lost.length?'<div class="rl">'+l.lost.join('<br>')+'</div>':'')+'</li>';
+ }).join('');
+}
+function doOp(op){
+ if(S.done)return;
+ if(S.hours+op.h>BUDGET+1e-9)return;
+ if(op.lock(S))return;
+ var r=op.run(S);
+ DIM.forEach(function(d){S.v[d[0]]=clamp(S.v[d[0]]+r.d[d[0]]);});
+ S.hours+=op.h;
+ S.log.push({id:op.id,code:op.code,name:op.name,h:op.h,d:r.d,lost:r.lost||[],note:r.note||''});
+ renderBars();renderOps();renderRoll();
+}
+function verdict(){
+ var t=TOYS[S.toy],v={f:S.v.f,o:S.v.o,i:S.v.i,p:S.v.p},pre=[];
+ if(S.flags.dis&&!S.flags.reass){pre.push('本件以拆解狀態交回，機構未復位，因此動作以 0 記。');v.f=0;}
+ var lost=[];S.log.forEach(function(l){l.lost.forEach(function(x){lost.push(l.code+'　'+x);});});
+ var say='';
+ if(S.toy==='robot'){
+  if(v.f>=55) say='陳美雲把它放在櫃檯上，自己上了發條。它走了三步，轉身，手臂抬起來。她沒有說話，看完了整段，然後說：「就是這樣。」';
+  else if(v.f>=30) say='它動了一下，走了半步就停住。陳美雲說：「會動就好。」然後在收據上簽名，簽得很慢。';
+  else say='她把它抱起來，摸了一下胸口的印刷，說沒關係。她沒有再上發條。';
+  if(v.p<55) say+='　臨走前她問了一句：「底下那行字還在嗎？」';
+  if(S.flags.ns) say+='　我們照規定告知了發條已更換。她點頭，說原來那根可以給她。';
+ } else if(S.toy==='doll'){
+  if(v.o>=72&&v.i>=60) say='何家瑜把娃娃轉到燈下看了很久，說：「還是她。」';
+  else if(v.o>=72) say='她說臉沒有變，這樣就好；我們提醒她頸部仍不宜提抱，她把外套脫下來墊著抱走。';
+  else if(v.i>=60) say='她說現在拿起來安心多了。停了一下又說：「只是嘴角好像不太一樣。」';
+  else say='她在櫃檯前站了一會，說：「這樣的話，其實我不太認得了。」';
+  if(S.flags.resprayed) say+='　重噴後的臉是均勻的、乾淨的、沒有右頰那塊褪色的。';
+ } else {
+  if(v.i>=70&&v.o>=78) say='林柏勳把雲梯升到底，聽了一下齒條的聲音，說可以，展場那天他會親自升。';
+  else if(v.i>=70) say='他把雲梯升了兩次，說機構沒問題；接著側過來對著光看那節補件，看了很久，沒有再說話。';
+  else if(v.o>=78) say='他說外觀無可挑剔，但雲梯只敢升到一半——「那我在展場就不動它了。」';
+  else say='他問能不能不要放在主展櫃。';
+  if(S.flags.filled&&v.o<80) say+='　補件的事我們寫進了報告書，展方查得到。';
+ }
+ var cost=Math.round(S.hours*800);
+ S.log.forEach(function(l){cost+=(MAT[l.id]||0);});
+ return {v:v,lost:lost,say:say,cost:cost,pre:pre};
+}
+function closeCase(){
+ if(S.done)return;S.done=true;renderOps();
+ var R=verdict(),t=TOYS[S.toy];
+ var bars=DIM.map(function(d){var k=d[0];
+  return '<div class="bar"><div class="bh"><b>'+d[1]+'</b><span class="v">'+R.v[k]+
+   '<span style="color:var(--dim)">　收件時 '+S.init[k]+'</span></span></div>'+
+   '<div class="track"><span class="fill'+(R.v[k]<35?' lowv':'')+'" style="width:'+R.v[k]+
+   '%"></span><span class="mark" style="left:'+S.init[k]+'%"></span></div></div>';}).join('');
+ var html='<div class="report" role="region" aria-label="修復報告書" tabindex="-1">'+
+  '<div class="lbl">修復報告書　'+t.code+'　剪口玩具修復所</div>'+
+  '<h3>'+t.name+'</h3>'+
+  '<p class="note" style="margin:4px 0 16px">工序 '+S.log.length+' 道　工時 '+S.hours.toFixed(1)+
+   ' 小時　工資與材料合計 NT$'+R.cost.toLocaleString()+'（未含初診 300）</p>'+
+  (R.pre.length?'<p style="color:var(--orange);margin:0 0 14px">'+R.pre.join('<br>')+'</p>':'')+
+  '<div style="max-width:520px">'+bars+'</div>'+
+  '<div class="rule"></div>'+
+  '<div class="lbl">本次修復所放棄之物</div>'+
+  (R.lost.length?'<ul class="lostlist" style="padding:0;margin:10px 0 0">'+
+    R.lost.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'
+   :'<p style="margin:10px 0 0;color:var(--dim)">沒有任何一項被動過。這件東西以收件時的樣子交回——這也是一種決定，本所會照原樣記錄。</p>')+
+  '<div class="rule"></div>'+
+  '<div class="lbl">交件當日</div><p class="said">'+R.say+'</p>'+
+  '<p class="note" style="margin-top:18px">本所不對修復結果評分，也不排名。上面四條長條是這件東西現在的樣子，中間那條白線是它來的時候的樣子。哪一種比較好，不是我們決定的。</p>'+
+  '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">'+
+   '<button class="btn" id="again">換一件重來</button>'+
+   '<a class="btn ghost" href="casebook.html" style="text-decoration:none;display:inline-block">看本所的六個實例</a></div>'+
+  '</div>';
+ document.getElementById('reportBox').innerHTML=html;
+ document.getElementById('again').addEventListener('click',function(){switchToy(S.toy);
+  document.getElementById('bench').scrollIntoView({behavior:'smooth',block:'start'});});
+ var el=document.querySelector('.report');el.focus();
+ el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function switchToy(toy){
+ S=newState(toy);
+ document.getElementById('reportBox').innerHTML='';
+ document.getElementById('undoBox').classList.remove('show');
+ renderTicket();renderBars();renderOps();renderRoll();
+}
+document.querySelectorAll('.th button').forEach(function(b){
+ b.addEventListener('click',function(){switchToy(b.dataset.toy);});});
+document.getElementById('close').addEventListener('click',closeCase);
+document.getElementById('reset').addEventListener('click',function(){switchToy(S.toy);});
+document.getElementById('undoBtn').addEventListener('click',function(){
+ document.getElementById('undoBox').classList.toggle('show');});
+switchToy('robot');
+</script>
+
+</body></html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>碼房 · 碼本查號</title>
+<meta name="description" content="碼房公開電碼本：每個常用字對應一個四位數代字。可依部類、筆畫、關鍵字查號，並說明明碼—電碼—減碼三層加密的原理。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%238A6C24'/%3E%3Crect x='4' y='6' width='24' height='20' fill='%23201907'/%3E%3Cg fill='%23E7D9AD'%3E%3Ccircle cx='9' cy='11' r='1.5'/%3E%3Ccircle cx='9' cy='21' r='1.5'/%3E%3Ccircle cx='14' cy='11' r='1.5'/%3E%3Ccircle cx='19' cy='16' r='1.5'/%3E%3Ccircle cx='23' cy='11' r='1.5'/%3E%3Ccircle cx='23' cy='21' r='1.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&family=Archivo:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#8A6C24;--ink:#191307;--field:#201907;--field2:#2B2110;--buff:#E7D9AD;--buff2:#CBB884;--red:#C8382A;--green:#2FA65E;--amber:#F2C14E;--line:rgba(25,19,7,.34);--line2:rgba(231,217,173,.16)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.62;background-image:radial-gradient(rgba(25,19,7,.05) 1px,transparent 1px);background-size:5px 5px;padding-bottom:10px}
+.mono{font-family:"Space Mono",monospace}.serif{font-family:"Noto Serif TC",serif}
+a{color:inherit}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--buff);padding:8px 14px;z-index:99}.skip:focus{left:8px;top:8px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+header.mast{border-bottom:2px solid var(--ink)}
+.mast .wrap{display:flex;align-items:center;gap:20px;padding:16px 22px 14px;flex-wrap:wrap}
+.mast img{height:52px}.mast .tag{font-size:12px;letter-spacing:.14em;border:1.5px solid var(--ink);padding:3px 9px}
+.mast .rec{margin-left:auto;font-size:12px;text-align:right;line-height:1.4}
+section{padding:40px 0;border-bottom:2px solid var(--ink)}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:12.5px;letter-spacing:.16em;margin:0 0 6px;text-transform:uppercase}
+.eyebrow .no{background:var(--ink);color:var(--buff);padding:2px 8px;font-family:"Space Mono",monospace}
+h1.title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(28px,5vw,46px);line-height:1.06;margin:.1em 0 .3em}
+h2.title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(22px,3.4vw,30px);margin:.1em 0 .5em}
+.lede{max-width:64ch;font-size:16px}
+.tape-hd{display:block;margin:8px 0}
+/* method explainer */
+.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:16px}
+.card{border:2px solid var(--ink);padding:16px;background:rgba(25,19,7,.05)}
+.card .n{font-family:"Space Mono",monospace;font-size:12px;background:var(--ink);color:var(--buff);display:inline-block;padding:2px 8px;margin-bottom:8px}
+.card h3{margin:.1em 0 .4em;font-family:"Noto Serif TC",serif;font-size:18px}
+.card p{margin:.3em 0;font-size:14px}
+.worked{border:2px solid var(--ink);background:var(--field);color:var(--buff);padding:16px 18px;margin-top:18px;overflow-x:auto}
+.worked table{border-collapse:collapse;font-family:"Space Mono",monospace;font-size:14px}
+.worked td,.worked th{border:1px solid var(--line2);padding:5px 12px;text-align:center}
+.worked th{color:var(--buff2);font-weight:400;font-size:12px}
+.worked .r{color:var(--amber)}.worked .g{color:var(--green)}
+/* filter */
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:14px 0 6px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:11px;letter-spacing:.08em;color:var(--ink)}
+.fld input,.fld select{font-family:inherit;font-size:14px;padding:8px 10px;border:1.5px solid var(--ink);background:#f3ead0;color:var(--ink);min-width:120px}
+.count{font-family:"Space Mono",monospace;font-size:13px;margin:6px 0 12px}
+.cbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.entry{border:1.5px solid var(--ink);background:rgba(25,19,7,.04);padding:9px 11px;display:flex;align-items:center;gap:10px}
+.entry .ch{font-family:"Noto Serif TC",serif;font-size:30px;line-height:1;font-weight:700}
+.entry .meta{font-size:11px;color:#4a3a12}
+.entry .cd{font-family:"Space Mono",monospace;font-size:17px;letter-spacing:1px;font-weight:700}
+.entry .cat{display:inline-block;font-size:10px;border:1px solid var(--ink);padding:0 5px;margin-top:2px}
+.empty{padding:30px;text-align:center;font-size:14px;color:#4a3a12}
+/* footer + nav (shared) */
+footer{background:var(--field);color:var(--buff);padding:34px 0}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h5{font-family:"Noto Serif TC",serif;font-size:15px;margin:0 0 8px}
+footer p,footer a{font-size:13px;color:var(--buff2);text-decoration:none;display:block;margin:3px 0}
+footer a:hover{color:var(--buff)}
+footer .fine{grid-column:1/-1;border-top:1px solid var(--line2);padding-top:14px;font-size:11.5px;color:#a8996f}
+.nav{position:fixed;left:16px;bottom:16px;z-index:40}
+.nav .board{background:var(--field);border:2px solid var(--ink);box-shadow:5px 5px 0 rgba(25,19,7,.3);padding:10px 10px 8px}
+.nav .cap{font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.14em;color:var(--buff2);margin-bottom:7px;text-align:center}
+.nav .jacks{display:flex;gap:12px}
+.nav a.jack{text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;width:52px}
+.nav a.jack .hole{width:26px;height:26px;border-radius:50%;background:#0e0a03;border:2px solid var(--buff2);display:flex;align-items:center;justify-content:center}
+.nav a.jack .hole::after{content:"";width:8px;height:8px;border-radius:50%;background:#3a2c14}
+.nav a.jack .lbl{font-size:10.5px;color:var(--buff2);text-align:center}
+.nav a.jack.active .hole{border-color:var(--green);box-shadow:0 0 0 2px rgba(47,166,94,.4)}
+.nav a.jack.active .hole::after{background:var(--green);box-shadow:0 0 6px var(--green)}
+.nav a.jack.active .lbl{color:var(--buff)}
+.nav a.jack:hover .hole{border-color:var(--amber)}
+@media(max-width:900px){.stack{grid-template-columns:1fr}footer .wrap{grid-template-columns:1fr}.nav{left:0;right:0;bottom:0}.nav .board{box-shadow:none}.nav .cap{display:none}.nav .jacks{justify-content:space-around}.nav a.jack{width:auto;flex:1}body{padding-bottom:74px}.mast .rec{margin-left:0;width:100%;text-align:left}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-page="code">
+<a class="skip" href="#main">跳至主要內容</a>
+<header class="mast"><div class="wrap">
+ <a href="index.html"><img src="assets/logo.svg" alt="碼房 譯電傳習所"></a>
+ <span class="tag mono">碼本 · CODE BOOK</span>
+ <div class="rec"><b class="serif">公開電碼本（示意）</b><br><span class="mono">共 <span id="total">—</span> 字 · 隨到隨查</span></div>
+</div></header>
+
+<main id="main">
+<section>
+ <div class="wrap">
+  <p class="eyebrow"><span class="no">01</span> 三層之間 · HOW IT WORKS</p>
+  <svg class="tape-hd" id="tape1" height="34" role="img" aria-label="打孔紙帶：CODE BOOK"></svg>
+  <h1 class="title">字、四位數、與那本祕本。</h1>
+  <p class="lede">電報線路只認得通與斷，傳不了字，所以每個字得先換成號。這一頁公開的就是「字↔號」那本——任何人都查得到。真正藏起來的，是發電前再加上去的那層減碼。</p>
+  <div class="stack">
+   <div class="card"><span class="n">一 · 明碼</span><h3>要傳的字</h3><p>例如要發「站」這個字。人看得懂，電鍵送不動。</p></div>
+   <div class="card"><span class="n">二 · 電碼</span><h3>查這本得號</h3><p>翻碼本，「站」對到一組固定四位數。發報就發這四個數。這一層是公開的。</p></div>
+   <div class="card"><span class="n">三 · 減碼</span><h3>再加一層祕本</h3><p>公開電碼誰都讀得懂，於是逐群逐位加一組減碼；收方減回去。沒有祕本的人，得自己把它推出來——那就是<a href="index.html" style="border-bottom:1px solid">譯電檯</a>在做的事。</p></div>
+  </div>
+
+  <div class="worked">
+   <div class="mono" style="font-size:12px;color:var(--buff2);margin-bottom:8px">實例：把「站」加密（減碼組取 4827），與破解時的逆運算</div>
+   <table>
+    <tr><th>步驟</th><th>第1位</th><th>第2位</th><th>第3位</th><th>第4位</th><th>四位數</th></tr>
+    <tr><td>明碼「站」查碼本得</td><td id="w0"></td><td id="w1"></td><td id="w2"></td><td id="w3"></td><td class="mono" id="wc"></td></tr>
+    <tr><td>＋ 減碼 4·8·2·7（模10）</td><td>4</td><td>8</td><td>2</td><td>7</td><td class="mono">4827</td></tr>
+    <tr><td class="r">＝ 發出的電碼</td><td class="r" id="e0"></td><td class="r" id="e1"></td><td class="r" id="e2"></td><td class="r" id="e3"></td><td class="r mono" id="ec"></td></tr>
+    <tr><td class="g">破解：收到的電碼 − 4827</td><td class="g" id="w0b"></td><td class="g" id="w1b"></td><td class="g" id="w2b"></td><td class="g" id="w3b"></td><td class="g mono" id="wcb"></td></tr>
+   </table>
+   <div class="mono" style="font-size:12px;color:var(--buff2);margin-top:8px">→ 差落回碼本，查到「站」。破解全篇，就是把整組減碼推對。</div>
+  </div>
+ </div>
+</section>
+
+<section>
+ <div class="wrap">
+  <p class="eyebrow"><span class="no">02</span> 查號 · LOOKUP</p>
+  <h2 class="title">碼本查號</h2>
+  <div class="filters">
+   <div class="fld"><label for="q">字或號</label><input id="q" type="text" placeholder="輸入一個字，或四位數"></div>
+   <div class="fld"><label for="cat">部類</label><select id="cat"><option value="">全部</option></select></div>
+   <div class="fld"><label for="strk">筆畫</label><select id="strk"><option value="">不限</option><option value="1-8">1–8 畫</option><option value="9-14">9–14 畫</option><option value="15-30">15 畫以上</option></select></div>
+   <div class="fld"><label for="sort">排序</label><select id="sort"><option value="code">依電碼</option><option value="char">依字</option><option value="strk">依筆畫</option></select></div>
+  </div>
+  <div class="count mono" id="count"></div>
+  <div class="cbgrid" id="cbgrid"></div>
+  <div class="empty" id="empty" style="display:none">查無此字／此號。碼本為教學示意，僅收錄約二百餘常用字。</div>
+ </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+ <div><h5>碼房 · 譯電傳習所</h5><p>研習與保存舊式電碼、譯電技術。這本碼本是公開的；藏起來的永遠是減碼。</p><p class="mono" style="margin-top:8px">MAFANG CIPHER-TELEGRAPH INSTITUTE</p></div>
+ <div><h5>各課</h5><a href="index.html">譯電檯</a><a href="codebook.html">碼本查號</a><a href="archive.html">檔案室</a><a href="institute.html">傳習所 · 報名</a></div>
+ <div><h5>受理課</h5><p>臺北市松山區民權東路三段 12 號</p><p>(02) 2755-01__</p><p>週一至週五 09:00–17:30</p></div>
+ <p class="fine">本站為「Design Skills Center」館藏之一。碼本、電碼、部類與筆畫均為虛構教學示意（以字元雜湊決定論生成，非任何實際商用電碼或字書筆畫），不作實際通訊之依據。本站由 Claude Opus 4.8（排程 Agent 自動執行）設計與建置，2026-07-23。</p>
+</div></footer>
+
+<nav class="nav" aria-label="主導覽"><div class="board"><div class="cap">SWITCHBOARD</div><div class="jacks">
+ <a class="jack" href="index.html"><span class="hole"></span><span class="lbl">譯電檯</span></a>
+ <a class="jack active" href="codebook.html"><span class="hole"></span><span class="lbl">碼本</span></a>
+ <a class="jack" href="archive.html"><span class="hole"></span><span class="lbl">檔案室</span></a>
+ <a class="jack" href="institute.html"><span class="hole"></span><span class="lbl">傳習所</span></a>
+</div></div></nav>
+
+<script>
+"use strict";
+function fnv(str){let h=0x811c9dc5>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function buildCodebook(chars){const map={},rev={},used=new Set();for(const c of chars){if(map[c])continue;let code=100+(fnv('MAFANG|'+c)%9700);while(used.has(code))code=code+1;if(code>9999)code=100+(code%9700);used.add(code);map[c]=code;rev[code]=c;}return{map,rev};}
+const pad4=n=>String(n).padStart(4,'0');
+const MESSAGES=["碼房啟本月傳習班定初十開課請轉知各學員攜等寬格紙一冊即復","昨夜長浪三號站失聯已派工修線預計明午通報平安勿念","密本第肆冊到館請領用舊冊繳回換發新號切記校紅存查","北路電桿傾斜兩根候料到即搶修暫繞乙線發報稍延見諒","傳習所秋季公開日名額有限速覆到否備席位茶點恕不另通知","甲組譯電演練成績已錄乙丙兩組明晨續考攜筆記勿遲到"];
+const DECOYS="天地人和平安東西南年月日時分火水木金土山川雨風雲海江河湖田村莊府縣區里路橋門窗桌椅燈紙筆墨硯鐘鈴旗鼓車船馬牛羊魚鳥花草松竹梅蘭菊書畫詩詞歌賦禮樂春夏冬國家事物色光影聲息氣力心手足目耳口鼻頭身衣食住行來去上下左右前後內外始終公私老少多寡輕重高低長短方圓虛實剛柔動靜是非曲直忠信義廉恥溫良恭儉讓仁勇智";
+let chars=new Set();MESSAGES.forEach(m=>{for(const c of m)chars.add(c);});for(const c of DECOYS)chars.add(c);
+const CB=buildCodebook([...chars]);
+const CATS=["天文地理","人事往來","器物文書","動植自然","數量方位","德性其他"];
+function catOf(ch){return CATS[fnv('cat|'+ch)%CATS.length];}
+function strkOf(ch){return 1+fnv('strk|'+ch)%23;}
+const ENTRIES=Object.keys(CB.map).map(ch=>({ch,code:CB.map[ch],cat:catOf(ch),strk:strkOf(ch)}));
+document.getElementById('total').textContent=ENTRIES.length;
+
+/* worked example for 站 */
+(function(){const code=CB.map['站']||CB.map['線'];const d=[Math.floor(code/1000)%10,Math.floor(code/100)%10,Math.floor(code/10)%10,code%10];const k=[4,8,2,7];const e=d.map((x,i)=>(x+k[i])%10);
+ ['w0','w1','w2','w3'].forEach((id,i)=>document.getElementById(id).textContent=d[i]);document.getElementById('wc').textContent=pad4(code);
+ ['e0','e1','e2','e3'].forEach((id,i)=>document.getElementById(id).textContent=e[i]);document.getElementById('ec').textContent=e.join('');
+ ['w0b','w1b','w2b','w3b'].forEach((id,i)=>document.getElementById(id).textContent=(e[i]-k[i]+10)%10);document.getElementById('wcb').textContent=pad4(code);
+ // note: table's leading label uses 站; if 站 missing, fall back handled
+ if(!CB.map['站']){document.querySelector('.worked .mono').textContent='實例：把「線」加密（減碼組取 4827），與破解時的逆運算';}
+})();
+
+/* filters */
+const catSel=document.getElementById('cat');CATS.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
+const gridEl=document.getElementById('cbgrid'),countEl=document.getElementById('count'),emptyEl=document.getElementById('empty');
+function render(){
+ const q=document.getElementById('q').value.trim();const cat=catSel.value;const st=document.getElementById('strk').value;const sort=document.getElementById('sort').value;
+ let list=ENTRIES.filter(e=>{
+  if(cat&&e.cat!==cat)return false;
+  if(st){const[a,b]=st.split('-').map(Number);if(e.strk<a||e.strk>b)return false;}
+  if(q){if(/^\d+$/.test(q)){if(!pad4(e.code).includes(q))return false;}else{if(!q.split('').includes(e.ch))return false;}}
+  return true;
+ });
+ list.sort((a,b)=> sort==='char'?a.ch.localeCompare(b.ch,'zh'): sort==='strk'?a.strk-b.strk||a.code-b.code : a.code-b.code);
+ gridEl.innerHTML='';
+ list.forEach(e=>{const d=document.createElement('div');d.className='entry';
+  d.innerHTML='<span class="ch">'+e.ch+'</span><span class="meta"><span class="cd">'+pad4(e.code)+'</span><br><span class="cat">'+e.cat+'</span> · '+e.strk+' 畫</span>';gridEl.appendChild(d);});
+ countEl.textContent='符合 '+list.length+' 字';
+ emptyEl.style.display=list.length?'none':'block';
+}
+['q','cat','strk','sort'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+render();
+
+/* baudot tape header */
+const B_LTR={A:'11000',B:'10011',C:'01110',D:'10010',E:'10000',F:'10110',G:'01011',H:'00101',I:'01100',J:'11010',K:'11110',L:'01001',M:'00111',N:'00110',O:'00011',P:'01101',Q:'11101',R:'01010',S:'10100',T:'00001',U:'11100',V:'01111',W:'11001',X:'10111',Y:'10101',Z:'10001',' ':'00100'};
+function baudot(str){str=str.toUpperCase();const out=[];for(const ch of str){if(B_LTR[ch]!==undefined)out.push(B_LTR[ch]);}return out.map(b=>b.split('').map(Number));}
+function renderTape(svgEl,str){const rows=baudot(str);const step=11,pad=6,H=svgEl.getAttribute('height')|0,top=(H-30)/2;const W=pad*2+rows.length*step;svgEl.setAttribute('width',W);svgEl.setAttribute('viewBox','0 0 '+W+' '+H);let s='<rect x="'+pad+'" y="'+top+'" width="'+(rows.length*step)+'" height="30" fill="#201907" stroke="#191307" stroke-width="1.4"/>';rows.forEach((r,ci)=>{const x=pad+step*ci+step/2;s+='<circle cx="'+x+'" cy="'+(top+17)+'" r="1.4" fill="#8A6C24"/>';const yy=[top+6,top+10,top+14,top+21,top+25];for(let b=0;b<5;b++){s+='<circle cx="'+x+'" cy="'+yy[b]+'" r="'+(r[b]?2.1:0.9)+'" fill="'+(r[b]?'#E7D9AD':'#3a2c14')+'"/>';}});svgEl.innerHTML=s;}
+renderTape(document.getElementById('tape1'),'CODE BOOK');
+</script>
+</body>
+</html>

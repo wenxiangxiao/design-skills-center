@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>碼房 · 檔案室</title>
+<meta name="description" content="碼房檔案室：同一時期、同一線路的電文共用一本減碼。你在譯電檯推出的減碼，這裡其餘幾封會一併自動譯出。可依線路、類別、狀態、關鍵字篩選。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%238A6C24'/%3E%3Crect x='4' y='6' width='24' height='20' fill='%23201907'/%3E%3Cg fill='%23E7D9AD'%3E%3Ccircle cx='9' cy='11' r='1.5'/%3E%3Ccircle cx='9' cy='21' r='1.5'/%3E%3Ccircle cx='14' cy='11' r='1.5'/%3E%3Ccircle cx='19' cy='16' r='1.5'/%3E%3Ccircle cx='23' cy='11' r='1.5'/%3E%3Ccircle cx='23' cy='21' r='1.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&family=Archivo:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#8A6C24;--ink:#191307;--field:#201907;--field2:#2B2110;--buff:#E7D9AD;--buff2:#CBB884;--red:#C8382A;--green:#2FA65E;--amber:#F2C14E;--line:rgba(25,19,7,.34);--line2:rgba(231,217,173,.16)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.62;background-image:radial-gradient(rgba(25,19,7,.05) 1px,transparent 1px);background-size:5px 5px;padding-bottom:10px}
+.mono{font-family:"Space Mono",monospace}.serif{font-family:"Noto Serif TC",serif}
+a{color:inherit}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--buff);padding:8px 14px;z-index:99}.skip:focus{left:8px;top:8px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+header.mast{border-bottom:2px solid var(--ink)}
+.mast .wrap{display:flex;align-items:center;gap:20px;padding:16px 22px 14px;flex-wrap:wrap}
+.mast img{height:52px}.mast .tag{font-size:12px;letter-spacing:.14em;border:1.5px solid var(--ink);padding:3px 9px}
+.mast .rec{margin-left:auto;font-size:12px;text-align:right;line-height:1.4}
+section{padding:40px 0;border-bottom:2px solid var(--ink)}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:12.5px;letter-spacing:.16em;margin:0 0 6px;text-transform:uppercase}
+.eyebrow .no{background:var(--ink);color:var(--buff);padding:2px 8px;font-family:"Space Mono",monospace}
+h1.title{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(28px,5vw,46px);line-height:1.06;margin:.1em 0 .3em}
+.lede{max-width:64ch;font-size:16px}
+.tape-hd{display:block;margin:8px 0}
+.keybar{border:2px solid var(--ink);padding:12px 16px;margin:16px 0 6px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14px}
+.keybar .kv{font-family:"Space Mono",monospace}
+.keybar .on{color:#175f2f;font-weight:700}
+.keybar .off{color:var(--red);font-weight:700}
+.keybar button{margin-left:auto;font-family:inherit;font-size:13px;padding:8px 14px;border:1.4px solid var(--ink);background:var(--amber);color:var(--ink);cursor:pointer;font-weight:700}
+.keybar button:hover{background:#f7cf68}
+.keybar button:disabled{opacity:.4;cursor:not-allowed}
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:14px 0 6px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:11px;letter-spacing:.08em}
+.fld input,.fld select{font-family:inherit;font-size:14px;padding:8px 10px;border:1.5px solid var(--ink);background:#f3ead0;color:var(--ink);min-width:120px}
+.count{font-family:"Space Mono",monospace;font-size:13px;margin:6px 0 12px}
+.tele{border:2px solid var(--ink);margin-bottom:16px;background:var(--field);color:var(--buff)}
+.tele .hd{display:flex;gap:12px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.tele .hd .id{font-family:"Space Mono",monospace;font-size:14px;font-weight:700}
+.tele .hd .rt{font-size:12px;color:var(--buff2)}
+.tele .hd .cat{font-size:11px;border:1px solid var(--buff2);padding:1px 7px}
+.tele .hd .st{margin-left:auto;font-family:"Space Mono",monospace;font-size:11.5px;padding:2px 9px;border:1.3px solid var(--buff2)}
+.tele .hd .st.enc{background:var(--red);color:var(--buff);border-color:var(--red)}
+.tele .hd .st.dec{background:#17300f;color:#d7f2c8;border-color:var(--green)}
+.tele .bd{padding:14px 15px}
+.groups{display:flex;flex-wrap:wrap;gap:5px;font-family:"Space Mono",monospace;font-size:13px}
+.groups span{border:1px solid var(--line2);background:var(--field2);padding:3px 6px;color:var(--buff2)}
+.groups span.ok{background:#17300f;border-color:var(--green);color:#d7f2c8}
+.plain{margin-top:12px;font-family:"Noto Serif TC",serif;font-size:20px;letter-spacing:2px;line-height:1.7;color:#eaf6e0;border-left:4px solid var(--green);padding-left:12px;display:none}
+.plain.show{display:block}
+.tele .act{margin-top:12px}
+.tele .act button{font-family:inherit;font-size:12.5px;padding:6px 12px;border:1.3px solid var(--buff2);background:transparent;color:var(--buff);cursor:pointer}
+.tele .act button:hover{background:rgba(231,217,173,.1)}
+.empty{padding:30px;text-align:center;font-size:14px;color:var(--field)}
+footer{background:var(--field);color:var(--buff);padding:34px 0}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h5{font-family:"Noto Serif TC",serif;font-size:15px;margin:0 0 8px}
+footer p,footer a{font-size:13px;color:var(--buff2);text-decoration:none;display:block;margin:3px 0}
+footer a:hover{color:var(--buff)}
+footer .fine{grid-column:1/-1;border-top:1px solid var(--line2);padding-top:14px;font-size:11.5px;color:#a8996f}
+.nav{position:fixed;left:16px;bottom:16px;z-index:40}
+.nav .board{background:var(--field);border:2px solid var(--ink);box-shadow:5px 5px 0 rgba(25,19,7,.3);padding:10px 10px 8px}
+.nav .cap{font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.14em;color:var(--buff2);margin-bottom:7px;text-align:center}
+.nav .jacks{display:flex;gap:12px}
+.nav a.jack{text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;width:52px}
+.nav a.jack .hole{width:26px;height:26px;border-radius:50%;background:#0e0a03;border:2px solid var(--buff2);display:flex;align-items:center;justify-content:center}
+.nav a.jack .hole::after{content:"";width:8px;height:8px;border-radius:50%;background:#3a2c14}
+.nav a.jack .lbl{font-size:10.5px;color:var(--buff2);text-align:center}
+.nav a.jack.active .hole{border-color:var(--green);box-shadow:0 0 0 2px rgba(47,166,94,.4)}
+.nav a.jack.active .hole::after{background:var(--green);box-shadow:0 0 6px var(--green)}
+.nav a.jack.active .lbl{color:var(--buff)}
+.nav a.jack:hover .hole{border-color:var(--amber)}
+@media(max-width:900px){footer .wrap{grid-template-columns:1fr}.nav{left:0;right:0;bottom:0}.nav .board{box-shadow:none}.nav .cap{display:none}.nav .jacks{justify-content:space-around}.nav a.jack{width:auto;flex:1}body{padding-bottom:74px}.mast .rec{margin-left:0;width:100%;text-align:left}.keybar button{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-page="arch">
+<a class="skip" href="#main">跳至主要內容</a>
+<header class="mast"><div class="wrap">
+ <a href="index.html"><img src="assets/logo.svg" alt="碼房 譯電傳習所"></a>
+ <span class="tag mono">檔案室 · TRAFFIC</span>
+ <div class="rec"><b class="serif">收發電文存查</b><br><span class="mono">同本電文共 <span id="total">—</span> 封</span></div>
+</div></header>
+
+<main id="main">
+<section>
+ <div class="wrap">
+  <p class="eyebrow"><span class="no">01</span> 檔案室 · SAMPLE TRAFFIC</p>
+  <svg class="tape-hd" id="tape1" height="34" role="img" aria-label="打孔紙帶：TRAFFIC"></svg>
+  <h1 class="title">一本減碼，開一整批電文。</h1>
+  <p class="lede">這些是同一時期、同一線路收進來的電文。它們共用一本減碼——你在<a href="index.html" style="border-bottom:1px solid">譯電檯</a>把減碼推對之後，這一整批會跟著一起譯出。若尚未解出，也可逐封「顯示明碼」對照（教學用）。</p>
+
+  <div class="keybar">
+   <span>現行減碼（本機作業階段）：<span class="kv" id="keyState"></span></span>
+   <button id="decAll" type="button">以現行減碼譯出全部</button>
+  </div>
+
+  <div class="filters">
+   <div class="fld"><label for="route">線路</label><select id="route"><option value="">全部線路</option></select></div>
+   <div class="fld"><label for="cat">類別</label><select id="cat"><option value="">全部類別</option></select></div>
+   <div class="fld"><label for="st">狀態</label><select id="st"><option value="">全部</option><option value="dec">已譯出</option><option value="enc">加密中</option></select></div>
+   <div class="fld"><label for="q">關鍵字</label><input id="q" type="text" placeholder="電文編號或內容字"></div>
+  </div>
+  <div class="count mono" id="count"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty" style="display:none">沒有符合的電文。</div>
+ </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+ <div><h5>碼房 · 譯電傳習所</h5><p>研習與保存舊式電碼、譯電技術。線上的殘電，我們一封一封收整、教人讀回來。</p><p class="mono" style="margin-top:8px">MAFANG CIPHER-TELEGRAPH INSTITUTE</p></div>
+ <div><h5>各課</h5><a href="index.html">譯電檯</a><a href="codebook.html">碼本查號</a><a href="archive.html">檔案室</a><a href="institute.html">傳習所 · 報名</a></div>
+ <div><h5>受理課</h5><p>臺北市松山區民權東路三段 12 號</p><p>(02) 2755-01__</p><p>週一至週五 09:00–17:30</p></div>
+ <p class="fine">本站為「Design Skills Center」館藏之一。電文、線路、時刻、人名、地址、電話與減碼均為虛構教學示意，碼本為簡化模型，不作實際保密通訊之依據。「現行減碼」僅存於本機作業階段（sessionStorage），關閉分頁即清除。本站由 Claude Opus 4.8（排程 Agent 自動執行）設計與建置，2026-07-23。</p>
+</div></footer>
+
+<nav class="nav" aria-label="主導覽"><div class="board"><div class="cap">SWITCHBOARD</div><div class="jacks">
+ <a class="jack" href="index.html"><span class="hole"></span><span class="lbl">譯電檯</span></a>
+ <a class="jack" href="codebook.html"><span class="hole"></span><span class="lbl">碼本</span></a>
+ <a class="jack active" href="archive.html"><span class="hole"></span><span class="lbl">檔案室</span></a>
+ <a class="jack" href="institute.html"><span class="hole"></span><span class="lbl">傳習所</span></a>
+</div></div></nav>
+
+<script>
+"use strict";
+function fnv(str){let h=0x811c9dc5>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function buildCodebook(chars){const map={},rev={},used=new Set();for(const c of chars){if(map[c])continue;let code=100+(fnv('MAFANG|'+c)%9700);while(used.has(code))code=code+1;if(code>9999)code=100+(code%9700);used.add(code);map[c]=code;rev[code]=c;}return{map,rev};}
+const D=x=>[Math.floor(x/1000)%10,Math.floor(x/100)%10,Math.floor(x/10)%10,x%10];
+const U=a=>a[0]*1000+a[1]*100+a[2]*10+a[3];
+const encG=(code,key)=>{const c=D(code),k=D(key);return U([0,1,2,3].map(i=>(c[i]+k[i])%10));};
+const decG=(cip,key)=>{const c=D(cip),k=D(key);return U([0,1,2,3].map(i=>(c[i]-k[i]+10)%10));};
+const pad4=n=>String(n).padStart(4,'0');
+const L=3, TRUEKEY=[4827,1350,9264];
+const MESSAGES=["碼房啟本月傳習班定初十開課請轉知各學員攜等寬格紙一冊即復","昨夜長浪三號站失聯已派工修線預計明午通報平安勿念","密本第肆冊到館請領用舊冊繳回換發新號切記校紅存查","北路電桿傾斜兩根候料到即搶修暫繞乙線發報稍延見諒","傳習所秋季公開日名額有限速覆到否備席位茶點恕不另通知","甲組譯電演練成績已錄乙丙兩組明晨續考攜筆記勿遲到"];
+const DECOYS="天地人和平安東西南年月日時分火水木金土山川雨風雲海江河湖田村莊府縣區里路橋門窗桌椅燈紙筆墨硯鐘鈴旗鼓車船馬牛羊魚鳥花草松竹梅蘭菊書畫詩詞歌賦禮樂春夏冬國家事物色光影聲息氣力心手足目耳口鼻頭身衣食住行來去上下左右前後內外始終公私老少多寡輕重高低長短方圓虛實剛柔動靜是非曲直忠信義廉恥溫良恭儉讓仁勇智";
+let chars=new Set();MESSAGES.forEach(m=>{for(const c of m)chars.add(c);});for(const c of DECOYS)chars.add(c);
+const CB=buildCodebook([...chars]);
+const META=[
+ {id:'MF-0007',route:'內線',time:'07:12',cat:'所務',msg:MESSAGES[0]},
+ {id:'MF-0011',route:'海線',time:'23:48',cat:'線務',msg:MESSAGES[1]},
+ {id:'MF-0014',route:'內線',time:'09:05',cat:'所務',msg:MESSAGES[2]},
+ {id:'MF-0019',route:'北路',time:'14:33',cat:'線務',msg:MESSAGES[3]},
+ {id:'MF-0022',route:'內線',time:'11:20',cat:'所務',msg:MESSAGES[4]},
+ {id:'MF-0026',route:'甲乙線',time:'06:40',cat:'考務',msg:MESSAGES[5]}
+];
+META.forEach(m=>{m.ciph=[...m.msg].map((ch,i)=>encG(CB.map[ch],TRUEKEY[i%L]));m.revealed=false;});
+document.getElementById('total').textContent=META.length;
+
+/* recovered key from session */
+let sessionKey=null;
+try{const s=sessionStorage.getItem('mafang_key');if(s)sessionKey=JSON.parse(s);}catch(e){}
+function keyKnown(){return Array.isArray(sessionKey)&&sessionKey.length===L;}
+function renderKeyState(){
+ const el=document.getElementById('keyState');
+ if(keyKnown()){el.innerHTML='<span class="on">'+sessionKey.map(pad4).join(' · ')+'（已解出）</span>';document.getElementById('decAll').disabled=false;}
+ else{el.innerHTML='<span class="off">尚未解出 — 請先至譯電檯破解，或逐封顯示明碼</span>';document.getElementById('decAll').disabled=true;}
+}
+function isDecrypted(m){return m.revealed||keyKnown();}
+function keyFor(){return keyKnown()?sessionKey:TRUEKEY;}
+
+/* filters populate */
+const routeSel=document.getElementById('route'),catSel=document.getElementById('cat');
+[...new Set(META.map(m=>m.route))].forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;routeSel.appendChild(o);});
+[...new Set(META.map(m=>m.cat))].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;catSel.appendChild(o);});
+
+const listEl=document.getElementById('list'),countEl=document.getElementById('count'),emptyEl=document.getElementById('empty');
+function render(){
+ const route=routeSel.value,cat=catSel.value,st=document.getElementById('st').value,q=document.getElementById('q').value.trim();
+ let list=META.filter(m=>{
+  if(route&&m.route!==route)return false;
+  if(cat&&m.cat!==cat)return false;
+  if(st==='dec'&&!isDecrypted(m))return false;
+  if(st==='enc'&&isDecrypted(m))return false;
+  if(q){const hit=m.id.toLowerCase().includes(q.toLowerCase())||(isDecrypted(m)&&m.msg.includes(q));if(!hit)return false;}
+  return true;
+ });
+ listEl.innerHTML='';
+ list.forEach(m=>{
+  const dec=isDecrypted(m);const key=keyFor();
+  const t=document.createElement('div');t.className='tele';
+  let groups='';m.ciph.forEach((cg,i)=>{groups+='<span class="'+(dec?'ok':'')+'">'+pad4(cg)+'</span>';});
+  const plain=dec?('<div class="plain show">「'+m.msg+'。」</div>'):'';
+  const act=dec?'':'<div class="act"><button data-id="'+m.id+'">顯示明碼（教學對照）</button></div>';
+  t.innerHTML='<div class="hd"><span class="id">'+m.id+'</span><span class="rt">'+m.route+' · '+m.time+'</span><span class="cat">'+m.cat+'</span>'
+   +'<span class="st '+(dec?'dec':'enc')+'">'+(dec?'已譯出':'加密中')+'</span></div>'
+   +'<div class="bd"><div class="groups">'+groups+'</div>'+plain+act+'</div>';
+  listEl.appendChild(t);
+ });
+ listEl.querySelectorAll('.act button').forEach(b=>b.addEventListener('click',()=>{const m=META.find(x=>x.id===b.dataset.id);m.revealed=true;render();}));
+ countEl.textContent='符合 '+list.length+' 封（已譯 '+list.filter(isDecrypted).length+'）';
+ emptyEl.style.display=list.length?'none':'block';
+}
+document.getElementById('decAll').addEventListener('click',()=>{if(keyKnown()){META.forEach(m=>m.revealed=true);render();}});
+['route','cat','st','q'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+renderKeyState();render();
+
+/* baudot */
+const B_LTR={A:'11000',B:'10011',C:'01110',D:'10010',E:'10000',F:'10110',G:'01011',H:'00101',I:'01100',J:'11010',K:'11110',L:'01001',M:'00111',N:'00110',O:'00011',P:'01101',Q:'11101',R:'01010',S:'10100',T:'00001',U:'11100',V:'01111',W:'11001',X:'10111',Y:'10101',Z:'10001',' ':'00100'};
+function baudot(str){str=str.toUpperCase();const out=[];for(const ch of str){if(B_LTR[ch]!==undefined)out.push(B_LTR[ch]);}return out.map(b=>b.split('').map(Number));}
+function renderTape(svgEl,str){const rows=baudot(str);const step=11,pad=6,H=svgEl.getAttribute('height')|0,top=(H-30)/2;const W=pad*2+rows.length*step;svgEl.setAttribute('width',W);svgEl.setAttribute('viewBox','0 0 '+W+' '+H);let s='<rect x="'+pad+'" y="'+top+'" width="'+(rows.length*step)+'" height="30" fill="#201907" stroke="#191307" stroke-width="1.4"/>';rows.forEach((r,ci)=>{const x=pad+step*ci+step/2;s+='<circle cx="'+x+'" cy="'+(top+17)+'" r="1.4" fill="#8A6C24"/>';const yy=[top+6,top+10,top+14,top+21,top+25];for(let b=0;b<5;b++){s+='<circle cx="'+x+'" cy="'+yy[b]+'" r="'+(r[b]?2.1:0.9)+'" fill="'+(r[b]?'#E7D9AD':'#3a2c14')+'"/>';}});svgEl.innerHTML=s;}
+renderTape(document.getElementById('tape1'),'TRAFFIC');
+</script>
+</body>
+</html>

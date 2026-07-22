@@ -114,6 +114,7 @@
 | 96 | [候食堂 HÒU](sites/hou-canteen/index.html) | 節氣食堂 | 剪紙風 Papercut | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 97 | [起鐘 QIZHONG](sites/qizhong/index.html) | 換鐘鳴奏保存會 | 方格記譜風 Method-Grid | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 98 | [鏽綠所 XIULU](sites/xiulu/index.html) | 地方創生團隊 | 鐵窗花風 Iron-Grille | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 99 | [碼房 MAFANG](sites/mafang/index.html) | 譯電傳習所 | 打孔帶格紙風 Punchtape-Grid | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

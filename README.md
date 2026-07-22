@@ -112,6 +112,7 @@
 | 94 | [錦鱗園 KINRIN-EN](sites/kinrin-en/index.html) | 錦鯉育種場 | 錦絵風 Nishiki-e | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 95 | [夜滾自助洗衣 Nightspin](sites/nightspin/index.html) | 自助洗衣店 | 夜光投幣機風 Coin-Op Nightshift | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 96 | [候食堂 HÒU](sites/hou-canteen/index.html) | 節氣食堂 | 剪紙風 Papercut | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 97 | [起鐘 QIZHONG](sites/qizhong/index.html) | 換鐘鳴奏保存會 | 方格記譜風 Method-Grid | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

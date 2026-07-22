@@ -109,6 +109,7 @@
 | 91 | [北屯花卉拍賣市場 BEITUN](sites/beitun-bell/index.html) | 花卉批發拍賣市場 | 拍賣電光牌風 Auction-Board | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 92 | [溪頂鄉調解委員會 XIDING](sites/xiding-mediation/index.html) | 鄉鎮市調解委員會 | 筆錄速記風 Transcript-Steno | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 93 | [剪口玩具修復所 GATEMARK](sites/gatemark/index.html) | 舊玩具修復所 | 射出流道框 Sprue-Frame | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 94 | [錦鱗園 KINRIN-EN](sites/kinrin-en/index.html) | 錦鯉育種場 | 錦絵風 Nishiki-e | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

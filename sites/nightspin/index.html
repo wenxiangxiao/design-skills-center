@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>夜滾自助洗衣 · 現場樓面｜24 小時投幣自助洗衣</title>
+<meta name="description" content="台北大同區赤峰街的 24 小時自助洗衣店。看現在哪台空著、投幣認領、留紙條給下一個人——畫面照著現在幾點即時在動。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230E1412'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%232E3B38' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%230F1F1C'/%3E%3Cpath d='M20.5 16a5 5 0 1 1-4.2-4.94A4 4 0 0 0 20.5 16z' fill='%237DF2A8'/%3E%3Ccircle cx='12.4' cy='19' r='1.1' fill='%234FB0E6'/%3E%3Ccircle cx='15' cy='21' r='.8' fill='%234FB0E6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --night:#0E1412;--panel:#132A26;--panel2:#0F1F1C;
+ --steel:#2E3B38;--steel2:#46554F;
+ --fluor:#CFF7DB;--tube:#7DF2A8;
+ --seg:#35E08A;--segoff:#183129;
+ --brass:#E0A24B;--amber:#F2B33D;
+ --water:#4FB0E6;--stop:#E5533C;
+ --paper:#ECE6D2;--paperink:#2A2C22;--paperline:#C9C0A3;
+ --ink:#DCE7E2;--mut:#849690;--mut2:#5C6C67;
+ --line:#22322E;
+}
+html{background:var(--night);color:var(--ink)}
+body{font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;
+ background:
+  radial-gradient(120% 80% at 82% -8%,rgba(125,242,168,.06),transparent 60%),
+  radial-gradient(90% 60% at 4% 108%,rgba(79,176,230,.05),transparent 60%),
+  var(--night);
+ min-height:100vh;letter-spacing:.01em}
+.mono{font-family:"Share Tech Mono",ui-monospace,monospace;letter-spacing:.04em}
+a{color:inherit}
+img{max-width:100%}
+::selection{background:var(--tube);color:#08110D}
+
+/* ---- fluorescent tube header ---- */
+.tube{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,#0c1310,#0b1310);
+ border-bottom:1px solid var(--line)}
+.tube-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.tube .bar{flex:1;height:6px;min-width:60px;border-radius:3px;
+ background:linear-gradient(90deg,transparent,var(--tube) 12%,var(--fluor) 50%,var(--tube) 88%,transparent);
+ box-shadow:0 0 14px rgba(125,242,168,.55);opacity:.9}
+.wordmark{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.wordmark svg{display:block}
+.wordmark b{font-weight:900;font-size:19px;letter-spacing:.04em}
+.wordmark .en{font-size:10px;letter-spacing:.42em;color:var(--tube);text-transform:uppercase;margin-top:2px}
+.openpill{font-family:"Share Tech Mono",monospace;font-size:11px;color:#08110D;background:var(--tube);
+ padding:3px 9px;border-radius:2px;letter-spacing:.08em;box-shadow:0 0 12px rgba(125,242,168,.5)}
+
+/* ---- layout ---- */
+main{max-width:1180px;margin:0 auto;padding:26px 20px 130px}
+.eyebrow{font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:.32em;
+ color:var(--tube);text-transform:uppercase}
+h1,h2,h3{font-weight:900;line-height:1.12;letter-spacing:.01em}
+.wrap-narrow{max-width:760px}
+.dim{color:var(--mut)}
+.hr{height:1px;background:var(--line);border:0;margin:34px 0}
+
+/* seven-seg display */
+.seg{font-family:"Share Tech Mono",monospace;font-weight:400;color:var(--seg);
+ text-shadow:0 0 8px rgba(53,224,138,.65);letter-spacing:.08em;
+ background:#081512;border:1px solid #12261f;border-radius:3px;padding:2px 8px;display:inline-block}
+.seg.amber{color:var(--amber);text-shadow:0 0 8px rgba(242,179,61,.55)}
+.seg.stop{color:var(--stop);text-shadow:0 0 8px rgba(229,83,60,.5)}
+.seg.off{color:var(--mut2);text-shadow:none}
+.blink{animation:bl 1.05s steps(1) infinite}
+@keyframes bl{50%{opacity:.28}}
+
+/* floor */
+.floorhead{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.presence{font-family:"Share Tech Mono",monospace;font-size:12px;color:var(--mut);
+ border:1px solid var(--line);border-radius:3px;padding:7px 12px;background:#0c1613}
+.presence b{color:var(--fluor);font-weight:400}
+.floor{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.zone-label{grid-column:1/-1;font-family:"Share Tech Mono",monospace;font-size:11px;
+ letter-spacing:.28em;color:var(--mut2);text-transform:uppercase;margin:8px 2px 0;
+ display:flex;align-items:center;gap:10px}
+.zone-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.mach{position:relative;text-align:left;border:1px solid var(--steel);border-radius:6px;
+ background:linear-gradient(160deg,#16302a,#0f211d);padding:12px 12px 11px;
+ color:var(--ink);font-family:inherit;cursor:pointer;transition:transform .12s,border-color .12s,box-shadow .12s}
+.mach:hover{transform:translateY(-2px);border-color:var(--steel2);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.mach:focus-visible{outline:2px solid var(--tube);outline-offset:2px}
+.mach.busy{cursor:not-allowed}
+.mach.busy:hover{transform:none;box-shadow:none;border-color:var(--steel)}
+.mach .tag{display:flex;justify-content:space-between;align-items:center;
+ font-family:"Share Tech Mono",monospace;font-size:12px;color:var(--mut)}
+.mach .id{color:var(--fluor);font-size:15px}
+.porthole{width:100%;aspect-ratio:1.55/1;border-radius:8px;margin:9px 0;
+ background:radial-gradient(circle at 50% 44%,#0a1815,#06100d 68%);
+ border:1px solid #0a1714;display:grid;place-items:center;overflow:hidden;position:relative}
+.porthole .glass{width:60%;aspect-ratio:1;border-radius:50%;position:relative;
+ border:3px solid #26332f;background:radial-gradient(circle at 40% 35%,#123,#06100d 72%)}
+.porthole.run .glass{border-color:#1c5a44;animation:spin 2.4s linear infinite}
+.porthole.run .glass::before{content:"";position:absolute;inset:16% 18% auto 18%;height:34%;
+ border-radius:50%;background:linear-gradient(180deg,rgba(79,176,230,.5),transparent)}
+.porthole.mine .glass{border-color:var(--seg);box-shadow:0 0 16px rgba(53,224,138,.3) inset}
+.porthole.done .glass{border-color:var(--amber)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.state{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px}
+.state small{font-family:"Noto Sans TC";font-size:11.5px;color:var(--mut);line-height:1.35}
+.owner{font-size:11px;color:var(--mut2);margin-top:5px;
+ display:flex;align-items:center;gap:6px;min-height:15px}
+.owner .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex:none}
+.owner.mine .dot{background:var(--seg)}
+.free-hint{font-family:"Share Tech Mono",monospace;font-size:11px;color:var(--tube);opacity:.85}
+
+/* claim panel */
+.claimwrap{margin-top:26px;display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start}
+.card{border:1px solid var(--line);border-radius:8px;background:#0c1714;padding:18px 18px 20px}
+.card h3{font-size:15px;letter-spacing:.02em;margin-bottom:3px}
+.panel-note{font-family:"Share Tech Mono",monospace;font-size:11px;color:var(--mut2);letter-spacing:.06em}
+.field{margin-top:15px}
+.field>label{display:block;font-size:12px;color:var(--mut);margin-bottom:7px;letter-spacing:.04em}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:"Noto Sans TC";font-size:13px;padding:7px 12px;border-radius:3px;cursor:pointer;
+ border:1px solid var(--steel);background:#0f1f1b;color:var(--ink);transition:.12s}
+.chip:hover{border-color:var(--steel2)}
+.chip[aria-pressed="true"]{background:var(--tube);color:#08110D;border-color:var(--tube);font-weight:700}
+.chip:focus-visible{outline:2px solid var(--tube);outline-offset:2px}
+input.txt,textarea.txt{width:100%;background:#081512;border:1px solid var(--steel);border-radius:3px;
+ color:var(--ink);font-family:inherit;font-size:14px;padding:9px 11px;resize:vertical}
+input.txt:focus,textarea.txt:focus{outline:none;border-color:var(--tube)}
+.readout{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px;
+ display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.readout .k{font-size:11px;color:var(--mut2);letter-spacing:.05em}
+.readout .v{font-family:"Share Tech Mono",monospace;font-size:19px;color:var(--fluor);margin-top:1px}
+.readout .v small{font-size:12px;color:var(--mut)}
+.coinrow{grid-column:1/-1;display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+ margin-top:4px;padding-top:12px;border-top:1px dashed var(--line)}
+.coin{width:26px;height:26px;border-radius:50%;flex:none;
+ background:radial-gradient(circle at 38% 34%,#f2c877,var(--brass) 62%,#a86f24);
+ border:1px solid #8a5a1e;display:grid;place-items:center;
+ font-family:"Share Tech Mono",monospace;font-size:9px;color:#5a3a12;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:"Noto Sans TC";font-weight:700;
+ font-size:14px;padding:12px 20px;border-radius:3px;border:1px solid var(--tube);cursor:pointer;
+ background:var(--tube);color:#08110D;transition:.14s;letter-spacing:.04em}
+.btn:hover{box-shadow:0 0 18px rgba(125,242,168,.4)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:transparent;color:var(--tube)}
+.btn.small{padding:8px 14px;font-size:13px}
+.claimmsg{margin-top:13px;font-size:12.5px;color:var(--mut);min-height:18px}
+.claimmsg.ok{color:var(--seg)}
+.claimmsg.no{color:var(--stop)}
+
+/* ticket */
+.ticket{border:1px dashed var(--steel2);border-radius:6px;background:#0a1613;padding:14px;
+ display:none}
+.ticket.show{display:block}
+.ticket .top{display:flex;justify-content:space-between;align-items:center;
+ font-family:"Share Tech Mono",monospace;font-size:11px;color:var(--mut2);
+ border-bottom:1px dashed var(--line);padding-bottom:8px;letter-spacing:.1em}
+.ticket .big{font-family:"Share Tech Mono",monospace;font-size:40px;color:var(--seg);
+ text-shadow:0 0 12px rgba(53,224,138,.5);text-align:center;margin:10px 0 4px}
+.ticket .big.done{color:var(--amber);text-shadow:0 0 12px rgba(242,179,61,.5)}
+.ticket .sub{text-align:center;font-size:12px;color:var(--mut);margin-bottom:10px}
+
+/* corkboard */
+.board{margin-top:16px}
+.slips{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:13px;margin-top:14px}
+.slip{background:var(--paper);color:var(--paperink);border-radius:2px;padding:13px 13px 11px;
+ position:relative;box-shadow:0 5px 12px rgba(0,0,0,.4);font-size:13.5px;line-height:1.55;
+ transform:rotate(var(--rot,-1deg))}
+.slip::before{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+ width:13px;height:13px;border-radius:50%;background:var(--stop);
+ box-shadow:0 1px 2px rgba(0,0,0,.5),inset 0 1px 2px rgba(255,255,255,.4)}
+.slip.mine::before{background:var(--seg)}
+.slip .by{font-family:"Share Tech Mono",monospace;font-size:10.5px;color:#7a7358;
+ margin-top:8px;display:flex;justify-content:space-between;letter-spacing:.03em}
+.slip .by b{color:#4a4636;font-weight:700}
+
+/* ticker */
+.ticker{margin-top:16px;border:1px solid var(--line);border-radius:6px;background:#0b1512;overflow:hidden}
+.ticker h3{font-size:12px;letter-spacing:.24em;color:var(--mut);text-transform:uppercase;
+ padding:11px 15px 0;font-family:"Share Tech Mono",monospace;font-weight:400}
+.ticker ul{list-style:none;padding:9px 15px 15px;margin:0;
+ display:flex;flex-direction:column;gap:2px;max-height:220px;overflow:auto}
+.ticker li{display:flex;gap:12px;font-size:12.5px;padding:4px 0;border-bottom:1px solid #12211d;color:var(--mut)}
+.ticker li:last-child{border-bottom:0}
+.ticker li time{font-family:"Share Tech Mono",monospace;color:var(--tube);flex:none;opacity:.85}
+.ticker li b{color:var(--fluor);font-weight:400;font-family:"Share Tech Mono",monospace}
+
+/* generic content */
+.lede{font-size:19px;line-height:1.75;color:var(--ink)}
+p.body{margin-top:15px;color:#c3d2cd}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+table.rate{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+table.rate th,table.rate td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+table.rate th{font-family:"Share Tech Mono",monospace;font-weight:400;font-size:11px;
+ letter-spacing:.16em;color:var(--mut);text-transform:uppercase}
+table.rate td .seg{font-size:13px}
+.enamel{display:inline-block;background:var(--panel);border:1px solid var(--steel);
+ border-radius:4px;padding:2px 9px;font-family:"Share Tech Mono",monospace;font-size:12px;color:var(--fluor)}
+.big-num{font-family:"Share Tech Mono",monospace;font-size:clamp(52px,11vw,120px);
+ line-height:.9;color:var(--tube);text-shadow:0 0 20px rgba(125,242,168,.28)}
+.note-block{border-left:3px solid var(--tube);padding:4px 0 4px 16px;margin:22px 0;color:#b9c8c3}
+.disclaimer{font-family:"Share Tech Mono",monospace;font-size:11px;color:var(--mut2);
+ letter-spacing:.04em;margin-top:8px}
+ul.plain{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:10px}
+ul.plain li{padding-left:22px;position:relative;color:#c3d2cd}
+ul.plain li::before{content:"";position:absolute;left:0;top:11px;width:9px;height:9px;
+ background:var(--tube);border-radius:1px}
+dl.hours{margin-top:14px}
+dl.hours div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
+dl.hours dt{color:var(--mut)}
+dl.hours dd{font-family:"Share Tech Mono",monospace;color:var(--fluor)}
+
+/* bottom-dock nav = control panel */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:50;
+ background:linear-gradient(180deg,#0c1613,#0a120f);border-top:1px solid var(--steel);
+ box-shadow:0 -8px 24px rgba(0,0,0,.4)}
+.dock-in{max-width:1180px;margin:0 auto;padding:9px 14px;display:flex;gap:9px;align-items:stretch}
+.dock-brand{display:none}
+.dock a{flex:1;text-decoration:none;color:var(--mut);border:1px solid var(--steel);border-radius:4px;
+ background:#0f1d19;padding:9px 8px 8px;text-align:center;transition:.14s;position:relative}
+.dock a:hover{border-color:var(--steel2);color:var(--ink)}
+.dock a .lbl{display:block;font-weight:700;font-size:13px;letter-spacing:.02em}
+.dock a .en{display:block;font-family:"Share Tech Mono",monospace;font-size:9px;
+ letter-spacing:.18em;color:var(--mut2);margin-top:2px;text-transform:uppercase}
+.dock a .led{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;
+ background:#1c2b26;box-shadow:inset 0 0 2px #000}
+.dock a[aria-current="page"]{border-color:var(--tube);color:var(--fluor);background:#12241e}
+.dock a[aria-current="page"] .led{background:var(--tube);box-shadow:0 0 8px var(--tube)}
+.dock a[aria-current="page"] .en{color:var(--tube)}
+.dock a:focus-visible{outline:2px solid var(--tube);outline-offset:2px}
+
+footer.foot{border-top:1px solid var(--line);margin-top:40px;padding:26px 20px 30px}
+.foot-in{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;
+ gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--mut)}
+.foot-in a{color:var(--tube);text-decoration:none}
+.foot-in .mono{color:var(--mut2)}
+
+@media(max-width:860px){
+ .claimwrap{grid-template-columns:1fr}
+ .cols2{grid-template-columns:1fr;gap:16px}
+ .floor{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:560px){
+ main{padding:20px 14px 128px}
+ .floor{grid-template-columns:repeat(2,1fr)}
+ .tube-in{padding:10px 14px}
+ .wordmark .en{letter-spacing:.3em}
+ .readout{grid-template-columns:1fr}
+ .dock a .en{display:none}
+ .dock-in{padding:8px 10px;gap:6px}
+}
+@media(prefers-reduced-motion:reduce){
+ *{animation:none!important;transition:none!important}
+ .blink{opacity:1}
+}
+</style>
+
+</head>
+<body>
+<header class="tube"><div class="tube-in"><a class="wordmark" href="index.html"><svg width="34" height="34" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<rect x="1" y="1" width="32" height="32" rx="7" fill="#0F1F1C" stroke="#2E3B38" stroke-width="1.5"/>
+<circle cx="17" cy="17" r="10" fill="none" stroke="#2E3B38" stroke-width="2.4"/>
+<circle cx="17" cy="17" r="8" fill="#08100D"/>
+<path d="M22.6 17a5.6 5.6 0 1 1-4.7-5.53A4.4 4.4 0 0 0 22.6 17z" fill="#7DF2A8"/>
+<circle cx="12.7" cy="20.4" r="1.25" fill="#4FB0E6"/>
+<circle cx="15.6" cy="22.3" r=".9" fill="#4FB0E6"/>
+<circle cx="17" cy="7" r="1.5" fill="#0F1F1C" stroke="#2E3B38" stroke-width="1.2"/>
+</svg><span><b>夜滾自助洗衣</b><span class="en">Nightspin&nbsp;Launderette</span></span></a><span class="bar"></span><span class="openpill mono">24H · 亮著就是開著</span></div></header>
+<main>
+
+<p class="eyebrow">Floor · 現場樓面 · 台北 大同區 赤峰街</p>
+<div class="floorhead">
+ <div style="max-width:56ch">
+  <h1 style="font-size:clamp(25px,4.4vw,40px)">凌晨三點，這裡還有幾台在轉。</h1>
+  <p class="dim" style="margin-top:9px">你不會遇到店員，也很少真的遇到彼此。挑一台亮<span style="color:var(--tube)">綠燈</span>的空機、投幣、留一張紙條——下次回來，它可能還在幫別人轉。畫面上的每一台，都照著現在幾點在動。</p>
+ </div>
+ <div class="presence" id="presence"><span class="mono">連線中…</span></div>
+</div>
+
+<div class="floor" id="floor" aria-label="洗衣店樓面即時狀態"></div>
+
+<div class="claimwrap">
+ <section class="card" id="claimcard">
+  <h3>投幣認領 <span class="enamel mono" id="selid" style="margin-left:6px">未選機台</span></h3>
+  <p class="panel-note" id="selhint">點上方一台亮綠燈的空機開始。</p>
+
+  <div class="field"><label>洗程</label><div class="chips" id="progchips"></div></div>
+  <div class="field" id="tempfield"><label>水溫</label><div class="chips" id="tempchips"></div></div>
+  <div class="field"><label>衣量（約）</label><div class="chips" id="loadchips"></div></div>
+
+  <div class="readout">
+   <div><div class="k">預估時間</div><div class="v" id="ro-min">—</div></div>
+   <div><div class="k">完成時刻（依你現在的時鐘）</div><div class="v" id="ro-fin">—</div></div>
+   <div class="coinrow" id="coinrow"><span class="k" style="margin-right:2px">投幣</span></div>
+  </div>
+
+  <div class="field"><label>順手留一張紙條（選填，會釘上公告欄）</label>
+   <input class="txt" id="claimnote" maxlength="52" placeholder="例：拜託別動我的衣服，馬上回來 謝謝"></div>
+
+  <div style="margin-top:16px"><button class="btn" id="claimbtn" disabled>投幣認領</button></div>
+  <div class="claimmsg" id="claimmsg"></div>
+ </section>
+
+ <aside>
+  <div class="ticket" id="ticket">
+   <div class="top mono"><span>領洗票 · NIGHTSPIN</span><span id="tk-id">—</span></div>
+   <div class="big" id="tk-time">--:--</div>
+   <div class="sub" id="tk-sub">—</div>
+   <div style="text-align:center"><button class="btn ghost small" id="tk-btn">取消認領</button></div>
+  </div>
+  <div class="ticker">
+   <h3>夜間動態</h3>
+   <ul id="tickerlist"></ul>
+  </div>
+ </aside>
+</div>
+
+<section class="board">
+ <div class="floorhead" style="margin-top:8px">
+  <h2 style="font-size:22px">公告欄</h2>
+  <span class="panel-note mono">別人留下的 · 你留下的</span>
+ </div>
+ <div class="field" style="max-width:520px">
+  <label>留一張給下一個人的紙條</label>
+  <textarea class="txt" id="notetext" rows="2" maxlength="60" placeholder="例：三號烘衣機比較會乾"></textarea>
+  <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+   <button class="btn small" id="addnote">釘上去</button>
+   <span class="panel-note mono" id="noteby">— 你是「赤峰街的你」</span>
+  </div>
+ </div>
+ <div class="slips" id="slips"></div>
+</section>
+
+</main>
+<nav class="dock" aria-label="主導覽"><div class="dock-in"><a href="index.html" aria-current="page"><span class="led"></span><span class="lbl">現場</span><span class="en">FLOOR</span></a><a href="rates.html"><span class="led"></span><span class="lbl">洗程・投幣</span><span class="en">WASH & COIN</span></a><a href="night.html"><span class="led"></span><span class="lbl">夜間守則</span><span class="en">NIGHT</span></a></div></nav>
+<footer class="foot"><div class="foot-in"><span>夜滾自助洗衣・台北市大同區赤峰街 47 巷 3 號　凌晨也有燈</span><span class="mono">投幣 NT$50 起｜資料皆為虛構示意</span></div></footer>
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+function fnv(str){var h=0x811c9dc5>>>0;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function rng(seed){var s=(seed>>>0)||1;return function(){s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+function pad(n){return String(n).padStart(2,"0");}
+function hhmm(min){var m=((Math.floor(min)%1440)+1440)%1440;return pad(Math.floor(m/60))+":"+pad(m%60);}
+function mmss(sec){sec=Math.max(0,Math.floor(sec));return pad(Math.floor(sec/60))+":"+pad(sec%60);}
+
+var MACH=[
+ {id:"W1",t:"wash",cap:"8kg 洗衣"},{id:"W2",t:"wash",cap:"8kg 洗衣"},
+ {id:"W3",t:"wash",cap:"8kg 洗衣"},{id:"W4",t:"wash",cap:"8kg 洗衣"},
+ {id:"W5",t:"wash",cap:"12kg 大物"},{id:"W6",t:"wash",cap:"12kg 大物"},
+ {id:"D1",t:"dry",cap:"14kg 烘衣"},{id:"D2",t:"dry",cap:"14kg 烘衣"},
+ {id:"D3",t:"dry",cap:"22kg 烘衣"},{id:"D4",t:"dry",cap:"22kg 烘衣"}
+];
+var ALIAS=["赤峰街的貓","夜班司機","207 號房","大夜班護理師","搬家中的人","失眠的人","遛狗回來","隔壁租屋族","早班麵包師","代收衣服的","末班車沒趕上","實習醫師","考研的","洗球衣的爸爸"];
+var GNOTE=["拜託不要動我的衣服，馬上回來","烘到八成就好，省點電","有人撿到一隻藍色的襪子嗎","末班公車走了，只好等烘乾","洗衣精借用了一點，明天補","這台脫水會晃，放平一點",""];
+var PROG={
+ wash:[{k:"標準",min:36,coin:50},{k:"大物寢具",min:52,coin:80},{k:"快洗",min:22,coin:40},{k:"羽絨精緻",min:44,coin:60}],
+ dry:[{k:"標準烘乾",min:36,coin:60},{k:"厚重烘乾",min:48,coin:80},{k:"快速回溫",min:18,coin:30},{k:"低溫護色",min:42,coin:60}]
+};
+var TEMP=["冷水","常溫","40°C","60°C"];
+var LOADS=["半桶","八分滿","滿桶"];
+
+// ---- persistence ----
+function jload(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}}
+function jsave(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+var claim=jload("nightspin.claim",null);
+var mynotes=jload("nightspin.notes",[]);
+var meAlias=jload("nightspin.me",null);
+if(!meAlias){meAlias="赤峰街的你";jsave("nightspin.me",meAlias);}
+
+// ---- deterministic ghost schedule ----
+function dateSeed(now){return fnv(now.getFullYear()+"_"+(now.getMonth()+1)+"_"+now.getDate());}
+function nowMin(now){return now.getHours()*60+now.getMinutes()+now.getSeconds()/60;}
+function daySchedule(m,dseed){
+ var r=rng((fnv(m.id)^dseed)>>>0);
+ var cyc=PROG[m.t];var cursor=0;var out=[];
+ while(cursor<1440){
+  var gap=8+Math.floor(r()*60);
+  if(cursor>60&&cursor<300)gap+=Math.floor(28+r()*104); // 01:00–05:00 稀疏但不空
+  cursor+=gap;
+  var p=cyc[Math.floor(r()*cyc.length)];
+  out.push({start:cursor,end:cursor+p.min,prog:p.k,
+   owner:ALIAS[Math.floor(r()*ALIAS.length)],
+   note:GNOTE[Math.floor(r()*GNOTE.length)],
+   unc:r()<0.16});
+  cursor+=p.min;
+ }
+ return out;
+}
+function schedule(m,now){
+ var out=daySchedule(m,dateSeed(now));
+ var y=new Date(now.getTime()-86400000);
+ daySchedule(m,dateSeed(y)).forEach(function(ss){
+  if(ss.end>1440)out.push({start:ss.start-1440,end:ss.end-1440,prog:ss.prog,owner:ss.owner,note:ss.note,unc:ss.unc});
+ });
+ return out;
+}
+function stateOf(m,now){
+ if(claim&&claim.id===m.id){
+  var rem=(claim.start+claim.min*60000-now.getTime())/1000;
+  if(rem>0)return{s:"mine",rem:rem,prog:claim.prog};
+  return{s:"minedone",prog:claim.prog};
+ }
+ var cur=nowMin(now),sch=schedule(m,now);
+ for(var i=0;i<sch.length;i++){var ss=sch[i];
+  if(cur>=ss.start&&cur<ss.end)return{s:"run",rem:(ss.end-cur)*60,owner:ss.owner,prog:ss.prog,note:ss.note};
+  if(ss.unc&&cur>=ss.end&&cur<ss.end+26)return{s:"done",ago:Math.round(cur-ss.end),owner:ss.owner,prog:ss.prog};
+ }
+ return{s:"free"};
+}
+
+// ---- build floor tiles once ----
+var tiles={};var floor=$("#floor");
+function zone(label){var d=document.createElement("div");d.className="zone-label";d.textContent=label;floor.appendChild(d);}
+function buildFloor(){
+ floor.innerHTML="";zone("洗衣區 · Washers");
+ MACH.forEach(function(m,i){
+  if(i===6)zone("烘衣區 · Dryers");
+  var b=document.createElement("button");b.className="mach";b.setAttribute("data-id",m.id);
+  b.innerHTML='<div class="tag"><span class="id">'+m.id+'</span><span>'+m.cap+'</span></div>'+
+   '<div class="porthole"><div class="glass"></div></div>'+
+   '<div class="state"><span class="seg off">--:--</span><small></small></div>'+
+   '<div class="owner"><span class="dot"></span><span class="who"></span></div>';
+  b.addEventListener("click",function(){onTile(m);});
+  floor.appendChild(b);tiles[m.id]=b;
+ });
+}
+function refreshTile(m,now){
+ var t=tiles[m.id],st=stateOf(m,now);
+ var ph=t.querySelector(".porthole"),seg=t.querySelector(".seg"),
+     sm=t.querySelector("small"),ow=t.querySelector(".owner"),who=t.querySelector(".who");
+ t.classList.remove("busy");t.setAttribute("aria-pressed", sel&&sel.id===m.id?"true":"false");
+ function setSeg(cls,txt){seg.className="seg "+cls;seg.textContent=txt;}
+ if(st.s==="free"){
+  ph.className="porthole";setSeg("off","--:--");
+  sm.innerHTML='<span class="free-hint">空機・可投幣</span>';
+  ow.style.visibility="hidden";
+  if(sel&&sel.id===m.id)t.style.borderColor="var(--tube)";else t.style.borderColor="";
+ }else if(st.s==="run"){
+  t.classList.add("busy");ph.className="porthole run";setSeg("amber "+blinkCls(),mmss(st.rem));
+  sm.textContent="運轉中 · "+st.prog;ow.className="owner";ow.style.visibility="visible";
+  who.textContent=st.owner;t.style.borderColor="";
+ }else if(st.s==="done"){
+  t.classList.add("busy");ph.className="porthole done";setSeg("amber","洗好");
+  sm.textContent="洗好了 · "+st.ago+" 分前";ow.className="owner";ow.style.visibility="visible";
+  who.textContent=st.owner+" · 未取件";t.style.borderColor="";
+ }else if(st.s==="mine"){
+  ph.className="porthole mine";setSeg(blinkCls(),mmss(st.rem));
+  sm.textContent="你的 · "+st.prog;ow.className="owner mine";ow.style.visibility="visible";
+  who.textContent="你 · 洗滌中";t.style.borderColor="var(--seg)";
+ }else{ // minedone
+  ph.className="porthole mine done";setSeg("amber","好了");
+  sm.textContent="洗好了 · 記得收衣";ow.className="owner mine";ow.style.visibility="visible";
+  who.textContent="你 · 待收（點我收衣）";t.style.borderColor="var(--amber)";
+ }
+}
+var REDUCED=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+function blinkCls(){return REDUCED?"":"blink";}
+
+// ---- selection / claim ----
+var sel=null,selProg=0,selTemp=1,selLoad=1;
+function onTile(m){
+ var st=stateOf(m,new Date());
+ if(st.s==="minedone"){collect();return;}
+ if(st.s==="mine"){$("#ticket").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"center"});return;}
+ if(st.s!=="free"){flash(tiles[m.id]);msg("這台有人在用，換一台亮綠燈的。","no");return;}
+ sel=m;selProg=0;
+ buildChips();syncSel();
+}
+function flash(el){el.animate&&!REDUCED&&el.animate([{transform:"translateX(0)"},{transform:"translateX(-4px)"},{transform:"translateX(4px)"},{transform:"translateX(0)"}],{duration:240});}
+function msg(txt,cls){var el=$("#claimmsg");el.textContent=txt;el.className="claimmsg "+(cls||"");}
+function buildChips(){
+ var pc=$("#progchips");pc.innerHTML="";
+ var list=sel?PROG[sel.t]:PROG.wash;
+ list.forEach(function(p,i){pc.appendChild(chip(p.k+" · "+p.min+"分",i===selProg,function(){selProg=i;syncSel();refreshChips();}));});
+ $("#tempfield").style.display = (sel&&sel.t==="dry")?"none":"";
+ var tc=$("#tempchips");tc.innerHTML="";
+ TEMP.forEach(function(x,i){tc.appendChild(chip(x,i===selTemp,function(){selTemp=i;refreshChips();}));});
+ var lc=$("#loadchips");lc.innerHTML="";
+ LOADS.forEach(function(x,i){lc.appendChild(chip(x,i===selLoad,function(){selLoad=i;syncSel();refreshChips();}));});
+}
+function refreshChips(){
+ [["#progchips",selProg],["#tempchips",selTemp],["#loadchips",selLoad]].forEach(function(pair){
+  var kids=document.querySelectorAll(pair[0]+" .chip");
+  for(var i=0;i<kids.length;i++)kids[i].setAttribute("aria-pressed",i===pair[1]?"true":"false");
+ });
+}
+function chip(label,on,fn){
+ var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=label;
+ b.setAttribute("aria-pressed",on?"true":"false");b.addEventListener("click",fn);return b;
+}
+function calc(){
+ if(!sel)return null;
+ var p=PROG[sel.t][selProg];
+ var min=p.min, coin=p.coin;
+ if(sel.t==="wash"&&selTemp===3){min+=6;coin+=10;}      // 60度加時加費
+ if(sel.t==="wash"&&selTemp===2){min+=3;}
+ if(selLoad===2){min+=4;coin+=10;}                        // 滿桶
+ if(selLoad===0){min=Math.max(14,min-4);}                 // 半桶
+ return {min:min,coin:coin};
+}
+function syncSel(){
+ var c=calc();var btn=$("#claimbtn");
+ if(!sel||!c){$("#selid").textContent="未選機台";$("#selhint").style.display="";btn.disabled=true;
+  $("#ro-min").textContent="—";$("#ro-fin").textContent="—";drawCoins(0);return;}
+ $("#selid").textContent=sel.id+" · "+sel.cap;$("#selhint").style.display="none";
+ $("#ro-min").innerHTML=c.min+' <small>分</small>';
+ var fin=new Date(Date.now()+c.min*60000);
+ $("#ro-fin").textContent=pad(fin.getHours())+":"+pad(fin.getMinutes());
+ drawCoins(c.coin);
+ var already=claim&&stateOf(sel,new Date()).s.indexOf("mine")===0;
+ btn.disabled=false;
+ btn.textContent = (claim? "投幣認領（會換掉目前的 "+claim.id+"）" : "投幣認領 · NT$"+c.coin);
+}
+function drawCoins(total){
+ var row=$("#coinrow");row.innerHTML='<span class="k" style="margin-right:2px">投幣</span>';
+ var n=Math.round(total/10),shown=Math.min(n,8);
+ for(var i=0;i<shown;i++){var c=document.createElement("span");c.className="coin";c.textContent="10";row.appendChild(c);}
+ var tx=document.createElement("span");tx.className="mono";tx.style.color="var(--fluor)";
+ tx.style.marginLeft="4px";tx.textContent=(n>8?"×"+n+" ":"")+"= NT$"+total;row.appendChild(tx);
+}
+function doClaim(){
+ if(!sel)return;var c=calc();if(!c)return;
+ if(stateOf(sel,new Date()).s!=="free"&&!(claim&&claim.id!==sel.id)){msg("這台剛剛被占用了。","no");return;}
+ claim={id:sel.id,start:Date.now(),min:c.min,prog:PROG[sel.t][selProg].k,cap:sel.cap};
+ jsave("nightspin.claim",claim);
+ var note=$("#claimnote").value.trim();
+ if(note){mynotes.unshift({t:note,by:meAlias,at:Date.now()});jsave("nightspin.notes",mynotes);$("#claimnote").value="";}
+ msg(sel.id+" 是你的了。投幣 NT$"+c.coin+"，"+c.min+" 分鐘後回來收。","ok");
+ userEvents.unshift({min:nowMin(new Date()),txt:"你認領了 "+sel.id+"（"+claim.prog+"）"});
+ sel=null;syncSel();renderTicket();renderSlips();renderTicker(new Date());
+}
+function collect(){
+ if(!claim)return;var id=claim.id;userEvents.unshift({min:nowMin(new Date()),txt:"你收走了 "+id+" 的衣服"});
+ claim=null;jsave("nightspin.claim",null);msg("衣服收好了，機台還給大家。","ok");
+ renderTicket();renderTicker(new Date());
+}
+function renderTicket(){
+ var tk=$("#ticket");
+ if(!claim){tk.classList.remove("show");return;}
+ tk.classList.add("show");$("#tk-id").textContent=claim.id+" · "+(claim.cap||"");
+ $("#tk-btn").textContent="取消認領";
+}
+function updateTicket(now){
+ if(!claim)return;
+ var rem=(claim.start+claim.min*60000-now.getTime())/1000;
+ var big=$("#tk-time");
+ if(rem>0){big.className="big";big.textContent=mmss(rem);
+  var fin=new Date(claim.start+claim.min*60000);
+  $("#tk-sub").textContent=claim.prog+" · 預計 "+pad(fin.getHours())+":"+pad(fin.getMinutes())+" 完成";
+  $("#tk-btn").textContent="取消認領";}
+ else{big.className="big done";big.textContent="完成";
+  $("#tk-sub").textContent="洗好了，記得回來收衣";$("#tk-btn").textContent="收衣（釋出機台）";}
+}
+$("#claimbtn").addEventListener("click",doClaim);
+$("#tk-btn").addEventListener("click",function(){
+ if(!claim)return;var rem=(claim.start+claim.min*60000-Date.now())/1000;
+ if(rem>0){claim=null;jsave("nightspin.claim",null);msg("已取消認領。","");renderTicket();}
+ else collect();
+});
+
+// ---- corkboard ----
+function renderSlips(){
+ var box=$("#slips");box.innerHTML="";
+ var seeds=seedNotes(new Date());
+ var all=mynotes.map(function(n){return{t:n.t,by:n.by,mine:true,at:n.at};})
+   .concat(seeds);
+ all.slice(0,10).forEach(function(n,i){
+  var d=document.createElement("div");d.className="slip"+(n.mine?" mine":"");
+  d.style.setProperty("--rot",((i%3)-1)*1.4+"deg");
+  var when=n.mine? relTime(n.at) : n.when;
+  d.innerHTML=esc(n.t)+'<div class="by"><b>'+esc(n.by)+'</b><span>'+when+'</span></div>';
+  box.appendChild(d);
+ });
+}
+function seedNotes(now){
+ var r=rng((dateSeed(now)^0x9e37)>>>0);var pool=[
+  {t:"這台脫水會晃，記得放平一點",by:"三號機常客"},
+  {t:"有人撿到一隻藍色的小襪子，放在窗台",by:"遛狗回來"},
+  {t:"末班公車走了，只好在這裡等烘乾。晚安。",by:"失眠的人"},
+  {t:"烘衣機投到一半沒錢，好心人幫我續了 20，謝謝你",by:"考研的"},
+  {t:"洗衣精放在架上，要用自己拿，別客氣",by:"代收衣服的"},
+  {t:"凌晨這個時段人最少，很好洗",by:"大夜班護理師"},
+  {t:"誰的紅色浴巾忘在 W3，我先放到籃子裡了",by:"早班麵包師"},
+  {t:"三號烘衣機比較會乾，先搶先贏",by:"搬家中的人"}
+ ];
+ // stable shuffle + stable "when"
+ var out=[];var used={};var n=5+Math.floor(r()*2);
+ while(out.length<n){var k=Math.floor(r()*pool.length);if(used[k]){continue;}used[k]=1;
+  var ago=6+Math.floor(r()*230);var w=new Date(now.getTime()-ago*60000);
+  out.push({t:pool[k].t,by:pool[k].by,when:pad(w.getHours())+":"+pad(w.getMinutes())});}
+ return out;
+}
+$("#addnote").addEventListener("click",function(){
+ var v=$("#notetext").value.trim();if(!v){$("#notetext").focus();return;}
+ mynotes.unshift({t:v,by:meAlias,at:Date.now()});jsave("nightspin.notes",mynotes);
+ $("#notetext").value="";renderSlips();
+});
+$("#noteby").textContent="— 你是「"+meAlias+"」";
+
+// ---- ticker ----
+var userEvents=[];
+function renderTicker(now){
+ var cur=nowMin(now),ev=[];
+ MACH.forEach(function(m){
+  var sch=schedule(m,now);
+  sch.forEach(function(ss){
+   if(ss.start<=cur&&cur-ss.start<50)ev.push({min:ss.start,txt:m.id+" 有人開始"+(m.t==="dry"?"烘":"洗")+"了"});
+   if(ss.end<=cur&&cur-ss.end<50)ev.push({min:ss.end,txt:m.id+" "+(m.t==="dry"?"烘":"洗")+"好了"+(ss.unc?"，還沒人來收":"")});
+  });
+ });
+ userEvents.forEach(function(u){ev.push(u);});
+ ev.sort(function(a,b){return b.min-a.min;});
+ var ul=$("#tickerlist");ul.innerHTML="";
+ ev.slice(0,9).forEach(function(e){
+  var li=document.createElement("li");
+  li.innerHTML='<time>'+hhmm(e.min)+'</time><span>'+e.txt.replace(/^([WD]\d)/,'<b>$1</b>')+'</span>';
+  ul.appendChild(li);
+ });
+ if(!ev.length){ul.innerHTML='<li><span class="dim">這半小時很安靜。</span></li>';}
+}
+function presence(now){
+ var owners={},run=0;
+ MACH.forEach(function(m){var st=stateOf(m,now);if(st.s==="run"){owners[st.owner]=1;run++;}if(st.s==="mine")run++;});
+ var ppl=Object.keys(owners).length+(claim&&stateOf({id:claim.id,t:"wash"},now).s==="mine"?1:0);
+ $("#presence").innerHTML='<span class="mono">現在店裡 <b>'+ppl+'</b> 人 · <b>'+run+'</b> 台運轉中 · '+
+  pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds())+'</span>';
+}
+
+// ---- helpers ----
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function relTime(at){var d=Math.round((Date.now()-at)/60000);if(d<1)return"剛剛";if(d<60)return d+" 分前";return Math.round(d/60)+" 小時前";}
+
+// ---- boot ----
+buildFloor();buildChips();syncSel();renderSlips();
+var lastCoarse=0;
+function loop(){
+ var now=new Date();
+ MACH.forEach(function(m){refreshTile(m,now);});
+ updateTicket(now);
+ if(now.getTime()-lastCoarse>4000){presence(now);renderTicker(now);lastCoarse=now.getTime();}
+ requestAnimationFrame(function(){});
+}
+presence(new Date());renderTicker(new Date());renderTicket();
+loop();setInterval(loop,1000);
+})();
+</script>
+</body>
+</html>

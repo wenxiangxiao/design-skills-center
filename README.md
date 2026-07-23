@@ -116,6 +116,7 @@
 | 98 | [鏽綠所 XIULU](sites/xiulu/index.html) | 地方創生團隊 | 鐵窗花風 Iron-Grille | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 99 | [碼房 MAFANG](sites/mafang/index.html) | 譯電傳習所 | 打孔帶格紙風 Punchtape-Grid | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 100 | [孢徑蕈學社 SPOREKEY](sites/sporekey/index.html) | 野菇鑑定學社 | 孢印放射風 Spore-Print Radial | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 101 | [吱吱造型氣球所 SQUEAK](sites/squeak/index.html) | 造型氣球扭結工作室 | 乳膠糖果風 Latex-Pop | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

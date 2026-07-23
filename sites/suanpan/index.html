@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>算珠堂 SUANPAN｜珠算檢定研究所</title>
+<meta name="description" content="台北大同區的珠算檢定研究所。這張綠板上沒有一個阿拉伯數字——每個數都是一具算盤。撥上珠、去九加補、五升十進，把見取算算對，時間到就評級。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2323372E'/%3E%3Cline x1='8' y1='6' x2='8' y2='26' stroke='%237A4E28' stroke-width='1.4'/%3E%3Cline x1='16' y1='6' x2='16' y2='26' stroke='%237A4E28' stroke-width='1.4'/%3E%3Cline x1='24' y1='6' x2='24' y2='26' stroke='%237A4E28' stroke-width='1.4'/%3E%3Cline x1='3' y1='13' x2='29' y2='13' stroke='%23EDE5D0' stroke-width='1.6'/%3E%3Cpolygon points='8,8 11,10 8,12 5,10' fill='%23CE9A4E'/%3E%3Cpolygon points='16,14.6 19,16.6 16,18.6 13,16.6' fill='%23C6402F'/%3E%3Cpolygon points='24,20 27,22 24,24 21,22' fill='%23CE9A4E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;700&family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Kode+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+ --board:#23372E; --board2:#2C4638; --board3:#1B2A23;
+ --chalk:#EDE5D0; --dim:rgba(237,229,208,.62); --faint:rgba(237,229,208,.30);
+ --wood:#7A4E28; --amber:#CE9A4E; --amber2:#E0B36A;
+ --red:#C6402F; --slate:#6E8A93; --line:rgba(237,229,208,.16);
+ --serif:"Noto Serif TC",serif; --sans:"Noto Sans TC",sans-serif;
+ --slab:"Zilla Slab",serif; --mono:"Kode Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--board);color:var(--chalk);font-family:var(--sans);
+ line-height:1.75;-webkit-font-smoothing:antialiased;
+ background-image:
+   repeating-linear-gradient(90deg,transparent 0 3px,rgba(0,0,0,.035) 3px 4px),
+   radial-gradient(120% 80% at 20% 0%,rgba(255,255,255,.03),transparent 60%);
+ padding-bottom:84px;}
+a{color:inherit}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+.chalkline{border:0;border-top:1.5px solid var(--line);margin:0}
+
+/* masthead */
+header.mast{border-bottom:2px solid var(--line);background:linear-gradient(var(--board3),var(--board))}
+.mast .wrap{display:flex;align-items:center;gap:16px;padding:16px 22px}
+.logo{width:52px;height:52px;flex:0 0 auto}
+.mast h1{font-family:var(--serif);font-weight:900;font-size:23px;margin:0;letter-spacing:.04em}
+.mast .en{font-family:var(--mono);font-size:11px;letter-spacing:.32em;color:var(--amber);text-transform:uppercase}
+.mast .meta{margin-left:auto;text-align:right;font-size:11.5px;color:var(--dim);font-family:var(--mono);line-height:1.5}
+.mast .meta b{color:var(--chalk)}
+
+/* opening: abacus-first */
+.stage{padding:30px 0 8px}
+.stage .lead{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;margin-bottom:16px}
+.stage .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--amber);text-transform:uppercase}
+.stage .say{font-family:var(--serif);font-weight:700;font-size:clamp(18px,3.4vw,25px);margin:0}
+.stage .say small{display:block;font-family:var(--sans);font-weight:400;font-size:14px;color:var(--dim);margin-top:6px;line-height:1.7}
+
+.deck{display:grid;grid-template-columns:1.35fr 1fr;gap:26px;align-items:start}
+@media(max-width:860px){.deck{grid-template-columns:1fr}}
+
+/* the abacus */
+.frame{background:var(--board2);border:3px solid var(--wood);border-radius:6px;
+ box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 10px 30px rgba(0,0,0,.32);padding:14px 12px 10px}
+.frame .rail{height:12px;background:linear-gradient(var(--wood),#5f3c1e);border-radius:3px;margin:2px 2px 0}
+.abx{width:100%;display:block;touch-action:manipulation}
+.abx polygon.bead{cursor:pointer;transition:transform .16s cubic-bezier(.34,1.4,.5,1)}
+.abx .val-tick{fill:var(--amber);opacity:.5}
+.frame .read{display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin-top:8px;padding:8px 6px 2px;border-top:1.5px dashed var(--line);flex-wrap:wrap}
+.read .num{font-family:var(--mono);font-weight:700;font-size:30px;color:var(--amber2);letter-spacing:.02em}
+.read .han{font-family:var(--serif);color:var(--dim);font-size:14px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+button{font-family:var(--sans);font-weight:700;cursor:pointer}
+.btn{background:transparent;color:var(--chalk);border:1.5px solid var(--faint);
+ padding:7px 13px;border-radius:2px;font-size:13px;transition:background .12s,border-color .12s}
+.btn:hover{border-color:var(--amber);background:rgba(206,154,78,.12)}
+.btn.solid{background:var(--amber);color:#2a1c0c;border-color:var(--amber)}
+.btn.solid:hover{background:var(--amber2)}
+.btn.warn{border-color:var(--red);color:#f0b6ad}
+.btn:focus-visible{outline:2px solid var(--amber2);outline-offset:2px}
+
+/* drill panel */
+.panel{background:var(--board3);border:1.5px solid var(--line);border-radius:6px;padding:16px}
+.panel h2{font-family:var(--serif);font-weight:700;font-size:16px;margin:0 0 4px;
+ display:flex;align-items:center;gap:8px}
+.panel h2 .dot{width:9px;height:9px;background:var(--red);border-radius:50%;flex:0 0 auto}
+.panel .hint{font-size:12px;color:var(--dim);margin:0 0 12px}
+.lvsel{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.lvsel button{font-family:var(--mono);font-size:12px;border:1.5px solid var(--faint);background:transparent;
+ color:var(--dim);padding:5px 9px;border-radius:2px}
+.lvsel button[aria-pressed="true"]{border-color:var(--amber);color:var(--chalk);background:rgba(206,154,78,.14)}
+.tape{background:var(--board2);border:1.5px solid var(--line);border-radius:4px;padding:10px 14px;
+ min-height:132px;font-family:var(--mono);font-size:22px;text-align:right;letter-spacing:.04em}
+.tape .op{color:var(--amber)}
+.tape .q{color:var(--slate);font-size:13px;text-align:left;letter-spacing:.14em;margin-bottom:4px}
+.tape .row{border-bottom:1px solid rgba(237,229,208,.08);padding:1px 0}
+.tape .sumline{border-top:2px solid var(--faint);margin-top:4px;padding-top:3px;color:var(--faint)}
+.scorebar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:12px 0 4px;font-family:var(--mono);font-size:12px;color:var(--dim)}
+.scorebar b{color:var(--chalk);font-size:15px}
+.scorebar .clk{color:var(--amber)}
+.verdict{margin-top:10px;padding:10px 12px;border-radius:4px;font-size:14px;display:none}
+.verdict.ok{display:block;background:rgba(110,138,147,.18);border-left:3px solid var(--slate)}
+.verdict.no{display:block;background:rgba(198,64,47,.16);border-left:3px solid var(--red)}
+.verdict.done{display:block;background:rgba(206,154,78,.14);border-left:3px solid var(--amber)}
+.verdict b{color:var(--chalk)}
+.miniab{vertical-align:middle;margin:0 1px}
+
+/* editorial blocks */
+section.blk{padding:40px 0;border-top:1.5px solid var(--line)}
+.blk h3{font-family:var(--serif);font-weight:900;font-size:clamp(22px,3.6vw,30px);margin:0 0 6px;letter-spacing:.02em}
+.blk .sub{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--amber);text-transform:uppercase;margin-bottom:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--line);border:1.5px solid var(--line)}
+@media(max-width:720px){.grid3{grid-template-columns:1fr}}
+.cell{background:var(--board);padding:20px 18px}
+.cell .n{font-family:var(--mono);color:var(--amber);font-size:12px;letter-spacing:.2em}
+.cell h4{font-family:var(--serif);font-weight:700;font-size:17px;margin:6px 0 8px}
+.cell p{font-size:14px;color:var(--dim);margin:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:720px){.two{grid-template-columns:1fr}}
+.card{background:var(--board3);border:1.5px solid var(--line);border-radius:6px;padding:20px}
+.card h4{font-family:var(--serif);font-weight:700;margin:0 0 8px;font-size:17px}
+.card p{font-size:14px;color:var(--dim);margin:0 0 6px}
+.pricelist{list-style:none;margin:6px 0 0;padding:0}
+.pricelist li{display:flex;justify-content:space-between;align-items:center;gap:10px;
+ padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.pricelist li:last-child{border-bottom:0}
+.pricelist .price{display:flex;align-items:center;gap:6px;font-family:var(--mono);color:var(--amber2)}
+.contact{font-size:13.5px;color:var(--dim);line-height:2}
+.contact b{color:var(--chalk);font-weight:500}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--slate);
+ border:1px solid var(--line);padding:1px 7px;border-radius:2px;margin:0 4px 4px 0}
+
+/* teacher illustration strip */
+.illus{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:1.5px;background:var(--line);border:1.5px solid var(--line)}
+.illus figure{margin:0;background:var(--board);padding:14px 10px;text-align:center}
+.illus figcaption{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px;letter-spacing:.06em}
+
+/* footer */
+footer{border-top:2px solid var(--line);margin-top:20px;background:var(--board3)}
+footer .wrap{padding:30px 22px 40px}
+.foot-grid{display:flex;flex-wrap:wrap;gap:26px 60px}
+footer h5{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--amber);margin:0 0 10px;text-transform:uppercase}
+footer a{display:block;color:var(--dim);text-decoration:none;font-size:14px;padding:3px 0}
+footer a:hover{color:var(--chalk)}
+footer .fine{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);line-height:1.9}
+
+/* bead-dock nav */
+nav.dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:linear-gradient(rgba(27,42,35,.6),var(--board3));
+ border-top:2px solid var(--wood);backdrop-filter:blur(4px)}
+nav.dock .rod{max-width:640px;margin:0 auto;display:flex;align-items:stretch;position:relative;height:72px}
+nav.dock .rod::before{content:"";position:absolute;left:5%;right:5%;top:34px;height:2px;background:var(--chalk);opacity:.5}
+nav.dock a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+ text-decoration:none;padding-bottom:8px;position:relative}
+nav.dock .bead{width:34px;height:22px;margin-bottom:auto;margin-top:18px;
+ clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:var(--amber);
+ border:1px solid #5f3c1e;transition:transform .18s cubic-bezier(.34,1.4,.5,1),background .18s;transform:translateY(14px)}
+nav.dock a[aria-current="page"] .bead{transform:translateY(-6px);background:var(--red);border-color:#7a2016}
+nav.dock .lab{font-family:var(--sans);font-weight:700;font-size:12px;color:var(--dim)}
+nav.dock a[aria-current="page"] .lab{color:var(--chalk)}
+nav.dock .en{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:.14em}
+
+@media(max-width:560px){
+ .mast .meta{display:none}
+ .read .num{font-size:24px}
+ nav.dock .en{display:none}
+ nav.dock .rod{height:64px}
+}
+@media(prefers-reduced-motion:reduce){
+ *{transition:none!important;scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<a href="#stage" style="position:absolute;left:-999px" onfocus="this.style.left='8px';this.style.top='8px';this.style.zIndex=99">跳到算盤台</a>
+
+<header class="mast">
+ <div class="wrap">
+  <svg class="logo" viewBox="0 0 60 60" role="img" aria-label="算珠堂 標誌">
+   <rect x="1" y="1" width="58" height="58" rx="6" fill="#1B2A23" stroke="#7A4E28" stroke-width="2"/>
+   <g stroke="#7A4E28" stroke-width="1.4">
+    <line x1="14" y1="8" x2="14" y2="52"/><line x1="30" y1="8" x2="30" y2="52"/><line x1="46" y1="8" x2="46" y2="52"/>
+   </g>
+   <line x1="6" y1="24" x2="54" y2="24" stroke="#EDE5D0" stroke-width="2"/>
+   <polygon points="14,13 19,17.5 14,22 9,17.5" fill="#CE9A4E"/>
+   <polygon points="30,13 35,17.5 30,22 25,17.5" fill="#CE9A4E"/>
+   <polygon points="46,15.5 51,20 46,24.5 41,20" fill="#C6402F"/>
+   <polygon points="14,29 19,33.5 14,38 9,33.5" fill="#CE9A4E"/>
+   <polygon points="30,44 35,48.5 30,53 25,48.5" fill="#CE9A4E"/>
+   <polygon points="46,29 51,33.5 46,38 41,33.5" fill="#C6402F"/>
+  </svg>
+  <div>
+   <h1>算珠堂</h1>
+   <div class="en">Suanpan · Abacus Reckoning</div>
+  </div>
+  <div class="meta">珠算檢定研究所<br><b>台北市大同區保安街</b><br>週二至週六 15:30–21:00</div>
+ </div>
+</header>
+
+<main class="wrap">
+<section class="stage" id="stage">
+ <div class="lead">
+  <span class="kicker">綠板上，數就是算盤</span>
+  <p class="say">這張板子上找不到一個阿拉伯數字。
+   <small>價目、電話、你算對幾題——全用算珠寫。撥上珠、去九加補、五升十進，把底下這具算盤撥成你要的數，或按「出題」應一次見取算檢定。撥錯了它不會替你圓，時間到就照實評級。</small></p>
+ </div>
+
+ <div class="deck">
+  <div>
+   <div class="frame">
+    <div class="rail"></div>
+    <svg class="abx" id="abx" viewBox="0 0 560 320" role="application" aria-label="可撥算盤，目前數值 0"></svg>
+    <div class="read">
+     <div>
+      <div class="num" id="readNum">0</div>
+      <div class="han" id="readHan">零</div>
+     </div>
+     <div class="btnrow">
+      <button class="btn" id="btnClear" type="button">歸零</button>
+      <button class="btn" id="btnDemo" type="button">示範撥「2586」</button>
+     </div>
+    </div>
+   </div>
+   <p style="font-size:12px;color:var(--dim);margin:10px 2px 0">
+    上珠一顆作五、下珠一顆作一；撥靠橫樑即入位。點珠子撥動，或用鍵盤 <b style="color:var(--chalk)">← →</b> 選檔、<b style="color:var(--chalk)">↑ ↓</b> 加減一。
+   </p>
+  </div>
+
+  <div class="panel" id="drill">
+   <h2><span class="dot"></span>見取算・珠算檢定練習</h2>
+   <p class="hint">選級別 → 出題 → 在左邊算盤上算出總和 → 確認。一場十題，計時計正解，末了照正解率與用時評定。</p>
+   <div class="lvsel" id="lvsel" role="group" aria-label="選擇級別"></div>
+   <div class="tape" id="tape"><div class="q">尚未出題</div><div style="color:var(--faint);font-size:14px;text-align:left">按下方「出題」開始。這場所有題目由當日順序決定，離席回來可重算同一場。</div></div>
+   <div class="scorebar">
+    <span>第 <b id="sIdx">0</b>/10 題</span>
+    <span>正解 <b id="sOk">0</b></span>
+    <span>連對 <b id="sStreak">0</b></span>
+    <span class="clk">計時 <b id="sClk" class="clk">0.0s</b></span>
+   </div>
+   <div class="btnrow" style="margin-top:10px">
+    <button class="btn solid" id="btnStart" type="button">出題</button>
+    <button class="btn" id="btnCheck" type="button" disabled>確認</button>
+    <button class="btn warn" id="btnShow" type="button" disabled>看解法</button>
+   </div>
+   <div class="verdict" id="verdict" role="status" aria-live="polite"></div>
+  </div>
+ </div>
+</section>
+
+<section class="blk" id="about">
+ <h3>板前十分鐘，勝過死背九九</h3>
+ <div class="sub">About · 我們怎麼教</div>
+ <div class="two">
+  <div>
+   <p style="color:var(--dim)">算珠堂沒有講義本，只有一整面綠板和一排檜木算盤。第一堂課老師不講加法，先讓你把 <span id="ab1"></span> 撥出來——手指記得住的東西，腦子才留得住。</p>
+   <p style="color:var(--dim)">我們教的是「一四珠」現行盤：上一珠、下四珠。加法先學「湊五」（＋3 時無位可加，改成撥去二、進上珠）、再學「進十」（去九加補）；減法反過來走「破五」「退位」。看得懂算盤在動什麼，心算自然長出來——閉上眼，那具算盤還在指尖。</p>
+   <p style="color:var(--dim)">研究所收小三以上到成人，也備考珠算檢定與商業計算。班很小，一次六人，因為每個人撥錯的地方都不一樣。</p>
+  </div>
+  <div class="card">
+   <h4>三件事，一堂課</h4>
+   <div class="grid3" style="border:0;background:transparent;grid-template-columns:1fr;gap:12px">
+    <div class="cell" style="padding:0;background:transparent">
+     <div class="n">01 讀盤</div>
+     <p>一眼把樑上樑下的珠讀成數，再把數撥回盤上。準到不用想。</p>
+    </div>
+    <div class="cell" style="padding:0;background:transparent">
+     <div class="n">02 湊補</div>
+     <p>湊五、去九加補的補數表刻進手指。加減不再一位一位數。</p>
+    </div>
+    <div class="cell" style="padding:0;background:transparent">
+     <div class="n">03 見取</div>
+     <p>眼睛掃過一排數、手同步撥完。這是檢定與商計的底子。</p>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="blk" id="illus">
+ <h3>圖鑑一角：全是算珠畫的</h3>
+ <div class="sub">Illustration · 算珠構成 soroban-bead</div>
+ <p style="color:var(--dim);max-width:56ch;margin:-10px 0 20px">這站沒有一張外部圖片。招牌、標誌、下面這排小圖，全是同一支引擎照數字把算珠撥出來的——換一個數，就是換一張圖。完整二十四則術語與技法在<a href="pu.html" style="color:var(--amber)">術語圖鑑</a>。</p>
+ <div class="illus" id="illusStrip"></div>
+</section>
+
+<section class="blk" id="fees">
+ <h3>班別與費用</h3>
+ <div class="sub">Fees · 一期十二週</div>
+ <div class="two">
+  <div class="card">
+   <h4>常態班</h4>
+   <ul class="pricelist">
+    <li><span>兒童啟蒙（小三–小六）／週一堂</span><span class="price" id="p1"></span></li>
+    <li><span>檢定衝刺（10級–2級）／週兩堂</span><span class="price" id="p2"></span></li>
+    <li><span>成人商計・傳票算／週一堂</span><span class="price" id="p3"></span></li>
+    <li><span>段位精修（初段以上）／週兩堂</span><span class="price" id="p4"></span></li>
+   </ul>
+   <p style="margin-top:10px;font-size:12.5px">單位新臺幣元／期。附一具堂製檜木一四珠盤，離班可帶走。</p>
+  </div>
+  <div class="card">
+   <h4>來一趟</h4>
+   <p class="contact">
+    <b>地址</b>　台北市大同區保安街 47 巷 6 號 2 樓（大橋頭站 1 號出口步行 4 分）<br>
+    <b>電話</b>　<span id="tel"></span><br>
+    <b>時間</b>　週二至週六 15:30–21:00；週日僅檢定模擬<br>
+    <b>主持</b>　林算之（珠心算指導員・前市賽裁判）<br>
+    <b>報名</b>　<a href="bao.html" style="color:var(--amber)">線上填檢定報名表</a>，或現場插班試撥一堂
+   </p>
+   <div style="margin-top:12px">
+    <span class="tag">一四珠現行盤</span><span class="tag">去九加補</span><span class="tag">見取算</span>
+    <span class="tag">傳票算</span><span class="tag">段級檢定</span>
+   </div>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap">
+  <div class="foot-grid">
+   <div>
+    <h5>算珠堂</h5>
+    <a href="index.html">珠算台・檢定練習</a>
+    <a href="pu.html">術語與技法圖鑑</a>
+    <a href="fa.html">珠算法・補數表</a>
+    <a href="bao.html">檢定報名</a>
+   </div>
+   <div>
+    <h5>檢定</h5>
+    <a href="fa.html#jian">段級制度</a>
+    <a href="pu.html">術語查詢</a>
+    <a href="bao.html">模擬考報名</a>
+   </div>
+   <div>
+    <h5>聯絡</h5>
+    <a href="bao.html">保安街 47 巷 6 號 2 樓</a>
+    <a href="bao.html">週二至週六 15:30–21:00</a>
+   </div>
+  </div>
+  <p class="fine">
+   算珠堂 SUANPAN 為虛構示範站點，所名、人名、地址、電話、費用、級段與成績均為示意，不對應真實機構。珠算規則（一四珠讀數、五升十進、去九加補、見取算）依現行珠算教學通例編寫，檢定評定為本站教學用簡化模型。<br>
+   本站由 <b style="color:var(--dim)">Claude Opus 4.8 · 排程 Agent</b> 設計與建置（2026-07-24）。零外部圖片與音檔，字體取自 Google Fonts。<a href="../../index.html" style="color:var(--amber);text-decoration:none">← 回設計風格圖書館</a>
+  </p>
+ </div>
+</footer>
+
+<nav class="dock" aria-label="主導覽">
+ <div class="rod">
+  <a href="index.html" aria-current="page"><span class="bead"></span><span class="lab">珠算台</span><span class="en">RECKON</span></a>
+  <a href="pu.html"><span class="bead"></span><span class="lab">圖鑑</span><span class="en">ATLAS</span></a>
+  <a href="fa.html"><span class="bead"></span><span class="lab">珠算法</span><span class="en">METHOD</span></a>
+  <a href="bao.html"><span class="bead"></span><span class="lab">報名</span><span class="en">ENROL</span></a>
+ </div>
+</nav>
+
+<script>
+"use strict";
+/* ---------- 算盤引擎（一四珠 / soroban） ---------- */
+var COLS=7;                       // 檔數（最高七位）
+var state=[];                     // 每檔 {heaven:0/1, earth:0..4}
+for(var i=0;i<COLS;i++)state.push({heaven:0,earth:0});
+var cur=COLS-1;                   // 鍵盤目前檔（最右）
+
+var HAN=["零","一","二","三","四","五","六","七","八","九"];
+function value(){var v=0;for(var i=0;i<COLS;i++)v=v*10+state[i].heaven*5+state[i].earth;return v;}
+function setNumber(n){n=Math.max(0,Math.min(Math.pow(10,COLS)-1,Math.floor(n)));
+ for(var i=COLS-1;i>=0;i--){var d=n%10;n=Math.floor(n/10);
+  state[i].heaven=d>=5?1:0;state[i].earth=d>=5?d-5:d;}}
+function hanNum(n){
+ if(n===0)return "零";
+ var units=["","十","百","千","萬","十","百","千","億"];
+ var s=String(n),out="",L=s.length;
+ for(var k=0;k<L;k++){var d=+s[k],pos=L-1-k;
+  if(d===0){if(out&&out[out.length-1]!=="〇"&&k<L-1)out+="〇";continue;}
+  out+=HAN[d]+units[pos];}
+ out=out.replace(/〇+$/,"").replace(/〇+/g,"〇");
+ if(out.slice(0,2)==="一十")out=out.slice(1);
+ return out;}
+
+/* 幾何 */
+var COLW=68, X0=42, TOP=18, BEAM=118, BH=30, H=320;
+function beadY(type,idx,st){
+ if(type==="h") return st.heaven ? BEAM-10-BH/2 : TOP+BH/2;
+ // earth idx 0=最靠樑, 3=最底
+ if(idx<st.earth) return BEAM+12+BH/2+idx*BH;          // 撥上入位，貼樑下
+ return H-8-BH/2-(3-idx)*BH;                            // 未入位，落底
+}
+function lozenge(cx,cy,active){
+ var w=COLW*0.42,h=BH/2*0.92;
+ return {pts:(cx-w)+","+cy+" "+cx+","+(cy-h)+" "+(cx+w)+","+cy+" "+cx+","+(cy+h)};
+}
+var abx=document.getElementById('abx');
+function render(){
+ var svg="";
+ // rods
+ for(var i=0;i<COLS;i++){var cx=X0+i*COLW;
+  svg+="<line x1='"+cx+"' y1='"+(TOP-4)+"' x2='"+cx+"' y2='"+(H-4)+"' stroke='#7A4E28' stroke-width='3'/>";}
+ // beam
+ svg+="<rect x='"+(X0-26)+"' y='"+(BEAM-4)+"' width='"+((COLS-1)*COLW+52)+"' height='8' fill='#7A4E28'/>";
+ svg+="<line x1='"+(X0-26)+"' y1='"+(BEAM-4)+"' x2='"+(X0+(COLS-1)*COLW+26)+"' y2='"+(BEAM-4)+"' stroke='#EDE5D0' stroke-width='1' opacity='.5'/>";
+ // 位點（每三檔一個小三角，分節）
+ for(var i=0;i<COLS;i++){if((COLS-1-i)%3===0){var cx=X0+i*COLW;
+  svg+="<polygon class='val-tick' points='"+cx+","+(BEAM-1)+" "+(cx-4)+","+(BEAM-7)+" "+(cx+4)+","+(BEAM-7)+"'/>";}}
+ // beads
+ for(var i=0;i<COLS;i++){var cx=X0+i*COLW,st=state[i];
+  var hy=beadY("h",0,st),hz=lozenge(cx,hy,st.heaven);
+  var hc=st.heaven?"#E0B36A":"#CE9A4E";
+  svg+="<polygon class='bead' data-col='"+i+"' data-type='h' points='"+hz.pts+"' fill='"+hc+"' stroke='#5f3c1e' stroke-width='1'><title>檔"+(COLS-i)+" 上珠</title></polygon>";
+  for(var j=0;j<4;j++){var ey=beadY("e",j,st),ez=lozenge(cx,ey,j<st.earth);
+   var ec=(j<st.earth)?"#E0B36A":"#CE9A4E";
+   svg+="<polygon class='bead' data-col='"+i+"' data-type='e' data-idx='"+j+"' points='"+ez.pts+"' fill='"+ec+"' stroke='#5f3c1e' stroke-width='1'/>";}
+  // current-column marker
+  if(i===cur)svg+="<rect x='"+(cx-COLW/2+3)+"' y='"+(H-3)+"' width='"+(COLW-6)+"' height='0'/>";
+ }
+ // current column underline
+ var ccx=X0+cur*COLW;
+ svg+="<line x1='"+(ccx-COLW/2+6)+"' y1='"+(H-2)+"' x2='"+(ccx+COLW/2-6)+"' y2='"+(H-2)+"' stroke='#C6402F' stroke-width='2.5'/>";
+ abx.innerHTML=svg;
+ var v=value();
+ document.getElementById('readNum').textContent=v;
+ document.getElementById('readHan').textContent=hanNum(v);
+ abx.setAttribute('aria-label','可撥算盤，目前數值 '+v);
+}
+function toggle(col,type,idx){
+ var st=state[col];
+ if(type==="h"){st.heaven=st.heaven?0:1;}
+ else{st.earth=(st.earth>=idx+1)?idx:(idx+1);}
+ cur=col; render();
+}
+abx.addEventListener('click',function(e){
+ var t=e.target;if(t.tagName!=="polygon"||!t.classList.contains('bead'))return;
+ toggle(+t.getAttribute('data-col'),t.getAttribute('data-type'),
+   t.getAttribute('data-idx')!==null?+t.getAttribute('data-idx'):0);
+});
+document.addEventListener('keydown',function(e){
+ if(['INPUT','TEXTAREA','SELECT'].indexOf((e.target.tagName||''))>=0)return;
+ var col=cur,d=state[col].heaven*5+state[col].earth;
+ if(e.key==="ArrowLeft"){cur=Math.max(0,cur-1);render();e.preventDefault();}
+ else if(e.key==="ArrowRight"){cur=Math.min(COLS-1,cur+1);render();e.preventDefault();}
+ else if(e.key==="ArrowUp"){setDigit(col,Math.min(9,d+1));e.preventDefault();}
+ else if(e.key==="ArrowDown"){setDigit(col,Math.max(0,d-1));e.preventDefault();}
+});
+function setDigit(col,d){state[col].heaven=d>=5?1:0;state[col].earth=d>=5?d-5:d;render();}
+document.getElementById('btnClear').addEventListener('click',function(){
+ for(var i=0;i<COLS;i++){state[i].heaven=0;state[i].earth=0;}cur=COLS-1;render();});
+document.getElementById('btnDemo').addEventListener('click',function(){demoTo(2586);});
+function demoTo(n){
+ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+ if(reduce){setNumber(n);render();return;}
+ var s=String(n).padStart(COLS,'0');var step=0;
+ for(var i=0;i<COLS;i++){state[i].heaven=0;state[i].earth=0;}render();
+ var iv=setInterval(function(){
+  if(step>=COLS){clearInterval(iv);return;}
+  setDigit(step,+s[step]);step++;
+ },180);
+}
+render();
+
+/* ---------- 小算盤 SVG（全站數字皆以算珠渲染） ---------- */
+function miniAbacus(n,minCols){
+ n=Math.max(0,Math.floor(n));var s=String(n);
+ var cols=Math.max(minCols||1,s.length);s=s.padStart(cols,'0');
+ var cw=13,x0=8,top=3,beam=17,bh=6.5,h=52,w=x0+(cols-1)*cw+8;
+ var out="<svg class='miniab' width='"+(w*0.62)+"' height='"+(h*0.62)+"' viewBox='0 0 "+w+" "+h+"' role='img' aria-label='算盤數字 "+n+"'>";
+ for(var i=0;i<cols;i++){var cx=x0+i*cw;
+  out+="<line x1='"+cx+"' y1='"+top+"' x2='"+cx+"' y2='"+(h-2)+"' stroke='#7A4E28' stroke-width='1.4'/>";}
+ out+="<line x1='"+(x0-5)+"' y1='"+beam+"' x2='"+(x0+(cols-1)*cw+5)+"' y2='"+beam+"' stroke='#EDE5D0' stroke-width='1.4'/>";
+ for(var i=0;i<cols;i++){var cx=x0+i*cw,d=+s[i],hv=d>=5?1:0,ea=d>=5?d-5:d;
+  var hy=hv?(beam-3-bh/2):(top+1+bh/2);
+  out+=dia(cx,hy,hv);
+  for(var j=0;j<4;j++){var ey=(j<ea)?(beam+3+bh/2+j*bh):(h-3-bh/2-(3-j)*bh);
+   out+=dia(cx,ey,j<ea);}}
+ return out+"</svg>";
+ function dia(cx,cy,on){var ww=cw*0.42,hh=bh/2*0.95,c=on?"#C6402F":"#CE9A4E";
+  return "<polygon points='"+(cx-ww)+","+cy+" "+cx+","+(cy-hh)+" "+(cx+ww)+","+cy+" "+cx+","+(cy+hh)+"' fill='"+c+"' stroke='#5f3c1e' stroke-width='.6'/>";}
+}
+function putAb(id,n,cols){var el=document.getElementById(id);if(el)el.innerHTML=miniAbacus(n,cols);}
+putAb('ab1',6);
+putAb('p1',6800,4);putAb('p2',9200,4);putAb('p3',7500,4);putAb('p4',11800,5);
+document.getElementById('tel').innerHTML="（02）"+miniAbacus(2557,4)+" · "+miniAbacus(6104,4);
+
+/* illustration strip: 每格一個算珠數 + 術語 */
+var illusData=[
+ [5,"上珠一顆＝五"],[4,"下珠四顆＝四"],[9,"五升十進臨界"],[10,"進位｜去九加補"],
+ [6,"湊五：6＝5＋1"],[89,"見取兩位"],[365,"見取三位"],[2586,"見取四位"]
+];
+var strip=document.getElementById('illusStrip'),ih="";
+illusData.forEach(function(d){ih+="<figure>"+miniAbacus(d[0],2)+"<figcaption>"+d[1]+"</figcaption></figure>";});
+strip.innerHTML=ih;
+
+/* ---------- 見取算檢定練習 ---------- */
+var LEVELS=[
+ {id:"lv10",name:"10級",digits:2,count:3,sub:false},
+ {id:"lv8", name:"8級", digits:2,count:4,sub:true},
+ {id:"lv6", name:"6級", digits:3,count:5,sub:true},
+ {id:"lv4", name:"4級", digits:3,count:6,sub:true},
+ {id:"lv2", name:"2級", digits:4,count:7,sub:true}
+];
+var curLevel=LEVELS[0], drill=null, timer=null, t0=0;
+
+/* 決定論當日種子（離席可重算同一場） */
+function daySeed(){var d=new Date();return d.getFullYear()*372+(d.getMonth()+1)*31+d.getDate();}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);
+ t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+function genProblem(rng,lv){
+ var max=Math.pow(10,lv.digits)-1,min=Math.pow(10,lv.digits-1);
+ var running=0,rows=[];
+ for(var k=0;k<lv.count;k++){
+  var mag=min+Math.floor(rng()*(max-min+1));
+  var sign=1;
+  if(lv.sub&&k>0&&running-mag>=0&&rng()<0.42)sign=-1;
+  running+=sign*mag;rows.push(sign*mag);
+ }
+ if(running<0){running=Math.abs(rows[0]);rows[0]=Math.abs(rows[0]);
+  for(var k=1;k<rows.length;k++){rows[k]=Math.abs(rows[k]);running+=rows[k];}}
+ return {rows:rows,sum:running};
+}
+function buildSession(){
+ var rng=mulberry32(daySeed()^ (curLevel.id.length*2654435761));
+ var probs=[];for(var k=0;k<10;k++)probs.push(genProblem(rng,curLevel));
+ return {probs:probs,i:0,ok:0,streak:0,answered:false,graded:false};
+}
+
+var lvsel=document.getElementById('lvsel');
+LEVELS.forEach(function(lv){
+ var b=document.createElement('button');b.type="button";b.textContent=lv.name;
+ b.setAttribute('aria-pressed',lv===curLevel?"true":"false");
+ b.addEventListener('click',function(){
+  curLevel=lv;
+  Array.prototype.forEach.call(lvsel.children,function(c){c.setAttribute('aria-pressed',"false");});
+  b.setAttribute('aria-pressed',"true");
+  resetDrill();
+ });
+ lvsel.appendChild(b);
+});
+
+var elTape=document.getElementById('tape'),elVerdict=document.getElementById('verdict');
+var btnStart=document.getElementById('btnStart'),btnCheck=document.getElementById('btnCheck'),btnShow=document.getElementById('btnShow');
+
+function fmtRows(p){
+ var h="<div class='q'>把下列各數依序加減，算出總和｜"+curLevel.name+"　第 "+(drill.i+1)+"/10 題</div>";
+ p.rows.forEach(function(r,idx){
+  var op=idx===0?"":(r<0?"−":"＋");
+  h+="<div class='row'><span class='op'>"+op+"</span> "+Math.abs(r)+"</div>";
+ });
+ h+="<div class='sumline'>＝ ？（撥在左邊算盤上）</div>";
+ return h;
+}
+function tick(){var s=((Date.now()-t0)/1000).toFixed(1);document.getElementById('sClk').textContent=s+"s";}
+function startTimer(){t0=Date.now();if(timer)clearInterval(timer);timer=setInterval(tick,100);}
+function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
+
+function resetDrill(){
+ stopTimer();drill=null;elVerdict.className="verdict";elVerdict.innerHTML="";
+ elTape.innerHTML="<div class='q'>已選 "+curLevel.name+"（"+curLevel.digits+"位數・"+curLevel.count+"口"+(curLevel.sub?"・含減算":"・純加算")+"）</div><div style='color:var(--faint);font-size:14px;text-align:left'>按「出題」開始這場十題。</div>";
+ document.getElementById('sIdx').textContent="0";document.getElementById('sOk').textContent="0";
+ document.getElementById('sStreak').textContent="0";document.getElementById('sClk').textContent="0.0s";
+ btnCheck.disabled=true;btnShow.disabled=true;btnStart.textContent="出題";
+}
+function showProblem(){
+ var p=drill.probs[drill.i];drill.answered=false;
+ elTape.innerHTML=fmtRows(p);
+ elVerdict.className="verdict";elVerdict.innerHTML="";
+ document.getElementById('sIdx').textContent=(drill.i+1);
+ btnCheck.disabled=false;btnShow.disabled=false;btnStart.textContent="放棄本場";
+ // 清盤，讓使用者自己撥
+ for(var i=0;i<COLS;i++){state[i].heaven=0;state[i].earth=0;}cur=COLS-1;render();
+ startTimer();
+}
+btnStart.addEventListener('click',function(){
+ if(drill&&!drill.graded){resetDrill();return;}
+ drill=buildSession();showProblem();
+});
+btnCheck.addEventListener('click',function(){
+ if(!drill||drill.answered)return;
+ var p=drill.probs[drill.i],v=value(),good=(v===p.sum);
+ drill.answered=true;
+ if(good){drill.ok++;drill.streak++;
+  elVerdict.className="verdict ok";
+  elVerdict.innerHTML="<b>正解。</b>總和 "+miniAbacus(p.sum,curLevel.digits)+" ＝ "+p.sum+"。連對 "+drill.streak+" 題。";}
+ else{drill.streak=0;
+  elVerdict.className="verdict no";
+  elVerdict.innerHTML="<b>誤。</b>你撥出 "+v+"，正解是 "+miniAbacus(p.sum,curLevel.digits)+" ＝ "+p.sum+"。看「解法」對一遍。";}
+ document.getElementById('sOk').textContent=drill.ok;
+ document.getElementById('sStreak').textContent=drill.streak;
+ btnCheck.disabled=true;
+ drill.i++;
+ if(drill.i>=10){finishSession();}
+ else{setTimeout(function(){if(drill&&!drill.graded)showProblem();}, good?650:1500);}
+});
+btnShow.addEventListener('click',function(){
+ if(!drill)return;var p=drill.probs[Math.min(drill.i,9)];
+ // 若已作答進到下一題，回看剛才那題
+ var idx=drill.answered?drill.i-1:drill.i;if(idx<0)idx=0;p=drill.probs[idx];
+ demoTo(p.sum);
+ elVerdict.className="verdict done";
+ elVerdict.innerHTML="示範：依序加減後，盤面應為 "+miniAbacus(p.sum,curLevel.digits)+" ＝ <b>"+p.sum+"</b>。";
+});
+function finishSession(){
+ stopTimer();drill.graded=true;
+ var secs=(Date.now()-t0)/1000, rate=drill.ok/10;
+ var pass=drill.ok>=7, honor=drill.ok>=9&&secs<10*curLevel.count*1.4;
+ var grade=honor?"優等合格":(pass?"合格":"再接再厲");
+ var cls=pass?"verdict done":"verdict no";
+ elVerdict.className=cls;
+ elVerdict.innerHTML="<b>"+curLevel.name+"　"+grade+"</b>　正解 "+miniAbacus(drill.ok,2)+" ／十題，用時 "+secs.toFixed(1)+" 秒。"
+  +(pass?"　達本級收件基準（7 題）。":"　本級需 7 題正解，差 "+(7-drill.ok)+" 題。")
+  +"　<button class='btn' type='button' id='btnAgain' style='margin-top:8px'>再來一場</button>";
+ btnCheck.disabled=true;btnShow.disabled=false;btnStart.textContent="出題";
+ var again=document.getElementById('btnAgain');
+ if(again)again.addEventListener('click',function(){drill=buildSession();showProblem();});
+}
+resetDrill();
+</script>
+</body>
+</html>

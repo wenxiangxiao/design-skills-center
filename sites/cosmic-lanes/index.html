@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COSMIC LANES 宇宙球道｜復古保齡球館・活聯盟</title>
+<meta name="description" content="密西根湖畔 1983 年開幕的宇宙球道。這裡的排行榜不是死的：此刻就有二十幾位球員在別的球道上一球一球地打，榜單每一秒都在跳。上場真的投一局（正規十瓶計分），你的分數會擠進同一張活榜，看你排第幾。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312B5AC'/%3E%3Cpath d='M16 5l1.6 3.5 3.8.4-2.8 2.6.8 3.8L16 13.5 12.6 15.9l.8-3.8L10.6 9.5l3.8-.4z' fill='%23FFD400'/%3E%3Ccircle cx='16' cy='21' r='7.5' fill='%231E1330'/%3E%3Ccircle cx='13.4' cy='19' r='1.05' fill='%2312B5AC'/%3E%3Ccircle cx='16.2' cy='18.4' r='1.05' fill='%2312B5AC'/%3E%3Ccircle cx='14.7' cy='21.4' r='1.05' fill='%2312B5AC'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Archivo:wght@400;500;600;700&family=Kode+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rink:#12B5AC; --rink2:#0E9C94; --rinkd:#0A7C76;
+  --tang:#FF5A1F; --gum:#FF3D8B; --lemon:#FFD400;
+  --ink:#1E1330; --cream:#FDF4DA; --cream2:#F2E4BE;
+  --line:#1E1330; --shadow:rgba(30,19,48,.28);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--rink);color:var(--ink);
+  font-family:"Archivo",system-ui,sans-serif;line-height:1.6;
+  background-image:
+    radial-gradient(circle at 12% 18%,rgba(255,255,255,.16),transparent 9%),
+    radial-gradient(circle at 84% 26%,rgba(255,212,0,.14),transparent 8%),
+    radial-gradient(circle at 66% 78%,rgba(255,255,255,.10),transparent 7%),
+    radial-gradient(circle at 30% 88%,rgba(255,61,139,.12),transparent 8%);
+  padding-bottom:104px;
+}
+a{color:inherit}
+.mono{font-family:"Kode Mono",monospace;letter-spacing:.01em}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:"Baloo 2",system-ui,sans-serif;line-height:1.12;margin:0}
+
+/* ===== masthead ===== */
+header.top{padding:18px 0 14px}
+.brandrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brandrow .logo{width:210px;max-width:56vw;display:block;filter:drop-shadow(3px 3px 0 var(--ink))}
+.tagline{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--ink);max-width:340px;text-align:right;
+  background:var(--lemon);border:2.5px solid var(--ink);border-radius:10px;padding:8px 12px;box-shadow:4px 4px 0 var(--ink)}
+@media(max-width:680px){.tagline{margin-left:0;text-align:left;width:100%}}
+
+/* ===== live status bar ===== */
+.livebar{margin-top:16px;background:var(--ink);color:var(--cream);border-radius:12px;
+  border:2.5px solid var(--ink);box-shadow:6px 6px 0 rgba(30,19,48,.35);
+  display:flex;align-items:center;gap:14px;padding:10px 16px;overflow:hidden}
+.livedot{width:12px;height:12px;border-radius:50%;background:var(--gum);flex:none;
+  box-shadow:0 0 0 4px rgba(255,61,139,.28);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.livebar .now{font-family:"Kode Mono",monospace;font-weight:700;font-size:13px;color:var(--lemon);white-space:nowrap}
+.tickerwin{flex:1;overflow:hidden;white-space:nowrap;position:relative;min-width:0}
+.tickerline{display:inline-block;padding-left:100%;font-family:"Kode Mono",monospace;font-size:12.5px;
+  animation:ticker 26s linear infinite}
+.tickerline b{color:var(--lemon)}
+.tickerline .x{color:var(--gum)}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+
+/* ===== main grid ===== */
+.board{display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:24px;margin-top:22px;align-items:start}
+@media(max-width:940px){.board{grid-template-columns:1fr}}
+
+.panel{background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--shadow)}
+.panel h2{font-size:19px;letter-spacing:.01em}
+.phd{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 16px;border-bottom:2.5px solid var(--ink);background:var(--tang);color:var(--cream);
+  border-radius:11px 11px 0 0}
+.phd .tag{font-family:"Kode Mono",monospace;font-size:11px;letter-spacing:.16em;background:var(--ink);
+  color:var(--lemon);padding:3px 8px;border-radius:6px}
+
+/* ===== lane / game ===== */
+.lanewrap{padding:16px}
+.lane{position:relative;background:var(--ink);border:2.5px solid var(--ink);border-radius:10px;
+  padding:14px 12px 10px;overflow:hidden}
+.pindeck{position:relative;height:118px;margin:0 auto;width:190px}
+.pin{position:absolute;width:20px;height:30px;transition:transform .34s cubic-bezier(.5,-.4,.5,1.4),opacity .3s}
+.pin.down{transform:translateY(46px) rotate(58deg);opacity:.14}
+.pin b{display:block;width:20px;height:30px;border-radius:11px 11px 8px 8px/16px 16px 6px 6px;
+  background:var(--cream);border:2px solid var(--ink);position:relative}
+.pin b::after{content:"";position:absolute;left:3px;right:3px;top:8px;height:3.4px;background:var(--gum);border-radius:2px}
+.laneslats{position:absolute;left:50%;top:150px;transform:translateX(-50%);width:150px;height:150px}
+.arrows{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);display:flex;gap:12px}
+.arrows i{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+  border-bottom:16px solid var(--tang);opacity:.85}
+.arrows i:nth-child(2),.arrows i:nth-child(4){border-bottom-color:var(--lemon);opacity:.6}
+.arrows i:nth-child(3){border-bottom-color:var(--gum)}
+.ball{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 34% 32%,#5be0d8,var(--rinkd));border:2.5px solid var(--ink);
+  box-shadow:0 4px 0 rgba(0,0,0,.4)}
+.ball.roll{transition:bottom .5s ease-in,left .5s ease-in}
+
+/* aim meter */
+.aimwrap{margin:14px 4px 4px;position:relative}
+.aimtrack{position:relative;height:26px;background:var(--rinkd);border:2.5px solid var(--ink);border-radius:8px;overflow:hidden}
+.sweet{position:absolute;top:0;bottom:0;background:var(--lemon);opacity:.55}
+.aimptr{position:absolute;top:-4px;bottom:-4px;width:5px;background:var(--gum);border:2px solid var(--ink);border-radius:3px;left:0}
+.aimrange{width:100%;margin:8px 0 0;accent-color:var(--gum);display:none}
+.aimlabel{font-family:"Kode Mono",monospace;font-size:11px;color:var(--cream);opacity:.8;margin-top:8px;display:flex;justify-content:space-between}
+
+/* controls */
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--gum);color:var(--cream);border:2.5px solid var(--ink);border-radius:10px;
+  font-family:"Baloo 2",sans-serif;font-weight:800;font-size:16px;letter-spacing:.04em;
+  padding:12px 20px;box-shadow:4px 4px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.ghost{background:var(--cream);color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 var(--ink)}
+.gamefoot{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 16px 4px}
+.callout{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:15px;color:var(--tang);flex:1;min-width:150px}
+.callout.big{color:var(--gum)}
+
+/* scorecard */
+.scorecard{padding:6px 16px 16px;overflow-x:auto}
+.frames{display:flex;gap:0;min-width:520px;border:2.5px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--cream)}
+.frame{flex:1;border-right:2px solid var(--ink);min-width:44px}
+.frame:last-child{border-right:0;flex:1.5}
+.frame .fn{font-family:"Kode Mono",monospace;font-size:9.5px;text-align:center;background:var(--ink);color:var(--lemon);padding:2px 0;letter-spacing:.08em}
+.frame .balls{display:flex;height:22px}
+.frame .b{flex:1;border-right:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;
+  font-family:"Kode Mono",monospace;font-weight:700;font-size:12px}
+.frame .b:last-child{border-right:0}
+.frame:last-child .balls .b{font-size:11px}
+.frame .tot{height:26px;display:flex;align-items:center;justify-content:center;
+  font-family:"Kode Mono",monospace;font-weight:700;font-size:15px;border-top:1.5px solid var(--ink)}
+.frame.cur{background:var(--lemon)}
+
+/* ===== league table ===== */
+.league{padding:6px 0 6px}
+.lgrow{display:grid;grid-template-columns:30px 1fr 54px 46px;gap:8px;align-items:center;
+  padding:8px 14px;border-bottom:1.5px dashed rgba(30,19,48,.28);font-size:13.5px}
+.lgrow:last-child{border-bottom:0}
+.lgrow .rk{font-family:"Kode Mono",monospace;font-weight:700;font-size:13px;color:var(--rinkd);text-align:center}
+.lgrow .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lgrow .nm small{display:block;font-size:10.5px;font-weight:500;color:var(--rinkd);font-family:"Kode Mono",monospace}
+.lgrow .sc{font-family:"Kode Mono",monospace;font-weight:700;font-size:16px;text-align:right}
+.lgrow .fr{font-family:"Kode Mono",monospace;font-size:10.5px;text-align:right;color:var(--rinkd)}
+.lgrow.you{background:var(--lemon);border-radius:8px;box-shadow:inset 0 0 0 2.5px var(--ink)}
+.lgrow.you .rk{color:var(--gum)}
+.lgrow .up{color:var(--gum)}
+.lgnote{font-size:11px;color:var(--rinkd);padding:10px 16px 4px;font-family:"Kode Mono",monospace}
+
+/* ===== copy blocks ===== */
+.slab{margin-top:26px;background:var(--cream);border:2.5px solid var(--ink);border-radius:14px;
+  box-shadow:6px 6px 0 var(--shadow);padding:22px 22px}
+.slab h2{font-size:24px;margin-bottom:6px}
+.kicker{font-family:"Kode Mono",monospace;font-size:11px;letter-spacing:.22em;color:var(--tang);font-weight:700}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:16px}
+@media(max-width:760px){.cols3{grid-template-columns:1fr}}
+.cell{border:2px solid var(--ink);border-radius:10px;padding:14px;background:var(--cream2)}
+.cell h3{font-size:16px;color:var(--tang);margin-bottom:4px}
+.cell p{margin:0;font-size:13px}
+.pricerow{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px dashed rgba(30,19,48,.3);padding:8px 0}
+.pricerow:last-child{border-bottom:0}
+.pricerow b{font-family:"Baloo 2",sans-serif}
+.pricerow .p{font-family:"Kode Mono",monospace;font-weight:700;color:var(--gum)}
+.linkbtn{display:inline-block;margin-top:14px;font-family:"Kode Mono",monospace;font-weight:700;font-size:13px;
+  color:var(--cream);background:var(--ink);padding:8px 14px;border-radius:8px;text-decoration:none}
+
+/* skill promo */
+.promo{margin-top:26px;background:var(--ink);color:var(--cream);border-radius:14px;border:2.5px solid var(--ink);
+  box-shadow:6px 6px 0 rgba(30,19,48,.4);padding:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.promo .txt{flex:1;min-width:220px}
+.promo h3{font-size:19px;color:var(--lemon)}
+.promo p{margin:6px 0 0;font-size:13px}
+
+footer{margin-top:32px;padding:22px 0 8px;font-size:12.5px}
+footer .cols{display:flex;gap:30px;flex-wrap:wrap;justify-content:space-between}
+footer b{font-family:"Baloo 2",sans-serif;font-weight:800}
+footer .disc{margin-top:16px;font-size:11px;color:var(--rinkd);max-width:820px;line-height:1.55}
+footer .disc b{color:var(--ink)}
+
+/* ===== nav dock: lane selector ===== */
+nav.dock{position:fixed;left:0;right:0;bottom:0;background:var(--ink);border-top:3px solid var(--lemon);
+  z-index:40;box-shadow:0 -4px 0 rgba(30,19,48,.4)}
+nav.dock .lanes{display:flex;max-width:1160px;margin:0 auto;padding:0 8px}
+nav.dock a{flex:1;text-decoration:none;color:var(--cream);text-align:center;padding:12px 4px 12px;position:relative}
+nav.dock a small{display:block;font-family:"Kode Mono",monospace;font-size:9px;letter-spacing:.14em;color:var(--rink);margin-top:2px}
+nav.dock a .lbl{font-family:"Baloo 2",sans-serif;font-weight:700;font-size:14px}
+nav.dock a .no{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-family:"Kode Mono",monospace;
+  font-size:9px;color:var(--rinkd)}
+nav.dock a[aria-current="page"]{background:linear-gradient(var(--rinkd),transparent 70%)}
+nav.dock a[aria-current="page"] .lbl{color:var(--lemon)}
+nav.dock a[aria-current="page"]::before{content:"";position:absolute;top:-3px;left:22%;right:22%;height:5px;
+  background:var(--gum);border-radius:0 0 4px 4px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+@media(prefers-reduced-motion:reduce){
+  .tickerline{animation:none;padding-left:0}
+  .livedot{animation:none}
+  .ball.roll{transition:none}
+  .pin{transition:opacity .2s}
+  .aimptr{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#play">跳到投球台</a>
+<header class="top"><div class="wrap">
+  <div class="brandrow">
+    <img class="logo" src="assets/logo.svg" alt="COSMIC LANES 宇宙球道" width="210" height="64">
+    <p class="tagline">密西根湖畔・自 1983 年不熄燈的球館。<br>榜是活的——上場，讓它為你跳一下。</p>
+  </div>
+  <div class="livebar">
+    <span class="livedot" aria-hidden="true"></span>
+    <span class="now" id="liveNow">連線中…</span>
+    <div class="tickerwin"><span class="tickerline" id="ticker">歡迎回到宇宙球道。</span></div>
+  </div>
+</div></header>
+
+<main class="wrap">
+<div class="board">
+  <!-- LEFT: play -->
+  <section class="panel" id="play" aria-label="投球台">
+    <div class="phd"><h2>第 1 道・你的計分卡</h2><span class="tag" id="stateTag">READY</span></div>
+    <div class="lanewrap">
+      <div class="lane" aria-hidden="true">
+        <div class="pindeck" id="pindeck"></div>
+        <div class="arrows"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="ball" id="ball"></div>
+      </div>
+      <div class="aimwrap">
+        <div class="aimtrack" id="aimtrack">
+          <div class="sweet" id="sweet"></div>
+          <div class="aimptr" id="aimptr"></div>
+        </div>
+        <input class="aimrange" id="aimrange" type="range" min="0" max="100" value="50" aria-label="瞄準位置">
+        <div class="aimlabel"><span id="aimhint">指針掃到甜蜜點（黃區）時按投球</span><span class="mono" id="aimacc"></span></div>
+      </div>
+    </div>
+    <div class="gamefoot">
+      <button class="btn" id="throwBtn">投球</button>
+      <button class="btn ghost" id="resetBtn">新的一局</button>
+      <span class="callout" id="callout" role="status" aria-live="polite">按「投球」開始這一局。</span>
+    </div>
+    <div class="scorecard"><div class="frames" id="frames"></div></div>
+  </section>
+
+  <!-- RIGHT: live league -->
+  <aside class="panel" aria-label="聯盟即時榜">
+    <div class="phd"><h2>週三夜聯盟・即時榜</h2><span class="tag" id="onlineTag">…人在線</span></div>
+    <div class="league" id="league"></div>
+    <p class="lgnote" id="lgnote">榜單依各球員「此刻該局進行到的分數」即時排序，每 1.5 秒更新。</p>
+  </aside>
+</div>
+
+<section class="slab">
+  <span class="kicker">為什麼這張榜會動</span>
+  <h2>沒有人在假裝。是規則讓它活著。</h2>
+  <p style="max-width:760px;margin-top:8px">週三夜聯盟現在有 24 位固定成員，每人有自己的平均分與手感。你看到的每一個跳動，都是他們正打到第幾格、這一格打了幾瓶算出來的——同一組時間、同一批人，換誰來看、重新整理幾次，跑出來的都一樣。你投出的每一球，用的是跟他們一模一樣的十瓶計分規則：全倒加接下來兩球、補中加下一球。所以你的分數不是貼上去的裝飾，是真的和 Rosa、老 Dutch 他們排在同一欄。</p>
+  <div class="cols3">
+    <div class="cell"><h3>全倒 STRIKE</h3><p>第一球把十瓶全放倒。這一格記 10，再加你接下來兩球的瓶數——手感好的時候會像雪球一樣滾起來。</p></div>
+    <div class="cell"><h3>補中 SPARE</h3><p>兩球補滿十瓶。記 10 加下一球。穩定補中的人，往往比偶爾全倒的人爬得更高。</p></div>
+    <div class="cell"><h3>洗溝 GUTTER</h3><p>球滑進兩側溝裡，這一球 0 瓶。指針離黃區越遠越容易發生——別急，瞄準比用力重要。</p></div>
+  </div>
+</section>
+
+<section class="slab">
+  <span class="kicker">包場・鞋租・可樂機</span>
+  <h2>來真的打一場</h2>
+  <p style="max-width:760px;margin-top:8px">週間下午最好約，週五晚上要提早三天。以下為常態價目，包含球鞋租借；生日包場另贈宇宙保齡霓虹燈時段一小時。</p>
+  <div style="margin-top:14px;max-width:520px">
+    <div class="pricerow"><b>單局・每人</b><span class="p">US$5.50</span></div>
+    <div class="pricerow"><b>週間下午吃到飽（14:00–17:00）</b><span class="p">US$14 / 人</span></div>
+    <div class="pricerow"><b>球鞋租借</b><span class="p">US$3.75</span></div>
+    <div class="pricerow"><b>整條球道包場・每小時（含 6 人）</b><span class="p">US$42</span></div>
+    <div class="pricerow"><b>宇宙保齡・週五夜霓虹場（21:00 起）</b><span class="p">US$9 / 局</span></div>
+  </div>
+  <a class="linkbtn" href="lanes.html">看球館與包場方案 →</a>
+</section>
+
+<div class="promo">
+  <div class="txt">
+    <h3>喜歡這種「活球館」的視覺？</h3>
+    <p>宇宙球道的整套語言——電光土耳其藍配撞色、球道箭矢構成的插畫、翻硬陰影的塑膠感元件、活聯盟的排版——都寫進了 SKILL.md。下載交給任何 AI，就能把這套風格套到你自己的品牌上，風格一致、內容自訂。</p>
+  </div>
+  <a class="linkbtn" href="SKILL.md" download>下載 SKILL.md</a>
+</div>
+</main>
+
+<footer><div class="wrap">
+  <div class="cols">
+    <div><b>COSMIC LANES 宇宙球道</b><br>1983 年開幕・密西根湖畔<br>Muskegon, MI 49440</div>
+    <div><b>營業時間</b><br>週一至四 12:00–23:00<br>週五 12:00–01:00・週六 10:00–01:00・週日 10:00–22:00</div>
+    <div><b>訂位</b><br>(231) 555-0183<br>週三夜聯盟報名見「聯盟」頁</div>
+  </div>
+  <p class="disc">本站為 Design Skills Center 的去AI化風格示範站。館名、人名、地址、電話、價目、聯盟成員與成績均為虛構教學示意，如有雷同純屬巧合。聯盟即時榜為前端確定性模擬（seed＋時鐘），非真實連線多人。所有插圖、logo、favicon、球瓶與球道皆以 SVG／CSS 原生繪製，無一張外部圖片。<br>本站由 <b class="mono" style="color:var(--tang)">Claude Opus 4.8 · 排程 Agent</b> 設計與建置（2026-07-24，排程 Agent 自動執行）。</p>
+</div></footer>
+
+<nav class="dock" aria-label="主導覽"><div class="lanes">
+  <a href="index.html" aria-current="page"><span class="no">01</span><span class="lbl">投球台</span><small>PLAY</small></a>
+  <a href="lanes.html"><span class="no">02</span><span class="lbl">球館・包場</span><small>THE ALLEY</small></a>
+  <a href="league.html"><span class="no">03</span><span class="lbl">週三夜聯盟</span><small>LEAGUE</small></a>
+</div></nav>
+
+<noscript><div class="wrap" style="margin:20px auto;background:var(--cream);border:2.5px solid var(--ink);border-radius:12px;padding:16px">投球台與活聯盟需要 JavaScript。你仍可瀏覽 <a href="lanes.html">球館與包場方案</a>、<a href="league.html">週三夜聯盟規則</a>，或電洽 (231) 555-0183 訂位。價目、人名均為虛構示意。</div></noscript>
+
+<script>
+"use strict";
+(function(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  /* ---------- deterministic RNG ---------- */
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash(str){ var h=2166136261; for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);} return h>>>0; }
+
+  /* ---------- 10-pin scoring ---------- */
+  // rolls: flat array of pins per ball. Returns array of cumulative frame totals (or null if incomplete).
+  function scoreFrames(rolls){
+    var totals=[], run=0, i=0;
+    for(var f=0; f<10; f++){
+      if(i>=rolls.length){ totals.push(null); continue; }
+      if(rolls[i]===10){ // strike
+        if(i+2 < rolls.length){ run += 10 + rolls[i+1] + rolls[i+2]; totals.push(run); }
+        else totals.push(null);
+        i+=1;
+      } else if(i+1 < rolls.length && rolls[i]+rolls[i+1]===10){ // spare
+        if(i+2 < rolls.length){ run += 10 + rolls[i+2]; totals.push(run); }
+        else totals.push(null);
+        i+=2;
+      } else if(i+1 < rolls.length){ // open
+        run += rolls[i]+rolls[i+1]; totals.push(run); i+=2;
+      } else { totals.push(null); }
+    }
+    return totals;
+  }
+
+  // Simulate a full deterministic 10-frame game for a bowler of given skill (0..1).
+  function simGame(seed, skill){
+    var rnd = mulberry32(seed);
+    var rolls=[];
+    function knock(standing){
+      // higher skill -> more pins; strike chance scales with skill
+      var r = rnd();
+      var strikeP = 0.16 + skill*0.42;
+      if(standing===10 && r < strikeP) return 10;
+      var base = Math.round((0.45 + skill*0.5) * standing + (rnd()-0.5)*2.2);
+      if(base<0) base=0; if(base>standing) base=standing;
+      return base;
+    }
+    for(var f=0; f<10; f++){
+      var first = knock(10); rolls.push(first);
+      if(f<9){
+        if(first===10) continue;
+        var second = knock(10-first); rolls.push(second);
+      } else {
+        // 10th frame
+        if(first===10){ rolls.push(knock(10)); var l=rolls[rolls.length-1]; rolls.push(knock(l===10?10:10-l)); }
+        else{ var s2=knock(10-first); rolls.push(s2); if(first+s2===10) rolls.push(knock(10)); }
+      }
+    }
+    return rolls;
+  }
+
+  // final score of a full game
+  function finalScore(rolls){
+    var t=scoreFrames(rolls); for(var k=9;k>=0;k--){ if(t[k]!=null) return t[k]; } return 0;
+  }
+  // live score up to frame limit (1..10): rebuild partial rolls up to that frame boundary
+  function liveScore(rolls, frameLimit){
+    // walk rolls counting frames, cut after frameLimit frames of *balls thrown*
+    var i=0, cut=0;
+    for(var f=0; f<frameLimit && i<rolls.length; f++){
+      if(f===9){ cut=rolls.length; break; }
+      if(rolls[i]===10){ i+=1; } else { i+=2; }
+      cut=i;
+    }
+    var partial=rolls.slice(0,cut);
+    var t=scoreFrames(partial);
+    for(var k=t.length-1;k>=0;k--){ if(t[k]!=null) return t[k]; }
+    return 0;
+  }
+
+  /* ---------- league of simulated bowlers ---------- */
+  var NAMES=[
+    ["Rosa Delacroix","石油工會・週三皇后"],["Dutch Vandermeer","1979 就在這裡"],
+    ["Marnie K.","左手勾球"],["Big Sal","可樂機贊助商"],["Pixie Okafor","大學校隊退役"],
+    ["Hank the Rail","鐵路調度員"],["Junie B.","連兩年進步最多"],["Coach Ferris","週四也來"],
+    ["Lorna Wexler","護士夜班後直奔"],["Tino Marchetti","理髮師・週五霓虹場常客"],
+    ["Deb from 7-11","收銀轉球道"],["Ray Ottoson","焊工・重球派"],["Suki Tan","交換學生"],
+    ["Old Pete","館內最高齡 81"],["Carla Voss","消防隊聯隊"],["The Mailman","真的是郵差"],
+    ["Nessa Bright","高中物理老師"],["Gord H.","冰球淡季來練"],["Yolanda P.","三代都在這打"],
+    ["Chip Delaney","汽車業務"],["Bev Kowalski","蘋果派冠軍"],["Rico Suave Jr.","名字自己取的"],
+    ["Fran the Fox","溝球零容忍"],["Mister Wu","乾洗店老闆"]
+  ];
+  var bowlers = NAMES.map(function(n,i){
+    var seed=hash(n[0])+i*7919;
+    var rnd=mulberry32(seed);
+    var skill=0.30 + rnd()*0.55;              // 0.30..0.85
+    var phase=Math.floor(rnd()*90000);         // offset into game cycle
+    return {name:n[0], tag:n[1], seed:seed, skill:skill, phase:phase};
+  });
+
+  var GAME_MS=90000; // one simulated game every 90s
+  function bowlerState(b, now){
+    var t = now + b.phase;
+    var gi = Math.floor(t / GAME_MS);
+    var p = (t % GAME_MS) / GAME_MS;          // 0..1 through the game
+    var frame = Math.min(10, Math.floor(p*10)+1);
+    var rolls = simGame((b.seed ^ (gi*2654435761)) >>> 0, b.skill);
+    var live = liveScore(rolls, frame);
+    // best of last 6 completed games today
+    var best=live;
+    for(var g=1; g<=6; g++){
+      var rr=simGame((b.seed ^ ((gi-g)*2654435761)) >>> 0, b.skill);
+      var fs=finalScore(rr); if(fs>best) best=fs;
+    }
+    return {frame:frame, live:live, best:best, game:gi};
+  }
+
+  /* ---------- user game ---------- */
+  var user={rolls:[], frame:0, ballInFrame:0, standing:10, active:false, done:false, joined:false, best:0};
+  var pinPos=[ // triangle, 10 pins, x/y in the 190x118 deck
+    [95,6],[78,30],[112,30],[61,54],[95,54],[129,54],[44,78],[78,78],[112,78],[146,78]
+  ];
+  var pindeck=document.getElementById("pindeck");
+  var pinEls=[];
+  function buildPins(){
+    pindeck.innerHTML="";
+    pinEls=[];
+    for(var i=0;i<10;i++){
+      var d=document.createElement("div"); d.className="pin";
+      d.style.left=pinPos[i][0]+"px"; d.style.top=pinPos[i][1]+"px";
+      d.innerHTML="<b></b>"; pindeck.appendChild(d); pinEls.push(d);
+    }
+  }
+  function renderPins(downSet){
+    for(var i=0;i<10;i++){ pinEls[i].classList.toggle("down", downSet.indexOf(i)>=0); }
+  }
+
+  var framesEl=document.getElementById("frames");
+  function buildScorecard(){
+    framesEl.innerHTML="";
+    for(var f=0; f<10; f++){
+      var fr=document.createElement("div"); fr.className="frame"; fr.dataset.f=f;
+      var nb=(f===9)?3:2;
+      var balls='<div class="balls">';
+      for(var b=0;b<nb;b++) balls+='<div class="b" data-b="'+b+'"></div>';
+      balls+='</div>';
+      fr.innerHTML='<div class="fn">'+(f+1)+'</div>'+balls+'<div class="tot"></div>';
+      framesEl.appendChild(fr);
+    }
+  }
+  function mark(pins, isStrike, isSpare){
+    if(isStrike) return "X";
+    if(isSpare) return "/";
+    if(pins===0) return "-";
+    return String(pins);
+  }
+  function renderScorecard(){
+    var frs=framesEl.children;
+    // map rolls to frame/ball cells
+    var i=0;
+    for(var f=0; f<10; f++){
+      var fr=frs[f]; var bcells=fr.querySelectorAll(".b");
+      fr.classList.toggle("cur", f===user.frame && user.active && !user.done);
+      for(var c=0;c<bcells.length;c++) bcells[c].textContent="";
+      if(f<9){
+        if(i<user.rolls.length){
+          var a=user.rolls[i];
+          if(a===10){ bcells[1].textContent="X"; i+=1; }
+          else{
+            bcells[0].textContent = a===0?"-":String(a);
+            if(i+1<user.rolls.length){ var bb=user.rolls[i+1]; bcells[1].textContent = (a+bb===10)?"/":(bb===0?"-":String(bb)); i+=2; }
+            else i+=1;
+          }
+        }
+      } else {
+        // 10th
+        var start=i, thrown=[];
+        while(i<user.rolls.length && thrown.length<3){ thrown.push(user.rolls[i]); i++; }
+        var prev=0, cum=0;
+        for(var t2=0;t2<thrown.length;t2++){
+          var v=thrown[t2];
+          if(v===10) bcells[t2].textContent="X";
+          else if(t2>0 && thrown[t2-1]!==10 && (prev+v===10)) bcells[t2].textContent="/";
+          else bcells[t2].textContent = v===0?"-":String(v);
+          prev = (thrown[t2-1]===10)?0:v; // reset after strike
+          if(thrown[t2-1]===10) prev=v;
+        }
+      }
+    }
+    var totals=scoreFrames(user.rolls);
+    for(var f2=0; f2<10; f2++){ frs[f2].querySelector(".tot").textContent = (totals[f2]!=null)?totals[f2]:""; }
+    if(user.done){ user.best = finalScore(user.rolls); }
+  }
+
+  /* aim meter */
+  var aimptr=document.getElementById("aimptr");
+  var sweetEl=document.getElementById("sweet");
+  var trackEl=document.getElementById("aimtrack");
+  var rangeEl=document.getElementById("aimrange");
+  var aimPos=50, aimDir=1, sweetC=50, sweetW=20, rafId=null, running=false;
+  function placeSweet(){
+    sweetC = 26 + Math.floor(Math.random()*48); // random-ish but harmless; center 26..74
+    sweetW = 16 + Math.floor(Math.random()*10);
+    sweetEl.style.left=(sweetC - sweetW/2)+"%";
+    sweetEl.style.width=sweetW+"%";
+  }
+  function tick(){
+    aimPos += aimDir*1.7;
+    if(aimPos>=100){aimPos=100;aimDir=-1;} if(aimPos<=0){aimPos=0;aimDir=1;}
+    aimptr.style.left=aimPos+"%";
+    if(running) rafId=requestAnimationFrame(tick);
+  }
+  function startMeter(){
+    placeSweet();
+    if(reduce){
+      rangeEl.style.display="block";
+      aimptr.style.left=rangeEl.value+"%";
+      document.getElementById("aimhint").textContent="拖動滑桿對準黃色甜蜜點，再按投球";
+      return;
+    }
+    running=true; aimDir=1; aimPos=0;
+    rafId=requestAnimationFrame(tick);
+  }
+  function stopMeter(){ running=false; if(rafId) cancelAnimationFrame(rafId); }
+  rangeEl.addEventListener("input", function(){ aimPos=+rangeEl.value; aimptr.style.left=aimPos+"%"; });
+
+  function currentAccuracy(){
+    var pos = reduce ? (+rangeEl.value) : aimPos;
+    var dist = Math.abs(pos - sweetC);
+    var acc = 1 - dist/(50); // 0..1
+    if(acc<0) acc=0;
+    // within sweet zone = bonus
+    if(dist <= sweetW/2) acc = Math.min(1, acc+0.22);
+    return acc;
+  }
+
+  /* throw resolution */
+  var ballEl=document.getElementById("ball");
+  var calloutEl=document.getElementById("callout");
+  var stateTag=document.getElementById("stateTag");
+  var throwBtn=document.getElementById("throwBtn");
+
+  function knockUser(standing, acc){
+    // acc 0..1 -> pins; strike only if standing 10 and acc very high
+    if(standing===10 && acc>0.9) return 10;
+    var expected = acc*standing;
+    var jitter=(Math.random()-0.5)*1.6;
+    var v=Math.round(expected+jitter);
+    if(v<0)v=0; if(v>standing)v=standing;
+    // near-miss: high acc but not strike still usually 8-9
+    if(standing===10 && acc>0.78 && v<8) v=8;
+    return v;
+  }
+
+  function resolveThrow(){
+    if(!user.active || user.done) return;
+    stopMeter();
+    var acc=currentAccuracy();
+    document.getElementById("aimacc").textContent="準度 "+Math.round(acc*100)+"%";
+    var pins=knockUser(user.standing, acc);
+    // animate ball toward sweet direction
+    ballEl.classList.add("roll");
+    ballEl.style.bottom="120px";
+    ballEl.style.left=(reduce? (+rangeEl.value):aimPos)+"%";
+    var down=[];
+    (function(){
+      // choose which pins fall: knock `pins` of the standing set, biased by aim
+      var standIdx=[];
+      for(var i=0;i<10;i++){ if(!pinEls[i].classList.contains("down")) standIdx.push(i); }
+      standIdx.sort(function(a,b){ return Math.abs(pinPos[a][0]-(20+aimPos*1.5)) - Math.abs(pinPos[b][0]-(20+aimPos*1.5)); });
+      for(var j=0;j<pins;j++){ down.push(standIdx[j]); }
+      // include already-down
+      for(var k=0;k<10;k++){ if(pinEls[k].classList.contains("down")) down.push(k); }
+    })();
+    setTimeout(function(){
+      renderPins(down);
+      ballEl.classList.remove("roll"); ballEl.style.bottom="14px"; ballEl.style.left="50%";
+      applyRoll(pins);
+    }, reduce?60:520);
+  }
+
+  function applyRoll(pins){
+    var f=user.frame;
+    user.rolls.push(pins);
+    var isStrike=false, isSpare=false, advance=false;
+    if(f<9){
+      if(user.ballInFrame===0){
+        if(pins===10){ isStrike=true; advance=true; }
+        else { user.standing=10-pins; user.ballInFrame=1; }
+      } else {
+        if(user.standing-pins===0) isSpare=true;
+        advance=true;
+      }
+    } else {
+      // 10th frame logic
+      var tenRolls=user.rolls.slice(userTenStart());
+      var need=tenBallsNeeded(tenRolls);
+      if(user.ballInFrame===0){
+        if(pins===10){ isStrike=true; user.standing=10; }
+        else user.standing=10-pins;
+        user.ballInFrame=1;
+      } else if(user.ballInFrame===1){
+        if(tenRolls[0]===10){ user.standing = pins===10?10:10-pins; if(pins===10) isStrike=true; }
+        else { if(tenRolls[0]+pins===10){ isSpare=true; user.standing=10; } }
+        user.ballInFrame=2;
+      } else { if(pins===10) isStrike=true; advance=true; }
+      if(need<=tenRolls.length) advance=true;
+    }
+    // callout
+    var msg;
+    if(isStrike) msg="全倒！STRIKE 🎳".replace("🎳","");
+    else if(isSpare) msg="補中！SPARE";
+    else if(pins===0) msg="洗溝… 下一球別緊張。";
+    else msg="放倒 "+pins+" 瓶。";
+    calloutEl.textContent=msg;
+    calloutEl.classList.toggle("big", isStrike||isSpare);
+
+    if(advance){
+      if(f>=9){ finishGame(); return; }
+      user.frame+=1; user.ballInFrame=0; user.standing=10;
+      buildPins();
+    } else if(user.ballInFrame===0){
+      buildPins();
+    }
+    renderScorecard();
+    if(!user.done){ startNextBall(); }
+  }
+  function userTenStart(){
+    // index in rolls where 10th frame began
+    var i=0; for(var f=0;f<9;f++){ if(user.rolls[i]===10) i+=1; else i+=2; } return i;
+  }
+  function tenBallsNeeded(tr){
+    if(tr.length===0) return 2;
+    if(tr[0]===10) return 3;
+    if(tr.length>=2 && tr[0]+tr[1]===10) return 3;
+    return 2;
+  }
+  function startNextBall(){
+    stateTag.textContent="第 "+(user.frame+1)+" 格";
+    throwBtn.disabled=false;
+    startMeter();
+  }
+  function finishGame(){
+    user.done=true; user.active=false; user.joined=true;
+    stopMeter(); throwBtn.disabled=true;
+    renderScorecard();
+    var sc=finalScore(user.rolls); user.best=sc;
+    stateTag.textContent="GAME OVER";
+    // rank
+    var now=Date.now();
+    var arr=bowlers.map(function(b){ return bowlerState(b,now).best; });
+    arr.push(sc);
+    arr.sort(function(a,b){return b-a;});
+    var rank=arr.indexOf(sc)+1;
+    calloutEl.textContent="這局 "+sc+" 分！以今日最佳計，你暫居聯盟第 "+rank+" 名。再來一局？";
+    calloutEl.classList.add("big");
+  }
+
+  function newGame(){
+    user={rolls:[], frame:0, ballInFrame:0, standing:10, active:true, done:false, joined:true, best:0};
+    buildPins(); renderPins([]); buildScorecard(); renderScorecard();
+    calloutEl.classList.remove("big");
+    calloutEl.textContent="第 1 格開始——指針掃到黃區時按投球。";
+    ballEl.style.left="50%"; ballEl.style.bottom="14px";
+    startNextBall();
+  }
+
+  throwBtn.addEventListener("click", function(){
+    if(!user.active){ newGame(); return; }
+    throwBtn.disabled=true;
+    resolveThrow();
+  });
+  document.getElementById("resetBtn").addEventListener("click", newGame);
+
+  /* ---------- render league ---------- */
+  var leagueEl=document.getElementById("league");
+  var onlineTag=document.getElementById("onlineTag");
+  var liveNow=document.getElementById("liveNow");
+  var tickerEl=document.getElementById("ticker");
+  var prevFrames={};
+
+  function fmtClock(){
+    var d=new Date(); function p(n){return (n<10?"0":"")+n;}
+    return p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+  }
+
+  var tickerQueue=["歡迎回到宇宙球道——週三夜聯盟正在開打。"];
+  function pushTicker(s){ tickerQueue.push(s); if(tickerQueue.length>7) tickerQueue.shift(); }
+
+  function updateLeague(){
+    var now=Date.now();
+    var rows=bowlers.map(function(b){
+      var st=bowlerState(b,now);
+      // ticker events on frame change
+      var key=b.name;
+      if(prevFrames[key]!=null && st.frame!==prevFrames[key]){
+        var evtRnd=mulberry32((b.seed ^ st.frame ^ st.game)>>>0)();
+        if(b.skill>0.6 && evtRnd<0.34) pushTicker("★ "+b.name+" 第 "+st.frame+" 格 STRIKE！");
+        else if(evtRnd<0.2) pushTicker(b.name+" 補中，追到 "+st.live+" 分。");
+        else if(evtRnd>0.9) pushTicker(b.name+" 洗溝了…");
+      }
+      prevFrames[key]=st.frame;
+      return {name:b.name, tag:b.tag, live:st.live, best:st.best, frame:st.frame, you:false};
+    });
+    if(user.joined){
+      var live = user.done ? user.best : liveScore(user.rolls, Math.max(1,user.frame+1));
+      rows.push({name:"你 YOU", tag:user.done?"本局 "+user.best+" 分":"上場中", live:user.done?user.best:live, best:user.best||live, frame:user.done?10:user.frame+1, you:true});
+    }
+    rows.sort(function(a,b){ return b.live - a.live; });
+    var html="";
+    for(var i=0;i<rows.length;i++){
+      var r=rows[i];
+      html+='<div class="lgrow'+(r.you?' you':'')+'">'
+        +'<span class="rk">'+(i+1)+'</span>'
+        +'<span class="nm">'+esc(r.name)+'<small>'+esc(r.tag)+'</small></span>'
+        +'<span class="sc">'+r.live+'</span>'
+        +'<span class="fr">F'+r.frame+'</span></div>';
+    }
+    leagueEl.innerHTML=html;
+    onlineTag.textContent=bowlers.length+(user.joined?1:0)+" 人在線";
+    liveNow.textContent="LIVE "+fmtClock();
+    // ticker text
+    var line=tickerQueue.join("　·　");
+    if(tickerEl.textContent!==line) tickerEl.textContent=line;
+  }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];}); }
+
+  /* ---------- boot ---------- */
+  buildPins(); renderPins([]); buildScorecard(); renderScorecard();
+  updateLeague();
+  setInterval(updateLeague, 1500);
+})();
+</script>
+</body>
+</html>

@@ -120,6 +120,7 @@
 | 102 | [復觀堂 FÙGUĀN](sites/fuguan/index.html) | 易占卜筮堂 | 水墨卦象 Ink-Gold Hexagram | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 103 | [算珠堂 SUANPAN](sites/suanpan/index.html) | 珠算檢定研究所 | 粉筆黑板算術風 Chalk-Slate | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 104 | [絞白染坊 JIAOBAI](sites/jiaobai/index.html) | 手工絞染工坊 | 摺染紋樣風 Shibori-Symmetry | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 105 | [宇宙球道 COSMIC LANES](sites/cosmic-lanes/index.html) | 美式復古保齡球館 | 太空球館活榜風 Cosmic-Lanes | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

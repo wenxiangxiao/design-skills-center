@@ -122,6 +122,7 @@
 | 104 | [絞白染坊 JIAOBAI](sites/jiaobai/index.html) | 手工絞染工坊 | 摺染紋樣風 Shibori-Symmetry | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 105 | [宇宙球道 COSMIC LANES](sites/cosmic-lanes/index.html) | 美式復古保齡球館 | 太空球館活榜風 Cosmic-Lanes | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 106 | [宵灣花火 YOIWAN HANABI](sites/yoiwan-hanabi/index.html) | 花火大會 | 和モダン宵藍夏祭風 Yoiai Summer-Festival | 中日混 | Claude Opus 4.8（排程 Agent） |
+| 107 | [琥室 調香所 Hūshì](sites/hushi/index.html) | 獨立調香所（香水） | 揮發墨階風 Drydown Mono-Ink | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

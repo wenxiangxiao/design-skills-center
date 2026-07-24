@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>絞白染坊 JIAOBAI｜手工絞染工坊</title>
+<meta name="description" content="台南後壁的手工絞染工坊。這座染台不給你現成的圖案：你先選一種摺法，摺法就決定了整幅布的對稱；再下型板夾、入茜缸，解開時你摺出的那一角會被對稱鋪滿整幅布。所有紋樣、logo、圖鑑都由同一支防染引擎解出，沒有一張是描的。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%235F201C'/%3E%3Ccircle cx='16' cy='16' r='12' fill='%23E9DEC6'/%3E%3Cg fill='%238E2F2A'%3E%3Ccircle cx='16' cy='7' r='3.4'/%3E%3Ccircle cx='16' cy='25' r='3.4'/%3E%3Ccircle cx='7' cy='16' r='3.4'/%3E%3Ccircle cx='25' cy='16' r='3.4'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3.6' fill='%23241C17'/%3E%3Ccircle cx='16' cy='16' r='1.7' fill='%23D9A441'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vat:#5F201C; --vat2:#4A1815; --cloth:#E9DEC6; --cloth2:#DECFB0;
+  --dye:#8E2F2A; --ink:#241C17; --indigo:#2C5C7A; --gold:#D9A441;
+  --line:#3A1410; --shadow:rgba(20,10,8,.4);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--vat);color:var(--cloth);
+  font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;
+  background-image:radial-gradient(circle at 18% 12%,rgba(255,240,220,.05),transparent 45%),
+                   radial-gradient(circle at 82% 80%,rgba(0,0,0,.28),transparent 55%);
+  padding-bottom:96px;
+}
+a{color:inherit}
+.mono{font-family:"Space Mono",monospace;letter-spacing:.02em}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* masthead */
+header.top{border-bottom:2px solid var(--line);padding:16px 0 14px}
+.brandrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brandrow img{width:52px;height:52px;display:block}
+.brandname{font-family:"Shippori Mincho",serif;font-weight:800;font-size:26px;letter-spacing:.14em;color:var(--cloth)}
+.brandname small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:11px;letter-spacing:.32em;color:var(--gold);margin-top:2px}
+.tagline{margin-left:auto;font-size:12.5px;color:var(--cloth2);max-width:340px;text-align:right}
+@media(max-width:640px){.tagline{margin-left:0;text-align:left;width:100%}}
+
+/* workbench */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:26px;margin-top:26px;align-items:start}
+@media(max-width:900px){.bench{grid-template-columns:1fr}}
+.stage{
+  background:var(--ink);border:2px solid var(--line);border-radius:4px;
+  padding:18px;position:relative;box-shadow:inset 0 0 60px rgba(0,0,0,.5);
+}
+.stagehd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.stagehd h1{font-family:"Shippori Mincho",serif;font-size:17px;font-weight:600;margin:0;letter-spacing:.06em;color:var(--cloth)}
+.stagehd .step{font-family:"Space Mono",monospace;font-size:11px;color:var(--gold);letter-spacing:.14em}
+.clothbox{position:relative;width:100%;max-width:440px;margin:0 auto;aspect-ratio:1/1}
+.clothbox canvas{width:100%;height:100%;display:block;border-radius:2px;background:var(--cloth);
+  box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.foldlines{position:absolute;inset:0;pointer-events:none}
+.stagefoot{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+.readout{font-family:"Space Mono",monospace;font-size:11.5px;color:var(--cloth2);flex:1;min-width:180px}
+.readout b{color:var(--gold);font-weight:700}
+
+button{font-family:inherit;cursor:pointer}
+.btn{
+  background:var(--dye);color:var(--cloth);border:2px solid var(--ink);
+  padding:11px 20px;font-weight:700;font-size:14px;letter-spacing:.08em;border-radius:2px;
+  box-shadow:0 3px 0 var(--vat2);transition:transform .08s,box-shadow .08s;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--vat2)}
+.btn.ghost{background:transparent;color:var(--cloth);border-color:var(--cloth2);box-shadow:none}
+
+/* control panel */
+.panel{background:var(--cloth);color:var(--ink);border:2px solid var(--ink);border-radius:4px;padding:16px 16px 18px}
+.panel h2{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dye);margin:0 0 8px;border-bottom:1px solid var(--cloth2);padding-bottom:5px}
+.panel h2:not(:first-of-type){margin-top:18px}
+.opts{display:flex;flex-wrap:wrap;gap:7px}
+.opt{
+  border:1.5px solid var(--ink);background:transparent;color:var(--ink);
+  padding:7px 10px;font-size:12.5px;border-radius:2px;line-height:1.2;text-align:center;
+}
+.opt small{display:block;font-family:"Space Mono",monospace;font-size:9px;color:#7a6b52;letter-spacing:.08em}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--cloth)}
+.opt[aria-pressed="true"] small{color:var(--gold)}
+.swrow{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);cursor:pointer;position:relative}
+.sw[aria-pressed="true"]{outline:2px solid var(--gold);outline-offset:2px}
+label.fld{display:block;font-size:12px;margin-top:12px;color:#5a4d38}
+input[type=range]{width:100%;accent-color:var(--dye);margin-top:4px}
+select{width:100%;font-family:inherit;font-size:13px;padding:7px;border:1.5px solid var(--ink);
+  border-radius:2px;background:var(--cloth);color:var(--ink);margin-top:4px}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.chk input{width:17px;height:17px;accent-color:var(--dye)}
+
+/* quote */
+.quote{margin-top:16px;background:var(--ink);color:var(--cloth);border-radius:3px;padding:14px}
+.quote h3{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;color:var(--gold);margin:0 0 8px}
+.qline{display:flex;justify-content:space-between;font-family:"Space Mono",monospace;font-size:12px;padding:3px 0;color:var(--cloth2)}
+.qtot{display:flex;justify-content:space-between;border-top:1px solid #4a3a2a;margin-top:6px;padding-top:8px;
+  font-family:"Shippori Mincho",serif;font-size:20px;color:var(--gold)}
+
+/* generic sections */
+section.band{border-top:2px solid var(--line);margin-top:40px;padding-top:26px}
+section.band h2{font-family:"Shippori Mincho",serif;font-size:22px;font-weight:800;letter-spacing:.08em;margin:0 0 6px}
+.lead{color:var(--cloth2);max-width:640px;font-size:14.5px}
+.craftgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+@media(max-width:760px){.craftgrid{grid-template-columns:repeat(2,1fr)}}
+.craft{background:var(--cloth);color:var(--ink);border-radius:3px;padding:14px;border:2px solid var(--ink)}
+.craft .no{font-family:"Space Mono",monospace;font-size:11px;color:var(--dye);letter-spacing:.14em}
+.craft h4{font-family:"Shippori Mincho",serif;margin:6px 0 5px;font-size:16px}
+.craft p{margin:0;font-size:12.5px;color:#5a4d38;line-height:1.55}
+
+.spec{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:22px;background:var(--line);border:2px solid var(--line)}
+@media(max-width:640px){.spec{grid-template-columns:1fr}}
+.spec div{background:var(--vat);padding:14px}
+.spec b{display:block;font-family:"Space Mono",monospace;font-size:11px;color:var(--gold);letter-spacing:.12em;margin-bottom:3px}
+.spec span{font-size:13px;color:var(--cloth2)}
+
+footer{border-top:2px solid var(--line);margin-top:44px;padding:24px 0 8px;font-size:12.5px;color:var(--cloth2)}
+footer .cols{display:flex;gap:34px;flex-wrap:wrap;justify-content:space-between}
+footer b{color:var(--cloth);font-family:"Shippori Mincho",serif;font-weight:600}
+.disc{margin-top:18px;font-size:11px;color:#a98a7a;font-family:"Space Mono",monospace;line-height:1.7}
+
+/* nav dock: 型板夾 clamp boards */
+nav.dock{position:fixed;left:0;right:0;bottom:0;background:var(--vat2);border-top:2px solid var(--line);
+  z-index:40;box-shadow:0 -6px 20px rgba(0,0,0,.35)}
+.dockin{max-width:1120px;margin:0 auto;display:flex;gap:0;padding:8px 12px}
+.clamp{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px 6px;
+  text-decoration:none;position:relative;border-radius:3px}
+.board{width:46px;height:26px;border-radius:2px;position:relative;
+  background:linear-gradient(var(--cloth),var(--cloth2));border:2px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;transition:transform .18s,height .18s}
+.board::before{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:9px;transform:translateY(-50%);
+  background:#6b4a24;border:1.5px solid var(--ink);border-radius:2px;z-index:-1}
+.wing{width:9px;height:9px;border-radius:50%;background:var(--gold);border:1.5px solid var(--ink);transition:transform .3s}
+.clamp span{font-size:11.5px;color:var(--cloth2);font-weight:500;letter-spacing:.04em}
+.clamp small{font-family:"Space Mono",monospace;font-size:8.5px;color:#8a6a5a;letter-spacing:.1em}
+.clamp[aria-current="page"] .board{height:19px;box-shadow:0 0 0 2px var(--dye)}
+.clamp[aria-current="page"] .board::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:4px;background:var(--dye);border-radius:2px}
+.clamp[aria-current="page"] .wing{transform:rotate(140deg)}
+.clamp[aria-current="page"] span{color:var(--cloth)}
+@media(max-width:560px){.clamp small{display:none}.board{width:38px}}
+
+.reveal-hint{font-size:12px;color:var(--cloth2);margin-top:6px}
+.badge{display:inline-block;font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  border:1px solid var(--gold);color:var(--gold);padding:3px 8px;border-radius:2px;margin-bottom:12px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap brandrow">
+    <img src="assets/logo.svg" alt="絞白染坊 logo">
+    <div class="brandname">絞白染坊<small>JIAOBAI · SHIBORI RESIST STUDIO</small></div>
+    <p class="tagline">台南後壁・林淑貞師傅的手工絞染工坊。你摺出來的那一角，就是整幅布的樣。</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <span class="badge">全館首創 · 摺疊對稱防染引擎</span>
+  <div class="bench">
+    <!-- STAGE -->
+    <div class="stage">
+      <div class="stagehd">
+        <h1>染台・一角定全幅</h1>
+        <div class="step" id="stepLabel">① 選摺法</div>
+      </div>
+      <div class="clothbox">
+        <canvas id="cloth" width="440" height="440" aria-label="絞染布面預覽"></canvas>
+        <svg class="foldlines" id="foldlines" viewBox="0 0 440 440" aria-hidden="true"></svg>
+      </div>
+      <div class="stagefoot">
+        <button class="btn" id="dipBtn">入茜缸・解開</button>
+        <button class="btn ghost" id="resetBtn">洗白重摺</button>
+        <div class="readout" id="readout"></div>
+      </div>
+      <p class="reveal-hint" id="hint">先在右側選一種摺法，摺法決定整幅布怎麼對稱；再選型板紋樣、調染料，按「入茜缸・解開」看它鋪滿整幅布。</p>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="panel">
+      <h2>① 摺法 · 決定對稱</h2>
+      <div class="opts" id="folds">
+        <button class="opt" data-fold="sekka" aria-pressed="true">三角雪花摺<small>D8 二面體</small></button>
+        <button class="opt" data-fold="itajime" aria-pressed="false">板締格摺<small>鏡射網格</small></button>
+        <button class="opt" data-fold="arashi" aria-pressed="false">嵐斜捲<small>斜向滑動</small></button>
+      </div>
+
+      <h2>② 型板紋樣</h2>
+      <div class="opts" id="motifs">
+        <button class="opt" data-motif="kumo" aria-pressed="true">蜘蛛絞</button>
+        <button class="opt" data-motif="mame" aria-pressed="false">豆絞</button>
+        <button class="opt" data-motif="shima" aria-pressed="false">縞</button>
+        <button class="opt" data-motif="hishi" aria-pressed="false">菱格</button>
+        <button class="opt" data-motif="asa" aria-pressed="false">麻葉</button>
+        <button class="opt" data-motif="mujina" aria-pressed="false">無地</button>
+      </div>
+      <label class="fld">絞縫密度 <span class="mono" id="denVal">4</span>
+        <input type="range" id="density" min="2" max="7" step="1" value="4"></label>
+
+      <h2>③ 染料 · 主缸</h2>
+      <div class="swrow" id="dyes"></div>
+      <label class="fld">下缸深淺 <span class="mono" id="dipVal">濃</span>
+        <input type="range" id="dip" min="35" max="100" step="1" value="88"></label>
+      <div class="chk"><input type="checkbox" id="overdye"><label for="overdye">套染（第二缸疊色）</label></div>
+      <div id="dye2wrap" style="display:none"><div class="swrow" id="dyes2" style="margin-top:8px"></div></div>
+
+      <h2>④ 成品規格</h2>
+      <label class="fld">尺寸
+        <select id="size">
+          <option value="handkerchief">手帕巾 30×30</option>
+          <option value="square" selected>方巾 45×45</option>
+          <option value="runner">桌旗 33×130</option>
+          <option value="scarf">絲巾 45×180</option>
+        </select></label>
+      <label class="fld">布料
+        <select id="fabric">
+          <option value="cotton" selected>本棉 平織</option>
+          <option value="linen">苧麻</option>
+          <option value="silk">絹絲</option>
+        </select></label>
+      <div class="chk"><input type="checkbox" id="rush"><label for="rush">急件（工期減半，加收兩成半）</label></div>
+
+      <div class="quote" id="quote"></div>
+      <p style="margin:12px 0 0;font-size:12px"><a class="mono" href="order.html" style="color:var(--dye)">→ 帶這塊布去下訂單</a></p>
+    </div>
+  </div>
+
+  <section class="band">
+    <h2>四道工序</h2>
+    <p class="lead">絞染不畫圖，只摺布。師傅心裡有的不是一張圖案，而是一組摺法——摺法先把整幅布疊成一小疊，你只在那一小疊上動手，解開時對稱替你把它抄成滿幅。</p>
+    <div class="craftgrid">
+      <div class="craft"><div class="no">01 摺</div><h4>先摺，後想</h4><p>三角雪花摺疊成八層楔形、板締摺成格狀鏡射、嵐斜捲成斜向。摺法一定，全幅的對稱骨架就定了。</p></div>
+      <div class="craft"><div class="no">02 絞</div><h4>下型板與縫</h4><p>木製型板夾住、粗棉線紮緊。夾到、紮到的地方染料進不去，解開就是生成白；這是「防染」。</p></div>
+      <div class="craft"><div class="no">03 染</div><h4>入缸</h4><p>茜草、蘇枋、藍靛、梔子……天然植物染。下缸幾回、每回幾分鐘，決定色深與暈邊；套染再入第二缸疊色。</p></div>
+      <div class="craft"><div class="no">04 解</div><h4>解開見樣</h4><p>拆線、退板、水洗。你在一疊布上動的那一角，被摺法的對稱鋪滿了整幅——這一刻才第一次看見全樣。</p></div>
+    </div>
+    <p style="margin-top:16px;font-size:13px"><a class="mono" href="gongfa.html" style="color:var(--gold)">工法詳解與植物染色譜 →</a></p>
+  </section>
+
+  <section class="band">
+    <h2>這座染台跟別家不一樣</h2>
+    <div class="spec">
+      <div><b>不是畫圖</b><span>網站上每一塊布、每一枚 logo、圖鑑裡二十四幅樣，都是同一支防染引擎解出來的——摺法給對稱群、型板給基本域、染料給邊界，紋樣是這個系統的解，不是誰描的線。</span></div>
+      <div><b>一角定全幅</b><span>你只在一小疊布上放型板，解開時對稱把它鋪滿整幅。改一次摺法，同一組型板會變成完全不同的滿幅樣——因為換的是對稱本身。</span></div>
+      <div><b>拿得走的 SKILL</b><span>喜歡這套摺染紋樣風，可下載 SKILL.md 交給任何 AI，套到你自己的品牌上，風格一致、內容自訂。</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><b>絞白染坊 JIAOBAI</b><br>台南市後壁區菁寮老街 17 號<br>週三至週日 10:00–18:00（週一二公休）</div>
+      <div>預約染體驗 06-662-0917<br>林淑貞 師傅<br>hello@jiaobai-dye.example</div>
+      <div>植物染・手工絞染<br>方巾／桌旗／絲巾訂製<br>染色體驗課・團體包場</div>
+    </div>
+    <p class="disc">本站為 Design Skills Center 的去AI化風格示範站。店名、人名、地址、電話、價目、師傅與年份均為虛構教學示意。植物染色譜與絞染工法為簡化教學模型，實際色牢度與工序依材料而異。所有布面紋樣、logo、favicon、圖鑑皆由本站防染引擎即時生成，無一張外部圖片。<br>本站由 <b style="font-family:'Space Mono',monospace;color:var(--gold)">Claude Opus 4.8 · 排程 Agent</b> 設計與建置。</p>
+  </div>
+</footer>
+
+<nav class="dock" aria-label="主導覽">
+  <div class="dockin">
+    <a class="clamp" href="index.html" aria-current="page"><span class="board"><span class="wing"></span></span><span>染台</span><small>WORKBENCH</small></a>
+    <a class="clamp" href="atlas.html"><span class="board"><span class="wing"></span></span><span>紋樣圖鑑</span><small>ATLAS</small></a>
+    <a class="clamp" href="gongfa.html"><span class="board"><span class="wing"></span></span><span>工法色譜</span><small>METHOD</small></a>
+    <a class="clamp" href="order.html"><span class="board"><span class="wing"></span></span><span>訂製單</span><small>ORDER</small></a>
+  </div>
+</nav>
+
+<noscript>
+<div style="max-width:1120px;margin:16px auto;padding:16px;background:#E9DEC6;color:#241C17;border-radius:4px">
+染台需要 JavaScript 才能摺布上色。你仍可閱讀 <a href="gongfa.html">工法色譜</a>、瀏覽 <a href="atlas.html">紋樣圖鑑</a>，或以電話 06-662-0917 洽詢訂製。所名、價目均為虛構教學示意。
+</div>
+</noscript>
+
+<script>
+(function(){
+"use strict";
+var C=document.getElementById("cloth");
+if(!C||!C.getContext){return;}
+var ctx=C.getContext("2d");
+var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+var DYES=[
+  {id:"madder",name:"茜草",rgb:[142,47,42]},
+  {id:"sappan",name:"蘇枋",rgb:[176,72,63]},
+  {id:"indigo",name:"藍靛",rgb:[44,92,122]},
+  {id:"indigo2",name:"濃藍",rgb:[30,63,90]},
+  {id:"gardenia",name:"梔子",rgb:[217,164,65]},
+  {id:"kariyasu",name:"刈安",rgb:[154,162,60]},
+  {id:"gromwell",name:"紫根",rgb:[110,74,114]},
+  {id:"kaki",name:"柿澀",rgb:[122,75,36]},
+  {id:"iron",name:"鐵媒",rgb:[74,70,64]}
+];
+var CLOTH_RGB=[233,222,198];
+
+var state={fold:"sekka",motif:"kumo",density:4,dye:"madder",dip:0.88,
+  overdye:false,dye2:"indigo",size:"square",fabric:"cotton",rush:false,reveal:1};
+
+/* ---------- helpers ---------- */
+function frac(x){return x-Math.floor(x);}
+function clamp(x,a,b){return x<a?a:(x>b?b:x);}
+function smooth(x,a,b){var t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);}
+function findDye(id){for(var i=0;i<DYES.length;i++){if(DYES[i].id===id)return DYES[i];}return DYES[0];}
+function hash2(x,y){var h=x*374761393+y*668265263;h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967295;}
+
+/* openness of the fundamental domain: 1 = dye reaches, 0 = resisted white */
+function openness(u,v,motif,dn){
+  var cu=u-0.5, cv=v-0.5;
+  var r=Math.sqrt(cu*cu+cv*cv);
+  var ang=Math.atan2(cv,cu);
+  if(motif==="mujina"){return 1;}
+  if(motif==="kumo"){
+    var rings=0.5+0.5*Math.cos(r*Math.PI*2*(dn*2.6));
+    var spokes=0.5+0.5*Math.cos(ang*(dn*2));
+    return smooth(rings*0.62+spokes*0.38,0.36,0.64);
+  }
+  if(motif==="mame"){
+    var gx=frac(u*dn)-0.5, gy=frac(v*dn)-0.5;
+    var d=Math.sqrt(gx*gx+gy*gy);
+    return smooth(d,0.17,0.31);
+  }
+  if(motif==="shima"){
+    var s=0.5+0.5*Math.cos(u*Math.PI*2*(dn*1.8));
+    return smooth(s,0.34,0.66);
+  }
+  if(motif==="hishi"){
+    var lx=frac(u*dn)-0.5, ly=frac(v*dn)-0.5;
+    var m=Math.abs(lx)+Math.abs(ly);
+    return smooth(m,0.20,0.34);
+  }
+  if(motif==="asa"){
+    var sp=0.5+0.5*Math.cos(ang*(dn*2));
+    var rr=0.5+0.5*Math.cos(r*Math.PI*2*(dn*2.2));
+    return smooth(sp*0.55+rr*0.45,0.40,0.62);
+  }
+  return 1;
+}
+
+/* map full-cloth coords (fx,fy in 0..1) -> fundamental domain (u,v) via the fold symmetry */
+function foldMap(fx,fy,fold){
+  if(fold==="itajime"){
+    var R=4;
+    var uu=fx*R, vv=fy*R;
+    var cu=Math.floor(uu), cv=Math.floor(vv);
+    var u=uu-cu, v=vv-cv;
+    if(cu%2!==0){u=1-u;}
+    if(cv%2!==0){v=1-v;}
+    return [u,v];
+  }
+  if(fold==="arashi"){
+    var a=(fx+fy)*0.5, b=(fx-fy)*0.5+0.5;
+    var per=4;
+    var t=frac(a*per); if(Math.floor(a*per)%2!==0){t=1-t;}
+    return [t, clamp(b,0,1)];
+  }
+  /* sekka: dihedral D8 kaleidoscope */
+  var dx=fx-0.5, dy=fy-0.5;
+  var r=Math.sqrt(dx*dx+dy*dy)*2;
+  var ang=Math.atan2(dy,dx);
+  var wedge=Math.PI/8;
+  var m=ang%(2*wedge); if(m<0){m+=2*wedge;}
+  if(m>wedge){m=2*wedge-m;}
+  var u=m/wedge;
+  var v=clamp(r,0,1);
+  return [u,v];
+}
+
+function render(){
+  var W=C.width, H=C.height;
+  var res=state._drag?150:300;
+  var img=ctx.createImageData(res,res);
+  var d=img.data;
+  var dye=findDye(state.dye).rgb;
+  var dye2=findDye(state.dye2).rgb;
+  var motif=state.motif, dn=state.density, dip=state.dip;
+  var rev=state.reveal;
+  var i=0;
+  for(var y=0;y<res;y++){
+    for(var x=0;x<res;x++){
+      var fx=(x+0.5)/res, fy=(y+0.5)/res;
+      var m=foldMap(fx,fy,state.fold);
+      var o=openness(m[0],m[1],motif,dn);
+      /* dip penetration + organic bleed */
+      var n=(hash2((x*13)|0,(y*7)|0)-0.5)*0.08;
+      var amt=clamp(o*dip+n,0,1);
+      var r=CLOTH_RGB[0], g=CLOTH_RGB[1], b=CLOTH_RGB[2];
+      r=r+(dye[0]-r)*amt; g=g+(dye[1]-g)*amt; b=b+(dye[2]-b)*amt;
+      if(state.overdye){
+        var m2=foldMap(frac(fx+0.5),fy,state.fold);
+        var o2=openness(m2[0],m2[1],motif==="mujina"?"shima":motif,Math.max(2,dn-1));
+        var amt2=clamp(o2*dip*0.72,0,1);
+        r=r*(1-amt2)+dye2[0]*amt2*0.9+r*amt2*0.1;
+        g=g*(1-amt2)+dye2[1]*amt2*0.9+g*amt2*0.1;
+        b=b*(1-amt2)+dye2[2]*amt2*0.9+b*amt2*0.1;
+      }
+      /* reveal wipe from centre */
+      if(rev<1){
+        var rr=Math.sqrt((fx-0.5)*(fx-0.5)+(fy-0.5)*(fy-0.5))/0.72;
+        if(rr>rev){r=CLOTH_RGB[0];g=CLOTH_RGB[1];b=CLOTH_RGB[2];}
+      }
+      d[i]=r|0; d[i+1]=g|0; d[i+2]=b|0; d[i+3]=255; i+=4;
+    }
+  }
+  /* draw scaled */
+  var tmp=document.createElement("canvas"); tmp.width=res; tmp.height=res;
+  tmp.getContext("2d").putImageData(img,0,0);
+  ctx.imageSmoothingEnabled=true;
+  ctx.clearRect(0,0,W,H);
+  ctx.drawImage(tmp,0,0,W,H);
+  /* selvedge */
+  ctx.strokeStyle="rgba(36,28,23,.35)"; ctx.lineWidth=6; ctx.strokeRect(3,3,W-6,H-6);
+}
+
+/* fold-line guide overlay */
+function drawFoldLines(){
+  var sv=document.getElementById("foldlines");
+  var s="";
+  var col="rgba(217,164,65,.5)";
+  if(state.fold==="sekka"){
+    for(var k=0;k<8;k++){
+      var a=k*Math.PI/8;
+      var x2=220+Math.cos(a)*210, y2=220+Math.sin(a)*210;
+      var x3=220-Math.cos(a)*210, y3=220-Math.sin(a)*210;
+      s+="<line x1='"+x3.toFixed(1)+"' y1='"+y3.toFixed(1)+"' x2='"+x2.toFixed(1)+"' y2='"+y2.toFixed(1)+"' stroke='"+col+"' stroke-width='1' stroke-dasharray='4 5'/>";
+    }
+  } else if(state.fold==="itajime"){
+    for(var g=1;g<4;g++){
+      var p=g/4*440;
+      s+="<line x1='"+p+"' y1='0' x2='"+p+"' y2='440' stroke='"+col+"' stroke-width='1' stroke-dasharray='4 5'/>";
+      s+="<line x1='0' y1='"+p+"' x2='440' y2='"+p+"' stroke='"+col+"' stroke-width='1' stroke-dasharray='4 5'/>";
+    }
+  } else {
+    for(var d2=-3;d2<=4;d2++){
+      var off=d2*110;
+      s+="<line x1='"+(off)+"' y1='0' x2='"+(off+440)+"' y2='440' stroke='"+col+"' stroke-width='1' stroke-dasharray='4 5'/>";
+    }
+  }
+  sv.innerHTML=s;
+}
+
+/* ---------- pricing ---------- */
+var SIZES={handkerchief:{n:"手帕巾 30×30",base:360},square:{n:"方巾 45×45",base:480},
+  runner:{n:"桌旗 33×130",base:1180},scarf:{n:"絲巾 45×180",base:1680}};
+var FABRICS={cotton:{n:"本棉",m:1.0},linen:{n:"苧麻",m:1.25},silk:{n:"絹絲",m:1.9}};
+function money(x){return "NT$"+String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g,",");}
+function updateQuote(){
+  var sz=SIZES[state.size], fab=FABRICS[state.fabric];
+  var cloth=sz.base*fab.m;
+  var extra=state.overdye?320:0;
+  var sub=cloth+extra;
+  var rush=state.rush?sub*0.25:0;
+  var tot=sub+rush;
+  var q=document.getElementById("quote");
+  var rows="<h3>即時料估</h3>";
+  rows+="<div class='qline'><span>"+sz.n+" · "+fab.n+"</span><span>"+money(cloth)+"</span></div>";
+  if(extra>0){rows+="<div class='qline'><span>套染 第二缸</span><span>"+money(extra)+"</span></div>";}
+  if(rush>0){rows+="<div class='qline'><span>急件 +25%</span><span>"+money(rush)+"</span></div>";}
+  rows+="<div class='qtot'><span>估價</span><span>"+money(tot)+"</span></div>";
+  q.innerHTML=rows;
+}
+
+function updateReadout(){
+  var foldN={sekka:"三角雪花摺 · 八楔對稱",itajime:"板締格摺 · 4×4 鏡射",arashi:"嵐斜捲 · 斜向滑動"}[state.fold];
+  var motifN={kumo:"蜘蛛絞",mame:"豆絞",shima:"縞",hishi:"菱格",asa:"麻葉",mujina:"無地"}[state.motif];
+  var d1=findDye(state.dye).name;
+  var txt="摺法 <b>"+foldN+"</b>｜型板 <b>"+motifN+"</b>｜絞縫 <b>"+state.density+"</b> 級｜主缸 <b>"+d1+"</b>";
+  if(state.overdye){txt+="＋套 <b>"+findDye(state.dye2).name+"</b>";}
+  document.getElementById("readout").innerHTML=txt;
+}
+
+/* ---------- UI wiring ---------- */
+function buildSwatches(hostId,which){
+  var host=document.getElementById(hostId); host.innerHTML="";
+  DYES.forEach(function(dy){
+    var b=document.createElement("button");
+    b.className="sw"; b.type="button";
+    b.style.background="rgb("+dy.rgb[0]+","+dy.rgb[1]+","+dy.rgb[2]+")";
+    b.title=dy.name; b.setAttribute("aria-label",dy.name);
+    b.setAttribute("aria-pressed", (state[which]===dy.id)?"true":"false");
+    b.addEventListener("click",function(){
+      state[which]=dy.id;
+      var kids=host.children; for(var j=0;j<kids.length;j++){kids[j].setAttribute("aria-pressed","false");}
+      b.setAttribute("aria-pressed","true");
+      quickRender(); updateReadout();
+    });
+    host.appendChild(b);
+  });
+}
+function group(id,attr,key,after){
+  var host=document.getElementById(id);
+  host.addEventListener("click",function(e){
+    var t=e.target; while(t&&t!==host&&!t.getAttribute(attr)){t=t.parentNode;}
+    if(!t||t===host)return;
+    state[key]=t.getAttribute(attr);
+    var kids=host.querySelectorAll(".opt"); for(var j=0;j<kids.length;j++){kids[j].setAttribute("aria-pressed","false");}
+    t.setAttribute("aria-pressed","true");
+    if(after)after();
+    quickRender(); updateReadout();
+  });
+}
+
+var rafPending=false;
+function quickRender(){
+  if(rafPending)return; rafPending=true;
+  window.requestAnimationFrame(function(){rafPending=false; render();});
+}
+
+group("folds","data-fold","fold",function(){drawFoldLines();
+  document.getElementById("stepLabel").textContent="② 選紋樣";});
+group("motifs","data-motif","motif",function(){document.getElementById("stepLabel").textContent="③ 調染料";});
+
+document.getElementById("density").addEventListener("input",function(){
+  state.density=parseInt(this.value,10); document.getElementById("denVal").textContent=this.value;
+  state._drag=true; quickRender();
+});
+document.getElementById("density").addEventListener("change",function(){state._drag=false;render();updateReadout();});
+document.getElementById("dip").addEventListener("input",function(){
+  state.dip=parseInt(this.value,10)/100;
+  document.getElementById("dipVal").textContent=state.dip>0.8?"濃":(state.dip>0.6?"中":"淡");
+  state._drag=true; quickRender();
+});
+document.getElementById("dip").addEventListener("change",function(){state._drag=false;render();});
+document.getElementById("overdye").addEventListener("change",function(){
+  state.overdye=this.checked;
+  document.getElementById("dye2wrap").style.display=this.checked?"block":"none";
+  updateQuote(); quickRender(); updateReadout();
+});
+document.getElementById("size").addEventListener("change",function(){state.size=this.value;updateQuote();});
+document.getElementById("fabric").addEventListener("change",function(){state.fabric=this.value;updateQuote();});
+document.getElementById("rush").addEventListener("change",function(){state.rush=this.checked;updateQuote();});
+
+/* dip + reveal animation */
+document.getElementById("dipBtn").addEventListener("click",function(){
+  document.getElementById("stepLabel").textContent="④ 解開";
+  document.getElementById("hint").style.display="none";
+  if(reduce){state.reveal=1;render();return;}
+  var start=null;
+  state.reveal=0;
+  function step(ts){
+    if(start===null)start=ts;
+    var p=(ts-start)/900;
+    state.reveal=clamp(p,0,1);
+    render();
+    if(p<1){window.requestAnimationFrame(step);} else {state.reveal=1;}
+  }
+  window.requestAnimationFrame(step);
+});
+document.getElementById("resetBtn").addEventListener("click",function(){
+  state.reveal=1; document.getElementById("stepLabel").textContent="① 選摺法";
+  document.getElementById("hint").style.display="";
+  render();
+});
+
+/* init */
+buildSwatches("dyes","dye");
+buildSwatches("dyes2","dye2");
+drawFoldLines();
+updateReadout();
+updateQuote();
+render();
+})();
+</script>
+</body>
+</html>

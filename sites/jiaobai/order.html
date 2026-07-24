@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>訂製單 · 絞白染坊 JIAOBAI</title>
+<meta name="description" content="絞白染坊訂製與染色體驗報名。三步驟：選項目、填資料、生成留位號。前端模擬，不送出、不留存。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%235F201C'/%3E%3Ccircle cx='16' cy='16' r='12' fill='%23E9DEC6'/%3E%3Cg fill='%238E2F2A'%3E%3Ccircle cx='16' cy='7' r='3.4'/%3E%3Ccircle cx='16' cy='25' r='3.4'/%3E%3Ccircle cx='7' cy='16' r='3.4'/%3E%3Ccircle cx='25' cy='16' r='3.4'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3.6' fill='%23241C17'/%3E%3Ccircle cx='16' cy='16' r='1.7' fill='%23D9A441'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--vat:#5F201C;--vat2:#4A1815;--cloth:#E9DEC6;--cloth2:#DECFB0;--dye:#8E2F2A;--ink:#241C17;--gold:#D9A441;--indigo:#2C5C7A;--line:#3A1410;--err:#E86A4A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--vat);color:var(--cloth);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65;padding-bottom:96px}
+a{color:var(--gold)}.mono{font-family:"Space Mono",monospace}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+header.top{border-bottom:2px solid var(--line);padding:16px 0 14px}
+.brandrow{display:flex;align-items:center;gap:14px;max-width:720px;margin:0 auto;padding:0 20px}
+.brandrow img{width:46px;height:46px}
+.brandname{font-family:"Shippori Mincho",serif;font-weight:800;font-size:22px;letter-spacing:.12em}
+.brandname small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:10px;letter-spacing:.3em;color:var(--gold);margin-top:2px}
+h1.pg{font-family:"Shippori Mincho",serif;font-size:26px;letter-spacing:.06em;margin:24px 0 4px}
+.lead{color:var(--cloth2);font-size:14px;margin:0 0 18px}
+.steps{display:flex;gap:8px;margin-bottom:18px}
+.steps div{flex:1;text-align:center;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.08em;color:var(--cloth2);border-bottom:3px solid var(--line);padding-bottom:6px}
+.steps div[data-on="1"]{color:var(--gold);border-color:var(--gold)}
+.card{background:var(--cloth);color:var(--ink);border:2px solid var(--ink);border-radius:4px;padding:20px}
+.card h2{font-family:"Shippori Mincho",serif;font-size:18px;margin:0 0 12px}
+fieldset{border:0;padding:0;margin:0 0 6px}
+legend{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--dye);margin-bottom:8px;text-transform:uppercase}
+.optrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.opt{border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:9px 13px;border-radius:2px;font-size:13.5px;cursor:pointer;font-family:inherit;text-align:left}
+.opt small{display:block;font-family:"Space Mono",monospace;font-size:10px;color:#7a6b52}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--cloth)}
+.opt[aria-pressed="true"] small{color:var(--gold)}
+label.fld{display:block;font-size:13px;margin-top:14px;color:#4a3f2d;font-weight:500}
+input[type=text],input[type=tel],input[type=email],textarea{width:100%;font-family:inherit;font-size:14px;padding:9px 10px;border:1.5px solid var(--ink);border-radius:2px;background:#fff;color:var(--ink);margin-top:4px}
+textarea{resize:vertical;min-height:60px}
+.err{color:var(--err);font-size:12px;margin-top:4px;min-height:14px;font-weight:500}
+.actions{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
+.btn{background:var(--dye);color:var(--cloth);border:2px solid var(--ink);padding:11px 22px;font-weight:700;font-size:14px;letter-spacing:.06em;border-radius:2px;box-shadow:0 3px 0 var(--vat2);cursor:pointer;font-family:inherit}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--ink);box-shadow:none}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--vat2)}
+.hidden{display:none}
+.summary{font-size:13.5px;background:#dfd3b6;border-radius:3px;padding:12px 14px;margin-bottom:6px}
+.summary b{color:var(--dye)}
+.receipt{text-align:center;padding:8px 4px}
+.receipt .no{font-family:"Space Mono",monospace;font-size:22px;letter-spacing:.12em;color:var(--dye);margin:8px 0}
+.stamp{width:120px;height:120px;margin:6px auto}
+footer{border-top:2px solid var(--line);margin-top:40px;padding:22px 0 8px;font-size:12px;color:var(--cloth2)}
+.disc{margin-top:12px;font-size:11px;color:#a98a7a;font-family:"Space Mono",monospace;line-height:1.7}
+nav.dock{position:fixed;left:0;right:0;bottom:0;background:var(--vat2);border-top:2px solid var(--line);z-index:40;box-shadow:0 -6px 20px rgba(0,0,0,.35)}
+.dockin{max-width:1120px;margin:0 auto;display:flex;padding:8px 12px}
+.clamp{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px 6px;text-decoration:none;position:relative}
+.board{width:46px;height:26px;border-radius:2px;position:relative;background:linear-gradient(var(--cloth),var(--cloth2));border:2px solid var(--ink);transition:height .18s}
+.board::before{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:9px;transform:translateY(-50%);background:#6b4a24;border:1.5px solid var(--ink);border-radius:2px;z-index:-1}
+.wing{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:var(--gold);border:1.5px solid var(--ink);transition:transform .3s}
+.clamp span{font-size:11.5px;color:var(--cloth2)}
+.clamp small{font-family:"Space Mono",monospace;font-size:8.5px;color:#8a6a5a;letter-spacing:.1em}
+.clamp[aria-current="page"] .board{height:19px;box-shadow:0 0 0 2px var(--dye)}
+.clamp[aria-current="page"] .board::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:4px;background:var(--dye);border-radius:2px}
+.clamp[aria-current="page"] .wing{transform:translate(-50%,-50%) rotate(140deg)}
+.clamp[aria-current="page"] span{color:var(--cloth)}
+@media(max-width:560px){.clamp small{display:none}.board{width:38px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brandrow">
+  <img src="assets/logo.svg" alt="絞白染坊 logo">
+  <div class="brandname">絞白染坊<small>JIAOBAI · ORDER</small></div>
+</div></header>
+
+<main class="wrap">
+  <h1 class="pg">訂製單</h1>
+  <p class="lead">訂製一塊絞染布，或報名染色體驗。三步驟，前端模擬——不會真的送出或留存資料。</p>
+  <div class="steps"><div id="st1" data-on="1">① 選項目</div><div id="st2">② 填資料</div><div id="st3">③ 留位號</div></div>
+
+  <!-- STEP 1 -->
+  <section class="card" id="step1">
+    <h2>① 你想要哪一項？</h2>
+    <fieldset><legend>項目</legend>
+      <div class="optrow" id="svc">
+        <button class="opt" data-svc="square" data-price="480" aria-pressed="true">方巾訂製 45×45<small>本棉・單色 起 NT$480</small></button>
+        <button class="opt" data-svc="scarf" data-price="1680" aria-pressed="false">絲巾訂製 45×180<small>絹絲・單色 起 NT$1,680</small></button>
+        <button class="opt" data-svc="runner" data-price="1180" aria-pressed="false">桌旗訂製 33×130<small>苧麻・單色 起 NT$1,180</small></button>
+        <button class="opt" data-svc="class" data-price="900" aria-pressed="false">染色體驗課<small>兩小時・含方巾 NT$900</small></button>
+      </div>
+    </fieldset>
+    <fieldset><legend>摺法紋樣</legend>
+      <div class="optrow" id="pat">
+        <button class="opt" data-pat="sekka" aria-pressed="true">三角雪花摺</button>
+        <button class="opt" data-pat="itajime" aria-pressed="false">板締格摺</button>
+        <button class="opt" data-pat="arashi" aria-pressed="false">嵐斜捲</button>
+        <button class="opt" data-pat="custom" aria-pressed="false">照我在染台調的</button>
+      </div>
+    </fieldset>
+    <fieldset><legend>主缸色</legend>
+      <div class="optrow" id="col">
+        <button class="opt" data-col="茜草" aria-pressed="true">茜草 · 茜紅</button>
+        <button class="opt" data-col="藍靛" aria-pressed="false">藍靛 · 縹</button>
+        <button class="opt" data-col="梔子" aria-pressed="false">梔子 · 黃</button>
+        <button class="opt" data-col="紫根" aria-pressed="false">紫根 · 紫</button>
+      </div>
+    </fieldset>
+    <div class="actions"><span></span><button class="btn" id="to2">下一步 →</button></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card hidden" id="step2">
+    <h2>② 留下聯絡方式</h2>
+    <div class="summary" id="sum2"></div>
+    <label class="fld">稱呼 *
+      <input type="text" id="fName" placeholder="如：陳先生／林小姐" autocomplete="name">
+      <div class="err" id="eName"></div></label>
+    <label class="fld">手機 *
+      <input type="tel" id="fPhone" placeholder="09xxxxxxxx" inputmode="numeric" autocomplete="tel">
+      <div class="err" id="ePhone"></div></label>
+    <label class="fld">Email（選填，寄樣照與工序進度）
+      <input type="email" id="fMail" placeholder="you@example.com" autocomplete="email">
+      <div class="err" id="eMail"></div></label>
+    <label class="fld" id="addrWrap">寄送地址（宅配訂製布必填 *）
+      <input type="text" id="fAddr" placeholder="縣市 / 區 / 路街門牌">
+      <div class="err" id="eAddr"></div></label>
+    <label class="fld">備註（選填）
+      <textarea id="fNote" placeholder="想要的暈邊深淺、套染、取件時間…"></textarea></label>
+    <div class="actions"><button class="btn ghost" id="back1">← 上一步</button><button class="btn" id="to3">生成留位號 →</button></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="card hidden" id="step3">
+    <h2>③ 已留位</h2>
+    <div class="receipt">
+      <svg class="stamp" id="stamp" viewBox="0 0 120 120" aria-label="訂單絞印"></svg>
+      <div class="no mono" id="ordNo"></div>
+      <div class="summary" id="sum3" style="text-align:left"></div>
+      <p style="font-size:13px;color:#4a3f2d">師傅會在一個工作日內以電話與你確認材料與工期。此為前端模擬示範，未真正送出。</p>
+      <div class="actions" style="justify-content:center"><button class="btn ghost" id="restart">再開一張</button></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  絞白染坊 JIAOBAI · 台南市後壁區菁寮老街 17 號 · 06-662-0917
+  <p class="disc">本表單為前端模擬教學示範，不送出、不留存任何資料。店名、人名、地址、電話、價目、留位號均為虛構教學示意。絞印由訂單資料雜湊即時生成。本站由 Claude Opus 4.8 · 排程 Agent 設計與建置。</p>
+</div></footer>
+
+<nav class="dock" aria-label="主導覽"><div class="dockin">
+  <a class="clamp" href="index.html"><span class="board"><span class="wing"></span></span><span>染台</span><small>WORKBENCH</small></a>
+  <a class="clamp" href="atlas.html"><span class="board"><span class="wing"></span></span><span>紋樣圖鑑</span><small>ATLAS</small></a>
+  <a class="clamp" href="gongfa.html"><span class="board"><span class="wing"></span></span><span>工法色譜</span><small>METHOD</small></a>
+  <a class="clamp" href="order.html" aria-current="page"><span class="board"><span class="wing"></span></span><span>訂製單</span><small>ORDER</small></a>
+</div></nav>
+
+<script>
+(function(){
+"use strict";
+var state={svc:"square",price:480,svcLabel:"方巾訂製 45×45",pat:"sekka",patLabel:"三角雪花摺",col:"茜草"};
+function group(id,cb){
+  var host=document.getElementById(id);
+  host.addEventListener("click",function(e){
+    var t=e.target; while(t&&t!==host&&t.className.indexOf("opt")<0){t=t.parentNode;}
+    if(!t||t===host)return;
+    var k=host.querySelectorAll(".opt"); for(var j=0;j<k.length;j++)k[j].setAttribute("aria-pressed","false");
+    t.setAttribute("aria-pressed","true"); cb(t);
+  });
+}
+group("svc",function(t){state.svc=t.getAttribute("data-svc");state.price=parseInt(t.getAttribute("data-price"),10);
+  state.svcLabel=t.textContent.replace(/起.*$/,"").trim();});
+group("pat",function(t){state.pat=t.getAttribute("data-pat");state.patLabel=t.textContent.trim();});
+group("col",function(t){state.col=t.getAttribute("data-col");});
+
+function show(id){["step1","step2","step3"].forEach(function(s){document.getElementById(s).classList.add("hidden");});
+  document.getElementById(id).classList.remove("hidden");
+  document.getElementById("st1").removeAttribute("data-on");document.getElementById("st2").removeAttribute("data-on");document.getElementById("st3").removeAttribute("data-on");
+  document.getElementById("st"+id.slice(-1)).setAttribute("data-on","1");
+  window.scrollTo(0,0);
+}
+function money(x){return "NT$"+String(x).replace(/\B(?=(\d{3})+(?!\d))/g,",");}
+
+document.getElementById("to2").addEventListener("click",function(){
+  var needAddr=(state.svc!=="class");
+  document.getElementById("addrWrap").style.display=needAddr?"block":"none";
+  document.getElementById("sum2").innerHTML="項目 <b>"+state.svcLabel+"</b>｜"+state.patLabel+"｜主缸 <b>"+state.col+"</b>｜參考價 "+money(state.price)+" 起";
+  show("step2");
+});
+document.getElementById("back1").addEventListener("click",function(){show("step1");});
+
+function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*16777619)>>>0;}return h>>>0;}
+function drawStamp(seed){
+  var sv=document.getElementById("stamp");
+  var rng=seed; function rnd(){rng=(rng*1664525+1013904223)>>>0;return rng/4294967295;}
+  var wedges=6+Math.floor(rnd()*3);
+  var s="<circle cx='60' cy='60' r='56' fill='#8E2F2A'/><circle cx='60' cy='60' r='44' fill='#E9DEC6'/>";
+  s+="<g transform='translate(60 60)'>";
+  var r1=10+rnd()*8, r2=24+rnd()*10;
+  for(var k=0;k<wedges;k++){
+    var a=(360/wedges)*k;
+    s+="<g transform='rotate("+a.toFixed(1)+")'>";
+    s+="<circle cx='0' cy='-"+r2.toFixed(1)+"' r='"+(3+rnd()*3).toFixed(1)+"' fill='#8E2F2A'/>";
+    s+="<path d='M0 -"+(r1).toFixed(1)+" L"+(4+rnd()*3).toFixed(1)+" -"+((r1+r2)/2).toFixed(1)+" L0 -"+r2.toFixed(1)+" Z' fill='#2C5C7A' opacity='.85'/>";
+    s+="</g>";
+  }
+  s+="<circle r='7' fill='#241C17'/><circle r='3.4' fill='#D9A441'/></g>";
+  s+="<circle cx='60' cy='60' r='56' fill='none' stroke='#241C17' stroke-width='3'/>";
+  sv.innerHTML=s;
+}
+
+document.getElementById("to3").addEventListener("click",function(){
+  var ok=true;
+  var name=document.getElementById("fName").value.trim();
+  var phone=document.getElementById("fPhone").value.trim();
+  var mail=document.getElementById("fMail").value.trim();
+  var addr=document.getElementById("fAddr").value.trim();
+  document.getElementById("eName").textContent="";document.getElementById("ePhone").textContent="";
+  document.getElementById("eMail").textContent="";document.getElementById("eAddr").textContent="";
+  if(name.length<2){document.getElementById("eName").textContent="請留下稱呼（至少 2 個字）。";ok=false;}
+  if(!/^09\d{8}$/.test(phone)){document.getElementById("ePhone").textContent="手機格式為 09 開頭共 10 碼。";ok=false;}
+  if(mail.length>0&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){document.getElementById("eMail").textContent="Email 格式不正確。";ok=false;}
+  if(state.svc!=="class"&&addr.length<6){document.getElementById("eAddr").textContent="宅配訂製布請填完整地址（至少 6 個字）。";ok=false;}
+  if(!ok)return;
+  var d=new Date();
+  var ymd=String(d.getFullYear()).slice(2)+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2);
+  var seed=fnv(name+phone+state.svc+state.col+ymd+Math.floor(Math.random()*1000));
+  var nnn=("00"+(seed%1000)).slice(-3);
+  var no="JB-"+ymd+"-"+nnn;
+  document.getElementById("ordNo").textContent=no;
+  drawStamp(seed);
+  document.getElementById("sum3").innerHTML="稱呼 <b>"+name+"</b>｜手機 "+phone+"<br>項目 <b>"+state.svcLabel+"</b>｜"+state.patLabel+"｜主缸 "+state.col+"<br>參考價 "+money(state.price)+" 起"+(state.svc!=="class"?"（宅配另計）":"");
+  show("step3");
+});
+document.getElementById("restart").addEventListener("click",function(){
+  document.getElementById("fName").value="";document.getElementById("fPhone").value="";
+  document.getElementById("fMail").value="";document.getElementById("fAddr").value="";document.getElementById("fNote").value="";
+  show("step1");
+});
+})();
+</script>
+</body>
+</html>

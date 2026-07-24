@@ -119,6 +119,7 @@
 | 101 | [吱吱造型氣球所 SQUEAK](sites/squeak/index.html) | 造型氣球扭結工作室 | 乳膠糖果風 Latex-Pop | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 102 | [復觀堂 FÙGUĀN](sites/fuguan/index.html) | 易占卜筮堂 | 水墨卦象 Ink-Gold Hexagram | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 103 | [算珠堂 SUANPAN](sites/suanpan/index.html) | 珠算檢定研究所 | 粉筆黑板算術風 Chalk-Slate | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 104 | [絞白染坊 JIAOBAI](sites/jiaobai/index.html) | 手工絞染工坊 | 摺染紋樣風 Shibori-Symmetry | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

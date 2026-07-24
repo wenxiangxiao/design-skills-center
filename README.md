@@ -121,6 +121,7 @@
 | 103 | [算珠堂 SUANPAN](sites/suanpan/index.html) | 珠算檢定研究所 | 粉筆黑板算術風 Chalk-Slate | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 104 | [絞白染坊 JIAOBAI](sites/jiaobai/index.html) | 手工絞染工坊 | 摺染紋樣風 Shibori-Symmetry | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 105 | [宇宙球道 COSMIC LANES](sites/cosmic-lanes/index.html) | 美式復古保齡球館 | 太空球館活榜風 Cosmic-Lanes | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 106 | [宵灣花火 YOIWAN HANABI](sites/yoiwan-hanabi/index.html) | 花火大會 | 和モダン宵藍夏祭風 Yoiai Summer-Festival | 中日混 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

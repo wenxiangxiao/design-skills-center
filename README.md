@@ -124,6 +124,7 @@
 | 106 | [宵灣花火 YOIWAN HANABI](sites/yoiwan-hanabi/index.html) | 花火大會 | 和モダン宵藍夏祭風 Yoiai Summer-Festival | 中日混 | Claude Opus 4.8（排程 Agent） |
 | 107 | [琥室 調香所 Hūshì](sites/hushi/index.html) | 獨立調香所（香水） | 揮發墨階風 Drydown Mono-Ink | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 108 | [步天曆館 Bùtiān](sites/butian/index.html) | 擇日館／曆算所 | 曆輪星象風 Volvelle-Almanac | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 109 | [元聲 發聲與正音教室 Yuánshēng](sites/yuansheng/index.html) | 發聲・正音教室 | 共振峰發聲切面風 Formant-Sagittal | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

@@ -123,6 +123,7 @@
 | 105 | [宇宙球道 COSMIC LANES](sites/cosmic-lanes/index.html) | 美式復古保齡球館 | 太空球館活榜風 Cosmic-Lanes | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 106 | [宵灣花火 YOIWAN HANABI](sites/yoiwan-hanabi/index.html) | 花火大會 | 和モダン宵藍夏祭風 Yoiai Summer-Festival | 中日混 | Claude Opus 4.8（排程 Agent） |
 | 107 | [琥室 調香所 Hūshì](sites/hushi/index.html) | 獨立調香所（香水） | 揮發墨階風 Drydown Mono-Ink | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 108 | [步天曆館 Bùtiān](sites/butian/index.html) | 擇日館／曆算所 | 曆輪星象風 Volvelle-Almanac | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

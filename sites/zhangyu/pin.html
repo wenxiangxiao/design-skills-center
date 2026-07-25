@@ -1,0 +1,311 @@
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>指拼字母生成 — 掌語 手語典藏所</title>
+<meta name="description" content="輸入英文詞，手部骨架引擎逐字母描出示意指拼手形，可逐字播放與分享手形碼。">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='10' fill='%232E6B68'/%3E%3Cpath d='M40 92 Q34 78 36 62 L38 50 Q40 44 46 45 L47 60 47 44 Q47 37 53 37 Q59 37 59 44 L59 58 60 40 Q60 33 66 33 Q72 33 72 40 L72 58 73 45 Q73 39 79 40 Q84 41 84 48 L84 70 Q84 86 74 94 Z' fill='%23E4583C' stroke='%2316201E' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--petrol:#2E6B68;--petrol-d:#245451;--petrol-l:#3C807C;--cream:#EDE4CF;--cream2:#E1D4B7;--ink:#16201E;--coral:#E4583C;--coral-d:#C8452F;--gold:#C89B4A;--teal-l:#7FB3AD}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--petrol);color:var(--cream);font-family:"Noto Sans TC",sans-serif;font-weight:400;line-height:1.65;-webkit-font-smoothing:antialiased;padding-bottom:96px}
+.mono{font-family:"Space Mono",monospace}
+a{color:inherit}
+h1,h2,h3{font-weight:900;line-height:1.08;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.rule{height:3px;background:var(--ink);border:0;margin:0}
+/* brand bar */
+.brand{display:flex;align-items:center;gap:14px;padding:16px 22px;max-width:1120px;margin:0 auto}
+.brand svg{width:46px;height:46px;display:block;border:2px solid var(--ink)}
+.brand .nm{font-weight:900;font-size:20px;letter-spacing:.02em}
+.brand .tag{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--teal-l)}
+.brand .spacer{flex:1}
+.brand .est{font-size:11px;letter-spacing:.18em;color:var(--cream2);text-align:right}
+/* poser workbench */
+.hero{padding:26px 0 34px;position:relative;overflow:hidden}
+.hero .stripe{position:absolute;top:0;right:-40px;font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.5em;color:var(--petrol-l);writing-mode:vertical-rl;height:100%}
+.hlead{max-width:640px;margin-bottom:22px}
+.kick{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hlead h1{font-size:clamp(30px,5.4vw,54px);color:var(--cream)}
+.hlead h1 em{font-style:normal;color:var(--coral)}
+.hlead p{margin:14px 0 0;color:var(--cream2);font-size:16px;max-width:52ch}
+.bench{display:grid;grid-template-columns:0.9fr 1.1fr;gap:0;border:3px solid var(--ink);background:var(--cream)}
+.bench .stage{background:var(--petrol-d);border-right:3px solid var(--ink);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px;min-height:360px}
+.bench .stage .lab{position:absolute;top:10px;left:12px;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;color:var(--teal-l)}
+.bench .stage .orient{position:absolute;top:8px;right:12px}
+#poserSVG{width:100%;max-width:280px;height:auto;filter:drop-shadow(0 6px 0 rgba(0,0,0,.18))}
+.bench .panel{padding:18px 20px;color:var(--ink)}
+.bench .panel h3{color:var(--ink);font-size:15px;letter-spacing:.02em;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.chip{font-family:"Space Mono",monospace;font-size:12px;padding:6px 9px;border:2px solid var(--ink);background:var(--cream);color:var(--ink);cursor:pointer;line-height:1}
+.chip:hover{background:var(--cream2)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--cream)}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:6px}
+.sld{display:flex;flex-direction:column;gap:2px}
+.sld label{font-size:11px;font-weight:700;letter-spacing:.04em;display:flex;justify-content:space-between}
+.sld label span{font-family:"Space Mono",monospace;color:var(--coral-d)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;background:var(--cream2);border:2px solid var(--ink);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--coral);border:2px solid var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--coral);border:2px solid var(--ink);cursor:pointer}
+.tog{display:inline-flex;border:2px solid var(--ink);margin:4px 0 2px}
+.tog button{font-family:"Space Mono",monospace;font-size:11px;padding:5px 8px;background:var(--cream);border:0;border-right:2px solid var(--ink);cursor:pointer;color:var(--ink)}
+.tog button:last-child{border-right:0}
+.tog button[aria-pressed=true]{background:var(--coral);color:var(--cream)}
+/* results */
+.results{border-top:3px solid var(--ink);margin-top:8px;padding-top:12px}
+.results h3{display:flex;align-items:baseline;gap:8px}
+.results h3 .n{font-family:"Space Mono",monospace;color:var(--coral-d);font-size:13px}
+.matchlist{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.match{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;border:2px solid var(--ink);background:var(--cream);padding:6px 10px}
+.match svg{width:40px;height:50px;background:var(--petrol-d);border:2px solid var(--ink)}
+.match .g{font-weight:900;font-size:17px;color:var(--ink)}
+.match .m{font-size:11px;color:var(--petrol-d);font-family:"Space Mono",monospace}
+.match .sim{font-family:"Space Mono",monospace;font-size:12px;color:var(--coral-d);font-weight:700}
+/* generic sections */
+section{padding:40px 0}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+h2.big{font-size:clamp(24px,3.6vw,38px);margin:8px 0 0}
+.lede{color:var(--cream2);max-width:60ch;margin-top:12px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}
+.card{border:3px solid var(--ink);background:var(--cream);color:var(--ink);padding:14px}
+.card .no{font-family:"Space Mono",monospace;font-size:12px;color:var(--coral-d)}
+.card h4{margin:6px 0 4px;font-size:16px;font-weight:900}
+.card p{margin:0;font-size:13px;color:var(--petrol-d)}
+.card .ico{width:100%;height:78px;background:var(--petrol-d);border:2px solid var(--ink);margin-bottom:10px;display:block}
+.strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:22px}
+.sgn{border:2px solid var(--ink);background:var(--cream);color:var(--ink);text-align:center;padding:8px 4px}
+.sgn svg{width:100%;height:auto;background:var(--petrol-d);border:2px solid var(--ink)}
+.sgn b{display:block;font-size:14px;margin-top:6px}
+.sgn span{font-size:10px;font-family:"Space Mono",monospace;color:var(--petrol-d)}
+.split{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:start}
+.info{border:3px solid var(--ink);background:var(--petrol-d);padding:18px 20px}
+.info dt{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-top:12px}
+.info dt:first-child{margin-top:0}
+.info dd{margin:2px 0 0;font-size:15px}
+.note{border:2px dashed var(--gold);padding:12px 14px;margin-top:22px;font-size:13px;color:var(--cream2)}
+.btnrow{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;font-weight:700;text-decoration:none;padding:11px 18px;border:3px solid var(--ink);background:var(--coral);color:var(--cream)}
+.btn.alt{background:var(--cream);color:var(--ink)}
+/* footer */
+footer{border-top:3px solid var(--ink);background:var(--petrol-d);padding:30px 0 40px;margin-top:20px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px}
+footer h5{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 8px}
+footer a{display:block;color:var(--cream2);text-decoration:none;font-size:14px;padding:2px 0}
+footer a:hover{color:var(--coral)}
+footer .fine{margin-top:22px;font-size:11px;color:var(--teal-l);line-height:1.7}
+/* bottom hand dock nav */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ink);border-top:3px solid var(--coral);display:flex;justify-content:center;gap:2px;padding:6px}
+.dock a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--cream2);padding:4px 14px;min-width:76px}
+.dock a svg{width:30px;height:38px}
+.dock a b{font-size:12px;font-weight:700}
+.dock a span{font-size:9px;font-family:"Space Mono",monospace;letter-spacing:.1em;color:var(--teal-l)}
+.dock a[aria-current=page]{color:var(--coral)}
+.dock a[aria-current=page] b{color:var(--coral)}
+@media(max-width:860px){
+ .bench{grid-template-columns:1fr}.bench .stage{border-right:0;border-bottom:3px solid var(--ink)}
+ .split{grid-template-columns:1fr}.footer .cols,footer .cols{grid-template-columns:1fr 1fr}
+ .four{grid-template-columns:1fr 1fr}.strip{grid-template-columns:repeat(3,1fr)}
+ .hero .stripe{display:none}
+}
+@media(max-width:560px){
+ .sliders{grid-template-columns:1fr}.four,.strip{grid-template-columns:1fr 1fr}
+ .dock a span{display:none}.dock a{min-width:0;padding:4px 8px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+<style>
+.speller{display:grid;grid-template-columns:1fr .8fr;gap:0;border:3px solid var(--ink)}
+.ctrls{background:var(--cream);color:var(--ink);padding:18px 20px}
+.ctrls .fh{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--coral-d);display:block;margin-bottom:6px}
+#txt{width:100%;font-size:26px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;padding:10px 12px;border:3px solid var(--ink);background:var(--cream);color:var(--ink)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.btns .btn{padding:9px 14px;font-size:14px;cursor:pointer}
+.curlab{font-size:13px;color:var(--petrol-d)}
+.curlab #curletter{font-size:20px;font-weight:700;color:var(--coral-d)}
+.bigstage{background:var(--petrol-d);border-left:3px solid var(--ink);display:flex;align-items:center;justify-content:center;position:relative;min-height:300px}
+.bigstage .lab{position:absolute;top:10px;left:12px;color:var(--teal-l)}
+#bigHand{width:78%;max-width:240px;height:auto}
+.filmstrip{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.frame{border:2px solid var(--ink);background:var(--cream);text-align:center;width:76px}
+.frame svg{width:100%;height:auto;background:var(--petrol-d);border-bottom:2px solid var(--ink)}
+.frame b{display:block;font-size:15px;padding:3px 0}
+.frame.on{outline:4px solid var(--coral);outline-offset:-1px}
+@media(max-width:720px){.speller{grid-template-columns:1fr}.bigstage{border-left:0;border-top:3px solid var(--ink)}}
+</style>
+</head>
+<body>
+<div class="brand">
+  <svg viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="10" fill="#2E6B68"/><path d="M40 92 Q34 78 36 62 L38 50 Q40 44 46 45 L47 60 47 44 Q47 37 53 37 Q59 37 59 44 L59 58 60 40 Q60 33 66 33 Q72 33 72 40 L72 58 73 45 Q73 39 79 40 Q84 41 84 48 L84 70 Q84 86 74 94 Z" fill="#E4583C" stroke="#16201E" stroke-width="4" stroke-linejoin="round"/><path d="M40 74 Q30 70 27 62 Q25 55 32 54 Q38 54 42 62" fill="#E4583C" stroke="#16201E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <div><div class="nm">掌語 手語典藏所</div><div class="tag">Zhǎngyǔ · Sign Archive</div></div>
+  <div class="spacer"></div>
+  <div class="est mono">臺南市中西區<br>永福路二段 71 號</div>
+</div>
+<hr class="rule">
+
+<div class="hero" style="padding-bottom:8px"><div class="wrap">
+  <div class="kick">指語字母表 · 逐字描形</div>
+  <h1 style="font-size:clamp(28px,4.6vw,46px)">指<em style="font-style:normal;color:var(--coral)">拼字</em>母</h1>
+  <p style="color:var(--cream2);max-width:56ch;margin-top:12px">輸入一個英文詞或名字，本所骨架引擎會把它逐字母拆成手形、依序描出。這是一套供檢索用的示意字母表——真實的指拼與注音手語，仍請向聾人社群學習。</p>
+</div></div>
+
+<section style="padding-top:14px"><div class="wrap">
+  <div class="speller">
+    <div class="ctrls">
+      <label class="fh" for="txt">要拼的字</label>
+      <input id="txt" type="text" maxlength="24" placeholder="例如 TAINAN" autocomplete="off" spellcheck="false">
+      <div class="btns">
+        <button id="play" class="btn" type="button">逐字播放</button>
+        <button id="prev" class="btn alt" type="button" aria-label="上一個">上一字</button>
+        <button id="next" class="btn alt" type="button" aria-label="下一個">下一字</button>
+        <button id="copy" class="btn alt" type="button">複製手形碼</button>
+      </div>
+      <div class="curlab"><span id="curletter" class="mono"></span> <span id="progress" class="mono"></span></div>
+    </div>
+    <div class="bigstage">
+      <span class="lab mono" id="bigcode"></span>
+      <svg id="bigHand" viewBox="0 0 200 250" role="img" aria-label="目前字母的手形"></svg>
+    </div>
+  </div>
+  <div class="filmstrip" id="film" aria-label="整串手形"></div>
+  <div class="note" style="margin-top:22px">指拼字母表為便於逐字檢索之示意編碼；不同語言與地區的手語指拼系統各異。學習手語請向聾人社群與認證教師求教。</div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="cols">
+    <div>
+      <h5>掌語 手語典藏所</h5>
+      <p style="color:var(--cream2);font-size:14px;max-width:34ch;margin:0">把手語當作有形態的語言來典藏。手形、位置、動作、掌向——四要素標形法，一九七八年至今。</p>
+    </div>
+    <div><h5>導覽</h5>
+      <a href="index.html">首頁 · 手勢查詢</a>
+      <a href="dian.html">手語詞典 · 交叉檢索</a>
+      <a href="pin.html">指拼字母生成</a>
+      <a href="ru.html">借閱證 · 共學報名</a>
+    </div>
+    <div><h5>聯絡</h5>
+      <a href="#" onclick="return false">06-221 7078</a>
+      <a href="#" onclick="return false">archive@zhangyu.tw</a>
+      <span style="color:var(--cream2);font-size:13px">臺南市中西區永福路二段 71 號 3 樓</span>
+    </div>
+  </div>
+  <div class="fine mono">© 1978–2026 掌語手語典藏所（虛構示範）。全站圖像由手部骨架引擎程序生成，零外部圖片，字體採 Google Fonts。本站為 Design Skills Center 館藏之一。<br>本所收錄之手語標記為檢索示意，非真實 TSL 教學；學習手語請向聾人社群與認證教師求教。</div>
+</div></footer>
+<nav class="dock" aria-label="主導覽"><a href="index.html"><svg viewBox="0 0 200 250" data-nav="wu" aria-hidden="true"></svg><b>首頁</b><span>SIGN</span></a><a href="dian.html"><svg viewBox="0 0 200 250" data-nav="er" aria-hidden="true"></svg><b>詞典</b><span>DICT</span></a><a href="pin.html" aria-current="page"><svg viewBox="0 0 200 250" data-nav="yi" aria-hidden="true"></svg><b>指拼字</b><span>SPELL</span></a><a href="ru.html"><svg viewBox="0 0 200 250" data-nav="ping" aria-hidden="true"></svg><b>借閱</b><span>JOIN</span></a></nav>
+<script>
+
+/* ===== hand-skeleton engine ===== */
+var HC={ink:'#16201E',skin:'#E4583C',gold:'#C89B4A'};
+var FING=[{kx:78,ky:112,fan:-14,L:[30,25,18],w:15},{kx:98,ky:106,fan:-3,L:[34,28,20],w:16},{kx:117,ky:110,fan:8,L:[31,26,18],w:15},{kx:134,ky:120,fan:20,L:[24,20,15],w:13}];
+function u(d){var a=d*Math.PI/180;return [Math.sin(a),-Math.cos(a)];}
+function fingerPts(f,c){var seg=[c*80,c*105,c*60],Ls=f.L,d=f.fan,p=[[f.kx,f.ky]];for(var i=0;i<3;i++){d+=seg[i];var v=u(d),l=p[p.length-1];p.push([l[0]+v[0]*Ls[i],l[1]+v[1]*Ls[i]]);}return p;}
+function thumbPts(opp,c){var bx=70,by=170,base=-58+opp*95,seg=[c*55,c*70],ln=[26,20],d=base,p=[[bx,by]];for(var i=0;i<2;i++){d+=seg[i];var v=u(d),l=p[p.length-1];p.push([l[0]+v[0]*ln[i],l[1]+v[1]*ln[i]]);}return p;}
+function sp(pts){return 'M'+pts.map(function(q){return q[0].toFixed(1)+' '+q[1].toFixed(1);}).join(' L');}
+function handSVG(hs){var sc=HC.skin,spread=(hs.spread==null?0.5:hs.spread),o=[];
+ o.push('<path d="M62 118 Q56 150 62 190 Q70 214 100 214 Q130 214 138 190 Q144 152 138 118 Q120 128 100 128 Q80 128 62 118 Z" fill="'+sc+'" stroke="'+HC.ink+'" stroke-width="5" stroke-linejoin="round"/>');
+ [3,2,0,1].forEach(function(idx){var f={kx:FING[idx].kx,ky:FING[idx].ky,fan:FING[idx].fan*(0.4+spread*1.1),L:FING[idx].L,w:FING[idx].w};var d=sp(fingerPts(f,hs.curl[idx+1]));o.push('<path d="'+d+'" fill="none" stroke="'+HC.ink+'" stroke-width="'+(f.w+5)+'" stroke-linecap="round" stroke-linejoin="round"/>');o.push('<path d="'+d+'" fill="none" stroke="'+sc+'" stroke-width="'+f.w+'" stroke-linecap="round" stroke-linejoin="round"/>');});
+ var td=sp(thumbPts(hs.opp==null?0.2:hs.opp,hs.curl[0]));
+ o.push('<path d="'+td+'" fill="none" stroke="'+HC.ink+'" stroke-width="21" stroke-linecap="round" stroke-linejoin="round"/>');
+ o.push('<path d="'+td+'" fill="none" stroke="'+sc+'" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>');
+ o.push('<path d="M74 208 L70 238 Q100 246 130 238 L126 208 Z" fill="'+sc+'" stroke="'+HC.ink+'" stroke-width="5" stroke-linejoin="round"/>');
+ return o.join('');}
+var SHAPES={
+ ping:{lbl:'平掌',en:'B',curl:[0.55,0.02,0.02,0.02,0.05],opp:0.55,spread:0.15},
+ wu:{lbl:'五指張',en:'5',curl:[0,0,0,0,0],opp:0.05,spread:1},
+ quan:{lbl:'握拳',en:'A',curl:[0.35,1,1,1,1],opp:0.15,spread:0},
+ yi:{lbl:'指一',en:'1',curl:[0.6,0,1,1,1],opp:0.1,spread:0.1},
+ er:{lbl:'並二',en:'V',curl:[0.7,0,0,1,1],opp:0.1,spread:0.5},
+ san:{lbl:'三指',en:'W',curl:[0,0,0,0,1],opp:0.05,spread:0.5},
+ gou:{lbl:'勾指',en:'X',curl:[0.6,0.7,1,1,1],opp:0.1,spread:0.05},
+ yuan:{lbl:'圓形',en:'O',curl:[0.5,0.55,0.55,0.55,0.55],opp:0.8,spread:0.1},
+ jia:{lbl:'夾持',en:'C',curl:[0.32,0.34,0.34,0.34,0.34],opp:0.55,spread:0.1},
+ l:{lbl:'角尺',en:'L',curl:[0,0,1,1,1],opp:0.05,spread:0.2},
+ zan:{lbl:'豎拇',en:'Aq',curl:[0,1,1,1,1],opp:0.05,spread:0},
+ ai:{lbl:'愛',en:'Y',curl:[0,0,1,1,0],opp:0.05,spread:0.6}
+};
+/* ===== dictionary ===== */
+var DICT=[
+ {g:'你好',cat:'問候',hs:'ping',loc:'胸前',mov:'弧線',ori:'掌向外'},
+ {g:'謝謝',cat:'禮貌',hs:'ping',loc:'唇邊',mov:'直移',ori:'掌向內'},
+ {g:'請',cat:'禮貌',hs:'ping',loc:'胸前',mov:'繞環',ori:'掌向上'},
+ {g:'對不起',cat:'禮貌',hs:'quan',loc:'胸前',mov:'繞環',ori:'掌向內'},
+ {g:'家',cat:'家庭',hs:'ping',loc:'胸前',mov:'開合',ori:'掌相對'},
+ {g:'媽媽',cat:'家庭',hs:'l',loc:'面頰',mov:'點觸',ori:'掌向內'},
+ {g:'爸爸',cat:'家庭',hs:'l',loc:'額前',mov:'點觸',ori:'掌向內'},
+ {g:'愛',cat:'情緒',hs:'ai',loc:'胸前',mov:'靜止',ori:'掌向內'},
+ {g:'開心',cat:'情緒',hs:'wu',loc:'胸前',mov:'上揚',ori:'掌向內'},
+ {g:'難過',cat:'情緒',hs:'yi',loc:'面頰',mov:'下落',ori:'掌向內'},
+ {g:'生氣',cat:'情緒',hs:'gou',loc:'胸前',mov:'來回',ori:'掌向內'},
+ {g:'山',cat:'自然',hs:'wu',loc:'中性空間',mov:'弧線',ori:'掌向下'},
+ {g:'水',cat:'自然',hs:'san',loc:'唇邊',mov:'點觸',ori:'掌向內'},
+ {g:'雨',cat:'自然',hs:'wu',loc:'額前',mov:'下落',ori:'掌向下'},
+ {g:'太陽',cat:'自然',hs:'yuan',loc:'額前',mov:'繞環',ori:'掌向外'},
+ {g:'月亮',cat:'自然',hs:'gou',loc:'肩側',mov:'弧線',ori:'掌向外'},
+ {g:'今天',cat:'時間',hs:'yi',loc:'胸前',mov:'下落',ori:'掌向下'},
+ {g:'明天',cat:'時間',hs:'yi',loc:'面頰',mov:'弧線',ori:'掌向內'},
+ {g:'昨天',cat:'時間',hs:'zan',loc:'肩側',mov:'弧線',ori:'掌向內'},
+ {g:'吃',cat:'動作',hs:'jia',loc:'唇邊',mov:'來回',ori:'掌向內'},
+ {g:'喝',cat:'動作',hs:'jia',loc:'唇邊',mov:'上揚',ori:'掌向內'},
+ {g:'走',cat:'動作',hs:'er',loc:'中性空間',mov:'交替',ori:'掌向下'},
+ {g:'看',cat:'動作',hs:'er',loc:'面頰',mov:'直移',ori:'掌向外'},
+ {g:'學習',cat:'動作',hs:'jia',loc:'額前',mov:'點觸',ori:'掌向內'}
+];
+function code(d){return 'ZY-'+SHAPES[d.hs].en+'-'+d.loc.slice(0,1)+'-'+d.mov.slice(0,1);}
+/* schematic manual alphabet (示意) */
+function C(t,i,m,r,p,opp,spread){return {curl:[t,i,m,r,p],opp:opp,spread:spread};}
+var ALPHA={
+ A:C(0,1,1,1,1,0.1,0),B:C(0.6,0,0,0,0,0.6,0.15),C:C(0.3,0.35,0.35,0.35,0.35,0.5,0.1),
+ D:C(0.4,0,0.6,0.7,0.7,0.55,0.05),E:C(0.5,0.7,0.7,0.7,0.7,0.5,0),F:C(0.4,0.5,0,0,0,0.55,0.2),
+ G:C(0.5,0,1,1,1,0.3,0.05),H:C(0.6,0,0,1,1,0.2,0.15),I:C(0.5,1,1,1,0,0.1,0),
+ J:C(0.5,1,1,1,0,0.1,0),K:C(0,0,0,1,1,0.5,0.45),L:C(0,0,1,1,1,0.05,0.2),
+ M:C(0.7,0.7,0.7,0.7,1,0.3,0),N:C(0.7,0.7,0.7,1,1,0.3,0),O:C(0.5,0.55,0.55,0.55,0.55,0.8,0.1),
+ P:C(0.2,0,0.3,1,1,0.5,0.3),Q:C(0.4,0,1,1,1,0.6,0.1),R:C(0.6,0.15,0.2,1,1,0.15,0.05),
+ S:C(0.35,1,1,1,1,0.2,0),T:C(0.6,0.6,1,1,1,0.4,0),U:C(0.6,0,0,1,1,0.15,0.12),
+ V:C(0.6,0,0,1,1,0.15,0.55),W:C(0,0,0,0,1,0.1,0.5),X:C(0.6,0.7,1,1,1,0.15,0.05),
+ Y:C(0,0,1,1,0,0.05,0.6),Z:C(0.5,0,1,1,1,0.2,0.05)
+};
+function scode(letters){return letters.map(function(l){return l;}).join('·');}
+var seq=[],idx=0,timer=null;
+var txt=document.getElementById('txt');
+function build(){
+ var raw=txt.value.toUpperCase().replace(/[^A-Z]/g,'');
+ seq=raw.split('').filter(function(c){return ALPHA[c];});
+ idx=0;stop();renderFilm();show();
+ try{history.replaceState(null,'','?spell='+encodeURIComponent(raw));}catch(e){}
+}
+function renderFilm(){
+ var film=document.getElementById('film');film.innerHTML='';
+ seq.forEach(function(c,i){var f=document.createElement('div');f.className='frame'+(i===idx?' on':'');f.id='f-'+i;
+  f.innerHTML='<svg viewBox="0 0 200 250" aria-hidden="true">'+handSVG(ALPHA[c])+'</svg><b>'+c+'</b>';
+  f.onclick=function(){idx=i;stop();show();};film.appendChild(f);});
+}
+function show(){
+ if(!seq.length){document.getElementById('bigHand').innerHTML=handSVG(SHAPES.wu);document.getElementById('curletter').textContent='—';document.getElementById('progress').textContent='';document.getElementById('bigcode').textContent='輸入字母';return;}
+ var c=seq[idx];document.getElementById('bigHand').innerHTML=handSVG(ALPHA[c]);
+ document.getElementById('curletter').textContent=c;
+ document.getElementById('progress').textContent='('+(idx+1)+'/'+seq.length+')';
+ document.getElementById('bigcode').textContent='字母 '+c;
+ [].forEach.call(document.querySelectorAll('.frame'),function(f,i){f.classList.toggle('on',i===idx);});
+}
+function stop(){if(timer){clearInterval(timer);timer=null;document.getElementById('play').textContent='逐字播放';}}
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+document.getElementById('play').onclick=function(){
+ if(!seq.length)return;
+ if(timer){stop();return;}
+ if(reduce){idx=(idx+1)%seq.length;show();return;}
+ this.textContent='暫停播放';idx=0;show();
+ timer=setInterval(function(){idx++;if(idx>=seq.length){stop();idx=seq.length-1;show();return;}show();},760);
+};
+document.getElementById('next').onclick=function(){if(!seq.length)return;stop();idx=(idx+1)%seq.length;show();};
+document.getElementById('prev').onclick=function(){if(!seq.length)return;stop();idx=(idx-1+seq.length)%seq.length;show();};
+document.getElementById('copy').onclick=function(){var s=seq.join(' · ')||'—';var code='ZY-SPELL['+s+']';
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code);}
+ this.textContent='已複製';var b=this;setTimeout(function(){b.textContent='複製手形碼';},1400);};
+txt.oninput=build;
+var pre=new URLSearchParams(location.search).get('spell');
+txt.value=pre?pre.toUpperCase().replace(/[^A-Z]/g,''):'TAINAN';
+build();
+[].forEach.call(document.querySelectorAll('[data-nav]'),function(el){el.innerHTML=handSVG(SHAPES[el.dataset.nav]);});
+
+</script>
+</body></html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>河界棋院 Héjiè · 對弈廳｜象棋教室</title>
+<meta name="description" content="河界棋院——一間虛構的象棋教室。對弈廳裡有一盤下到一半的殘局，你必須真的走到將死；院裡的對手會用搜尋演算思考回手，全站每一張圖都是一個棋盤局面。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%23EDE1C8' stroke='%23D0402E' stroke-width='2.4'/%3E%3Ccircle cx='20' cy='20' r='14.5' fill='none' stroke='%23D0402E' stroke-width='1'/%3E%3Ctext x='20' y='27' font-family='serif' font-size='20' font-weight='700' text-anchor='middle' fill='%23D0402E'%3E%E5%B8%A5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Kode+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2C3E; --ink2:#182333; --panel:#243449; --panel2:#1c2a3d;
+  --bone:#EDE1C8; --bone-d:#c9bd9f;
+  --red:#D0402E; --red-d:#a8321f;
+  --gold:#D8A63C; --jade:#4E8E6E;
+  --line:rgba(237,225,200,.22);
+  --sq:clamp(30px, 8.6vw, 52px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--bone);
+  font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;font-size:16px;
+  background-image:
+    radial-gradient(1200px 600px at 12% -10%, rgba(208,64,46,.14), transparent 60%),
+    radial-gradient(1000px 620px at 90% 108%, rgba(78,142,110,.10), transparent 60%);
+  background-attachment:fixed;}
+a{color:inherit}
+.mono{font-family:"Kode Mono",ui-monospace,monospace;letter-spacing:.02em}
+.serif{font-family:"Noto Serif TC",serif}
+h1,h2,h3,h4{margin:0;font-family:"Noto Serif TC",serif;font-weight:700;line-height:1.15}
+.wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+.kick{font-family:"Kode Mono",monospace;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
+button{font-family:inherit;cursor:pointer}
+
+/* ---------- masthead ---------- */
+header.mast{border-bottom:2px solid var(--line);background:linear-gradient(180deg,rgba(24,35,51,.9),rgba(30,44,62,.4));position:relative;z-index:5}
+.mast .wrap{display:flex;align-items:center;gap:18px;padding:15px 22px}
+.seal{width:52px;height:52px;flex:0 0 auto}
+.brand b{display:block;font-family:"Noto Serif TC",serif;font-weight:900;font-size:23px;letter-spacing:.06em}
+.brand span{display:block;font-family:"Kode Mono",monospace;font-size:10.5px;letter-spacing:.3em;color:var(--bone-d);text-transform:uppercase;margin-top:2px}
+.mast .meta{margin-left:auto;text-align:right;font-size:12px;color:var(--bone-d);line-height:1.5}
+.mast .meta b{color:var(--gold);font-family:"Kode Mono",monospace;letter-spacing:.05em}
+@media(max-width:720px){.mast .meta{display:none}}
+
+/* ---------- palace-cross nav ---------- */
+nav.palace{position:fixed;top:14px;right:16px;z-index:40;width:118px;height:118px}
+nav.palace svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+nav.palace a{position:absolute;width:52px;height:30px;transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;text-decoration:none;
+  font-family:"Noto Serif TC",serif;font-weight:700;font-size:14px;color:var(--bone);
+  background:var(--panel2);border:1.5px solid var(--line);border-radius:2px;line-height:1;
+  transition:transform .16s ease, background .16s ease, color .16s ease}
+nav.palace a small{font-family:"Kode Mono",monospace;font-size:8px;letter-spacing:.06em;color:var(--bone-d);margin-left:3px}
+nav.palace a:hover,nav.palace a:focus-visible{background:#2f4560;outline:none}
+nav.palace a[aria-current="page"]{background:var(--red);color:#fff;border-color:var(--gold);transform:translate(-50%,-50%) scale(1.06)}
+nav.palace a[aria-current="page"] small{color:#ffe0b8}
+nav.palace .lab{position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font-family:"Kode Mono",monospace;font-size:8.5px;letter-spacing:.24em;color:var(--bone-d);white-space:nowrap;text-transform:uppercase}
+/* four points on the palace diagonal cross */
+nav.palace a.p1{left:26px;top:26px}
+nav.palace a.p2{left:92px;top:26px}
+nav.palace a.p3{left:26px;top:92px}
+nav.palace a.p4{left:92px;top:92px}
+@media(max-width:820px){
+  nav.palace{position:sticky;top:0;right:auto;width:auto;height:auto;display:flex;gap:0;
+    background:var(--ink2);border-bottom:1px solid var(--line);padding:0;margin:0}
+  nav.palace svg{display:none}
+  nav.palace a{position:static;transform:none;flex:1;height:42px;border-radius:0;border:none;border-right:1px solid var(--line);font-size:13px}
+  nav.palace a[aria-current="page"]{transform:none}
+  nav.palace .lab{display:none}
+}
+
+/* ---------- layout ---------- */
+main{padding:26px 0 60px}
+.lede{max-width:760px;margin:6px 0 22px}
+.lede h1{font-size:clamp(26px,4.6vw,40px);font-weight:900;letter-spacing:.02em}
+.lede h1 em{font-style:normal;color:var(--red);text-shadow:0 0 1px rgba(208,64,46,.4)}
+.lede p{color:#d7cdb6;margin:.5em 0 0}
+.play{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:26px;align-items:start}
+@media(max-width:960px){.play{grid-template-columns:1fr}}
+
+/* ---------- board ---------- */
+.boardwrap{position:relative;background:var(--panel2);border:2px solid var(--line);padding:16px;border-radius:3px}
+.boardwrap::before,.boardwrap::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--gold);opacity:.5}
+.boardwrap::before{left:6px;top:6px;border-right:0;border-bottom:0}
+.boardwrap::after{right:6px;bottom:6px;border-left:0;border-top:0}
+.board{position:relative;width:calc(var(--sq)*9);max-width:100%;margin:0 auto;aspect-ratio:9/10;touch-action:manipulation}
+.board svg.grid{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cell{position:absolute;width:var(--sq);height:var(--sq);transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;padding:0;background:none;border:none}
+.pc{width:82%;height:82%;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:"Noto Serif TC",serif;font-weight:700;font-size:calc(var(--sq)*.5);line-height:1;
+  background:radial-gradient(circle at 38% 32%, #fff8ea, var(--bone) 62%, var(--bone-d));
+  box-shadow:0 2px 4px rgba(0,0,0,.45), inset 0 0 0 1.5px rgba(0,0,0,.12);
+  border:2.5px solid var(--red);color:var(--red);position:relative;user-select:none;transition:transform .12s ease}
+.pc.b{border-color:var(--ink);color:var(--ink)}
+.pc::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid currentColor;opacity:.35}
+.cell:enabled{cursor:pointer}
+.cell.pick .pc{transform:scale(1.04);box-shadow:0 0 0 3px var(--gold), 0 3px 7px rgba(0,0,0,.5)}
+.cell.lastf .pc,.cell.lastt .pc{outline:2px dashed var(--gold);outline-offset:2px}
+.cell.chk .pc{box-shadow:0 0 0 3px var(--red), 0 0 14px rgba(208,64,46,.8)}
+.dot{position:absolute;width:var(--sq);height:var(--sq);transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;pointer-events:none}
+.dot i{width:30%;height:30%;border-radius:50%;background:var(--gold);opacity:.72;box-shadow:0 0 6px rgba(216,166,60,.6)}
+.dot.cap i{width:78%;height:78%;background:none;border:3px solid var(--gold);opacity:.85}
+.riverlab{position:absolute;left:0;right:0;top:calc(50% - 2px);display:flex;justify-content:space-between;
+  padding:0 8%;font-family:"Noto Serif TC",serif;font-weight:700;color:var(--gold);opacity:.72;
+  font-size:calc(var(--sq)*.42);letter-spacing:.5em;pointer-events:none}
+
+/* board territory tints via svg */
+
+/* ---------- side panel ---------- */
+.side{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:15px 16px}
+.card h3{font-size:13px;letter-spacing:.06em;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card h3 .mono{font-size:10px;color:var(--bone-d);letter-spacing:.2em}
+.status{font-family:"Noto Serif TC",serif;font-size:20px;font-weight:700}
+.status .who{color:var(--gold)}
+.status.alert{color:var(--red)}
+.substatus{font-size:12.5px;color:var(--bone-d);margin-top:3px;min-height:1.2em}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{background:var(--panel2);border:1.5px solid var(--line);color:var(--bone);
+  padding:8px 12px;border-radius:2px;font-size:13px;font-weight:500;letter-spacing:.03em;transition:background .15s,border-color .15s}
+.btn:hover,.btn:focus-visible{background:#2f4560;border-color:var(--gold);outline:none}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-d);border-color:var(--gold)}
+.opt{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.opt button{background:var(--panel2);border:1.5px solid var(--line);color:var(--bone-d);padding:5px 10px;border-radius:2px;font-size:12.5px}
+.opt button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#20160a;font-weight:700}
+.optlabel{font-size:12px;color:var(--bone-d);margin-top:10px;letter-spacing:.04em}
+.moves{max-height:210px;overflow:auto;font-family:"Kode Mono",monospace;font-size:12.5px;line-height:1.9}
+.moves table{width:100%;border-collapse:collapse}
+.moves td{padding:1px 6px;vertical-align:top}
+.moves td.n{color:var(--bone-d);text-align:right;width:26px}
+.moves td.r{color:var(--red)}
+.moves td.b{color:#bcd0e6}
+.moves .cur{background:rgba(216,166,60,.16)}
+.caps{display:flex;flex-wrap:wrap;gap:4px;min-height:26px}
+.caps .mini{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:"Noto Serif TC",serif;font-size:12px;font-weight:700;background:var(--bone);color:var(--red);border:1.5px solid var(--red)}
+.caps .mini.b{color:var(--ink);border-color:var(--ink)}
+
+/* featured endgames strip */
+.feat{margin-top:30px;border-top:2px solid var(--line);padding-top:22px}
+.feat h2{font-size:19px;margin-bottom:4px}
+.feat p{color:var(--bone-d);font-size:13.5px;margin:0 0 14px}
+.puzzles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:720px){.puzzles{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.puzzles{grid-template-columns:1fr}}
+.pz{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:12px 13px;transition:border-color .15s,transform .15s}
+.pz:hover,.pz:focus-visible{border-color:var(--gold);outline:none;transform:translateY(-2px)}
+.pz b{font-family:"Noto Serif TC",serif;font-size:15px;display:block}
+.pz .mono{font-size:10px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase}
+.pz small{display:block;color:var(--bone-d);font-size:12px;margin-top:4px}
+
+footer{border-top:2px solid var(--line);margin-top:50px;background:var(--ink2)}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:22px;padding:28px 22px}
+@media(max-width:720px){footer .wrap{grid-template-columns:1fr}}
+footer h4{font-size:13px;color:var(--gold);margin-bottom:8px;letter-spacing:.06em}
+footer p,footer a{font-size:13px;color:var(--bone-d);text-decoration:none;line-height:1.9}
+footer a:hover{color:var(--bone)}
+.fnote{grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px;font-size:11.5px;color:#7c8798}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
+  background:var(--gold);color:#20160a;font-weight:700;padding:10px 20px;border-radius:3px;font-size:14px;z-index:60;
+  transition:opacity .25s,transform .25s;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;position:fixed;z-index:99;background:var(--gold);color:#000;padding:8px}
+</style>
+</head>
+<body>
+<a class="skip" href="#board">跳至棋盤</a>
+
+<header class="mast">
+  <div class="wrap">
+    <svg class="seal" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18" fill="var(--bone)" stroke="var(--red)" stroke-width="2.4"/>
+      <circle cx="20" cy="20" r="14.5" fill="none" stroke="var(--red)" stroke-width="1"/>
+      <text x="20" y="27" font-family="Noto Serif TC,serif" font-size="20" font-weight="900" text-anchor="middle" fill="var(--red)">帥</text>
+    </svg>
+    <div class="brand">
+      <b>河界棋院</b><span>Héjiè Xiangqi Academy</span>
+    </div>
+    <div class="meta">
+      建國南路一段 47 巷 3 號・榕蔭下<br>
+      <b>對局專線 02-2755-4406</b>（虛構示意）
+    </div>
+  </div>
+</header>
+
+<nav class="palace" aria-label="主導覽（九宮將位）">
+  <svg viewBox="0 0 118 118" aria-hidden="true">
+    <rect x="26" y="26" width="66" height="66" fill="none" stroke="var(--line)" stroke-width="2"/>
+    <line x1="26" y1="26" x2="92" y2="92" stroke="var(--line)" stroke-width="2"/>
+    <line x1="92" y1="26" x2="26" y2="92" stroke="var(--line)" stroke-width="2"/>
+    <circle cx="59" cy="59" r="3" fill="var(--gold)"/>
+  </svg>
+  <a class="p1" href="index.html" aria-current="page">對弈<small>I</small></a>
+  <a class="p2" href="cangjing.html">殘局<small>II</small></a>
+  <a class="p3" href="fa.html">弈法<small>III</small></a>
+  <a class="p4" href="ruhui.html">入院<small>IV</small></a>
+  <span class="lab">九宮・將位</span>
+</nav>
+
+<main>
+<div class="wrap">
+  <div class="lede">
+    <p class="kick">對弈廳 · 局面直開場</p>
+    <h1>棋已擺好，<em>輪你先走</em>。</h1>
+    <p>這裡沒有開場白。盤上是一局擺到一半的中殘局，紅方（你）先手。走一步，院裡的對手就依棋理搜尋回你一手——一路下到將死或和棋為止。棋規、每一子的走法都寫在<a href="fa.html" style="color:var(--gold)">弈法</a>裡，看不懂也能先讀完再落子。</p>
+  </div>
+
+  <div class="play">
+    <div class="boardwrap">
+      <div class="board" id="board" role="application" aria-label="象棋棋盤，紅方在下，可用滑鼠或方向鍵操作">
+        <svg class="grid" viewBox="0 0 900 1000" preserveAspectRatio="none" aria-hidden="true" id="grid"></svg>
+        <div class="riverlab"><span>楚 河</span><span>漢 界</span></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3>對局狀態 <span class="mono">STATE</span></h3>
+        <div class="status" id="status"><span class="who">紅方</span>行棋</div>
+        <div class="substatus" id="substatus">點一顆紅子，再點亮起的落點。</div>
+        <div class="ctrls" style="margin-top:12px">
+          <button class="btn primary" id="newgame">新局</button>
+          <button class="btn" id="undo">悔棋</button>
+          <button class="btn" id="resign">認輸</button>
+          <button class="btn" id="hint">提示一手</button>
+        </div>
+        <div class="optlabel">你執</div>
+        <div class="opt" id="sidepick" role="group" aria-label="選邊">
+          <button data-side="r" aria-pressed="true">紅（先手）</button>
+          <button data-side="b" aria-pressed="false">黑（後手）</button>
+        </div>
+        <div class="optlabel">院手棋力</div>
+        <div class="opt" id="levelpick" role="group" aria-label="難度">
+          <button data-lv="1" aria-pressed="false">入門</button>
+          <button data-lv="2" aria-pressed="true">學徒</button>
+          <button data-lv="3" aria-pressed="false">教頭</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>著法記錄 <span class="mono">MOVES</span></h3>
+        <div class="moves" id="moves"><table><tbody id="movebody"></tbody></table></div>
+      </div>
+
+      <div class="card">
+        <h3>被吃之子 <span class="mono">CAPTURED</span></h3>
+        <div class="optlabel" style="margin:0 0 4px">紅方所失</div>
+        <div class="caps" id="capr"></div>
+        <div class="optlabel" style="margin:8px 0 4px">黑方所失</div>
+        <div class="caps" id="capb"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="feat" aria-label="精選殘局">
+    <h2 class="serif">先擺一局試手</h2>
+    <p>三則傳世江湖殘局，一鍵擺上盤面，紅先。全部題庫在<a href="cangjing.html" style="color:var(--gold)">殘局譜</a>。</p>
+    <div class="puzzles" id="puzzles"></div>
+  </section>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>河界棋院</h4>
+      <p>一間虛構的象棋教室，設於台北榕蔭棋攤之上。收徒不論長幼，只問願不願在楚河漢界前坐下來想清楚一步。院內對局、殘局、規則、對手皆為前端程式即時演算，非真人連線。</p>
+    </div>
+    <div>
+      <h4>院內</h4>
+      <a href="index.html">對弈廳</a><br>
+      <a href="cangjing.html">殘局譜</a><br>
+      <a href="fa.html">弈法・棋規</a><br>
+      <a href="ruhui.html">入院報名</a>
+    </div>
+    <div>
+      <h4>時間・地點</h4>
+      <p>週二至週日 09:00–21:00<br>建國南路一段 47 巷 3 號<br>對局專線 02-2755-4406</p>
+    </div>
+    <div class="fnote">
+      院名、人名、地址、電話、費用、殘局解說均為虛構教學示意。棋規依現行亞洲象棋通例編寫，院手為前端搜尋演算之教學對手、非職業棋力。<br>
+      本站由 <b>Claude Opus 4.8</b>（排程 Agent 自動執行）設計與建置，2026-07-25。無外部圖片與音檔，字型取自 Google Fonts。
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<noscript>
+  <div style="max-width:760px;margin:20px auto;padding:16px;border:1px solid var(--line);background:var(--panel)">
+    本對弈廳需要 JavaScript 才能落子與演算。棋規與每一子的走法可在 <a href="fa.html" style="color:var(--gold)">弈法</a> 頁完整閱讀；殘局題目列於 <a href="cangjing.html" style="color:var(--gold)">殘局譜</a>。對局預約請電 02-2755-4406。
+  </div>
+</noscript>
+
+<script>
+/* ============================================================
+   河界棋院 — Xiangqi engine + searching opponent (inline, no deps)
+   board[r][c] r=0..9 (0=top,Black back), c=0..8. Red 'r' bottom, Black 'b' top.
+   Verified: perft(1)=44, perft(2)=1920, perft(3)=79666.
+   ============================================================ */
+'use strict';
+(function(){
+const RM = window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;
+const GLYPH = {
+  r:{K:'帥',A:'仕',B:'相',N:'傌',R:'俥',C:'炮',P:'兵'},
+  b:{K:'將',A:'士',B:'象',N:'馬',R:'車',C:'砲',P:'卒'}
+};
+const VAL = {K:10000,R:900,C:450,N:400,B:200,A:200,P:100};
+function startBoard(){
+  const b=Array.from({length:10},()=>Array(9).fill(null));
+  const back=['R','N','B','A','K','A','B','N','R'];
+  for(let c=0;c<9;c++){b[0][c]={t:back[c],s:'b'};b[9][c]={t:back[c],s:'r'};}
+  b[2][1]={t:'C',s:'b'};b[2][7]={t:'C',s:'b'};b[7][1]={t:'C',s:'r'};b[7][7]={t:'C',s:'r'};
+  for(const c of[0,2,4,6,8]){b[3][c]={t:'P',s:'b'};b[6][c]={t:'P',s:'r'};}
+  return b;
+}
+const inB=(r,c)=>r>=0&&r<10&&c>=0&&c<9;
+const inPal=(s,r,c)=>c>=3&&c<=5&&(s==='r'?r>=7&&r<=9:r>=0&&r<=2);
+function genPseudo(b,side){
+  const mv=[];
+  const add=(fr,fc,tr,tc)=>{if(!inB(tr,tc))return;const d=b[tr][tc];if(d&&d.s===side)return;mv.push([fr,fc,tr,tc]);};
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++){
+    const p=b[r][c];if(!p||p.s!==side)continue;const t=p.t,s=p.s;
+    if(t==='K'){for(const[dr,dc]of[[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc;if(inPal(s,nr,nc))add(r,c,nr,nc);}}
+    else if(t==='A'){for(const[dr,dc]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const nr=r+dr,nc=c+dc;if(inPal(s,nr,nc))add(r,c,nr,nc);}}
+    else if(t==='B'){for(const[dr,dc]of[[2,2],[2,-2],[-2,2],[-2,-2]]){const nr=r+dr,nc=c+dc;if(!inB(nr,nc))continue;if(s==='r'&&nr<5)continue;if(s==='b'&&nr>4)continue;if(b[r+dr/2][c+dc/2])continue;add(r,c,nr,nc);}}
+    else if(t==='N'){const legs=[[-1,0,-2,-1],[-1,0,-2,1],[1,0,2,-1],[1,0,2,1],[0,-1,-1,-2],[0,-1,1,-2],[0,1,-1,2],[0,1,1,2]];
+      for(const[lr,lc,dr,dc]of legs){if(b[r+lr]&&b[r+lr][c+lc])continue;add(r,c,r+dr,c+dc);}}
+    else if(t==='R'){for(const[dr,dc]of[[1,0],[-1,0],[0,1],[0,-1]]){let nr=r+dr,nc=c+dc;while(inB(nr,nc)){if(!b[nr][nc])mv.push([r,c,nr,nc]);else{if(b[nr][nc].s!==s)mv.push([r,c,nr,nc]);break;}nr+=dr;nc+=dc;}}}
+    else if(t==='C'){for(const[dr,dc]of[[1,0],[-1,0],[0,1],[0,-1]]){let nr=r+dr,nc=c+dc,j=false;while(inB(nr,nc)){if(!j){if(!b[nr][nc])mv.push([r,c,nr,nc]);else j=true;}else{if(b[nr][nc]){if(b[nr][nc].s!==s)mv.push([r,c,nr,nc]);break;}}nr+=dr;nc+=dc;}}}
+    else if(t==='P'){const fwd=s==='r'?-1:1;add(r,c,r+fwd,c);const cr=s==='r'?r<=4:r>=5;if(cr){add(r,c,r,c-1);add(r,c,r,c+1);}}
+  }
+  return mv;
+}
+function findK(b,s){for(let r=0;r<10;r++)for(let c=0;c<9;c++){const p=b[r][c];if(p&&p.t==='K'&&p.s===s)return[r,c];}return null;}
+function facing(b){const kr=findK(b,'r'),kb=findK(b,'b');if(!kr||!kb)return false;if(kr[1]!==kb[1])return false;const c=kr[1];for(let r=Math.min(kr[0],kb[0])+1;r<Math.max(kr[0],kb[0]);r++)if(b[r][c])return false;return true;}
+function attacked(b,side,sq){const opp=side==='r'?'b':'r';for(const m of genPseudo(b,opp))if(m[2]===sq[0]&&m[3]===sq[1])return true;return false;}
+function inChk(b,side){const k=findK(b,side);if(!k)return true;if(facing(b))return true;return attacked(b,side,k);}
+function domove(b,m){const nb=b.map(x=>x.slice());nb[m[2]][m[3]]=nb[m[0]][m[1]];nb[m[0]][m[1]]=null;return nb;}
+function legal(b,side){const out=[];for(const m of genPseudo(b,side)){const nb=domove(b,m);if(facing(nb))continue;if(inChk(nb,side))continue;out.push(m);}return out;}
+
+/* ---- Chinese move notation ---- */
+const CN=['零','一','二','三','四','五','六','七','八','九'];
+function fileNum(side,c){return side==='r'?(9-c):(c+1);}
+function fileStr(side,c){const n=fileNum(side,c);return side==='r'?CN[n]:String(n);}
+function notate(b,m,side){
+  const p=b[m[0]][m[1]];const g=GLYPH[side][p.t];
+  const[fr,fc,tr,tc]=m;
+  const fwd=side==='r'?-1:1; // "進" direction in rows
+  // disambiguate stacked same-type pieces on same file (前/後)
+  let prefix='';
+  const same=[];
+  for(let r=0;r<10;r++){const q=b[r][fc];if(q&&q.s===side&&q.t===p.t)same.push(r);}
+  if(same.length===2 && (p.t==='R'||p.t==='C'||p.t==='P'||p.t==='N')){
+    same.sort((a,bb)=>a-bb); // small row = top
+    const isFront = side==='r'? (fr===same[0]) : (fr===same[1]);
+    prefix=isFront?'前':'後';
+    if(tc!==fc){ // horizontal etc still names piece after prefix
+      return prefix+g+opPart();
+    }
+    return prefix+g+opPart();
+  }
+  return g+fileStr(side,fc)+opPart();
+  function opPart(){
+    const straight=(p.t==='R'||p.t==='C'||p.t==='K'||p.t==='P');
+    if(tr===fr){ return '平'+fileStr(side,tc); } // horizontal
+    const adv = side==='r'? tr<fr : tr>fr; // moving toward enemy
+    const op = adv?'進':'退';
+    if(straight){ return op+CN0(Math.abs(tr-fr)); }
+    return op+fileStr(side,tc); // diagonal pieces name destination file
+  }
+  function CN0(n){return side==='r'?CN[n]:String(n);}
+}
+// fix prefix version to include op
+function notateFull(b,m,side){
+  const p=b[m[0]][m[1]];const g=GLYPH[side][p.t];const[fr,fc,tr,tc]=m;
+  const same=[];for(let r=0;r<10;r++){const q=b[r][fc];if(q&&q.s===side&&q.t===p.t)same.push(r);}
+  let head;
+  if(same.length===2&&(p.t==='R'||p.t==='C'||p.t==='P'||p.t==='N')){
+    same.sort((a,bb)=>a-bb);const isFront=side==='r'?(fr===same[0]):(fr===same[1]);head=(isFront?'前':'後')+g;
+  } else head=g+fileStr(side,fc);
+  const straight=(p.t==='R'||p.t==='C'||p.t==='K'||p.t==='P');
+  const num=side==='r'?(n=>CN[n]):(n=>String(n));
+  if(tr===fr)return head+'平'+fileStr(side,tc);
+  const adv=side==='r'?tr<fr:tr>fr;const op=adv?'進':'退';
+  if(straight)return head+op+num(Math.abs(tr-fr));
+  return head+op+fileStr(side,tc);
+}
+
+/* ---- simple search opponent (negamax + alpha-beta) ---- */
+const PST_P=[ /* pawn bonus by row for red (row 9..0 from own side) */];
+function pstPawn(s,r,c){
+  // encourage pawns to advance & centralize after river
+  const crossed = s==='r'? r<=4 : r>=5;
+  let v=0; if(crossed){ v+=20; v+= (c>=2&&c<=6)?10:0; const adv=s==='r'?(4-r):(r-5); v+=adv*8; }
+  return v;
+}
+function evalB(b){ // + good for red
+  let sc=0;
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++){const p=b[r][c];if(!p)continue;let v=VAL[p.t];
+    if(p.t==='P')v+=pstPawn(p.s,r,c);
+    if(p.t==='N'||p.t==='C'){ if(c>=2&&c<=6)v+=8; }
+    sc+= p.s==='r'? v : -v;
+  }
+  return sc;
+}
+function orderMoves(b,mv){ // captures first, by MVV-LVA
+  return mv.map(m=>{const v=b[m[2]][m[3]]?VAL[b[m[2]][m[3]].t]*10-VAL[b[m[0]][m[1]].t]:0;return[m,v];})
+           .sort((a,bb)=>bb[1]-a[1]).map(x=>x[0]);
+}
+function search(b,side,depth,alpha,beta){
+  if(depth===0)return {sc:(side==='r'?1:-1)*evalB(b)};
+  const mv=legal(b,side);
+  if(mv.length===0)return{sc:-99999+ (10-depth)}; // mated/stalemated => bad for side to move (loss)
+  let best=null,bmove=null;
+  for(const m of orderMoves(b,mv)){
+    const r=search(domove(b,m),side==='r'?'b':'r',depth-1,-beta,-alpha);
+    const sc=-r.sc;
+    if(best===null||sc>best){best=sc;bmove=m;}
+    if(sc>alpha)alpha=sc;
+    if(alpha>=beta)break;
+  }
+  return{sc:best,mv:bmove};
+}
+function pickAI(b,side,level){
+  const mv=legal(b,side);if(mv.length===0)return null;
+  const depth=level; // 1,2,3 ply
+  // add tiny jitter at shallow depth for variety by shuffling equal-top choices
+  let bestSc=-1e9,cands=[];
+  for(const m of orderMoves(b,mv)){
+    const r=search(domove(b,m),side==='r'?'b':'r',depth-1,-1e9,1e9);
+    let sc=-r.sc; sc+= (Math.random()*6-3); // jitter ±3 centipawn-ish
+    if(sc>bestSc+ .0001){bestSc=sc;cands=[m];}
+    else if(sc>bestSc-6){cands.push(m);}
+  }
+  return cands[Math.floor(Math.random()*cands.length)]||mv[0];
+}
+
+/* ============ Featured endgames (FEN-lite as [ [r,c,t,s], ... ]) ============ */
+function place(list){const b=Array.from({length:10},()=>Array(9).fill(null));for(const[r,c,t,s]of list)b[r][c]={t,s};return b;}
+const PUZZLES=[
+  {name:'一俥例勝', zh:'單俥擒孤王，練收官步法', dif:'入門',
+   setup:()=>place([[9,3,'K','r'],[5,0,'R','r'],[6,4,'P','r'],[0,4,'K','b']])},
+  {name:'雙俥錯', zh:'兩俥交錯，輪番照將逼宮', dif:'中階',
+   setup:()=>place([[9,3,'K','r'],[8,0,'R','r'],[8,8,'R','r'],[0,4,'K','b'],[0,3,'A','b'],[0,5,'A','b']])},
+  {name:'傌炮爭鋒', zh:'炮鎮中路，傌臥槽取勢', dif:'中階',
+   setup:()=>place([[9,4,'K','r'],[7,4,'C','r'],[4,3,'N','r'],[6,4,'P','r'],[0,4,'K','b'],[0,3,'A','b'],[1,4,'A','b'],[0,2,'B','b']])},
+];
+
+/* ============ Game state / UI ============ */
+const SQ=900/9, ROW=1000/10; // svg units; cells at (c*100+50, r*100+50)? We'll use px mapping instead.
+const boardEl=document.getElementById('board');
+const gridEl=document.getElementById('grid');
+const statusEl=document.getElementById('status');
+const subEl=document.getElementById('substatus');
+const moveBody=document.getElementById('movebody');
+const toastEl=document.getElementById('toast');
+let human='r', level=2;
+let board, turn, hist, sel, lastMove, over;
+
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>toastEl.classList.remove('on'),2200);}
+
+function drawGrid(){
+  const W=900,H=1000,x0=50,y0=50,gx=100,gy=100; // 9x10 grid
+  let s='';
+  const X=c=>x0+c*gx, Y=r=>y0+r*gy;
+  // territory tints
+  s+=`<rect x="0" y="0" width="${W}" height="${Y(4)+gy/2}" fill="rgba(34,50,71,.55)"/>`;
+  s+=`<rect x="0" y="${Y(4)+gy/2}" width="${W}" height="${H-(Y(4)+gy/2)}" fill="rgba(208,64,46,.13)"/>`;
+  // horizontal lines
+  for(let r=0;r<10;r++)s+=`<line x1="${X(0)}" y1="${Y(r)}" x2="${X(8)}" y2="${Y(r)}" stroke="var(--bone)" stroke-width="1.4" opacity="${r===0||r===9?.85:.5}"/>`;
+  // vertical lines (broken at river for inner files)
+  for(let c=0;c<9;c++){
+    if(c===0||c===8){s+=`<line x1="${X(c)}" y1="${Y(0)}" x2="${X(c)}" y2="${Y(9)}" stroke="var(--bone)" stroke-width="1.4" opacity=".7"/>`;}
+    else{s+=`<line x1="${X(c)}" y1="${Y(0)}" x2="${X(c)}" y2="${Y(4)}" stroke="var(--bone)" stroke-width="1.4" opacity=".5"/>`;
+         s+=`<line x1="${X(c)}" y1="${Y(5)}" x2="${X(c)}" y2="${Y(9)}" stroke="var(--bone)" stroke-width="1.4" opacity=".5"/>`;}
+  }
+  // palace diagonals
+  const pal=[[0,3,2,5],[9,3,7,5]];
+  s+=`<line x1="${X(3)}" y1="${Y(0)}" x2="${X(5)}" y2="${Y(2)}" stroke="var(--gold)" stroke-width="1.4" opacity=".7"/>`;
+  s+=`<line x1="${X(5)}" y1="${Y(0)}" x2="${X(3)}" y2="${Y(2)}" stroke="var(--gold)" stroke-width="1.4" opacity=".7"/>`;
+  s+=`<line x1="${X(3)}" y1="${Y(7)}" x2="${X(5)}" y2="${Y(9)}" stroke="var(--gold)" stroke-width="1.4" opacity=".7"/>`;
+  s+=`<line x1="${X(5)}" y1="${Y(7)}" x2="${X(3)}" y2="${Y(9)}" stroke="var(--gold)" stroke-width="1.4" opacity=".7"/>`;
+  gridEl.innerHTML=s;
+}
+function px(r,c){return {left:((c+0.5)/9*100)+'%', top:((r+0.5)/10*100)+'%'};}
+
+function render(){
+  // remove old cells/dots
+  boardEl.querySelectorAll('.cell,.dot').forEach(e=>e.remove());
+  const legalFromSel = sel? legal(board,turn).filter(m=>m[0]===sel[0]&&m[1]===sel[1]) : [];
+  const targets=new Set(legalFromSel.map(m=>m[2]+','+m[3]));
+  const chkSide = inChk(board,turn)?turn:null;
+  const kpos = chkSide?findK(board,chkSide):null;
+  for(let r=0;r<10;r++)for(let c=0;c<9;c++){
+    const p=board[r][c];
+    if(p){
+      const btn=document.createElement('button');btn.className='cell';
+      const pos=px(r,c);btn.style.left=pos.left;btn.style.top=pos.top;
+      const isSel=sel&&sel[0]===r&&sel[1]===c;
+      if(isSel)btn.classList.add('pick');
+      if(lastMove&&((lastMove[0]===r&&lastMove[1]===c)))btn.classList.add('lastf');
+      if(lastMove&&((lastMove[2]===r&&lastMove[3]===c)))btn.classList.add('lastt');
+      if(kpos&&kpos[0]===r&&kpos[1]===c)btn.classList.add('chk');
+      btn.innerHTML=`<span class="pc ${p.s==='b'?'b':''}">${GLYPH[p.s][p.t]}</span>`;
+      btn.setAttribute('aria-label',`${p.s==='r'?'紅':'黑'}${GLYPH[p.s][p.t]}，第${r+1}橫第${c+1}直`);
+      btn.disabled=over;
+      btn.addEventListener('click',()=>onCell(r,c));
+      boardEl.appendChild(btn);
+    }
+  }
+  // move-target dots
+  legalFromSel.forEach(m=>{
+    const dot=document.createElement('div');dot.className='dot'+(board[m[2]][m[3]]?' cap':'');
+    const pos=px(m[2],m[3]);dot.style.left=pos.left;dot.style.top=pos.top;dot.innerHTML='<i></i>';
+    dot.addEventListener('click',()=>doHumanMove(m));// dots aren't buttons; add pointer
+    dot.style.pointerEvents='auto';dot.style.cursor='pointer';
+    boardEl.appendChild(dot);
+  });
+  renderCaps();
+}
+function renderCaps(){
+  const capr=document.getElementById('capr'),capb=document.getElementById('capb');
+  capr.innerHTML='';capb.innerHTML='';
+  hist.forEach(h=>{ if(h.cap){ const el=document.createElement('span');el.className='mini '+(h.cap.s==='b'?'b':'');el.textContent=GLYPH[h.cap.s][h.cap.t];
+    (h.cap.s==='r'?capr:capb).appendChild(el);} });
+}
+function renderMoves(){
+  let rows='';let i=0;
+  for(;i<hist.length;i+=2){
+    const rMv=hist[i], bMv=hist[i+1];
+    rows+=`<tr><td class="n">${i/2+1}.</td><td class="r">${rMv?rMv.txt:''}</td><td class="b">${bMv?bMv.txt:''}</td></tr>`;
+  }
+  moveBody.innerHTML=rows;
+  const box=document.getElementById('moves');box.scrollTop=box.scrollHeight;
+}
+function setStatus(){
+  const mv=legal(board,turn);
+  const chk=inChk(board,turn);
+  if(over){return;}
+  if(mv.length===0){
+    over=true;
+    const loser=turn, winner=turn==='r'?'b':'r';
+    const reason=chk?'將死':'困斃（無著可走）';
+    statusEl.className='status alert';
+    statusEl.innerHTML=`<span class="who">${winner==='r'?'紅方':'黑方'}</span>勝`;
+    subEl.textContent=`${loser==='r'?'紅方':'黑方'}${reason}。${winner===human?'你贏了這一局。':'再擺一局？'}`;
+    toast(winner===human?'將死！你勝':'將死・你負');
+    render();return;
+  }
+  statusEl.className='status'+(chk?' alert':'');
+  statusEl.innerHTML=`<span class="who">${turn==='r'?'紅方':'黑方'}</span>行棋`;
+  if(chk){subEl.textContent=(turn===human?'你':'院手')+'正被將軍，必須應將。';}
+  else if(turn===human){subEl.textContent='點一顆你的子，再點亮起的落點。';}
+  else{subEl.textContent='院手思考中…';}
+}
+
+function onCell(r,c){
+  if(over||turn!==human)return;
+  const p=board[r][c];
+  if(sel){
+    const mv=legal(board,turn).find(m=>m[0]===sel[0]&&m[1]===sel[1]&&m[2]===r&&m[3]===c);
+    if(mv){doHumanMove(mv);return;}
+  }
+  if(p&&p.s===turn){sel=[r,c];render();}
+  else{sel=null;render();}
+}
+function applyMove(m){
+  const p=board[m[0]][m[1]];const cap=board[m[2]][m[3]];
+  const txt=notateFull(board,m,turn);
+  board=domove(board,m);
+  hist.push({m,txt,cap,side:turn});
+  lastMove=m;sel=null;turn=turn==='r'?'b':'r';
+  renderMoves();
+}
+function doHumanMove(m){
+  applyMove(m);render();setStatus();
+  if(!over&&turn!==human){scheduleAI();}
+}
+function scheduleAI(){
+  setStatus();
+  setTimeout(()=>{
+    if(over)return;
+    const m=pickAI(board,turn,level);
+    if(!m){setStatus();return;}
+    applyMove(m);render();setStatus();
+  }, RM?60:420);
+}
+
+/* controls */
+function newGame(fromBoard){
+  board=fromBoard?fromBoard:startBoard();
+  turn='r';hist=[];sel=null;lastMove=null;over=false;
+  statusEl.className='status';
+  render();renderMoves();setStatus();
+  if(human==='b'){ // AI (red) moves first
+    turn='r';scheduleAI();
+  }
+}
+document.getElementById('newgame').addEventListener('click',()=>{newGame();toast('新局開始');});
+document.getElementById('resign').addEventListener('click',()=>{
+  if(over)return;over=true;statusEl.className='status alert';
+  statusEl.innerHTML=`<span class="who">${human==='r'?'黑方':'紅方'}</span>勝`;
+  subEl.textContent='你認輸了。再擺一局試試？';toast('你已認輸');render();
+});
+document.getElementById('undo').addEventListener('click',()=>{
+  if(hist.length===0)return;
+  // undo back to human's turn: pop until it's human's move to make
+  const rebuild=()=>{ board=startBoardOrPuzzle(); turn='r';
+    const keep=hist.slice(); // we stored moves; simplest: replay from snapshot
+  };
+  // simpler: pop one or two plies so it's human's turn again
+  let pop = (turn===human)?2:1;
+  if(over){over=false;statusEl.className='status';}
+  while(pop-->0 && hist.length>0){ replayUndo(); }
+  render();renderMoves();setStatus();
+});
+function replayUndo(){
+  const last=hist.pop();if(!last)return;
+  board=domove(board,[last.m[2],last.m[3],last.m[0],last.m[1]]); // move back
+  if(last.cap)board[last.m[2]][last.m[3]]=last.cap; else board[last.m[2]][last.m[3]]=null;
+  turn=last.side;lastMove=hist.length?hist[hist.length-1].m:null;sel=null;
+}
+let startSnapshot=null;
+function startBoardOrPuzzle(){return startSnapshot?startSnapshot.map(x=>x.slice()):startBoard();}
+document.getElementById('hint').addEventListener('click',()=>{
+  if(over||turn!==human)return;
+  const m=pickAI(board,turn,Math.max(2,level));
+  if(!m)return;sel=[m[0],m[1]];render();
+  const g=GLYPH[turn][board[m[0]][m[1]].t];
+  toast('試試：'+notateFull(board,m,turn));
+});
+document.getElementById('sidepick').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  human=b.dataset.side;
+  [...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed',x===b));
+  startSnapshot=null;newGame();toast('你執'+(human==='r'?'紅先手':'黑後手'));
+});
+document.getElementById('levelpick').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  level=+b.dataset.lv;
+  [...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed',x===b));
+  toast('院手棋力：'+({1:'入門',2:'學徒',3:'教頭'}[level]));
+});
+
+/* keyboard: arrows move a cursor, enter selects/moves */
+let cur=[9,4];
+boardEl.addEventListener('keydown',e=>{
+  if(over)return;
+  const k=e.key;let dr=0,dc=0;
+  if(k==='ArrowUp')dr=-1;else if(k==='ArrowDown')dr=1;else if(k==='ArrowLeft')dc=-1;else if(k==='ArrowRight')dc=1;
+  else if(k==='Enter'||k===' '){e.preventDefault();onCell(cur[0],cur[1]);return;}
+  else return;
+  e.preventDefault();
+  cur=[Math.max(0,Math.min(9,cur[0]+dr)),Math.max(0,Math.min(8,cur[1]+dc))];
+  // visual cursor: reuse sel highlight lightly by focusing nearest cell
+  toast('游標：第'+(cur[0]+1)+'橫 第'+(cur[1]+1)+'直');
+});
+boardEl.tabIndex=0;
+
+/* featured puzzles */
+const pzWrap=document.getElementById('puzzles');
+PUZZLES.forEach(pz=>{
+  const b=document.createElement('button');b.className='pz';
+  b.innerHTML=`<span class="mono">${pz.dif}</span><b>${pz.name}</b><small>${pz.zh}</small>`;
+  b.addEventListener('click',()=>{
+    human='r';startSnapshot=pz.setup();
+    [...document.getElementById('sidepick').children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.side==='r'));
+    newGame(pz.setup());toast('已擺上：'+pz.name+'（紅先）');
+    if(boardEl.scrollIntoView)boardEl.scrollIntoView({behavior:RM?'auto':'smooth',block:'center'});
+  });
+  pzWrap.appendChild(b);
+});
+
+/* load a puzzle from ?p= (from cangjing.html) */
+function loadFromQuery(){
+  const q=new URLSearchParams(location.search);
+  const p=q.get('p');
+  if(p){ try{ const list=JSON.parse(decodeURIComponent(p)); startSnapshot=place(list); newGame(place(list)); toast('已載入殘局'); return true;}catch(e){} }
+  return false;
+}
+
+drawGrid();
+if(!loadFromQuery()) newGame();
+window.addEventListener('resize',()=>{},{passive:true});
+})();
+</script>
+</body>
+</html>

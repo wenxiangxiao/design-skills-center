@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang='zh-Hant'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>選購・結帳 — 墨汐流墨工坊｜MOXI Shop</title>
+<meta name='description' content='把你撈的流墨紙或圖鑑裡的傳統花式，做成藏書票、信箋、書衣、婚謝卡、包裝紙或裱框原作。選品項尺寸數量、加入購物車、填收件資訊結帳，取得訂購編號與流墨印記。'>
+<link rel='icon' href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2312100B'/><ellipse cx='16' cy='15' rx='11.5' ry='11.5' fill='%233E63A8'/><ellipse cx='16' cy='15' rx='8' ry='8' fill='%23D14E2B'/><ellipse cx='16' cy='15' rx='4.6' ry='4.6' fill='%23CBA24E'/><ellipse cx='16' cy='15' rx='2' ry='2' fill='%23ECE0C4'/><path d='M2 24 Q9 18 16 24 T30 24' fill='none' stroke='%23ECE0C4' stroke-width='1.5' opacity='.75'/></svg>">
+<link rel='preconnect' href='https://fonts.googleapis.com'><link rel='preconnect' href='https://fonts.gstatic.com' crossorigin><link href='https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap' rel='stylesheet'>
+<style>
+:root{
+  --page:#1B1610; --panel:#241C12; --panel-2:#2C2216; --bath:#12100B;
+  --indigo:#3E63A8; --verm:#D14E2B; --gold:#CBA24E; --jade:#47A385; --bone:#ECE0C4; --madder:#B8506A;
+  --accent:#D14E2B; --accent-d:#B23C1E;
+  --text:#ECE0C4; --mut:#A2957A; --faint:#6F6650;
+  --line:#3A2E1E; --gline:#6E5A2E;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--text);
+  font-family:"Noto Sans TC",system-ui,sans-serif;font-weight:400;line-height:1.75;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+h1,h2,h3,.disp{font-family:"Cormorant Garamond","Noto Serif TC",serif;font-weight:600;line-height:1.05;margin:0;letter-spacing:.005em}
+.zh-disp{font-family:"Noto Serif TC",serif;font-weight:900}
+a{color:var(--gold)}
+svg{max-width:100%} img{max-width:100%}
+canvas{display:block;touch-action:none}
+::selection{background:var(--verm);color:#120c07}
+
+/* ---------------- comb-bar 梳耙橫桿導覽 ---------------- */
+.combbar{position:sticky;top:0;z-index:60;background:var(--panel);border-bottom:1px solid var(--line);
+  display:flex;align-items:stretch;justify-content:space-between;gap:0;min-height:64px}
+.combbar .brand{display:flex;align-items:center;gap:12px;padding:0 22px;text-decoration:none;color:var(--text)}
+.combbar .brand .mk{width:38px;height:38px;flex:0 0 auto}
+.combbar .brand .wm{display:flex;flex-direction:column;line-height:1}
+.combbar .brand .wm b{font-family:"Noto Serif TC",serif;font-weight:900;font-size:19px;letter-spacing:.06em}
+.combbar .brand .wm span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.28em;color:var(--mut);margin-top:4px}
+.teeth{display:flex;align-items:stretch}
+.teeth a{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;
+  width:92px;text-decoration:none;color:var(--mut);border-left:1px solid var(--line);padding:8px 6px;overflow:hidden}
+.teeth a .zh{font-family:"Noto Serif TC",serif;font-weight:700;font-size:14px;letter-spacing:.05em}
+.teeth a .en{font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.18em}
+.teeth a::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:transparent}
+/* 現用齒：被拉過墨，齒身滲下一道 accent 尾流 */
+.teeth a[aria-current="page"]{color:var(--text);background:
+  linear-gradient(180deg,rgba(209,78,43,.30),rgba(209,78,43,0) 78%),var(--panel-2)}
+.teeth a[aria-current="page"]::before{background:var(--accent)}
+.teeth a[aria-current="page"] .zh{color:var(--bone)}
+.teeth a:hover{color:var(--text);background:var(--panel-2)}
+
+/* ---------------- scaffold ---------------- */
+.wrap{max-width:1080px;margin:0 auto;padding:0 30px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+hr.rule{height:1px;background:var(--line);border:0;margin:0}
+.gold{color:var(--gold)} .verm{color:var(--verm)} .muted{color:var(--mut)}
+.section{padding:56px 0}
+.lead{font-size:19px;line-height:1.9;color:#DED2B6;max-width:60ch}
+.small{font-size:13px;color:var(--mut)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.05em;
+  background:var(--accent);color:#160c06;border:1px solid var(--accent);padding:11px 20px;cursor:pointer;text-decoration:none;font-weight:600;transition:background .15s,transform .06s}
+.btn:hover{background:var(--accent-d)} .btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--gline)}
+.btn.ghost:hover{background:var(--panel-2);color:var(--gold)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:7px 13px;font-size:11.5px}
+
+/* ---------------- bath-first opening ---------------- */
+.bathwrap{padding:26px 0 8px}
+.bathgrid{display:grid;grid-template-columns:1fr 322px;gap:0;border:1px solid var(--gline);background:var(--panel)}
+.tray{position:relative;background:var(--bath);border-right:1px solid var(--gline);min-height:520px;display:flex;flex-direction:column}
+.tray-head{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;color:var(--mut)}
+.tray-head b{color:var(--gold);font-weight:600}
+.canvas-hold{flex:1 1 auto;position:relative}
+.canvas-hold canvas{position:absolute;inset:0;width:100%;height:100%}
+.tray-hint{position:absolute;left:14px;bottom:12px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  color:rgba(236,224,196,.66);background:rgba(18,16,11,.6);padding:5px 9px;border:1px solid var(--line);pointer-events:none}
+
+/* tool panel */
+.tools{padding:16px 16px 18px;display:flex;flex-direction:column;gap:16px;background:var(--panel)}
+.tools h3{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;letter-spacing:.2em;color:var(--mut);text-transform:uppercase;margin:0 0 9px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:34px;height:34px;border:2px solid transparent;cursor:pointer;position:relative;border-radius:1px}
+.sw[aria-pressed="true"]{border-color:var(--bone);box-shadow:0 0 0 1px var(--bath)}
+.toolrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tgl{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.03em;background:var(--panel-2);color:var(--mut);
+  border:1px solid var(--line);padding:9px 8px;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px}
+.tgl[aria-pressed="true"]{background:var(--bath);color:var(--bone);border-color:var(--gline)}
+.tgl svg{width:16px;height:16px;flex:0 0 auto}
+.rng{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--mut)}
+.rng input[type=range]{flex:1;accent-color:var(--accent)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* generic panels / cards */
+.panel{background:var(--panel);border:1px solid var(--line);padding:22px}
+.grid-cards{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+.figrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.fig{background:var(--panel);padding:0;position:relative}
+.fig canvas{width:100%;aspect-ratio:1/1;background:var(--bath)}
+.fig .cap{padding:10px 12px 13px}
+.fig .cap b{font-family:"Noto Serif TC",serif;font-weight:700;font-size:15px;display:block}
+.fig .cap .en{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.14em;color:var(--mut);margin-top:3px}
+.fig .cap .meta{font-size:11.5px;color:var(--mut);margin-top:7px}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;color:var(--gold);
+  border:1px solid var(--gline);padding:1px 7px;margin:2px 3px 0 0}
+
+/* filters */
+.facets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--panel-2);color:var(--mut);border:1px solid var(--line);
+  padding:6px 12px;cursor:pointer;letter-spacing:.03em}
+.chip[aria-pressed="true"]{background:var(--accent);color:#160c06;border-color:var(--accent);font-weight:600}
+.search{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--bath);color:var(--text);border:1px solid var(--gline);padding:8px 12px;min-width:180px}
+.count{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);letter-spacing:.1em}
+
+/* forms */
+label.fld{display:block;margin:0 0 16px}
+label.fld .lb{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;color:var(--mut);text-transform:uppercase;margin:0 0 6px}
+input.inp,select.inp,textarea.inp{width:100%;font-family:"Noto Sans TC",sans-serif;font-size:15px;background:var(--bath);color:var(--text);
+  border:1px solid var(--gline);padding:11px 13px}
+input.inp:focus,select.inp:focus,textarea.inp:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.err{color:#E9926F;font-size:12.5px;font-family:"IBM Plex Mono",monospace;margin-top:5px;min-height:1px}
+
+/* cart */
+.cart-tbl{width:100%;border-collapse:collapse;font-size:14px}
+.cart-tbl th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;color:var(--mut);text-transform:uppercase;text-align:left;padding:10px 8px;border-bottom:1px solid var(--gline)}
+.cart-tbl td{padding:12px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.cart-tbl td .thumb{width:60px;height:60px;background:var(--bath);border:1px solid var(--line)}
+.qtybox{display:inline-flex;border:1px solid var(--gline)}
+.qtybox button{background:var(--panel-2);color:var(--text);border:0;width:30px;height:30px;cursor:pointer;font-size:16px;font-family:"IBM Plex Mono",monospace}
+.qtybox button:hover{background:var(--bath);color:var(--gold)}
+.qtybox span{min-width:34px;text-align:center;line-height:30px;font-family:"IBM Plex Mono",monospace}
+.rm{background:none;border:0;color:var(--mut);cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:11px;text-decoration:underline}
+.rm:hover{color:var(--verm)}
+.totrow{display:flex;justify-content:space-between;padding:7px 0;font-family:"IBM Plex Mono",monospace;font-size:13px}
+.totrow.grand{font-size:17px;color:var(--gold);border-top:1px solid var(--gline);margin-top:8px;padding-top:14px}
+.price{font-family:"IBM Plex Mono",monospace}
+
+/* steps */
+.steps{display:flex;gap:0;margin:0 0 26px;border:1px solid var(--line)}
+.steps .st{flex:1;padding:11px 10px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;color:var(--faint);border-right:1px solid var(--line)}
+.steps .st:last-child{border-right:0}
+.steps .st.on{background:var(--panel-2);color:var(--gold)}
+.steps .st.done{color:var(--mut)}
+
+/* footer */
+footer.ft{border-top:1px solid var(--gline);background:var(--panel);margin-top:40px}
+footer.ft .wrap{padding:34px 30px 40px}
+.ftgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer.ft h4{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;color:var(--mut);text-transform:uppercase;margin:0 0 12px;font-weight:600}
+footer.ft p{margin:4px 0;font-size:13.5px;color:var(--mut)}
+footer.ft a{color:var(--mut);text-decoration:none} footer.ft a:hover{color:var(--gold)}
+.ftbrand b{font-family:"Noto Serif TC",serif;font-weight:900;font-size:20px;letter-spacing:.05em;color:var(--text)}
+.ftnote{font-size:11.5px;color:var(--faint);margin-top:22px;line-height:1.7;border-top:1px solid var(--line);padding-top:16px}
+
+.hero-num{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);margin:30px 0 0}
+.hero-num div{padding:18px 16px;border-right:1px solid var(--line)}
+.hero-num div:last-child{border-right:0}
+.hero-num b{font-family:"Cormorant Garamond",serif;font-size:34px;font-weight:600;color:var(--gold);display:block;line-height:1}
+.hero-num span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;color:var(--mut);text-transform:uppercase;display:block;margin-top:8px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:start}
+.prose p{max-width:64ch}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:14px;margin:14px 0}
+.kv dt{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;padding-top:3px}
+.kv dd{margin:0}
+
+.notice{background:rgba(209,78,43,.09);border:1px solid var(--line);border-left:3px solid var(--accent);padding:12px 16px;font-size:12.5px;color:var(--mut);margin:20px 0}
+
+/* ---------------- responsive ---------------- */
+@media(max-width:900px){
+  .bathgrid{grid-template-columns:1fr}
+  .tray{border-right:0;border-bottom:1px solid var(--gline);min-height:400px}
+  .two{grid-template-columns:1fr}
+  .ftgrid{grid-template-columns:1fr}
+  .hero-num{grid-template-columns:1fr 1fr}
+  .hero-num div:nth-child(2){border-right:0}
+}
+@media(max-width:640px){
+  .wrap{padding:0 18px}
+  .combbar{flex-wrap:wrap;min-height:0}
+  .combbar .brand{padding:12px 16px}
+  .teeth{width:100%;overflow-x:auto;border-top:1px solid var(--line)}
+  .teeth a{width:auto;flex:1 0 25%;min-width:80px}
+  .teeth a .en{display:none}
+  .section{padding:38px 0}
+  .cart-tbl .hidecol{display:none}
+  .hero-num{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
+</style>
+</head>
+<body>
+<nav class='combbar'><a class='brand' href='index.html'><svg class='mk' viewBox='0 0 40 40' aria-hidden='true'><rect width='40' height='40' fill='#12100B'/><ellipse cx='20' cy='19' rx='15' ry='15' fill='#3E63A8'/><ellipse cx='20' cy='19' rx='10.5' ry='10.5' fill='#D14E2B'/><ellipse cx='20' cy='19' rx='6' ry='6' fill='#CBA24E'/><ellipse cx='20' cy='19' rx='2.6' ry='2.6' fill='#ECE0C4'/><path d='M3 31 Q11 24 20 31 T38 31' fill='none' stroke='#ECE0C4' stroke-width='1.7' opacity='.7'/></svg><span class='wm'><b>墨汐</b><span>MOXI · 流墨紙坊</span></span></a><div class='teeth'><a href='index.html'><span class='zh'>水槽</span><span class='en'>THE BATH</span></a><a href='tuan.html'><span class='zh'>花紋圖鑑</span><span class='en'>ATLAS</span></a><a href='gou.html' aria-current='page'><span class='zh'>選購・結帳</span><span class='en'>SHOP</span></a><a href='fa.html'><span class='zh'>工法</span><span class='en'>METHOD</span></a></div></nav>
+<main class='wrap section'><p class='eyebrow'>選購台 · SHOP</p><h1 class='zh-disp' style='font-size:36px;line-height:1.15'>選一張紙，做成能用的東西。</h1><p class='lead' style='margin-top:14px'>左邊選花紋（若你剛從水槽撈了紙，它會排在最前），右邊選品項、尺寸與數量，加入購物車。</p><div class='two' style='margin-top:26px;gap:26px;align-items:start'><div><h3 class='mono' style='font-size:11px;letter-spacing:.16em;color:var(--mut);text-transform:uppercase;margin:0 0 12px'>選花紋</h3><div id='papers' class='papers-grid'></div></div><div class='panel'><label class='fld'><span class='lb'>品項</span><select class='inp' id='prodSel'></select></label><label class='fld'><span class='lb'>尺寸</span><select class='inp' id='sizeSel'></select></label><label class='fld'><span class='lb'>數量</span><input class='inp' id='qty' type='number' min='1' max='99' value='1'></label><div class='totrow' style='font-size:15px'><span>單價</span><span class='price gold' id='unitPrice'></span></div><button class='btn' id='addBtn' style='width:100%;justify-content:center;margin-top:10px'>加入購物車</button></div></div><hr class='rule' style='margin:44px 0 0'><section style='margin-top:34px'><h2 class='zh-disp' style='font-size:26px'>購物車 <span class='mono' style='font-size:14px;color:var(--mut)'>（<span id='cartCount'>0</span> 件）</span></h2><p id='cartEmpty' class='small' style='margin-top:14px'>購物車是空的。去左上角選一張花紋，或先到 <a href='index.html'>水槽</a> 撈一張。</p><table class='cart-tbl' id='cartTable' style='margin-top:16px;display:none'><thead><tr><th>紙</th><th>品項</th><th class='hidecol'>單價</th><th>數量</th><th>小計</th><th></th></tr></thead><tbody id='cartBody'></tbody></table><div style='max-width:340px;margin-left:auto;margin-top:20px'><div class='totrow'><span>商品小計</span><span class='price' id='subTot'>NT$0</span></div><div class='totrow'><span>運費</span><span class='price' id='shipTot'>—</span></div><div class='small mono' id='shipHint' style='color:var(--gold);text-align:right'></div><div class='totrow grand'><span>總計</span><span class='price' id='grandTot'>NT$0</span></div><button class='btn' id='toCheckout' disabled style='width:100%;justify-content:center;margin-top:14px'>前往結帳 →</button></div></section><section id='checkoutSec' style='display:none;margin-top:48px'><hr class='rule'><div style='margin-top:34px'><div class='steps'><div class='st'>1 · 購物車</div><div class='st'>2 · 收件資訊</div><div class='st'>3 · 完成</div></div><div id='formSec'><h2 class='zh-disp' style='font-size:26px'>收件資訊</h2><p class='small' style='margin:6px 0 22px'>貨到付款，不需線上刷卡。標 * 為必填。</p><div class='two' style='gap:6px 30px'><div><label class='fld'><span class='lb'>稱呼 *</span><input class='inp' id='coName' type='text' placeholder='例：陳先生' ></label><div class='err' id='errName'></div><label class='fld'><span class='lb'>手機 *</span><input class='inp' id='coPhone' type='tel' placeholder='09xxxxxxxx' ></label><div class='err' id='errPhone'></div><label class='fld'><span class='lb'>Email（選填，寄送出貨通知）</span><input class='inp' id='coEmail' type='email' placeholder='you@example.com' ></label><div class='err' id='errEmail'></div></div><div><label class='fld'><span class='lb'>收件地址 *</span><input class='inp' id='coAddr' type='text' placeholder='縣市 / 區 / 路 / 號 / 樓' ></label><div class='err' id='errAddr'></div><label class='fld'><span class='lb'>給工坊的話（選填）</span><textarea class='inp' id='coNote' rows='3' placeholder='例：花片紋想偏靛一點'></textarea></label></div></div><button class='btn' id='placeBtn' style='margin-top:10px'>送出訂單</button></div><div id='doneSec' style='display:none'><div style='display:flex;gap:26px;flex-wrap:wrap;align-items:center;margin-top:10px'><div id='stamp' aria-hidden='true'></div><div><h2 class='zh-disp gold' style='font-size:28px'>撈好了，訂單收到。</h2><p style='margin:8px 0'>謝謝 <b id='ordName'></b>。我們會在 5–7 個工作天內手工完成並寄出。</p><p class='mono' style='font-size:15px'>訂購編號　<b class='gold' id='ordNo'></b></p><p class='small'>這枚印記由你的訂購編號雜湊生成，與這筆訂單一一對應。</p></div></div><div style='max-width:360px;margin-top:24px'><h4 class='mono' style='font-size:11px;letter-spacing:.14em;color:var(--mut)'>訂單摘要</h4><div id='ordSummary' style='margin-top:8px'></div></div><button class='btn ghost' id='againBtn' style='margin-top:24px'>← 再逛逛 / 再撈一張</button></div></div></section><div class='notice mono' style='margin-top:40px'>提醒：本站為設計範例，商品與工坊均為虛構教學示意，送出訂單不會真的成立交易或收款，亦不會傳送任何資料。</div></main><style>.papers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}.paper-cell{background:var(--panel-2);border:1px solid var(--line);padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:7px;align-items:stretch;text-align:left}.paper-cell canvas{width:100%;aspect-ratio:1/1;background:var(--bath)}.paper-cell[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.pc-cap{display:flex;flex-direction:column;line-height:1.2}.pc-cap b{font-family:'Noto Serif TC',serif;font-size:12.5px}.pc-cap i{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.08em;color:var(--mut);font-style:normal;margin-top:2px}#stamp canvas{border:1px solid var(--gline)}</style><script>
+/* ===================================================================
+   墨汐 MOXI — 流體平流墨流引擎 (fluid-surface advection marbling)
+   全站唯一圖像引擎。純函數、無 DOM 依賴、可 headless 執行。
+   墨滴＝徑向外推位移場；梳耙＝正弦尾流；單針＝拖線位移；渦流＝旋轉位移。
+   一張圖 = 一段 ops。ops 可序列化、可重播（撤回＝pop 後重播）。
+   =================================================================== */
+var Marble = (function () {
+  "use strict";
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function fnv(str) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+
+  // 保持輪廓平滑：段長超過 maxLen 就插中點；點數超過 cap 就抽稀。
+  function resample(p, maxLen, cap) {
+    var out = [], n = p.length / 2, i, s;
+    for (i = 0; i < n; i++) {
+      var x0 = p[2 * i], y0 = p[2 * i + 1], j = (i + 1) % n, x1 = p[2 * j], y1 = p[2 * j + 1];
+      out.push(x0, y0);
+      var dx = x1 - x0, dy = y1 - y0, d = Math.sqrt(dx * dx + dy * dy);
+      if (d > maxLen) {
+        var k = Math.min(Math.floor(d / maxLen), 6);
+        for (s = 1; s <= k; s++) { var t = s / (k + 1); out.push(x0 + dx * t, y0 + dy * t); }
+      }
+    }
+    if (out.length / 2 > cap) {
+      var step = Math.ceil((out.length / 2) / cap), dec = [];
+      for (i = 0; i < out.length / 2; i += step) dec.push(out[2 * i], out[2 * i + 1]);
+      // 收尾閉合
+      return dec;
+    }
+    return out;
+  }
+
+  function Bath(w, h, bg) { this.w = w; this.h = h; this.bg = bg; this.blobs = []; }
+
+  Bath.prototype.clear = function () { this.blobs = []; };
+
+  // 墨滴：在 c 放一顆半徑 r 的墨，既有墨依 P' = c + (P-c)·√(1 + r²/d²) 徑向外推。
+  Bath.prototype.drop = function (cx, cy, r, color) {
+    var rr = r * r, b, p, i;
+    for (b = 0; b < this.blobs.length; b++) {
+      p = this.blobs[b].p;
+      for (i = 0; i < p.length; i += 2) {
+        var dx = p[i] - cx, dy = p[i + 1] - cy, d2 = dx * dx + dy * dy;
+        if (d2 < 1e-6) d2 = 1e-6;
+        var f = Math.sqrt(1 + rr / d2);
+        p[i] = cx + dx * f; p[i + 1] = cy + dy * f;
+      }
+      this.blobs[b].p = resample(p, 7, 900);
+    }
+    var N = 110, np = [];
+    for (i = 0; i < N; i++) { var a = i / N * Math.PI * 2; np.push(cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
+    this.blobs.push({ c: color, p: np });
+  };
+
+  // 單針拖線：沿 (x0,y0)→(x1,y1) 方向 u 位移，量隨與行進線的垂距 s 指數衰減。
+  Bath.prototype.tine = function (x0, y0, x1, y1, depth, lam) {
+    var tx = x1 - x0, ty = y1 - y0, L = Math.sqrt(tx * tx + ty * ty) || 1;
+    var ux = tx / L, uy = ty / L, nx = -uy, ny = ux, b, p, i;
+    for (b = 0; b < this.blobs.length; b++) {
+      p = this.blobs[b].p;
+      for (i = 0; i < p.length; i += 2) {
+        var rx = p[i] - x0, ry = p[i + 1] - y0, s = rx * nx + ry * ny;
+        var w = depth * Math.exp(-Math.abs(s) / lam);
+        p[i] += ux * w; p[i + 1] += uy * w;
+      }
+      this.blobs[b].p = resample(p, 7, 1200);
+    }
+  };
+
+  // 梳耙：整幅沿一軸位移，量隨另一軸座標正弦變化 → 經典 nonpareil / gel-git 波梳。
+  // dir 0 = 沿 x 行進、隨 y 變化；dir 1 = 沿 y 行進、隨 x 變化。
+  Bath.prototype.comb = function (dir, spacing, depth, phase) {
+    var b, p, i;
+    for (b = 0; b < this.blobs.length; b++) {
+      p = this.blobs[b].p;
+      for (i = 0; i < p.length; i += 2) {
+        if (dir === 0) { p[i] += depth * Math.sin((p[i + 1] / spacing) * Math.PI * 2 + phase); }
+        else { p[i + 1] += depth * Math.sin((p[i] / spacing) * Math.PI * 2 + phase); }
+      }
+      this.blobs[b].p = resample(p, 7, 1200);
+    }
+  };
+
+  // 渦流：繞 c 旋轉，角度 ang·e^(-d/rad) 隨距離衰減。
+  Bath.prototype.vortex = function (cx, cy, rad, ang) {
+    var b, p, i;
+    for (b = 0; b < this.blobs.length; b++) {
+      p = this.blobs[b].p;
+      for (i = 0; i < p.length; i += 2) {
+        var dx = p[i] - cx, dy = p[i + 1] - cy, d = Math.sqrt(dx * dx + dy * dy);
+        var t = ang * Math.exp(-d / rad), c = Math.cos(t), s = Math.sin(t);
+        p[i] = cx + dx * c - dy * s; p[i + 1] = cy + dx * s + dy * c;
+      }
+      this.blobs[b].p = resample(p, 7, 1300);
+    }
+  };
+
+  Bath.prototype.render = function (ctx, opts) {
+    opts = opts || {};
+    ctx.save();
+    ctx.fillStyle = this.bg; ctx.fillRect(0, 0, this.w, this.h);
+    // 淺膠礬水肌理：極淡對角條紋，讓「水面」不死板（可關）
+    for (var b = 0; b < this.blobs.length; b++) {
+      var p = this.blobs[b].p; if (p.length < 6) continue;
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]);
+      for (var i = 2; i < p.length; i += 2) ctx.lineTo(p[i], p[i + 1]);
+      ctx.closePath();
+      ctx.fillStyle = this.blobs[b].c; ctx.fill();
+      if (opts.vein !== false) { ctx.lineWidth = 0.7; ctx.strokeStyle = "rgba(10,7,3,0.22)"; ctx.stroke(); }
+    }
+    ctx.restore();
+  };
+
+  // ---- ops 重播（撤回與序列化共用同一路徑）----
+  // op: ['d',cx,cy,r,ci] | ['t',x0,y0,x1,y1,depth,lam] | ['c',dir,spacing,depth,phase] | ['v',cx,cy,rad,ang]
+  function replay(bath, ops, palette) {
+    bath.clear();
+    for (var k = 0; k < ops.length; k++) {
+      var o = ops[k];
+      if (o[0] === 'd') bath.drop(o[1], o[2], o[3], palette[o[4]]);
+      else if (o[0] === 't') bath.tine(o[1], o[2], o[3], o[4], o[5], o[6]);
+      else if (o[0] === 'c') bath.comb(o[1], o[2], o[3], o[4]);
+      else if (o[0] === 'v') bath.vortex(o[1], o[2], o[3], o[4]);
+    }
+    return bath;
+  }
+
+  // ---- 依 seed + 花式名產生一段 ops（圖鑑縮圖、logo、印記共用）----
+  // palette 索引：0 靛 1 硃 2 金 3 青 4 骨 5 茜
+  function recipe(name, seed, w, h, opts) {
+    opts = opts || {};
+    var rnd = mulberry32(seed >>> 0), ops = [];
+    var inks = opts.inks || [0, 1, 2, 3, 4, 5];
+    function ri() { return inks[Math.floor(rnd() * inks.length)]; }
+    function rr(a, b) { return a + rnd() * (b - a); }
+    var i;
+    if (name === 'battal') {                       // 石紋散點：隨機大墨點
+      var nb = 14 + Math.floor(rnd() * 8);
+      for (i = 0; i < nb; i++) ops.push(['d', rr(0.08, 0.92) * w, rr(0.08, 0.92) * h, rr(0.10, 0.20) * w, ri()]);
+    } else if (name === 'gelgit') {                // 波梳：鋪點後上下＋左右梳
+      for (i = 0; i < 26; i++) ops.push(['d', rr(0.05, 0.95) * w, rr(0.05, 0.95) * h, rr(0.06, 0.11) * w, ri()]);
+      ops.push(['c', 1, h / (5 + Math.floor(rnd() * 3)), rr(0.05, 0.09) * w, rr(0, 6)]);
+      ops.push(['c', 0, w / (5 + Math.floor(rnd() * 3)), rr(0.05, 0.09) * h, rr(0, 6)]);
+    } else if (name === 'nonpareil') {             // 密梳直紋（單向粗梳＋細向羽梳）
+      for (i = 0; i < 34; i++) ops.push(['d', rr(0.03, 0.97) * w, rr(0.03, 0.97) * h, rr(0.05, 0.085) * w, ri()]);
+      ops.push(['c', 0, h / 9, 0.032 * h, 0]);
+      ops.push(['c', 1, w / 30, 0.011 * w, 0]);
+    } else if (name === 'sal') {                    // şal 披巾：交錯波梳
+      for (i = 0; i < 22; i++) ops.push(['d', rr(0.05, 0.95) * w, rr(0.05, 0.95) * h, rr(0.07, 0.12) * w, ri()]);
+      ops.push(['c', 0, h / 7, 0.07 * h, 0]); ops.push(['c', 1, w / 7, 0.07 * w, Math.PI / 2]);
+      ops.push(['c', 0, h / 14, 0.03 * h, Math.PI]);
+    } else if (name === 'bulbul') {                 // 夜鶯巢：鋪點後多渦
+      for (i = 0; i < 20; i++) ops.push(['d', rr(0.06, 0.94) * w, rr(0.06, 0.94) * h, rr(0.07, 0.12) * w, ri()]);
+      var nv = 3 + Math.floor(rnd() * 3);
+      for (i = 0; i < nv; i++) ops.push(['v', rr(0.2, 0.8) * w, rr(0.2, 0.8) * h, rr(0.14, 0.26) * w, rr(-3.2, 3.2)]);
+    } else if (name === 'hatip') {                  // 花片：同心多滴後單針拉花
+      var cx = rr(0.35, 0.65) * w, cy = rr(0.35, 0.65) * h;
+      for (i = 0; i < 9; i++) ops.push(['d', cx, cy, (0.24 - i * 0.024) * w, inks[i % inks.length]]);
+      for (i = 0; i < 8; i++) { var a = i / 8 * Math.PI * 2; ops.push(['t', cx, cy, cx + Math.cos(a) * w, cy + Math.sin(a) * h, (0.16) * w * (i % 2 ? 1 : -1), 0.08 * w]); }
+    } else if (name === 'sumi') {                    // 墨流し：同一點反覆等徑滴墨，前墨被推成同心環（交替色）＋輕拂
+      var mx = rr(0.42, 0.58) * w, my = rr(0.42, 0.58) * h, nr = 30 + Math.floor(rnd() * 8);
+      var cr = 0.058 * w, sInk = (opts.inks && opts.inks.length >= 2) ? opts.inks : [0, 4];
+      for (i = 0; i < nr; i++) ops.push(['d', mx, my, cr, sInk[i % sInk.length]]);
+      ops.push(['t', 0.08 * w, my, 0.92 * w, my, 0.045 * w, 0.16 * w]);
+    } else if (name === 'tasli') {                   // taşlı 碎石：大小散點無梳
+      for (i = 0; i < 30; i++) ops.push(['d', rr(0.05, 0.95) * w, rr(0.05, 0.95) * h, rr(0.03, 0.16) * w, ri()]);
+    } else if (name === 'comb-swirl') {              // 梳後渦：logo 常用
+      for (i = 0; i < 16; i++) ops.push(['d', rr(0.1, 0.9) * w, rr(0.1, 0.9) * h, rr(0.09, 0.16) * w, ri()]);
+      ops.push(['c', 0, h / 5, 0.08 * h, rr(0, 6)]);
+      ops.push(['v', 0.5 * w, 0.5 * h, 0.4 * w, rr(1.6, 2.6)]);
+    } else {                                          // fallback
+      for (i = 0; i < 12; i++) ops.push(['d', rr(0.1, 0.9) * w, rr(0.1, 0.9) * h, rr(0.08, 0.16) * w, ri()]);
+    }
+    return ops;
+  }
+
+  return { Bath: Bath, mulberry32: mulberry32, fnv: fnv, replay: replay, recipe: recipe };
+})();
+
+if (typeof module !== 'undefined' && module.exports) module.exports = Marble;
+
+/* ---- 墨汐 shop.js ── 選購台 + 購物車 + 結帳（依附 engine.js）---- */
+(function () {
+  "use strict";
+  var PAL = ['#3E63A8', '#D14E2B', '#CBA24E', '#47A385', '#ECE0C4', '#B8506A'];
+  var BG = '#12100B';
+
+  // ---- 品項（真實可信定價，單位 TWD）----
+  var PRODUCTS = [
+    { id: 'exlibris', name: '藏書票', en: 'EX-LIBRIS', base: 180, unitTxt: '／10 枚', sizes: [{ l: '標準 52×74mm', m: 1 }] },
+    { id: 'letter', name: '信箋組', en: 'LETTER SET', base: 260, unitTxt: '／8 入含封', sizes: [{ l: 'A5 信紙', m: 1 }] },
+    { id: 'jacket', name: '手工書衣', en: 'BOOK JACKET', base: 220, unitTxt: '／單張', sizes: [{ l: 'B6 文庫', m: 0.9 }, { l: 'A5 平裝', m: 1 }, { l: 'A4 大開', m: 1.45 }] },
+    { id: 'thankcard', name: '婚禮謝卡', en: 'THANK-YOU CARD', base: 520, unitTxt: '／20 張', sizes: [{ l: '直式 100×148', m: 1 }, { l: '方式 120×120', m: 1.1 }] },
+    { id: 'wrap', name: '禮盒包裝紙', en: 'WRAPPING SHEET', base: 150, unitTxt: '／張', sizes: [{ l: '對開 54×39cm', m: 1 }, { l: '全開 78×54cm', m: 1.8 }] },
+    { id: 'framed', name: '裱框原作', en: 'FRAMED ORIGINAL', base: 2200, unitTxt: '／含實木框', framed: true, sizes: [{ l: '20×20cm', m: 1 }, { l: '30×30cm', m: 1.6 }, { l: '40×30cm', m: 2.1 }] }
+  ];
+
+  // ---- 花紋目錄（每張＝一段引擎配方）----
+  var PAPERS = [
+    { id: 'p-battal', name: '散石紋', en: 'battal', rec: 'battal' },
+    { id: 'p-gelgit', name: '波梳紋', en: 'gel-git', rec: 'gelgit' },
+    { id: 'p-sumi', name: '墨流環', en: 'suminagashi', rec: 'sumi' },
+    { id: 'p-hatip', name: '花片紋', en: 'hatip', rec: 'hatip' },
+    { id: 'p-bulbul', name: '夜鶯巢', en: 'bülbül yuvası', rec: 'bulbul' },
+    { id: 'p-sal', name: '披巾紋', en: 'şal', rec: 'sal' },
+    { id: 'p-nonpareil', name: '密梳紋', en: 'nonpareil', rec: 'nonpareil' },
+    { id: 'p-tasli', name: '碎石紋', en: 'taşlı', rec: 'tasli' }
+  ];
+
+  // ---- 若從水槽撈紙帶來自訂花紋，插到最前 ----
+  var lifted = null;
+  try {
+    var raw = sessionStorage.getItem('moxi_paper');
+    if (raw) { var lp = JSON.parse(raw); if (lp && lp.ops && lp.ops.length) lifted = lp; }
+  } catch (e) {}
+  if (lifted) PAPERS.unshift({ id: 'p-custom', name: '我撈的紙', en: 'your lift', custom: lifted });
+
+  // ---- 通用：把某張紙畫進一個 canvas ----
+  function paintPaper(canvas, paper) {
+    var w = canvas.width, h = canvas.height, ctx = canvas.getContext('2d');
+    if (paper.custom) {
+      var lw = paper.custom.w, lh = paper.custom.h;
+      var off = document.createElement('canvas'); off.width = lw; off.height = lh;
+      var b = new Marble.Bath(lw, lh, BG);
+      Marble.replay(b, paper.custom.ops, PAL);
+      b.render(off.getContext('2d'), { vein: true });
+      // 置中裁切填滿
+      var s = Math.max(w / lw, h / lh);
+      ctx.fillStyle = BG; ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(off, (w - lw * s) / 2, (h - lh * s) / 2, lw * s, lh * s);
+    } else {
+      var seed = Marble.fnv(paper.id + '·moxi');
+      var ops = Marble.recipe(paper.rec, seed, w, h, {});
+      var bath = new Marble.Bath(w, h, BG);
+      Marble.replay(bath, ops, PAL);
+      bath.render(ctx, { vein: true });
+    }
+  }
+
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function mkCanvas(cssW, cssH) {
+    var c = document.createElement('canvas');
+    c.width = Math.round(cssW * dpr); c.height = Math.round(cssH * dpr);
+    c.style.width = cssW + 'px'; c.style.height = cssH + 'px';
+    return c;
+  }
+
+  // ---- state ----
+  var selPaper = PAPERS[0].id;
+  var cart = [];
+  try { var rc = sessionStorage.getItem('moxi_cart'); if (rc) cart = JSON.parse(rc) || []; } catch (e) {}
+
+  function saveCart() { try { sessionStorage.setItem('moxi_cart', JSON.stringify(cart)); } catch (e) {} }
+  function money(n) { return 'NT$' + n.toLocaleString('en-US'); }
+  function paperById(id) { for (var i = 0; i < PAPERS.length; i++) if (PAPERS[i].id === id) return PAPERS[i]; return PAPERS[0]; }
+  function prodById(id) { for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].id === id) return PRODUCTS[i]; return PRODUCTS[0]; }
+
+  // ---- 渲染花紋選擇格 ----
+  function renderPapers() {
+    var box = document.getElementById('papers'); box.innerHTML = '';
+    PAPERS.forEach(function (p) {
+      var cell = document.createElement('button'); cell.className = 'paper-cell';
+      cell.setAttribute('aria-pressed', p.id === selPaper ? 'true' : 'false');
+      var c = mkCanvas(120, 120); paintPaper(c, p);
+      cell.appendChild(c);
+      var cap = document.createElement('span'); cap.className = 'pc-cap';
+      cap.innerHTML = '<b>' + p.name + '</b><i>' + p.en + '</i>';
+      cell.appendChild(cap);
+      cell.addEventListener('click', function () {
+        selPaper = p.id;
+        document.querySelectorAll('.paper-cell').forEach(function (x, i) { x.setAttribute('aria-pressed', PAPERS[i].id === selPaper ? 'true' : 'false'); });
+      });
+      box.appendChild(cell);
+    });
+  }
+
+  // ---- 品項 / 尺寸 / 數量 ----
+  var prodSel = document.getElementById('prodSel'), sizeSel = document.getElementById('sizeSel'), qtyIn = document.getElementById('qty');
+  PRODUCTS.forEach(function (p) { var o = document.createElement('option'); o.value = p.id; o.textContent = p.name + '  ' + p.unitTxt; prodSel.appendChild(o); });
+  function fillSizes() {
+    var p = prodById(prodSel.value); sizeSel.innerHTML = '';
+    p.sizes.forEach(function (s, i) { var o = document.createElement('option'); o.value = i; o.textContent = s.l; sizeSel.appendChild(o); });
+    updateUnit();
+  }
+  function unitPrice() { var p = prodById(prodSel.value); var s = p.sizes[parseInt(sizeSel.value, 10) || 0]; return Math.round(p.base * s.m); }
+  function updateUnit() { document.getElementById('unitPrice').textContent = money(unitPrice()); }
+  prodSel.addEventListener('change', fillSizes);
+  sizeSel.addEventListener('change', updateUnit);
+  fillSizes();
+
+  // ---- 加入購物車 ----
+  document.getElementById('addBtn').addEventListener('click', function () {
+    var p = prodById(prodSel.value); var si = parseInt(sizeSel.value, 10) || 0; var s = p.sizes[si];
+    var q = Math.max(1, Math.min(99, parseInt(qtyIn.value, 10) || 1));
+    var paper = paperById(selPaper);
+    // 相同 紙×品項×尺寸 併量
+    for (var i = 0; i < cart.length; i++) {
+      if (cart[i].paperId === paper.id && cart[i].prodId === p.id && cart[i].sizeI === si) { cart[i].qty = Math.min(99, cart[i].qty + q); return commit(); }
+    }
+    cart.push({ paperId: paper.id, paperName: paper.name, prodId: p.id, prodName: p.name, sizeI: si, sizeL: s.l, unit: unitPrice(), qty: q, framed: !!p.framed });
+    commit(true);
+  });
+
+  function commit(flash) {
+    saveCart(); renderCart();
+    if (flash) { var b = document.getElementById('addBtn'); var t = b.textContent; b.textContent = '已入袋 ✓'; setTimeout(function () { b.textContent = t; }, 900); }
+  }
+
+  // ---- 購物車渲染 ----
+  function totals() {
+    var sub = 0, hasFramed = false;
+    cart.forEach(function (it) { sub += it.unit * it.qty; if (it.framed) hasFramed = true; });
+    var ship = 0;
+    if (cart.length) { ship = sub >= 1800 ? 0 : 140; if (hasFramed) ship += 300; }
+    return { sub: sub, ship: ship, grand: sub + ship, hasFramed: hasFramed };
+  }
+  function renderCart() {
+    var body = document.getElementById('cartBody'), empty = document.getElementById('cartEmpty');
+    var cnt = cart.reduce(function (a, b) { return a + b.qty; }, 0);
+    document.getElementById('cartCount').textContent = cnt;
+    body.innerHTML = '';
+    if (!cart.length) { empty.style.display = ''; document.getElementById('cartTable').style.display = 'none'; document.getElementById('toCheckout').disabled = true; renderTotals(); return; }
+    empty.style.display = 'none'; document.getElementById('cartTable').style.display = ''; document.getElementById('toCheckout').disabled = false;
+    cart.forEach(function (it, idx) {
+      var tr = document.createElement('tr');
+      var tdP = document.createElement('td');
+      var c = mkCanvas(52, 52); c.className = 'thumb'; paintPaper(c, paperById(it.paperId)); tdP.appendChild(c);
+      tr.appendChild(tdP);
+      var tdN = document.createElement('td');
+      tdN.innerHTML = '<b>' + it.prodName + '</b><br><span class="small">' + it.paperName + ' · ' + it.sizeL + '</span>';
+      tr.appendChild(tdN);
+      var tdU = document.createElement('td'); tdU.className = 'price hidecol'; tdU.textContent = money(it.unit); tr.appendChild(tdU);
+      var tdQ = document.createElement('td');
+      var qb = document.createElement('div'); qb.className = 'qtybox';
+      var minus = document.createElement('button'); minus.textContent = '−'; minus.setAttribute('aria-label', '減一');
+      var span = document.createElement('span'); span.textContent = it.qty;
+      var plus = document.createElement('button'); plus.textContent = '+'; plus.setAttribute('aria-label', '加一');
+      minus.addEventListener('click', function () { it.qty = Math.max(1, it.qty - 1); commit(); });
+      plus.addEventListener('click', function () { it.qty = Math.min(99, it.qty + 1); commit(); });
+      qb.appendChild(minus); qb.appendChild(span); qb.appendChild(plus); tdQ.appendChild(qb); tr.appendChild(tdQ);
+      var tdT = document.createElement('td'); tdT.className = 'price'; tdT.textContent = money(it.unit * it.qty); tr.appendChild(tdT);
+      var tdR = document.createElement('td');
+      var rm = document.createElement('button'); rm.className = 'rm'; rm.textContent = '移除';
+      rm.addEventListener('click', function () { cart.splice(idx, 1); commit(); });
+      tdR.appendChild(rm); tr.appendChild(tdR);
+      body.appendChild(tr);
+    });
+    renderTotals();
+  }
+  function renderTotals() {
+    var t = totals();
+    document.getElementById('subTot').textContent = money(t.sub);
+    document.getElementById('shipTot').textContent = t.ship === 0 && cart.length ? '免運' : money(t.ship);
+    document.getElementById('grandTot').textContent = money(t.grand);
+    var hint = document.getElementById('shipHint');
+    if (hint) hint.textContent = cart.length && t.sub < 1800 ? '再湊 ' + money(1800 - t.sub) + ' 即免運' : (t.hasFramed ? '含裱框原作，加收 NT$300 保護運送' : '');
+  }
+
+  // ---- 結帳流程 ----
+  var checkoutSec = document.getElementById('checkoutSec');
+  document.getElementById('toCheckout').addEventListener('click', function () {
+    if (!cart.length) return;
+    checkoutSec.style.display = '';
+    checkoutSec.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    setStep(2);
+  });
+  function reduceMotion() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches; }
+  function setStep(n) {
+    document.querySelectorAll('.steps .st').forEach(function (el, i) {
+      el.classList.remove('on', 'done');
+      if (i + 1 < n) el.classList.add('done'); else if (i + 1 === n) el.classList.add('on');
+    });
+  }
+
+  function vName() { var v = (document.getElementById('coName').value || '').trim(); return v.length >= 2 ? '' : '請留下稱呼（至少 2 字）'; }
+  function vPhone() { var v = (document.getElementById('coPhone').value || '').trim(); return /^09\d{8}$/.test(v) ? '' : '手機格式：09 開頭共 10 碼'; }
+  function vEmail() { var v = (document.getElementById('coEmail').value || '').trim(); if (!v) return ''; return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Email 格式不正確（可留空）'; }
+  function vAddr() { var v = (document.getElementById('coAddr').value || '').trim(); return v.length >= 6 ? '' : '請填寫可收件的完整地址'; }
+  function showErr(id, msg) { document.getElementById(id).textContent = msg; return !msg; }
+
+  document.getElementById('placeBtn').addEventListener('click', function () {
+    var ok = true;
+    ok = showErr('errName', vName()) && ok;
+    ok = showErr('errPhone', vPhone()) && ok;
+    ok = showErr('errEmail', vEmail()) && ok;
+    ok = showErr('errAddr', vAddr()) && ok;
+    if (!ok) return;
+    placeOrder();
+  });
+
+  function placeOrder() {
+    var d = new Date();
+    var ymd = ('' + d.getFullYear()).slice(2) + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+    var name = document.getElementById('coName').value.trim(), phone = document.getElementById('coPhone').value.trim();
+    var h = Marble.fnv(name + phone + Date.now());
+    var no = 'MX-' + ymd + '-' + ('00' + (h % 900 + 100)).slice(-3);
+    var t = totals();
+    // 摘要
+    var sum = document.getElementById('ordSummary'); sum.innerHTML = '';
+    cart.forEach(function (it) {
+      var row = document.createElement('div'); row.className = 'totrow';
+      row.innerHTML = '<span>' + it.prodName + ' · ' + it.paperName + ' ×' + it.qty + '</span><span class="price">' + money(it.unit * it.qty) + '</span>';
+      sum.appendChild(row);
+    });
+    var g = document.createElement('div'); g.className = 'totrow grand'; g.innerHTML = '<span>應付總計（貨到付款）</span><span class="price">' + money(t.grand) + '</span>'; sum.appendChild(g);
+    document.getElementById('ordNo').textContent = no;
+    document.getElementById('ordName').textContent = name;
+    // 印記：由訂單號雜湊決定的一小幅墨流
+    var stamp = document.getElementById('stamp');
+    var sc = mkCanvas(150, 150); stamp.innerHTML = ''; stamp.appendChild(sc);
+    var ops = Marble.recipe('comb-swirl', Marble.fnv(no), sc.width, sc.height, {});
+    var sb = new Marble.Bath(sc.width, sc.height, BG); Marble.replay(sb, ops, PAL); sb.render(sc.getContext('2d'), { vein: true });
+    setStep(3);
+    document.getElementById('doneSec').style.display = '';
+    document.getElementById('formSec').style.display = 'none';
+    document.getElementById('doneSec').scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    // 清空購物車與撈紙
+    cart = []; saveCart(); try { sessionStorage.removeItem('moxi_paper'); } catch (e) {}
+    renderCart();
+  }
+
+  document.getElementById('againBtn') && document.getElementById('againBtn').addEventListener('click', function () {
+    document.getElementById('doneSec').style.display = 'none';
+    document.getElementById('formSec').style.display = '';
+    checkoutSec.style.display = 'none';
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' });
+  });
+
+  // ---- init ----
+  renderPapers();
+  renderCart();
+  setStep(1);
+})();
+
+</script>
+<footer class='ft'><div class='wrap'><div class='ftgrid'><div><div class='ftbrand'><b>墨汐</b> 流墨紙坊</div><p style='margin-top:10px'>在一槽會流動的膠礬水上，以牛膽汁鬆開的墨，順水成紋。每一張撈起的紙都是唯一，無法重印。</p><p class='mono' style='margin-top:14px;font-size:11px;letter-spacing:.1em;color:#6F6650'>EBRU · 墨流し · SUMINAGASHI</p></div><div><h4>工坊</h4><p>台北市大同區迪化街一段 214 號 2 樓</p><p>週三至週日 12:00–19:00（週一二休）</p><p>02-2557-3948</p><p>ink@moxi-paper.tw</p></div><div><h4>去逛逛</h4><p><a href='index.html'>水槽・在水面作畫</a></p><p><a href='tuan.html'>花紋圖鑑 24 式</a></p><p><a href='gou.html'>選購・結帳</a></p><p><a href='fa.html'>流墨工法</a></p></div></div><p class='ftnote'>本站為「Design Skills Center」設計風格範例站。工坊名稱、主理人、地址、電話、價格、課程梯次與客戶均為虛構教學示範；花紋、logo、favicon 與訂購印記皆由站內流墨引擎即時生成，全站無一張外部圖片。<br>本站由 <b style='color:#A2957A'>Claude Opus 4.8</b> 設計與建置（2026-07-26，排程 Agent 自動執行）。</p></div></footer>
+</body>
+</html>

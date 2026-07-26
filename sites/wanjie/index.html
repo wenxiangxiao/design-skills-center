@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>綰結所 — 編結台｜WǍNJIÉ Knot Studio</title>
+<meta name="description" content="淡水河口的繩結研習所。整站是一張編結墊——你一個交叉一個交叉地把繩打過去，引擎讀出你的 over／under 交叉序列辨識你打成了什麼結，並用真實的成結／滑脫規則告訴你它會不會鬆掉。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23C9D2C6'/%3E%3Cpath d='M6 22 C6 10 16 10 16 19 C16 27 26 27 26 15' fill='none' stroke='%233A362E' stroke-width='6.5' stroke-linecap='round'/%3E%3Cpath d='M6 22 C6 10 16 10 16 19 C16 27 26 27 26 15' fill='none' stroke='%238FA3AB' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M26 22 C26 10 16 10 16 19 C16 27 6 27 6 15' fill='none' stroke='%233A362E' stroke-width='6.5' stroke-linecap='round'/%3E%3Cpath d='M26 22 C26 10 16 10 16 19 C16 27 6 27 6 15' fill='none' stroke='%23C67C58' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sage:#C9D2C6; --sage-d:#B4C0B1; --oat:#E9E1CF; --oat-d:#DAD0B8;
+  --bark:#3A362E; --clay:#C67C58; --clay-d:#A85F3d; --denim:#8FA3AB; --denim-d:#6E858F;
+  --paper:#F1ECDE; --mut:#6f6a5d;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--sage);color:var(--bark);
+  font-family:"Noto Sans TC",system-ui,sans-serif;font-weight:400;line-height:1.72;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",monospace}
+h1,h2,h3,.disp{font-family:"Fraunces","Noto Serif TC",serif;font-weight:900;line-height:1.06;letter-spacing:.01em;margin:0}
+.serif{font-family:"Fraunces","Noto Serif TC",serif}
+a{color:var(--denim-d)}
+svg{max-width:100%}
+img{max-width:100%}
+
+/* ---------- layout scaffold : cordloop-rail (side) + content ---------- */
+.shell{display:grid;grid-template-columns:96px 1fr;min-height:100vh}
+/* cordloop-rail nav : a length of laid cord running down the left, 4 loops = 4 pages */
+.rail{position:sticky;top:0;height:100vh;background:var(--oat);border-right:2px solid var(--bark);
+  display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:0;z-index:30}
+.rail .mk{width:52px;height:52px}
+.rail .cord{flex:1 1 auto;width:100%;position:relative;display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:26px 0}
+.rail a{display:flex;flex-direction:column;align-items:center;gap:7px;text-decoration:none;color:var(--mut);width:100%;padding:6px 0}
+.rail a .loop{width:46px;height:46px}
+.rail a .lb{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;writing-mode:horizontal-tb;text-align:center}
+.rail a[aria-current="page"]{color:var(--bark)}
+.rail a[aria-current="page"] .lb{color:var(--clay-d);font-weight:600}
+.rail .foot{font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:var(--mut);letter-spacing:.1em;transform:rotate(180deg);writing-mode:vertical-rl}
+.main{min-width:0}
+
+/* mobile top bar (hidden on desktop) */
+.mtop{display:none}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 30px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--clay-d);font-weight:600;margin:0 0 12px}
+hr.rule{height:2px;background:var(--bark);border:0;margin:0}
+
+/* ---------- opening : knotbench-first ---------- */
+.bench{padding:34px 0 8px}
+.bench-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:0;border:2px solid var(--bark);background:var(--oat);border-radius:2px;overflow:hidden}
+.mat{position:relative;background:
+   repeating-linear-gradient(90deg,transparent 0 15px,rgba(58,54,46,.05) 15px 16px),
+   repeating-linear-gradient(0deg,transparent 0 15px,rgba(58,54,46,.05) 15px 16px),
+   var(--paper);
+  border-right:2px solid var(--bark);min-height:430px;display:flex;flex-direction:column}
+.mat-tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;color:var(--mut);padding:12px 16px 0;display:flex;justify-content:space-between}
+.mat-tag b{color:var(--clay-d)}
+.stage{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:6px 10px 12px}
+.stage svg{width:100%;height:auto;max-height:360px}
+.panel{padding:24px 26px 26px;display:flex;flex-direction:column}
+.panel h1{font-size:clamp(26px,3.3vw,40px)}
+.panel .lede{font-size:15.5px;color:#4a463c;margin:14px 0 18px;max-width:40ch}
+
+/* mode tabs */
+.tabs{display:flex;gap:0;border:2px solid var(--bark);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.tabs button{flex:1;font-family:"Noto Serif TC",serif;font-weight:700;font-size:14px;background:var(--paper);color:var(--bark);border:0;padding:10px 6px;cursor:pointer;border-right:2px solid var(--bark)}
+.tabs button:last-child{border-right:0}
+.tabs button[aria-selected="true"]{background:var(--clay);color:var(--paper)}
+
+.step-q{font-family:"Noto Serif TC",serif;font-weight:700;font-size:16px;min-height:1.2em;margin:2px 0 12px}
+.choices{display:flex;flex-direction:column;gap:9px}
+.choice{text-align:left;background:var(--paper);border:2px solid var(--bark);border-radius:2px;padding:11px 13px;cursor:pointer;
+  font-family:"Noto Sans TC",sans-serif;font-size:14px;line-height:1.5;transition:transform .12s ease,background .12s ease}
+.choice:hover{background:#fff}
+.choice:active{transform:translateY(1px)}
+.choice .k{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--clay-d);letter-spacing:.06em;display:block;margin-bottom:2px}
+.choice[disabled]{opacity:.45;cursor:default}
+
+/* knot picker */
+.picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.picker button{background:var(--paper);border:2px solid var(--bark);border-radius:2px;padding:6px 11px;cursor:pointer;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.03em}
+.picker button[aria-pressed="true"]{background:var(--denim);color:var(--paper)}
+
+/* verdict */
+.verdict{border:2px solid var(--bark);border-radius:2px;padding:13px 15px;margin-top:4px;background:var(--paper);display:none}
+.verdict.show{display:block}
+.verdict .badge{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.1em;
+  padding:3px 9px;border:2px solid var(--bark);border-radius:2px;margin-bottom:8px}
+.verdict.hold .badge{background:#6f9c6a;color:#fff}
+.verdict.slip .badge{background:var(--clay);color:#fff}
+.verdict h3{font-size:19px;margin-bottom:4px}
+.verdict p{font-size:13.5px;color:#4a463c;margin:6px 0 0}
+.verdict .meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mut);margin-top:9px}
+.act{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+.btn{font-family:"Noto Serif TC",serif;font-weight:700;font-size:13.5px;padding:9px 15px;border:2px solid var(--bark);border-radius:2px;
+  background:var(--bark);color:var(--paper);cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--bark)}
+.crumbs{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);margin-top:10px;letter-spacing:.05em;min-height:1.2em}
+
+/* ---------- content sections ---------- */
+section{padding:40px 0}
+.lead-2{font-size:16px;color:#4a463c;max-width:60ch}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px}
+.card{border:2px solid var(--bark);border-radius:2px;background:var(--oat);padding:0 0 16px;overflow:hidden}
+.card .th{background:var(--paper);border-bottom:2px solid var(--bark);padding:14px;display:flex;justify-content:center}
+.card .th svg{width:110px;height:110px}
+.card h3{font-size:17px;padding:13px 15px 0}
+.card .en{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--mut);padding:2px 15px 0;letter-spacing:.05em}
+.card p{font-size:13px;color:#4a463c;padding:6px 15px 0;margin:0}
+.card .tag{display:inline-block;margin:9px 0 0 15px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;padding:2px 8px;border:1.5px solid var(--bark);border-radius:2px}
+.card .tag.h{background:#6f9c6a;color:#fff;border-color:#4f7a4a}
+.card .tag.s{background:var(--clay);color:#fff;border-color:var(--clay-d)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+.stat{display:flex;gap:0;flex-wrap:wrap;border-top:2px solid var(--bark);margin-top:32px}
+.stat div{flex:1 1 130px;padding:16px 4px 16px 0}
+.stat b{font-family:"Fraunces",serif;font-weight:900;font-size:30px;display:block;line-height:1}
+.stat span{font-size:12px;color:var(--mut)}
+
+footer{background:var(--oat);border-top:2px solid var(--bark);margin-top:20px}
+.f-in{max-width:1080px;margin:0 auto;padding:34px 30px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{font-family:"Noto Serif TC",serif;font-size:14px;margin:0 0 10px}
+footer a{display:block;color:#4a463c;text-decoration:none;font-size:13.5px;margin-bottom:5px}
+footer a:hover{color:var(--clay-d)}
+footer .fine{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);line-height:1.7}
+.f-bar{border-top:2px solid var(--bark);padding:12px 30px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--mut);text-align:center;letter-spacing:.05em}
+
+@media(max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{display:none}
+  .mtop{display:flex;position:sticky;top:0;z-index:40;background:var(--oat);border-bottom:2px solid var(--bark);
+    align-items:center;gap:12px;padding:9px 14px;overflow-x:auto;white-space:nowrap}
+  .mtop .b{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+  .mtop .b svg{height:30px}
+  .mtop nav{display:flex;gap:7px}
+  .mtop nav a{font-family:"IBM Plex Mono",monospace;font-size:12px;text-decoration:none;color:var(--bark);
+    border:2px solid var(--bark);border-radius:2px;padding:4px 9px}
+  .mtop nav a[aria-current="page"]{background:var(--clay);color:#fff}
+  .bench-grid{grid-template-columns:1fr}
+  .mat{border-right:0;border-bottom:2px solid var(--bark);min-height:300px}
+  .cols{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .f-in{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- mobile top bar -->
+<div class="mtop">
+  <a class="b" href="index.html" aria-label="綰結所首頁">
+    <svg viewBox="0 0 44 44"><rect width="44" height="44" fill="#C9D2C6"/><path d="M8 30 C8 13 22 13 22 26 C22 37 36 37 36 20" fill="none" stroke="#3A362E" stroke-width="8" stroke-linecap="round"/><path d="M8 30 C8 13 22 13 22 26 C22 37 36 37 36 20" fill="none" stroke="#8FA3AB" stroke-width="4.5" stroke-linecap="round"/><path d="M36 30 C36 13 22 13 22 26 C22 37 8 37 8 20" fill="none" stroke="#3A362E" stroke-width="8" stroke-linecap="round"/><path d="M36 30 C36 13 22 13 22 26 C22 37 8 37 8 20" fill="none" stroke="#C67C58" stroke-width="4.5" stroke-linecap="round"/></svg>
+    <b class="serif">綰結所</b>
+  </a>
+  <nav>
+    <a href="index.html" aria-current="page">編結台</a>
+    <a href="fa.html">結繩之法</a>
+    <a href="bi.html">繩結比較</a>
+    <a href="ru.html">入所研習</a>
+  </nav>
+</div>
+
+<div class="shell">
+  <!-- cordloop-rail : a length of laid cord down the left; each page is a loop, current is dressed -->
+  <aside class="rail" aria-label="主導覽">
+    <a class="mk" href="index.html" aria-label="綰結所首頁">
+      <svg viewBox="0 0 52 52"><path d="M10 34 C10 16 26 16 26 30 C26 42 42 42 42 24" fill="none" stroke="#3A362E" stroke-width="9" stroke-linecap="round"/><path d="M10 34 C10 16 26 16 26 30 C26 42 42 42 42 24" fill="none" stroke="#8FA3AB" stroke-width="5" stroke-linecap="round"/><path d="M42 34 C42 16 26 16 26 30 C26 42 10 42 10 24" fill="none" stroke="#3A362E" stroke-width="9" stroke-linecap="round"/><path d="M42 34 C42 16 26 16 26 30 C26 42 10 42 10 24" fill="none" stroke="#C67C58" stroke-width="5" stroke-linecap="round"/></svg>
+    </a>
+    <div class="cord" id="railcord">
+      <!-- loops injected by JS so current page is 'dressed' -->
+    </div>
+    <div class="foot">EST · 淡水河口</div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ===== knotbench-first opening ===== -->
+  <div class="wrap bench">
+    <div class="bench-grid">
+      <div class="mat">
+        <div class="mat-tag"><span>編結墊 · WORKING MAT</span><b id="matcode">交叉序列 —</b></div>
+        <div class="stage"><svg id="knotsvg" viewBox="0 0 120 120" aria-label="繩結交叉圖"></svg></div>
+      </div>
+      <div class="panel">
+        <p class="eyebrow">綰結所 · 編結台</p>
+        <h1>先把繩打過去，<br>再看它會不會鬆。</h1>
+        <p class="lede">這裡不放教學影片。你一個交叉一個交叉地把繩打過去，編結台讀出你的 over／under 交叉序列，辨識你打成了什麼結——並照真實規則判定它<strong>成結</strong>還是<strong>會滑脫</strong>。</p>
+
+        <div class="tabs" role="tablist">
+          <button id="tabDuel" role="tab" aria-selected="true">平結 vs 假結</button>
+          <button id="tabTie" role="tab" aria-selected="false">跟著打一個結</button>
+        </div>
+
+        <div id="pane">
+          <!-- filled by JS -->
+        </div>
+
+        <p class="crumbs" id="crumbs"></p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- ===== why one interaction ===== -->
+  <section class="wrap">
+    <p class="eyebrow">為什麼一條繩能分成結與鬆脫</p>
+    <div class="two">
+      <div>
+        <h2 style="font-size:clamp(22px,2.6vw,30px)">同樣兩個交叉，<br>差一個「上下」就鬆了。</h2>
+        <p class="lead-2" style="margin-top:14px">平結（reef）與假結（granny）用的是<strong>一模一樣的兩個交叉</strong>——差別只在第二個交叉是「換手壓上」還是「沒換手壓上」。換手，兩股互相咬住、受力愈拉愈緊；沒換手，兩股平行、一拉就翻面滑開。這就是本所的核心：一個結會不會鬆，寫在它交叉序列的<strong>奇偶性</strong>裡，跟繩粗、繩材都無關。</p>
+        <p class="lead-2" style="margin-top:12px">左邊那張圖不是插畫，是你剛剛打出來的那串交叉。全站每一張圖——招牌、圖鑑縮圖、研習證上的印記——都由同一支繩股引擎照某條交叉序列畫出來，換一串交叉就換一張圖。</p>
+      </div>
+      <div style="border:2px solid var(--bark);border-radius:2px;background:var(--oat);padding:16px">
+        <div class="mono" style="font-size:11px;color:var(--mut);letter-spacing:.12em;margin-bottom:10px">同交叉 · 反奇偶</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <figure style="margin:0;text-align:center"><svg id="fig-reef" viewBox="0 0 120 120" style="width:100%;background:var(--paper);border:2px solid var(--bark);border-radius:2px"></svg><figcaption class="mono" style="font-size:11px;margin-top:7px">平結 · 成結</figcaption></figure>
+          <figure style="margin:0;text-align:center"><svg id="fig-granny" viewBox="0 0 120 120" style="width:100%;background:var(--paper);border:2px solid var(--bark);border-radius:2px"></svg><figcaption class="mono" style="font-size:11px;margin-top:7px">假結 · 滑脫</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="stat">
+      <div><b>8</b><span>結譜收錄的結</span></div>
+      <div><b>1</b><span>支繩股引擎畫全站</span></div>
+      <div><b>0</b><span>張外部圖片</span></div>
+      <div><b>2×2</b><span>交叉決定成結與否</span></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ===== knot atlas preview (procedural) ===== -->
+  <section class="wrap">
+    <p class="eyebrow">結譜 · 每一張圖都是一串交叉</p>
+    <h2 style="font-size:clamp(22px,2.6vw,30px)">六個常打的結</h2>
+    <p class="lead-2" style="margin-top:12px">下面的縮圖不是拍的、也不是描的，全是繩股引擎照各結的交叉序列即時畫出來的。想動手，去 <a href="fa.html">結繩之法</a> 看每一步；想挑一個結，去 <a href="bi.html">繩結比較</a> 依用途選。</p>
+    <div class="cols" id="atlas"></div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ===== studio blurb ===== -->
+  <section class="wrap">
+    <div class="two">
+      <div>
+        <p class="eyebrow">關於綰結所</p>
+        <h2 style="font-size:clamp(21px,2.4vw,28px)">淡水河口，一間<br>不趕時間的繩結研習所。</h2>
+        <p class="lead-2" style="margin-top:14px">綰結所開在淡水河口的舊倉庫，一半是實用繩結（帆索、露營、搬運），一半是結繩藝與 macramé。我們相信手比眼睛記得牢——所以課上不看投影片，只有繩、墊子，和一雙願意打錯十次的手。</p>
+        <p class="lead-2" style="margin-top:12px">主理人 <strong>顏繡緞</strong>，做過八年帆船索具，回到岸上開了這間所。週二到週日 10:00–19:00，週一整繩休息。</p>
+        <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn" href="ru.html">看研習梯次</a>
+          <a class="btn ghost" href="fa.html">先讀結繩之法</a>
+        </div>
+        <p class="mono" style="font-size:11.5px;color:var(--mut);margin-top:18px;line-height:1.8">新北市淡水區河口街 27 巷 4 號 · 舊麻繩倉庫二進<br>02-2620-4417 · wan@wanjie.studio（架空示意）</p>
+      </div>
+      <div style="border:2px solid var(--bark);border-radius:2px;background:var(--paper);padding:20px">
+        <div class="mono" style="font-size:11px;color:var(--mut);letter-spacing:.12em;margin-bottom:12px">本所立場</div>
+        <ul style="margin:0;padding-left:18px;font-size:14px;color:#4a463c;line-height:1.9">
+          <li>結沒有「美不美」，只有「會不會鬆」。</li>
+          <li>打錯的結最會教人——所以編結台不扣分。</li>
+          <li>受力鎖死的結（如漁人結）好綁難拆；好拆的結（如雙半扣）受力要看緊。用途先於偏好。</li>
+          <li>本站繩結為教學示意圖解，實際承載請依專業索具規範與安全係數。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="f-in">
+      <div>
+        <a href="index.html" style="display:inline-block;margin-bottom:6px"><img src="assets/logo.svg" alt="綰結所 WǍNJIÉ" style="height:38px"></a>
+        <p class="fine">綰結所 WǍNJIÉ Knot Studio<br>一間把「會不會鬆」當第一課的繩結研習所。<br>本站所有繩結圖像皆由繩股引擎程序生成，零外部圖片。</p>
+      </div>
+      <div>
+        <h4>逛這裡</h4>
+        <a href="index.html">編結台</a>
+        <a href="fa.html">結繩之法</a>
+        <a href="bi.html">繩結比較</a>
+        <a href="ru.html">入所研習</a>
+      </div>
+      <div>
+        <h4>到訪</h4>
+        <p class="fine">新北市淡水區河口街 27 巷 4 號<br>週二–週日 10:00–19:00<br>週一整繩休息<br>02-2620-4417</p>
+      </div>
+    </div>
+    <div class="f-bar">© 2026 綰結所（架空教學示範）· 店名、人名、地址、電話、費用與繩結解說均為虛構示意 · 由 Claude Opus 4.8 · 排程 Agent 設計建置</div>
+  </footer>
+
+  </main>
+</div>
+
+<noscript>
+<div style="max-width:640px;margin:30px auto;padding:20px;border:2px solid #3A362E;background:#E9E1CF;font-family:sans-serif">
+  <b>編結台需要 JavaScript 才能互動。</b>不便之處請見諒。你仍可閱讀 <a href="fa.html">結繩之法</a>（純文字圖解全文可讀），或來電 02-2620-4417 現場報名研習。
+</div>
+</noscript>
+
+<script>
+"use strict";
+/* ============================================================
+   綰結所 · 繩股引擎 (cordage engine)
+   全站每一張圖都是一串交叉序列畫出來的 laid cord。
+   ============================================================ */
+var C={sage:"#C9D2C6",oat:"#E9E1CF",bark:"#3A362E",clay:"#C67C58",denim:"#8FA3AB",paper:"#F1ECDE"};
+
+/* draw one laid-cord segment: dark edge + colour body + lay ticks.
+   z-order = draw order, so crossings come out of the segment order. */
+function cord(d,col,w){
+  var out="";
+  out+='<path d="'+d+'" fill="none" stroke="'+C.bark+'" stroke-width="'+(w+3.4)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  out+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  out+='<path d="'+d+'" fill="none" stroke="#ffffff" stroke-opacity="0.32" stroke-width="'+Math.max(1.4,w*0.26)+'" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.6 5.2"/>';
+  return out;
+}
+function endcap(x,y,col){ // a whipped rope end
+  return '<circle cx="'+x+'" cy="'+y+'" r="4.4" fill="'+col+'" stroke="'+C.bark+'" stroke-width="2"/>';
+}
+
+/* ---- knot diagrams : ordered segment lists (later = on top) ----
+   Each returns an array of {d,c,w}. For choosable knots a 'parity'/'bad'
+   argument swaps a crossing's z-order to render the malformed version. ---- */
+var DIAG={
+  /* reef / granny share geometry; parity 'reef' | 'granny' */
+  square:function(parity){
+    var A={d:"M14 84 C14 46 60 46 60 74 C60 96 106 96 106 58",c:C.denim,w:9}; // right rope
+    var B={d:"M106 36 C106 74 60 74 60 46 C60 24 14 24 14 62",c:C.clay,w:9};   // left rope
+    // reef: B (clay) over at both meaningful crossings -> interlocked
+    // granny: swap the second crossing z so strands run parallel -> slips
+    var segs=[A,B];
+    if(parity==="granny"){
+      // overlay a short mis-crossed segment to signal the flipped parity
+      segs=[B,A,{d:"M60 58 C74 58 74 70 60 70",c:C.clay,w:9}];
+    }
+    // whipped ends
+    segs.push({raw:endcap(14,84,C.denim)+endcap(106,36,C.clay)+endcap(106,58,C.denim)+endcap(14,62,C.clay)});
+    return segs;
+  },
+  bowline:function(){
+    return [
+      {d:"M18 100 C18 40 58 40 58 70",c:C.denim,w:9},              // standing part up
+      {d:"M58 70 C58 96 100 96 100 60 C100 30 66 30 66 52",c:C.clay,w:9}, // loop
+      {d:"M66 52 C66 66 46 66 46 52 C46 40 62 40 62 58",c:C.clay,w:9},    // through the bight
+      {d:"M62 58 C62 72 82 74 82 92",c:C.clay,w:9},                 // tail
+      {raw:endcap(18,100,C.denim)+endcap(82,92,C.clay)}
+    ];
+  },
+  clove:function(){
+    return [
+      {d:"M20 34 L100 34",c:C.bark,w:12,post:true},                 // the post/spar
+      {d:"M34 96 C34 60 74 60 74 34 C74 18 40 18 40 46 C40 68 92 68 92 40",c:C.clay,w:9},
+      {d:"M92 40 C92 60 60 60 60 40 C60 24 84 26 84 50",c:C.denim,w:9},
+      {raw:endcap(34,96,C.clay)+endcap(84,50,C.denim)}
+    ];
+  },
+  fig8:function(){
+    return [
+      {d:"M24 100 C24 40 96 40 96 76 C96 100 40 100 40 60 C40 30 84 30 84 66",c:C.clay,w:9},
+      {raw:endcap(24,100,C.clay)+endcap(84,66,C.clay)}
+    ];
+  },
+  sheet:function(){
+    return [
+      {d:"M14 40 C14 92 66 92 66 52",c:C.denim,w:10},               // thick rope bight
+      {d:"M66 52 C66 20 30 20 30 60",c:C.denim,w:10},
+      {d:"M100 96 C100 60 44 60 44 42 C44 30 60 30 60 42 C60 58 84 58 84 42",c:C.clay,w:8}, // thin rope
+      {raw:endcap(30,60,C.denim)+endcap(84,42,C.clay)+endcap(100,96,C.clay)}
+    ];
+  },
+  fisher:function(){
+    return [
+      {d:"M12 74 L108 74",c:C.denim,w:8,post:false},
+      {d:"M40 96 C40 58 68 58 68 78 C68 92 44 92 52 62 C56 50 40 50 40 66",c:C.clay,w:9},
+      {d:"M80 52 C80 90 52 90 52 70 C52 56 76 56 68 86 C64 98 80 98 80 82",c:C.denim,w:9},
+      {raw:endcap(40,66,C.clay)+endcap(80,82,C.denim)}
+    ];
+  },
+  hitch2:function(){
+    return [
+      {d:"M20 30 L100 30",c:C.bark,w:12,post:true},
+      {d:"M30 96 C30 50 78 50 78 30 C78 16 50 16 50 44 C50 62 92 62 92 40",c:C.clay,w:9},
+      {d:"M92 40 C92 58 66 58 66 40 C66 26 88 28 88 50 C88 66 70 66 70 52",c:C.denim,w:9},
+      {raw:endcap(30,96,C.clay)+endcap(70,52,C.denim)}
+    ];
+  }
+};
+
+function renderDiag(id,arg){
+  var segs=DIAG[id]?DIAG[id](arg):[];
+  var s="";
+  for(var i=0;i<segs.length;i++){
+    var g=segs[i];
+    if(g.raw){ s+=g.raw; continue; }
+    if(g.post){ // post = spar drawn as a flat bar
+      s+='<path d="'+g.d+'" fill="none" stroke="'+C.bark+'" stroke-width="'+(g.w+2)+'" stroke-linecap="round"/>';
+      s+='<path d="'+g.d+'" fill="none" stroke="#c9bfa6" stroke-width="'+(g.w-3)+'" stroke-linecap="round"/>';
+      continue;
+    }
+    s+=cord(g.d,g.c,g.w);
+  }
+  return s;
+}
+function setSvg(elId,inner){var e=document.getElementById(elId);if(e)e.innerHTML=inner;}
+
+/* ============================================================
+   knot library (metadata + tie logic)
+   ============================================================ */
+var KNOTS={
+  bowline:{zh:"稱人結",en:"Bowline",diag:"bowline",holds:true,
+    use:"在繩尾做一個不會縮的固定圈——救援、繫舟、吊掛。",
+    steps:[
+      {q:"先在站繩上做一個小環（兔子洞）。working end 要從洞的哪一面穿上來？",
+       opts:[{k:"OVER · 由下往上",t:"由洞的下面往上鑽出（兔子從洞裡鑽出來）",ok:true},
+             {k:"UNDER · 由上壓下",t:"由洞的上面壓下去（兔子壓在洞口）",ok:false,
+              why:"這樣繩尾沒有穿過環，圈一受力就直接拉開——不成結。"}]},
+      {q:"繩尾繞過站繩後，要再從哪裡回去？",
+       opts:[{k:"繞後 · 穿回同一洞",t:"繞到站繩後方，再穿回原來那個環（兔子繞樹回洞）",ok:true},
+             {k:"繞前 · 穿別的洞",t:"從站繩前方隨手穿一個新洞",ok:false,
+              why:"繞錯邊會變成滑套（slip），受力會收緊套住——不是固定圈。"}]}
+    ]},
+  clove:{zh:"雙套結",en:"Clove Hitch",diag:"clove",holds:true,
+    use:"快速把繩繫在杆／欄杆／樁上，好綁好調——搭帳、圍欄、暫繫。",
+    steps:[
+      {q:"繩繞過橫桿第一圈後，第二圈要往哪個方向繞？",
+       opts:[{k:"同向 · 壓過第一圈",t:"同方向再繞一圈，並讓繩尾壓過第一圈下方穿出",ok:true},
+             {k:"反向 · 各繞各的",t:"反方向繞第二圈、不壓第一圈",ok:false,
+              why:"兩圈沒有互相咬住，橫向一拉就鬆開滑動——不成結。"}]},
+      {q:"最後繩尾要塞在哪裡？",
+       opts:[{k:"塞入 · 壓在最後一圈下",t:"把繩尾塞進最後那一圈的下方（形成 X）",ok:true},
+             {k:"外露 · 留在圈外",t:"繩尾留在所有圈外面不塞",ok:false,
+              why:"沒有壓住的雙套結會慢慢自己鬆脫，尤其橫桿會轉動時。"}]}
+    ]},
+  fig8:{zh:"八字結",en:"Figure-Eight",diag:"fig8",holds:true,
+    use:"在繩尾做一個好拆的止滑結，擋住繩不從孔／滑輪滑出——攀登確保、船帆。",
+    steps:[
+      {q:"繩尾繞回站繩前，要先繞成 8 的哪一半？",
+       opts:[{k:"繞前 · 先過站繩前方",t:"繩尾先從站繩前方繞過，形成上半圈",ok:true},
+             {k:"直穿 · 不繞直接穿",t:"不繞圈，直接把繩尾穿回",ok:false,
+              why:"少繞一次會變成單結（overhand），受力後死緊難拆、也較傷繩。"}]},
+      {q:"最後繩尾從哪裡穿出？",
+       opts:[{k:"穿回第一圈",t:"繞回來從最初那個圈穿出，收成 8 字",ok:true},
+             {k:"穿反邊",t:"從相反邊穿出",ok:false,
+              why:"穿錯邊 8 字不對稱，鎖不住、也不好拆。"}]}
+    ]},
+  sheet:{zh:"接繩結",en:"Sheet Bend",diag:"sheet",holds:true,
+    use:"把兩條粗細不同的繩接起來——粗繩做圈，細繩穿繞。",
+    steps:[
+      {q:"細繩穿過粗繩的圈後，要從哪一側繞回？",
+       opts:[{k:"同側 · 繞回自己那一邊",t:"繞過粗繩的兩股後，回到細繩自己進來的同一側",ok:true},
+             {k:"異側 · 繞到另一邊",t:"繞完停在粗繩圈的另一側",ok:false,
+              why:"兩繩尾分在異側就成了「左手接繩結」，受力較易翻脫。"}]},
+      {q:"細繩尾最後壓在哪裡？",
+       opts:[{k:"壓自己 · 夾在自己下方",t:"把細繩尾壓在自己繞出來那一股的下面",ok:true},
+             {k:"不壓 · 直接放開",t:"繞完就放，不壓自己",ok:false,
+              why:"沒有夾住繩尾，兩繩一鬆手就分開——不成結。"}]}
+    ]},
+  fisher:{zh:"漁人結",en:"Fisherman's",diag:"fisher",holds:true,
+    use:"把兩條同粗的繩牢牢接死——釣線、吊索。好綁、受力鎖死、難拆。",
+    steps:[
+      {q:"在對方繩上打第一個單結，繩尾要繞幾圈？",
+       opts:[{k:"一圈 · 單結",t:"繞一圈打一個單結，兩股各打一個相互卡住",ok:true},
+             {k:"零圈 · 只搭著",t:"不打結，只把兩繩尾交疊搭著",ok:false,
+              why:"沒有各自的單結互相頂住，一拉就滑開——不成結。"}]},
+      {q:"兩個單結要朝哪個方向?",
+       opts:[{k:"相向 · 打完拉近會互頂",t:"兩個單結面對面，拉緊時互相頂住鎖死",ok:true},
+             {k:"同向 · 都朝外",t:"兩個單結都朝外、拉緊時各走各的",ok:false,
+              why:"同向的兩結不會互頂，受力會分開滑脫。"}]}
+    ]},
+  hitch2:{zh:"雙半扣",en:"Two Half-Hitches",diag:"hitch2",holds:true,
+    use:"繩尾繞過樁後、在站繩上連打兩個半扣把繩繫牢——曬繩、繫船、拉帳。",
+    steps:[
+      {q:"繞過樁後，第一個半扣要往哪繞？",
+       opts:[{k:"繞站繩 · 打半扣",t:"繩尾繞過站繩打一個半扣",ok:true},
+             {k:"繞自己 · 打空扣",t:"繩尾繞自己打一個不套住站繩的空扣",ok:false,
+              why:"沒有套住站繩的半扣不承力，等於沒打。"}]},
+      {q:"第二個半扣要跟第一個同方向嗎？",
+       opts:[{k:"同向 · 疊成雙半扣",t:"同方向再打一個半扣，兩扣疊在一起成滑套可收緊",ok:true},
+             {k:"反向 · 打成豬蹄扣",t:"反方向打（會變成另一種扣，示意用）",ok:false,
+              why:"反向會變成不同的扣（如稱人半扣），這裡我們要的是可收緊的雙半扣。"}]}
+    ]}
+};
+var TIE_ORDER=["bowline","clove","fig8","sheet","fisher","hitch2"];
+
+/* ============================================================
+   left rail : cordloop nav (current page dressed)
+   ============================================================ */
+(function(){
+  var pages=[["index.html","編結台","BENCH"],["fa.html","結繩之法","METHOD"],["bi.html","繩結比較","COMPARE"],["ru.html","入所研習","ENROL"]];
+  var here="index.html";
+  var host=document.getElementById("railcord");
+  if(!host)return;
+  var h="";
+  for(var i=0;i<pages.length;i++){
+    var p=pages[i],cur=(p[0]===here);
+    var loop=cur
+      ? '<svg class="loop" viewBox="0 0 46 46" aria-hidden="true"><path d="M8 30 C8 14 23 14 23 26 C23 38 38 38 38 22" fill="none" stroke="#3A362E" stroke-width="7.5" stroke-linecap="round"/><path d="M8 30 C8 14 23 14 23 26 C23 38 38 38 38 22" fill="none" stroke="#C67C58" stroke-width="4" stroke-linecap="round"/><path d="M38 30 C38 14 23 14 23 26" fill="none" stroke="#3A362E" stroke-width="7.5" stroke-linecap="round"/><path d="M38 30 C38 14 23 14 23 26" fill="none" stroke="#C67C58" stroke-width="4" stroke-linecap="round"/></svg>'
+      : '<svg class="loop" viewBox="0 0 46 46" aria-hidden="true"><path d="M10 12 C10 34 36 34 36 12" fill="none" stroke="#3A362E" stroke-width="6.5" stroke-linecap="round"/><path d="M10 12 C10 34 36 34 36 12" fill="none" stroke="#8FA3AB" stroke-width="3.4" stroke-linecap="round"/></svg>';
+    h+='<a href="'+p[0]+'"'+(cur?' aria-current="page"':'')+'>'+loop+'<span class="lb">'+p[2]+'</span></a>';
+  }
+  host.innerHTML=h;
+})();
+
+/* ============================================================
+   opening bench interaction
+   ============================================================ */
+(function(){
+  var pane=document.getElementById("pane");
+  var crumbs=document.getElementById("crumbs");
+  var matcode=document.getElementById("matcode");
+  var tabDuel=document.getElementById("tabDuel"),tabTie=document.getElementById("tabTie");
+  var mode="duel";
+
+  function showKnot(id,arg){ setSvg("knotsvg",renderDiag(id,arg)); }
+  function seq(txt){ matcode.textContent="交叉序列 "+txt; }
+
+  /* ---- DUEL : reef vs granny ---- */
+  function renderDuel(){
+    mode="duel"; tabDuel.setAttribute("aria-selected","true"); tabTie.setAttribute("aria-selected","false");
+    showKnot("square","reef"); seq("· 第 1 個交叉已打");
+    crumbs.textContent="第 1 個交叉：左端壓右端（已固定）";
+    pane.innerHTML=
+      '<p class="step-q">第 1 個交叉已經打好（左端壓右端）。第 2 個交叉——換手還是不換手？</p>'+
+      '<div class="choices">'+
+        '<button class="choice" data-p="reef"><span class="k">CROSS 2 · 換手（右端壓上）</span>右端壓左端，兩股互相咬住。</button>'+
+        '<button class="choice" data-p="granny"><span class="k">CROSS 2 · 不換手（仍左端壓上）</span>左端再壓一次，兩股走成平行。</button>'+
+      '</div>'+
+      '<div class="verdict" id="vd"><span class="badge"></span><h3></h3><p></p><p class="meta"></p></div>'+
+      '<div class="act" id="ac" style="display:none"><button class="btn ghost" id="reset">解開重來</button></div>';
+    pane.querySelectorAll(".choice").forEach(function(b){
+      b.addEventListener("click",function(){ duelPick(b.getAttribute("data-p")); });
+    });
+    var r=document.getElementById("reset"); if(r)r.addEventListener("click",renderDuel);
+  }
+  function duelPick(p){
+    var reef=(p==="reef");
+    showKnot("square",p);
+    seq(reef?"OU·UO（換手）":"OU·OU（同手）");
+    var vd=document.getElementById("vd");
+    pane.querySelectorAll(".choice").forEach(function(x){x.setAttribute("disabled","");});
+    vd.className="verdict show "+(reef?"hold":"slip");
+    vd.querySelector(".badge").textContent=reef?"成結 · HOLDS":"滑脫 · SLIPS";
+    vd.querySelector("h3").textContent=reef?"平結（Reef / Square Knot）":"假結（Granny Knot）";
+    vd.querySelector("p").textContent=reef
+      ? "第 2 個交叉換了手，兩股在中央互相咬住。愈拉愈緊、平整不翻面——這是平結。收紮包裹、綁袋口都靠它。"
+      : "第 2 個交叉沒換手，兩股平行沒有互咬。受力會整個翻面、往兩側滑開——這就是有名的假結，別拿它綁任何要緊的東西。";
+    vd.querySelector(".meta").textContent=reef
+      ? "交叉序列 [左上, 右上] · 奇偶相反 → 互鎖"
+      : "交叉序列 [左上, 左上] · 奇偶相同 → 平行滑脫";
+    crumbs.textContent=reef?"你打成了平結。試試另一個選擇，看它怎麼變成假結。":"你打成了假結。回上一步換手，就變回平結。";
+    document.getElementById("ac").style.display="flex";
+  }
+
+  /* ---- TIE : guided knots ---- */
+  var tState=null;
+  function renderTie(){
+    mode="tie"; tabTie.setAttribute("aria-selected","true"); tabDuel.setAttribute("aria-selected","false");
+    var pick="";
+    for(var i=0;i<TIE_ORDER.length;i++){var id=TIE_ORDER[i];pick+='<button data-id="'+id+'"'+(i===0?' aria-pressed="true"':'')+'>'+KNOTS[id].zh+'</button>';}
+    pane.innerHTML='<div class="picker" id="picker">'+pick+'</div><div id="tieBody"></div>';
+    document.getElementById("picker").querySelectorAll("button").forEach(function(b){
+      b.addEventListener("click",function(){
+        document.getElementById("picker").querySelectorAll("button").forEach(function(x){x.removeAttribute("aria-pressed");});
+        b.setAttribute("aria-pressed","true"); startTie(b.getAttribute("data-id"));
+      });
+    });
+    startTie(TIE_ORDER[0]);
+  }
+  function startTie(id){
+    var k=KNOTS[id];
+    tState={id:id,step:0,bad:false,wrongAt:-1};
+    showKnot(k.diag); seq("· "+k.zh+" 起手");
+    drawTie();
+  }
+  function drawTie(){
+    var k=KNOTS[tState.id];
+    var body=document.getElementById("tieBody");
+    if(tState.step<k.steps.length && !tState.bad){
+      var st=k.steps[tState.step];
+      var h='<p class="step-q">第 '+(tState.step+1)+' 步：'+st.q+'</p><div class="choices">';
+      for(var i=0;i<st.opts.length;i++){
+        var o=st.opts[i];
+        h+='<button class="choice" data-i="'+i+'"><span class="k">'+o.k+'</span>'+o.t+'</button>';
+      }
+      h+='</div>';
+      body.innerHTML=h;
+      body.querySelectorAll(".choice").forEach(function(b){
+        b.addEventListener("click",function(){ tiePick(parseInt(b.getAttribute("data-i"),10)); });
+      });
+      crumbs.textContent="跟著打："+k.zh+"（"+k.en+"）· 第 "+(tState.step+1)+"／"+k.steps.length+" 步";
+    } else {
+      // done — verdict
+      var good=(!tState.bad);
+      showKnot(k.diag, good?undefined:"granny"); // reuse mis-cross look for a malformed hint on square only; others just show diagram
+      if(k.diag!=="square") showKnot(k.diag);
+      var cls=good?"hold":"slip";
+      var h='<div class="verdict show '+cls+'"><span class="badge">'+(good?"成結 · HOLDS":"沒綁成 · FAILS")+'</span>'+
+        '<h3>'+k.zh+'（'+k.en+'）</h3>';
+      if(good){
+        h+='<p>每一步都對了，交叉序列成立。'+k.use+'</p>';
+        h+='<p class="meta">用途：'+k.use.replace(/。$/,"")+'</p>';
+      } else {
+        var w=k.steps[tState.wrongAt].opts;
+        var badWhy="";
+        for(var j=0;j<w.length;j++){ if(!w[j].ok && j===tState.badOpt) badWhy=w[j].why; }
+        h+='<p>第 '+(tState.wrongAt+1)+' 步走錯了：'+badWhy+'</p>';
+        h+='<p class="meta">交叉序列不成立 → 回上一步換一個走法。</p>';
+      }
+      h+='<div class="act"><button class="btn" id="again">再打一次</button><a class="btn ghost" href="fa.html">看完整圖解</a></div></div>';
+      body.innerHTML=h;
+      var ag=document.getElementById("again"); if(ag)ag.addEventListener("click",function(){startTie(tState.id);});
+      seq(good?"· "+k.zh+" 成結 ✓":"· 交叉序列不成立");
+      crumbs.textContent=good?"打成了。換左邊選單再挑一個結。":"沒綁成——最會教人的就是打錯的結，再來一次。";
+    }
+  }
+  function tiePick(i){
+    var k=KNOTS[tState.id],st=k.steps[tState.step],o=st.opts[i];
+    if(!o.ok){ tState.bad=true; tState.wrongAt=tState.step; tState.badOpt=i; drawTie(); return; }
+    tState.step++;
+    seq("· "+k.zh+" 第 "+tState.step+" 交叉 OK");
+    drawTie();
+  }
+
+  tabDuel.addEventListener("click",renderDuel);
+  tabTie.addEventListener("click",renderTie);
+  renderDuel();
+})();
+
+/* ---- comparison figures + atlas thumbnails ---- */
+setSvg("fig-reef",renderDiag("square","reef"));
+setSvg("fig-granny",renderDiag("square","granny"));
+(function(){
+  var host=document.getElementById("atlas"); if(!host)return;
+  var ids=["bowline","clove","fig8","sheet","fisher","hitch2"];
+  var h="";
+  for(var i=0;i<ids.length;i++){
+    var k=KNOTS[ids[i]];
+    h+='<article class="card"><div class="th"><svg viewBox="0 0 120 120" aria-label="'+k.zh+'交叉圖">'+renderDiag(k.diag)+'</svg></div>'+
+       '<h3>'+k.zh+'</h3><div class="en">'+k.en+'</div><p>'+k.use+'</p>'+
+       '<span class="tag h">成結</span></article>';
+  }
+  host.innerHTML=h;
+})();
+</script>
+</body>
+</html>

@@ -132,6 +132,7 @@
 | 114 | [綰結所 WǍNJIÉ](sites/wanjie/index.html) | 繩結研習所／結繩傳習所 | 絞繩纖索風 Laid-Cordage | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 115 | [墨汐 MOXI](sites/moxi/index.html) | 手工大理石紋紙工坊 | 流墨大理石紋風 Marbled-Ink | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 116 | [圈舞堂 Ring & Reel](sites/quanwu/index.html) | 土風舞聯誼社 | 隊形走位圖風 Formation-Choreography | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 117 | [日月堂 Nichigetsu-dō](sites/nichigetsu/index.html) | けん玉道場／玩具店 | 昭和玩具版元風 Shōwa Toy-Broadside | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

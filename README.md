@@ -131,6 +131,7 @@
 | 113 | [三球雜耍研究所 SANQIU](sites/sanqiu/index.html) | 雜耍／拋接學校 | 拋物運動風 Ballistic-Notation | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 114 | [綰結所 WǍNJIÉ](sites/wanjie/index.html) | 繩結研習所／結繩傳習所 | 絞繩纖索風 Laid-Cordage | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 115 | [墨汐 MOXI](sites/moxi/index.html) | 手工大理石紋紙工坊 | 流墨大理石紋風 Marbled-Ink | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 116 | [圈舞堂 Ring & Reel](sites/quanwu/index.html) | 土風舞聯誼社 | 隊形走位圖風 Formation-Choreography | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

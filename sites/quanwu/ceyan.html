@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>認呼考・看走位跡認圖形｜圈舞堂</title>
+<meta name="description" content="圈舞堂認呼考：看一段走位跡，認出是哪個圖形。十題一輪，記錄你最常混淆的兩式，給你個人化的練習建議。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%238A5A34'/%3E%3Cg fill='none' stroke='%23C79A46' stroke-width='1.4'%3E%3Ccircle cx='16' cy='16' r='9'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='16' cy='7' r='2.6' fill='%23C7402B'/%3E%3Ccircle cx='25' cy='16' r='2.6' fill='%232E5A7A'/%3E%3Ccircle cx='16' cy='25' r='2.6' fill='%23C7402B'/%3E%3Ccircle cx='7' cy='16' r='2.6' fill='%232E5A7A'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#8A5A34;--ground2:#734625;--cream:#F0E4CE;--cream2:#E7D6B6;--ink:#241A12;--red:#C7402B;--blue:#2E5A7A;--green:#5E8A54;--brass:#C79A46;--shadow:rgba(36,26,18,.22);--serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;--mono:'Space Mono',monospace;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.66;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.05) 0 22px,rgba(255,255,255,.03) 22px 44px),repeating-linear-gradient(-45deg,rgba(0,0,0,.04) 0 22px,rgba(255,255,255,.02) 22px 44px);}
+a{color:var(--red)}
+h1,h2,h3{font-family:var(--serif);font-weight:900;margin:0;line-height:1.16}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;position:fixed;background:var(--cream);padding:8px 12px;z-index:99}
+.ringnav{position:fixed;top:16px;left:16px;z-index:40;background:var(--cream);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--shadow);padding:8px}
+.ringnav .lbl{font-family:var(--mono);font-size:9.5px;fill:var(--ink)}
+@media(max-width:820px){.ringnav{top:auto;bottom:0;left:0;right:0;width:100%;padding:0;border:0;border-top:2px solid var(--ink)}.ringnav .ringwrap{display:none}.ringnav .dock{display:flex;width:100%}.ringnav .dock a{flex:1;text-align:center;padding:11px 4px;font-family:var(--mono);font-size:12px;color:var(--ink);text-decoration:none;border-right:1px solid var(--ink)}.ringnav .dock a:last-child{border-right:0}.ringnav .dock a[aria-current="page"]{background:var(--red);color:var(--cream)}}
+@media(min-width:821px){.ringnav .dock{display:none}}
+.mast{padding:30px 0 6px}
+.mast .top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:3px solid var(--ink);padding-bottom:14px;margin-left:96px}
+.mast img{height:60px}
+.mast .meta{font-family:var(--mono);font-size:12px;color:var(--cream);text-align:right}
+@media(max-width:820px){.mast .top{margin-left:0}}
+.hero-h{color:var(--cream);padding:24px 0 12px}
+.hero-h h1{font-size:32px}
+.hero-h p{max-width:600px;margin:8px 0 0}
+.quiz{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:760px){.quiz{grid-template-columns:1fr}}
+.card{background:var(--cream);border:2px solid var(--ink);box-shadow:7px 7px 0 var(--shadow)}
+.card .hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:2px solid var(--ink);background:var(--cream2);font-family:var(--mono);font-size:12px}
+.stagebox{position:relative;aspect-ratio:1/1}
+.stagebox canvas,.stagebox svg{position:absolute;inset:0;width:100%;height:100%}
+.replay{width:100%;font-family:var(--mono);font-weight:700;font-size:12px;padding:9px;border:0;border-top:2px solid var(--ink);background:var(--cream2);cursor:pointer}
+.replay:hover{background:var(--brass)}
+.panel{background:var(--cream);border:2px solid var(--ink);box-shadow:7px 7px 0 var(--shadow);padding:18px 20px;min-height:200px}
+.panel .q{font-family:var(--serif);font-size:22px;font-weight:700;margin-bottom:14px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.opts{grid-template-columns:1fr}}
+.opts button{font-family:var(--sans);text-align:left;background:var(--cream2);border:2px solid var(--ink);padding:11px 13px;cursor:pointer;box-shadow:3px 3px 0 var(--shadow);transition:transform .08s}
+.opts button b{display:block;font-family:var(--serif);font-weight:700;font-size:16px}
+.opts button span{font-family:var(--mono);font-size:10px;color:var(--ground2)}
+.opts button:hover:not(:disabled){background:var(--brass)}
+.opts button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+.opts button.correct{background:var(--green);color:var(--cream);border-color:var(--green)}
+.opts button.wrong{background:var(--red);color:var(--cream);border-color:var(--red)}
+.opts button:disabled{cursor:default}
+.fb{margin-top:14px;font-size:15px;min-height:24px}
+.fb b{color:var(--ground2)}
+.next{margin-top:14px;font-family:var(--mono);font-weight:700;font-size:13px;padding:11px 22px;border:2px solid var(--ink);background:var(--red);color:var(--cream);cursor:pointer;box-shadow:3px 3px 0 var(--shadow)}
+.next:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--shadow)}
+.scorebar{display:flex;gap:16px;font-family:var(--mono);font-size:12px;color:var(--ground2);margin-top:10px;flex-wrap:wrap}
+.result{text-align:center;padding:10px 0}
+.result .grade{font-family:var(--serif);font-size:58px;font-weight:900;color:var(--red);line-height:1}
+.result h2{font-size:24px;margin:8px 0}
+.result .advice{background:var(--cream2);border:2px solid var(--ink);padding:14px 16px;text-align:left;margin:16px 0;font-size:14.5px}
+.result .advice b{color:var(--red)}
+footer{background:var(--ink);color:var(--cream);padding:34px 0 60px;margin-top:30px}
+@media(max-width:820px){footer{padding-bottom:84px}}
+footer .mono{font-size:11.5px;color:#b7a78c;line-height:1.8}
+footer a{color:var(--cream)}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">跳到內容</a>
+<nav class="ringnav" aria-label="主導覽">
+  <div class="ringwrap"><svg width="86" height="86" viewBox="0 0 86 86">
+    <circle cx="43" cy="43" r="27" fill="none" stroke="#C79A46" stroke-width="1.6"/>
+    <a href="index.html"><g><circle cx="43" cy="16" r="7.5" fill="#E7D6B6" stroke="#241A12" stroke-width="1.4"/><text class="lbl" x="43" y="19.5" text-anchor="middle">舞</text></g></a>
+    <a href="wumu.html"><g><circle cx="70" cy="43" r="7.5" fill="#E7D6B6" stroke="#241A12" stroke-width="1.4"/><text class="lbl" x="70" y="46.5" text-anchor="middle">碼</text></g></a>
+    <a href="ceyan.html" aria-current="page"><g><circle cx="43" cy="70" r="8.5" fill="#C7402B"/><text class="lbl" x="43" y="73.5" text-anchor="middle" fill="#F0E4CE">考</text></g></a>
+    <a href="ru.html"><g><circle cx="16" cy="43" r="7.5" fill="#E7D6B6" stroke="#241A12" stroke-width="1.4"/><text class="lbl" x="16" y="46.5" text-anchor="middle">入</text></g></a>
+  </svg></div>
+  <div class="dock"><a href="index.html">呼舞台</a><a href="wumu.html">舞碼館</a><a href="ceyan.html" aria-current="page">認呼考</a><a href="ru.html">入社</a></div>
+</nav>
+
+<header class="mast wrap"><div class="top">
+  <a href="index.html"><img src="assets/logo.svg" alt="圈舞堂"></a>
+  <div class="meta">認呼考・看跡認圖形</div>
+</div></header>
+
+<main class="wrap" id="content">
+  <div class="hero-h">
+    <h1>認呼考</h1>
+    <p>呼舞者要能一眼認出走位。左邊是一段舞者剛走過的<b>走位跡</b>，猜猜看，這是哪一個圖形？十題一輪，考完告訴你最容易看走眼的是哪兩式。</p>
+  </div>
+
+  <div class="quiz">
+    <div class="card">
+      <div class="hd"><span id="qnum">第 1 / 10 題</span><span id="streak" class="mono"></span></div>
+      <div class="stagebox">
+        <canvas id="trace" width="600" height="600" aria-hidden="true"></canvas>
+        <svg id="floorsvg" viewBox="0 0 400 400" role="img" aria-label="一段走位跡，請辨認圖形"><g id="floordeco"></g><g id="dancers"></g></svg>
+      </div>
+      <button class="replay" id="replay">▶ 看它走一遍</button>
+    </div>
+
+    <div class="panel" id="panel">
+      <div class="q" id="qtext">這段走位是哪個圖形？</div>
+      <div class="opts" id="opts"></div>
+      <div class="fb" id="fb" aria-live="polite"></div>
+      <button class="next" id="next" style="display:none">下一題 →</button>
+      <div class="scorebar"><span>答對 <b id="right">0</b></span><span>連對 <b id="run">0</b></span></div>
+    </div>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  <p style="font-family:var(--serif);font-size:20px;margin:0 0 8px">圈舞堂・手牽手土風舞聯誼社</p>
+  <p class="mono">看不懂走位跡？先到 <a href="wumu.html">舞碼館</a> 把八式圖形認熟，或讀 <a href="fa.html">呼舞之法</a>。<br>
+  台中市西區民生路 78 巷 3 號 2 樓・(04) 2301-6688<br>
+  文案為虛構示意。本站由 Claude Opus 4.8 · 排程 Agent 設計與建置（2026-07-26）。</p>
+</div></footer>
+
+<script>
+"use strict";
+(function(){
+  var N=8,CX=200,CY=200,R=140,TAU=Math.PI*2;
+  var REDUCE=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var HOME=[];for(var i=0;i<N;i++)HOME.push(i);
+  function roleOf(d){return d%2===0?'A':'B';}
+  function colOf(d){return d%2===0?'#C7402B':'#2E5A7A';}
+  function slotAngle(s){return -Math.PI/2+s*(TAU/N);}
+  function slotPos(s){var a=slotAngle(s);return{x:CX+R*Math.cos(a),y:CY+R*Math.sin(a),a:a};}
+  function partnerSlot(s){return(s%2===0)?s+1:s-1;}
+  function ease(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+  var FIGS=[
+    {id:'in_out',zh:'進退',en:'IN & OUT',beats:8,style:'radial',apply:function(o){return o.slice();}},
+    {id:'circle_l',zh:'大圈左行',en:'CIRCLE LEFT',beats:8,style:'ring',dir:1,span:2,apply:function(o){var n=new Array(N);for(var s=0;s<N;s++)n[(s+2)%N]=o[s];return n;}},
+    {id:'circle_r',zh:'大圈右行',en:'CIRCLE RIGHT',beats:8,style:'ring',dir:-1,span:2,apply:function(o){var n=new Array(N);for(var s=0;s<N;s++)n[(s-2+N)%N]=o[s];return n;}},
+    {id:'dosido',zh:'背對背',en:'DO-SI-DO',beats:8,style:'dosido',apply:function(o){return o.slice();}},
+    {id:'allemande',zh:'右手勾轉',en:'ALLEMANDE R',beats:8,style:'allemande',apply:function(o){return o.slice();}},
+    {id:'swap',zh:'對位互換',en:'PARTNER SWAP',beats:4,style:'swap',apply:function(o){var n=o.slice();for(var s=0;s<N;s+=2){var t=n[s];n[s]=n[s+1];n[s+1]=t;}return n;}},
+    {id:'star',zh:'右手星',en:'RIGHT-HAND STAR',beats:8,style:'star',apply:function(o){return o.slice();}},
+    {id:'chain',zh:'穿花大鏈',en:'GRAND CHAIN',beats:16,style:'chain',apply:function(o){return o.slice();}}
+  ];
+  var FMAP={};FIGS.forEach(function(f){FMAP[f.id]=f;});
+  function pathOf(fig,d,fromSlot,toSlot,t){
+    var pf=slotPos(fromSlot),pt=slotPos(toSlot);
+    switch(fig.style){
+      case 'radial':{var a=pf.a,rr=R*(1-0.30*Math.sin(Math.PI*t));return{x:CX+rr*Math.cos(a),y:CY+rr*Math.sin(a)};}
+      case 'ring':{var a0=slotAngle(fromSlot),a1=a0+fig.dir*(TAU/N)*fig.span,aa=a0+(a1-a0)*ease(t);return{x:CX+R*Math.cos(aa),y:CY+R*Math.sin(aa)};}
+      case 'dosido':{var ps=partnerSlot(fromSlot),pp=slotPos(ps),mx=(pf.x+pp.x)/2,my=(pf.y+pp.y)/2,rx=pf.x-mx,ry=pf.y-my,ang=(roleOf(d)==='A'?1:-1)*TAU*t,c=Math.cos(ang),s=Math.sin(ang),k=1+0.14*Math.sin(Math.PI*t);return{x:mx+(rx*c-ry*s)*k,y:my+(rx*s+ry*c)*k};}
+      case 'allemande':{var ps2=partnerSlot(fromSlot),pp2=slotPos(ps2),mx2=(pf.x+pp2.x)/2,my2=(pf.y+pp2.y)/2,rx2=(pf.x-mx2)*0.82,ry2=(pf.y-my2)*0.82,ang2=TAU*t,c2=Math.cos(ang2),s2=Math.sin(ang2);return{x:mx2+(rx2*c2-ry2*s2),y:my2+(rx2*s2+ry2*c2)};}
+      case 'swap':{var a0s=slotAngle(fromSlot),a1s=slotAngle(toSlot),da=a1s-a0s;if(da>Math.PI)da-=TAU;if(da<-Math.PI)da+=TAU;var aa2=a0s+da*ease(t),bulge=(roleOf(d)==='A'?1:-1)*26*Math.sin(Math.PI*t),rr2=R+bulge;return{x:CX+rr2*Math.cos(aa2),y:CY+rr2*Math.sin(aa2)};}
+      case 'star':{var g=(fromSlot<4)?0:1,base=g*4,cx=0,cy=0;for(var q=0;q<4;q++){var p=slotPos(base+q);cx+=p.x;cy+=p.y;}cx/=4;cy/=4;var rx3=pf.x-cx,ry3=pf.y-cy,ang3=TAU*ease(t),c3=Math.cos(ang3),s3=Math.sin(ang3),k3=0.7+0.3*Math.cos(Math.PI*t);return{x:cx+(rx3*c3-ry3*s3)*k3,y:cy+(rx3*s3+ry3*c3)*k3};}
+      case 'chain':{var dir=(roleOf(d)==='A'?1:-1),a0c=slotAngle(fromSlot),ac=a0c+dir*TAU*ease(t),weave=16*Math.sin(t*N*Math.PI)*dir,rr3=R+weave;return{x:CX+rr3*Math.cos(ac),y:CY+rr3*Math.sin(ac)};}
+    }
+    return{x:pf.x+(pt.x-pf.x)*t,y:pf.y+(pt.y-pf.y)*t};
+  }
+
+  // ---- floor ----
+  var gD=document.getElementById('dancers'),gDeco=document.getElementById('floordeco');
+  var canvas=document.getElementById('trace'),ctx=null;try{ctx=canvas.getContext('2d');}catch(e){ctx=null;}
+  (function(){var s='<circle cx="200" cy="200" r="'+R+'" fill="none" stroke="#C79A46" stroke-width="1.4" stroke-dasharray="2 6"/><circle cx="200" cy="200" r="3" fill="#734625"/>';for(var j=0;j<N;j++){var p=slotPos(j);s+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="14" fill="none" stroke="#C9A26A" stroke-width="1" stroke-dasharray="1.5 3.5"/>';}gDeco.innerHTML=s;})();
+  var nodes=[];
+  for(var d2=0;d2<N;d2++){var g=document.createElementNS('http://www.w3.org/2000/svg','g');g.innerHTML='<circle r="12" fill="'+colOf(d2)+'"/><circle r="12" fill="none" stroke="#241A12" stroke-width="1.5"/><circle cy="-3" r="4" fill="#F0E4CE"/>';gD.appendChild(g);nodes[d2]=g;}
+  function place(pos){for(var d=0;d<N;d++)nodes[d].setAttribute('transform','translate('+pos[d].x.toFixed(2)+','+pos[d].y.toFixed(2)+')');}
+  function occPos(o){var pos=[];for(var s=0;s<N;s++)pos[o[s]]=slotPos(s);return pos;}
+  function clearTrace(){if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height);}
+  function traceDot(d,x,y,al){if(!ctx)return;ctx.beginPath();ctx.fillStyle=(d%2===0)?'rgba(199,64,43,'+al+')':'rgba(46,90,122,'+al+')';ctx.arc(x*1.5,y*1.5,1.5,0,TAU);ctx.fill();}
+  // draw full static trace of a figure (reduced-motion / default question view)
+  function drawStatic(fig){
+    clearTrace();
+    var o=HOME.slice(),target=fig.apply(o),fromSlot=[],toSlot=[];
+    for(var s=0;s<N;s++){fromSlot[o[s]]=s;toSlot[target[s]]=s;}
+    for(var d=0;d<N;d++){for(var k=0;k<=48;k++){var p=pathOf(fig,d,fromSlot[d],toSlot[d],k/48);traceDot(d,p.x,p.y,0.5);}}
+    place(occPos(HOME));
+  }
+  var busy=false;
+  function animate(fig,cb){
+    if(busy){if(cb)cb();return;}busy=true;clearTrace();
+    var o=HOME.slice(),target=fig.apply(o),fromSlot=[],toSlot=[];
+    for(var s=0;s<N;s++){fromSlot[o[s]]=s;toSlot[target[s]]=s;}
+    var dur=REDUCE?0:Math.max(700,fig.beats*95),t0=null;
+    function frame(ts){if(t0===null)t0=ts;var t=dur===0?1:Math.min(1,(ts-t0)/dur);var pos=[];for(var dd=0;dd<N;dd++){var p=pathOf(fig,dd,fromSlot[dd],toSlot[dd],t);pos[dd]=p;traceDot(dd,p.x,p.y,0.55);}place(pos);if(t<1)requestAnimationFrame(frame);else{place(occPos(HOME));busy=false;if(cb)cb();}}
+    requestAnimationFrame(frame);
+  }
+
+  // ---- quiz state ----
+  var TOTAL=10;
+  var qi=0,right=0,streak=0,bestStreak=0,answered=false,cur=null;
+  var confusion={}; // "chosen>target" -> count
+  var qnum=document.getElementById('qnum'),optsEl=document.getElementById('opts'),fb=document.getElementById('fb'),nextBtn=document.getElementById('next'),qtext=document.getElementById('qtext');
+  var rightEl=document.getElementById('right'),runEl=document.getElementById('run'),streakEl=document.getElementById('streak'),panel=document.getElementById('panel');
+  var replayBtn=document.getElementById('replay');
+
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function newQuestion(){
+    answered=false;nextBtn.style.display='none';fb.textContent='';
+    cur=FIGS[Math.floor(Math.random()*FIGS.length)];
+    qnum.textContent='第 '+(qi+1)+' / '+TOTAL+' 題';
+    // options: target + 3 distractors
+    var others=FIGS.filter(function(f){return f.id!==cur.id;});
+    shuffle(others);
+    var opts=shuffle([cur].concat(others.slice(0,3)));
+    optsEl.innerHTML='';
+    opts.forEach(function(f){
+      var b=document.createElement('button');
+      b.innerHTML='<b>'+f.zh+'</b><span>'+f.en+'</span>';
+      b.addEventListener('click',function(){answer(f,b);});
+      optsEl.appendChild(b);
+    });
+    if(REDUCE){drawStatic(cur);} else {animate(cur);}
+  }
+  function answer(f,btn){
+    if(answered)return;answered=true;
+    var buttons=optsEl.querySelectorAll('button');
+    Array.prototype.forEach.call(buttons,function(b){b.disabled=true;});
+    if(f.id===cur.id){
+      btn.className='correct';right++;streak++;bestStreak=Math.max(bestStreak,streak);
+      fb.innerHTML='對了！這是 <b>'+cur.zh+'</b>（'+cur.en+'）。';
+    }else{
+      btn.className='wrong';streak=0;
+      // mark the correct one
+      Array.prototype.forEach.call(buttons,function(b){if(b.querySelector('b').textContent===cur.zh)b.className='correct';});
+      var key=f.zh+'｜'+cur.zh;confusion[key]=(confusion[key]||0)+1;
+      fb.innerHTML='這其實是 <b>'+cur.zh+'</b>。你看成了 '+f.zh+'——它們的走位跡確實有點像。';
+    }
+    rightEl.textContent=right;runEl.textContent=streak;streakEl.textContent=streak>=3?('連對 '+streak+' 手不斷'):'';
+    qi++;
+    nextBtn.style.display='inline-block';
+    nextBtn.textContent = qi>=TOTAL ? '看成績 →' : '下一題 →';
+  }
+  nextBtn.addEventListener('click',function(){if(qi>=TOTAL)showResult();else newQuestion();});
+  replayBtn.addEventListener('click',function(){if(cur)animate(cur);});
+
+  function showResult(){
+    var grade,word;
+    if(right>=10){grade='甲上';word='一眼認圖，可以上台呼了。';}
+    else if(right>=8){grade='甲';word='很穩，偶爾看走眼。';}
+    else if(right>=6){grade='乙';word='圖形大致認得，再多跳幾次。';}
+    else{grade='丙';word='先回舞碼館把八式走位跡看熟。';}
+    // most confused
+    var worst=null,wc=0;
+    for(var k in confusion){if(confusion[k]>wc){wc=confusion[k];worst=k;}}
+    var advice;
+    if(!worst){advice='你這輪沒有明顯混淆的組合，穩定度很高。想再拚滿分，挑戰把十題全對。';}
+    else{
+      var pair=worst.split('｜'); // chosen ｜ target
+      advice='你最常把 <b>'+pair[1]+'</b> 看成 <b>'+pair[0]+'</b>（'+wc+' 次）。訣竅：'+tipFor(pair[1],pair[0])+'';
+    }
+    panel.innerHTML='<div class="result"><div class="grade">'+grade+'</div>'+
+      '<h2>十題答對 '+right+' 題</h2>'+
+      '<p style="margin:2px 0 0;color:var(--ground2)">'+word+'　最長連對 '+bestStreak+' 題。</p>'+
+      '<div class="advice">個人化建議：'+advice+'</div>'+
+      '<button class="next" id="again">再考一輪</button> '+
+      '<a class="next" style="text-decoration:none;background:var(--cream2);color:var(--ink)" href="wumu.html">去舞碼館複習</a></div>';
+    document.getElementById('again').addEventListener('click',function(){qi=0;right=0;streak=0;bestStreak=0;confusion={};rebuildPanel();newQuestion();});
+    qnum.textContent='考完了';streakEl.textContent='';
+  }
+  function tipFor(target,chosen){
+    var m={
+      '大圈左行':'看整圈是往左（逆時針）掃還是往右。',
+      '大圈右行':'看整圈是往右（順時針）掃還是往左。',
+      '背對背':'背對背是繞小圈、人不換位；勾轉的弧線更緊。',
+      '右手勾轉':'勾轉兩人繞同一圓心、弧線抱得緊；背對背繞得開。',
+      '對位互換':'互換是兩人真的交換了位置，跡呈交叉；別的雙人圖形會回原位。',
+      '右手星':'星是四人繞一個小中心；穿花是全體繞大圈。',
+      '穿花大鏈':'大鏈是紅藍反向繞整個大圈、互相穿過；星只在四人小圈裡。',
+      '進退':'進退是直直進出圓心的放射線，沒有繞行。'
+    };
+    return m[target]||'多看幾次它的走位跡就記住了。';
+  }
+  function rebuildPanel(){
+    panel.innerHTML='<div class="q" id="qtext">這段走位是哪個圖形？</div><div class="opts" id="opts"></div><div class="fb" id="fb" aria-live="polite"></div><button class="next" id="next" style="display:none">下一題 →</button><div class="scorebar"><span>答對 <b id="right">0</b></span><span>連對 <b id="run">0</b></span></div>';
+    optsEl=document.getElementById('opts');fb=document.getElementById('fb');nextBtn=document.getElementById('next');rightEl=document.getElementById('right');runEl=document.getElementById('run');
+    nextBtn.addEventListener('click',function(){if(qi>=TOTAL)showResult();else newQuestion();});
+  }
+
+  newQuestion();
+})();
+</script>
+</body>
+</html>

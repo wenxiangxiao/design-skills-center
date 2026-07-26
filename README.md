@@ -128,6 +128,7 @@
 | 110 | [韋爾閣紋章院 VAIRCOURT](sites/vaircourt/index.html) | 紋章設計院 | 彩飾盾徽紋章風 Emblazon-Illuminated | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 111 | [河界棋院 HÉJIÈ](sites/hejie/index.html) | 象棋教室／棋院 | 漆枰朱墨風 Lacquer-Board Duotone | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 112 | [掌語 手語典藏所 ZHǍNGYǓ](sites/zhangyu/index.html) | 手語典藏／手語詞典館 | 手勢掛圖風 Handshape-Chart | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 113 | [三球雜耍研究所 SANQIU](sites/sanqiu/index.html) | 雜耍／拋接學校 | 拋物運動風 Ballistic-Notation | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

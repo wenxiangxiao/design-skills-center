@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>招式圖鑑 — 三球雜耍研究所｜SANQIU Juggling Lab</title>
+<meta name="description" content="27 式 siteswap 拋接招式圖鑑：依球數、難度、道具與是否過手多條件即時篩選，每一式都附由拋接引擎生成的落點軌跡圖。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFC400'/%3E%3Cpath d='M5 26 Q16 2 27 26' fill='none' stroke='%2316130E' stroke-width='2.5'/%3E%3Ccircle cx='9' cy='13' r='3' fill='%23EF3B1C' stroke='%2316130E' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='7' r='3' fill='%231E44C8' stroke='%2316130E' stroke-width='1.5'/%3E%3Ccircle cx='23' cy='13' r='3' fill='%23FBF2DE' stroke='%2316130E' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#FBF2DE;--ink:#16130E;--yellow:#FFC400;--blue:#1E44C8;--red:#EF3B1C;--paper:#FFFDF6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6}
+.mono{font-family:"Space Mono",monospace}
+h1,h2,h3,.disp{font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;font-weight:800;line-height:1.04;letter-spacing:-.01em}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:40;background:var(--ground);border-bottom:3px solid var(--ink)}
+.top-in{max-width:1120px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:20px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.brand svg{display:block;height:42px;width:auto}
+.brand b{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:18px;line-height:1;letter-spacing:-.02em}
+.brand small{display:block;font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.24em;color:#6a5f45;margin-top:3px}
+.arc-nav{position:relative;width:min(560px,52vw);height:60px;flex:1 1 auto}
+.arc-nav svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.arc-nav a{position:absolute;transform:translate(-50%,-50%);text-decoration:none;text-align:center;width:96px}
+.arc-nav .ball{width:26px;height:26px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-family:"Space Mono",monospace;font-size:11px;font-weight:700}
+.arc-nav a[aria-current="page"] .ball{background:var(--red);color:var(--paper);box-shadow:0 4px 0 var(--ink)}
+.arc-nav .lab{font-size:11.5px;font-weight:700}
+.arc-nav a:hover .ball{background:var(--yellow)}
+.dock{display:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.head{padding:40px 0 20px}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:0 0 10px}
+.head h1{font-size:clamp(30px,5vw,52px);margin:0 0 10px}
+.head p{max-width:56ch;font-size:15px}
+.filters{display:flex;flex-wrap:wrap;gap:22px;padding:20px 0;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);margin-bottom:6px}
+.fgroup{display:flex;flex-direction:column;gap:8px}
+.fgroup .lbl{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#6a5f45;font-weight:700}
+.fgroup .chips{display:flex;flex-wrap:wrap;gap:6px}
+.fchip{font-family:"Space Mono",monospace;font-size:12.5px;font-weight:700;padding:6px 11px;border:2px solid var(--ink);background:var(--paper);cursor:pointer;user-select:none}
+.fchip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.count{font-family:"Space Mono",monospace;font-size:13px;padding:14px 0;color:#6a5f45}
+.count b{color:var(--red);font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:0 0 60px}
+.pcard{border:3px solid var(--ink);background:var(--paper);display:flex;flex-direction:column;box-shadow:5px 5px 0 var(--ink)}
+.pcard .viz{background:#16130E;border-bottom:3px solid var(--ink)}
+.pcard .viz svg{display:block;width:100%;height:auto}
+.pcard .body{padding:14px 16px}
+.pcard .ss{font-family:"Space Mono",monospace;font-weight:700;font-size:26px;letter-spacing:.1em}
+.pcard h3{font-size:18px;margin:2px 0 6px}
+.pcard p{font-size:13.5px;margin:0 0 10px;color:#3a3323}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:"Space Mono",monospace;font-size:10.5px;padding:3px 8px;border:2px solid var(--ink);background:var(--ground);letter-spacing:.05em}
+.tag.b{background:var(--blue);color:var(--paper);border-color:var(--blue)}
+.tag.y{background:var(--yellow)}
+.empty{grid-column:1/-1;text-align:center;padding:50px;font-family:"Space Mono",monospace;color:#6a5f45}
+footer{background:var(--ink);color:#d9cfb4;border-top:3px solid var(--ink)}
+.foot-in{max-width:1120px;margin:0 auto;padding:40px 22px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{color:var(--paper);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:16px;margin:0 0 10px}
+footer a{color:#d9cfb4;text-decoration:none;display:block;padding:3px 0;font-size:14px}
+footer a:hover{color:var(--yellow)}
+.foot-meta{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.04em;line-height:1.9;color:#9c9070}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){
+  .arc-nav{display:none}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ground);border-top:3px solid var(--ink)}
+  .dock a{flex:1;text-align:center;padding:9px 2px;text-decoration:none;font-size:12px;font-weight:700;border-right:1px solid #d9cdaa}
+  .dock a:last-child{border-right:0}
+  .dock a[aria-current="page"]{background:var(--red);color:var(--paper)}
+  .dock a .d{font-family:"Space Mono",monospace;font-size:9px;display:block;color:#8a7d5c}
+  body{padding-bottom:52px}
+  .grid{grid-template-columns:1fr}.foot-in{grid-template-columns:1fr}.pcard{box-shadow:4px 4px 0 var(--ink)}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 60 44" aria-hidden="true"><rect x="6" y="34" width="14" height="5" fill="#16130E"/><rect x="40" y="34" width="14" height="5" fill="#16130E"/><path d="M13 34 Q30 2 47 34" fill="none" stroke="#1E44C8" stroke-width="3"/><circle cx="22" cy="15" r="5.5" fill="#FFC400" stroke="#16130E" stroke-width="2.6"/><circle cx="38" cy="15" r="5.5" fill="#EF3B1C" stroke="#16130E" stroke-width="2.6"/><circle cx="30" cy="26" r="4.6" fill="#FBF2DE" stroke="#16130E" stroke-width="2.6"/></svg>
+      <span><b>三球雜耍研究所</b><small>SANQIU · SITESWAP LAB</small></span>
+    </a>
+    <nav class="arc-nav" aria-label="主導覽">
+      <svg viewBox="0 0 560 60" aria-hidden="true" preserveAspectRatio="none">
+        <path d="M40 52 Q110 -8 200 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+        <path d="M200 52 Q270 -8 360 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+        <path d="M360 52 Q430 -8 520 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+      </svg>
+      <a href="index.html" style="left:7%;top:44px"><span class="ball">3</span><span class="lab">拋接台</span></a>
+      <a href="patterns.html" aria-current="page" style="left:35.7%;top:6px"><span class="ball">5</span><span class="lab">招式圖鑑</span></a>
+      <a href="fa.html" style="left:64.3%;top:6px"><span class="ball">1</span><span class="lab">記譜法</span></a>
+      <a href="ban.html" style="left:93%;top:44px"><span class="ball">7</span><span class="lab">報名</span></a>
+    </nav>
+  </div>
+</header>
+<nav class="dock" aria-label="行動版導覽">
+  <a href="index.html">拋接台<span class="d">HOME</span></a>
+  <a href="patterns.html" aria-current="page">圖鑑<span class="d">ATLAS</span></a>
+  <a href="fa.html">記譜法<span class="d">METHOD</span></a>
+  <a href="ban.html">報名<span class="d">JOIN</span></a>
+</nav>
+
+<main class="wrap">
+  <div class="head">
+    <p class="eyebrow">招式圖鑑 · 27 式</p>
+    <h1>從三球到七球，<br>每一式都算得出來。</h1>
+    <p>下面每一張卡的軌跡圖都是拋接引擎照它的記譜當場生出來的落點弧線，不是畫的。挑球數、難度、道具，或只看會過手的花式——條件即時交叉。</p>
+  </div>
+
+  <div class="filters">
+    <div class="fgroup">
+      <span class="lbl">球數</span>
+      <div class="chips" data-facet="balls">
+        <button class="fchip" data-v="3">3 球</button>
+        <button class="fchip" data-v="4">4 球</button>
+        <button class="fchip" data-v="5">5 球</button>
+        <button class="fchip" data-v="7">7 球</button>
+      </div>
+    </div>
+    <div class="fgroup">
+      <span class="lbl">難度</span>
+      <div class="chips" data-facet="stars">
+        <button class="fchip" data-v="1">★</button>
+        <button class="fchip" data-v="2">★★</button>
+        <button class="fchip" data-v="3">★★★</button>
+        <button class="fchip" data-v="4">★★★★</button>
+        <button class="fchip" data-v="5">★★★★★</button>
+      </div>
+    </div>
+    <div class="fgroup">
+      <span class="lbl">道具</span>
+      <div class="chips" data-facet="prop">
+        <button class="fchip" data-v="球">球</button>
+        <button class="fchip" data-v="棒">球棒</button>
+        <button class="fchip" data-v="環">環</button>
+      </div>
+    </div>
+    <div class="fgroup">
+      <span class="lbl">是否過手</span>
+      <div class="chips" data-facet="cross">
+        <button class="fchip" data-v="會">會交叉</button>
+        <button class="fchip" data-v="不">同手為主</button>
+      </div>
+    </div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <h4>三球雜耍研究所</h4>
+      <p class="foot-meta">SANQIU JUGGLING LAB<br>台北・大稻埕 · EST. 2016<br>把 siteswap 當成一種語言來教。</p>
+    </div>
+    <div>
+      <h4>逛逛</h4>
+      <a href="index.html">拋接台（編輯器）</a>
+      <a href="patterns.html">招式圖鑑</a>
+      <a href="fa.html">記譜法怎麼讀</a>
+      <a href="ban.html">課程報名</a>
+    </div>
+    <div>
+      <h4>聯絡</h4>
+      <p class="foot-meta">02-2557-3105<br>toss@sanqiu-lab.tw<br>迪化街一段 164 巷 7 號 2 樓</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const ACCENT=["#FFC400","#EF3B1C","#1E44C8","#2AA968","#B14FD8"];
+function parseSS(s){return [...s].map(c=>parseInt(c,36));}
+function orbitSVG(str){
+  const seq=parseSS(str), n=seq.length, W=340,H=150,padL=22,padR=18,base=112,top=18;
+  let ml=n; for(let i=0;i<n;i++){ml=Math.max(ml,i+seq[i]);}
+  const cols=Math.max(ml,1), colW=(W-padL-padR)/cols; let s="";
+  s+=`<rect width="${W}" height="${H}" fill="#16130E"/>`;
+  for(let i=0;i<=cols;i++){const x=padL+i*colW;s+=`<line x1="${x}" y1="${base}" x2="${x}" y2="${base+6}" stroke="#c9b98f" stroke-width="1.2"/>`;}
+  s+=`<line x1="${padL}" y1="${base}" x2="${W-padR}" y2="${base}" stroke="#c9b98f" stroke-width="2"/>`;
+  for(let i=0;i<n;i++){const h=seq[i];if(h<=0)continue;
+    const x0=padL+i*colW+colW/2, x1=padL+(i+h)*colW+colW/2;
+    const peak=Math.min(base-top,12+h*h*2.6), midx=(x0+x1)/2;
+    const col=ACCENT[i%ACCENT.length];
+    if(h===2){s+=`<path d="M${x0} ${base} q8 -18 0 -34 q-8 16 0 34" fill="none" stroke="${col}" stroke-width="2.6"/>`;}
+    else{s+=`<path d="M${x0} ${base} Q${midx} ${base-peak-peak*0.35} ${x1} ${base}" fill="none" stroke="${col}" stroke-width="2.8" stroke-linecap="round"/>`;}
+    s+=`<text x="${x0}" y="${base-5}" text-anchor="middle" font-family="'Space Mono',monospace" font-size="12" font-weight="700" fill="#FBF2DE">${seq[i].toString(36)}</text>`;
+    s+=`<circle cx="${x0}" cy="${base}" r="3" fill="#FBF2DE"/>`;}
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${str} 落點軌跡">${s}</svg>`;
+}
+// ss=顯示記譜, viz=生成軌跡用的純記譜, b=球數(已驗算), st=難度, prop=道具, cr=是否過手, d=說明
+const PATTERNS=[
+  {ss:"3",viz:"3",name:"三球連拋 Cascade",b:3,st:1,prop:"球",cr:"會",d:"最基本的花式，兩手交叉輪流拋。學會這個，等於懂了一半。"},
+  {ss:"423",viz:"423",name:"四二三 423",b:3,st:1,prop:"球",cr:"會",d:"中間那顆 2 是拿著不動，看起來像單手在變戲法。"},
+  {ss:"42",viz:"42",name:"四二 42",b:3,st:1,prop:"球",cr:"不",d:"兩顆同手上拋、一顆托著，完全不過手的三球練習。"},
+  {ss:"51",viz:"51",name:"三球陣雨 Shower",b:3,st:2,prop:"球",cr:"會",d:"一手一直高拋、另一手快速橫遞，球繞成一個圈。"},
+  {ss:"441",viz:"441",name:"四四一 441",b:3,st:2,prop:"球",cr:"會",d:"兩個同手高拋夾一個快遞，是進四球前的最佳橋樑。"},
+  {ss:"531",viz:"531",name:"五三一 531",b:3,st:2,prop:"球",cr:"會",d:"高、中、低三種拋各一，最上鏡的三球花式。"},
+  {ss:"612",viz:"612",name:"六一二 612",b:3,st:3,prop:"球",cr:"會",d:"一個超高拋接快遞再托一下，冷門但很有層次。"},
+  {ss:"45141",viz:"45141",name:"四五一四一",b:3,st:3,prop:"球",cr:"會",d:"把 531 和 441 的味道混在一起的長節奏。"},
+  {ss:"50505",viz:"50505",name:"五空五空五",b:3,st:3,prop:"球",cr:"會",d:"每隔一拍才拋一次，中間是誇張的空手停頓。"},
+  {ss:"4",viz:"4",name:"四球噴泉 Fountain",b:4,st:3,prop:"球",cr:"不",d:"兩手各自往上噴、互不過手，四球的標準入門。"},
+  {ss:"53",viz:"53",name:"五三 53",b:4,st:3,prop:"球",cr:"會",d:"四球版的節奏落差，一高一低交替。"},
+  {ss:"552",viz:"552",name:"五五二 552",b:4,st:3,prop:"球",cr:"會",d:"四球最好上手的花式，中間夾一個托球。"},
+  {ss:"534",viz:"534",name:"五三四 534",b:4,st:3,prop:"球",cr:"會",d:"混合過手與同手，手感切換的練習。"},
+  {ss:"5551",viz:"5551",name:"五五五一",b:4,st:4,prop:"球",cr:"會",d:"三個高拋接一個橫遞，四球進五球的踏板。"},
+  {ss:"633",viz:"633",name:"六三三 633",b:4,st:4,prop:"球",cr:"會",d:"一個超高拋換來兩拍低檔巡航，練節奏很好用。"},
+  {ss:"71",viz:"71",name:"七一 71",b:4,st:4,prop:"球",cr:"會",d:"一手狂拋七高、一手快遞，四球版的陣雨。"},
+  {ss:"7531",viz:"7531",name:"七五三一",b:4,st:4,prop:"球",cr:"會",d:"四種高度階梯排列，四球裡最漂亮的一式。"},
+  {ss:"7333",viz:"7333",name:"七三三三",b:4,st:4,prop:"球",cr:"會",d:"一次爆發高拋，接三拍低檔巡航。"},
+  {ss:"5",viz:"5",name:"五球連拋 Cascade",b:5,st:4,prop:"球",cr:"會",d:"五顆球的交叉連拋，雜耍的一道分水嶺。"},
+  {ss:"753",viz:"753",name:"七五三 753",b:5,st:4,prop:"球",cr:"會",d:"五球的階梯節奏，比純 5 更有起伏。"},
+  {ss:"744",viz:"744",name:"七四四 744",b:5,st:4,prop:"球",cr:"會",d:"一個七高換兩個四，五球節奏的經典。"},
+  {ss:"97531",viz:"97531",name:"九七五三一",b:5,st:5,prop:"球",cr:"會",d:"高度一路遞減的階梯，五球的炫技代表作。"},
+  {ss:"7",viz:"7",name:"七球連拋",b:7,st:5,prop:"球",cr:"會",d:"七顆球，只有極少數人能穩定超過十拍。"},
+  {ss:"342",viz:"342",name:"三四二・棒",b:3,st:2,prop:"棒",cr:"會",d:"球棒版三物花式，數字之外還要顧到棒轉幾圈。"},
+  {ss:"531",viz:"531",name:"五三一・棒",b:3,st:3,prop:"棒",cr:"會",d:"球棒 531，落點與球版相同，但每一拋要算準轉數。"},
+  {ss:"423",viz:"423",name:"四二三・環",b:3,st:2,prop:"環",cr:"會",d:"用環（ring）打 423，薄薄的環在空中的落點更清楚。"},
+  {ss:"b97531",viz:"b97531",name:"超高階梯・環",b:6,st:5,prop:"環",cr:"會",d:"在 97531 前再加一個 b（=11）超高拋，六環壓軸炫技。"}
+];
+function starStr(k){return "★★★★★".slice(0,k)+"☆".repeat(5-k);}
+const filters={balls:new Set(),stars:new Set(),prop:new Set(),cross:new Set()};
+function render(){
+  const g=document.getElementById("grid"); let html="";
+  const items=PATTERNS.filter(p=>{
+    if(filters.balls.size&&!filters.balls.has(String(p.b)))return false;
+    if(filters.stars.size&&!filters.stars.has(String(p.st)))return false;
+    if(filters.prop.size&&!filters.prop.has(p.prop))return false;
+    if(filters.cross.size&&!filters.cross.has(p.cr))return false;
+    return true;
+  });
+  document.getElementById("count").innerHTML=`符合 <b>${items.length}</b> / ${PATTERNS.length} 式`;
+  if(!items.length){g.innerHTML='<div class="empty">沒有符合這些條件的招式。放寬一點試試。</div>';return;}
+  items.forEach(p=>{
+    html+=`<article class="pcard"><div class="viz">${orbitSVG(p.viz)}</div>
+      <div class="body"><div class="ss">${p.ss}</div><h3>${p.name}</h3><p>${p.d}</p>
+      <div class="tags"><span class="tag b">${p.b} 球</span><span class="tag y">${starStr(p.st)}</span><span class="tag">${p.prop}</span><span class="tag">${p.cr==="會"?"過手":"同手"}</span></div>
+      </div></article>`;
+  });
+  g.innerHTML=html;
+}
+document.querySelectorAll(".chips").forEach(c=>{
+  const facet=c.dataset.facet;
+  c.addEventListener("click",e=>{
+    const b=e.target.closest(".fchip"); if(!b)return;
+    const v=b.dataset.v, on=b.getAttribute("aria-pressed")==="true";
+    b.setAttribute("aria-pressed",!on);
+    if(on)filters[facet].delete(v); else filters[facet].add(v);
+    render();
+  });
+});
+render();
+</script>
+</body>
+</html>

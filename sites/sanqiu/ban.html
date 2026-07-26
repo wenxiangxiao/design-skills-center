@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>課程報名 — 三球雜耍研究所｜SANQIU Juggling Lab</title>
+<meta name="description" content="三球雜耍研究所課程報名：選課程與場次、填基本資料，即時產生你的留位號與專屬拋接印記。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFC400'/%3E%3Cpath d='M5 26 Q16 2 27 26' fill='none' stroke='%2316130E' stroke-width='2.5'/%3E%3Ccircle cx='9' cy='13' r='3' fill='%23EF3B1C' stroke='%2316130E' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='7' r='3' fill='%231E44C8' stroke='%2316130E' stroke-width='1.5'/%3E%3Ccircle cx='23' cy='13' r='3' fill='%23FBF2DE' stroke='%2316130E' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#FBF2DE;--ink:#16130E;--yellow:#FFC400;--blue:#1E44C8;--red:#EF3B1C;--paper:#FFFDF6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65}
+.mono{font-family:"Space Mono",monospace}
+h1,h2,h3{font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;font-weight:800;line-height:1.06;letter-spacing:-.01em}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:40;background:var(--ground);border-bottom:3px solid var(--ink)}
+.top-in{max-width:1120px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:20px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.brand svg{display:block;height:42px;width:auto}
+.brand b{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:18px;line-height:1;letter-spacing:-.02em}
+.brand small{display:block;font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.24em;color:#6a5f45;margin-top:3px}
+.arc-nav{position:relative;width:min(560px,52vw);height:60px;flex:1 1 auto}
+.arc-nav svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.arc-nav a{position:absolute;transform:translate(-50%,-50%);text-decoration:none;text-align:center;width:96px}
+.arc-nav .ball{width:26px;height:26px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-family:"Space Mono",monospace;font-size:11px;font-weight:700}
+.arc-nav a[aria-current="page"] .ball{background:var(--red);color:var(--paper);box-shadow:0 4px 0 var(--ink)}
+.arc-nav .lab{font-size:11.5px;font-weight:700}
+.arc-nav a:hover .ball{background:var(--yellow)}
+.dock{display:none}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px}
+.head{padding:40px 0 10px}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:0 0 10px}
+.head h1{font-size:clamp(28px,5vw,46px);margin:0 0 10px}
+.steps{display:flex;gap:0;margin:20px 0 26px;border:3px solid var(--ink)}
+.steps div{flex:1;text-align:center;padding:10px 4px;font-family:"Space Mono",monospace;font-size:12px;font-weight:700;border-right:3px solid var(--ink);background:var(--paper);color:#8a7d5c}
+.steps div:last-child{border-right:0}
+.steps div.on{background:var(--ink);color:var(--yellow)}
+.steps div.done{background:var(--yellow);color:var(--ink)}
+.panel{border:3px solid var(--ink);background:var(--paper);padding:26px;box-shadow:6px 6px 0 var(--ink);margin-bottom:60px}
+.panel.hide{display:none}
+h2{font-size:22px;margin:0 0 4px}
+.sub{color:#6a5f45;font-size:14px;margin:0 0 20px}
+.opt{display:block;border:3px solid var(--ink);padding:14px 16px;margin-bottom:12px;cursor:pointer;background:var(--ground);display:flex;align-items:center;gap:14px}
+.opt input{accent-color:var(--red);width:18px;height:18px}
+.opt:hover{background:var(--yellow)}
+.opt .oi{flex:1}
+.opt .on{font-weight:700;font-size:16px}
+.opt .om{font-family:"Space Mono",monospace;font-size:12px;color:#6a5f45}
+.opt .op{font-family:"Space Mono",monospace;font-weight:700}
+.opt.sel{background:var(--yellow);box-shadow:4px 4px 0 var(--ink)}
+label.f{display:block;margin:16px 0 6px;font-weight:700;font-size:14px}
+label.f span{color:var(--red)}
+input.t{width:100%;padding:11px 14px;border:3px solid var(--ink);background:var(--paper);font-family:"Noto Sans TC",sans-serif;font-size:15px;border-radius:0}
+input.t:focus{outline:3px solid var(--blue);outline-offset:2px}
+.err{color:var(--red);font-size:13px;font-weight:700;margin-top:6px;min-height:1px}
+.row{display:flex;gap:20px;justify-content:space-between;margin-top:24px}
+.btn{font-family:"Space Mono",monospace;font-weight:700;font-size:14px;letter-spacing:.06em;padding:13px 22px;border:3px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn:hover{background:var(--blue)}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+.btn.ghost:hover{background:var(--ground)}
+.ticket{text-align:center}
+.ticket .sig{width:150px;height:110px;margin:6px auto 4px}
+.ticket .no{font-family:"Space Mono",monospace;font-weight:700;font-size:28px;letter-spacing:.1em;margin:8px 0 2px}
+.ticket .sum{font-size:14px;color:#3a3323;margin:14px 0}
+.ticket .sum b{color:var(--ink)}
+.tk-line{border-top:2px dashed #b9ab88;margin:18px 0}
+footer{background:var(--ink);color:#d9cfb4;border-top:3px solid var(--ink)}
+.foot-in{max-width:1120px;margin:0 auto;padding:40px 22px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{color:var(--paper);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:16px;margin:0 0 10px}
+footer a{color:#d9cfb4;text-decoration:none;display:block;padding:3px 0;font-size:14px}
+footer a:hover{color:var(--yellow)}
+.foot-meta{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.04em;line-height:1.9;color:#9c9070}
+@media(max-width:680px){
+  .arc-nav{display:none}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ground);border-top:3px solid var(--ink)}
+  .dock a{flex:1;text-align:center;padding:9px 2px;text-decoration:none;font-size:12px;font-weight:700;border-right:1px solid #d9cdaa}
+  .dock a:last-child{border-right:0}
+  .dock a[aria-current="page"]{background:var(--red);color:var(--paper)}
+  .dock a .d{font-family:"Space Mono",monospace;font-size:9px;display:block;color:#8a7d5c}
+  body{padding-bottom:52px}.foot-in{grid-template-columns:1fr}.panel{box-shadow:4px 4px 0 var(--ink)}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 60 44" aria-hidden="true"><rect x="6" y="34" width="14" height="5" fill="#16130E"/><rect x="40" y="34" width="14" height="5" fill="#16130E"/><path d="M13 34 Q30 2 47 34" fill="none" stroke="#1E44C8" stroke-width="3"/><circle cx="22" cy="15" r="5.5" fill="#FFC400" stroke="#16130E" stroke-width="2.6"/><circle cx="38" cy="15" r="5.5" fill="#EF3B1C" stroke="#16130E" stroke-width="2.6"/><circle cx="30" cy="26" r="4.6" fill="#FBF2DE" stroke="#16130E" stroke-width="2.6"/></svg>
+      <span><b>三球雜耍研究所</b><small>SANQIU · SITESWAP LAB</small></span>
+    </a>
+    <nav class="arc-nav" aria-label="主導覽">
+      <svg viewBox="0 0 560 60" aria-hidden="true" preserveAspectRatio="none">
+        <path d="M40 52 Q110 -8 200 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+        <path d="M200 52 Q270 -8 360 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+        <path d="M360 52 Q430 -8 520 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+      </svg>
+      <a href="index.html" style="left:7%;top:44px"><span class="ball">3</span><span class="lab">拋接台</span></a>
+      <a href="patterns.html" style="left:35.7%;top:6px"><span class="ball">5</span><span class="lab">招式圖鑑</span></a>
+      <a href="fa.html" style="left:64.3%;top:6px"><span class="ball">1</span><span class="lab">記譜法</span></a>
+      <a href="ban.html" aria-current="page" style="left:93%;top:44px"><span class="ball">7</span><span class="lab">報名</span></a>
+    </nav>
+  </div>
+</header>
+<nav class="dock" aria-label="行動版導覽">
+  <a href="index.html">拋接台<span class="d">HOME</span></a>
+  <a href="patterns.html">圖鑑<span class="d">ATLAS</span></a>
+  <a href="fa.html">記譜法<span class="d">METHOD</span></a>
+  <a href="ban.html" aria-current="page">報名<span class="d">JOIN</span></a>
+</nav>
+
+<main class="wrap">
+  <div class="head">
+    <p class="eyebrow">課程報名 · 三步驟</p>
+    <h1>來丟第一顆球。</h1>
+  </div>
+  <div class="steps">
+    <div id="st1" class="on">1 · 選課程</div>
+    <div id="st2">2 · 填資料</div>
+    <div id="st3">3 · 拿留位號</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="panel" id="p1">
+    <h2>選一門課與場次</h2>
+    <p class="sub">第一次接觸雜耍，就從入門・三球起手開始。</p>
+    <div id="courses"></div>
+    <div class="err" id="e1"></div>
+    <div class="row"><span></span><button class="btn" id="n1">下一步 →</button></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="panel hide" id="p2">
+    <h2>怎麼稱呼你？</h2>
+    <p class="sub">我們只用這些資料跟你確認上課時間，不做別的用途。</p>
+    <label class="f">稱呼 / 姓名 <span>*</span></label>
+    <input class="t" id="fname" placeholder="至少兩個字" autocomplete="name">
+    <div class="err" id="ef1"></div>
+    <label class="f">手機 <span>*</span></label>
+    <input class="t" id="fphone" placeholder="09xxxxxxxx（十碼）" inputmode="numeric" autocomplete="tel">
+    <div class="err" id="ef2"></div>
+    <label class="f">Email（選填，用來寄課程提醒）</label>
+    <input class="t" id="femail" placeholder="you@example.com" inputmode="email" autocomplete="email">
+    <div class="err" id="ef3"></div>
+    <div class="row"><button class="btn ghost" id="b2">← 上一步</button><button class="btn" id="n2">產生留位號 →</button></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="panel hide" id="p3">
+    <div class="ticket">
+      <div class="mono" style="font-size:12px;letter-spacing:.16em;color:var(--red)">報名成功・留位券</div>
+      <svg class="sig" id="sig" viewBox="0 0 150 110" role="img" aria-label="專屬拋接印記"></svg>
+      <div class="no" id="rno">SQ-000000-000</div>
+      <div class="mono" id="sigss" style="font-size:12px;color:#6a5f45"></div>
+      <div class="tk-line"></div>
+      <div class="sum" id="sum"></div>
+      <p class="sub" style="margin:16px 0 0">我們會在一個工作天內用手機或 Email 跟你確認。當天穿好活動的衣服，球我們準備。</p>
+      <div class="row" style="justify-content:center"><button class="btn ghost" id="again">再報一門 ↻</button></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <h4>三球雜耍研究所</h4>
+      <p class="foot-meta">SANQIU JUGGLING LAB<br>台北・大稻埕 · EST. 2016<br>把 siteswap 當成一種語言來教。</p>
+    </div>
+    <div>
+      <h4>逛逛</h4>
+      <a href="index.html">拋接台（編輯器）</a>
+      <a href="patterns.html">招式圖鑑</a>
+      <a href="fa.html">記譜法怎麼讀</a>
+      <a href="ban.html">課程報名</a>
+    </div>
+    <div>
+      <h4>聯絡</h4>
+      <p class="foot-meta">02-2557-3105<br>toss@sanqiu-lab.tw<br>迪化街一段 164 巷 7 號 2 樓</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const ACCENT=["#FFC400","#EF3B1C","#1E44C8","#2AA968","#B14FD8"];
+const COURSES=[
+  {id:"A",n:"入門・三球起手",m:"週二 19:30 / 週六 10:00・八週",p:"NT$3,200"},
+  {id:"B",n:"花式解鎖（441・531・423・box）",m:"週四 20:00・八週",p:"NT$3,600"},
+  {id:"C",n:"四五球攻頂",m:"週日 14:00・十週・需三球結業",p:"NT$4,200"},
+  {id:"D",n:"棒與環・轉數入門",m:"週五 19:30・八週",p:"NT$3,800"},
+  {id:"E",n:"單堂體驗（先來玩一次）",m:"每週六 16:00・90 分鐘",p:"NT$550"}
+];
+let pick=null;
+const cx=document.getElementById("courses");
+cx.innerHTML=COURSES.map(c=>`<label class="opt" data-id="${c.id}"><input type="radio" name="course" value="${c.id}"><span class="oi"><span class="on">${c.n}</span><br><span class="om">${c.m}</span></span><span class="op">${c.p}</span></label>`).join("");
+cx.addEventListener("change",e=>{
+  pick=e.target.value;
+  cx.querySelectorAll(".opt").forEach(o=>o.classList.toggle("sel",o.dataset.id===pick));
+  document.getElementById("e1").textContent="";
+});
+function show(n){
+  [1,2,3].forEach(i=>document.getElementById("p"+i).classList.toggle("hide",i!==n));
+  ["st1","st2","st3"].forEach((id,i)=>{const el=document.getElementById(id);el.className=(i+1<n?"done":(i+1===n?"on":""));});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.getElementById("n1").addEventListener("click",()=>{
+  if(!pick){document.getElementById("e1").textContent="先選一門課再往下。";return;}
+  show(2);
+});
+document.getElementById("b2").addEventListener("click",()=>show(1));
+
+// FNV-1a hash → deterministic siteswap
+function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function genSiteswap(seed){
+  // 產生一個合法的 3 或 4 球記譜：從已知合法招裡由 seed 選一式
+  const pool=["531","441","423","51","45141","633","552","5551","744","55500","714","645","4","3"];
+  const r=mulberry(seed);
+  return pool[Math.floor(r()*pool.length)];
+}
+function parseSS(s){return [...s].map(c=>parseInt(c,36));}
+function sigSVG(ss){
+  const seq=parseSS(ss),n=seq.length,W=150,H=110,padL=14,padR=12,base=82,top=14;
+  let ml=n; for(let i=0;i<n;i++){ml=Math.max(ml,i+seq[i]);}
+  const colW=(W-padL-padR)/Math.max(ml,1);let s=`<rect width="${W}" height="${H}" fill="#16130E"/>`;
+  s+=`<line x1="${padL}" y1="${base}" x2="${W-padR}" y2="${base}" stroke="#c9b98f" stroke-width="1.6"/>`;
+  for(let i=0;i<n;i++){const h=seq[i];if(h<=0)continue;
+    const x0=padL+i*colW+colW/2,x1=padL+(i+h)*colW+colW/2,pk=Math.min(base-top,10+h*h*2.2),mx=(x0+x1)/2;
+    s+=`<path d="M${x0} ${base} Q${mx} ${base-pk-pk*0.3} ${x1} ${base}" fill="none" stroke="${ACCENT[i%ACCENT.length]}" stroke-width="2.6" stroke-linecap="round"/>`;
+    s+=`<circle cx="${x0}" cy="${base}" r="2.6" fill="#FBF2DE"/>`;}
+  s+=`<text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Space Mono',monospace" font-size="15" font-weight="700" fill="#FFC400" letter-spacing="3">${ss}</text>`;
+  return s;
+}
+document.getElementById("n2").addEventListener("click",()=>{
+  const nm=document.getElementById("fname").value.trim();
+  const ph=document.getElementById("fphone").value.trim();
+  const em=document.getElementById("femail").value.trim();
+  let ok=true;
+  document.getElementById("ef1").textContent="";document.getElementById("ef2").textContent="";document.getElementById("ef3").textContent="";
+  if(nm.length<2){document.getElementById("ef1").textContent="至少兩個字。";ok=false;}
+  if(!/^09\d{8}$/.test(ph)){document.getElementById("ef2").textContent="手機請填 09 開頭的十碼數字。";ok=false;}
+  if(em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){document.getElementById("ef3").textContent="Email 格式看起來不太對。";ok=false;}
+  if(!ok)return;
+  // 留位號 SQ-YYMMDD-NNN
+  const d=new Date();
+  const yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
+  const seed=fnv(nm+"|"+ph+"|"+pick+"|"+yy+mm+dd);
+  const nnn=String(seed%900+100);
+  const rno=`SQ-${yy}${mm}${dd}-${nnn}`;
+  const ss=genSiteswap(seed);
+  document.getElementById("rno").textContent=rno;
+  document.getElementById("sig").innerHTML=sigSVG(ss);
+  document.getElementById("sigss").textContent="你的拋接印記 · siteswap "+ss;
+  const c=COURSES.find(x=>x.id===pick);
+  document.getElementById("sum").innerHTML=`<b>${nm}</b>，你報的是<br><b>${c.n}</b>（${c.m}）<br>費用 <b>${c.p}</b>・聯絡 ${ph}`;
+  show(3);
+});
+document.getElementById("again").addEventListener("click",()=>{
+  pick=null;document.querySelectorAll("input[name=course]").forEach(r=>r.checked=false);
+  cx.querySelectorAll(".opt").forEach(o=>o.classList.remove("sel"));
+  document.getElementById("fname").value="";document.getElementById("fphone").value="";document.getElementById("femail").value="";
+  show(1);
+});
+</script>
+</body>
+</html>

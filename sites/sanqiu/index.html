@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三球雜耍研究所 — 拋接台｜SANQIU Juggling Lab</title>
+<meta name="description" content="台北・大稻埕的雜耍與拋接學校。用 siteswap 記譜編一段拋接，我們的引擎替你驗算合不合法、幾顆球，並把它真的丟給你看。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFC400'/%3E%3Cpath d='M5 26 Q16 2 27 26' fill='none' stroke='%2316130E' stroke-width='2.5'/%3E%3Ccircle cx='9' cy='13' r='3' fill='%23EF3B1C' stroke='%2316130E' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='7' r='3' fill='%231E44C8' stroke='%2316130E' stroke-width='1.5'/%3E%3Ccircle cx='23' cy='13' r='3' fill='%23FBF2DE' stroke='%2316130E' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#FBF2DE; --ink:#16130E; --yellow:#FFC400; --blue:#1E44C8; --red:#EF3B1C;
+  --paper:#FFFDF6; --line:#16130E;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Noto Sans TC",system-ui,sans-serif; font-weight:400; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"Space Mono",monospace}
+h1,h2,h3,.disp{font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif; font-weight:800; line-height:1.02; letter-spacing:-.01em}
+a{color:inherit}
+img,svg{max-width:100%}
+
+/* ---- header / apex-arc nav ---- */
+.top{position:sticky;top:0;z-index:40;background:var(--ground);border-bottom:3px solid var(--ink)}
+.top-in{max-width:1120px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:20px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.brand svg{display:block;height:42px;width:auto}
+.brand b{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:18px;line-height:1;letter-spacing:-.02em}
+.brand small{display:block;font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.24em;color:#6a5f45;margin-top:3px}
+/* apex-arc: 4 balls sitting on parabola apexes */
+.arc-nav{position:relative;width:min(560px,52vw);height:60px;flex:1 1 auto}
+.arc-nav svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.arc-nav a{position:absolute;transform:translate(-50%,-50%);text-decoration:none;text-align:center;width:96px}
+.arc-nav .ball{width:26px;height:26px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-family:"Space Mono",monospace;font-size:11px;font-weight:700}
+.arc-nav a[aria-current="page"] .ball{background:var(--red);color:var(--paper);box-shadow:0 4px 0 var(--ink)}
+.arc-nav .lab{font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.arc-nav a:hover .ball{background:var(--yellow)}
+.dock{display:none}
+
+/* ---- layout ---- */
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+section{padding:46px 0}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);font-weight:700;margin:0 0 10px}
+.rule{height:3px;background:var(--ink);border:0;margin:0}
+
+/* ---- hero: cascade-live ---- */
+.stage-wrap{background:var(--ink);border-bottom:3px solid var(--ink)}
+.stage-in{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+.stage-left{position:relative;background:linear-gradient(180deg,#1d1913,#16130E);min-height:440px}
+#stage{display:block;width:100%;height:100%;min-height:440px}
+.stage-tag{position:absolute;left:16px;top:14px;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.16em;color:#c9b98f}
+.stage-tag b{color:var(--yellow)}
+.beatpip{position:absolute;left:16px;bottom:14px;display:flex;gap:6px;align-items:center;font-family:"Space Mono",monospace;font-size:11px;color:#c9b98f}
+.stage-right{background:var(--yellow);color:var(--ink);padding:30px 30px 34px;border-left:3px solid var(--ink);display:flex;flex-direction:column;justify-content:center}
+.stage-right h1{font-size:clamp(30px,4.6vw,52px);margin:0 0 6px}
+.stage-right .kick{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.2em;font-weight:700;margin-bottom:16px}
+.stage-right p{font-size:15px;margin:0 0 20px;max-width:36ch}
+
+/* ---- composer ---- */
+.composer{background:var(--paper);border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink)}
+.comp-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 18px;border-bottom:3px solid var(--ink);background:var(--ground)}
+.ss-input{flex:1 1 190px;min-width:150px;font-family:"Space Mono",monospace;font-size:30px;font-weight:700;letter-spacing:.14em;padding:8px 14px;border:3px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0}
+.ss-input:focus{outline:3px solid var(--blue);outline-offset:2px}
+.btn{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:.08em;padding:11px 16px;border:3px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;border-radius:0}
+.btn:hover{background:var(--blue)}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+.btn.ghost:hover{background:var(--yellow)}
+.verdict{padding:16px 18px;display:flex;flex-wrap:wrap;gap:22px;align-items:center;border-bottom:3px solid var(--ink)}
+.verdict.ok{background:#e7f4ec}
+.verdict.bad{background:#fdeae6}
+.vstat{display:flex;flex-direction:column;gap:2px}
+.vstat .n{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:30px;line-height:1}
+.vstat .k{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#6a5f45}
+.badge{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;padding:5px 12px;border:3px solid var(--ink)}
+.badge.ok{background:var(--yellow)}
+.badge.bad{background:var(--red);color:var(--paper)}
+.reason{font-size:14px;font-weight:500}
+.ladder-box{padding:18px}
+.ladder-box svg{width:100%;height:auto;display:block}
+.presets{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 18px}
+.chip{font-family:"Space Mono",monospace;font-size:13px;font-weight:700;padding:7px 11px;border:2px solid var(--ink);background:var(--paper);cursor:pointer}
+.chip:hover{background:var(--blue);color:var(--paper)}
+.chip small{display:block;font-size:9px;letter-spacing:.06em;color:#6a5f45;font-weight:400}
+.chip:hover small{color:#e8e8ff}
+
+/* generic bits */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:3px solid var(--ink);background:var(--ink)}
+.grid3>div{background:var(--paper);padding:20px}
+.grid3 h3{font-size:19px;margin:0 0 8px}
+.grid3 .num{font-family:"Space Mono",monospace;color:var(--blue);font-weight:700;font-size:12px;letter-spacing:.14em}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+.big{font-size:clamp(26px,3.6vw,40px);margin:0 0 14px}
+.lead{font-size:16px;max-width:52ch}
+.card{background:var(--paper);border:3px solid var(--ink);padding:22px}
+.tick{list-style:none;padding:0;margin:14px 0 0}
+.tick li{padding:8px 0 8px 30px;position:relative;border-top:1px solid #e2d8bd;font-size:14.5px}
+.tick li:before{content:"";position:absolute;left:0;top:14px;width:14px;height:14px;border:3px solid var(--red);border-radius:50%}
+.marks{display:flex;flex-wrap:wrap;gap:26px;padding:26px;border:3px solid var(--ink);background:var(--blue);color:var(--paper)}
+.marks .m .n{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:34px;line-height:1}
+.marks .m .k{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+
+footer{background:var(--ink);color:#d9cfb4;border-top:3px solid var(--ink)}
+.foot-in{max-width:1120px;margin:0 auto;padding:40px 22px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{color:var(--paper);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:16px;margin:0 0 10px}
+footer a{color:#d9cfb4;text-decoration:none;display:block;padding:3px 0;font-size:14px}
+footer a:hover{color:var(--yellow)}
+.foot-meta{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.04em;line-height:1.9;color:#9c9070}
+.note{font-size:12.5px;color:#6a5f45;font-family:"Space Mono",monospace;margin-top:6px}
+
+@media(max-width:820px){
+  .stage-in{grid-template-columns:1fr}
+  .stage-right{border-left:0;border-top:3px solid var(--ink)}
+  .split{grid-template-columns:1fr;gap:20px}
+  .grid3{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .arc-nav{display:none}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ground);border-top:3px solid var(--ink)}
+  .dock a{flex:1;text-align:center;padding:9px 2px;text-decoration:none;font-size:12px;font-weight:700;border-right:1px solid #d9cdaa}
+  .dock a:last-child{border-right:0}
+  .dock a[aria-current="page"]{background:var(--red);color:var(--paper)}
+  .dock a .d{font-family:"Space Mono",monospace;font-size:9px;display:block;color:#8a7d5c}
+  .dock a[aria-current="page"] .d{color:#ffd9cf}
+  body{padding-bottom:52px}
+  .foot-in{grid-template-columns:1fr}
+  .composer{box-shadow:5px 5px 0 var(--ink)}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 60 44" aria-hidden="true"><rect x="6" y="34" width="14" height="5" fill="#16130E"/><rect x="40" y="34" width="14" height="5" fill="#16130E"/><path d="M13 34 Q30 2 47 34" fill="none" stroke="#1E44C8" stroke-width="3"/><circle cx="22" cy="15" r="5.5" fill="#FFC400" stroke="#16130E" stroke-width="2.6"/><circle cx="38" cy="15" r="5.5" fill="#EF3B1C" stroke="#16130E" stroke-width="2.6"/><circle cx="30" cy="26" r="4.6" fill="#FBF2DE" stroke="#16130E" stroke-width="2.6"/></svg>
+      <span><b>三球雜耍研究所</b><small>SANQIU · SITESWAP LAB</small></span>
+    </a>
+    <nav class="arc-nav" aria-label="主導覽">
+      <svg viewBox="0 0 560 60" aria-hidden="true" preserveAspectRatio="none">
+        <path d="M40 52 Q110 -8 200 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+        <path d="M200 52 Q270 -8 360 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+        <path d="M360 52 Q430 -8 520 52" fill="none" stroke="#16130E" stroke-width="2" opacity=".3"/>
+      </svg>
+      <a href="index.html" aria-current="page" style="left:7%;top:44px"><span class="ball">3</span><span class="lab">拋接台</span></a>
+      <a href="patterns.html" style="left:35.7%;top:6px"><span class="ball">5</span><span class="lab">招式圖鑑</span></a>
+      <a href="fa.html" style="left:64.3%;top:6px"><span class="ball">1</span><span class="lab">記譜法</span></a>
+      <a href="ban.html" style="left:93%;top:44px"><span class="ball">7</span><span class="lab">報名</span></a>
+    </nav>
+  </div>
+</header>
+
+<nav class="dock" aria-label="行動版導覽">
+  <a href="index.html" aria-current="page">拋接台<span class="d">HOME</span></a>
+  <a href="patterns.html">圖鑑<span class="d">ATLAS</span></a>
+  <a href="fa.html">記譜法<span class="d">METHOD</span></a>
+  <a href="ban.html">報名<span class="d">JOIN</span></a>
+</nav>
+
+<!-- ===== cascade-live 開場：球已經在丟了 ===== -->
+<div class="stage-wrap">
+  <div class="stage-in">
+    <div class="stage-left">
+      <div class="stage-tag">丟接台・現正播放 <b id="tag-ss">3</b></div>
+      <canvas id="stage" width="720" height="460" aria-label="正在演示的拋接動畫"></canvas>
+      <div class="beatpip">拍 <span id="beat-n" class="mono">0</span> ・ 手 <span id="hand-n" class="mono">右</span></div>
+    </div>
+    <div class="stage-right">
+      <div class="kick">SITESWAP 記譜・拋接學校</div>
+      <h1>先把球丟出去，<br>再回頭算它合不合法。</h1>
+      <p>雜耍的每一招都是一串數字：每個數字是一次拋接的「滯空拍數」。改下面那格數字，這台就會照著丟給你看——而且會告訴你這串到底成不成立、要用幾顆球。</p>
+      <div class="mono" style="font-size:13px;letter-spacing:.1em">↓ 現在輪到你編一段 ↓</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 核心互動：siteswap 編輯器 ===== -->
+<section id="lab">
+  <div class="wrap">
+    <p class="eyebrow">核心功能 · 拋接編輯器</p>
+    <div class="composer">
+      <div class="comp-head">
+        <input id="ss" class="ss-input" value="531" inputmode="latin" autocomplete="off" spellcheck="false" aria-label="siteswap 記譜輸入">
+        <button class="btn" id="run">丟看看 ▶</button>
+        <button class="btn ghost" id="rand">隨機出招 ↻</button>
+      </div>
+      <div id="verdict" class="verdict ok" aria-live="polite">
+        <span id="badge" class="badge ok">可拋接</span>
+        <span class="vstat"><span id="v-balls" class="n">3</span><span class="k">顆球</span></span>
+        <span class="vstat"><span id="v-period" class="n">3</span><span class="k">週期／拍</span></span>
+        <span class="vstat"><span id="v-max" class="n">5</span><span class="k">最高拋</span></span>
+        <span class="vstat"><span id="v-diff" class="n">★★☆</span><span class="k">難度</span></span>
+        <span id="reason" class="reason"></span>
+      </div>
+      <div class="ladder-box">
+        <div class="mono" style="font-size:11px;letter-spacing:.14em;color:#6a5f45;margin-bottom:8px">落點梯圖 · LADDER DIAGRAM（弧線＝一次拋接，橫跨幾格就是滯空幾拍）</div>
+        <svg id="ladder" viewBox="0 0 720 200" role="img" aria-label="落點梯圖"></svg>
+      </div>
+      <div class="presets" id="presets"></div>
+    </div>
+    <p class="note">動畫由使用者手勢／輸入驅動；偏好減少動態時自動停格，僅保留可讀的落點梯圖與逐拍步進按鈕。</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- 三堂課 -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">怎麼讀這串數字</p>
+    <div class="grid3">
+      <div>
+        <div class="num">01 / 每個數字</div>
+        <h3>是一次拋的高度</h3>
+        <p>數字＝那顆球要在空中待幾拍。<b class="mono">3</b> 是最順的基本拋、<b class="mono">5</b> 拋得比較高、<b class="mono">1</b> 是快速橫遞、<b class="mono">2</b> 是拿著不動、<b class="mono">0</b> 是空手一拍。</p>
+      </div>
+      <div>
+        <div class="num">02 / 奇偶</div>
+        <h3>決定過不過手</h3>
+        <p>偶數（2、4、6…）丟回同一隻手，奇數（1、3、5…）飛到對手。所以 <b class="mono">3</b> 會交叉、<b class="mono">4</b> 是兩手各丟各的噴泉。</p>
+      </div>
+      <div>
+        <div class="num">03 / 平均</div>
+        <h3>就是球的數量</h3>
+        <p>把整串加起來除以長度＝幾顆球。<b class="mono">531</b> 平均是 3，所以是三顆球的花式；<b class="mono">97531</b> 平均 5，得練到五顆才丟得動。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 為什麼有些丟不成 -->
+<section>
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <p class="eyebrow">合法性檢查</p>
+        <h2 class="big">不是隨便一串數字都丟得起來。</h2>
+        <p class="lead">如果兩顆球會在同一拍落進同一隻手，那就是撞球、丟不成。我們的引擎把每一拍的落點算出來，只要出現兩顆球搶同一拍，就當場擋下並指出是哪兩拍打架——這也是為什麼 <b class="mono">521</b> 看起來像 <b class="mono">531</b> 卻不合法。</p>
+        <p class="note" style="margin-top:14px">試試上面輸入 <b class="mono">521</b>、<b class="mono">54</b>、<b class="mono">423</b>、<b class="mono">744</b>，看引擎怎麼判。</p>
+      </div>
+      <div class="card" style="background:var(--ink);color:var(--paper)">
+        <div class="mono" style="color:var(--yellow);font-size:12px;letter-spacing:.16em">落點雙射定理</div>
+        <p style="margin:12px 0 0;font-size:15px">一串長度 n 的記譜合法 ⟺ 第 i 拍的球落在第 <b>(i＋該拍數字) mod n</b> 拍，而這 n 個落點互不相同（是個一對一的重排）。</p>
+        <p style="margin:14px 0 0;font-size:15px">滿足時，整串的平均自動是整數——那就是你要準備的球數。</p>
+        <p class="mono" style="margin-top:16px;color:#c9b98f;font-size:12.5px">531 → 落點 {2,1,0} ✓　521 → 落點 {2,0,0} ✗</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 學校資訊 -->
+<section>
+  <div class="wrap">
+    <div class="split">
+      <div class="card">
+        <p class="eyebrow">課程與教室</p>
+        <h3 style="font-size:24px;margin:0 0 4px">從三球接得穩到五球不掉</h3>
+        <ul class="tick">
+          <li><b>入門・三球起手</b>　週二 19:30／週六 10:00・八週一期・NT$3,200。學會 3、你就懂了一半的花式。</li>
+          <li><b>花式解鎖</b>　週四 20:00・把 441／531／423／box 一個個拆給你。NT$3,600。</li>
+          <li><b>四五球攻頂</b>　週日 14:00・噴泉 4、cascade 5、97531。需通過三球結業。NT$4,200。</li>
+          <li><b>棒與環</b>　週五 19:30・道具轉為球棒（club），加入轉數記譜。NT$3,800。</li>
+        </ul>
+      </div>
+      <div>
+        <div class="marks">
+          <div class="m"><div class="n">2016</div><div class="k">開館至今</div></div>
+          <div class="m"><div class="n">3–7</div><div class="k">從三球教到七球</div></div>
+          <div class="m"><div class="n">27</div><div class="k">收錄招式記譜</div></div>
+          <div class="m"><div class="n">96%</div><div class="k">八週能穩定三球</div></div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <p style="margin:0 0 6px"><b>三球雜耍研究所</b>　台北市大同區迪化街一段 164 巷 7 號 2 樓</p>
+          <p class="mono" style="margin:0;font-size:13px;line-height:1.9">週二–週日 13:00–22:00（週一休）<br>02-2557-3105 ・ toss@sanqiu-lab.tw<br>捷運北門站 3 號出口・步行 8 分</p>
+          <p style="margin:12px 0 0;font-size:14px">教練：林拋（Pao Lin，2011 台灣雜耍賽三球組冠軍）、以及六位結業助教。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <h4>三球雜耍研究所</h4>
+      <p class="foot-meta">SANQIU JUGGLING LAB<br>台北・大稻埕 · EST. 2016<br>把 siteswap 當成一種語言來教。<br>每個數字都丟得出來，才叫學會。</p>
+    </div>
+    <div>
+      <h4>逛逛</h4>
+      <a href="index.html">拋接台（編輯器）</a>
+      <a href="patterns.html">招式圖鑑</a>
+      <a href="fa.html">記譜法怎麼讀</a>
+      <a href="ban.html">課程報名</a>
+    </div>
+    <div>
+      <h4>聯絡</h4>
+      <p class="foot-meta">02-2557-3105<br>toss@sanqiu-lab.tw<br>迪化街一段 164 巷 7 號 2 樓<br>週二–週日 13:00–22:00</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============ siteswap 引擎 ============ */
+const ACCENT=["#FFC400","#EF3B1C","#1E44C8","#2AA968","#B14FD8"];
+function parseSS(str){
+  str=(str||"").trim().toLowerCase().replace(/\s+/g,"");
+  if(!/^[0-9a-w]+$/.test(str)) return null;
+  return [...str].map(c=>parseInt(c,36)); // 0-9, a=10, b=11 ...
+}
+function analyze(seq){
+  const n=seq.length;
+  if(!n) return {valid:false,reason:"空的節奏，先打幾個數字。"};
+  const land=new Array(n).fill(-1);
+  for(let i=0;i<n;i++){
+    const l=(i+seq[i])%n;
+    if(land[l]!==-1) return {valid:false,reason:`第 ${i+1} 拍和第 ${land[l]+1} 拍會撞在同一拍落下——丟不成。`,collide:[i,land[l]]};
+    land[l]=i;
+  }
+  const sum=seq.reduce((a,b)=>a+b,0);
+  if(sum%n!==0) return {valid:false,reason:"落點雖不撞，但平均不是整數（理論上不會發生，檢查輸入）。"};
+  const balls=sum/n, max=Math.max(...seq);
+  // 難度：球數 + 最高拋 + 週期複雜度
+  let d=balls*1.3 + Math.max(0,max-3)*0.8 + (n>1?0.6:0);
+  const stars=Math.max(1,Math.min(5,Math.round(d/2.1)));
+  return {valid:true,balls,period:n,max,stars,land};
+}
+function stars(k){return "★★★★★".slice(0,k)+"☆☆☆☆☆".slice(0,5-k);}
+
+/* ---- 落點梯圖 (illust: siteswap-orbit) ---- */
+function drawLadder(seq,res){
+  const svg=document.getElementById("ladder");
+  const n=seq.length, W=720, H=200, padL=44, padR=24, top=30, base=150;
+  let ml=n; for(let i=0;i<n;i++){ ml=Math.max(ml,i+seq[i]); }
+  const cols=Math.max(ml,1), colW=(W-padL-padR)/cols;
+  let s="";
+  // baseline beats
+  for(let i=0;i<=cols;i++){
+    const x=padL+i*colW;
+    s+=`<line x1="${x}" y1="${base}" x2="${x}" y2="${base+8}" stroke="#16130E" stroke-width="1.5"/>`;
+    if(i<cols) s+=`<text x="${x+colW/2}" y="${base+26}" text-anchor="middle" font-family="'Space Mono',monospace" font-size="12" fill="#6a5f45">${(i%2)?"左":"右"}</text>`;
+  }
+  s+=`<line x1="${padL}" y1="${base}" x2="${W-padR}" y2="${base}" stroke="#16130E" stroke-width="2.5"/>`;
+  // each throw arc
+  for(let i=0;i<n;i++){
+    const h=seq[i]; if(h<=0) continue;
+    const x0=padL+i*colW+colW/2;
+    const x1=padL+((i+h))*colW+colW/2;
+    const peak=Math.min(base-top, 16+h*h*3.2);
+    const midx=(x0+x1)/2, midy=base-peak;
+    const col=res&&res.collide&&res.collide.includes(i)?"#EF3B1C":ACCENT[i%ACCENT.length];
+    const dash=(res&&res.collide&&res.collide.includes(i))?' stroke-dasharray="5 4"':'';
+    if(h===2){ // hold
+      s+=`<path d="M${x0} ${base} q10 -22 0 -44 q-10 22 0 44" fill="none" stroke="${col}" stroke-width="3"${dash}/>`;
+    }else{
+      s+=`<path d="M${x0} ${base} Q${midx} ${midy-peak*0.35} ${x1} ${base}" fill="none" stroke="${col}" stroke-width="3.4" stroke-linecap="round"${dash}/>`;
+    }
+    s+=`<text x="${x0}" y="${base-6}" text-anchor="middle" font-family="'Space Mono',monospace" font-size="14" font-weight="700" fill="#16130E">${seq[i].toString(36)}</text>`;
+    s+=`<circle cx="${x0}" cy="${base}" r="4" fill="#16130E"/>`;
+  }
+  svg.innerHTML=s;
+}
+
+/* ---- 動畫台 ---- */
+const cv=document.getElementById("stage"), ctx=cv.getContext("2d");
+let seqA=[5,3,1], balls=3, running=true, t0=0, raf=null;
+const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const BEAT=430; // ms per beat
+
+function fit(){
+  const r=cv.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=r.width*dpr; cv.height=r.height*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  W=r.width; Hc=r.height;
+}
+let W=720,Hc=460;
+function handX(hand){ return hand? W*0.34 : W*0.66; }
+function peakFor(h){ return Math.min(Hc*0.72, 22+h*h*(Hc*0.017)); }
+
+function flightsAt(beat){
+  const n=seqA.length, out=[]; const lo=Math.floor(beat)-9, hi=Math.floor(beat)+1;
+  for(let b=lo;b<=hi;b++){
+    const h=seqA[((b%n)+n)%n]; if(h<=0) continue;
+    if(beat>=b && beat<b+h){ out.push({b,h,from:((b%2)+2)%2,to:(((b+h)%2)+2)%2,idx:b}); }
+  }
+  return out;
+}
+function render(now){
+  if(!t0) t0=now;
+  const beat=((now-t0)/BEAT);
+  const baseY=Hc-46;
+  ctx.clearRect(0,0,W,Hc);
+  // hands
+  ctx.fillStyle="#3a3226";
+  [true,false].forEach(hd=>{ const x=handX(hd); ctx.fillRect(x-26,baseY,52,9); });
+  // balls in flight
+  const fl=flightsAt(beat);
+  fl.forEach(f=>{
+    const p=(beat-f.b)/f.h;
+    const x0=handX(f.from), x1=handX(f.to);
+    let x=x0+(x1-x0)*p;
+    if(f.h%2===0){ // same hand — small outward loop
+      const dir=f.from?-1:1; x=x0+dir*Math.sin(Math.PI*p)*W*0.06;
+    }
+    const pk=peakFor(f.h);
+    const y=baseY - pk*4*p*(1-p);
+    const col=ACCENT[((f.idx%seqA.length)+seqA.length)%seqA.length % ACCENT.length];
+    ctx.beginPath(); ctx.arc(x,y,12,0,7); ctx.fillStyle=col; ctx.fill();
+    ctx.lineWidth=3; ctx.strokeStyle="#16130E"; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x-3.5,y-3.5,3.2,0,7); ctx.fillStyle="rgba(255,255,255,.55)"; ctx.fill();
+  });
+  // beat readout
+  const bn=((Math.floor(beat)%seqA.length)+seqA.length)%seqA.length;
+  document.getElementById("beat-n").textContent=(((Math.floor(beat))%seqA.length)+seqA.length)%seqA.length;
+  document.getElementById("hand-n").textContent=(Math.floor(beat)%2)?"左":"右";
+  if(running) raf=requestAnimationFrame(render);
+}
+function staticFrame(){
+  // reduced-motion: 畫出所有球停在各自拋物線頂點
+  fit(); const baseY=Hc-46;
+  ctx.clearRect(0,0,W,Hc);
+  ctx.fillStyle="#3a3226";[true,false].forEach(hd=>{const x=handX(hd);ctx.fillRect(x-26,baseY,52,9);});
+  seqA.forEach((h,i)=>{ if(h<=0)return; const from=i%2,to=(i+h)%2;
+    const x=(handX(from)+handX(to))/2, y=baseY-peakFor(h);
+    ctx.beginPath();ctx.arc(x,y,12,0,7);ctx.fillStyle=ACCENT[i%ACCENT.length];ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle="#16130E";ctx.stroke();
+  });
+}
+
+/* ---- 綁定 ---- */
+function apply(str,anim){
+  const seq=parseSS(str);
+  const V=document.getElementById("verdict"), B=document.getElementById("badge");
+  if(!seq){ V.className="verdict bad"; B.className="badge bad"; B.textContent="讀不懂";
+    document.getElementById("reason").textContent="只收 0–9 和 a、b…（a=10）這些字。";
+    ["v-balls","v-period","v-max","v-diff"].forEach(id=>document.getElementById(id).textContent="–");
+    drawLadder([], null); return; }
+  const res=analyze(seq);
+  drawLadder(seq,res);
+  document.getElementById("tag-ss").textContent=str;
+  if(res.valid){
+    V.className="verdict ok"; B.className="badge ok"; B.textContent="可拋接";
+    document.getElementById("reason").textContent=(seq.length===1?"單拍純節奏：":"")+"每一拍都落在不同拍上，丟得起來。";
+    document.getElementById("v-balls").textContent=res.balls;
+    document.getElementById("v-period").textContent=res.period;
+    document.getElementById("v-max").textContent=res.max.toString(36);
+    document.getElementById("v-diff").textContent=stars(res.stars);
+    seqA=seq.slice(); balls=res.balls;
+    if(anim && !reduced){ running=true; t0=0; cancelAnimationFrame(raf); fit(); raf=requestAnimationFrame(render); }
+    else if(reduced){ staticFrame(); }
+  }else{
+    V.className="verdict bad"; B.className="badge bad"; B.textContent="丟不成";
+    document.getElementById("reason").textContent=res.reason;
+    ["v-balls","v-period","v-max","v-diff"].forEach(id=>document.getElementById(id).textContent="–");
+    // 動畫台維持上一個合法招
+  }
+}
+document.getElementById("run").addEventListener("click",()=>apply(document.getElementById("ss").value,true));
+document.getElementById("ss").addEventListener("input",e=>apply(e.target.value,false));
+document.getElementById("ss").addEventListener("keydown",e=>{if(e.key==="Enter")apply(e.target.value,true);});
+const RAND=["531","441","423","51","4","552","55500","633","645","714","97531","3","5","801","72"];
+document.getElementById("rand").addEventListener("click",()=>{
+  const p=RAND[Math.floor(Math.random()*RAND.length)];
+  document.getElementById("ss").value=p; apply(p,true);
+});
+
+/* presets */
+const PRE=[["531","三球經典"],["441","box 盒子"],["423","懶人三球"],["51","三球陣雨"],["4","四球噴泉"],["552","四球起手"],["97531","五球階梯"],["744","高低差"]];
+document.getElementById("presets").innerHTML=PRE.map(([s,n])=>`<button class="chip" data-ss="${s}"><span class="mono">${s}</span><small>${n}</small></button>`).join("");
+document.getElementById("presets").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  document.getElementById("ss").value=b.dataset.ss; apply(b.dataset.ss,true);
+});
+
+window.addEventListener("resize",()=>{ if(reduced)staticFrame(); else fit(); });
+window.addEventListener("load",()=>{ fit(); apply("531",true); });
+apply("531",false);
+</script>
+</body>
+</html>

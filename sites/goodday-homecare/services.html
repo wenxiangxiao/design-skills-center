@@ -18,7 +18,14 @@
   --rose:#B5503F; --blue:#4A6E8A; --green:#6E8B5B;
   --gold:#D9A94C; --alert:#B23B2E; --ok:#5E8551;
   --r:14px;
+  /* 角色主色：每個端一個色相，一眼分辨現在在誰的畫面 */
+  --role:#C9743C; --role-d:#A85C2B; --role-soft:rgba(201,116,60,.12);
 }
+body[data-role="overview"]{--role:#6E6152;--role-d:#514639;--role-soft:rgba(110,97,82,.12)}
+body[data-role="public"]  {--role:#C9743C;--role-d:#A85C2B;--role-soft:rgba(201,116,60,.12)}
+body[data-role="client"]  {--role:#A85A78;--role-d:#8B4460;--role-soft:rgba(168,90,120,.13)}
+body[data-role="staff"]   {--role:#2E7268;--role-d:#215951;--role-soft:rgba(46,114,104,.13)}
+body[data-role="admin"]   {--role:#5B5B96;--role-d:#46467A;--role-soft:rgba(91,91,150,.13)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.75;
@@ -30,13 +37,14 @@ body{margin:0;color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;l
 h1,h2,h3,h4{font-family:"Noto Serif TC",serif;margin:0}
 a{color:var(--warm-d)}
 .hand{font-family:"Caveat",cursive;font-size:1.18em;color:var(--ink2)}
-.skip{position:absolute;left:-999px;top:0;background:var(--warm);color:#fff;padding:9px 15px;z-index:99;border-radius:0 0 8px 0}
+.skip{position:absolute;left:-999px;top:0;background:var(--role);color:#fff;padding:9px 15px;z-index:99;border-radius:0 0 8px 0}
 .skip:focus{left:0;top:0}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 .narrow{max-width:820px}
 
 /* ---- 手帳封面式頁首 ---- */
-.mast{background:linear-gradient(180deg,#EBE2D1,#E3D9C6);border-bottom:2px solid var(--cloth3);position:relative}
+.mast{background:linear-gradient(180deg,#EBE2D1,#E3D9C6);border-bottom:2px solid var(--cloth3);position:relative;
+  border-top:5px solid var(--role)}
 .mast::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;
   background:repeating-linear-gradient(90deg,var(--cloth3) 0 7px,transparent 7px 14px)}
 .mast .row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 0 15px}
@@ -46,13 +54,39 @@ a{color:var(--warm-d)}
 .brand .en{font-family:"Caveat",cursive;font-size:15px;color:var(--ink3);letter-spacing:.05em}
 .mast .who{font-size:12.5px;color:var(--ink2);text-align:right;line-height:1.6}
 .mast .who b{color:var(--ink);font-weight:700}
-.roleband{display:flex;gap:7px;flex-wrap:wrap;padding:0 0 13px}
+.roleband{display:flex;gap:7px;flex-wrap:wrap;padding:0 0 13px;align-items:center}
 .roleband a{font-size:13px;text-decoration:none;color:var(--ink2);background:var(--paper);
   border:1.5px solid var(--line);border-radius:999px;padding:5px 14px;display:inline-flex;align-items:center;gap:6px}
-.roleband a:hover{border-color:var(--warm);color:var(--warm-d)}
-.roleband a[aria-current="page"]{background:var(--warm);border-color:var(--warm-d);color:#fff;font-weight:700}
+.roleband a:hover{border-color:var(--c,var(--role));color:var(--ink)}
+.roleband a[aria-current="page"]{background:var(--c,var(--role));border-color:var(--c,var(--role));color:#fff;font-weight:700}
 .roleband a[aria-current="page"] .dot{background:#fff}
-.roleband .dot{width:7px;height:7px;border-radius:50%;background:var(--ink3);display:inline-block}
+.roleband .dot{width:8px;height:8px;border-radius:50%;background:var(--c,var(--ink3));display:inline-block}
+.roleband .sep{color:var(--ink3);font-size:12px;margin:0 2px}
+
+/* 角色徽章：頁首右側標明「現在在誰的畫面」 */
+.rolebadge{display:inline-flex;align-items:center;gap:8px;background:var(--role);color:#fff;
+  border-radius:999px;padding:6px 15px;font-weight:700;font-size:13.5px;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.rolebadge .en{font-family:"Caveat",cursive;font-size:14px;opacity:.85;font-weight:500}
+.rolebadge svg{width:18px;height:18px}
+
+/* 頁面說明條：這一頁在做什麼、誰在用 */
+.pagenote{background:var(--role-soft);border-bottom:1.5px solid var(--line)}
+.pagenote .wrap{padding:11px 20px;display:flex;gap:13px;align-items:flex-start;flex-wrap:wrap}
+.pagenote .who{font-weight:700;font-size:13px;color:var(--role-d);white-space:nowrap;
+  border-right:1.5px solid var(--line);padding-right:13px}
+.pagenote .what{font-size:13.5px;color:var(--ink2);flex:1;min-width:240px}
+
+/* 分頁籤：一頁一件事 */
+.tabs{display:flex;gap:0;flex-wrap:wrap;margin:16px 0 0;border-bottom:2px solid var(--line)}
+.tabs button{font-family:"Noto Serif TC";font-weight:700;font-size:14.5px;padding:10px 18px;border:0;
+  background:transparent;color:var(--ink2);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button:hover{color:var(--role-d)}
+.tabs button[aria-selected="true"]{color:var(--role-d);border-bottom-color:var(--role)}
+.tabs button .n{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--cloth2);
+  color:var(--ink2);font-size:12px;align-items:center;justify-content:center;margin-right:7px;font-family:"Noto Sans TC"}
+.tabs button[aria-selected="true"] .n{background:var(--role);color:#fff}
+.sec[hidden]{display:none}
+.sec>.lead{font-size:14.5px;color:var(--ink2);margin:14px 0 0;max-width:74ch}
 
 /* ---- 紙卡 ---- */
 .sheet{background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);
@@ -74,7 +108,7 @@ a{color:var(--warm-d)}
 .tag.W{background:var(--rose)} .tag.T{background:var(--blue)} .tag.C{background:var(--green)}
 .tag.ghost{background:transparent;color:var(--ink2);border:1.4px solid var(--line);font-weight:500}
 .pill{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:999px;
-  background:rgba(201,116,60,.12);color:var(--warm-d);border:1px solid rgba(201,116,60,.3)}
+  background:var(--role-soft);color:var(--role-d);border:1px solid var(--role)}
 .pill.ok{background:rgba(110,139,91,.15);color:#4F7043;border-color:rgba(110,139,91,.35)}
 .pill.no{background:rgba(178,59,46,.12);color:var(--alert);border-color:rgba(178,59,46,.3)}
 
@@ -82,26 +116,26 @@ a{color:var(--warm-d)}
 .btn{font-family:"Noto Sans TC";font-size:14px;font-weight:700;padding:9px 17px;border-radius:999px;
   border:1.6px solid var(--line);background:var(--paper2);color:var(--ink);cursor:pointer;display:inline-flex;
   align-items:center;gap:7px;transition:background .16s,border-color .16s}
-.btn:hover{border-color:var(--warm);color:var(--warm-d)}
-.btn.go{background:var(--warm);border-color:var(--warm-d);color:#fff}
-.btn.go:hover{background:var(--warm-d);color:#fff}
+.btn:hover{border-color:var(--role);color:var(--role-d)}
+.btn.go{background:var(--role);border-color:var(--role-d);color:#fff}
+.btn.go:hover{background:var(--role-d);color:#fff}
 .btn.sm{font-size:12.5px;padding:6px 13px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-.btn[aria-pressed="true"]{background:var(--warm);border-color:var(--warm-d);color:#fff}
+.btn[aria-pressed="true"]{background:var(--role);border-color:var(--role-d);color:#fff}
 
 /* ---- 表單 ---- */
 label.f{display:block;font-size:13.5px;font-weight:700;color:var(--ink2);margin:13px 0 5px}
 input.t,select.t,textarea.t{width:100%;font-family:"Noto Sans TC";font-size:15px;padding:10px 13px;
   border:1.6px solid var(--line);border-radius:10px;background:var(--paper2);color:var(--ink)}
-input.t:focus,select.t:focus,textarea.t:focus{outline:none;border-color:var(--warm);box-shadow:0 0 0 3px rgba(201,116,60,.14)}
+input.t:focus,select.t:focus,textarea.t:focus{outline:none;border-color:var(--role);box-shadow:0 0 0 3px var(--role-soft)}
 .err{color:var(--alert);font-size:12.5px;min-height:1.1em;margin-top:4px}
 .hint{font-size:12px;color:var(--ink3);margin-top:4px}
 input[type=range]{width:100%;height:26px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
 input[type=range]::-webkit-slider-runnable-track{height:7px;border-radius:4px;background:var(--cloth2);border:1px solid var(--line)}
 input[type=range]::-moz-range-track{height:7px;border-radius:4px;background:var(--cloth2);border:1px solid var(--line)}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:21px;height:21px;margin-top:-8px;border-radius:50%;
-  background:var(--warm);border:2.4px solid var(--paper2);box-shadow:0 1px 4px rgba(0,0,0,.25)}
-input[type=range]::-moz-range-thumb{width:21px;height:21px;border-radius:50%;background:var(--warm);border:2.4px solid var(--paper2)}
+  background:var(--role);border:2.4px solid var(--paper2);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+input[type=range]::-moz-range-thumb{width:21px;height:21px;border-radius:50%;background:var(--role);border:2.4px solid var(--paper2)}
 
 /* ---- 表格 ---- */
 table.tb{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -133,10 +167,10 @@ table.tb td.num,table.tb th.num{font-variant-numeric:tabular-nums;font-weight:70
   color:var(--ink2);font-size:12px;position:relative}
 .dock a svg{width:23px;height:23px;display:block}
 .dock a .lb{font-weight:700;letter-spacing:.02em}
-.dock a[aria-current="page"]{color:var(--warm-d)}
+.dock a[aria-current="page"]{color:var(--role-d)}
 .dock a[aria-current="page"]::before{content:"";position:absolute;top:0;left:16%;right:16%;height:4px;
-  background:var(--warm);border-radius:0 0 4px 4px}
-.dock a:hover{color:var(--warm-d);background:rgba(255,255,255,.4)}
+  background:var(--role);border-radius:0 0 4px 4px}
+.dock a:hover{color:var(--role-d);background:rgba(255,255,255,.4)}
 
 footer.ft{border-top:2px solid var(--cloth3);margin-top:26px;background:rgba(255,255,255,.34)}
 footer.ft .wrap{padding:18px 20px 22px;font-size:12.5px;color:var(--ink2);line-height:1.75}
@@ -147,7 +181,7 @@ footer.ft .fine{color:var(--ink3);font-size:11.5px;margin-top:7px}
 .warnbox{background:rgba(178,59,46,.09);border-left:4px solid var(--alert);border-radius:0 9px 9px 0;padding:10px 14px;margin:11px 0;font-size:13.5px}
 .empty{text-align:center;color:var(--ink3);padding:26px;font-family:"Caveat",cursive;font-size:19px}
 .bar{height:9px;border-radius:5px;background:var(--cloth2);overflow:hidden;border:1px solid var(--line)}
-.bar span{display:block;height:100%;background:var(--warm)}
+.bar span{display:block;height:100%;background:var(--role)}
 .bar.g span{background:var(--green)}
 .bar.r span{background:var(--alert)}
 
@@ -163,18 +197,24 @@ footer.ft .fine{color:var(--ink3);font-size:11.5px;margin-top:7px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body>
+<body data-role="public">
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="mast">
   <div class="wrap row">
-    <a class="brand" href="index.html">
+    <a class="brand" href="overview.html">
       <img src="assets/logo.svg" alt="日安到宅居家護理所">
       <span><h1>日安到宅居家護理所</h1><span class="en">Goodday Home Nursing · 照護手帳</span></span>
     </a>
-    <div class="who">服務專線 <b>(02) 2509-8760</b><br>週一至週六 08:30–17:30</div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <span class="rolebadge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 12 5l8 7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 11.5V19h11v-7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>公開網頁端<span class="en">public site</span></span>
+      <div class="who">服務專線 <b>(02) 2509-8760</b><br>週一至週六 08:30–17:30</div>
+    </div>
   </div>
-  <div class="wrap roleband" aria-label="角色切換"><a href="index.html" aria-current="page"><span class="dot"></span>公開網頁端</a><a href="client.html"><span class="dot"></span>被照護者／家屬端</a><a href="staff.html"><span class="dot"></span>居服員操作端</a><a href="admin.html"><span class="dot"></span>業主管理端</a></div>
+  <div class="wrap roleband" aria-label="切換角色端"><a href="overview.html" style="--c:#6E6152"><span class="dot"></span>系統總覽</a><span class="sep">｜</span><a href="index.html" aria-current="page" style="--c:#C9743C"><span class="dot"></span>公開網頁端</a><a href="client.html" style="--c:#A85A78"><span class="dot"></span>被照護者／家屬端</a><a href="staff.html" style="--c:#2E7268"><span class="dot"></span>居服員操作端</a><a href="admin.html" style="--c:#5B5B96"><span class="dot"></span>業主管理端</a></div>
 </header>
+<div class="pagenote"><div class="wrap">
+  <span class="who">公開網頁端・服務與收費</span><span class="what">九個到宅護理項目的內容、所需時間與收費區間，以及常見問題。</span>
+</div></div>
 
 <main id="main" class="wrap">
   <div class="sheet raise">
@@ -193,7 +233,7 @@ footer.ft .fine{color:var(--ink3);font-size:11.5px;margin-top:7px}
   台北市中山區龍江路 128 號 3 樓・(02) 2509-8760・週一至週六 08:30–17:30<br>
   <div class="fine">本站為設計展示用途之虛構示範站，非真實醫療機構、非醫療建議。所有機構、人名、立案字號、個案資料、收費、距離與排程結果均為教學示意；距離採經緯度直線距離乘市區繞行係數估算，非實際導航路徑。</div>
 </div></footer>
-<nav class="dock" aria-label="主導覽"><ul><li><a href="index.html" title="首頁與服務地圖"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 12 5l8 7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 11.5V19h11v-7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb">本所</span></a></li><li><a href="services.html" aria-current="page" title="照護項目與收費"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3-1 5.5-1 8 .6 2.5-1.6 5-1.6 8-.6V18c-3-1-5.5-1-8 .7-2.5-1.7-5-1.7-8-.7z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M12 6.1V18.7" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><span class="lb">服務</span></a></li><li><a href="booking.html" title="線上預約到宅"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c-4-2.4-7-4.6-7-8 0-3.4 4.2-4.4 7-1 2.8-3.4 7-2.4 7 1 0 3.4-3 5.6-7 8z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/></svg><span class="lb">預約</span></a></li><li><a href="client.html" title="被照護者／家屬"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5c-4.2-2.6-7.2-4.9-7.2-8.3 0-3.6 4.4-4.7 7.2-1.1 2.8-3.6 7.2-2.5 7.2 1.1 0 3.4-3 5.7-7.2 8.3z" fill="currentColor"/></svg><span class="lb">我的照護</span></a></li><li><a href="staff.html" title="居服員工作台"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17.5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9.8c0 5 12 2.6 12 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 3.4"/></svg><span class="lb">行程</span></a></li><li><a href="admin.html" title="管理端"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><rect x="6" y="11" width="3.4" height="6" rx="1.2" fill="currentColor"/><rect x="11.3" y="7" width="3.4" height="10" rx="1.2" fill="currentColor"/><rect x="16.6" y="13" width="3.4" height="4" rx="1.2" fill="currentColor"/></svg><span class="lb">所務</span></a></li></ul></nav>
+<nav class="dock" aria-label="主導覽"><ul><li><a href="overview.html" title="四個角色與資料流向"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 4 7v12l5-2 6 2 5-2V5l-5 2z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M9 5v12M15 7v12" stroke="currentColor" stroke-width="1.8"/></svg><span class="lb">系統總覽</span></a></li><li><a href="index.html" title="對外首頁與服務地圖"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 12 5l8 7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 11.5V19h11v-7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb">官網</span></a></li><li><a href="booking.html" title="線上預約到宅"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c-4-2.4-7-4.6-7-8 0-3.4 4.2-4.4 7-1 2.8-3.4 7-2.4 7 1 0 3.4-3 5.6-7 8z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/></svg><span class="lb">預約</span></a></li><li><a href="client.html" title="被照護者／家屬端"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5c-4.2-2.6-7.2-4.9-7.2-8.3 0-3.6 4.4-4.7 7.2-1.1 2.8-3.6 7.2-2.5 7.2 1.1 0 3.4-3 5.7-7.2 8.3z" fill="currentColor"/></svg><span class="lb">我的照護</span></a></li><li><a href="staff.html" title="居服員操作端"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17.5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9.8c0 5 12 2.6 12 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 3.4"/></svg><span class="lb">我的行程</span></a></li><li><a href="admin.html" title="業主管理端"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><rect x="6" y="11" width="3.4" height="6" rx="1.2" fill="currentColor"/><rect x="11.3" y="7" width="3.4" height="10" rx="1.2" fill="currentColor"/><rect x="16.6" y="13" width="3.4" height="4" rx="1.2" fill="currentColor"/></svg><span class="lb">所務管理</span></a></li></ul></nav>
 <script>/* ==========================================================================
    日安到宅居家護理所 — 共用核心引擎 GD
    地理（haversine＋繞路係數＋時段車速）／資料模型／智慧配對／路線最佳化
@@ -792,6 +832,24 @@ $("faq").innerHTML=FAQ.map(function(f){
    +'<summary style="cursor:pointer;font-weight:700;font-size:14.5px">'+f[0]+'</summary>'
    +'<div style="font-size:13.5px;color:#6E6152;margin-top:6px">'+f[1]+'</div></details>';
 }).join("");
+})();
+</script>
+<script>
+(function(){
+  var box=document.querySelector('.tabs'); if(!box)return;
+  var btns=[].slice.call(box.querySelectorAll('button[data-sec]'));
+  function show(id,push){
+    btns.forEach(function(b){
+      var on=b.getAttribute('data-sec')===id;
+      b.setAttribute('aria-selected',on?'true':'false');
+      var sec=document.getElementById(b.getAttribute('data-sec')+'-sec');
+      if(sec) sec.hidden=!on;
+    });
+    if(push && history.replaceState) history.replaceState(null,'','#'+id);
+  }
+  btns.forEach(function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-sec'),true); }); });
+  var h=(location.hash||'').replace('#','');
+  show(btns.map(function(b){return b.getAttribute('data-sec');}).indexOf(h)>=0 ? h : btns[0].getAttribute('data-sec'), false);
 })();
 </script>
 </body>

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>城中電話交換所・接線台</title>
+<meta name="description" content="城中電話交換所——一座還在拉線的人工總機。坐上接線台，來話亮燈時把塞繩拖進塞孔、扳鈴、接通，看你一輪能接住幾通。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%236E1D22'/%3E%3Ccircle cx='16' cy='19' r='9' fill='%23E7DCC4' stroke='%23201613' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='4.5' fill='%23201613'/%3E%3Ccircle cx='16' cy='19' r='4.5' fill='none' stroke='%23C7A24A' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='6' r='3' fill='%23E8A33D' stroke='%23201613' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Oswald:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#E7DCC4; --ivory-2:#EFE7D3; --ox:#6E1D22; --ox-d:#571317; --ink:#201613;
+  --brass:#C7A24A; --brass-d:#9c7d2f; --amber:#E8A33D; --verd:#5E7F63; --paper:#DCCEAF;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ivory);color:var(--ink);
+  font-family:"Noto Serif TC",serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--ox)}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--ivory);padding:8px 14px;z-index:60}
+.skip:focus{left:8px;top:8px}
+
+/* ---- jackfield-rail nav ---- */
+.rail{position:fixed;left:0;top:0;bottom:0;width:106px;background:var(--ox);
+  border-right:3px solid var(--ink);display:flex;flex-direction:column;align-items:center;
+  padding:14px 0;gap:6px;z-index:40}
+.rail .mark{width:60px;height:60px;display:block}
+.rail .ex{font-family:"Oswald",sans-serif;font-weight:600;font-size:9px;letter-spacing:.18em;
+  color:var(--brass);text-align:center;line-height:1.35;margin:2px 0 8px;text-transform:uppercase}
+.jacknav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;width:100%}
+.jacknav a{display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;
+  color:var(--ivory);padding:6px 0}
+.jacknav .hole{width:30px;height:30px;border-radius:50%;background:var(--ink);
+  border:3px solid #3a2a20;box-shadow:inset 0 2px 3px rgba(0,0,0,.6);position:relative;display:grid;place-items:center}
+.jacknav .hole::after{content:"";width:7px;height:7px;border-radius:50%;background:#150d0a}
+.jacknav .lamp{width:8px;height:8px;border-radius:50%;background:#3a1c1e;border:1px solid var(--ink)}
+.jacknav a[aria-current="page"] .hole{background:var(--brass);border-color:var(--brass-d)}
+.jacknav a[aria-current="page"] .hole::after{background:var(--ox-d);width:9px;height:9px}
+.jacknav a[aria-current="page"] .lamp{background:var(--amber);box-shadow:0 0 7px var(--amber)}
+.jacknav .lbl{font-family:"Noto Serif TC";font-weight:700;font-size:13px;letter-spacing:.04em}
+.jacknav .en{font-family:"Oswald",sans-serif;font-size:8px;letter-spacing:.14em;color:var(--brass);text-transform:uppercase}
+.jacknav a:hover .hole{border-color:var(--brass)}
+
+.wrap{margin-left:106px}
+.inner{max-width:1060px;margin:0 auto;padding:0 26px}
+
+/* ---- masthead ---- */
+.plate{background:var(--ox);color:var(--ivory);border-bottom:3px solid var(--ink)}
+.plate .inner{display:flex;justify-content:space-between;align-items:flex-end;padding:18px 26px 16px;flex-wrap:wrap;gap:10px}
+.plate h1{font-weight:900;font-size:clamp(22px,3.4vw,34px);margin:0;letter-spacing:.06em}
+.plate .sub{font-family:"Oswald",sans-serif;font-weight:500;font-size:12px;letter-spacing:.32em;
+  color:var(--brass);text-transform:uppercase;margin:2px 0 0}
+.plate .num{font-family:"DM Mono",monospace;font-size:12px;color:var(--ivory);opacity:.85;text-align:right}
+.plate .num b{color:var(--brass);font-weight:500}
+
+/* ---- board section ---- */
+.board-sec{padding:22px 0 10px}
+.board-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.board-head h2{font-weight:900;font-size:clamp(18px,2.4vw,24px);margin:0}
+.board-head .tag{font-family:"Oswald",sans-serif;font-size:11px;letter-spacing:.24em;color:var(--ox);
+  border:2px solid var(--ink);padding:2px 8px;text-transform:uppercase}
+
+.console{background:#2a1113;border:3px solid var(--ink);border-radius:2px;
+  box-shadow:0 10px 0 -4px rgba(32,22,19,.35);padding:10px}
+.console svg{display:block;width:100%;height:auto;touch-action:none}
+
+/* control deck */
+.deck{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.btn{font-family:"Oswald",sans-serif;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  font-size:12px;background:var(--ivory);color:var(--ink);border:3px solid var(--ink);
+  padding:8px 13px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.btn:hover{background:var(--brass)}
+.btn:active{transform:translate(3px,3px);box-shadow:none}
+.btn.on{background:var(--ox);color:var(--ivory)}
+.btn[aria-pressed="true"]{background:var(--verd);color:var(--ivory)}
+.deck .spacer{flex:1 1 auto}
+.deck .seedbox{font-family:"DM Mono",monospace;font-size:12px;color:var(--ink);
+  background:var(--paper);border:2px solid var(--ink);padding:6px 9px}
+
+/* scoreboard */
+.scores{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.score{background:var(--ivory-2);border:3px solid var(--ink);padding:8px 6px;text-align:center}
+.score b{display:block;font-family:"DM Mono",monospace;font-size:22px;line-height:1;color:var(--ox)}
+.score span{font-family:"Oswald",sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.score.miss b{color:#9a3316}
+.score.wrong b{color:#7a1d5a}
+
+/* ticket log */
+.tickets{margin-top:14px}
+.tickets h3{font-family:"Oswald",sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  border-bottom:2px solid var(--ink);padding-bottom:5px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:210px;overflow:auto}
+#log li{display:flex;gap:10px;align-items:center;font-size:14px;border-left:5px solid var(--paper);
+  background:var(--ivory-2);padding:6px 10px}
+#log li .k{font-family:"DM Mono",monospace;font-size:12px;color:#5a4a3a;min-width:52px}
+#log li.ok{border-left-color:var(--verd)}
+#log li.bad{border-left-color:#9a3316}
+#log li.wr{border-left-color:#7a1d5a}
+#log li .who{font-weight:700}
+#log .empty{color:#6a5a48;font-style:italic;border-left-color:var(--paper)}
+
+/* how to play */
+.howto{background:var(--ivory-2);border:3px solid var(--ink);margin:26px 0;padding:16px 20px}
+.howto h2{font-weight:900;margin:0 0 10px;font-size:20px}
+.howto ol{margin:0;padding-left:20px}
+.howto li{margin:7px 0}
+.howto b{color:var(--ox)}
+.kbd{font-family:"DM Mono",monospace;font-size:12px;background:var(--ink);color:var(--ivory);padding:1px 6px;border-radius:2px}
+
+/* prose block */
+.prose{padding:8px 0 30px}
+.prose h2{font-weight:900;font-size:22px;border-bottom:3px solid var(--ink);padding-bottom:6px}
+.prose p{max-width:64ch}
+.prose .signature{font-family:"Oswald",sans-serif;letter-spacing:.06em;color:var(--ox)}
+.disc{font-family:"DM Mono",monospace;font-size:12px;color:#6a5a48;margin-top:10px}
+
+/* status line (aria live) */
+#status{font-family:"DM Mono",monospace;font-size:13px;color:var(--ink);background:var(--paper);
+  border:2px solid var(--ink);padding:7px 11px;margin-top:10px;min-height:1.4em}
+
+footer{background:var(--ink);color:var(--ivory);border-top:3px solid var(--brass)}
+footer .inner{padding:22px 26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer b{font-family:"Oswald",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+footer a{color:var(--brass)}
+footer .fine{font-size:13px;opacity:.85;max-width:52ch}
+
+@media(max-width:760px){
+  .rail{position:static;width:auto;flex-direction:row;justify-content:flex-start;
+    gap:12px;padding:8px 12px;overflow-x:auto;border-right:none;border-bottom:3px solid var(--ink)}
+  .rail .mark{width:40px;height:40px}
+  .rail .ex{display:none}
+  .jacknav{flex-direction:row;gap:16px}
+  .jacknav .en{display:none}
+  .jacknav a{flex-direction:row;gap:7px}
+  .wrap{margin-left:0}
+  .scores{grid-template-columns:repeat(3,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#board">跳到接線台</a>
+
+<nav class="rail" aria-label="總機導覽">
+  <img class="mark" src="assets/logo.svg" alt="城中電話交換所">
+  <div class="ex">Chéngzhōng<br>Exchange</div>
+  <ul class="jacknav">
+    <li><a href="index.html" aria-current="page"><span class="lamp"></span><span class="hole"></span><span class="lbl">接線台</span><span class="en">Board</span></a></li>
+    <li><a href="jixie.html"><span class="lamp"></span><span class="hole"></span><span class="lbl">機件</span><span class="en">Anatomy</span></a></li>
+    <li><a href="kecheng.html"><span class="lamp"></span><span class="hole"></span><span class="lbl">講習</span><span class="en">Course</span></a></li>
+    <li><a href="yange.html"><span class="lamp"></span><span class="hole"></span><span class="lbl">沿革</span><span class="en">History</span></a></li>
+  </ul>
+</nav>
+
+<div class="wrap">
+<header class="plate">
+  <div class="inner">
+    <div>
+      <h1>城中電話交換所</h1>
+      <p class="sub">Manual Common-Battery Board · No. 2</p>
+    </div>
+    <div class="num">懷寧街 15 號 · 城中局<br><b>接線生講習科</b> 民國五十三年</div>
+  </div>
+</header>
+
+<main class="inner">
+  <section class="board-sec" id="board" aria-label="接線台">
+    <div class="board-head">
+      <h2>接線台 A 座</h2>
+      <span class="tag">Live Board</span>
+    </div>
+
+    <div class="console">
+      <svg id="sw" viewBox="0 0 900 560" role="application"
+           aria-label="人工電話總機。來話亮燈時，拖曳一組塞繩：先把應答塞繩插進閃燈的塞孔應答，再把振鈴塞繩插進對方塞孔，扳鈴鍵振鈴接通；通話結束燈閃時把兩支塞繩拔回擱架。">
+      </svg>
+    </div>
+
+    <div id="status" role="status" aria-live="polite">按「開始接線」，來話就會陸續進來。</div>
+
+    <div class="deck">
+      <button class="btn on" id="btn-run" aria-pressed="false">開始接線</button>
+      <button class="btn" id="btn-slow" aria-pressed="false">慢速練習</button>
+      <button class="btn" id="btn-reseed">換一批來話</button>
+      <button class="btn" id="btn-reset">重置本班</button>
+      <span class="spacer"></span>
+      <span class="seedbox">班表 SEED <b id="seedtxt">—</b></span>
+    </div>
+
+    <div class="scores" aria-label="本班統計">
+      <div class="score"><b id="s-conn">0</b><span>接通</span></div>
+      <div class="score"><b id="s-rate">—</b><span>接通率</span></div>
+      <div class="score"><b id="s-avg">—</b><span>平均應答</span></div>
+      <div class="score miss"><b id="s-miss">0</b><span>未接</span></div>
+      <div class="score wrong"><b id="s-wrong">0</b><span>誤接</span></div>
+    </div>
+
+    <div class="tickets">
+      <h3>接線單 · Traffic Log</h3>
+      <ul id="log"><li class="empty">尚無來話紀錄。</li></ul>
+    </div>
+  </section>
+
+  <section class="howto" aria-label="接線程序">
+    <h2>怎麼接一通電話</h2>
+    <ol>
+      <li><b>應答。</b>訂戶摘機，他那孔上方的燈會亮。把一組塞繩的<b>後塞（應答）</b>拖進那個閃燈的塞孔——燈轉定亮，接線單上會顯示「他要接幾號」。</li>
+      <li><b>接續。</b>把<b>同一組</b>的<b>前塞（振鈴）</b>拖進對方的塞孔。插錯號＝誤接，那通就斷了。</li>
+      <li><b>振鈴。</b>板下那組的<b>鈴鍵</b>往上一扳，對方電話響；接起後即接通，通話計時開始。</li>
+      <li><b>拆線。</b>通話結束，兩端的監視燈會閃。把兩支塞繩拖回擱架，這組塞繩才能再用。</li>
+    </ol>
+    <p style="margin:10px 0 0">不想拖曳？<b>點一下塞繩選取，再點塞孔</b>即可接線；鍵盤使用者可用 <span class="kbd">Tab</span> 移到塞繩、<span class="kbd">Enter</span> 選取，再移到塞孔 <span class="kbd">Enter</span> 落塞。鈴鍵可直接點按。開啟「慢速練習」會放慢來話並停用閃爍。</p>
+  </section>
+
+  <section class="prose" aria-label="關於本站">
+    <h2>一座還在拉線的總機</h2>
+    <p>民國五十年代的城中局，接線生一排坐在<span class="signature">共電式（common-battery）</span>總機前，面前是一牆訂戶塞孔，膝上一擱架的塞繩。訂戶不撥號——他摘機，你這頭燈就亮；你插上應答塞，說一句「號碼請講」，他報號，你把振鈴塞插到對方孔上、扳鈴，兩人就通了。整條線路，是你的手拉起來的。</p>
+    <p>自動交換機來了以後，這種「人接的電話」就一台一台被拆掉。城中局把最後一座 A 型塞繩台留了下來，改成講習科的教具——上頭這座就是它。這裡沒有一張照片、沒有一段影片：面板、塞孔、塞繩、指示燈、貝爾式話機，全是同一支面板引擎照座標畫出來的，連招牌與 favicon 都是。</p>
+    <p class="disc">＊ 範例內容皆為虛構示意；訂戶名號、地址、電話與班表資料並非真實營業資訊，僅供設計展示。</p>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <div>
+      <b>城中電話交換所</b>
+      <p class="fine">接線生講習科 · 週二至週六 09:00–17:00 · 懷寧街 15 號二樓（虛構示意）</p>
+    </div>
+    <div class="fine">
+      <a href="jixie.html">機件</a> · <a href="kecheng.html">講習</a> · <a href="yange.html">沿革</a><br>
+      Design Skills Center 館藏 · 電木總機風 Bakelite-Switchboard
+    </div>
+  </div>
+</footer>
+</div>
+
+<script>
+/* ===== 城中電話交換所 · 接線台引擎 =====
+   全場為 f(seed, 經過時間, 玩家操作) 之純函數：來話班表由 seed 決定，
+   玩家於時間軸上以塞繩接線，離席期間可批次重算而非暫停。          */
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  var svg=document.getElementById('sw');
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ---- 訂戶（虛構示意，1960s 台北城中商號） ---- */
+  var SUBS=[
+    {n:"21",who:"明星西點"},{n:"22",who:"大陸書局"},{n:"23",who:"亨得利鐘錶"},
+    {n:"24",who:"城中魚攤"},{n:"25",who:"徠卡照相"},{n:"26",who:"沅陵皮鞋"},
+    {n:"27",who:"商務印書"},{n:"28",who:"紅樓戲院"},{n:"29",who:"懷寧綢緞"},
+    {n:"30",who:"鐵路飯店"},{n:"31",who:"波麗路"},{n:"32",who:"圓環魚翅"}
+  ];
+  var NPAIR=5;
+
+  /* ---- seeded PRNG (mulberry32) ---- */
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  var seed=0, rnd=null;
+  function reseed(s){seed=(s===undefined)?(Math.floor(Math.random()*90000)+10000):s;rnd=mulberry32(seed);document.getElementById('seedtxt').textContent=seed;}
+
+  /* ---- geometry: jack positions & cord shelf ---- */
+  var jackPos=[];       // subscriber jacks
+  (function(){
+    var cols=6, x0=60, y0=96, dx=136, dy=118;
+    for(var i=0;i<12;i++){var c=i%cols, r=(i/cols)|0; jackPos.push({x:x0+c*dx, y:y0+r*dy});}
+  })();
+  var shelfY=440, plugHomeGap=26;
+  function pairHome(pi,which){var bx=70+pi*168; return {x:bx+(which==='ring'?plugHomeGap:0), y:shelfY};}
+  function keyPos(pi){return {x:70+pi*168+plugHomeGap/2, y:512};}
+
+  /* ---- state ---- */
+  var pairs=[]; // {id, ans:{x,y,jack}, ring:{x,y,jack}, key:false, callId}
+  var calls=[]; // active + history
+  var nextCallId=1;
+  var schedule=[]; // deterministic arrival plan for current seed
+  var running=false, slow=false;
+  var t=0;              // seconds of board-time elapsed while running
+  var lastTs=null;
+  var stats={conn:0,miss:0,wrong:0,answerSum:0,answerN:0};
+  var sel=null;         // {pi, which} currently selected plug (click mode)
+
+  function speed(){return slow?1.7:1;}
+
+  function resetPairs(){
+    pairs=[];
+    for(var i=0;i<NPAIR;i++){
+      pairs.push({id:i, ans:{jack:null}, ring:{jack:null}, key:false, callId:null});
+      putHome(i,'ans'); putHome(i,'ring');
+    }
+  }
+  function putHome(pi,which){var h=pairHome(pi,which);pairs[pi][which].x=h.x;pairs[pi][which].y=h.y;}
+
+  /* build deterministic schedule from seed: list of {at, from, to} */
+  function buildSchedule(){
+    schedule=[]; var clock=1.2; var count=26;
+    for(var i=0;i<count;i++){
+      var gap=(4.6 - Math.min(2.6, i*0.11)) * (0.72+rnd()*0.7);
+      clock+=gap;
+      var f=(rnd()*12)|0, tto=(rnd()*12)|0; if(tto===f)tto=(tto+1)%12;
+      schedule.push({at:+clock.toFixed(2), from:f, to:tto, spawned:false, patience:7.5+rnd()*3, talk:4+rnd()*6});
+    }
+  }
+
+  function fullReset(keepSeed){
+    if(!keepSeed) reseed();
+    else { rnd=mulberry32(seed); }
+    resetPairs(); calls=[]; nextCallId=1; t=0; lastTs=null; sel=null;
+    stats={conn:0,miss:0,wrong:0,answerSum:0,answerN:0};
+    buildSchedule();
+    document.getElementById('log').innerHTML='<li class="empty">尚無來話紀錄。</li>';
+    updateScores(); render(); setStatus('本班已就緒（seed '+seed+'）。按「開始接線」。');
+  }
+
+  /* ---- call lifecycle ---- */
+  function spawnDue(){
+    for(var i=0;i<schedule.length;i++){
+      var s=schedule[i];
+      if(!s.spawned && t>=s.at){
+        s.spawned=true;
+        calls.push({id:nextCallId++, from:s.from, to:s.to, state:'in', born:t,
+          patience:s.patience, talk:s.talk, pair:null, answeredAt:null, connAt:null});
+      }
+    }
+  }
+  function callByPair(pi){for(var i=0;i<calls.length;i++){if(calls[i].pair===pi && !done(calls[i].state))return calls[i];}return null;}
+  function done(st){return st==='done'||st==='missed'||st==='wrong';}
+  function callOnJack(j,phase){ // find active call whose caller(in) jack is j
+    for(var i=0;i<calls.length;i++){var c=calls[i];
+      if(phase==='from' && c.from===j && (c.state==='in')) return c;
+    }
+    return null;
+  }
+
+  function tick(dt){
+    // 注意：t 於主迴圈 frame() 內推進，tick() 只推狀態
+    spawnDue();
+    var now=t;
+    for(var i=0;i<calls.length;i++){
+      var c=calls[i];
+      if(c.state==='in' && now-c.born>c.patience){ c.state='missed'; stats.miss++; freePairOf(c); logCall(c,'bad','未接','等不到接線，掛了'); }
+      else if(c.state==='ringing' && now-c.ringStart>1.2){ c.state='conn'; c.connAt=now; logCall(c,'ok','接通',''); stats.conn++; }
+      else if(c.state==='conn' && now-c.connAt>c.talk){ c.state='clearing'; c.clearAt=now; setLampBlink(c); }
+    }
+    // auto end-of-shift: schedule finished & no active calls
+  }
+  function freePairOf(c){
+    if(c.pair!==null){var p=pairs[c.pair]; p.ans.jack=null; p.ring.jack=null; p.key=false; p.callId=null; putHome(c.pair,'ans'); putHome(c.pair,'ring'); c.pair=null;}
+  }
+  function setLampBlink(){/* visual handled in render via state */}
+
+  /* ---- actions ---- */
+  function attach(pi,which,jack){
+    var p=pairs[pi];
+    // find call context
+    if(which==='ans'){
+      var c=callOnJack(jack,'from');
+      if(!c){ // answering a jack with no calling subscriber -> just seat plug, no effect
+        p.ans.jack=jack; snapPlug(pi,'ans',jack); setStatus('那個塞孔沒有來話。'); render(); return;
+      }
+      if(p.callId!==null){ setStatus('這組塞繩正在用，換一組空的。'); return; }
+      p.ans.jack=jack; p.callId=c.id; c.pair=pi; c.state='answered'; c.answeredAt=t;
+      stats.answerSum+=(t-c.born); stats.answerN++;
+      snapPlug(pi,'ans',jack);
+      setStatus(SUBS[c.from].who+'（'+SUBS[c.from].n+'）：「請接 '+SUBS[c.to].n+' 號，'+SUBS[c.to].who+'。」把同組前塞插到 '+SUBS[c.to].n+' 號。');
+      render(); return;
+    } else { // ring plug
+      var call=callByPair(pi);
+      if(!call || call.state!=='answered'){ p.ring.jack=jack; snapPlug(pi,'ring',jack); setStatus('先用後塞應答一通來話，再用前塞接續。'); render(); return; }
+      if(jack===call.to){
+        p.ring.jack=jack; call.state='wired'; snapPlug(pi,'ring',jack);
+        setStatus('接到 '+SUBS[call.to].n+' 號了。把這組的鈴鍵往上扳，振鈴。'); render();
+      } else {
+        // wrong number
+        p.ring.jack=jack; snapPlug(pi,'ring',jack); call.state='wrong'; stats.wrong++;
+        logCall(call,'wr','誤接','接到 '+SUBS[jack].n+' 號，要的是 '+SUBS[call.to].n);
+        setTimeout(function(){freePairOf(call);render();},20);
+        setStatus('接錯號了！那通斷線。拔回塞繩重來。'); render();
+      }
+      return;
+    }
+  }
+  function throwKey(pi){
+    var p=pairs[pi]; var call=callByPair(pi);
+    p.key=!p.key;
+    if(p.key && call && call.state==='wired'){ call.state='ringing'; call.ringStart=t; setStatus('振鈴中… '+SUBS[call.to].who+' 正在接。'); }
+    else if(p.key && call && call.state==='answered'){ setStatus('還沒接到對方號碼，先插前塞。'); }
+    render();
+  }
+  function pullPair(pi){
+    var call=callByPair(pi);
+    if(call && call.state==='clearing'){ call.state='done'; logCall(call,'ok','拆線','通話完畢，已收線'); freePairOf(call); updateScores(); setStatus('收線完成，這組塞繩可再用。'); render(); return; }
+    // pulling mid-call = drop
+    if(call && (call.state==='conn'||call.state==='ringing'||call.state==='wired'||call.state==='answered')){
+      call.state='wrong'; stats.wrong++; logCall(call,'wr','掉線','通話中途拔線'); freePairOf(call); updateScores(); render(); return;
+    }
+    // idle plug returning home
+    putHome(pi,'ans'); putHome(pi,'ring'); render();
+  }
+
+  function snapPlug(pi,which,jack){var jp=jackPos[jack];pairs[pi][which].x=jp.x;pairs[pi][which].y=jp.y;}
+
+  /* ---- logging & scores ---- */
+  function logCall(c,cls,kind,extra){
+    var ul=document.getElementById('log'); var em=ul.querySelector('.empty'); if(em)em.remove();
+    var li=document.createElement('li'); li.className=cls;
+    li.innerHTML='<span class="k">'+kind+'</span><span><span class="who">'+SUBS[c.from].who+'</span> '+SUBS[c.from].n+' → '+SUBS[c.to].n+' <span class="who">'+SUBS[c.to].who+'</span>'+(extra?'　<i>'+extra+'</i>':'')+'</span>';
+    ul.insertBefore(li,ul.firstChild);
+    while(ul.children.length>40)ul.removeChild(ul.lastChild);
+    updateScores();
+  }
+  function updateScores(){
+    document.getElementById('s-conn').textContent=stats.conn;
+    document.getElementById('s-miss').textContent=stats.miss;
+    document.getElementById('s-wrong').textContent=stats.wrong;
+    var handled=stats.conn+stats.miss+stats.wrong;
+    document.getElementById('s-rate').textContent=handled?Math.round(stats.conn/handled*100)+'%':'—';
+    document.getElementById('s-avg').textContent=stats.answerN?(stats.answerSum/stats.answerN).toFixed(1)+'s':'—';
+  }
+  function setStatus(m){document.getElementById('status').textContent=m;}
+
+  /* ================= RENDER (SVG) ================= */
+  function el(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+  var blinkOn=true;
+  function render(){
+    while(svg.firstChild)svg.removeChild(svg.firstChild);
+    // frame
+    svg.appendChild(el('rect',{x:6,y:6,width:888,height:548,rx:4,fill:'#3a1114',stroke:'#150d0a','stroke-width':4}));
+    svg.appendChild(el('rect',{x:18,y:18,width:864,height:300,fill:'#EFE7D3',stroke:'#201613','stroke-width':3}));
+    var head=el('text',{x:32,y:44,fill:'#6E1D22','font-family':'Oswald, sans-serif','font-size':16,'letter-spacing':'3','font-weight':600});head.textContent='SUBSCRIBER MULTIPLE — 城中局';svg.appendChild(head);
+    // jacks
+    for(var i=0;i<12;i++){drawJack(i);}
+    // shelf
+    svg.appendChild(el('rect',{x:18,y:352,width:864,height:196,fill:'#2a1113',stroke:'#150d0a','stroke-width':3}));
+    var sh=el('text',{x:32,y:376,fill:'#C7A24A','font-family':'Oswald, sans-serif','font-size':13,'letter-spacing':'3','font-weight':600});sh.textContent='CORD SHELF · 塞繩擱架';svg.appendChild(sh);
+    // ring keys
+    for(i=0;i<NPAIR;i++){drawKey(i);}
+    // cords + plugs (draw cord behind, plugs front)
+    for(i=0;i<NPAIR;i++){drawCord(i);}
+    for(i=0;i<NPAIR;i++){drawPlug(i,'ans');drawPlug(i,'ring');}
+    // clock
+    var ck=el('text',{x:868,y:44,fill:'#6E1D22','font-family':'DM Mono, monospace','font-size':15,'text-anchor':'end'});ck.textContent=fmt(t);svg.appendChild(ck);
+  }
+  function fmt(s){var m=(s/60)|0,ss=(s%60)|0;return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
+
+  function callState(jack,phase){ // return state string for lamp of subscriber jack
+    for(var i=0;i<calls.length;i++){var c=calls[i];
+      if(c.from===jack){
+        if(c.state==='in')return 'calling';
+        if(c.state==='answered'||c.state==='wired'||c.state==='ringing')return 'busy';
+        if(c.state==='conn')return 'talk';
+        if(c.state==='clearing')return 'clear';
+      }
+      if(c.to===jack){
+        if(c.state==='ringing')return 'ring';
+        if(c.state==='conn')return 'talk';
+        if(c.state==='clearing')return 'clear';
+        if(c.state==='wired')return 'busy';
+      }
+    }
+    return 'idle';
+  }
+  function lampColor(st){
+    switch(st){
+      case 'calling': return (blinkOn||reduce)?'#E8A33D':'#5a3a1c';
+      case 'ring':    return (blinkOn||reduce)?'#E24A2E':'#5a1c16';
+      case 'busy':    return '#C7A24A';
+      case 'talk':    return '#5E7F63';
+      case 'clear':   return (blinkOn||reduce)?'#E8A33D':'#3a2a20';
+      default:        return '#2e211a';
+    }
+  }
+  function drawJack(i){
+    var p=jackPos[i], st=callState(i);
+    // label plate
+    var lp=el('rect',{x:p.x-30,y:p.y-46,width:60,height:20,fill:'#DCCEAF',stroke:'#201613','stroke-width':1.5});svg.appendChild(lp);
+    var nt=el('text',{x:p.x,y:p.y-31,fill:'#201613','font-family':'DM Mono, monospace','font-size':12,'text-anchor':'middle'});nt.textContent=SUBS[i].n+' '+SUBS[i].who;svg.appendChild(nt);
+    // lamp
+    var lc=lampColor(st);
+    var lamp=el('circle',{cx:p.x,cy:p.y-16,r:6,fill:lc,stroke:'#201613','stroke-width':1.5});
+    if((st==='calling'||st==='ring')&&(blinkOn||reduce))lamp.setAttribute('filter','');
+    svg.appendChild(lamp);
+    if(st==='calling'||st==='ring'){var glow=el('circle',{cx:p.x,cy:p.y-16,r:9,fill:'none',stroke:lc,'stroke-width':1,opacity:.5});svg.appendChild(glow);}
+    // jack hole (interactive)
+    var g=el('g',{class:'jk',tabindex:0,role:'button','data-jack':i,
+      'aria-label':SUBS[i].n+' 號 '+SUBS[i].who+' 塞孔，狀態 '+stName(st)});
+    g.style.cursor='pointer';
+    g.appendChild(el('circle',{cx:p.x,cy:p.y+8,r:16,fill:'#EFE7D3',stroke:'#201613','stroke-width':2}));
+    g.appendChild(el('circle',{cx:p.x,cy:p.y+8,r:9,fill:'#150d0a'}));
+    g.appendChild(el('circle',{cx:p.x,cy:p.y+8,r:9,fill:'none',stroke:'#C7A24A','stroke-width':2}));
+    svg.appendChild(g);
+  }
+  function stName(st){return {calling:'來話中',ring:'振鈴中',busy:'占線',talk:'通話中',clear:'待拆線',idle:'空閒'}[st]||st;}
+  function drawKey(i){
+    var k=keyPos(i), on=pairs[i].key;
+    var g=el('g',{class:'ringkey',tabindex:0,role:'button','data-key':i,'aria-label':'第 '+(i+1)+' 組鈴鍵，'+(on?'已扳起振鈴':'放下')});
+    g.style.cursor='pointer';
+    g.appendChild(el('rect',{x:k.x-16,y:k.y-8,width:32,height:34,rx:3,fill:'#1a0f0b',stroke:'#C7A24A','stroke-width':1.5}));
+    g.appendChild(el('rect',{x:k.x-6,y:on?k.y-4:k.y+8,width:12,height:16,rx:3,fill:on?'#E24A2E':'#C7A24A',stroke:'#201613','stroke-width':1.5}));
+    var lab=el('text',{x:k.x,y:k.y+40,fill:'#C7A24A','font-family':'DM Mono, monospace','font-size':10,'text-anchor':'middle'});lab.textContent='鈴 '+(i+1);g.appendChild(lab);
+    svg.appendChild(g);
+  }
+  function drawCord(i){
+    var a=pairs[i].ans, r=pairs[i].ring;
+    var ax=a.x,ay=a.y,rx=r.x,ry=r.y;
+    var sag=Math.max(ay,ry)+70;
+    var d='M '+ax+' '+ay+' C '+ax+' '+sag+', '+rx+' '+sag+', '+rx+' '+ry;
+    svg.appendChild(el('path',{d:d,fill:'none',stroke:'#150d0a','stroke-width':6,'stroke-linecap':'round'}));
+    svg.appendChild(el('path',{d:d,fill:'none',stroke:i%2? '#8FA0C0':'#C08A5A','stroke-width':3,'stroke-linecap':'round',opacity:.9}));
+  }
+  function drawPlug(i,which){
+    var pl=pairs[i][which];
+    var g=el('g',{class:'plug',tabindex:0,role:'button','data-pi':i,'data-which':which,
+      'aria-label':'第 '+(i+1)+' 組 '+(which==='ans'?'後塞（應答）':'前塞（振鈴）')+(pl.jack!==null?('，插在 '+SUBS[pl.jack].n+' 號'):'，在擱架')});
+    g.style.cursor='grab';
+    var selHere=sel&&sel.pi===i&&sel.which===which;
+    // plug body: barrel + tip
+    g.appendChild(el('rect',{x:pl.x-7,y:pl.y-2,width:14,height:22,rx:3,fill:which==='ans'?'#2c2016':'#3a2a1a',stroke:'#C7A24A','stroke-width':selHere?3:1.6}));
+    g.appendChild(el('rect',{x:pl.x-4,y:pl.y-14,width:8,height:14,rx:2,fill:'#C7A24A',stroke:'#201613','stroke-width':1.4}));
+    g.appendChild(el('circle',{cx:pl.x,cy:pl.y-14,r:3,fill:'#EFE7D3',stroke:'#201613','stroke-width':1.2}));
+    if(selHere){g.appendChild(el('circle',{cx:pl.x,cy:pl.y+9,r:20,fill:'none',stroke:'#E8A33D','stroke-width':2,'stroke-dasharray':'3 3'}));}
+    svg.appendChild(g);
+  }
+
+  /* ================= INPUT ================= */
+  function svgPoint(evt){var pt=svg.createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;var m=svg.getScreenCTM().inverse();return pt.matrixTransform(m);}
+  function nearestJack(x,y){var best=-1,bd=1e9;for(var i=0;i<12;i++){var dx=x-jackPos[i].x,dy=y-(jackPos[i].y+8),d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}}return bd<38*38?best:-1;}
+  function overShelf(y){return y>360;}
+
+  var drag=null; // {pi,which,dxo,dyo,moved}
+  svg.addEventListener('pointerdown',function(e){
+    var g=e.target.closest?e.target.closest('.plug, .jk, .ringkey'):null; if(!g)return;
+    if(g.classList.contains('ringkey')){throwKey(+g.getAttribute('data-key'));return;}
+    if(g.classList.contains('jk')){ handleJackActivate(+g.getAttribute('data-jack')); return; }
+    // plug
+    var pi=+g.getAttribute('data-pi'), which=g.getAttribute('data-which');
+    var p=svgPoint(e);
+    drag={pi:pi,which:which,dxo:p.x-pairs[pi][which].x,dyo:p.y-pairs[pi][which].y,moved:false};
+    try{svg.setPointerCapture(e.pointerId);}catch(_){}
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    var p=svgPoint(e);
+    var nx=p.x-drag.dxo, ny=p.y-drag.dyo;
+    var pl=pairs[drag.pi][drag.which];
+    if(Math.abs(nx-pl.x)>4||Math.abs(ny-pl.y)>4)drag.moved=true;
+    pl.x=nx;pl.y=ny; pl.jack=null; render();
+  });
+  svg.addEventListener('pointerup',function(e){
+    if(!drag){return;}
+    var p=svgPoint(e);
+    if(!drag.moved){ // treat as click-select
+      selectPlug(drag.pi,drag.which);
+    } else {
+      var j=nearestJack(p.x,p.y);
+      if(j>=0){ attach(drag.pi,drag.which,j); }
+      else if(overShelf(p.y)){ pullPair(drag.pi); }
+      else { snapBack(drag.pi,drag.which); render(); }
+    }
+    drag=null;
+  });
+  svg.addEventListener('pointercancel',function(){if(drag){snapBack(drag.pi,drag.which);render();drag=null;}});
+
+  function snapBack(pi,which){var pl=pairs[pi][which];if(pl.jack!==null)snapPlug(pi,which,pl.jack);else putHome(pi,which);}
+  function selectPlug(pi,which){
+    if(sel&&sel.pi===pi&&sel.which===which){sel=null;setStatus('取消選取。');}
+    else{sel={pi:pi,which:which};setStatus('已選第 '+(pi+1)+' 組'+(which==='ans'?'後塞。點閃燈的塞孔應答。':'前塞。點對方塞孔接續。'));}
+    render();
+  }
+  function handleJackActivate(j){
+    if(sel){ attach(sel.pi,sel.which,j); sel=null; render(); }
+    else { // no plug selected: hint
+      var st=callState(j); setStatus(SUBS[j].n+' 號 '+SUBS[j].who+'：'+stName(st)+'。先選一支塞繩再點塞孔。');
+    }
+  }
+  // keyboard: Enter on focused plug/jack/key
+  svg.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    var g=document.activeElement;
+    if(!g||!g.getAttribute)return;
+    if(g.classList.contains('plug')){e.preventDefault();selectPlug(+g.getAttribute('data-pi'),g.getAttribute('data-which'));}
+    else if(g.classList.contains('jk')){e.preventDefault();handleJackActivate(+g.getAttribute('data-jack'));}
+    else if(g.classList.contains('ringkey')){e.preventDefault();throwKey(+g.getAttribute('data-key'));}
+  });
+
+  /* ================= LOOP ================= */
+  function frame(ts){
+    if(lastTs==null)lastTs=ts;
+    var dt=Math.min(0.05,(ts-lastTs)/1000); lastTs=ts;
+    if(running){ t+=dt/(slow?1.7:1); tick(dt); }
+    requestAnimationFrame(frame);
+  }
+  // blink timer
+  setInterval(function(){blinkOn=!blinkOn; if(running||sel)render();},520);
+  // periodic re-render while running (clock, lamps)
+  setInterval(function(){if(running)render();},250);
+
+  /* ---- controls ---- */
+  document.getElementById('btn-run').addEventListener('click',function(){
+    running=!running; this.setAttribute('aria-pressed',running?'true':'false');
+    this.textContent=running?'暫停接線':'開始接線'; this.classList.toggle('on',!running);
+    setStatus(running?'開始接線，注意閃燈。':'已暫停。');
+    lastTs=null;
+  });
+  document.getElementById('btn-slow').addEventListener('click',function(){
+    slow=!slow; this.setAttribute('aria-pressed',slow?'true':'false');
+    setStatus(slow?'慢速練習：來話放慢，燈不閃。':'恢復正常班速。');
+  });
+  document.getElementById('btn-reseed').addEventListener('click',function(){fullReset(false);});
+  document.getElementById('btn-reset').addEventListener('click',function(){fullReset(true);});
+
+  // boot
+  reseed(); fullReset(true); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

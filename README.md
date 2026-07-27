@@ -134,6 +134,7 @@
 | 116 | [圈舞堂 Ring & Reel](sites/quanwu/index.html) | 土風舞聯誼社 | 隊形走位圖風 Formation-Choreography | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 117 | [日月堂 Nichigetsu-dō](sites/nichigetsu/index.html) | けん玉道場／玩具店 | 昭和玩具版元風 Shōwa Toy-Broadside | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 118 | [城中電話交換所 Chéngzhōng Exchange](sites/chengzhong/index.html) | 電話交換所／接線生講習 | 電木總機風 Bakelite-Switchboard | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 119 | [向陽蜂學所 Sunward Apiary](sites/fengyu/index.html) | 養蜂場／蜂群生態教育館 | 觀察蜂箱風 Observation-Hive | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

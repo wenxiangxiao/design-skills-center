@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>向陽蜂學所・入所</title>
+<meta name="description" content="向陽蜂學所讀舞課程與觀察箱共學報名：選場次、留資料、生成留位號與屬於你的一支舞印。前端模擬，非真實收費。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231B1408'/%3E%3Cpolygon points='16,4 26,10 26,22 16,28 6,22 6,10' fill='%23E8A63C' stroke='%23140E06' stroke-width='2'/%3E%3Cline x1='13' y1='24' x2='19' y2='7' stroke='%23F2C74B' stroke-width='3' stroke-linecap='round'/%3E%3Cellipse cx='17' cy='16' rx='3.4' ry='5' fill='%23241A0C' stroke='%23140E06' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Noto+Serif+TC:wght@600;700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--comb:#1B1408;--comb2:#241A0C;--panel:#2B2010;--wax:#EFE0BE;--wax2:#D8C79E;--honey:#E8A63C;--pollen:#F2C74B;--propolis:#A5522B;--brood:#C9A15E;--nectar:#6E8F4E;--ink:#140E06;--dim:#8A7748;--warn:#E24A2E;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--comb);color:var(--wax);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--honey)}
+h1,h2,h3{font-family:"Noto Serif TC",serif}
+.skip{position:absolute;left:-999px;top:0;background:var(--pollen);color:var(--ink);padding:8px 14px;z-index:80;font-weight:700}
+.skip:focus{left:8px;top:8px}
+.combnav{position:fixed;top:14px;right:14px;z-index:60}
+.combnav svg{width:112px;height:auto;display:block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.4))}
+.combnav .cell{fill:var(--comb2);stroke:var(--ink);stroke-width:3;transition:fill .18s}
+.combnav .lbl{font-family:"Noto Serif TC";font-weight:700;font-size:13px;fill:var(--wax)}
+.combnav .en{font-family:"Fraunces",serif;font-style:italic;font-size:8px;fill:var(--brood);letter-spacing:.08em}
+.combnav a .bee{opacity:0}
+.combnav a:hover .cell{fill:var(--propolis)}
+.combnav a[aria-current="page"] .cell{fill:var(--honey)}
+.combnav a[aria-current="page"] .lbl,.combnav a[aria-current="page"] .en{fill:var(--ink)}
+.combnav a[aria-current="page"] .bee{opacity:1}
+.combnav a:focus-visible .cell{stroke:var(--pollen);stroke-width:4}
+.wrap{max-width:760px;margin:0 auto;padding:0 22px}
+.mast{border-bottom:3px solid var(--ink);background:linear-gradient(180deg,#221809,#1B1408);padding:22px 0 16px}
+.mast .kick{font-family:"Fraunces",serif;font-style:italic;font-size:13px;color:var(--brood);letter-spacing:.1em}
+.mast h1{margin:4px 0 0;font-weight:900;font-size:clamp(24px,4vw,40px);letter-spacing:.04em}
+.mast p{margin:8px 0 0;color:var(--wax2);font-size:14.5px}
+main{padding:22px 0 12px}
+.steps{display:flex;gap:0;margin-bottom:18px;border:2px solid var(--ink);border-radius:2px;overflow:hidden}
+.steps div{flex:1;text-align:center;padding:8px 4px;font-family:"Space Mono",monospace;font-size:12px;color:var(--dim);background:var(--comb2)}
+.steps div+div{border-left:2px solid var(--ink)}
+.steps div.on{background:var(--honey);color:var(--ink);font-weight:700}
+.steps div.done{background:var(--panel);color:var(--brood)}
+.panel{background:var(--comb2);border:3px solid var(--ink);border-radius:3px;padding:16px}
+.panel h2{margin:0 0 12px;font-size:19px}
+.stage{display:none}.stage.on{display:block}
+.sess{display:grid;grid-template-columns:1fr;gap:10px}
+.sesscard{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--comb);border:2px solid #4a3818;border-radius:3px;padding:12px;cursor:pointer;text-align:left;width:100%;color:var(--wax);font-family:inherit}
+.sesscard:hover{border-color:var(--honey)}
+.sesscard[aria-pressed="true"]{border-color:var(--honey);background:#332510}
+.sesscard .t{font-family:"Noto Serif TC";font-weight:700;font-size:16px}
+.sesscard .d{font-family:"Space Mono",monospace;font-size:12px;color:var(--brood)}
+.sesscard .r{font-family:"Space Mono",monospace;font-size:12px;color:var(--nectar)}
+.sesscard .r.low{color:var(--warn)}
+.sesscard[disabled]{opacity:.5;cursor:not-allowed}
+label.f{display:block;margin:14px 0 5px;font-size:14px;color:var(--brood);font-family:"Noto Serif TC";font-weight:700}
+input.t,select.t{width:100%;font-family:"Noto Sans TC";font-size:15px;background:var(--comb);color:var(--wax);
+  border:2px solid #4a3818;border-radius:2px;padding:9px 11px}
+input.t:focus,select.t:focus{outline:none;border-color:var(--honey)}
+.hint{font-size:12px;color:var(--dim);margin-top:4px}
+.err{color:var(--warn);font-size:12.5px;margin-top:4px;min-height:1em}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nav{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
+.btn{font-family:"Noto Serif TC";font-weight:700;font-size:15px;padding:10px 20px;border:2px solid var(--ink);
+  border-radius:2px;cursor:pointer;background:var(--honey);color:var(--ink)}
+.btn:hover{background:var(--pollen)}
+.btn.ghost{background:var(--comb2);color:var(--wax);border-color:var(--brood)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.done-wrap{text-align:center}
+.done-wrap .code{font-family:"Space Mono",monospace;font-size:26px;color:var(--pollen);font-weight:700;letter-spacing:.06em;margin:6px 0}
+.done-wrap svg{width:180px;height:auto;background:var(--comb);border:2px solid var(--ink);border-radius:3px;margin:10px auto;display:block}
+.done-wrap .sum{font-family:"Space Mono",monospace;font-size:13px;color:var(--wax2);line-height:1.8;margin-top:8px}
+footer{border-top:3px solid var(--ink);margin-top:34px;background:#160F06}
+footer .wrap{padding:20px 22px 26px}
+footer .b{font-family:"Noto Serif TC";font-weight:900;font-size:17px;letter-spacing:.06em}
+footer .fx{font-size:12.5px;color:var(--dim);max-width:60ch;margin-top:8px;line-height:1.7}
+footer .built{font-family:"Space Mono",monospace;font-size:11px;color:var(--dim);margin-top:8px}
+@media(max-width:820px){.combnav svg{width:92px}.row2{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#c">跳到報名</a>
+<nav class="combnav" aria-label="主導覽">
+<svg viewBox="0 0 118 112" role="presentation">
+  <a href="index.html"><title>舞台</title><polygon class="cell" points="38.0,14.0 55.3,24.0 55.3,44.0 38.0,54.0 20.7,44.0 20.7,24.0"/><text class="lbl" x="38" y="33" text-anchor="middle">舞台</text><text class="en" x="38" y="45" text-anchor="middle">STAGE</text><ellipse class="bee" cx="49" cy="19" rx="3" ry="4.4" fill="#241A0C" stroke="#140E06" stroke-width="1.2"/></a>
+  <a href="fa.html"><title>舞法</title><polygon class="cell" points="80.0,14.0 97.3,24.0 97.3,44.0 80.0,54.0 62.7,44.0 62.7,24.0"/><text class="lbl" x="80" y="33" text-anchor="middle">舞法</text><text class="en" x="80" y="45" text-anchor="middle">METHOD</text><ellipse class="bee" cx="91" cy="19" rx="3" ry="4.4" fill="#241A0C" stroke="#140E06" stroke-width="1.2"/></a>
+  <a href="mi.html"><title>蜜源</title><polygon class="cell" points="38.0,58.0 55.3,68.0 55.3,88.0 38.0,98.0 20.7,88.0 20.7,68.0"/><text class="lbl" x="38" y="77" text-anchor="middle">蜜源</text><text class="en" x="38" y="89" text-anchor="middle">NECTAR</text><ellipse class="bee" cx="49" cy="63" rx="3" ry="4.4" fill="#241A0C" stroke="#140E06" stroke-width="1.2"/></a>
+  <a href="ru.html" aria-current="page"><title>入所</title><polygon class="cell" points="80.0,58.0 97.3,68.0 97.3,88.0 80.0,98.0 62.7,88.0 62.7,68.0"/><text class="lbl" x="80" y="77" text-anchor="middle">入所</text><text class="en" x="80" y="89" text-anchor="middle">JOIN</text><ellipse class="bee" cx="91" cy="63" rx="3" ry="4.4" fill="#241A0C" stroke="#140E06" stroke-width="1.2"/></a>
+</svg>
+</nav>
+
+<header class="mast"><div class="wrap">
+  <div class="kick">SUNWARD APIARY · JOIN</div>
+  <h1>入所</h1>
+  <p>讀舞課程與觀察箱共學。選一個場次、留下聯絡方式，我們會回電確認。（報名為前端模擬示意，不會真的送出、不收費。）</p>
+</div></header>
+
+<main id="c" class="wrap">
+  <div class="steps"><div id="s1" class="on">① 選場次</div><div id="s2">② 留資料</div><div id="s3">③ 完成</div></div>
+
+  <div class="panel">
+    <!-- step 1 -->
+    <div class="stage on" id="st1">
+      <h2>選一個場次</h2>
+      <div class="sess" id="sessList"></div>
+      <div class="nav"><span></span><button class="btn" id="to2" disabled>下一步：留資料 →</button></div>
+    </div>
+
+    <!-- step 2 -->
+    <div class="stage" id="st2">
+      <h2>留下資料</h2>
+      <label class="f" for="name">稱呼 *</label>
+      <input class="t" id="name" autocomplete="name" placeholder="怎麼稱呼你？">
+      <div class="err" id="eName"></div>
+      <div class="row2">
+        <div>
+          <label class="f" for="phone">手機 *</label>
+          <input class="t" id="phone" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxx">
+          <div class="hint">台灣手機十碼，09 開頭</div>
+          <div class="err" id="ePhone"></div>
+        </div>
+        <div>
+          <label class="f" for="ppl">人數 *</label>
+          <select class="t" id="ppl"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+          <div class="hint">單場最多 6 人</div>
+        </div>
+      </div>
+      <label class="f" for="email">Email（選填）</label>
+      <input class="t" id="email" autocomplete="email" placeholder="要寄行前通知再填">
+      <div class="err" id="eEmail"></div>
+      <div class="nav"><button class="btn ghost" id="back1">← 上一步</button><button class="btn" id="to3">送出報名 →</button></div>
+    </div>
+
+    <!-- step 3 -->
+    <div class="stage" id="st3">
+      <div class="done-wrap">
+        <h2>留位完成</h2>
+        <p style="color:var(--wax2)">我們會在兩個工作天內回電確認。這是你的留位號與一支專屬的舞印：</p>
+        <div class="code" id="code">—</div>
+        <svg id="sigil" viewBox="0 0 132 132" aria-label="由你的報名資料生成的舞印"></svg>
+        <div class="sum" id="sum"></div>
+        <div class="nav" style="justify-content:center"><button class="btn ghost" id="again">再報一筆</button></div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:12.5px;color:var(--dim);margin-top:16px">現場恕不提供停車，建議搭乘台鐵至宜蘭站轉計程車約 15 分鐘。對讀舞還不熟？先看 <a href="fa.html">舞法</a> 或到 <a href="index.html">舞台</a> 玩一輪。</p>
+</main>
+
+<footer><div class="wrap">
+  <div class="b">向陽蜂學所</div>
+  <div class="built">觀察蜂箱風 Observation-Hive · No.7 號脾</div>
+  <div class="fx">宜蘭縣員山鄉枕頭山路 33 之 2 號・預約導覽 (03) 922-6178。報名、留位號、課程費用與名額皆為前端模擬教學示意，不構成真實預約或交易。<br><a href="index.html">舞台</a> ・ <a href="fa.html">舞法</a> ・ <a href="mi.html">蜜源</a></div>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+var NS="http://www.w3.org/2000/svg";
+function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+function mod(a,n){return ((a%n)+n)%n;}
+function rad(d){return d*Math.PI/180;}
+function fnv(str){var h=0x811c9dc5;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193);}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+var SESS=[
+ {id:"A",t:"讀舞入門・半日",d:"每週六 09:30–12:00・室內＋觀察箱",cap:12,left:5,fee:"NT$680"},
+ {id:"B",t:"觀察箱共學・全日",d:"每月首個週日 09:00–16:00・含午餐",cap:10,left:2,fee:"NT$1,480"},
+ {id:"C",t:"取蜜實作・週末",d:"5–6 月流蜜期週六 08:30–12:30",cap:8,left:0,fee:"NT$1,200"},
+ {id:"D",t:"小小養蜂人・親子",d:"每週日 14:00–16:00・6–12 歲親子檔",cap:12,left:7,fee:"NT$520 / 親子一組"}
+];
+var chosen=null, data={};
+
+function renderSess(){
+  var host=$("sessList");host.innerHTML="";
+  SESS.forEach(function(s){
+    var b=document.createElement("button");b.className="sesscard";b.type="button";
+    b.setAttribute("aria-pressed", chosen===s.id?"true":"false");
+    if(s.left<=0)b.setAttribute("disabled","");
+    var rcls=s.left<=0?"r low":(s.left<=2?"r low":"r");
+    b.innerHTML='<span><span class="t">'+s.t+'</span><br><span class="d">'+s.d+'　'+s.fee+'</span></span>'+
+      '<span class="'+rcls+'">'+(s.left<=0?"已額滿":"餘 "+s.left+" / "+s.cap)+'</span>';
+    if(s.left>0)b.addEventListener("click",function(){
+      chosen=s.id;renderSess();$("to2").disabled=false;
+    });
+    host.appendChild(b);
+  });
+}
+function show(step){
+  ["st1","st2","st3"].forEach(function(id,i){$(id).classList.toggle("on",i===step-1);});
+  [1,2,3].forEach(function(n){
+    var e=$("s"+n);e.classList.toggle("on",n===step);e.classList.toggle("done",n<step);
+  });
+  window.scrollTo({top:0,behavior:"auto"});
+}
+$("to2").addEventListener("click",function(){if(chosen)show(2);});
+$("back1").addEventListener("click",function(){show(1);});
+
+function validate(){
+  var ok=true;
+  var name=$("name").value.trim();
+  if(name.length<2){$("eName").textContent="請至少輸入 2 個字的稱呼。";ok=false;}else $("eName").textContent="";
+  var phone=$("phone").value.trim();
+  if(!/^09\d{8}$/.test(phone)){$("ePhone").textContent="手機需為 09 開頭的十碼數字。";ok=false;}else $("ePhone").textContent="";
+  var email=$("email").value.trim();
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$("eEmail").textContent="Email 格式看起來不太對。";ok=false;}else $("eEmail").textContent="";
+  return ok?{name:name,phone:phone,email:email,ppl:$("ppl").value}:null;
+}
+$("to3").addEventListener("click",function(){
+  var v=validate();if(!v)return;
+  data=v;finish();show(3);
+});
+
+function pad(n,w){n=""+n;while(n.length<w)n="0"+n;return n;}
+function finish(){
+  var s=SESS.filter(function(x){return x.id===chosen;})[0];
+  var d=new Date();
+  var ymd=pad(d.getFullYear()%100,2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2);
+  var seed=fnv(data.name+"|"+data.phone+"|"+chosen+"|"+ymd);
+  var nnn=pad(seed%900+100,3);
+  var code="FY-"+ymd+"-"+nnn;
+  $("code").textContent=code;
+  $("sum").innerHTML=s.t+"　"+s.fee+"<br>"+data.name+"　"+data.ppl+" 位　"+data.phone;
+  drawSigil(seed);
+}
+function drawSigil(seed){
+  var rng=mulberry32(seed), svg=$("sigil");
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  svg.appendChild(el("rect",{x:0,y:0,width:132,height:132,rx:4,fill:"#1B1408"}));
+  // ring of small hex cells + a dance whose angle+len come from the hash
+  var theta=Math.round((rng()*260)-130), L=34+rng()*58;
+  var P0={x:66,y:104}, t=rad(theta), v={x:Math.sin(t),y:-Math.cos(t)}, P1={x:P0.x+L*v.x,y:P0.y+L*v.y}, n={x:-v.y,y:v.x},lw=26;
+  // scattered honey cells
+  for(var i=0;i<7;i++){
+    var cx=18+rng()*96, cy=16+rng()*96, r=6+rng()*5, pts=[];
+    for(var a=0;a<6;a++){var ang=rad(-90+a*60);pts.push((cx+r*Math.cos(ang)).toFixed(1)+","+(cy+r*Math.sin(ang)).toFixed(1));}
+    svg.appendChild(el("polygon",{points:pts.join(" "),fill:i%2?"#E8A63C":"#241A0C","fill-opacity":0.5+rng()*0.4,stroke:"#140E06","stroke-width":1.3}));
+  }
+  svg.appendChild(el("line",{x1:66,y1:12,x2:66,y2:110,stroke:"#5a4620","stroke-width":1,"stroke-dasharray":"3 4"}));
+  svg.appendChild(el("path",{d:"M"+P1.x+" "+P1.y+" C "+(P1.x+n.x*lw)+" "+(P1.y+n.y*lw)+" "+(P0.x+n.x*lw)+" "+(P0.y+n.y*lw)+" "+P0.x+" "+P0.y
+    +" M"+P1.x+" "+P1.y+" C "+(P1.x-n.x*lw)+" "+(P1.y-n.y*lw)+" "+(P0.x-n.x*lw)+" "+(P0.y-n.y*lw)+" "+P0.x+" "+P0.y,
+    fill:"none",stroke:"#EFE0BE","stroke-width":2,opacity:0.62,"stroke-linecap":"round"}));
+  svg.appendChild(el("line",{x1:P0.x,y1:P0.y,x2:P1.x,y2:P1.y,stroke:"#F2C74B","stroke-width":3.4,"stroke-linecap":"round"}));
+  var mid={x:(P0.x+P1.x)/2,y:(P0.y+P1.y)/2};
+  var g=el("g",{transform:"translate("+mid.x.toFixed(1)+","+mid.y.toFixed(1)+") rotate("+theta+")"});
+  g.appendChild(el("ellipse",{cx:0,cy:0,rx:5.4,ry:8,fill:"#E8A63C",stroke:"#140E06","stroke-width":1.6}));
+  g.appendChild(el("path",{d:"M-5 -2.4 H5 M-5 1 H5 M-4.2 4.4 H4.2",stroke:"#140E06","stroke-width":1.5}));
+  g.appendChild(el("circle",{cx:0,cy:-9.6,r:3,fill:"#241A0C",stroke:"#140E06","stroke-width":1.4}));
+  svg.appendChild(g);
+  svg.appendChild(el("rect",{x:1,y:1,width:130,height:130,rx:4,fill:"none",stroke:"#C9A15E","stroke-width":2}));
+}
+$("again").addEventListener("click",function(){
+  chosen=null;data={};$("name").value="";$("phone").value="";$("email").value="";$("ppl").value="1";
+  $("eName").textContent="";$("ePhone").textContent="";$("eEmail").textContent="";
+  $("to2").disabled=true;renderSess();show(1);
+});
+renderSess();
+})();
+</script>
+</body>
+</html>

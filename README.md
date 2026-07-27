@@ -136,6 +136,7 @@
 | 118 | [城中電話交換所 Chéngzhōng Exchange](sites/chengzhong/index.html) | 電話交換所／接線生講習 | 電木總機風 Bakelite-Switchboard | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 119 | [向陽蜂學所 Sunward Apiary](sites/fengyu/index.html) | 養蜂場／蜂群生態教育館 | 觀察蜂箱風 Observation-Hive | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 120 | [九降紙鳶所 Jiujiang Kite Atelier](sites/zhiyuan/index.html) | 紙鳶工坊／風箏學堂 | 風信紙鳶風 Windward Kite-Chart | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 121 | [合順水磨石 Héshùn Terrazzo](sites/shuimo/index.html) | 磨石子／水磨石地坪工坊 | 水磨石剖面風 Terrazzo-Section | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

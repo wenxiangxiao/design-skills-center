@@ -108,7 +108,10 @@ table.tb{width:100%;border-collapse:collapse;font-size:13.5px}
 table.tb th,table.tb td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
 table.tb th{font-family:"Noto Serif TC";font-weight:700;color:var(--ink2);background:rgba(214,201,176,.34);font-size:12.5px}
 table.tb tr:last-child td{border-bottom:0}
-table.tb td.num{font-variant-numeric:tabular-nums;font-weight:700}
+table.tb td.num,table.tb th.num{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+/* 數字與金額不折行；窄螢幕改為整張表可橫向捲動 */
+.tbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbwrap table.tb{min-width:520px}
 
 /* ---- 讀數格 ---- */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
@@ -788,7 +791,7 @@ var UI = (function () {
     h += '<div style="font-size:12px;color:#93856F">' + r.km.toFixed(1) + ' km・車程約 ' + GD.travelMin({ lat: r.staff.lat, lng: r.staff.lng }, { lat: r.cs.lat, lng: r.cs.lng }, r.staff.mode, 600) + ' 分・' + ({ scooter: "機車", car: "汽車", transit: "大眾運輸" }[r.staff.mode]) + '</div></div>';
     h += '<div style="text-align:right"><div style="font-size:27px;font-weight:900;font-family:Noto Serif TC;line-height:1;color:' + (r.score >= 75 ? "#5E8551" : r.score >= 55 ? "#C9743C" : "#93856F") + '">' + Math.round(r.score) + '</div><div style="font-size:11px;color:#93856F">配對總分／100</div></div>';
     h += '</div>';
-    h += '<table class="tb" style="margin-top:9px">';
+    h += '<div class="tbwrap"><table class="tb" style="margin-top:9px">';
     r.why.forEach(function (w) {
       var pct = w.max ? (w.got / w.max * 100) : 0;
       h += '<tr><td style="width:74px;font-weight:700;font-size:12.5px">' + w.k + '</td>';
@@ -796,7 +799,7 @@ var UI = (function () {
       h += '<td class="num" style="width:52px;font-size:12px">' + w.got.toFixed(1) + '/' + w.max + '</td>';
       h += '<td style="font-size:12px;color:#6E6152">' + esc(w.txt) + '</td></tr>';
     });
-    h += '</table>';
+    h += '</table></div>';
     if (opt.action) h += '<div style="margin-top:9px">' + opt.action + '</div>';
     h += '</div>';
     return h;
@@ -901,12 +904,12 @@ function near(){
   var okN=rows.filter(function(r){return r.ok;}).length;
   $("nearOut").innerHTML='<div class="stitch"><b style="font-size:14px">離這個地點最近的護理師</b>'
     +'<div style="font-size:12.5px;color:#93856F;margin-bottom:6px">距本所 '+GD.roadKm(GD.BASE,{lat:cs.lat,lng:cs.lng}).toFixed(1)+' km</div>'
-    +'<table class="tb">'+rows.map(function(r){
+    +'<div class="tbwrap"><table class="tb">'+rows.map(function(r){
       return '<tr><td>'+esc(r.s.name)+'<div style="font-size:11px;color:#93856F">'+r.s.lines.map(function(l){return GD.LINES[l].zh;}).join("／")+'</div></td>'
        +'<td class="num">'+r.km.toFixed(1)+' km</td>'
        +'<td class="num">'+GD.travelMin({lat:r.s.lat,lng:r.s.lng},{lat:cs.lat,lng:cs.lng},r.s.mode,600)+' 分</td>'
        +'<td>'+(r.ok?'<span class="pill ok">可服務</span>':'<span class="pill no">'+esc(r.hard[0].split("（")[0])+'</span>')+'</td></tr>';
-    }).join("")+'</table>'
+    }).join("")+'</table></div>'
     +(okN?'<div class="hint">共 '+okN+' 位可服務這個地點。</div>':'<div class="warnbox" style="margin:8px 0 0">這個位置目前沒有護理師可服務（多半是超出服務半徑）。請改選鄰近行政區，或來電 (02) 2509-8760 詢問機動人力。</div>')
     +'</div>';
   $("to3").disabled = okN===0;
@@ -983,14 +986,14 @@ $("submitB").addEventListener("click",function(){
   $("ticket").innerHTML='<div class="stitch" style="text-align:center">'
     +'<div class="hand" style="font-size:20px;color:#93856F">預約代號</div>'
     +'<div style="font-size:31px;font-weight:900;font-family:Noto Serif TC;letter-spacing:.05em;color:#C9743C">'+code+'</div></div>'
-    +'<table class="tb" style="margin-top:12px">'
+    +'<div class="tbwrap"><table class="tb" style="margin-top:12px">'
     +'<tr><th style="width:96px">服務項目</th><td><span class="tag '+st.line+'">'+GD.LINES[st.line].zh+'</span> '+st.item+' '+esc(it.name)+'（約 '+it.dur+' 分）</td></tr>'
     +'<tr><th>照護地點</th><td>'+esc(GD.DISTRICTS[st.district].name)+'　'+esc($("addr").value.trim()||"（到府前確認門牌）")+'</td></tr>'
     +'<tr><th>配對護理師</th><td><b>'+esc(nurse.name)+'</b>　'+esc(nurse.title)+'<div style="font-size:12px;color:#6E6152">距照護地點 '+km.toFixed(1)+' km・車程約 '+GD.travelMin({lat:nurse.lat,lng:nurse.lng},{lat:st.lat,lng:st.lng},nurse.mode,600)+' 分</div></td></tr>'
     +'<tr><th>期望時段</th><td>'+days+'　每週 '+st.hoursW+' 小時</td></tr>'
     +'<tr><th>聯絡人</th><td>'+esc(nm)+'（'+esc($("rel").value)+'）・'+esc(ph)+'</td></tr>'
     +($("memo").value.trim()?'<tr><th>備註</th><td>'+esc($("memo").value.trim())+'</td></tr>':'')
-    +'</table>'
+    +'</table></div>'
     +'<div class="note" style="margin-top:12px">我們會在一個工作天內回電確認首次評估時間。首次到府會先做完整評估（約 60–90 分），再排定固定訪視與路線。</div>'
     +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="client.html">到「我的照護」看安排</a><button class="btn" id="again">再預約一筆</button></div>';
   st.step=5; steps();

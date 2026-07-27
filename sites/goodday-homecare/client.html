@@ -108,7 +108,10 @@ table.tb{width:100%;border-collapse:collapse;font-size:13.5px}
 table.tb th,table.tb td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
 table.tb th{font-family:"Noto Serif TC";font-weight:700;color:var(--ink2);background:rgba(214,201,176,.34);font-size:12.5px}
 table.tb tr:last-child td{border-bottom:0}
-table.tb td.num{font-variant-numeric:tabular-nums;font-weight:700}
+table.tb td.num,table.tb th.num{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+/* 數字與金額不折行；窄螢幕改為整張表可橫向捲動 */
+.tbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbwrap table.tb{min-width:520px}
 
 /* ---- 讀數格 ---- */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
@@ -750,7 +753,7 @@ var UI = (function () {
     h += '<div style="font-size:12px;color:#93856F">' + r.km.toFixed(1) + ' km・車程約 ' + GD.travelMin({ lat: r.staff.lat, lng: r.staff.lng }, { lat: r.cs.lat, lng: r.cs.lng }, r.staff.mode, 600) + ' 分・' + ({ scooter: "機車", car: "汽車", transit: "大眾運輸" }[r.staff.mode]) + '</div></div>';
     h += '<div style="text-align:right"><div style="font-size:27px;font-weight:900;font-family:Noto Serif TC;line-height:1;color:' + (r.score >= 75 ? "#5E8551" : r.score >= 55 ? "#C9743C" : "#93856F") + '">' + Math.round(r.score) + '</div><div style="font-size:11px;color:#93856F">配對總分／100</div></div>';
     h += '</div>';
-    h += '<table class="tb" style="margin-top:9px">';
+    h += '<div class="tbwrap"><table class="tb" style="margin-top:9px">';
     r.why.forEach(function (w) {
       var pct = w.max ? (w.got / w.max * 100) : 0;
       h += '<tr><td style="width:74px;font-weight:700;font-size:12.5px">' + w.k + '</td>';
@@ -758,7 +761,7 @@ var UI = (function () {
       h += '<td class="num" style="width:52px;font-size:12px">' + w.got.toFixed(1) + '/' + w.max + '</td>';
       h += '<td style="font-size:12px;color:#6E6152">' + esc(w.txt) + '</td></tr>';
     });
-    h += '</table>';
+    h += '</table></div>';
     if (opt.action) h += '<div style="margin-top:9px">' + opt.action + '</div>';
     h += '</div>';
     return h;
@@ -819,7 +822,7 @@ function week(){
       +'<td>'+(leg.late?'<span class="pill no">可能較晚</span>':'<span class="pill ok">時段內</span>')+'</td></tr>';
   });
   $("week").innerHTML= rows
-    ? '<table class="tb"><tr><th>日子</th><th>誰來</th><th>預計到達</th><th>停留</th><th>狀態</th></tr>'+rows+'</table>'
+    ? '<div class="tbwrap"><table class="tb"><tr><th>日子</th><th>誰來</th><th class="num">預計到達</th><th class="num">停留</th><th>狀態</th></tr>'+rows+'</table></div>'
       +'<div class="hint" style="margin-top:8px">預計到達時間由當日路線推估，會受前一站與交通影響，實際以電話確認為準。</div>'
     : '<div class="empty">本週沒有排定的到府時間。</div>';
 }

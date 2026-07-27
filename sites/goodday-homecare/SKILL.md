@@ -1,113 +1,153 @@
 ---
-name: wayfinding-signage-style
-description: Build entire websites in the visual language of hospital and metro wayfinding systems — color-coded service lines, ISO-style flat pictograms, station badges, directional arrows, matte-metal sign panels, and a bottom platform-indicator dock.
+name: care-journal-console
+description: A warm care-journal style for multi-role service operations — linen cloth ground, paper cards with stitched dashed borders, handwritten Caveat annotations, hand-drawn round-stroke icons, and soft category tags; built to carry heavy operational UI (matching scorecards, route tables, maps) without ever feeling clinical or corporate.
 ---
 
-# 導視系統風格（Wayfinding Signage Style）
+# 照護手帳風 Care-Journal Console
 
-以「日安到宅居家護理所」示範站為例，說明如何把醫院／捷運導視語言整站化：資訊像指標系統一樣被編碼、分線、標號、指向。適用於服務項目可被「路線化」的產業（醫療、物流、園區、展館、行政服務）。
+以「日安到宅居家護理所」示範站為例。這個風格解決一個具體的矛盾：**後台要處理很硬的東西（距離、工時、演算法計分、路線最佳化），但使用者是照顧者與被照顧者，介面不能長得像航管台或 ERP。** 適用於任何「有溫度的專業服務」需要多角色作業介面的產業：居家照護、托育、寵物到府、復健、社工、長照機構、居家清潔。
 
 ## 一、設計哲學
 
-導視系統的本質是**在焦慮中給出方向**。使用者（家屬、病患）帶著不確定感抵達，網站的責任不是渲染情緒，而是像捷運站一樣回答三個問題：我在哪裡、有哪些線、下一步往哪走。因此：
+照護的本質是**把混亂的事情安排好，並且讓人安心**。所以介面同時要達成兩件平常會打架的事：
 
-- 一切內容先「編碼」再呈現：服務＝路線（W/T/C），項目＝編號（W-1、T-2），地區＝站點。
-- 語氣冷靜理性：短句、可驗證的數字（收費區間、時段、名額），溫度來自「把資訊講清楚」而非形容詞。
-- 方向箭頭是第一等公民：每個 CTA 都是「往⋯⋯」的月台指標，不是行銷按鈕。
-- 開場即地圖（map-first）：不用標語轟炸，第一屏直接給路網圖，讓使用者自己定位。
+1. **資訊要硬。** 距離就寫幾公里、車程幾分鐘、配對幾分、為什麼扣分。不用「智慧」「最佳」這種空詞遮蓋演算法，把計分逐項攤開。
+2. **表面要軟。** 布面底、紙卡、圓角、手寫註記、手繪圖示。沒有一條銳利的黑線，沒有純黑，沒有金屬與螢光。
+
+第三個原則是**同一份資料，四種視角**：業主看負載與派工、居服員看今天要跑的路線、被照護者看誰會來、訪客看能不能預約。四端共用同一個資料模型與同一支演算法，只是把不同切面翻給不同的人看——這是本風格的骨架，不只是配色。
 
 ## 二、色彩系統
 
-中間調底色＋高飽和路線色＋深板岩看板，三層結構：
+三層結構：布面環境底 → 紙質卡片 → 茶褐墨字。**禁止純白 `#FFF` 與純黑 `#000`。**
 
 | 角色 | 色票 | 用途 |
 |---|---|---|
-| 環境底 | `#B9C4C9` → `#ADBAC0` 縱向漸層 | 頁面背景（淺灰藍中間調，禁米白、禁深黑） |
-| 看板面 | `#EDF1F2`／`#DDE4E7` | 霧面金屬看板、次級色塊 |
-| 板岩深 | `#22343B` | 頁首、dock、標題牌、表頭（深但非純黑） |
-| W 傷口線 | `#BF4522` | 暖紅，路線／編號／區段色帶 |
-| T 管路線 | `#1F6FA5` | 號誌藍 |
-| C 慢病線 | `#2E7D4F` | 標示綠 |
-| 警示黃 | `#F0B429` | 箭頭、當前狀態、免責帶、focus ring |
-| 錯誤 | `#A6321F` | 表單驗證訊息 |
+| 亞麻布底 cloth | `#E3D9C6` | 頁面背景（疊兩層極淡織紋） |
+| 布面深 cloth2／cloth3 | `#D6C9B0`／`#CDBE9F` | 分隔、dock、進度軌 |
+| 紙卡 paper／paper2 | `#F8F3E9`／`#FCFAF4` | 卡片、表單、地圖底 |
+| 線 line | `#DCCFB6` | 所有邊框（1.5px，不用深色描邊） |
+| 茶褐墨 ink | `#3E342A` | 主文字（非黑） |
+| 次級墨 ink2／ink3 | `#6E6152`／`#93856F` | 說明、註記 |
+| 暖橘 warm | `#C9743C` | 唯一主作用色：現用態、主按鈕、路線 |
+| 傷口線 rose | `#B5503F` | 類別標籤 |
+| 管路線 blue | `#4A6E8A` | 類別標籤 |
+| 慢病線 green | `#6E8B5B` | 類別標籤／安好狀態 |
+| 螢光註記 gold | `#D9A94C` | 提示框左側標記 |
+| 警示 alert | `#B23B2E` | 錯誤、超時窗、不符條件 |
 
-規則：路線色只用於「屬於該線」的元素，不作裝飾；黃色永遠表示「方向／注意／現在位置」；文字主色 `#182A30`，次級 `#42565E`，對比度維持 AA 以上。
+比例守則：布底約 45%、紙卡約 35%、墨字約 12%、暖橘 ≤6%、其餘作用色點狀出現。**類別色只出現在標籤與路線上，不做大面積填色**——一旦把整塊區域刷成分類色，就會退回導視系統的語言。
 
 ## 三、字體系統
 
-- **中文**：Noto Sans TC。900 用於站名級標題、700 用於標示與導覽、400/500 內文。字距 `letter-spacing:.06–.1em` 模擬指標字。
-- **西文／數字**：Barlow Condensed（DIN 感）。所有編號（W-1）、代碼（GD-W1-0722-XXXX）、價格（NT$1,200）、英文副標（`letter-spacing:.2–.3em` 全大寫）一律用它，與中文形成「站名／站碼」的雙層結構。
-- 禁用襯線體與手寫體；英文副標永遠是輔助資訊，字級不超過中文的 60%。
+- **標題**：`Noto Serif TC` 900／700。卡片標題 900、區塊小標 700。字距 `.04em`。用襯線是刻意的——它讓後台看起來像一本冊子而不是一套系統。
+- **內文**：`Noto Sans TC` 400／500／700，行高 1.75。
+- **手寫註記**：`Caveat` 500／700。用於：卡片副標（英文小字）、統計格的欄位名、空狀態文字、數值旁的口語補充。**規則：Caveat 永遠只承載「旁白」，不承載使用者必須讀懂的關鍵資訊**（避免可讀性風險）。
+- **數字**：內文字體加 `font-variant-numeric:tabular-nums`，讓表格中的里程與時間對齊。不另外引入 mono——mono 會帶回機器感。
+- 字級：卡片標題 `clamp(17px,2.2vw,21px)`；統計數字 23px／900；內文 14–15px；表格 13.5px；註記 11.5–12.5px。
 
 ## 四、版面與網格
 
-- 主容器 `max-width:1120px`（功能頁可縮至 980px），左右 padding 20px。
-- 密度中等：區段間距 30–36px，看板內 padding 16–22px，資訊列以 2px `--panel-2` 分隔線切分（像時刻表）。
-- 版面以「看板（plate）」為單位組裝：每個區塊都是一塊有圓角（14px）與陰影的標示牌，牌上再分「色帶頭部＋內容體」。
-- 拒絕置中三卡片：服務線用**全寬橫幅看板**堆疊（色帶＋內容＋前往箭頭三欄）；團隊用雙欄站名牌。
-- body 需保留 `padding-bottom:104px` 給底部 dock。
+- **紙卡是唯一的容器單位**：`.sheet`＝紙卡（圓角 14px、1.5px 邊、雙層柔和陰影）；`.stitch`＝卡中卡（1.6px **虛線**邊、圓角 11px、半透明白底），像手帳裡貼上去的小紙片。虛線是這個風格的簽名，代表縫線。
+- **主網格**：`.g23`（1.35fr／.95fr）用於「主操作區＋輔助面板」；`.g2`／`.g3` 用於對等區塊。≤900px 全部塌成單欄。
+- **頁首是手帳封面**：logo＋所名＋手寫英文副標，底緣用 `repeating-linear-gradient` 做出虛線車縫。
+- **留白中等偏鬆**：卡片內距 18px，卡間距 16px。資訊密度高的表格允許壓到 8px。
 
 ## 五、元件配方
 
-- **色帶（band）**：區塊頭部或側邊的路線色實色帶；三線並列時用 `linear-gradient(90deg, W 0 33.4%, T 33.4% 66.7%, C 66.7% 100%)` 硬切分段（無過渡），如 dock 頂緣、章節標題側柱。
-- **反光膜高光**：`::after` 疊 `linear-gradient(115deg, transparent 42%, rgba(255,255,255,.2~.24) 50%, transparent 58%)`，`pointer-events:none`，一律靜態不動畫。
-- **霧面金屬看板（plate）**：`linear-gradient(165deg,#F2F5F6,#EDF1F2 42%,#E3E9EB)` ＋ `inset 0 1px 0 rgba(255,255,255,.7)` 頂光 ＋ 柔和外陰影（禁按壓硬陰影）。
-- **pictogram**：見第七章。全部無描邊色塊 SVG。
-- **站牌圓標（codechip）**：正圓、路線色底、白字 Barlow Condensed 700，內容為「線字母＋數字」（W1、T-2）；轉乘站用白色膠囊底並列兩顆圓標。
-- **箭頭**：統一的塊狀箭頭 path（`M2 6h9V2l6 7-6 7v-4H2z` 比例），黃色或深板岩色；「往」字＋目的地＋箭頭構成所有 CTA。
-- **bottom-dock**：`position:fixed; bottom:0` 深板岩列，頂緣 5px 三線色帶；每項＝圖標＋中文標＋英文小標，首末項各帶反向／正向箭頭；當前頁 `aria-current="page"` 配黃色 inset 底線與淡黃底。
+- **角色切換列 roleband**：頁首下一排圓角膠囊，四個角色端各一。現用者填暖橘、白字。這是多角色系統的定位器，永遠可見。
+- **底部書籤帶 dock**（bottom-dock 原型）：固定底部的布質橫帶，六個入口各配一枚手繪圖示（`stroke-linecap:round`、2.1px 描邊、無填色為主）。現用頁在頂緣長出 4px 暖橘短帶，像書籤露出來的一角。
+- **類別標籤 `.tag`**：圓角 999px 的小膠囊，填類別色、白字、12px/700。
+- **狀態藥丸 `.pill`**：`.ok` 綠、`.no` 紅、預設暖橘，皆為 12% 透明底＋同色字＋淡邊。用於「可服務／不符／已指派」。
+- **按鈕**：全圓角膠囊。次要＝紙色底＋線色邊；主要 `.go`＝暖橘底白字。hover 只換邊框色與文字色，**不位移、不加硬陰影**。
+- **計分卡 scorecard**：本風格最關鍵的元件。左為姓名與距離車程，右為大字總分（≥75 綠／≥55 橘／其餘灰）；下方一張表，每列＝一個評分維度＋一條進度條＋得分／滿分＋一句白話理由。**演算法必須可解釋，這是硬規定。**
+- **進度條 `.bar`**：9px 高、圓角、布色軌道；`.g` 綠（良好）、`.r` 紅（過載）、預設暖橘。
+- **表格 `.tb`**：無外框，只有 1px 橫線；表頭布色半透明底＋襯線字。
+- **提示框**：`.note`（金色左邊條，說明）／`.warnbox`（紅色左邊條，警告）。圓角只給右側，像便利貼。
+- **空狀態**：Caveat 手寫字置中，兩行以內，一定要說「接下來可以做什麼」。
 
 ## 六、動效規則
 
-- 動效只用於「狀態回饋」：hover 換底色、選取加黃色 ring、進度條寬度 `.3s ease`。不做進場動畫、視差、描線、計數器。
-- 所有 transition ≤ 300ms、單屬性；高光膜與色帶永遠靜止（反光是材質，不是動畫）。
-- 必附降級：`@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none!important; animation:none!important; scroll-behavior:auto!important } }`。
+這個風格**刻意極少動效**——照護介面裡，突然動起來的東西會讓人焦慮。
 
-## 七、插畫風格
+- 只允許 `transition:background .16s, border-color .16s`（按鈕與導覽的 hover／focus）。
+- 資料變動採**直接重繪**，不做補間、不做數字滾動、不做逐項淡入。使用者改一個偏好，結果立刻是新的。
+- 地圖不自動旋轉、不自動播放、無跑馬燈、無輪播。
+- `prefers-reduced-motion` 下把全部 transition 與 animation 關掉（`*{transition:none!important;animation:none!important}`）並取消平滑捲動；因為本來就不靠動畫傳達資訊，功能完全不減。
 
-- **flat-shape pictogram**：ISO 7001 精神——只用實心色塊（`fill`）構圖，`stroke` 僅允許出現在路網圖的「路線」本身；小人與器材由圓形、膠囊、圓角矩形、簡單 path 組合。
-- 每個 pictogram 限 2–4 個色塊：主形用路線色或板岩色，輔形用同系淡色（如 `#BBD3E4`、`#8FBF9F`、`#EDD9C8`）。
-- 禁：細線線描、水彩、半調網點、guilloché 紋、條碼美學、漸層填色、寫實陰影。
-- 語意優先：繃帶＝斜向膠囊＋淺色帶；管路＝人形＋粗圓角路徑＋集尿袋方塊；慢病＝足形＋圓點；預約＝日曆格塊。看不懂就重畫，不加文字救場。
+## 七、插畫與圖像風格（hand-drawn round-stroke）
 
-## 八、Logo 與 Favicon 指南
+- **圖示**：全部自繪 inline SVG，24×24 viewBox，`stroke-width:2.1`、`stroke-linecap/linejoin:round`、以描邊為主偶爾實心。刻意讓弧線不完全對稱（例如屋頂、書頁、心形），像順手畫的。**禁止 emoji 當圖示、禁止圖示字型、禁止外部圖檔。**
+- **作業地圖**：不是示意圖而是**等距長方投影的真實座標圖**。行政區畫成虛線圓＋區名，照護點為類別色圓點，路線為暖橘線段並在中點掛一個小紙牌標里程。出發地／本所畫成旋轉 45° 的圓角方塊。右下角固定一支比例尺——這是「距離是真的」的視覺承諾。
+- **時窗條 weekBar**：每列一天，布色軌道上填暖橘色塊代表可用時段；雙方交集用綠色 45° 斜紋疊上去。它讓「時間吻合度」這個抽象分數變成看得見的東西。
+- **頭像**：不用照片，用姓氏首字＋該員代表色的圓形色塊。
 
-- **Logo**：站牌構圖——深板岩圓角橫牌，左側白色方塊內放「屋形＋進宅箭頭＋三線圓點」pictogram，中文全名（Noto Sans TC 900）＋英文縮排副標（Barlow Condensed、寬字距），右緣三段路線色短帶收尾。輸出為獨立 `assets/logo.svg`，頁首以等價 inline SVG 重繪小尺寸版。
-- **Favicon**：inline SVG data URI（URL-encode `#`→`%23`）。取 Logo 最小語意單元：深板岩圓角方塊＋白色塊狀箭頭＋底部三色圓點。16px 下仍需可辨識「箭頭＋三線」。
-- 禁徽章式 Logo（EST. 年份、月桂枝）、禁漸層字。
+## 八、Logo 與 Favicon 設計指南
+
+- **Logo**（`assets/logo.svg`，120×120）：紙色圓角方＋虛線車縫外框（呼應 `.stitch`）＋一道暖橘拱線（屋頂／保護）＋赭紅心形（照護）＋苔綠圓點（人）。全為基本幾何，無漸層、無陰影。
+- **Favicon**：inline SVG data URI，同一組元素簡化到 32×32：布色圓角底、暖橘拱、赭紅心、綠點。
+- 命名規則：logo 只用色塊與線，不用文字；縮到 24px 仍要能辨識輪廓。
 
 ## 九、Do & Don't
 
 **Do**
-- 服務先編碼再排版：字母線＋數字項＋顏色，三者永遠一致。
-- 收費、時段、名額給區間與數字，讓可信度來自資訊本身。
-- 每頁固定 header／notice／footer／dock 四件套；免責聲明用警示黃帶＋三角 pictogram。
-- 額滿、休診等「不可用狀態」要灰化並保留文字說明，像月台電子看板。
+- 把演算法的每一分都寫出理由；被排除的人選也要列出來並說明卡在哪個硬條件。
+- 同一份資料模型餵四個角色端，讓切換角色時數字彼此對得上。
+- 用虛線縫邊、手寫旁白、圓角膠囊維持溫度；用表格、進度條、tabular-nums 維持專業。
+- 任何時間／距離／金額都給單位與依據（例：「12.7 km・機車車程約 32 分」）。
+- 敏感資料一律標明虛構示意；距離估算方式要寫清楚（直線距離 × 繞行係數）。
 
-**Don't**
-- 米白紙感或純黑底；紫藍漸層；置中三卡片英雄區。
-- 跑馬燈、數字滾動計數器、揭示進場動畫、stroke-dashoffset 描線秀。
-- 細線插畫、水彩、半調網點、guilloché、條碼裝飾、按壓硬陰影。
-- 把路線色當裝飾色亂用；箭頭指向與實際動線不符。
+**Don't（含去 AI 化禁令）**
+- 不用紫藍漸層 hero、不用「置中大標＋副標＋兩顆按鈕＋三張圓角卡片」模板。
+- 不用 emoji 當 icon、不用外部圖片與圖示字型。
+- 不用純黑純白、不用金屬質感、不用霓虹或螢光色、不用深色儀表板底。
+- 不把分類色大面積鋪滿（會退回導視系統語言）。
+- 不做數字滾動、揭示淡入、按壓硬陰影、跑馬燈、自動輪播。
+- 不用 Lorem ipsum、不用 AI 腔（「在當今快節奏的世界」）、不用「EST. 19xx」徽章、不用「把 X 變成 Y」句式。
+- 不用「智慧」「AI 驅動」當賣點文案——直接展示演算法怎麼算的。
 
 ## 十、頁面骨架範例
 
 ```html
-<body><!-- padding-bottom:104px 預留 dock -->
-  <a class="skip" href="#main">跳到主要內容</a>
-  <header class="site-head"><!-- 板岩牌：logo＋立案字號＋專線；底緣三線色帶 --></header>
-  <main id="main" class="wrap">
-    <section class="hero"><!-- map-first：標題牌＋路網圖 SVG plate＋站點資訊 aside(aria-live) --></section>
-    <section class="sec"><!-- 三線全寬橫幅看板（色帶｜內容｜前往箭頭） --></section>
-    <section class="sec"><!-- 流程站序：圓形站點 1-4 串在色帶上 --></section>
-    <section class="sec"><!-- 資訊看板：時段表＋收費速覽＋黃色大 CTA --></section>
-  </main>
-  <div class="notice"><!-- 警示黃免責帶：虛構示意，非醫療建議 --></div>
-  <footer><!-- 板岩底三欄：機構資訊／快速前往／合作據點 --></footer>
-  <nav class="dock-nav" aria-label="主導覽（月台指標列）">
-    <a class="dock-item" aria-current="page">路網總覽</a>
-    <a class="dock-item">服務線與收費</a>
-    <a class="dock-item">預約到宅訪視</a>
-  </nav>
-</body>
+<!-- 紙卡 + 卡中卡 -->
+<div class="sheet">
+  <h2>配對中心 <span class="sub">smart matching</span></h2>
+  <p>先以硬條件篩選，再用加權計分排名。</p>
+  <div class="stitch">
+    <div style="display:flex;justify-content:space-between">
+      <div><b>林昭儀</b> <span class="tag W">傷口照護</span></div>
+      <div style="font-size:27px;font-weight:900;font-family:Noto Serif TC">89</div>
+    </div>
+    <table class="tb">
+      <tr><td>距離</td>
+          <td><div class="bar g"><span style="width:64%"></span></div></td>
+          <td class="num">19.2/30</td>
+          <td>3.6 km・車程約 16 分</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 底部書籤帶 -->
+<nav class="dock" aria-label="主導覽"><ul>
+  <li><a href="index.html" aria-current="page">
+    <svg viewBox="0 0 24 24"><path d="M4 12.5 12 5l8 7.5" fill="none" stroke="currentColor"
+      stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="lb">本所</span></a></li>
+</ul></nav>
 ```
+
+核心設計常數：
+
+```css
+:root{
+  --cloth:#E3D9C6; --paper:#F8F3E9; --line:#DCCFB6;
+  --ink:#3E342A;   --warm:#C9743C;  --r:14px;
+}
+/* 布紋：兩層極淡條紋交叉，不用外部圖片 */
+body{background-color:var(--cloth);background-image:
+  repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 1px,transparent 1px 4px),
+  repeating-linear-gradient(0deg,rgba(120,100,70,.07) 0 1px,transparent 1px 4px);}
+```
+
+---
+
+*本風格的判準：一個從未看過 Demo 的 AI，只讀本檔，就能做出一個「布面紙卡、虛線縫邊、手寫旁白、多角色切換、演算法逐項可解釋」的全新服務型後台——換一個產業（托育、寵物到府、居家清潔）也成立。*

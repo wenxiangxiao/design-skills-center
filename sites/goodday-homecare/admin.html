@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>日安到宅居家護理所・照護手帳</title>
-<meta name="description" content="台北日安到宅居家護理所：傷口、管路、慢性病三線到宅護理。看服務範圍地圖、照護團隊與到府流程。">
+<title>日安到宅・所務管理端</title>
+<meta name="description" content="業主管理端：所務儀表板、智慧配對中心（硬條件篩選＋六項加權計分）、人力負載與全所當日路線總覽。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23E3D9C6'/%3E%3Cpath d='M8 22c0-5 3.6-8 8-8s8 3 8 8' fill='none' stroke='%23C9743C' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M16 14c-2.4-3.4-6.4-2.6-6.4.6 0 2 2.6 4 6.4 6.4 3.8-2.4 6.4-4.4 6.4-6.4 0-3.2-4-4-6.4-.6z' fill='%23B5503F'/%3E%3Ccircle cx='16' cy='8' r='2.4' fill='%236E8B5B'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,49 +168,60 @@ footer.ft .fine{color:var(--ink3);font-size:11.5px;margin-top:7px}
       <img src="assets/logo.svg" alt="日安到宅居家護理所">
       <span><h1>日安到宅居家護理所</h1><span class="en">Goodday Home Nursing · 照護手帳</span></span>
     </a>
-    <div class="who">服務專線 <b>(02) 2509-8760</b><br>週一至週六 08:30–17:30</div>
+    <div class="who">業主管理端<br><b>示範帳號</b>（未登入）</div>
   </div>
-  <div class="wrap roleband" aria-label="角色切換"><a href="index.html" aria-current="page"><span class="dot"></span>公開網頁端</a><a href="client.html"><span class="dot"></span>被照護者／家屬端</a><a href="staff.html"><span class="dot"></span>居服員操作端</a><a href="admin.html"><span class="dot"></span>業主管理端</a></div>
+  <div class="wrap roleband" aria-label="角色切換"><a href="index.html"><span class="dot"></span>公開網頁端</a><a href="client.html"><span class="dot"></span>被照護者／家屬端</a><a href="staff.html"><span class="dot"></span>居服員操作端</a><a href="admin.html" aria-current="page"><span class="dot"></span>業主管理端</a></div>
 </header>
 
 <main id="main" class="wrap">
 
-  <div class="sheet raise" style="margin-top:18px">
-    <div class="grid g23" style="align-items:center">
-      <div>
-        <h2 style="font-size:clamp(21px,3.2vw,29px);line-height:1.4">把醫院的照護，<br>接回家裡那張床邊</h2>
-        <p style="font-size:15px;margin-top:10px">日安是一間衛福部立案的居家護理所。護理師帶著器材到府，處理傷口、更換管路、追蹤慢性病，也把照顧的方法教會家裡的人。</p>
-        <p class="hand" style="font-size:19px;color:#C9743C;margin-top:6px">「照顧一個人，是一件需要被安排好的事。」</p>
-        <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
-          <a class="btn go" href="booking.html">預約到宅訪視</a>
-          <a class="btn" href="services.html">看服務與收費</a>
-          <a class="btn" href="client.html">我是案主／家屬</a>
-        </div>
+  <div class="sheet raise">
+    <h2>所務儀表板 <span class="sub">this week at a glance</span></h2>
+    <p>本週全所收案 <b id="nCase">—</b> 件、在職居服員 <b id="nStaff">—</b> 位。下方數字會隨你在「配對中心」的指派而即時改變。</p>
+    <div class="stats" id="dash"></div>
+  </div>
+
+  <div class="grid g23">
+    <div class="sheet">
+      <h2>配對中心 <span class="sub">smart matching</span></h2>
+      <p>先以硬條件篩掉不可能的人選（證照、指定性別、必要語言、服務半徑、週工時），再用六項軟條件加權排名，每一分都寫明從哪來。</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px">
+        <button class="btn go" id="autoAll">一鍵全所自動派工</button>
+        <button class="btn" id="clearAll">清空指派</button>
+        <span class="pill" id="assignState">尚未指派</span>
       </div>
-      <div class="stitch">
-        <h3 style="font-size:15px;margin-bottom:7px">三種照護線</h3>
-        <div id="lineIntro"></div>
-      </div>
+      <label class="f" for="caseSel">選一個照護點，看候選排名</label>
+      <select class="t" id="caseSel"></select>
+      <div id="matchOut"></div>
+    </div>
+
+    <div class="sheet">
+      <h2>人力負載 <span class="sub">workload</span></h2>
+      <p>週時數上限是硬條件；配對計分中的「負荷平衡」會讓系統優先把案子給還有餘裕的人。</p>
+      <div id="loadList"></div>
     </div>
   </div>
 
   <div class="sheet">
-    <h2>我們走到哪裡 <span class="sub">where we go</span></h2>
-    <p>目前服務大台北 13 個行政區。點地圖上的圓點，看那一區現在有哪些照護點與負責的護理師。距離由經緯度估算，讓排班能真的算得出車程。</p>
-    <div class="grid g23">
-      <div class="mapbox"><svg id="pubMap" role="img" aria-label="大台北服務區域地圖"></svg></div>
-      <div id="areaPanel"></div>
+    <h2>當日路線總覽 <span class="sub">daily routes</span></h2>
+    <p>依指派結果與各案偏好時窗，替每位居服員排出當日路線（最近鄰起始解＋2-opt 改善），並算出總里程與車程。</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <label class="f" style="margin:0">看哪一天</label>
+      <select class="t" id="daySel" style="width:auto">
+        <option value="1">週一</option><option value="2">週二</option><option value="3">週三</option>
+        <option value="4">週四</option><option value="5">週五</option><option value="6">週六</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13.5px">
+        <input type="checkbox" id="optOn" checked> 啟用 2-opt 路線最佳化
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13.5px">
+        <input type="checkbox" id="backOn"> 收工返回本所
+      </label>
     </div>
-  </div>
-
-  <div class="sheet">
-    <h2>從打電話到護理師按門鈴 <span class="sub">how it works</span></h2>
-    <div class="grid g3" id="flow"></div>
-  </div>
-
-  <div class="sheet">
-    <h2>照護團隊 <span class="sub">our nurses</span></h2>
-    <div class="grid g3" id="team"></div>
+    <div class="grid g2">
+      <div class="mapbox"><svg id="allMap" role="img" aria-label="全所當日路線地圖"></svg></div>
+      <div id="routeSum"></div>
+    </div>
   </div>
 
 </main>
@@ -219,7 +230,7 @@ footer.ft .fine{color:var(--ink3);font-size:11.5px;margin-top:7px}
   台北市中山區龍江路 128 號 3 樓・(02) 2509-8760・週一至週六 08:30–17:30<br>
   <div class="fine">本站為設計展示用途之虛構示範站，非真實醫療機構、非醫療建議。所有機構、人名、立案字號、個案資料、收費、距離與排程結果均為教學示意；距離採經緯度直線距離乘市區繞行係數估算，非實際導航路徑。</div>
 </div></footer>
-<nav class="dock" aria-label="主導覽"><ul><li><a href="index.html" aria-current="page" title="首頁與服務地圖"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 12 5l8 7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 11.5V19h11v-7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb">本所</span></a></li><li><a href="services.html" title="照護項目與收費"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3-1 5.5-1 8 .6 2.5-1.6 5-1.6 8-.6V18c-3-1-5.5-1-8 .7-2.5-1.7-5-1.7-8-.7z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M12 6.1V18.7" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><span class="lb">服務</span></a></li><li><a href="booking.html" title="線上預約到宅"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c-4-2.4-7-4.6-7-8 0-3.4 4.2-4.4 7-1 2.8-3.4 7-2.4 7 1 0 3.4-3 5.6-7 8z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/></svg><span class="lb">預約</span></a></li><li><a href="client.html" title="被照護者／家屬"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5c-4.2-2.6-7.2-4.9-7.2-8.3 0-3.6 4.4-4.7 7.2-1.1 2.8-3.6 7.2-2.5 7.2 1.1 0 3.4-3 5.7-7.2 8.3z" fill="currentColor"/></svg><span class="lb">我的照護</span></a></li><li><a href="staff.html" title="居服員工作台"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17.5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9.8c0 5 12 2.6 12 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 3.4"/></svg><span class="lb">行程</span></a></li><li><a href="admin.html" title="管理端"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><rect x="6" y="11" width="3.4" height="6" rx="1.2" fill="currentColor"/><rect x="11.3" y="7" width="3.4" height="10" rx="1.2" fill="currentColor"/><rect x="16.6" y="13" width="3.4" height="4" rx="1.2" fill="currentColor"/></svg><span class="lb">所務</span></a></li></ul></nav>
+<nav class="dock" aria-label="主導覽"><ul><li><a href="index.html" title="首頁與服務地圖"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 12 5l8 7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 11.5V19h11v-7.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lb">本所</span></a></li><li><a href="services.html" title="照護項目與收費"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3-1 5.5-1 8 .6 2.5-1.6 5-1.6 8-.6V18c-3-1-5.5-1-8 .7-2.5-1.7-5-1.7-8-.7z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/><path d="M12 6.1V18.7" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><span class="lb">服務</span></a></li><li><a href="booking.html" title="線上預約到宅"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c-4-2.4-7-4.6-7-8 0-3.4 4.2-4.4 7-1 2.8-3.4 7-2.4 7 1 0 3.4-3 5.6-7 8z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/></svg><span class="lb">預約</span></a></li><li><a href="client.html" title="被照護者／家屬"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5c-4.2-2.6-7.2-4.9-7.2-8.3 0-3.6 4.4-4.7 7.2-1.1 2.8-3.6 7.2-2.5 7.2 1.1 0 3.4-3 5.7-7.2 8.3z" fill="currentColor"/></svg><span class="lb">我的照護</span></a></li><li><a href="staff.html" title="居服員工作台"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17.5" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9.8c0 5 12 2.6 12 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 3.4"/></svg><span class="lb">行程</span></a></li><li><a href="admin.html" aria-current="page" title="管理端"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><rect x="6" y="11" width="3.4" height="6" rx="1.2" fill="currentColor"/><rect x="11.3" y="7" width="3.4" height="10" rx="1.2" fill="currentColor"/><rect x="16.6" y="13" width="3.4" height="4" rx="1.2" fill="currentColor"/></svg><span class="lb">所務</span></a></li></ul></nav>
 <script>/* ==========================================================================
    日安到宅居家護理所 — 共用核心引擎 GD
    地理（haversine＋繞路係數＋時段車速）／資料模型／智慧配對／路線最佳化
@@ -775,64 +786,176 @@ var UI = (function () {
 (function(){
 "use strict";
 var $=UI.$, esc=UI.esc;
-var AUTO=GD.autoAssign();
+var assign={};            // caseId -> staffId
+var load={};              // staffId -> 週時數
 
-$("lineIntro").innerHTML=Object.keys(GD.LINES).map(function(k){
-  var L=GD.LINES[k];
-  var items=Object.keys(GD.ITEMS).filter(function(i){return GD.ITEMS[i].line===k;});
-  return '<div style="margin:9px 0"><span class="tag '+k+'">'+L.zh+'</span>'
-    +'<div style="font-size:12.5px;color:#6E6152;margin-top:4px">'
-    +items.map(function(i){return GD.ITEMS[i].name;}).join("・")+'</div></div>';
-}).join("");
-
-/* 地圖 */
-var sel=null;
-function draw(){
-  UI.drawMap($("pubMap"),{
-    points:GD.CASES.map(function(c){return {lat:c.lat,lng:c.lng,name:c.districtName,line:c.line,districtName:c.districtName,sel:sel===c.district};}),
-    anchors:[{lat:GD.BASE.lat,lng:GD.BASE.lng,name:"日安本所",color:"#3E342A"}],
-    onPick:function(p){ var k=Object.keys(GD.DISTRICTS).filter(function(d){return GD.DISTRICTS[d].name===p.districtName;})[0]; sel=k; draw(); panel(); }
+function calcLoad(){
+  load={};
+  Object.keys(assign).forEach(function(cid){
+    var sid=assign[cid]; if(!sid)return;
+    load[sid]=(load[sid]||0)+GD.caseById(cid).hoursW;
   });
 }
-function panel(){
-  if(!sel){ $("areaPanel").innerHTML='<div class="empty">點一下地圖上的圓點<br>看那一區的照護狀況</div>'; return; }
-  var d=GD.DISTRICTS[sel];
-  var cs=GD.CASES.filter(function(c){return c.district===sel;});
-  var nurses={};
-  cs.forEach(function(c){ var a=AUTO.assign.filter(function(x){return x.caseId===c.id;})[0];
-    if(a&&a.staffId) nurses[a.staffId]=true; });
-  var km=GD.roadKm(GD.BASE,d);
-  $("areaPanel").innerHTML='<div class="stitch">'
-    +'<h3 style="font-size:17px">'+esc(d.name)+'</h3>'
-    +'<div style="font-size:12.5px;color:#93856F">距本所約 '+km.toFixed(1)+' km・機車車程約 '+GD.travelMin(GD.BASE,d,"scooter",600)+' 分</div>'
-    +'<div style="margin-top:9px;font-size:13.5px">目前收案 <b>'+cs.length+'</b> 戶</div>'
-    +'<div style="margin:7px 0">'+cs.map(function(c){return '<span class="tag '+c.line+'" style="margin:2px 3px 2px 0">'+GD.LINES[c.line].zh+'</span>';}).join("")+'</div>'
-    +'<div style="font-size:13px;color:#6E6152;margin-top:8px"><b>駐區護理師</b><br>'
-    +(Object.keys(nurses).map(function(id){var s=GD.staffById(id);return esc(s.name)+'　<span style="color:#93856F">'+esc(s.title)+'</span>';}).join("<br>")||"—")
-    +'</div><a class="btn sm go" href="booking.html" style="margin-top:10px">預約這一區</a></div>';
+function assignedCount(){return Object.keys(assign).filter(function(k){return assign[k];}).length;}
+
+/* ---- 儀表板 ---- */
+function dash(){
+  calcLoad();
+  var totKm=0, totVisits=0;
+  [1,2,3,4,5,6].forEach(function(d){ var rs=routesFor(d); rs.forEach(function(r){ totKm+=r.totalKm; totVisits+=r.legs.length; }); });
+  var cap=GD.STAFF.reduce(function(a,s){return a+s.maxWeekH;},0);
+  var used=GD.STAFF.reduce(function(a,s){return a+(load[s.id]||0);},0);
+  var cells=[
+    ["本週訪次","visits",totVisits,"次／週"],
+    ["已指派","assigned",assignedCount()+" / "+GD.CASES.length,"件"],
+    ["全所週里程","km",totKm.toFixed(0),"km（估算）"],
+    ["產能利用率","cap",Math.round(used/cap*100)+"%",used.toFixed(1)+" / "+cap+" 小時"]
+  ];
+  $("dash").innerHTML=cells.map(function(c){
+    return '<div class="stat"><div class="k">'+c[0]+'</div><div class="v">'+c[2]+'</div><div class="u">'+c[3]+'</div></div>';
+  }).join("");
+  $("assignState").textContent = assignedCount()? ("已指派 "+assignedCount()+" 件") : "尚未指派";
+  $("assignState").className = assignedCount()===GD.CASES.length? "pill ok" : "pill";
 }
-draw(); panel();
 
-/* 流程 */
-var FLOW=[
-  ["01","來電或線上預約","說明狀況與需求，我們判斷屬於哪一條照護線、需要多久一次。"],
-  ["02","配對護理師","依照地點距離、時間空檔、專長與語言配對，並把理由告訴你。"],
-  ["03","到府訪視與追蹤","護理師依排定路線到府，完成後留下紀錄，家屬可在手帳頁查看。"]
-];
-$("flow").innerHTML=FLOW.map(function(f){
-  return '<div class="stitch"><div class="hand" style="font-size:26px;color:#C9743C">'+f[0]+'</div>'
-    +'<h3 style="font-size:16px;margin:3px 0 5px">'+f[1]+'</h3>'
-    +'<p style="font-size:13.5px;color:#6E6152;margin:0">'+f[2]+'</p></div>';
-}).join("");
+/* ---- 人力負載 ---- */
+function loadList(){
+  calcLoad();
+  $("loadList").innerHTML=GD.STAFF.map(function(s){
+    var h=load[s.id]||0, pct=Math.round(h/s.maxWeekH*100);
+    var n=Object.keys(assign).filter(function(c){return assign[c]===s.id;}).length;
+    return '<div style="margin:10px 0">'
+      +'<div style="display:flex;justify-content:space-between;font-size:13.5px">'
+      +'<b>'+esc(s.name)+'</b><span style="color:#6E6152">'+n+' 案・'+h.toFixed(1)+'/'+s.maxWeekH+'h</span></div>'
+      +'<div class="bar'+(pct>90?" r":pct>0?" g":"")+'" title="'+pct+'%"><span style="width:'+Math.min(100,pct)+'%"></span></div>'
+      +'<div style="font-size:11.5px;color:#93856F">'+esc(s.title)+'・半徑 '+s.maxKm+'km・'+s.langs.join("／")+'</div></div>';
+  }).join("");
+}
 
-/* 團隊 */
-$("team").innerHTML=GD.STAFF.map(function(s){
-  return '<div class="stitch"><div style="display:flex;align-items:center;gap:9px">'
-    +'<span style="width:34px;height:34px;border-radius:50%;background:'+s.color+';display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:Noto Serif TC">'+esc(s.name.charAt(0))+'</span>'
-    +'<div><b style="font-size:15px">'+esc(s.name)+'</b><div style="font-size:11.5px;color:#93856F">'+esc(s.title)+'</div></div></div>'
-    +'<div style="font-size:12.5px;color:#6E6152;margin-top:7px">'+s.lines.map(function(l){return '<span class="tag '+l+'">'+GD.LINES[l].zh+'</span>';}).join(" ")+'</div>'
-    +'<div style="font-size:12.5px;color:#6E6152;margin-top:6px">專長：'+s.spec.join("、")+'<br>語言：'+s.langs.join("、")+'</div></div>';
-}).join("");
+/* ---- 配對中心 ---- */
+function fillCaseSel(){
+  $("caseSel").innerHTML=GD.CASES.map(function(c){
+    var a=assign[c.id]?("　→ 已指派 "+GD.staffById(assign[c.id]).name):"　（未指派）";
+    return '<option value="'+c.id+'">'+c.id+"　"+esc(c.name)+"・"+esc(c.districtName)+"・"+c.item+a+'</option>';
+  }).join("");
+}
+function renderMatch(){
+  var cid=$("caseSel").value, cs=GD.caseById(cid);
+  calcLoad();
+  var ctxLoad=Object.assign({},load);
+  if(assign[cid]) ctxLoad[assign[cid]]=(ctxLoad[assign[cid]]||0)-cs.hoursW;  // 重新評估時先扣回自己
+  var m=GD.matchCase(cs,{load:ctxLoad});
+  var L=GD.LINES[cs.line];
+  var h='<div class="stitch" style="background:rgba(255,255,255,.6);margin-bottom:11px">';
+  h+='<div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap"><span class="tag '+cs.line+'">'+L.zh+'</span>';
+  h+='<b style="font-size:16px">'+esc(cs.name)+'</b><span style="font-size:12.5px;color:#6E6152">'+cs.age+' 歲・'+esc(cs.districtName)+'・'+cs.item+' '+esc(GD.ITEMS[cs.item].name)+'</span></div>';
+  h+='<div style="font-size:13px;color:#6E6152;margin-top:6px">'+esc(cs.note)+'</div>';
+  h+='<div style="font-size:12.5px;color:#93856F;margin-top:5px">需求 '+cs.hoursW+' 小時／週・每週 '+cs.visits+' 次・'
+   +(cs.pref.gender?("指定"+(cs.pref.gender==="F"?"女性":"男性")+"・"):"")
+   +(cs.pref.langReq?("需"+cs.pref.langReq+"・"):"")
+   +(cs.elevator?"有電梯":"無電梯・"+cs.floor+"樓")+'</div></div>';
+
+  if(assign[cid]) h+='<div class="note">目前指派給 <b>'+esc(GD.staffById(assign[cid]).name)+'</b>。下方排名已排除此指派重新計算。</div>';
+
+  h+='<h3 style="font-size:14.5px;margin:12px 0 4px">符合條件的人選（'+m.fit.length+'）</h3>';
+  if(!m.fit.length) h+='<div class="warnbox">沒有任何居服員同時滿足全部硬條件。請放寬服務半徑、調整案主偏好，或改派他週。</div>';
+  m.fit.forEach(function(r,i){
+    var act='<button class="btn sm go" data-assign="'+r.staff.id+'">指派給 '+esc(r.staff.name)+'</button>';
+    if(i===0) act+=' <span class="pill ok">系統推薦</span>';
+    h+=UI.scoreCard(r,{action:act});
+  });
+  if(m.unfit.length){
+    h+='<h3 style="font-size:14.5px;margin:14px 0 4px">被硬條件排除（'+m.unfit.length+'）</h3>';
+    m.unfit.forEach(function(r){ h+=UI.unfitRow(r); });
+  }
+  $("matchOut").innerHTML=h;
+  Array.prototype.forEach.call($("matchOut").querySelectorAll("[data-assign]"),function(b){
+    b.addEventListener("click",function(){ assign[cid]=b.getAttribute("data-assign"); refresh(); });
+  });
+}
+
+/* ---- 路線 ---- */
+function routesFor(day){
+  var out=[];
+  GD.STAFF.forEach(function(s){
+    var visits=[];
+    Object.keys(assign).forEach(function(cid){
+      if(assign[cid]!==s.id)return;
+      var c=GD.caseById(cid);
+      if(c.win[day]&&c.win[day].length) visits.push({caseId:cid});
+    });
+    if(!visits.length)return;
+    if(!(s.avail[day]&&s.avail[day].length))return;
+    visits=visits.slice(0,s.maxPerDay);
+    out.push(GD.buildRoute(s,visits,day,{optimize:$("optOn").checked,returnBase:$("backOn").checked}));
+  });
+  return out;
+}
+function renderRoutes(){
+  var day=+$("daySel").value, rs=routesFor(day);
+  var pts=[],anchors=[{lat:GD.BASE.lat,lng:GD.BASE.lng,name:"本所",color:"#3E342A"}];
+  rs.forEach(function(r){ r.legs.forEach(function(l){ pts.push({lat:l.stop.lat,lng:l.stop.lng,name:l.stop.name,line:l.stop.line,districtName:l.stop.districtName,seq:l.seq}); }); });
+  UI.drawMap($("allMap"),{points:pts,anchors:anchors,route:rs.length===1?rs[0]:null});
+  // 多人時分別畫線
+  if(rs.length>1){
+    var svg=$("allMap"),NS="http://www.w3.org/2000/svg",P=GD.projector({w:660,h:560,pad:30});
+    var g=document.createElementNS(NS,"g");
+    rs.forEach(function(r){
+      var prev=P({lat:r.staff.lat,lng:r.staff.lng});
+      r.legs.forEach(function(l){
+        var p=P(l.stop),ln=document.createElementNS(NS,"line");
+        ln.setAttribute("x1",prev.x);ln.setAttribute("y1",prev.y);ln.setAttribute("x2",p.x);ln.setAttribute("y2",p.y);
+        ln.setAttribute("stroke",r.staff.color);ln.setAttribute("stroke-width","2.4");
+        ln.setAttribute("stroke-linecap","round");ln.setAttribute("opacity",".8");
+        g.appendChild(ln);prev=p;
+      });
+    });
+    svg.insertBefore(g,svg.querySelector("g:nth-of-type(2)")||null);
+  }
+
+  if(!rs.length){ $("routeSum").innerHTML='<div class="empty">這一天還沒有排定的訪視。<br>先在配對中心指派案件。</div>'; return; }
+  var h="";
+  rs.forEach(function(r){
+    h+='<div class="stitch" style="margin-bottom:11px">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">';
+    h+='<b style="font-size:15px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+r.staff.color+';margin-right:6px"></span>'+esc(r.staff.name)+'</b>';
+    h+='<span style="font-size:12.5px;color:#6E6152">'+GD.hm(r.startMin)+'–'+GD.hm(r.endMin)+'・'+r.legs.length+' 訪</span></div>';
+    h+='<div style="font-size:12.5px;color:#6E6152;margin:5px 0">總里程 <b>'+r.totalKm.toFixed(1)+' km</b>・車程 <b>'+r.travelMin+' 分</b>・服務 '+r.serviceMin+' 分'+(r.waitMin?'・空檔等候 '+r.waitMin+' 分':'')+'　服務占比 '+Math.round(r.efficiency*100)+'%</div>';
+    h+='<table class="tb"><tr><th>序</th><th>照護點</th><th>車程</th><th>到達</th><th>離開</th></tr>';
+    r.legs.forEach(function(l){
+      h+='<tr><td class="num">'+l.seq+'</td><td>'+esc(l.stop.name)+'<div style="font-size:11px;color:#93856F">'+esc(l.stop.districtName)+'・'+l.stop.item+'</div></td>'
+       +'<td class="num">'+l.km.toFixed(1)+'km<div style="font-size:11px;color:#93856F">'+l.travel+'分</div></td>'
+       +'<td class="num">'+GD.hm(l.arrive)+(l.wait?'<div style="font-size:11px;color:#93856F">等'+l.wait+'分</div>':'')+'</td>'
+       +'<td class="num">'+GD.hm(l.leave)+(l.late?' <span class="pill no">超時窗</span>':'')+'</td></tr>';
+    });
+    h+='</table>';
+    if(r.warn.length) h+='<div class="warnbox" style="margin:8px 0 0">'+r.warn.map(esc).join("<br>")+'</div>';
+    h+='</div>';
+  });
+  $("routeSum").innerHTML=h;
+}
+
+function refresh(){ dash(); loadList(); fillCaseSel(); renderMatch(); renderRoutes(); }
+
+/* ---- 事件 ---- */
+$("caseSel").addEventListener("change",renderMatch);
+$("daySel").addEventListener("change",renderRoutes);
+$("optOn").addEventListener("change",renderRoutes);
+$("backOn").addEventListener("change",renderRoutes);
+$("autoAll").addEventListener("click",function(){
+  var r=GD.autoAssign();
+  assign={}; r.assign.forEach(function(a){ if(a.staffId) assign[a.caseId]=a.staffId; });
+  refresh();
+  var miss=r.assign.filter(function(a){return !a.staffId;});
+  if(miss.length) alert("有 "+miss.length+" 件無法自動配對，請於配對中心檢視被排除的原因。");
+});
+$("clearAll").addEventListener("click",function(){ assign={}; refresh(); });
+
+$("nCase").textContent=GD.CASES.length;
+$("nStaff").textContent=GD.STAFF.length;
+// 預設先自動派一輪，讓畫面一進來就有東西看
+(function(){ var r=GD.autoAssign(); r.assign.forEach(function(a){ if(a.staffId) assign[a.caseId]=a.staffId; }); })();
+refresh();
 })();
 </script>
 </body>

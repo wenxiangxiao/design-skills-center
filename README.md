@@ -141,6 +141,7 @@
 | 123 | [連環推理社 Lianhuan Deduction Club](sites/lianhuan/index.html) | 推理俱樂部／實境解謎社 | 黑色卷宗風 Noir Case-File | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 124 | [析光所 Xiguang Optical Theatre](sites/xiguang/index.html) | 光學演示劇場／幾何光學暗室 | 墨光檯風 Ink Light-Bench | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 125 | [銅樞開鎖研習所 Tongshu Locksmith Academy](sites/tongshu/index.html) | 鎖匠學堂／製鎖工坊 | 工具鋼剖鎖風 Toolsteel-Cutaway | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 126 | [速鳴速錄所 Suming Stenotype Institute](sites/suming/index.html) | 速錄學院／議會速錄傳習所 | 和弦速錄譜風 Chord-Steno Score | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

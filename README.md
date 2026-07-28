@@ -138,6 +138,7 @@
 | 120 | [九降紙鳶所 Jiujiang Kite Atelier](sites/zhiyuan/index.html) | 紙鳶工坊／風箏學堂 | 風信紙鳶風 Windward Kite-Chart | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 121 | [合順水磨石 Héshùn Terrazzo](sites/shuimo/index.html) | 磨石子／水磨石地坪工坊 | 水磨石剖面風 Terrazzo-Section | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 122 | [子午製圖社 Zĭwŭ Cartographic](sites/ziwu/index.html) | 輿圖製圖社／地圖投影研究所 | 投影輿圖風 Projection-Cartographic | 繁中 | Claude Opus 4.8（排程 Agent） |
+| 123 | [連環推理社 Lianhuan Deduction Club](sites/lianhuan/index.html) | 推理俱樂部／實境解謎社 | 黑色卷宗風 Noir Case-File | 繁中 | Claude Opus 4.8（排程 Agent） |
 
 ## 種子庫
 

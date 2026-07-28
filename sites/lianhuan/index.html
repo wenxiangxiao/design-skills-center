@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>連環推理社・案情板｜把線索連成站得住腳的推論</title>
+<meta name="description" content="連環推理社是一間開在台北的推理俱樂部。首頁就是一塊活的案情板：把線索釘上軟木板、用紅線把它們連成一步一步的推論，引擎會逐步查核——哪一步真的推得出、哪一步只是你的臆測。串到能用一條有效的推論鏈指認行為人，才算結案。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23241C12'/%3E%3Cline x1='7' y1='6' x2='25' y2='26' stroke='%23A32A22' stroke-width='2.4'/%3E%3Cline x1='25' y1='7' x2='7' y2='24' stroke='%23A32A22' stroke-width='1.6' opacity='.85'/%3E%3Ccircle cx='7' cy='6' r='3.1' fill='%23D69A3C' stroke='%23141009' stroke-width='1'/%3E%3Ccircle cx='25' cy='26' r='3.1' fill='%23EDE3CE' stroke='%23141009' stroke-width='1'/%3E%3Ccircle cx='25' cy='7' r='2.6' fill='%23D69A3C' stroke='%23141009' stroke-width='1'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17120C; --board:#241C12; --board2:#2E2417; --board3:#1B140B;
+  --manila:#CBB489; --manila2:#B29A6C; --paper:#E7DCC0;
+  --bone:#EDE3CE; --bonesoft:#B9AE93;
+  --ink:#141009; --inksoft:#3A3020;
+  --string:#A32A22; --string2:#7E1C16;
+  --amber:#D69A3C; --amber2:#A9762450;
+  --steel:#5B7482; --seal:#5E8A6E;
+  --pin:#D9C79A;
+  --shadow:rgba(0,0,0,.5);
+  --tw:'Special Elite',monospace; --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif; --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--bone);font-family:var(--sans);font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:900;line-height:1.15;margin:0}
+.tw{font-family:var(--tw)}
+.mono{font-family:var(--mono);letter-spacing:.01em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;position:fixed;background:var(--paper);color:var(--ink);padding:8px 12px;z-index:99;border:2px solid var(--ink)}
+img,svg{max-width:100%}
+button{font-family:inherit;cursor:pointer}
+
+/* ---- redstring-index rail nav ---- */
+.rnav{position:fixed;top:0;left:0;height:100vh;width:88px;z-index:40;background:var(--board3);border-right:2px solid #000;padding:18px 0}
+.rnav .thread{position:absolute;left:44px;top:0;bottom:0;width:2px;background:linear-gradient(var(--string2),var(--string))}
+.rnav ul{list-style:none;margin:0;padding:0;height:100%;display:flex;flex-direction:column;justify-content:center;gap:20px}
+.rnav a{position:relative;display:block;width:72px;margin-left:8px;text-decoration:none;color:var(--bonesoft);
+  background:var(--manila);color:var(--ink);border:2px solid var(--ink);padding:8px 5px 7px;box-shadow:3px 3px 0 var(--shadow);
+  font-family:var(--serif);font-weight:900;font-size:15px;text-align:center;line-height:1.2;transform:rotate(-2deg);transition:transform .14s}
+.rnav a .en{display:block;font-family:var(--mono);font-size:7.5px;color:var(--inksoft);letter-spacing:.04em;margin-top:3px}
+.rnav a::before{content:"";position:absolute;left:50%;top:-9px;transform:translateX(-50%);width:11px;height:11px;border-radius:50%;background:var(--pin);border:1.5px solid var(--ink);box-shadow:0 2px 2px rgba(0,0,0,.4)}
+.rnav a:hover,.rnav a:focus-visible{transform:rotate(0deg) translateX(2px);outline:none}
+.rnav a[aria-current]{background:var(--paper);transform:rotate(0deg) translateY(-4px)}
+.rnav a[aria-current]::before{background:var(--string);width:13px;height:13px;top:-11px}
+.rnav a[aria-current]::after{content:"";position:absolute;left:50%;top:-11px;width:2px;height:14px;background:var(--string);transform:translateX(-50%)}
+body{padding-left:88px}
+@media(max-width:840px){
+  body{padding-left:0;padding-bottom:64px}
+  .rnav{top:auto;bottom:0;left:0;height:64px;width:100%;border-right:0;border-top:2px solid #000;padding:0}
+  .rnav .thread{display:none}
+  .rnav ul{flex-direction:row;gap:0;align-items:stretch;height:64px}
+  .rnav a{flex:1;margin:0;transform:none;box-shadow:none;border:0;border-right:1px solid var(--ink);border-radius:0;font-size:13px;display:flex;flex-direction:column;justify-content:center}
+  .rnav a::before,.rnav a[aria-current]::after{display:none}
+  .rnav a .en{display:none}
+  .rnav a[aria-current]{transform:none;border-bottom:4px solid var(--string)}
+}
+
+/* ---- header ---- */
+header.top{padding:30px 0 8px}
+.brandrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{width:66px;height:66px;flex:none}
+.bn{font-family:var(--serif);font-weight:900;font-size:31px;color:var(--bone);line-height:1;letter-spacing:.02em}
+.bs{font-family:var(--mono);font-size:11px;color:var(--amber);margin-top:8px;letter-spacing:.18em}
+.lede{max-width:64ch;margin:16px 0 2px;color:var(--bonesoft);font-size:16.5px}
+.lede b{color:var(--bone)}
+.filed{display:inline-block;font-family:var(--tw);font-size:12px;color:var(--string);border:1.5px solid var(--string);padding:2px 9px;transform:rotate(-1.5deg);letter-spacing:.05em;margin-top:6px}
+
+/* ---- case tabs ---- */
+.casebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0 10px}
+.casebar .lbl{font-family:var(--mono);font-size:11px;color:var(--bonesoft);letter-spacing:.1em;margin-right:2px}
+.ctab{background:var(--board2);color:var(--bone);border:2px solid var(--ink);padding:7px 13px;font-family:var(--serif);font-weight:700;font-size:14.5px;box-shadow:3px 3px 0 var(--shadow)}
+.ctab .no{font-family:var(--mono);font-size:10px;color:var(--amber);display:block;letter-spacing:.08em}
+.ctab[aria-current]{background:var(--string);border-color:#000;color:#fff}
+.ctab[aria-current] .no{color:#f0d9b0}
+
+/* ---- board stage ---- */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:18px;align-items:start;margin:6px 0 14px}
+.boardframe{border:3px solid #0c0906;box-shadow:7px 7px 0 var(--shadow);background:#0c0906;padding:7px}
+.board{position:relative;width:100%;height:0;padding-bottom:70%;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(0,0,0,.18), transparent 60%),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,.22), transparent 55%),
+    repeating-radial-gradient(circle at 12% 14%, var(--board) 0 2px, var(--board2) 2px 3px),
+    var(--board);
+  overflow:hidden}
+.board .inner{position:absolute;inset:0}
+.strings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.strings line{stroke:var(--string);stroke-width:2.4;stroke-linecap:round}
+.strings line.prov{stroke:var(--seal);stroke-width:2.6}
+.card{position:absolute;transform:translate(-50%,-50%);width:20.5%;min-width:120px;max-width:172px;
+  border:2px solid var(--ink);padding:8px 9px 9px;z-index:3;box-shadow:3px 4px 0 var(--shadow);
+  font-size:11.7px;line-height:1.42;text-align:left;background:var(--manila);color:var(--ink);cursor:pointer;
+  transition:transform .12s, box-shadow .12s}
+.card:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.card .pin{position:absolute;left:50%;top:-8px;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;
+  background:var(--pin);border:1.5px solid var(--ink);box-shadow:0 2px 2px rgba(0,0,0,.4)}
+.card .tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;color:var(--string2);display:block;margin-bottom:2px}
+.card .ttl{font-family:var(--serif);font-weight:900;font-size:12.7px;line-height:1.25;display:block;margin-bottom:3px}
+.card.clue{transform:translate(-50%,-50%) rotate(-1.6deg)}
+.card.clue:nth-of-type(even){transform:translate(-50%,-50%) rotate(1.4deg)}
+.card.sel{outline:3px dashed var(--string);outline-offset:2px;z-index:6}
+.card.node{background:var(--paper);border-style:solid;box-shadow:2px 3px 0 var(--shadow)}
+.card.node .vbtn{margin-top:6px;width:100%;background:var(--board2);color:var(--bone);border:1.5px solid var(--ink);font-family:var(--tw);font-size:11px;padding:4px 6px}
+.card.node .vbtn:hover{background:var(--ink)}
+.card.node .cnt{font-family:var(--mono);font-size:8.5px;color:var(--inksoft);float:right}
+.card.node.acc{background:#efe0d5;border-color:var(--string2)}
+.card.node.acc .ttl{color:var(--string2)}
+.card.verified{background:#e8ecd9;border-color:var(--seal)}
+.card.verified .stamp{position:absolute;right:-6px;bottom:-9px;font-family:var(--tw);font-size:12px;color:var(--seal);border:2px solid var(--seal);padding:0 5px;transform:rotate(-8deg);background:rgba(232,236,217,.9)}
+.card.solved{background:#f2ddd6;border-color:var(--string)}
+.card.solved .stamp{color:var(--string);border-color:var(--string);background:rgba(242,221,214,.92)}
+.card.bad{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translate(-50%,-50%)}25%{transform:translate(-54%,-50%)}75%{transform:translate(-46%,-50%)}}
+
+/* ---- desk panel ---- */
+.desk{background:var(--board2);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--shadow);padding:15px 15px 16px}
+.desk h3{font-size:16px;color:var(--bone);margin-bottom:2px}
+.desk .sub{font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.08em;margin-bottom:10px}
+.desk .cur{font-size:13px;color:var(--bonesoft);margin:0 0 10px;border-left:3px solid var(--string);padding-left:9px}
+.desk .cur b{color:var(--bone)}
+.readout{background:var(--board3);border:1.5px solid var(--ink);padding:9px 10px;min-height:66px;font-size:12.5px;line-height:1.5}
+.readout .ok{color:#a8d0ac}
+.readout .no{color:#e79484}
+.readout .hint{color:var(--amber)}
+.log{margin:10px 0 0;max-height:150px;overflow:auto;font-size:11.5px;line-height:1.5;border-top:1px dashed var(--inksoft);padding-top:8px}
+.log div{padding:2px 0;color:var(--bonesoft);border-bottom:1px dotted rgba(255,255,255,.06)}
+.log .t{font-family:var(--mono);color:var(--steel);font-size:9px;margin-right:5px}
+.deskbtns{display:flex;gap:8px;margin-top:12px}
+.deskbtns button{flex:1;background:var(--board);color:var(--bone);border:1.5px solid var(--ink);font-family:var(--serif);font-weight:700;font-size:13px;padding:7px}
+.deskbtns button:hover{background:var(--ink)}
+.tally{display:flex;gap:14px;margin-top:11px;font-family:var(--mono);font-size:10px;color:var(--bonesoft)}
+.tally b{color:var(--amber);font-size:15px;display:block}
+
+/* generic sections */
+.rule{border:0;border-top:2px solid var(--inksoft);margin:34px 0}
+.sec{padding:6px 0 4px}
+.eyebrow{font-family:var(--mono);font-size:11px;color:var(--string);letter-spacing:.16em;text-transform:uppercase}
+.sec h2{font-size:26px;color:var(--bone);margin:6px 0 12px}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.how .step{background:var(--board2);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--shadow);padding:14px 14px 15px}
+.how .n{font-family:var(--tw);font-size:13px;color:var(--string);border:1.5px solid var(--string);width:26px;height:26px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.how h4{font-size:16px;color:var(--bone);margin-bottom:4px}
+.how p{font-size:13.5px;color:var(--bonesoft);margin:0}
+.mini{background:var(--board2);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--shadow);padding:16px 18px;margin-top:8px}
+.mini p{color:var(--bonesoft);margin:0 0 8px}
+.mini .lk{display:inline-block;margin-top:4px;font-family:var(--serif);font-weight:700}
+
+/* footer */
+footer{margin-top:36px;background:var(--board3);border-top:3px solid #000;padding:30px 0 26px}
+.fgrid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:26px}
+footer h4{color:var(--bone);font-size:15px;margin-bottom:8px}
+footer p,footer li{color:var(--bonesoft);font-size:13.5px}
+footer ul{list-style:none;padding:0;margin:0}
+footer li{padding:2px 0}
+.disc{margin-top:22px;font-size:11.5px;color:#7d735d;line-height:1.6;border-top:1px solid var(--inksoft);padding-top:12px}
+@media(max-width:840px){.stage{grid-template-columns:1fr}.board{padding-bottom:96%}.how{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}}
+@media(max-width:560px){.card{font-size:11px;min-width:104px}.card .ttl{font-size:11.5px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#board">跳到案情板</a>
+
+<nav class="rnav" aria-label="主導覽">
+  <span class="thread" aria-hidden="true"></span>
+  <ul>
+    <li><a href="index.html" aria-current="page">案情板<span class="en">CASE BOARD</span></a></li>
+    <li><a href="dang.html">檔案室<span class="en">ARCHIVE</span></a></li>
+    <li><a href="fa.html">推理法<span class="en">METHOD</span></a></li>
+    <li><a href="ru.html">入社<span class="en">JOIN</span></a></li>
+  </ul>
+</nav>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brandrow">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" fill="#241C12"/>
+        <rect x="4" y="4" width="56" height="56" fill="none" stroke="#141009" stroke-width="2"/>
+        <line x1="14" y1="15" x2="50" y2="49" stroke="#A32A22" stroke-width="3"/>
+        <line x1="50" y1="15" x2="14" y2="42" stroke="#A32A22" stroke-width="2" opacity=".85"/>
+        <line x1="14" y1="42" x2="50" y2="49" stroke="#A32A22" stroke-width="2" opacity=".7"/>
+        <circle cx="14" cy="15" r="4.6" fill="#D69A3C" stroke="#141009" stroke-width="1.4"/>
+        <circle cx="50" cy="15" r="4" fill="#D69A3C" stroke="#141009" stroke-width="1.4"/>
+        <circle cx="50" cy="49" r="4.6" fill="#EDE3CE" stroke="#141009" stroke-width="1.4"/>
+        <circle cx="14" cy="42" r="4" fill="#EDE3CE" stroke="#141009" stroke-width="1.4"/>
+      </svg>
+      <div>
+        <div class="bn">連環推理社</div>
+        <div class="bs">LIANHUAN · DEDUCTION CLUB · 台北</div>
+      </div>
+    </div>
+    <p class="lede">我們不賣答案，只教一件事：<b>怎麼把散落的線索連成一條站得住腳的推論</b>。下面這塊板是我們的招牌——把線索釘上去、拉紅線連成推論，板子會逐步告訴你哪一步真的推得出、哪一步只是你的臆測。串到能指認行為人，才算結案。</p>
+    <span class="filed">卷宗・對外開放示範</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="casebar" role="tablist" aria-label="選擇案件">
+    <span class="lbl">卷宗：</span>
+    <button class="ctab" data-case="A" role="tab"><span class="no">CASE 01</span>畫室・失竊的晨霧</button>
+    <button class="ctab" data-case="B" role="tab"><span class="no">CASE 02</span>茶室・被換的帳本</button>
+    <button class="ctab" data-case="C" role="tab"><span class="no">CASE 03</span>劇場・首演的威脅信</button>
+  </div>
+
+  <section class="stage">
+    <div class="boardframe">
+      <div class="board" id="board">
+        <div class="inner" id="inner">
+          <svg class="strings" id="strings" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+      </div>
+    </div>
+    <aside class="desk" aria-live="polite">
+      <h3 id="deskTitle">案情板・操作台</h3>
+      <div class="sub" id="deskCode">FILE —</div>
+      <p class="cur" id="brief">選一個卷宗開始。</p>
+      <div class="readout" id="readout">點一張<b>線索卡</b>，再點一條<b>推論卡</b>，就會拉出一條紅線。連好前提後，按推論卡上的「查核」看它站不站得住。</div>
+      <div class="tally">
+        <div>已成立<b id="tEst">0</b></div>
+        <div>查核次數<b id="tTry">0</b></div>
+        <div>臆測擋下<b id="tBad">0</b></div>
+      </div>
+      <div class="deskbtns">
+        <button id="btnReset">重來這案</button>
+        <button id="btnUndo">拆掉最後一線</button>
+      </div>
+      <div class="log" id="log" aria-label="查核紀錄"></div>
+    </aside>
+  </section>
+
+  <hr class="rule">
+
+  <section class="sec">
+    <div class="eyebrow">怎麼玩</div>
+    <h2>三個動作，一條推論鏈</h2>
+    <div class="how">
+      <div class="step"><div class="n">1</div><h4>釘線索、拉紅線</h4><p>點一張線索卡選為前提，再點一條推論卡，紅線就把它們接起來。一條推論可以吃好幾條前提，成立的推論也能再當下一步的前提。</p></div>
+      <div class="step"><div class="n">2</div><h4>按「查核」</h4><p>引擎用命題邏輯檢查：你連上的前提，是否真的能推出這條推論。缺前提會告訴你缺哪一項；連了不相干的線索，它會說這一步是臆測不是推論。</p></div>
+      <div class="step"><div class="n">3</div><h4>指認、結案</h4><p>指認卡只有在你已用一條有效的推論鏈把它撐起來時才會成立。撐不起來，就算兇手真的是他，板子也不讓你結案——沒有推論的指認不算數。</p></div>
+    </div>
+  </section>
+
+  <div class="mini">
+    <p><b>為什麼「合理」不等於「推得出」？</b>有動機、看起來可疑、你直覺覺得是他——這些都不是推論。一步推論只有在「前提為真、且前提真的蘊涵結論」時才成立。這塊板會擋下所有跳步，包括最常見的「肯定後件」謬誤（他有動機，所以是他）。</p>
+    <a class="lk" href="fa.html">讀完整的推理法與每一案的解答 →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <h4>連環推理社</h4>
+        <p>一間專做「推理訓練」的俱樂部。我們把真實案件改寫成可拆解的邏輯謎題，帶會員練習把線索連成論證、也學會拆穿自己的臆測。週三推理夜、週末解謎工作坊常態開課。</p>
+        <p class="mono" style="color:var(--amber);margin-top:8px">社長・案主任 何連環</p>
+      </div>
+      <div>
+        <h4>聯絡</h4>
+        <ul>
+          <li>台北市中正區廈門街 47 巷 9 號 2 樓</li>
+          <li>02-2368-1174</li>
+          <li>週三–週日 14:00–22:00</li>
+          <li><a href="ru.html">入社與工作坊報名 →</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>索引</h4>
+        <ul>
+          <li><a href="index.html">案情板・示範</a></li>
+          <li><a href="dang.html">檔案室・卷宗二十四</a></li>
+          <li><a href="fa.html">推理法・謬誤圖鑑</a></li>
+          <li><a href="ru.html">入社報名</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="disc">社名、人名、地址、電話、費用與所有案件情節皆為虛構之教學示意，如有雷同純屬巧合；本社案例為邏輯推理練習所設計，非真實刑事偵查依據。案情板的查核以命題邏輯（前向鏈結）判定每一步推論是否由已連上的前提蘊涵，是教學用的推理訓練工具。｜本站由 Claude Opus 4.8（排程 Agent）設計與建置。</p>
+  </div>
+  <noscript><div class="wrap" style="margin-top:14px;color:var(--bonesoft)">本站核心為互動式案情板，需開啟 JavaScript 操作。三個示範案件的完整線索、推論鏈與解答，以及推理法與謬誤說明，皆可於 <a href="fa.html">推理法</a> 靜態閱讀，或來電 02-2368-1174。</div></noscript>
+</footer>
+
+<script>
+"use strict";
+/* ============================================================
+   連環推理社・案情板引擎
+   ------------------------------------------------------------
+   模型：命題邏輯 Horn 子句前向鏈結。
+   - clue：給定為真的原子命題（前提）。
+   - node：可被推論建立的命題（中繼推論／指認）。
+   - rule：{body:[原子…], head:原子}，body 全成立即可導出 head。
+   使用者拉紅線＝把前提連進某推論；查核＝檢查連上的前提
+   是否符合某條規則的 body 而導出該推論。沒有任何規則能導出
+   的節點＝臆測（如指認錯的人、把動機當證據）。
+   ============================================================ */
+var CASES={
+ A:{code:"LH-CASE-01",title:"畫室・失竊的《觀音山晨霧》",
+   brief:"清曉畫室夜裡遭竊，一幅《觀音山晨霧》不翼而飛。門窗完好、無外人闖入。把線索連起來，指認是誰取走了畫。",
+   clues:[
+    {a:"key2",t:"鑰匙只有兩把",x:16,y:16,d:"畫室是特製鎖，全世界只有兩把鑰匙——館長林懷素一把、管理員周敬一把。"},
+    {a:"noOut",t:"窗由內反鎖",x:50,y:13,d:"三扇窗都自內閂死，窗台積塵完整、無踩踏或撬痕：人不是從外面進來的。"},
+    {a:"curAway",t:"館長有不在場證明",x:84,y:16,d:"案發那晚八點到十一點，林懷素在對街『微光茶室』，老闆與兩名客人皆可作證。"},
+    {a:"gloveZhou",t:"松節油手套",x:83,y:47,d:"畫框後掉了一只沾松節油的棉手套，特大號——館內只有周敬戴得下。"}
+   ],
+   nodes:[
+    {a:"insiderKey",t:"能進出的只有持鑰者",x:33,y:44,acc:false},
+    {a:"zhouPresent",t:"當晚在場的持鑰者是周敬",x:58,y:47,acc:false},
+    {a:"cul_zhou",t:"指認：周敬取走了畫",x:58,y:80,acc:true},
+    {a:"cul_lin",t:"指認：林懷素監守自盜",x:22,y:80,acc:true},
+    {a:"linLied",t:"推論：館長謊報行蹤",x:88,y:80,acc:false}
+   ],
+   rules:[
+    {body:["key2","noOut"],head:"insiderKey"},
+    {body:["insiderKey","curAway"],head:"zhouPresent"},
+    {body:["zhouPresent","gloveZhou"],head:"cul_zhou"}
+   ],
+   culprit:"cul_zhou"
+ },
+ B:{code:"LH-CASE-02",title:"茶室・被換掉的帳本",
+   brief:"『微光茶室』的帳本在打烊後被掉包，換上一本抹去了盜用公款痕跡的假帳。當晚兩人值夜。找出換帳的人——注意，不是每條線索都用得上。",
+   clues:[
+    {a:"nightShift",t:"夜間盤點班表",x:15,y:14,d:"換帳只可能發生在打烊後的夜間盤點；當晚值夜的是出納陳雨蘋與工讀生方巧。"},
+    {a:"safeCode",t:"保險箱新密碼",x:48,y:12,d:"帳本鎖進保險箱，密碼上月才換，只告知了出納陳雨蘋一人。"},
+    {a:"fangEarly",t:"工讀生早退",x:83,y:14,d:"監視器顯示方巧當晚九點就簽退離開，之後未再返回店內。"},
+    {a:"inkMatch",t:"鋼筆墨水相符",x:16,y:46,d:"假帳本的字跡墨水，與陳雨蘋慣用那支藍黑鋼筆完全相符。"},
+    {a:"teaImport",t:"紅茶進貨單",x:50,y:46,d:"當月自南投調來三批蜜香紅茶，單據齊全。（與換帳未必相關）"}
+   ],
+   nodes:[
+    {a:"canOpenSafe",t:"能開保險箱的只有陳雨蘋",x:70,y:40,acc:false},
+    {a:"onlyChenNight",t:"夜裡仍能接觸帳本的只有陳雨蘋",x:34,y:70,acc:false},
+    {a:"cul_chen",t:"指認：陳雨蘋掉包了帳本",x:64,y:82,acc:true},
+    {a:"cul_fang",t:"指認：方巧掉包了帳本",x:90,y:74,acc:true}
+   ],
+   rules:[
+    {body:["safeCode"],head:"canOpenSafe"},
+    {body:["nightShift","fangEarly"],head:"onlyChenNight"},
+    {body:["canOpenSafe","onlyChenNight","inkMatch"],head:"cul_chen"}
+   ],
+   culprit:"cul_chen"
+ },
+ C:{code:"LH-CASE-03",title:"劇場・首演夜的威脅信",
+   brief:"首演前，一封威脅信被放進主角休息室。信是誰寫的？這一案藏著一個陷阱：有動機的人，未必是行為人。",
+   clues:[
+    {a:"typewriter",t:"打字機缺角字模",x:15,y:13,d:"信用道具間那台老打字機打的——某幾個字母有獨特缺角，全團只此一台。"},
+    {a:"propKey",t:"道具間鑰匙副本",x:48,y:11,d:"道具間平日上鎖，鑰匙由舞監柯明義保管；首演週他配了副本給三位主演。"},
+    {a:"rehearsalAlibi",t:"技術彩排點名",x:83,y:13,d:"寫信時段為下午三點技術彩排，點名顯示柯明義與兩位主演全程在台上，唯一離席的是女主角袁樂。"},
+    {a:"leftHanded",t:"左手折信痕",x:16,y:45,d:"信紙折法與貼郵票皆為左手習慣；袁樂是左撇子。"},
+    {a:"motiveRumor",t:"換角傳聞",x:50,y:45,d:"後台盛傳袁樂即將被換角——這是動機，不是證據。"}
+   ],
+   nodes:[
+    {a:"hadAccess",t:"能進道具間打字的：柯與三主演",x:32,y:42,acc:false},
+    {a:"onlyYuanAway",t:"案發時段唯一能離席去打字的是袁樂",x:62,y:44,acc:false},
+    {a:"cul_yuan",t:"指認：袁樂寫了威脅信",x:52,y:80,acc:true},
+    {a:"motiveProves",t:"推論：有換角動機故是她",x:86,y:80,acc:false}
+   ],
+   rules:[
+    {body:["typewriter","propKey"],head:"hadAccess"},
+    {body:["hadAccess","rehearsalAlibi"],head:"onlyYuanAway"},
+    {body:["onlyYuanAway","leftHanded"],head:"cul_yuan"}
+   ],
+   culprit:"cul_yuan"
+ }
+};
+
+/* ---------- 純函數：查核一步推論 ---------- */
+function labelOf(cs,atom){
+  var c=cs.clues.find(function(x){return x.a===atom;}); if(c)return c.t;
+  var n=cs.nodes.find(function(x){return x.a===atom;}); if(n)return n.t;
+  return atom;
+}
+function checkStep(cs,targetAtom,premises,established){
+  // premises: 陣列 of atom；established: Set
+  if(!premises.length) return {ok:false,kind:"empty",msg:"還沒有線索連到這條推論。先點一張線索卡，再點這張推論卡拉出紅線。"};
+  var notEst=premises.filter(function(p){return !established.has(p);});
+  if(notEst.length) return {ok:false,kind:"unest",msg:"你連上的前提還沒成立："+notEst.map(function(p){return "「"+labelOf(cs,p)+"」";}).join("、")+"。推論只能建立在已成立的前提上。"};
+  var headRules=cs.rules.filter(function(r){return r.head===targetAtom;});
+  if(!headRules.length) return {ok:false,kind:"nonseq",msg:"這是臆測，不是推論——現有線索裡，沒有任何一條能推得出這個結論。"};
+  for(var i=0;i<headRules.length;i++){
+    var r=headRules[i];
+    var bodyOk=r.body.every(function(b){return premises.indexOf(b)>=0;});
+    if(bodyOk) return {ok:true,kind:"proved",msg:"成立。"+r.body.map(function(b){return "「"+labelOf(cs,b)+"」";}).join("＋")+" → 「"+labelOf(cs,targetAtom)+"」"};
+  }
+  // 有規則但前提不齊：指出缺項
+  var best=headRules[0];
+  var missing=best.body.filter(function(b){return premises.indexOf(b)<0;});
+  return {ok:false,kind:"missing",msg:"推論還不成立，缺前提："+missing.map(function(b){return "「"+labelOf(cs,b)+"」";}).join("、")+"。把缺的線索也連進來再查核。"};
+}
+
+/* ---------- 獨立求解器（自我驗證用）：前向鏈結 ---------- */
+function solve(cs){
+  var est=new Set(cs.clues.map(function(c){return c.a;}));
+  var changed=true;
+  while(changed){changed=false;
+    cs.rules.forEach(function(r){
+      if(!est.has(r.head) && r.body.every(function(b){return est.has(b);})){est.add(r.head);changed=true;}
+    });
+  }
+  return est;
+}
+
+/* ============================================================
+   DOM / 互動
+   ============================================================ */
+var board=document.getElementById("board"),
+    inner=document.getElementById("inner"),
+    svg=document.getElementById("strings"),
+    readout=document.getElementById("readout"),
+    logEl=document.getElementById("log"),
+    deskTitle=document.getElementById("deskTitle"),
+    deskCode=document.getElementById("deskCode"),
+    briefEl=document.getElementById("brief");
+var state={caseId:null, cs:null, links:[], established:new Set(), selected:null, solved:false, tries:0, bad:0};
+
+function fmtTime(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+function logLine(html){var el=document.createElement("div");el.innerHTML='<span class="t">'+fmtTime()+'</span>'+html;logEl.insertBefore(el,logEl.firstChild);}
+function say(html){readout.innerHTML=html;}
+function tally(){
+  document.getElementById("tEst").textContent=Math.max(0,state.established.size - state.cs.clues.length);
+  document.getElementById("tTry").textContent=state.tries;
+  document.getElementById("tBad").textContent=state.bad;
+}
+
+function loadCase(id){
+  state.caseId=id; state.cs=CASES[id]; state.links=[]; state.solved=false; state.selected=null; state.tries=0; state.bad=0;
+  state.established=new Set(state.cs.clues.map(function(c){return c.a;}));
+  // clear
+  Array.prototype.slice.call(inner.querySelectorAll(".card")).forEach(function(n){n.remove();});
+  deskTitle.textContent=state.cs.title;
+  deskCode.textContent="FILE "+state.cs.code;
+  briefEl.innerHTML=state.cs.brief;
+  say('點一張<b>線索卡</b>，再點一條<b>推論卡</b>，拉出紅線。連好前提後按推論卡上的「查核」。');
+  logEl.innerHTML="";
+  // build clue cards
+  state.cs.clues.forEach(function(c){ makeCard(c,"clue"); });
+  state.cs.nodes.forEach(function(n){ makeCard(n,"node"); });
+  document.querySelectorAll(".ctab").forEach(function(b){
+    if(b.getAttribute("data-case")===id)b.setAttribute("aria-current","true");else b.removeAttribute("aria-current");
+  });
+  drawStrings(); tally();
+}
+
+function makeCard(data,kind){
+  var el=document.createElement("div");
+  el.className="card "+kind+(kind==="node"&&data.acc?" acc":"");
+  el.style.left=data.x+"%"; el.style.top=data.y+"%";
+  el.setAttribute("tabindex","0"); el.setAttribute("role","button");
+  el.dataset.atom=data.a; el.dataset.kind=kind;
+  var tagtxt=kind==="clue"?"線索":(data.acc?"指認":"推論");
+  var html='<span class="pin" aria-hidden="true"></span><span class="tag">'+tagtxt+'</span><span class="ttl">'+data.t+'</span>';
+  if(kind==="clue"){ html+='<span>'+data.d+'</span>'; }
+  else { html+='<span class="cnt" data-cnt>0 前提</span><button class="vbtn" data-verify type="button">查核這一步</button>'; }
+  el.innerHTML=html;
+  inner.appendChild(el);
+  el.addEventListener("click",function(e){
+    if(e.target.hasAttribute("data-verify")){e.stopPropagation();verify(data.a,el);return;}
+    onPick(data.a,kind,el);
+  });
+  el.addEventListener("keydown",function(e){
+    if((e.key==="Enter"||e.key===" ")&&e.target===el){e.preventDefault();onPick(data.a,kind,el);}
+  });
+}
+
+function onPick(atom,kind,el){
+  if(state.solved) return;
+  if(!state.selected){
+    // 選為前提來源：clue 或 已成立的 node
+    if(kind==="node" && !state.established.has(atom)){
+      say('「'+labelOf(state.cs,atom)+'」還沒成立，不能當前提。要先把它查核成立，或改從<b>線索卡</b>拉線。');
+      return;
+    }
+    state.selected=atom; clearSel(); el.classList.add("sel");
+    say('已選前提：<b>'+labelOf(state.cs,atom)+'</b>。現在點一條<b>推論卡</b>把紅線接過去（再點一次可取消）。');
+    return;
+  }
+  // 已有來源
+  if(state.selected===atom){ state.selected=null; clearSel(); say('已取消選取。'); return; }
+  if(kind==="clue"){ say('線索不能當結論。請把紅線連到一條<b>推論卡</b>。'); return; }
+  // 連線 source -> node(atom)。toggle
+  var from=state.selected, to=atom;
+  var idx=state.links.findIndex(function(l){return l.from===from&&l.to===to;});
+  if(idx>=0){ state.links.splice(idx,1); say('拆掉一條線：'+labelOf(state.cs,from)+' ⇢ '+labelOf(state.cs,to)); }
+  else { state.links.push({from:from,to:to}); say('連上：<b>'+labelOf(state.cs,from)+'</b> ⇢ <b>'+labelOf(state.cs,to)+'</b>。連齊前提後按該推論卡的「查核」。'); }
+  state.selected=null; clearSel(); refreshCounts(); drawStrings();
+}
+function clearSel(){ inner.querySelectorAll(".card.sel").forEach(function(n){n.classList.remove("sel");}); }
+
+function premisesOf(atom){ return state.links.filter(function(l){return l.to===atom;}).map(function(l){return l.from;}); }
+
+function refreshCounts(){
+  state.cs.nodes.forEach(function(n){
+    var el=inner.querySelector('.card[data-atom="'+n.a+'"] [data-cnt]');
+    if(el){ var p=premisesOf(n.a); el.textContent=p.length+" 前提"; }
+  });
+}
+
+function verify(atom,el){
+  if(state.solved) return;
+  state.tries++;
+  var res=checkStep(state.cs,atom,premisesOf(atom),state.established);
+  if(res.ok){
+    state.established.add(atom);
+    el.classList.add("verified");
+    if(!el.querySelector(".stamp")){var s=document.createElement("span");s.className="stamp tw";s.textContent="查核 ✓";el.appendChild(s);}
+    say('<span class="ok">✓ '+res.msg+'</span>');
+    logLine('<span style="color:#a8d0ac">✓ 成立</span>　'+labelOf(state.cs,atom));
+    if(atom===state.cs.culprit){ winCase(el); }
+  }else{
+    el.classList.add("bad"); setTimeout(function(){el.classList.remove("bad");},350);
+    if(res.kind==="nonseq"||res.kind==="missing")state.bad++;
+    var cls=res.kind==="missing"?"hint":"no";
+    say('<span class="'+cls+'">✗ '+res.msg+'</span>');
+    logLine('<span style="color:#e79484">✗ '+(res.kind==="nonseq"?"臆測":res.kind==="missing"?"缺前提":"未成立")+'</span>　'+labelOf(state.cs,atom));
+  }
+  drawStrings(); tally();
+}
+
+function winCase(el){
+  state.solved=true;
+  el.classList.remove("verified"); el.classList.add("solved");
+  var st=el.querySelector(".stamp"); if(st){st.textContent="結案 ●";}
+  say('<span class="ok"><b>結案。</b>你用一條有效的推論鏈指認了行為人——每一步都由前提推得出，沒有一步是臆測。翻到<a href="fa.html">推理法</a>看完整解析，或換下一個卷宗。</span>');
+  logLine('<b style="color:#f0c9a0">● 結案</b>　'+labelOf(state.cs,state.cs.culprit));
+}
+
+/* ---------- 畫紅線 ---------- */
+function centerOf(atom){
+  var el=inner.querySelector('.card[data-atom="'+atom+'"]');
+  if(!el)return null;
+  var br=board.getBoundingClientRect(), r=el.getBoundingClientRect();
+  return {x:(r.left+r.width/2-br.left)/br.width*100, y:(r.top+r.height/2-br.top)/br.height*100};
+}
+function drawStrings(){
+  var vb=100;
+  svg.setAttribute("viewBox","0 0 100 100");
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  state.links.forEach(function(l){
+    var a=centerOf(l.from), b=centerOf(l.to); if(!a||!b)return;
+    var ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+    ln.setAttribute("x1",a.x);ln.setAttribute("y1",a.y);ln.setAttribute("x2",b.x);ln.setAttribute("y2",b.y);
+    if(state.established.has(l.to))ln.setAttribute("class","prov");
+    svg.appendChild(ln);
+  });
+}
+window.addEventListener("resize",drawStrings);
+
+/* ---------- 控制 ---------- */
+document.querySelectorAll(".ctab").forEach(function(b){
+  b.addEventListener("click",function(){loadCase(b.getAttribute("data-case"));});
+});
+document.getElementById("btnReset").addEventListener("click",function(){loadCase(state.caseId);});
+document.getElementById("btnUndo").addEventListener("click",function(){
+  if(state.solved||!state.links.length)return;
+  var l=state.links.pop(); say('拆掉最後一條線：'+labelOf(state.cs,l.from)+' ⇢ '+labelOf(state.cs,l.to));
+  refreshCounts(); drawStrings();
+});
+
+/* ---------- 自我驗證（僅 console） ---------- */
+(function selftest(){
+  try{
+    Object.keys(CASES).forEach(function(k){
+      var cs=CASES[k], est=solve(cs);
+      if(!est.has(cs.culprit))console.warn("[selftest]",k,"culprit 不可導出！");
+      cs.nodes.filter(function(n){return n.acc&&n.a!==cs.culprit;}).forEach(function(n){
+        if(est.has(n.a))console.warn("[selftest]",k,"錯誤指認可被導出：",n.a);
+      });
+    });
+  }catch(e){console.warn(e);}
+})();
+
+loadCase("A");
+</script>
+</body>
+</html>

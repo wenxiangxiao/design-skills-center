@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>析光所・光學檯｜整座劇場只有光有顏色</title>
+<meta name="description" content="析光所是一間光學演示劇場。首頁就是一張真的光學檯：擺鏡子、稜鏡、透鏡，把一束白光導到標靶——反射、折射、色散都逐段實算。整座劇場是墨色的，唯一有顏色的東西是光；而顏色，是稜鏡讓白光現形的那一刻才誕生。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e11'/%3E%3Cline x1='2' y1='16' x2='11' y2='16' stroke='%23F6EFDF' stroke-width='2'/%3E%3Cpolygon points='12,24 24,8 24,24' fill='none' stroke='%23E8E2D5' stroke-width='1.6'/%3E%3Cline x1='24' y1='17' x2='31' y2='11' stroke='%237A5CFF' stroke-width='1.5'/%3E%3Cline x1='24' y1='18' x2='31' y2='14' stroke='%2346D66A' stroke-width='1.5'/%3E%3Cline x1='24' y1='19' x2='31' y2='17' stroke='%23F2D24A' stroke-width='1.5'/%3E%3Cline x1='24' y1='20' x2='31' y2='20' stroke='%23FF4D4D' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink0:#0d0e11; --ink1:#141619; --ink2:#1b1e23; --ink3:#23272e; --line:#363b43;
+  --grey:#787d85; --dim:#a8a296; --cream:#e8e2d5; --creamsoft:#c1bbae;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif; --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink0);color:var(--cream);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+a{color:var(--cream)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:900;line-height:1.16;margin:0}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;position:fixed;background:var(--cream);color:var(--ink0);padding:8px 12px;z-index:99}
+svg,canvas{max-width:100%}
+button{font-family:inherit;cursor:pointer}
+hr.rule{border:0;border-top:1px solid var(--line);margin:0}
+
+/* ---- diffraction-order rail nav ---- */
+.dnav{position:fixed;top:20px;right:20px;z-index:40;width:212px;background:var(--ink1);border:1px solid var(--line);padding:12px 12px 10px}
+.dnav .cap{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--grey);text-transform:uppercase;margin-bottom:6px}
+.dnav svg{display:block}
+.dnav ul{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.dnav a{display:block;text-decoration:none;color:var(--creamsoft);border:1px solid var(--ink3);padding:6px 8px;font-size:13px;font-weight:700;line-height:1.15;background:var(--ink2)}
+.dnav a .m{font-family:var(--mono);font-size:8.5px;color:var(--grey);display:block;letter-spacing:.06em}
+.dnav a:hover,.dnav a:focus-visible{border-color:var(--cream);color:var(--cream);outline:none}
+.dnav a[aria-current]{background:var(--cream);color:var(--ink0);border-color:var(--cream)}
+.dnav a[aria-current] .m{color:#4a4a44}
+@media(max-width:900px){
+  .dnav{top:auto;bottom:0;right:0;left:0;width:100%;border:0;border-top:1px solid var(--line);padding:0}
+  .dnav .cap,.dnav svg{display:none}
+  .dnav ul{grid-template-columns:repeat(4,1fr);gap:0;margin:0}
+  .dnav a{border:0;border-right:1px solid var(--ink3);text-align:center;padding:9px 4px;font-size:12.5px}
+  .dnav a .m{display:none}
+  body{padding-bottom:44px}
+}
+
+/* ---- masthead ---- */
+.mast{border-bottom:1px solid var(--line);padding:26px 0 20px}
+.mast .row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:15px}
+.brand .logo{width:66px;height:66px;border:1px solid var(--line);background:var(--ink1);display:flex;align-items:center;justify-content:center}
+.brand h1{font-size:30px;letter-spacing:.02em}
+.brand .en{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--grey);margin-top:3px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--grey);text-align:right;line-height:1.9}
+.mast .meta b{color:var(--dim);font-weight:400}
+
+/* ---- hero / bench ---- */
+.hero{padding:30px 0 8px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--grey);text-transform:uppercase}
+.hero h2{font-size:clamp(30px,5vw,52px);margin:12px 0 10px;letter-spacing:.01em}
+.hero .lede{max-width:660px;color:var(--creamsoft);font-size:17.5px}
+.hero .lede b{color:var(--cream);font-weight:700}
+
+.bench{margin:22px 0 6px;border:1px solid var(--line);background:linear-gradient(180deg,#0c0d10,#101216)}
+.bench-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--ink3);flex-wrap:wrap}
+.bench-title{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--grey)}
+.bench-title b{color:var(--cream);font-weight:700}
+.levsel{display:flex;gap:5px;flex-wrap:wrap}
+.levsel button{background:var(--ink2);border:1px solid var(--ink3);color:var(--creamsoft);font-family:var(--mono);font-size:12px;padding:4px 9px}
+.levsel button[aria-pressed=true]{background:var(--cream);color:var(--ink0);border-color:var(--cream)}
+.levsel button:hover{border-color:var(--cream)}
+.can-wrap{position:relative;touch-action:none}
+canvas#stage{display:block;width:100%;height:auto;cursor:crosshair}
+.bench-bot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 14px;border-top:1px solid var(--ink3);flex-wrap:wrap}
+.status{font-size:14.5px;min-height:22px}
+.status .ok{color:var(--cream);font-weight:700}
+.status .task{color:var(--dim)}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tools button{background:var(--ink2);border:1px solid var(--ink3);color:var(--creamsoft);font-size:13px;padding:6px 11px}
+.tools button:hover{border-color:var(--cream);color:var(--cream)}
+.rotbox{display:none;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--grey)}
+.rotbox input[type=range]{width:130px;accent-color:var(--cream)}
+.rotbox.on{display:flex}
+.helpline{font-family:var(--mono);font-size:11px;color:var(--grey);padding:0 14px 12px}
+
+/* ---- generic sections ---- */
+.sec{padding:44px 0;border-top:1px solid var(--line)}
+.sec h3{font-size:26px;margin-bottom:6px}
+.sec .sub{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--grey);text-transform:uppercase;margin-bottom:20px}
+.prose{max-width:720px;color:var(--creamsoft);font-size:16.5px}
+.prose p{margin:0 0 16px}
+.prose b{color:var(--cream)}
+
+.prog{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.prog .card{background:var(--ink1);padding:16px}
+.prog .card canvas{display:block;width:100%;height:auto;background:#0c0d10;border:1px solid var(--ink3)}
+.prog .card h4{font-size:19px;margin:14px 0 4px}
+.prog .card .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--grey)}
+.prog .card p{font-size:14px;color:var(--creamsoft);margin:8px 0 0;line-height:1.6}
+
+.tt{width:100%;border-collapse:collapse;font-size:14.5px}
+.tt caption{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--grey);padding-bottom:10px}
+.tt th,.tt td{border-bottom:1px solid var(--ink3);padding:11px 10px;text-align:left;vertical-align:top}
+.tt th{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--grey);text-transform:uppercase}
+.tt td .mono{color:var(--dim)}
+.tt tr:last-child td{border-bottom:0}
+
+.info{display:grid;grid-template-columns:1.3fr 1fr;gap:34px}
+.info dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:15px}
+.info dt{font-family:var(--mono);font-size:11px;color:var(--grey);letter-spacing:.06em;padding-top:3px}
+.info dd{margin:0;color:var(--cream)}
+.card2{border:1px solid var(--line);background:var(--ink1);padding:22px}
+.card2 h4{font-size:18px;margin-bottom:12px}
+.btn{display:inline-block;text-decoration:none;background:var(--cream);color:var(--ink0);font-weight:700;padding:10px 18px;border:1px solid var(--cream)}
+.btn.ghost{background:transparent;color:var(--cream)}
+.btn:hover{opacity:.9}
+
+footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--grey);font-size:13px}
+footer .flinks{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+footer a{color:var(--creamsoft);text-decoration:none}
+footer a:hover{color:var(--cream)}
+footer .fine{font-family:var(--mono);font-size:11px;line-height:1.85;color:var(--grey)}
+
+@media(max-width:900px){ .info{grid-template-columns:1fr} .prog{grid-template-columns:1fr} }
+@media(max-width:560px){ .brand h1{font-size:24px} .mast .meta{text-align:left} }
+@media(prefers-reduced-motion:reduce){ *{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<a class="skip" href="#bench">跳到光學檯</a>
+
+<nav class="dnav" aria-label="主導覽">
+  <div class="cap">Diffraction Orders · 光柵分級</div>
+  <svg viewBox="0 0 188 62" aria-hidden="true">
+    <line x1="4" y1="31" x2="60" y2="31" stroke="#F6EFDF" stroke-width="2"/>
+    <line x1="60" y1="6" x2="60" y2="56" stroke="#565b63" stroke-width="2"/>
+    <line x1="60" y1="31" x2="182" y2="31" stroke="#F2D24A" stroke-width="1.6"/>
+    <line x1="60" y1="31" x2="182" y2="12" stroke="#46D66A" stroke-width="1.4" opacity=".55"/>
+    <line x1="60" y1="31" x2="182" y2="50" stroke="#FF9A3C" stroke-width="1.4" opacity=".55"/>
+    <line x1="60" y1="31" x2="176" y2="60" stroke="#7A5CFF" stroke-width="1.4" opacity=".4"/>
+  </svg>
+  <ul>
+    <li><a href="index.html" aria-current="page">光學檯<span class="m">m0 · BENCH</span></a></li>
+    <li><a href="guan.html">元件圖鑑<span class="m">m1 · CATALOG</span></a></li>
+    <li><a href="fa.html">光之原理<span class="m">m2 · OPTICS</span></a></li>
+    <li><a href="yue.html">演示預約<span class="m">m3 · BOOK</span></a></li>
+  </ul>
+</nav>
+
+<header class="mast"><div class="wrap"><div class="row">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 40 40" width="42" height="42">
+        <line x1="3" y1="20" x2="14" y2="20" stroke="#F6EFDF" stroke-width="2.2"/>
+        <polygon points="15,30 30,10 30,30" fill="none" stroke="#E8E2D5" stroke-width="2"/>
+        <line x1="30" y1="21" x2="39" y2="13" stroke="#7A5CFF" stroke-width="1.7"/>
+        <line x1="30" y1="22" x2="39" y2="17" stroke="#46D66A" stroke-width="1.7"/>
+        <line x1="30" y1="23" x2="39" y2="21" stroke="#F2D24A" stroke-width="1.7"/>
+        <line x1="30" y1="24" x2="39" y2="25" stroke="#FF4D4D" stroke-width="1.7"/>
+      </svg>
+    </span>
+    <div><h1>析光所</h1><div class="en">XIGUANG · OPTICAL DEMONSTRATION THEATRE</div></div>
+  </div>
+  <div class="meta">
+    週二—週日 13:00–21:00<br>
+    <b>暗室 A｜光學檯開放實作</b><br>
+    臺北・館前路 27 號 3 樓
+  </div>
+</div></div></header>
+
+<main class="wrap">
+
+<section class="hero" id="top">
+  <div class="kicker">Only light has colour</div>
+  <h2>整座劇場是墨色的，<br>唯一有顏色的是光。</h2>
+  <p class="lede">白光看起來沒有顏色，是因為所有顏色疊在一起。把它送進一枚稜鏡，顏色才第一次分開、現形——<b>色彩不是被畫上去的，是光被拆開時長出來的</b>。這張光學檯上，反射、折射與色散全部逐段實算；你擺的每一面鏡、每一枚稜鏡，都立刻改變光走到哪裡。</p>
+</section>
+
+<section class="bench" id="bench" aria-label="光學檯互動">
+  <div class="bench-top">
+    <div class="bench-title">光學檯 · <b id="lvName">第一關</b> <span id="lvIdx" class="mono"></span></div>
+    <div class="levsel" role="group" aria-label="選關">
+      <button data-lv="0" aria-pressed="true">關 1</button>
+      <button data-lv="1" aria-pressed="false">關 2</button>
+      <button data-lv="2" aria-pressed="false">關 3</button>
+      <button data-lv="3" aria-pressed="false">關 4</button>
+      <button data-lv="4" aria-pressed="false">關 5</button>
+    </div>
+  </div>
+  <div class="can-wrap">
+    <canvas id="stage" width="1000" height="600" role="img" aria-label="可操作的光學檯：拖動與旋轉光學元件把光導到標靶"></canvas>
+  </div>
+  <div class="bench-bot">
+    <div class="status" aria-live="polite"><span id="statusTxt" class="task">點一個元件選取它，拖動可移動；拖外圈把手可旋轉。</span></div>
+    <div class="tools">
+      <div class="rotbox" id="rotbox"><label for="rotr">旋轉</label><input id="rotr" type="range" min="0" max="360" value="0"></div>
+      <button id="hintBtn">提示</button>
+      <button id="resetBtn">重置本關</button>
+    </div>
+  </div>
+  <div class="helpline">操作：點選元件 → 拖動移動／拖外圈把手旋轉／方向鍵微調位置／<span aria-hidden="true">[ ]</span> 鍵旋轉。行動裝置用下方旋轉滑桿。</div>
+</section>
+
+<section class="sec">
+  <h3>今日番組</h3>
+  <div class="sub">Programme · 三場十五分鐘的光學演示</div>
+  <div class="prog" id="prog">
+    <div class="card">
+      <canvas data-scene="fold" width="360" height="220"></canvas>
+      <div class="k">13:30 · 暗室 A</div>
+      <h4>把光折成直角</h4>
+      <p>一面鍍銀反射鏡，入射角等於反射角。用兩面鏡把一束光繞著整個房間送回原點。</p>
+    </div>
+    <div class="card">
+      <canvas data-scene="lens" width="360" height="220"></canvas>
+      <div class="k">16:30 · 暗室 A</div>
+      <h4>透鏡把光收攏</h4>
+      <p>平行光穿過凸透鏡，全部彎向同一個焦點。過鏡心的那條光不偏折——這條規則你會在檯上親手驗證。</p>
+    </div>
+    <div class="card">
+      <canvas data-scene="prism" width="360" height="220"></canvas>
+      <div class="k">19:30 · 暗室 A</div>
+      <h4>稜鏡讓顏色現形</h4>
+      <p>玻璃對短波折得比長波多，白光於是被拆成一道連續光譜。整場演示只有這一刻有顏色。</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <h3>票價與場次</h3>
+  <div class="sub">Tickets</div>
+  <table class="tt">
+    <caption>暗室 A 全場含光學檯自由實作，每場 15 分鐘演示 + 30 分鐘實作</caption>
+    <thead><tr><th>票種</th><th>內容</th><th>票價</th><th>備註</th></tr></thead>
+    <tbody>
+      <tr><td>單場票</td><td>任選一場番組＋光學檯實作</td><td><span class="mono">NT$ 260</span></td><td>現場售票，開演前 20 分入場</td></tr>
+      <tr><td>三場聯票</td><td>當日三場全數＋光譜手記一冊</td><td><span class="mono">NT$ 620</span></td><td>需線上預約，見「演示預約」</td></tr>
+      <tr><td>學生／敬老</td><td>單場票，憑證入場</td><td><span class="mono">NT$ 180</span></td><td>週二至週四適用</td></tr>
+      <tr><td>暗室包場</td><td>整間暗室 A・最多 12 人</td><td><span class="mono">NT$ 4,800</span></td><td>需三日前預約，含解說員一名</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:16px"><a class="btn" href="yue.html">預約演示場次 →</a> <a class="btn ghost" href="guan.html">先看元件圖鑑</a></p>
+</section>
+
+<section class="sec">
+  <h3>關於析光所</h3>
+  <div class="sub">About</div>
+  <div class="info">
+    <div class="prose">
+      <p>析光所不是眼鏡行，也不賣望遠鏡。我們只做一件事：把幾何光學搬上舞台，讓人親手擺一張光學檯，看光如何被鏡子折、被玻璃彎、被稜鏡拆開。</p>
+      <p>創所人林秉樞原是光學鍍膜工程師，退休後把自家頂樓改成一間全黑的暗室。他相信光學最動人的地方，是它的每一步都算得出來、也看得見——<b>入射角等於反射角、折射遵守司乃耳定律、短波在玻璃裡跑得慢所以偏得多</b>。這些不是要背的公式，是檯面上會發生的事。</p>
+      <p>因為要看清一束光，房間必須夠暗。於是這裡的一切都是墨色的：牆、檯、器材、字。唯一被允許有顏色的，是光本身。</p>
+    </div>
+    <div class="card2">
+      <h4>參觀資訊</h4>
+      <dl>
+        <dt>地址</dt><dd>臺北市中正區館前路 27 號 3 樓</dd>
+        <dt>電話</dt><dd class="mono">02-2311-4870</dd>
+        <dt>時間</dt><dd>週二—週日 13:00–21:00（週一休）</dd>
+        <dt>暗室</dt><dd>A（光學檯）· B（針孔成像）</dd>
+        <dt>交通</dt><dd>捷運台大醫院站 4 號出口步行 3 分</dd>
+        <dt>解說</dt><dd>林秉樞、何若嵐（週末場）</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  <div class="flinks">
+    <a href="index.html">光學檯</a><a href="guan.html">元件圖鑑</a><a href="fa.html">光之原理</a><a href="yue.html">演示預約</a>
+  </div>
+  <div class="fine">
+    析光所 XIGUANG OPTICAL DEMONSTRATION THEATRE · 臺北市中正區館前路 27 號 3 樓 · 02-2311-4870<br>
+    所名、人名、地址、電話、票價與場次皆為虛構之教學示意；光學檯之反射、折射與色散為簡化的幾何光學模型，供演示與教學，非精密光學設計依據。<br>
+    全站圖像皆由同一支光路引擎程序生成，零外部圖片與音檔、零第三方函式庫，僅使用 Google Fonts。<br>
+    本站由 <b style="color:var(--dim);font-weight:400">Claude Opus 4.8 · 排程 Agent</b> 設計與建置（2026-07-28）。
+  </div>
+</div></footer>
+
+<script>
+"use strict";
+/* ===========================================================
+   析光所 — 光路引擎 (geometric ray-optics)
+   反射 / 司乃耳折射 / 稜鏡色散。全站唯一圖像來源。
+   =========================================================== */
+const OPT = (function(){
+  const EPS = 1e-6, BIG = 4000;
+  // 七個波長取樣，加起來近似白光；經稜鏡後散開成光譜
+  const WL = [
+    {nm:430,col:'#7A5CFF'},{nm:470,col:'#3E7BFF'},{nm:500,col:'#21C6D6'},
+    {nm:540,col:'#46D66A'},{nm:580,col:'#F2D24A'},{nm:620,col:'#FF9A3C'},{nm:660,col:'#FF4D4D'}
+  ];
+  const ng = nm => 1.42 + 22000/(nm*nm);        // 玻璃折射率含色散（短波偏多）
+  const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+  const add=(a,b)=>[a[0]+b[0],a[1]+b[1]];
+  const mul=(a,k)=>[a[0]*k,a[1]*k];
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1];
+  const norm=a=>{const l=Math.hypot(a[0],a[1])||1;return [a[0]/l,a[1]/l];};
+  const perp=a=>[-a[1],a[0]];
+  const rot=(a,t)=>[a[0]*Math.cos(t)-a[1]*Math.sin(t), a[0]*Math.sin(t)+a[1]*Math.cos(t)];
+  function reflect(d,n){const k=dot(d,n);return norm([d[0]-2*k*n[0], d[1]-2*k*n[1]]);}
+
+  // ray-segment 交點
+  function hitSeg(o,d,A,B){
+    const s=sub(B,A), rxs=d[0]*s[1]-d[1]*s[0];
+    if(Math.abs(rxs)<1e-12) return null;
+    const qp=sub(A,o);
+    const t=(qp[0]*s[1]-qp[1]*s[0])/rxs;
+    const u=(qp[0]*d[1]-qp[1]*d[0])/rxs;
+    if(t>EPS && u>=-1e-7 && u<=1+1e-7) return t;
+    return null;
+  }
+
+  // 從元件清單建出所有 surface（世界座標線段 + 行為）
+  function buildSurfaces(elems){
+    const S=[];
+    for(const e of elems){
+      const p=[e.x,e.y], a=e.ang||0;
+      if(e.type==='mirror'){
+        const dir=rot([1,0],a), h=(e.len||150)/2;
+        const A=sub(p,mul(dir,h)), B=add(p,mul(dir,h));
+        S.push({kind:'mirror',A,B,n:perp(dir),e});
+      }else if(e.type==='lens'){
+        const axis=rot([1,0],a);          // 光軸
+        const plane=perp(axis), h=(e.len||150)/2;
+        const A=sub(p,mul(plane,h)), B=add(p,mul(plane,h));
+        S.push({kind:'lens',A,B,axis,center:p,f:e.f||260,e});
+      }else if(e.type==='prism'){
+        const s=e.size||150, R=s/Math.sqrt(3);
+        const v=[0,1,2].map(i=>add(p, rot([0,-R], a + i*2*Math.PI/3)));
+        const c=p;
+        for(let i=0;i<3;i++){
+          const A=v[i], B=v[(i+1)%3];
+          let n=norm(perp(sub(B,A)));
+          const mid=mul(add(A,B),0.5);
+          if(dot(n, sub(mid,c))<0) n=mul(n,-1);   // 外法線
+          S.push({kind:'glass',A,B,n,e});
+        }
+      }else if(e.type==='mirror2'){ // 固定牆鏡
+        S.push({kind:'mirror',A:[e.ax,e.ay],B:[e.bx,e.by],n:norm(perp(sub([e.bx,e.by],[e.ax,e.ay]))),e});
+      }
+    }
+    for(const w of (elems.walls||[])) {} // (walls handled separately)
+    return S;
+  }
+
+  // 追一條 ray（單一波長），回傳 polyline 與是否命中 target
+  function traceOne(surfs, walls, target, o, d, nm){
+    const pts=[o.slice()]; let inside=false, hitTarget=false, hitPoint=null;
+    for(let b=0;b<48;b++){
+      let best=null, bt=Infinity, bkind=null, bsurf=null;
+      for(const s of surfs){ const t=hitSeg(o,d,s.A,s.B); if(t!==null && t<bt){bt=t;best=s;bkind=s.kind;bsurf=s;} }
+      for(const w of walls){ const t=hitSeg(o,d,w.A,w.B); if(t!==null && t<bt){bt=t;best=w;bkind='wall';bsurf=w;} }
+      if(target){ const t=hitSeg(o,d,target.A,target.B); if(t!==null && t<bt){bt=t;best=target;bkind='target';bsurf=target;} }
+      if(!best){ pts.push(add(o,mul(d,BIG))); break; }
+      const P=add(o,mul(d,bt)); pts.push(P);
+      if(bkind==='wall'){ break; }
+      if(bkind==='target'){ hitTarget=true; hitPoint=P; break; }
+      if(bkind==='mirror'){ d=reflect(d,bsurf.n); o=add(P,mul(d,EPS*4)); continue; }
+      if(bkind==='lens'){
+        const ax=bsurf.axis, tv=perp(ax);
+        const da=dot(d,ax), h=dot(sub(P,bsurf.center),tv);
+        if(Math.abs(da)<1e-4){ o=add(P,mul(d,EPS*4)); continue; }
+        const u=dot(d,tv)/da, u2=u - h/bsurf.f;
+        d=norm(add(mul(ax,da), mul(tv,u2*da)));
+        o=add(P,mul(d,EPS*4)); continue;
+      }
+      if(bkind==='glass'){
+        let n=bsurf.n, cosI=-dot(d,n), entering=true;
+        if(cosI<0){ n=mul(n,-1); cosI=-cosI; entering=false; }
+        const n1=entering?1:ng(nm), n2=entering?ng(nm):1, eta=n1/n2;
+        const sin2=eta*eta*(1-cosI*cosI);
+        if(sin2>1){ d=reflect(d,n); }                     // 全反射
+        else{ const cosT=Math.sqrt(1-sin2); d=norm(add(mul(d,eta), mul(n, eta*cosI-cosT))); }
+        inside=entering; o=add(P,mul(d,EPS*4)); continue;
+      }
+    }
+    return {pts, hitTarget, hitPoint};
+  }
+
+  // 追全部七波長
+  function traceAll(elems, source){
+    const surfs=buildSurfaces(elems);
+    const walls=(elems.walls||[]).map(w=>({A:[w[0],w[1]],B:[w[2],w[3]]}));
+    const target=elems.target?{A:[elems.target[0],elems.target[1]],B:[elems.target[2],elems.target[3]]}:null;
+    const o=[source.x,source.y], d=norm([Math.cos(source.dir),Math.sin(source.dir)]);
+    const rays=[]; const hitset=new Set(); const hitProj=[];
+    let tdir=[1,0];
+    if(target){ const dd=sub(target.B,target.A); tdir=norm(dd); }
+    for(const w of WL){
+      const r=traceOne(surfs,walls,target,o,d,w.nm);
+      rays.push({pts:r.pts,col:w.col,nm:w.nm});
+      if(r.hitTarget){ hitset.add(w.nm); if(r.hitPoint) hitProj.push(dot(sub(r.hitPoint,target.A),tdir)); }
+    }
+    let spread=0;
+    if(hitProj.length>1){ spread=Math.max.apply(null,hitProj)-Math.min.apply(null,hitProj); }
+    return {rays, surfs, walls, target, hitCount:hitset.size, hitSpread:spread};
+  }
+
+  return {WL,traceAll,buildSurfaces,rot,norm,add,sub,mul,perp};
+})();
+
+/* ---------- 繪圖 ---------- */
+function drawBench(ctx, elems, source, res, opt){
+  opt=opt||{};
+  const W=ctx.canvas.width/ (opt.dpr||1), H=ctx.canvas.height/(opt.dpr||1);
+  ctx.setTransform(opt.dpr||1,0,0,opt.dpr||1,0,0);
+  // 底：墨色檯面
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#0c0d10'); g.addColorStop(1,'#101318');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // 網格
+  ctx.strokeStyle='rgba(120,125,133,.08)'; ctx.lineWidth=1;
+  for(let x=0;x<=W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const sx=W/1000, sy=H/600; ctx.save(); ctx.scale(sx,sy);
+  // 牆
+  if(elems.walls) for(const w of elems.walls){
+    ctx.strokeStyle='#3a3f47'; ctx.lineWidth=8/sx; ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(w[0],w[1]);ctx.lineTo(w[2],w[3]);ctx.stroke();
+    // 斜線影線表示不透光牆
+    ctx.strokeStyle='rgba(120,125,133,.35)'; ctx.lineWidth=1/sx;
+    const dx=w[2]-w[0],dy=w[3]-w[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+    for(let s=6;s<L;s+=12){const px=w[0]+ux*s,py=w[1]+uy*s;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+nx*9,py+ny*9);ctx.stroke();}
+  }
+  // 光束（先畫，元件壓在上面）
+  ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
+  for(const pass of [{w:7,a:0.10},{w:3.4,a:0.32},{w:1.5,a:1}]){
+    for(const r of res.rays){
+      ctx.strokeStyle=r.col; ctx.globalAlpha=pass.a; ctx.lineWidth=pass.w/sx;
+      ctx.beginPath(); ctx.moveTo(r.pts[0][0],r.pts[0][1]);
+      for(let i=1;i<r.pts.length;i++) ctx.lineTo(r.pts[i][0],r.pts[i][1]);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  // 光源
+  drawSource(ctx,source,sx);
+  // 標靶（屏）
+  if(res.target){
+    const T=res.target, lit=res.hitCount>0;
+    ctx.strokeStyle= lit? '#e8e2d5':'#5b616a'; ctx.lineWidth=(lit?7:5)/sx; ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(T.A[0],T.A[1]);ctx.lineTo(T.B[0],T.B[1]);ctx.stroke();
+    // 屏底座刻痕
+    ctx.strokeStyle='#2b2f36'; ctx.lineWidth=1/sx;
+    const dx=T.B[0]-T.A[0],dy=T.B[1]-T.A[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=uy,ny=-ux;
+    for(let s=4;s<L;s+=9){const px=T.A[0]+ux*s,py=T.A[1]+uy*s;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-nx*10,py-ny*10);ctx.stroke();}
+  }
+  // 元件外觀
+  for(const e of elems){
+    if(e.type==='mirror') drawMirror(ctx,e,sx);
+    else if(e.type==='lens') drawLens(ctx,e,sx);
+    else if(e.type==='prism') drawPrism(ctx,e,sx);
+  }
+  // 選取把手
+  if(opt.selected){ drawHandle(ctx,opt.selected,sx); }
+  ctx.restore();
+}
+function drawSource(ctx,source,sx){
+  ctx.save();ctx.translate(source.x,source.y);ctx.rotate(source.dir);
+  ctx.fillStyle='#1b1e23';ctx.strokeStyle='#565b63';ctx.lineWidth=1.5/sx;
+  ctx.beginPath();ctx.rect(-30,-16,30,32);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#f6efdf';ctx.beginPath();ctx.arc(-1,0,5,0,7);ctx.fill();
+  ctx.fillStyle='#787d85';ctx.font=(11/sx)+'px "Space Mono",monospace';ctx.fillText('白光',-30,-22);
+  ctx.restore();
+}
+function drawMirror(ctx,e,sx){
+  const dir=OPT.rot([1,0],e.ang||0), h=(e.len||150)/2;
+  const A=OPT.sub([e.x,e.y],OPT.mul(dir,h)), B=OPT.add([e.x,e.y],OPT.mul(dir,h));
+  const nrm=OPT.norm(OPT.perp(dir));
+  // 玻璃面（亮）
+  ctx.strokeStyle='#e8e2d5';ctx.lineWidth=3/sx;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();
+  // 背面影線（鍍銀）
+  ctx.strokeStyle='#565b63';ctx.lineWidth=1/sx;
+  for(let s=-h+5;s<h;s+=9){const px=e.x+dir[0]*s,py=e.y+dir[1]*s;ctx.beginPath();ctx.moveTo(px-nrm[0]*2,py-nrm[1]*2);ctx.lineTo(px-nrm[0]*10,py-nrm[1]*10);ctx.stroke();}
+  ctx.fillStyle='#787d85';ctx.font=(10/sx)+'px "Space Mono",monospace';ctx.fillText('鏡',B[0]+4,B[1]);
+}
+function drawLens(ctx,e,sx){
+  const axis=OPT.rot([1,0],e.ang||0), plane=OPT.perp(axis), h=(e.len||150)/2;
+  const A=OPT.sub([e.x,e.y],OPT.mul(plane,h)), B=OPT.add([e.x,e.y],OPT.mul(plane,h));
+  const bulge=18;
+  ctx.strokeStyle='#e8e2d5';ctx.lineWidth=2/sx;ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(A[0],A[1]);
+  ctx.quadraticCurveTo(e.x+axis[0]*bulge,e.y+axis[1]*bulge,B[0],B[1]);
+  ctx.quadraticCurveTo(e.x-axis[0]*bulge,e.y-axis[1]*bulge,A[0],A[1]);
+  ctx.stroke();
+  ctx.fillStyle='rgba(232,226,213,.05)';ctx.fill();
+  // 光軸虛線
+  ctx.strokeStyle='#3a3f47';ctx.setLineDash([5/sx,6/sx]);ctx.lineWidth=1/sx;
+  ctx.beginPath();ctx.moveTo(e.x-axis[0]*60,e.y-axis[1]*60);ctx.lineTo(e.x+axis[0]*60,e.y+axis[1]*60);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#787d85';ctx.font=(10/sx)+'px "Space Mono",monospace';ctx.fillText('凸透鏡',B[0]+4,B[1]);
+}
+function drawPrism(ctx,e,sx){
+  const s=e.size||150,R=s/Math.sqrt(3),a=e.ang||0;
+  const v=[0,1,2].map(i=>OPT.add([e.x,e.y],OPT.rot([0,-R],a+i*2*Math.PI/3)));
+  ctx.strokeStyle='#e8e2d5';ctx.lineWidth=2/sx;ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(v[0][0],v[0][1]);ctx.lineTo(v[1][0],v[1][1]);ctx.lineTo(v[2][0],v[2][1]);ctx.closePath();
+  ctx.fillStyle='rgba(232,226,213,.055)';ctx.fill();ctx.stroke();
+  ctx.fillStyle='#787d85';ctx.font=(10/sx)+'px "Space Mono",monospace';ctx.fillText('稜鏡',e.x+R*0.5,e.y+R*0.6);
+}
+function drawHandle(ctx,e,sx){
+  const a=e.ang||0, dir=OPT.rot([1,0],a), rad=(e.type==='prism'?(e.size||150)/Math.sqrt(3):((e.len||150)/2))+30;
+  const hx=e.x+dir[0]*rad, hy=e.y+dir[1]*rad;
+  ctx.strokeStyle='#565b63';ctx.setLineDash([4/sx,4/sx]);ctx.lineWidth=1/sx;
+  ctx.beginPath();ctx.arc(e.x,e.y,rad,0,7);ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(hx,hy);ctx.stroke();
+  ctx.fillStyle='#e8e2d5';ctx.strokeStyle='#0d0e11';ctx.lineWidth=1.5/sx;
+  ctx.beginPath();ctx.arc(hx,hy,7/sx*sx,0,7);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(232,226,213,.5)';ctx.beginPath();ctx.arc(e.x,e.y,3,0,7);ctx.fill();
+}
+
+/* ===========================================================
+   互動：光學檯關卡
+   =========================================================== */
+(function(){
+  const stage=document.getElementById('stage'); if(!stage) return;
+  const ctx=stage.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function lv(name, source, movable, extra){ const arr=movable.map(m=>Object.assign({},m)); Object.assign(arr,extra); arr.lvName=name; arr.source=source; return arr; }
+
+  function makeLevels(){
+    return [
+      lv('第一關 · 直角反射',
+        {x:70,y:300,dir:0},
+        [{type:'mirror',x:520,y:300,ang:-0.5,len:170}],
+        {walls:[], target:[905,110,905,215], need:1,
+         hint:'把鏡子轉到約 45°，讓向右的光折向上方屏。', task:'讓白光打到右上方的屏。'}),
+      lv('第二關 · 透鏡轉向',
+        {x:70,y:210,dir:0.16},
+        [{type:'lens',x:470,y:330,ang:0,len:210,f:240}],
+        {walls:[], target:[905,470,905,560], need:1,
+         hint:'光要偏離鏡心才會被折彎；把透鏡上下移，讓光高出光軸，凸透鏡就把它壓向下方屏。', task:'用凸透鏡把斜射的光壓到右下屏。'}),
+      lv('第三關 · 雙鏡繞板',
+        {x:70,y:120,dir:0},
+        [{type:'mirror',x:300,y:120,ang:0.9,len:150},{type:'mirror',x:300,y:470,ang:-0.7,len:150}],
+        {walls:[[520,0,520,360],[520,360,1000,360]], target:[905,430,905,545], need:1,
+         hint:'第一面鏡把光往下折，第二面鏡再把它往右折，從擋板下方繞過去。', task:'用兩面鏡繞過擋板打到右下屏。'}),
+      lv('第四關 · 稜鏡散光',
+        {x:70,y:300,dir:0},
+        [{type:'prism',x:590,y:380,ang:1.05,size:190}],
+        {walls:[], target:[900,110,900,560], need:5,
+         hint:'轉動稜鏡，讓白光斜穿進玻璃——入射越斜、色散越開，七色要有五色以上落在大屏上。', task:'把白光拆成光譜，讓五色以上落在右方大屏。'}),
+      lv('第五關 · 反射後散光',
+        {x:70,y:110,dir:0.14},
+        [{type:'mirror',x:340,y:250,ang:1.15,len:150},{type:'prism',x:560,y:430,ang:0.5,size:180}],
+        {walls:[], target:[900,110,900,560], need:5,
+         hint:'先用鏡子把光折向稜鏡，再轉稜鏡讓它斜穿散開，五色以上落屏即通關。', task:'先反射、再色散，讓光譜落在右方大屏。'})
+    ];
+  }
+  let LEVELS=makeLevels();
+  let cur=0, elems=LEVELS[0], selected=null, drag=null, dpr=1;
+
+  function fit(){
+    const wrap=stage.parentElement, cw=wrap.clientWidth;
+    dpr=Math.min(2, window.devicePixelRatio||1);
+    stage.width=cw*dpr; stage.height=cw*0.6*dpr;
+    stage.style.height=(cw*0.6)+'px';
+    render();
+  }
+  function toVirtual(ev){
+    const r=stage.getBoundingClientRect();
+    const px=(ev.clientX-r.left)/r.width*1000, py=(ev.clientY-r.top)/r.height*600;
+    return [px,py];
+  }
+  function handlePos(e){
+    const a=e.ang||0, dir=OPT.rot([1,0],a), rad=(e.type==='prism'?(e.size||150)/Math.sqrt(3):((e.len||150)/2))+30;
+    return [e.x+dir[0]*rad, e.y+dir[1]*rad];
+  }
+  function pick(v){
+    for(let i=elems.length-1;i>=0;i--){ const e=elems[i]; if(!e.type) continue;
+      const hp=handlePos(e); if(Math.hypot(v[0]-hp[0],v[1]-hp[1])<24) return {e,mode:'rotate'};
+    }
+    for(let i=elems.length-1;i>=0;i--){ const e=elems[i]; if(!e.type) continue;
+      const gr=(e.type==='prism'?(e.size||150)/Math.sqrt(3):((e.len||150)/2))+10;
+      if(Math.hypot(v[0]-e.x,v[1]-e.y)<gr) return {e,mode:'move'};
+    }
+    return null;
+  }
+  function clampXY(e){ e.x=Math.max(150,Math.min(860,e.x)); e.y=Math.max(60,Math.min(540,e.y)); }
+
+  function render(){
+    const source=elems.source||LEVELS[cur].source;
+    const res=OPT.traceAll(elems, source);
+    drawBench(ctx, elems, source, res, {dpr, selected});
+    // 狀態
+    const need=elems.need||1, SPREAD_MIN=40;
+    const dispersed = res.hitSpread>=SPREAD_MIN;
+    const ok = need>1 ? (res.hitCount>=need && dispersed) : res.hitCount>=need;
+    const st=document.getElementById('statusTxt');
+    if(ok){ st.innerHTML='<span class="ok">✓ 通關</span> — '+(need>1?('白光已拆成光譜，'+res.hitCount+' 色散開落屏。'):'光已抵達屏。'); }
+    else if(need>1){
+      if(res.hitCount>=need && !dispersed) st.innerHTML='<span class="task">光有落屏，但還是一束白光——'+(elems.task||'')+'（要讓顏色散開）</span>';
+      else st.innerHTML='<span class="task">'+(elems.task||'把光導到屏。')+' 目前 '+res.hitCount+'/'+need+' 色</span>';
+    }
+    else { st.innerHTML='<span class="task">'+ (elems.task||'把光導到屏。') +'</span>'; }
+    document.getElementById('lvName').textContent=LEVELS[cur].lvName;
+    document.getElementById('lvIdx').textContent='['+(cur+1)+'/5]';
+  }
+
+  // pointer
+  stage.addEventListener('pointerdown',ev=>{
+    ev.preventDefault(); const v=toVirtual(ev); const p=pick(v);
+    if(p){ selected=p.e; drag={mode:p.mode}; syncRot(); stage.setPointerCapture(ev.pointerId); }
+    else { selected=null; }
+    render();
+  });
+  stage.addEventListener('pointermove',ev=>{
+    if(!drag||!selected) return; const v=toVirtual(ev);
+    if(drag.mode==='move'){ selected.x=v[0]; selected.y=v[1]; clampXY(selected); }
+    else { selected.ang=Math.atan2(v[1]-selected.y, v[0]-selected.x); }
+    syncRot(); render();
+  });
+  const end=ev=>{ if(drag){drag=null;} };
+  stage.addEventListener('pointerup',end); stage.addEventListener('pointercancel',end);
+
+  // 鍵盤
+  stage.tabIndex=0;
+  stage.addEventListener('keydown',ev=>{
+    if(!selected) return; let used=true;
+    if(ev.key==='ArrowLeft') selected.x-=8; else if(ev.key==='ArrowRight') selected.x+=8;
+    else if(ev.key==='ArrowUp') selected.y-=8; else if(ev.key==='ArrowDown') selected.y+=8;
+    else if(ev.key==='[') selected.ang-=0.05; else if(ev.key===']') selected.ang+=0.05;
+    else used=false;
+    if(used){ ev.preventDefault(); clampXY(selected); syncRot(); render(); }
+  });
+
+  // 旋轉滑桿
+  const rotbox=document.getElementById('rotbox'), rotr=document.getElementById('rotr');
+  function syncRot(){ if(selected){ rotbox.classList.add('on'); rotr.value=Math.round(((selected.ang||0)*180/Math.PI+360)%360); } else rotbox.classList.remove('on'); }
+  rotr.addEventListener('input',()=>{ if(selected){ selected.ang=rotr.value*Math.PI/180; render(); } });
+
+  // 工具
+  document.getElementById('resetBtn').addEventListener('click',()=>{ LEVELS=makeLevels(); elems=LEVELS[cur]; selected=null; syncRot(); render(); });
+  document.getElementById('hintBtn').addEventListener('click',()=>{ document.getElementById('statusTxt').innerHTML='<span class="task">提示：'+(elems.hint||'')+'</span>'; });
+  document.querySelectorAll('.levsel button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.levsel button').forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      cur=+b.dataset.lv; elems=LEVELS[cur]; selected=null; syncRot(); render();
+    });
+  });
+
+  window.addEventListener('resize',fit);
+  fit();
+})();
+
+/* ===========================================================
+   番組小圖：用同一支引擎畫固定的解算光路
+   =========================================================== */
+(function(){
+  const scenes={
+    fold:{ source:{x:60,y:470,dir:-0.55},
+      elems:(function(){const a=[{type:'mirror',x:300,y:180,ang:0.55,len:150},{type:'mirror',x:720,y:180,ang:-0.55,len:150}];a.target=[930,470,930,560];a.need=1;return a;})() },
+    lens:{ source:{x:55,y:300,dir:0},
+      elems:(function(){const a=[{type:'lens',x:430,y:190,ang:0,len:230,f:230}];a.target=[930,360,930,470];a.need=1;return a;})() },
+    prism:{ source:{x:55,y:300,dir:0},
+      elems:(function(){const a=[{type:'prism',x:460,y:300,ang:0.35,size:200}];a.target=[935,120,935,470];a.need=5;return a;})() }
+  };
+  document.querySelectorAll('#prog canvas').forEach(cv=>{
+    const key=cv.dataset.scene, sc=scenes[key]; if(!sc) return;
+    const dpr=Math.min(2,window.devicePixelRatio||1);
+    function draw(){ const w=cv.clientWidth||360; cv.width=w*dpr; cv.height=w*0.611*dpr; cv.style.height=(w*0.611)+'px';
+      const c=cv.getContext('2d'); const res=OPT.traceAll(sc.elems,sc.source); drawBench(c,sc.elems,sc.source,res,{dpr}); }
+    draw(); window.addEventListener('resize',draw);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>析光所・演示預約｜暗室 A 光學檯場次</title>
+<meta name="description" content="預約析光所暗室 A 的光學演示場次：選場次、留聯絡資料，取得專屬留位號與由光路引擎生成的光路印記。手機與 Email 皆有格式驗證。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0e11'/%3E%3Cline x1='2' y1='16' x2='11' y2='16' stroke='%23F6EFDF' stroke-width='2'/%3E%3Cpolygon points='12,24 24,8 24,24' fill='none' stroke='%23E8E2D5' stroke-width='1.6'/%3E%3Cline x1='24' y1='17' x2='31' y2='11' stroke='%237A5CFF' stroke-width='1.5'/%3E%3Cline x1='24' y1='18' x2='31' y2='14' stroke='%2346D66A' stroke-width='1.5'/%3E%3Cline x1='24' y1='19' x2='31' y2='17' stroke='%23F2D24A' stroke-width='1.5'/%3E%3Cline x1='24' y1='20' x2='31' y2='20' stroke='%23FF4D4D' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink0:#0d0e11; --ink1:#141619; --ink2:#1b1e23; --ink3:#23272e; --line:#363b43;
+  --grey:#787d85; --dim:#a8a296; --cream:#e8e2d5; --creamsoft:#c1bbae;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif; --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink0);color:var(--cream);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+a{color:var(--cream)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:900;line-height:1.16;margin:0}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;position:fixed;background:var(--cream);color:var(--ink0);padding:8px 12px;z-index:99}
+svg,canvas{max-width:100%}
+button{font-family:inherit;cursor:pointer}
+hr.rule{border:0;border-top:1px solid var(--line);margin:0}
+
+/* ---- diffraction-order rail nav ---- */
+.dnav{position:fixed;top:20px;right:20px;z-index:40;width:212px;background:var(--ink1);border:1px solid var(--line);padding:12px 12px 10px}
+.dnav .cap{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--grey);text-transform:uppercase;margin-bottom:6px}
+.dnav svg{display:block}
+.dnav ul{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.dnav a{display:block;text-decoration:none;color:var(--creamsoft);border:1px solid var(--ink3);padding:6px 8px;font-size:13px;font-weight:700;line-height:1.15;background:var(--ink2)}
+.dnav a .m{font-family:var(--mono);font-size:8.5px;color:var(--grey);display:block;letter-spacing:.06em}
+.dnav a:hover,.dnav a:focus-visible{border-color:var(--cream);color:var(--cream);outline:none}
+.dnav a[aria-current]{background:var(--cream);color:var(--ink0);border-color:var(--cream)}
+.dnav a[aria-current] .m{color:#4a4a44}
+@media(max-width:900px){
+  .dnav{top:auto;bottom:0;right:0;left:0;width:100%;border:0;border-top:1px solid var(--line);padding:0}
+  .dnav .cap,.dnav svg{display:none}
+  .dnav ul{grid-template-columns:repeat(4,1fr);gap:0;margin:0}
+  .dnav a{border:0;border-right:1px solid var(--ink3);text-align:center;padding:9px 4px;font-size:12.5px}
+  .dnav a .m{display:none}
+  body{padding-bottom:44px}
+}
+
+/* ---- masthead ---- */
+.mast{border-bottom:1px solid var(--line);padding:26px 0 20px}
+.mast .row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:15px}
+.brand .logo{width:66px;height:66px;border:1px solid var(--line);background:var(--ink1);display:flex;align-items:center;justify-content:center}
+.brand h1{font-size:30px;letter-spacing:.02em}
+.brand .en{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--grey);margin-top:3px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--grey);text-align:right;line-height:1.9}
+.mast .meta b{color:var(--dim);font-weight:400}
+
+/* ---- hero / bench ---- */
+.hero{padding:30px 0 8px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--grey);text-transform:uppercase}
+.hero h2{font-size:clamp(30px,5vw,52px);margin:12px 0 10px;letter-spacing:.01em}
+.hero .lede{max-width:660px;color:var(--creamsoft);font-size:17.5px}
+.hero .lede b{color:var(--cream);font-weight:700}
+
+.bench{margin:22px 0 6px;border:1px solid var(--line);background:linear-gradient(180deg,#0c0d10,#101216)}
+.bench-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--ink3);flex-wrap:wrap}
+.bench-title{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--grey)}
+.bench-title b{color:var(--cream);font-weight:700}
+.levsel{display:flex;gap:5px;flex-wrap:wrap}
+.levsel button{background:var(--ink2);border:1px solid var(--ink3);color:var(--creamsoft);font-family:var(--mono);font-size:12px;padding:4px 9px}
+.levsel button[aria-pressed=true]{background:var(--cream);color:var(--ink0);border-color:var(--cream)}
+.levsel button:hover{border-color:var(--cream)}
+.can-wrap{position:relative;touch-action:none}
+canvas#stage{display:block;width:100%;height:auto;cursor:crosshair}
+.bench-bot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 14px;border-top:1px solid var(--ink3);flex-wrap:wrap}
+.status{font-size:14.5px;min-height:22px}
+.status .ok{color:var(--cream);font-weight:700}
+.status .task{color:var(--dim)}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tools button{background:var(--ink2);border:1px solid var(--ink3);color:var(--creamsoft);font-size:13px;padding:6px 11px}
+.tools button:hover{border-color:var(--cream);color:var(--cream)}
+.rotbox{display:none;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--grey)}
+.rotbox input[type=range]{width:130px;accent-color:var(--cream)}
+.rotbox.on{display:flex}
+.helpline{font-family:var(--mono);font-size:11px;color:var(--grey);padding:0 14px 12px}
+
+/* ---- generic sections ---- */
+.sec{padding:44px 0;border-top:1px solid var(--line)}
+.sec h3{font-size:26px;margin-bottom:6px}
+.sec .sub{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--grey);text-transform:uppercase;margin-bottom:20px}
+.prose{max-width:720px;color:var(--creamsoft);font-size:16.5px}
+.prose p{margin:0 0 16px}
+.prose b{color:var(--cream)}
+
+.prog{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.prog .card{background:var(--ink1);padding:16px}
+.prog .card canvas{display:block;width:100%;height:auto;background:#0c0d10;border:1px solid var(--ink3)}
+.prog .card h4{font-size:19px;margin:14px 0 4px}
+.prog .card .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--grey)}
+.prog .card p{font-size:14px;color:var(--creamsoft);margin:8px 0 0;line-height:1.6}
+
+.tt{width:100%;border-collapse:collapse;font-size:14.5px}
+.tt caption{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--grey);padding-bottom:10px}
+.tt th,.tt td{border-bottom:1px solid var(--ink3);padding:11px 10px;text-align:left;vertical-align:top}
+.tt th{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--grey);text-transform:uppercase}
+.tt td .mono{color:var(--dim)}
+.tt tr:last-child td{border-bottom:0}
+
+.info{display:grid;grid-template-columns:1.3fr 1fr;gap:34px}
+.info dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:15px}
+.info dt{font-family:var(--mono);font-size:11px;color:var(--grey);letter-spacing:.06em;padding-top:3px}
+.info dd{margin:0;color:var(--cream)}
+.card2{border:1px solid var(--line);background:var(--ink1);padding:22px}
+.card2 h4{font-size:18px;margin-bottom:12px}
+.btn{display:inline-block;text-decoration:none;background:var(--cream);color:var(--ink0);font-weight:700;padding:10px 18px;border:1px solid var(--cream)}
+.btn.ghost{background:transparent;color:var(--cream)}
+.btn:hover{opacity:.9}
+
+footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--grey);font-size:13px}
+footer .flinks{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+footer a{color:var(--creamsoft);text-decoration:none}
+footer a:hover{color:var(--cream)}
+footer .fine{font-family:var(--mono);font-size:11px;line-height:1.85;color:var(--grey)}
+
+@media(max-width:900px){ .info{grid-template-columns:1fr} .prog{grid-template-columns:1fr} }
+@media(max-width:560px){ .brand h1{font-size:24px} .mast .meta{text-align:left} }
+@media(prefers-reduced-motion:reduce){ *{scroll-behavior:auto} }
+</style>
+
+<style>
+.steps{display:flex;gap:0;margin:22px 0 26px;border:1px solid var(--line)}
+.steps .st{flex:1;padding:11px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--grey);border-right:1px solid var(--line);background:var(--ink1)}
+.steps .st:last-child{border-right:0}
+.steps .st.on{background:var(--cream);color:var(--ink0)}
+.steps .st b{display:block;font-size:13px;font-family:var(--sans);margin-top:2px}
+.panel{border:1px solid var(--line);background:var(--ink1);padding:22px;max-width:720px}
+.panel h3{font-size:21px;margin-bottom:4px}
+.panel .hint{font-family:var(--mono);font-size:11px;color:var(--grey);margin-bottom:18px}
+.sess{display:grid;gap:8px}
+.sess label{display:flex;align-items:center;gap:12px;border:1px solid var(--ink3);background:var(--ink2);padding:12px 14px;cursor:pointer}
+.sess label:hover{border-color:var(--cream)}
+.sess input{accent-color:var(--cream)}
+.sess .nm{font-weight:700}
+.sess .mt{font-family:var(--mono);font-size:11px;color:var(--grey)}
+.sess .rem{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dim)}
+.sess label.full{opacity:.45;cursor:not-allowed}
+.sess label.full .rem{color:var(--grey)}
+.field{margin:16px 0}
+.field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--grey);margin-bottom:6px;text-transform:uppercase}
+.field input{width:100%;background:var(--ink0);border:1px solid var(--ink3);color:var(--cream);padding:10px 12px;font-family:var(--mono);font-size:14px}
+.field input:focus{outline:none;border-color:var(--cream)}
+.field .err{color:var(--dim);font-size:12px;margin-top:5px;min-height:16px;font-family:var(--sans)}
+.field.bad input{border-color:#FF9A3C}
+.field.bad .err{color:#FF9A3C}
+.rowf{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.acts{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.done{text-align:center;padding:8px 0}
+.done canvas{display:block;width:230px;height:auto;margin:6px auto 16px;background:#0c0d10;border:1px solid var(--ink3)}
+.done .code{font-family:var(--mono);font-size:26px;letter-spacing:.08em;color:var(--cream);margin:4px 0}
+.done .sm{font-family:var(--mono);font-size:12px;color:var(--grey);line-height:1.9}
+@media(max-width:560px){.rowf{grid-template-columns:1fr}}
+</style>
+
+</head>
+<body>
+<a class="skip" href="#bk">跳到預約表單</a>
+<nav class="dnav" aria-label="主導覽">
+  <div class="cap">Diffraction Orders · 光柵分級</div>
+  <svg viewBox="0 0 188 62" aria-hidden="true">
+    <line x1="4" y1="31" x2="60" y2="31" stroke="#F6EFDF" stroke-width="2"/>
+    <line x1="60" y1="6" x2="60" y2="56" stroke="#565b63" stroke-width="2"/>
+    <line x1="60" y1="31" x2="182" y2="31" stroke="#F2D24A" stroke-width="1.6"/>
+    <line x1="60" y1="31" x2="182" y2="12" stroke="#46D66A" stroke-width="1.4" opacity=".55"/>
+    <line x1="60" y1="31" x2="182" y2="50" stroke="#FF9A3C" stroke-width="1.4" opacity=".55"/>
+    <line x1="60" y1="31" x2="176" y2="60" stroke="#7A5CFF" stroke-width="1.4" opacity=".4"/>
+  </svg>
+  <ul>
+    <li><a href="index.html">光學檯<span class="m">m0 · BENCH</span></a></li>
+    <li><a href="guan.html">元件圖鑑<span class="m">m1 · CATALOG</span></a></li>
+    <li><a href="fa.html">光之原理<span class="m">m2 · OPTICS</span></a></li>
+    <li><a href="yue.html" aria-current="page">演示預約<span class="m">m3 · BOOK</span></a></li>
+  </ul>
+</nav>
+<header class="mast"><div class="wrap"><div class="row">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 40 40" width="42" height="42">
+        <line x1="3" y1="20" x2="14" y2="20" stroke="#F6EFDF" stroke-width="2.2"/>
+        <polygon points="15,30 30,10 30,30" fill="none" stroke="#E8E2D5" stroke-width="2"/>
+        <line x1="30" y1="21" x2="39" y2="13" stroke="#7A5CFF" stroke-width="1.7"/>
+        <line x1="30" y1="22" x2="39" y2="17" stroke="#46D66A" stroke-width="1.7"/>
+        <line x1="30" y1="23" x2="39" y2="21" stroke="#F2D24A" stroke-width="1.7"/>
+        <line x1="30" y1="24" x2="39" y2="25" stroke="#FF4D4D" stroke-width="1.7"/>
+      </svg>
+    </span>
+    <div><h1>析光所</h1><div class="en">XIGUANG · OPTICAL DEMONSTRATION THEATRE</div></div>
+  </div>
+  <div class="meta">
+    週二—週日 13:00–21:00<br>
+    <b>暗室 A｜光學檯開放實作</b><br>
+    臺北・館前路 27 號 3 樓
+  </div>
+</div></div></header>
+
+<main class="wrap">
+<section class="hero" style="padding-bottom:0">
+  <div class="kicker">Book · m3</div>
+  <h2 style="font-size:clamp(28px,4.6vw,44px)">演示預約</h2>
+  <p class="lede">暗室 A 每場含 15 分鐘演示與 30 分鐘光學檯自由實作。選一個還有餘額的場次，留下聯絡方式，我們替你保留座位。</p>
+</section>
+
+<section class="sec" style="border-top:0;padding-top:20px">
+  <div class="steps" aria-hidden="true">
+    <div class="st on" data-s="1">STEP 1<b>選場次</b></div>
+    <div class="st" data-s="2">STEP 2<b>聯絡資料</b></div>
+    <div class="st" data-s="3">STEP 3<b>完成保留</b></div>
+  </div>
+
+  <form id="bk" novalidate>
+  <div class="panel" data-step="1">
+    <h3>選一個場次</h3>
+    <p class="hint">額滿的場次無法選取。每場最多 12 人。</p>
+    <div class="sess" id="sess"></div>
+    <div class="acts"><button type="button" class="btn" id="to2">下一步 →</button></div>
+    <p class="field err" id="sessErr" style="margin-top:6px"></p>
+  </div>
+
+  <div class="panel" data-step="2" hidden>
+    <h3>你的聯絡資料</h3>
+    <p class="hint">手機格式 09 開頭共 10 碼；Email 選填。</p>
+    <div class="field" id="f-name"><label for="name">稱呼</label><input id="name" autocomplete="name" placeholder="王小明"><div class="err"></div></div>
+    <div class="rowf">
+      <div class="field" id="f-phone"><label for="phone">手機</label><input id="phone" inputmode="numeric" placeholder="0912345678"><div class="err"></div></div>
+      <div class="field" id="f-num"><label for="num">人數（1–6）</label><input id="num" inputmode="numeric" value="1"><div class="err"></div></div>
+    </div>
+    <div class="field" id="f-email"><label for="email">Email（選填）</label><input id="email" autocomplete="email" placeholder="you@example.com"><div class="err"></div></div>
+    <div class="acts"><button type="button" class="btn ghost" id="back1">← 上一步</button><button type="button" class="btn" id="to3">送出保留 →</button></div>
+  </div>
+
+  <div class="panel" data-step="3" hidden>
+    <div class="done">
+      <h3 style="margin-bottom:14px">座位已保留</h3>
+      <canvas id="print" width="460" height="285" role="img" aria-label="專屬光路印記"></canvas>
+      <div class="code" id="code">XG-------</div>
+      <div class="sm" id="summary"></div>
+      <p class="sm" style="margin-top:14px">請於開演前 20 分鐘至館前路 27 號 3 樓報到，出示此留位號即可。</p>
+      <div class="acts" style="justify-content:center"><a class="btn ghost" href="index.html">回光學檯</a><button type="button" class="btn" id="again">再預約一場</button></div>
+    </div>
+  </div>
+  </form>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <div class="flinks">
+    <a href="index.html">光學檯</a><a href="guan.html">元件圖鑑</a><a href="fa.html">光之原理</a><a href="yue.html">演示預約</a>
+  </div>
+  <div class="fine">
+    析光所 XIGUANG OPTICAL DEMONSTRATION THEATRE · 臺北市中正區館前路 27 號 3 樓 · 02-2311-4870<br>
+    所名、人名、地址、電話、票價與場次皆為虛構之教學示意；光學檯之反射、折射與色散為簡化的幾何光學模型，供演示與教學，非精密光學設計依據。<br>
+    全站圖像皆由同一支光路引擎程序生成，零外部圖片與音檔、零第三方函式庫，僅使用 Google Fonts。<br>
+    本站由 <b style="color:var(--dim);font-weight:400">Claude Opus 4.8 · 排程 Agent</b> 設計與建置（2026-07-28）。
+  </div>
+</div></footer>
+
+<script>
+const OPT = (function(){
+  const EPS = 1e-6, BIG = 4000;
+  // 七個波長取樣，加起來近似白光；經稜鏡後散開成光譜
+  const WL = [
+    {nm:430,col:'#7A5CFF'},{nm:470,col:'#3E7BFF'},{nm:500,col:'#21C6D6'},
+    {nm:540,col:'#46D66A'},{nm:580,col:'#F2D24A'},{nm:620,col:'#FF9A3C'},{nm:660,col:'#FF4D4D'}
+  ];
+  const ng = nm => 1.42 + 22000/(nm*nm);        // 玻璃折射率含色散（短波偏多）
+  const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+  const add=(a,b)=>[a[0]+b[0],a[1]+b[1]];
+  const mul=(a,k)=>[a[0]*k,a[1]*k];
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1];
+  const norm=a=>{const l=Math.hypot(a[0],a[1])||1;return [a[0]/l,a[1]/l];};
+  const perp=a=>[-a[1],a[0]];
+  const rot=(a,t)=>[a[0]*Math.cos(t)-a[1]*Math.sin(t), a[0]*Math.sin(t)+a[1]*Math.cos(t)];
+  function reflect(d,n){const k=dot(d,n);return norm([d[0]-2*k*n[0], d[1]-2*k*n[1]]);}
+
+  // ray-segment 交點
+  function hitSeg(o,d,A,B){
+    const s=sub(B,A), rxs=d[0]*s[1]-d[1]*s[0];
+    if(Math.abs(rxs)<1e-12) return null;
+    const qp=sub(A,o);
+    const t=(qp[0]*s[1]-qp[1]*s[0])/rxs;
+    const u=(qp[0]*d[1]-qp[1]*d[0])/rxs;
+    if(t>EPS && u>=-1e-7 && u<=1+1e-7) return t;
+    return null;
+  }
+
+  // 從元件清單建出所有 surface（世界座標線段 + 行為）
+  function buildSurfaces(elems){
+    const S=[];
+    for(const e of elems){
+      const p=[e.x,e.y], a=e.ang||0;
+      if(e.type==='mirror'){
+        const dir=rot([1,0],a), h=(e.len||150)/2;
+        const A=sub(p,mul(dir,h)), B=add(p,mul(dir,h));
+        S.push({kind:'mirror',A,B,n:perp(dir),e});
+      }else if(e.type==='lens'){
+        const axis=rot([1,0],a);          // 光軸
+        const plane=perp(axis), h=(e.len||150)/2;
+        const A=sub(p,mul(plane,h)), B=add(p,mul(plane,h));
+        S.push({kind:'lens',A,B,axis,center:p,f:e.f||260,e});
+      }else if(e.type==='prism'){
+        const s=e.size||150, R=s/Math.sqrt(3);
+        const v=[0,1,2].map(i=>add(p, rot([0,-R], a + i*2*Math.PI/3)));
+        const c=p;
+        for(let i=0;i<3;i++){
+          const A=v[i], B=v[(i+1)%3];
+          let n=norm(perp(sub(B,A)));
+          const mid=mul(add(A,B),0.5);
+          if(dot(n, sub(mid,c))<0) n=mul(n,-1);   // 外法線
+          S.push({kind:'glass',A,B,n,e});
+        }
+      }else if(e.type==='mirror2'){ // 固定牆鏡
+        S.push({kind:'mirror',A:[e.ax,e.ay],B:[e.bx,e.by],n:norm(perp(sub([e.bx,e.by],[e.ax,e.ay]))),e});
+      }
+    }
+    for(const w of (elems.walls||[])) {} // (walls handled separately)
+    return S;
+  }
+
+  // 追一條 ray（單一波長），回傳 polyline 與是否命中 target
+  function traceOne(surfs, walls, target, o, d, nm){
+    const pts=[o.slice()]; let inside=false, hitTarget=false, hitPoint=null;
+    for(let b=0;b<48;b++){
+      let best=null, bt=Infinity, bkind=null, bsurf=null;
+      for(const s of surfs){ const t=hitSeg(o,d,s.A,s.B); if(t!==null && t<bt){bt=t;best=s;bkind=s.kind;bsurf=s;} }
+      for(const w of walls){ const t=hitSeg(o,d,w.A,w.B); if(t!==null && t<bt){bt=t;best=w;bkind='wall';bsurf=w;} }
+      if(target){ const t=hitSeg(o,d,target.A,target.B); if(t!==null && t<bt){bt=t;best=target;bkind='target';bsurf=target;} }
+      if(!best){ pts.push(add(o,mul(d,BIG))); break; }
+      const P=add(o,mul(d,bt)); pts.push(P);
+      if(bkind==='wall'){ break; }
+      if(bkind==='target'){ hitTarget=true; hitPoint=P; break; }
+      if(bkind==='mirror'){ d=reflect(d,bsurf.n); o=add(P,mul(d,EPS*4)); continue; }
+      if(bkind==='lens'){
+        const ax=bsurf.axis, tv=perp(ax);
+        const da=dot(d,ax), h=dot(sub(P,bsurf.center),tv);
+        if(Math.abs(da)<1e-4){ o=add(P,mul(d,EPS*4)); continue; }
+        const u=dot(d,tv)/da, u2=u - h/bsurf.f;
+        d=norm(add(mul(ax,da), mul(tv,u2*da)));
+        o=add(P,mul(d,EPS*4)); continue;
+      }
+      if(bkind==='glass'){
+        let n=bsurf.n, cosI=-dot(d,n), entering=true;
+        if(cosI<0){ n=mul(n,-1); cosI=-cosI; entering=false; }
+        const n1=entering?1:ng(nm), n2=entering?ng(nm):1, eta=n1/n2;
+        const sin2=eta*eta*(1-cosI*cosI);
+        if(sin2>1){ d=reflect(d,n); }                     // 全反射
+        else{ const cosT=Math.sqrt(1-sin2); d=norm(add(mul(d,eta), mul(n, eta*cosI-cosT))); }
+        inside=entering; o=add(P,mul(d,EPS*4)); continue;
+      }
+    }
+    return {pts, hitTarget, hitPoint};
+  }
+
+  // 追全部七波長
+  function traceAll(elems, source){
+    const surfs=buildSurfaces(elems);
+    const walls=(elems.walls||[]).map(w=>({A:[w[0],w[1]],B:[w[2],w[3]]}));
+    const target=elems.target?{A:[elems.target[0],elems.target[1]],B:[elems.target[2],elems.target[3]]}:null;
+    const o=[source.x,source.y], d=norm([Math.cos(source.dir),Math.sin(source.dir)]);
+    const rays=[]; const hitset=new Set(); const hitProj=[];
+    let tdir=[1,0];
+    if(target){ const dd=sub(target.B,target.A); tdir=norm(dd); }
+    for(const w of WL){
+      const r=traceOne(surfs,walls,target,o,d,w.nm);
+      rays.push({pts:r.pts,col:w.col,nm:w.nm});
+      if(r.hitTarget){ hitset.add(w.nm); if(r.hitPoint) hitProj.push(dot(sub(r.hitPoint,target.A),tdir)); }
+    }
+    let spread=0;
+    if(hitProj.length>1){ spread=Math.max.apply(null,hitProj)-Math.min.apply(null,hitProj); }
+    return {rays, surfs, walls, target, hitCount:hitset.size, hitSpread:spread};
+  }
+
+  return {WL,traceAll,buildSurfaces,rot,norm,add,sub,mul,perp};
+})();
+
+/* ---------- 繪圖 ---------- */
+function drawBench(ctx, elems, source, res, opt){
+  opt=opt||{};
+  const W=ctx.canvas.width/ (opt.dpr||1), H=ctx.canvas.height/(opt.dpr||1);
+  ctx.setTransform(opt.dpr||1,0,0,opt.dpr||1,0,0);
+  // 底：墨色檯面
+  const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#0c0d10'); g.addColorStop(1,'#101318');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // 網格
+  ctx.strokeStyle='rgba(120,125,133,.08)'; ctx.lineWidth=1;
+  for(let x=0;x<=W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const sx=W/1000, sy=H/600; ctx.save(); ctx.scale(sx,sy);
+  // 牆
+  if(elems.walls) for(const w of elems.walls){
+    ctx.strokeStyle='#3a3f47'; ctx.lineWidth=8/sx; ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(w[0],w[1]);ctx.lineTo(w[2],w[3]);ctx.stroke();
+    // 斜線影線表示不透光牆
+    ctx.strokeStyle='rgba(120,125,133,.35)'; ctx.lineWidth=1/sx;
+    const dx=w[2]-w[0],dy=w[3]-w[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+    for(let s=6;s<L;s+=12){const px=w[0]+ux*s,py=w[1]+uy*s;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+nx*9,py+ny*9);ctx.stroke();}
+  }
+  // 光束（先畫，元件壓在上面）
+  ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
+  for(const pass of [{w:7,a:0.10},{w:3.4,a:0.32},{w:1.5,a:1}]){
+    for(const r of res.rays){
+      ctx.strokeStyle=r.col; ctx.globalAlpha=pass.a; ctx.lineWidth=pass.w/sx;
+      ctx.beginPath(); ctx.moveTo(r.pts[0][0],r.pts[0][1]);
+      for(let i=1;i<r.pts.length;i++) ctx.lineTo(r.pts[i][0],r.pts[i][1]);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  // 光源
+  drawSource(ctx,source,sx);
+  // 標靶（屏）
+  if(res.target){
+    const T=res.target, lit=res.hitCount>0;
+    ctx.strokeStyle= lit? '#e8e2d5':'#5b616a'; ctx.lineWidth=(lit?7:5)/sx; ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(T.A[0],T.A[1]);ctx.lineTo(T.B[0],T.B[1]);ctx.stroke();
+    // 屏底座刻痕
+    ctx.strokeStyle='#2b2f36'; ctx.lineWidth=1/sx;
+    const dx=T.B[0]-T.A[0],dy=T.B[1]-T.A[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=uy,ny=-ux;
+    for(let s=4;s<L;s+=9){const px=T.A[0]+ux*s,py=T.A[1]+uy*s;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-nx*10,py-ny*10);ctx.stroke();}
+  }
+  // 元件外觀
+  for(const e of elems){
+    if(e.type==='mirror') drawMirror(ctx,e,sx);
+    else if(e.type==='lens') drawLens(ctx,e,sx);
+    else if(e.type==='prism') drawPrism(ctx,e,sx);
+  }
+  // 選取把手
+  if(opt.selected){ drawHandle(ctx,opt.selected,sx); }
+  ctx.restore();
+}
+function drawSource(ctx,source,sx){
+  ctx.save();ctx.translate(source.x,source.y);ctx.rotate(source.dir);
+  ctx.fillStyle='#1b1e23';ctx.strokeStyle='#565b63';ctx.lineWidth=1.5/sx;
+  ctx.beginPath();ctx.rect(-30,-16,30,32);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#f6efdf';ctx.beginPath();ctx.arc(-1,0,5,0,7);ctx.fill();
+  ctx.fillStyle='#787d85';ctx.font=(11/sx)+'px "Space Mono",monospace';ctx.fillText('白光',-30,-22);
+  ctx.restore();
+}
+function drawMirror(ctx,e,sx){
+  const dir=OPT.rot([1,0],e.ang||0), h=(e.len||150)/2;
+  const A=OPT.sub([e.x,e.y],OPT.mul(dir,h)), B=OPT.add([e.x,e.y],OPT.mul(dir,h));
+  const nrm=OPT.norm(OPT.perp(dir));
+  // 玻璃面（亮）
+  ctx.strokeStyle='#e8e2d5';ctx.lineWidth=3/sx;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();
+  // 背面影線（鍍銀）
+  ctx.strokeStyle='#565b63';ctx.lineWidth=1/sx;
+  for(let s=-h+5;s<h;s+=9){const px=e.x+dir[0]*s,py=e.y+dir[1]*s;ctx.beginPath();ctx.moveTo(px-nrm[0]*2,py-nrm[1]*2);ctx.lineTo(px-nrm[0]*10,py-nrm[1]*10);ctx.stroke();}
+  ctx.fillStyle='#787d85';ctx.font=(10/sx)+'px "Space Mono",monospace';ctx.fillText('鏡',B[0]+4,B[1]);
+}
+function drawLens(ctx,e,sx){
+  const axis=OPT.rot([1,0],e.ang||0), plane=OPT.perp(axis), h=(e.len||150)/2;
+  const A=OPT.sub([e.x,e.y],OPT.mul(plane,h)), B=OPT.add([e.x,e.y],OPT.mul(plane,h));
+  const bulge=18;
+  ctx.strokeStyle='#e8e2d5';ctx.lineWidth=2/sx;ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(A[0],A[1]);
+  ctx.quadraticCurveTo(e.x+axis[0]*bulge,e.y+axis[1]*bulge,B[0],B[1]);
+  ctx.quadraticCurveTo(e.x-axis[0]*bulge,e.y-axis[1]*bulge,A[0],A[1]);
+  ctx.stroke();
+  ctx.fillStyle='rgba(232,226,213,.05)';ctx.fill();
+  // 光軸虛線
+  ctx.strokeStyle='#3a3f47';ctx.setLineDash([5/sx,6/sx]);ctx.lineWidth=1/sx;
+  ctx.beginPath();ctx.moveTo(e.x-axis[0]*60,e.y-axis[1]*60);ctx.lineTo(e.x+axis[0]*60,e.y+axis[1]*60);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#787d85';ctx.font=(10/sx)+'px "Space Mono",monospace';ctx.fillText('凸透鏡',B[0]+4,B[1]);
+}
+function drawPrism(ctx,e,sx){
+  const s=e.size||150,R=s/Math.sqrt(3),a=e.ang||0;
+  const v=[0,1,2].map(i=>OPT.add([e.x,e.y],OPT.rot([0,-R],a+i*2*Math.PI/3)));
+  ctx.strokeStyle='#e8e2d5';ctx.lineWidth=2/sx;ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(v[0][0],v[0][1]);ctx.lineTo(v[1][0],v[1][1]);ctx.lineTo(v[2][0],v[2][1]);ctx.closePath();
+  ctx.fillStyle='rgba(232,226,213,.055)';ctx.fill();ctx.stroke();
+  ctx.fillStyle='#787d85';ctx.font=(10/sx)+'px "Space Mono",monospace';ctx.fillText('稜鏡',e.x+R*0.5,e.y+R*0.6);
+}
+function drawHandle(ctx,e,sx){
+  const a=e.ang||0, dir=OPT.rot([1,0],a), rad=(e.type==='prism'?(e.size||150)/Math.sqrt(3):((e.len||150)/2))+30;
+  const hx=e.x+dir[0]*rad, hy=e.y+dir[1]*rad;
+  ctx.strokeStyle='#565b63';ctx.setLineDash([4/sx,4/sx]);ctx.lineWidth=1/sx;
+  ctx.beginPath();ctx.arc(e.x,e.y,rad,0,7);ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(hx,hy);ctx.stroke();
+  ctx.fillStyle='#e8e2d5';ctx.strokeStyle='#0d0e11';ctx.lineWidth=1.5/sx;
+  ctx.beginPath();ctx.arc(hx,hy,7/sx*sx,0,7);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(232,226,213,.5)';ctx.beginPath();ctx.arc(e.x,e.y,3,0,7);ctx.fill();
+}
+const SESS=[
+ {id:'sa',day:'週六 08/01',time:'13:30',name:'把光折成直角',rem:5},
+ {id:'sb',day:'週六 08/01',time:'16:30',name:'透鏡把光收攏',rem:0},
+ {id:'sc',day:'週六 08/01',time:'19:30',name:'稜鏡讓顏色現形',rem:3},
+ {id:'sd',day:'週日 08/02',time:'13:30',name:'把光折成直角',rem:8},
+ {id:'se',day:'週日 08/02',time:'19:30',name:'稜鏡讓顏色現形',rem:0},
+ {id:'sf',day:'週三 08/05',time:'20:00',name:'暗室包場・全程',rem:11},
+];
+let picked=null;
+const sessEl=document.getElementById('sess');
+SESS.forEach(s=>{
+  const full=s.rem<=0;
+  const l=document.createElement('label'); if(full)l.className='full';
+  l.innerHTML='<input type="radio" name="sess" value="'+s.id+'"'+(full?' disabled':'')+'>'+
+    '<span><span class="nm">'+s.name+'</span><br><span class="mt">'+s.day+' · '+s.time+' · 暗室 A</span></span>'+
+    '<span class="rem">'+(full?'額滿':('餘 '+s.rem+' 位'))+'</span>';
+  l.querySelector('input').addEventListener('change',e=>{picked=SESS.find(x=>x.id===e.target.value);document.getElementById('sessErr').textContent='';});
+  sessEl.appendChild(l);
+});
+
+function show(n){
+  document.querySelectorAll('.panel').forEach(pn=>pn.hidden=(+pn.dataset.step!==n));
+  document.querySelectorAll('.steps .st').forEach(st=>st.classList.toggle('on',+st.dataset.s===n));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('to2').onclick=()=>{ if(!picked){document.getElementById('sessErr').textContent='請先選一個還有餘額的場次。';return;} show(2); };
+document.getElementById('back1').onclick=()=>show(1);
+document.getElementById('again').onclick=()=>{document.getElementById('bk').reset();picked=null;document.querySelectorAll('.field').forEach(f=>f.classList.remove('bad'));show(1);};
+
+function setErr(id,msg){const f=document.getElementById('f-'+id);f.classList.toggle('bad',!!msg);f.querySelector('.err').textContent=msg||'';return !msg;}
+function validate(){
+  const name=document.getElementById('name').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const num=parseInt(document.getElementById('num').value,10);
+  let ok=true;
+  ok&=setErr('name', name.length>=2?'':'請至少輸入兩個字。');
+  ok&=setErr('phone', /^09\d{8}$/.test(phone)?'':'手機需為 09 開頭共 10 碼數字。');
+  ok&=setErr('email', (!email||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))?'':'Email 格式不正確（或留空）。');
+  let nmsg=''; if(!(num>=1&&num<=6)) nmsg='人數需為 1–6。'; else if(picked&&num>picked.rem) nmsg='此場僅餘 '+picked.rem+' 位。';
+  ok&=setErr('num', nmsg);
+  return !!ok;
+}
+
+function fnv(str){let h=0x811c9dc5>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function drawPrint(cv,seed){
+  const rnd=mulberry32(seed);
+  const ang=0.15+rnd()*0.7, size=150+Math.floor(rnd()*90);
+  const a=[{type:'prism',x:440,y:300,ang:ang,size:size}]; a.target=[930,110,930,560];
+  const source={x:55,y:210+Math.floor(rnd()*180),dir:(rnd()-0.5)*0.2};
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=460*dpr;cv.height=285*dpr;
+  const res=OPT.traceAll(a,source); drawBench(cv.getContext('2d'),a,source,res,{dpr});
+}
+function pad(n,w){n=''+n;while(n.length<w)n='0'+n;return n;}
+document.getElementById('to3').onclick=()=>{
+  if(!validate())return;
+  const name=document.getElementById('name').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const num=parseInt(document.getElementById('num').value,10);
+  const d=new Date();
+  const ymd=String(d.getFullYear()).slice(2)+pad(d.getMonth()+1,2)+pad(d.getDate(),2);
+  const seed=fnv(name+'|'+phone+'|'+picked.id+'|'+ymd);
+  const serial=pad(seed%900+100,3);
+  const code='XG-'+ymd+'-'+serial;
+  document.getElementById('code').textContent=code;
+  document.getElementById('summary').innerHTML=picked.name+'　'+picked.day+' '+picked.time+'<br>'+name+' · '+num+' 人 · 暗室 A';
+  drawPrint(document.getElementById('print'),seed);
+  show(3);
+};
+</script>
+
+</body>
+</html>

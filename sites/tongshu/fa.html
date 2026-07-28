@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>開鎖原理｜銅樞開鎖研習所</title>
+<meta name="description" content="彈子鎖如何運作、剪切線與公差是什麼、單鉤開鎖（SPP）為何一次只能頂一根彈子、扭力的三種手感、蛇形與鋸齒防拆彈子如何製造假咬合，以及鎖匠的倫理與法律界線。附原創剖面圖解，不需 JavaScript 即可完整閱讀。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2355584A'/%3E%3Ccircle cx='16' cy='19' r='9' fill='none' stroke='%23ECE6D2' stroke-width='2'/%3E%3Cline x1='4' y1='14' x2='28' y2='14' stroke='%23C79A3E' stroke-width='1.6' stroke-dasharray='3 2'/%3E%3Crect x='10' y='8' width='3' height='6' fill='%232E5A6E'/%3E%3Crect x='10' y='15' width='3' height='5' fill='%23C79A3E'/%3E%3Crect x='19' y='8' width='3' height='6' fill='%232E5A6E'/%3E%3Crect x='19' y='16' width='3' height='4' fill='%23C79A3E'/%3E%3Cpath d='M13 26 L11 30 L21 30' fill='none' stroke='%23E4602B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --drab:#55584A; --drab2:#4A4D41; --drab3:#3E4137; --void:#33362d;
+  --steel:#2E5A6E; --steel2:#3A6076; --steellt:#5A8BA0;
+  --brass:#C79A3E; --brasslt:#E4C069;
+  --orange:#E4602B; --green:#7AA85E;
+  --cream:#ECE6D2; --creamdim:#C7C2AF; --ink:#14150F; --line:#2b2c24; --muted:#B0AC98;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif; --mono:'Space Mono',monospace; --disp:'Oswald',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--drab);color:var(--cream);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;padding-left:98px}
+a{color:var(--brasslt)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:900;line-height:1.14;margin:0}
+.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:.06em}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 26px}
+img,svg,canvas{max-width:100%}
+button{font-family:inherit;cursor:pointer}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:12px;top:12px;position:fixed;background:var(--cream);color:var(--ink);padding:8px 12px;z-index:99}
+
+/* ---- pin-stack rail nav ---- */
+.prail{position:fixed;top:0;left:0;bottom:0;width:98px;z-index:40;background:var(--drab2);border-right:2px solid var(--ink);display:flex;flex-direction:column;padding:16px 0 12px}
+.prail .brandlink{display:block;text-align:center;margin-bottom:14px;text-decoration:none}
+.prail .brandlink svg{width:52px;height:auto;display:block;margin:0 auto}
+.prail .brandlink b{display:block;font-family:var(--serif);font-weight:900;color:var(--cream);font-size:13px;margin-top:4px;letter-spacing:.04em}
+.prail .cap{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:8px}
+.prail ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;flex:1}
+.prail li{flex:1;display:flex}
+.prail a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:var(--creamdim);border:1px solid transparent;position:relative;padding:4px 2px}
+.prail a b{font-family:var(--serif);font-weight:700;font-size:13px;line-height:1.1}
+.prail a em{font-family:var(--mono);font-style:normal;font-size:8px;letter-spacing:.1em;color:var(--muted)}
+.chamber{width:26px;height:46px;position:relative;border-left:2px solid var(--line);border-right:2px solid var(--line);background:var(--void)}
+.chamber i{position:absolute;left:4px;right:4px;display:block}
+.chamber .drv{top:5px;height:16px;background:var(--steel2);transition:top .18s}
+.chamber .key{top:24px;height:16px;background:var(--brass);transition:top .18s}
+.chamber .sh{position:absolute;left:-4px;right:-4px;top:22px;height:2px;background:transparent}
+.prail a:hover,.prail a:focus-visible{color:var(--cream);outline:none}
+.prail a:hover .chamber,.prail a:focus-visible .chamber{border-color:var(--brass)}
+.prail a[aria-current] b{color:var(--brasslt)}
+.prail a[aria-current] .chamber{border-color:var(--brass)}
+.prail a[aria-current] .chamber .drv{top:1px}
+.prail a[aria-current] .chamber .key{top:20px}
+.prail a[aria-current] .chamber .sh{background:var(--brass);box-shadow:0 0 6px var(--brass)}
+.prail a[aria-current]::after{content:"";position:absolute;right:3px;top:6px;width:6px;height:6px;background:var(--orange)}
+
+/* ---- generic ---- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 8px;display:inline-block}
+hr.rule{border:0;border-top:2px solid var(--ink);margin:0}
+.lede{font-size:1.06rem;color:var(--cream)}
+section{padding:56px 0}
+.secnum{font-family:var(--mono);color:var(--brass);font-size:12px;letter-spacing:.2em}
+
+/* ---- hero / bench ---- */
+.hero{padding:30px 0 10px;border-bottom:2px solid var(--ink)}
+.hero .row{display:grid;grid-template-columns:1fr;gap:6px}
+.hero h1{font-size:clamp(2rem,4.4vw,3.3rem);letter-spacing:.01em}
+.hero h1 .en{display:block;font-family:var(--disp);font-weight:700;font-size:.42em;letter-spacing:.14em;color:var(--brass);margin-top:8px}
+.hero .sub{max-width:640px;color:var(--creamdim);margin-top:12px}
+.benchwrap{display:grid;grid-template-columns:1.55fr 1fr;gap:0;border:2px solid var(--ink);background:var(--drab2);margin:26px 0 8px}
+.stage{position:relative;background:var(--void);border-right:2px solid var(--ink);min-height:360px}
+.stage canvas{display:block;width:100%;height:100%}
+.stage .badge{position:absolute;left:12px;top:12px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.stage .open-stamp{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none}
+.stage .open-stamp span{font-family:var(--serif);font-weight:900;font-size:2.6rem;color:var(--green);border:4px solid var(--green);padding:10px 26px;transform:rotate(-8deg);letter-spacing:.1em;background:rgba(30,34,24,.4)}
+.stage.is-open .open-stamp{display:flex}
+.panel{padding:18px 18px 20px;display:flex;flex-direction:column;gap:14px}
+.panel h2{font-size:1.15rem}
+.lvltabs{display:flex;flex-wrap:wrap;gap:5px}
+.lvltabs button{font-family:var(--mono);font-size:11px;letter-spacing:.06em;background:var(--drab3);color:var(--creamdim);border:1px solid var(--line);padding:6px 9px}
+.lvltabs button[aria-pressed="true"]{background:var(--brass);color:var(--ink);border-color:var(--brass);font-weight:700}
+.tension{display:flex;gap:4px;align-items:center}
+.tension .lab{font-size:12px;color:var(--muted);min-width:52px}
+.tension button{flex:1;font-family:var(--sans);font-weight:700;font-size:13px;background:var(--drab3);color:var(--creamdim);border:1px solid var(--line);padding:7px 4px}
+.tension button[aria-pressed="true"]{background:var(--steel);color:var(--cream);border-color:var(--steellt)}
+.pinrow{display:flex;gap:5px}
+.pinrow .pchip{flex:1;text-align:center;font-family:var(--mono);font-size:10px;padding:5px 0;border:1px solid var(--line);color:var(--muted);background:var(--drab3);letter-spacing:.02em}
+.pinrow .pchip.sel{border-color:var(--cream);color:var(--cream)}
+.pinrow .pchip.set{background:var(--brass);color:var(--ink);border-color:var(--brass)}
+.pinrow .pchip.false{background:var(--steel);color:var(--cream);border-color:var(--steellt)}
+.pinrow .pchip.over{background:var(--orange);color:#241a12;border-color:var(--orange)}
+.readout{font-family:var(--mono);font-size:12px;color:var(--creamdim);background:var(--void);border:1px solid var(--line);padding:9px 11px;min-height:64px;line-height:1.6}
+.readout b{color:var(--brasslt)}
+.readout .ok{color:var(--green)}
+.readout .no{color:var(--orange)}
+.act{display:flex;gap:6px;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-weight:700;font-size:13px;background:var(--drab3);color:var(--cream);border:1px solid var(--line);padding:8px 12px}
+.btn:hover{border-color:var(--brass)}
+.btn.pri{background:var(--brass);color:var(--ink);border-color:var(--brass)}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.hint kbd{font-family:var(--mono);background:var(--drab3);border:1px solid var(--line);padding:1px 5px;font-size:11px}
+
+/* ---- feature grid ---- */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--ink);border:2px solid var(--ink)}
+.cell{background:var(--drab2);padding:20px 18px}
+.cell h3{font-size:1.05rem;margin-bottom:6px}
+.cell h3 .n{font-family:var(--mono);color:var(--brass);font-size:.8rem;margin-right:8px}
+.cell p{color:var(--creamdim);font-size:.94rem;margin:0}
+.two{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:start}
+.spec{border:2px solid var(--ink);background:var(--drab2)}
+.spec .r{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:.92rem}
+.spec .r:last-child{border-bottom:0}
+.spec .r span{color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.spec .r b{color:var(--cream);font-weight:700;text-align:right}
+.note{border-left:3px solid var(--orange);padding:8px 0 8px 14px;color:var(--creamdim);font-size:.9rem;background:linear-gradient(90deg,rgba(228,96,43,.08),transparent)}
+.cta{display:inline-block;font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-weight:700;background:var(--brass);color:var(--ink);padding:12px 22px;text-decoration:none;border:2px solid var(--ink)}
+.cta.ghost{background:transparent;color:var(--cream);border-color:var(--line)}
+
+/* ---- footer ---- */
+footer{background:var(--drab2);border-top:2px solid var(--ink);padding:40px 0 30px;margin-top:20px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{font-size:1rem;margin-bottom:8px}
+footer a{color:var(--creamdim);text-decoration:none;display:block;padding:3px 0}
+footer a:hover{color:var(--brasslt)}
+footer .mono{color:var(--muted);font-size:12px;line-height:1.9}
+footer .fine{grid-column:1/-1;border-top:1px solid var(--line);margin-top:22px;padding-top:16px;color:var(--muted);font-size:12px}
+
+@media(max-width:900px){
+  .benchwrap{grid-template-columns:1fr}
+  .stage{border-right:0;border-bottom:2px solid var(--ink);min-height:300px}
+  .two{grid-template-columns:1fr;gap:22px}
+  .grid3{grid-template-columns:1fr}
+}
+@media(max-width:820px){
+  body{padding-left:0;padding-bottom:74px}
+  .prail{top:auto;left:0;right:0;bottom:0;width:auto;height:66px;flex-direction:row;border-right:0;border-top:2px solid var(--ink);padding:0}
+  .prail .brandlink,.prail .cap{display:none}
+  .prail ul{flex-direction:row;gap:0}
+  .prail li{border-right:1px solid var(--line)}
+  .prail a{padding:6px 4px}
+  .chamber{width:22px;height:26px}
+  .chamber .drv{top:3px;height:9px}.chamber .key{top:14px;height:9px}.chamber .sh{top:13px}
+  .prail a[aria-current] .chamber .drv{top:1px}.prail a[aria-current] .chamber .key{top:12px}
+}
+@media(max-width:560px){
+  .prail a em{display:none}
+  .stage .open-stamp span{font-size:1.8rem}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+<style>
+.mhead{padding:30px 0 18px;border-bottom:2px solid var(--ink)}
+.mhead h1{font-size:clamp(1.8rem,4vw,2.8rem)}
+.mhead h1 .en{display:block;font-family:var(--disp);font-weight:700;font-size:.32em;letter-spacing:.14em;color:var(--brass);margin-top:8px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.toc a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-decoration:none;color:var(--creamdim);border:1px solid var(--line);padding:6px 10px;background:var(--drab3)}
+.toc a:hover{border-color:var(--brass);color:var(--brasslt)}
+.article{max-width:800px}
+.article h2{font-size:1.5rem;margin:44px 0 8px;padding-top:10px}
+.article h2 .k{font-family:var(--mono);color:var(--brass);font-size:.66em;margin-right:10px}
+.article h3{font-size:1.12rem;margin:24px 0 4px;color:var(--cream)}
+.article p{color:var(--creamdim);margin:10px 0}
+.article strong{color:var(--cream)}
+.fig{border:2px solid var(--ink);background:var(--void);margin:22px 0;padding:0}
+.fig svg{display:block;width:100%;height:auto;background:var(--void)}
+.fig figcaption{font-family:var(--mono);font-size:11px;color:var(--muted);padding:9px 14px;border-top:1px solid var(--line);letter-spacing:.04em}
+.deflist{border:2px solid var(--ink);background:var(--drab2);margin:18px 0}
+.deflist .r{padding:12px 16px;border-bottom:1px solid var(--line)}
+.deflist .r:last-child{border-bottom:0}
+.deflist b{color:var(--brasslt)}
+.grade{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem}
+.grade th,.grade td{border:1px solid var(--line);padding:8px 12px;text-align:left}
+.grade th{background:var(--drab3);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.grade td:first-child{font-family:var(--serif);font-weight:700;color:var(--cream)}
+.ethic{border-left:4px solid var(--orange);padding:14px 18px;background:linear-gradient(90deg,rgba(228,96,43,.09),transparent);margin:20px 0;color:var(--cream)}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="prail" aria-label="主導覽">
+  <a class="brandlink" href="index.html" aria-label="銅樞開鎖研習所 首頁">
+    <svg viewBox="0 0 140 120" aria-hidden="true"><rect x="8" y="40" width="124" height="72" rx="6" fill="#4A4D41" stroke="#14150F" stroke-width="4"/><line x1="8" y1="74" x2="132" y2="74" stroke="#C79A3E" stroke-width="3" stroke-dasharray="7 4"/><circle cx="70" cy="74" r="32" fill="#2E5A6E" stroke="#14150F" stroke-width="4"/><path d="M70 62 L66 68 L70 80 L74 68 Z" fill="#14150F"/><g stroke="#14150F" stroke-width="2.5"><rect x="42" y="58" width="8" height="14" fill="#C79A3E"/><rect x="66" y="60" width="8" height="12" fill="#C79A3E"/><rect x="90" y="58" width="8" height="14" fill="#C79A3E"/></g></svg>
+    <b>銅樞</b>
+  </a>
+  <span class="cap">彈子柱</span>
+  <ul>
+    <li><a href="index.html"><span class="chamber" aria-hidden="true"><i class="drv"></i><i class="key"></i><i class="sh"></i></span><b>撥鎖檯</b><em>PICK</em></a></li>
+    <li><a href="suo.html"><span class="chamber" aria-hidden="true"><i class="drv"></i><i class="key"></i><i class="sh"></i></span><b>鎖具圖鑑</b><em>CATALOG</em></a></li>
+    <li><a href="fa.html" aria-current="page"><span class="chamber" aria-hidden="true"><i class="drv"></i><i class="key"></i><i class="sh"></i></span><b>開鎖原理</b><em>METHOD</em></a></li>
+    <li><a href="ru.html"><span class="chamber" aria-hidden="true"><i class="drv"></i><i class="key"></i><i class="sh"></i></span><b>報名</b><em>ENROL</em></a></li>
+  </ul>
+</nav>
+<main id="main">
+<header class="mhead"><div class="wrap">
+  <span class="eyebrow">METHOD · 開鎖原理</span>
+  <h1>一把鎖，是怎麼被打開的<span class="en">How A Pin-Tumbler Lock Opens</span></h1>
+  <p class="lede" style="max-width:740px;color:var(--creamdim);margin-top:10px">這一頁把撥鎖檯背後的物理講清楚。不需要開任何一把鎖，也不需要 JavaScript——讀完，你就知道那「喀」的一下到底發生了什麼。</p>
+  <nav class="toc" aria-label="本頁目錄">
+    <a href="#s1">壹・鎖的構造</a><a href="#s2">貳・剪切線與公差</a><a href="#s3">參・咬合順序（SPP）</a><a href="#s4">肆・扭力的手感</a><a href="#s5">伍・防拆彈子</a><a href="#s6">陸・級位認定</a><a href="#s7">柒・倫理與法律</a>
+  </nav>
+</div></header>
+<section><div class="wrap article">
+
+<h2 id="s1"><span class="k">§1</span>鎖的構造</h2>
+<p>一把彈子鎖分成兩個部分：不會動的<strong>鎖殼（shell）</strong>，和插進去、能轉的<strong>鎖芯（plug）</strong>。鎖芯上鑽了一排垂直的孔，每個孔裡疊著兩顆彈子——下面是<strong>鑰匙彈子（銅，key pin）</strong>、上面是<strong>驅動彈子（藍鋼，driver pin）</strong>，最上頭一根小彈簧把它們往下壓。</p>
+<p>沒插鑰匙時，驅動彈子被彈簧壓得跨在鎖芯與鎖殼的交界上，像一根根門閂把鎖芯釘死。鎖芯轉不動，鎖就是鎖著的。</p>
+<figure class="fig"><svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="彈子鎖剖面：鎖殼、鎖芯、鑰匙彈子與驅動彈子">
+  <rect width="640" height="260" fill="#33362d"/>
+  <rect x="30" y="30" width="580" height="200" rx="8" fill="#4A4D41" stroke="#14150F" stroke-width="3"/>
+  <line x1="30" y1="140" x2="610" y2="140" stroke="#C79A3E" stroke-width="2.4" stroke-dasharray="8 5"/>
+  <rect x="42" y="140" width="556" height="78" rx="6" fill="#2E5A6E" stroke="#14150F" stroke-width="3"/>
+  <path d="M96 165 l-8 10 l6 12 l-9 15 l13 11 l13 -11 l-9 -15 l6 -12 l-8 -10 z" fill="#14150F"/>
+  <g stroke="#14150F" stroke-width="2">
+    <!-- 5 chambers -->
+    <g transform="translate(200,0)"><path d="M0 44 l8 5 -16 6 16 6 -16 6 8 5" fill="none" stroke="#8A8E7C" stroke-width="1.6"/><rect x="-11" y="86" width="22" height="40" fill="#3A6076"/><rect x="-11" y="126" width="22" height="34" fill="#C79A3E"/></g>
+    <g transform="translate(290,0)"><path d="M0 44 l8 5 -16 6 16 6 -16 6 8 5" fill="none" stroke="#8A8E7C" stroke-width="1.6"/><rect x="-11" y="78" width="22" height="46" fill="#3A6076"/><rect x="-11" y="124" width="22" height="40" fill="#C79A3E"/></g>
+    <g transform="translate(380,0)"><path d="M0 44 l8 5 -16 6 16 6 -16 6 8 5" fill="none" stroke="#8A8E7C" stroke-width="1.6"/><rect x="-11" y="92" width="22" height="34" fill="#3A6076"/><rect x="-11" y="126" width="22" height="30" fill="#C79A3E"/></g>
+    <g transform="translate(470,0)"><path d="M0 44 l8 5 -16 6 16 6 -16 6 8 5" fill="none" stroke="#8A8E7C" stroke-width="1.6"/><rect x="-11" y="82" width="22" height="44" fill="#3A6076"/><rect x="-11" y="126" width="22" height="36" fill="#C79A3E"/></g>
+    <g transform="translate(548,0)"><path d="M0 44 l8 5 -16 6 16 6 -16 6 8 5" fill="none" stroke="#8A8E7C" stroke-width="1.6"/><rect x="-11" y="88" width="22" height="38" fill="#3A6076"/><rect x="-11" y="126" width="22" height="32" fill="#C79A3E"/></g>
+  </g>
+  <text x="44" y="24" fill="#B0AC98" font-family="'Space Mono',monospace" font-size="12">鎖殼 SHELL</text>
+  <text x="44" y="252" fill="#B0AC98" font-family="'Space Mono',monospace" font-size="12">鎖芯 PLUG</text>
+  <text x="360" y="134" fill="#E4C069" font-family="'Space Mono',monospace" font-size="12">剪切線 SHEAR LINE</text>
+</svg><figcaption>圖一・彈子鎖剖面。藍鋼驅動彈子跨過剪切線，把鎖芯釘死。</figcaption></figure>
+
+<h2 id="s2"><span class="k">§2</span>剪切線與公差</h2>
+<p>那條把鎖殼與鎖芯分開的界線，叫<strong>剪切線（shear line）</strong>。插進正確的鑰匙時，每根鑰匙齒剛好把對應的彈子頂到一個高度，讓「鑰匙彈子的頂端／驅動彈子的底端」這個交界正好落在剪切線上。這時所有驅動彈子都退回鎖殼、不再跨界，鎖芯就能自由旋轉。</p>
+<p>開鎖之所以可能，是因為製造有<strong>公差（tolerance）</strong>：鎖芯的孔和鎖殼的孔不會分毫不差地對齊。上緊一點旋轉力，鎖芯會偏轉極微小的角度，於是<strong>只有其中一根</strong>彈子會最先被夾住——這根就是現在「咬合」的彈子。</p>
+<figure class="fig"><svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="三種彈子高度：太低、剛好在剪切線、太高">
+  <rect width="640" height="220" fill="#33362d"/>
+  <line x1="20" y1="110" x2="620" y2="110" stroke="#C79A3E" stroke-width="2.4" stroke-dasharray="8 5"/>
+  <g stroke="#14150F" stroke-width="2" font-family="'Space Mono',monospace" font-size="12">
+    <!-- too low -->
+    <g transform="translate(140,0)"><rect x="-14" y="40" width="28" height="52" fill="#3A6076"/><rect x="-14" y="122" width="28" height="46" fill="#C79A3E"/><text x="-38" y="196" fill="#E4602B" stroke="none">太低・沒到</text></g>
+    <!-- just right -->
+    <g transform="translate(320,0)"><rect x="-14" y="58" width="28" height="52" fill="#3A6076"/><rect x="-14" y="110" width="28" height="46" fill="#C79A3E"/><line x1="-20" y1="110" x2="20" y2="110" stroke="#E4C069" stroke-width="3"/><text x="-40" y="196" fill="#7AA85E" stroke="none">剛好・咬合</text></g>
+    <!-- too high -->
+    <g transform="translate(500,0)"><rect x="-14" y="74" width="28" height="52" fill="#7a5a3a"/><rect x="-14" y="126" width="28" height="40" fill="#C79A3E"/><text x="-38" y="196" fill="#E4602B" stroke="none">太高・過頂</text></g>
+  </g>
+</svg><figcaption>圖二・驅動彈子的三種狀態。只有中間那根的交界落在剪切線上，才算真正咬合。</figcaption></figure>
+
+<h2 id="s3"><span class="k">§3</span>咬合順序：單鉤開鎖（SPP）</h2>
+<p>因為一次只有一根彈子被夾住，開鎖就成了一場逐根進行的工作：<strong>單鉤開鎖（Single-Pin Picking, SPP）</strong>。你上緊扭力，用鉤針一根根去探——被夾住的那根頂上去有<strong>阻力</strong>，到剪切線會「喀」一下定住，鎖芯隨即又偏轉一點點；其餘鬆的彈子頂了只會被彈簧<strong>回彈</strong>，什麼也不會發生。</p>
+<p>定住的彈子換下一根接手，如此重複，直到最後一根也咬合，鎖芯轉到底。咬合的順序由公差決定，是隨機的、看不見的——這就是為什麼撥鎖檯要你「找出正在咬合的那一根」。</p>
+<div class="deflist">
+  <div class="r"><b>阻力（binding）</b>：頂上去卡卡、到位會定住——你找對咬合的柱了。</div>
+  <div class="r"><b>回彈（springy）</b>：頂上去軟軟、放手就掉——這根是鬆的，不是現在該處理的。</div>
+  <div class="r"><b>過頂（overset）</b>：頂過了剪切線，驅動彈子鑽進鎖殼——輕扭力會掉回，重扭力會卡死。</div>
+</div>
+
+<h2 id="s4"><span class="k">§4</span>扭力的三種手感</h2>
+<p>扭力扳手施加的旋轉力，是整門手藝的核心。它有一個剛剛好的區間：</p>
+<p><strong>太輕</strong>——鎖芯幾乎沒被扳住，你頂到剪切線的彈子留不住，一鬆就掉，永遠開不了。<strong>太重</strong>——彈子被夾得死緊，難頂，而且一不小心頂過頭，驅動彈子就卡進鎖殼救不回來。<strong>中等</strong>——咬合清楚、過頂有餘裕，是你該培養的手感。撥鎖檯的「輕／中／重」就是讓你親手體會這條界線。</p>
+
+<h2 id="s5"><span class="k">§5</span>防拆彈子：假咬合</h2>
+<p>鎖廠也不是省油的燈。高安全鎖會換上<strong>防拆驅動彈子</strong>：最常見的是<strong>蛇形（spool）</strong>——腰身車細成線軸狀；還有<strong>鋸齒（serrated）</strong>與<strong>蘑菇（mushroom）</strong>。它們的共通點是：在真正的剪切線之前，會先給你一個<strong>假咬合（false set）</strong>。</p>
+<p>當你把蛇形彈子頂到它的溝口，鎖芯會趁虛<strong>反咬</strong>進那道溝，手感像「喀」了一下、像到位了——其實鎖芯只轉了假的一格。這時得沉住氣，用更細的力道把它頂過那道假線，才會抵達真剪切線。鋸齒彈子有好幾道溝，就有好幾個假咬合，是一場耐性戰。撥鎖檯第參關起，你會親自遇到它。</p>
+<figure class="fig"><svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="蛇形彈子的假咬合與真咬合">
+  <rect width="640" height="220" fill="#33362d"/>
+  <line x1="20" y1="96" x2="620" y2="96" stroke="#C79A3E" stroke-width="2.4" stroke-dasharray="8 5"/>
+  <g stroke="#14150F" stroke-width="2" font-family="'Space Mono',monospace" font-size="12">
+    <g transform="translate(180,0)">
+      <path d="M-14 40 h28 v36 l-9 8 v10 l9 8 v14 h-28 v-14 l9 -8 v-10 l-9 -8 z" fill="#3A6076"/>
+      <line x1="-22" y1="86" x2="22" y2="86" stroke="#E4602B" stroke-width="3"/>
+      <rect x="-14" y="124" width="28" height="40" fill="#C79A3E"/>
+      <text x="-52" y="196" fill="#E4602B" stroke="none">假咬合・溝口反咬</text>
+    </g>
+    <g transform="translate(460,0)">
+      <path d="M-14 8 h28 v36 l-9 8 v10 l9 8 v18 h-28 v-18 l9 -8 v-10 l-9 -8 z" fill="#3A6076"/>
+      <line x1="-22" y1="96" x2="22" y2="96" stroke="#E4C069" stroke-width="3"/>
+      <rect x="-14" y="96" width="28" height="44" fill="#C79A3E"/>
+      <text x="-46" y="196" fill="#7AA85E" stroke="none">真咬合・剪切線</text>
+    </g>
+  </g>
+</svg><figcaption>圖三・蛇形彈子。左：頂到溝口時鎖芯反咬、給出假咬合；右：頂過假線才是真剪切線。</figcaption></figure>
+
+<h2 id="s6"><span class="k">§6</span>級位認定</h2>
+<p>本所以「能否穩定開出某類鎖」認定學員級位。認定用的都是本所自備的練習鎖，僅供教學。</p>
+<table class="grade">
+  <thead><tr><th>級位</th><th>認定鎖具</th><th>要求</th></tr></thead>
+  <tbody>
+    <tr><td>入門</td><td>三～四子標準鎖</td><td>三次內開出，能說出咬合與回彈的差別</td></tr>
+    <tr><td>初級</td><td>五子標準門鎖芯</td><td>五分鐘內穩定開出，扭力自控</td></tr>
+    <tr><td>中級</td><td>含一至兩根蛇形彈子</td><td>能辨識並頂過假咬合</td></tr>
+    <tr><td>高級</td><td>六子・鋸齒或蘑菇</td><td>綿密假咬合下仍能逐根到位</td></tr>
+    <tr><td>師傅</td><td>高防綜合鎖芯</td><td>穩定、可教學、恪守倫理守則</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s7"><span class="k">§7</span>倫理與法律</h2>
+<p>開鎖是一門正當手藝——鎖匠替人補配鑰匙、在人被反鎖時開門、替失竊風險做評估。但同一雙手，用錯地方就是犯罪。</p>
+<div class="ethic">
+  <strong>銅樞開鎖研習所倫理守則（摘）</strong><br>
+  一、只對<strong>自己擁有</strong>或<strong>經合法授權</strong>的鎖動手。<br>
+  二、入學須簽署用途切結，本所保留拒收與退訓之權。<br>
+  三、本網站之撥鎖檯為簡化教學模型，<strong>不對應任何真實鎖具</strong>，不提供任何規避特定產品之方法。<br>
+  四、依中華民國法律，無正當理由持有開鎖工具、或未經同意開啟他人門鎖，均涉及刑責。學了技術，更要守住界線。
+</div>
+<p style="color:var(--muted);font-size:.88rem;margin-top:22px">＊本頁所述為彈子鎖之通識原理與本所教學整理；所名、人物、級位標準與課程細節皆為虛構示意，不作為任何規避真實鎖具安全之依據。</p>
+
+</div></section>
+</main>
+<footer>
+  <div class="wrap cols">
+    <div>
+      <h4>銅樞開鎖研習所</h4>
+      <p class="mono">TONGSHU LOCKSMITH ACADEMY<br>大稻埕民樂街 74 巷 3 號<br>02-2557-0416<br>週二–週六 14:00–21:00</p>
+    </div>
+    <div>
+      <h4>逛研習所</h4>
+      <a href="index.html">撥鎖檯</a>
+      <a href="suo.html">鎖具與工具圖鑑</a>
+      <a href="fa.html">開鎖原理</a>
+      <a href="ru.html">報名研習</a>
+    </div>
+    <div>
+      <h4>關於本站</h4>
+      <p class="mono">工具鋼剖鎖風 Toolsteel-Cutaway<br>由 Claude Opus 4.8（排程 Agent）設計與建置<br>全站圖像由剖鎖引擎程序生成<br>零外部圖片・僅 Google Fonts</p>
+    </div>
+    <p class="fine">本站為「網頁設計風格圖書館 Design Skills Center」館藏之一，內容為虛構教學示意。撥鎖檯為簡化之教學物理模型，僅示意單鉤開鎖之原理，不對應任何真實鎖具，亦不得用於非法用途。</p>
+  </div>
+</footer>
+</body></html>

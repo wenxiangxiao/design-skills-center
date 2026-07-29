@@ -144,6 +144,7 @@
 | 126 | [速鳴速錄所 Suming Stenotype Institute](sites/suming/index.html) | 速錄學院／議會速錄傳習所 | 和弦速錄譜風 Chord-Steno Score | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 127 | [搖籟八音社 Yaolai Music-Box Atelier](sites/yaolai/index.html) | 手搖打孔紙帶音樂盒工坊 | 打孔譜帶音樂盒風 Punched-Strip Musicbox | 繁中 | Claude Opus 4.8（排程 Agent） |
 | 128 | [一炷堂 ICCHŪDŌ](sites/icchudo/index.html) | 香道教室／組香席 | 源氏香紋風 Genji-Kō Mon | 繁中 | Claude Opus 5（排程 Agent） |
+| 129 | [盤聲錄音室 PANSHENG SOUND](sites/pansheng/index.html) | 錄音室 | 盤帶剪接室風 Splice-Room Tape | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>界面館 JIEMIAN — 第一槽｜二維泡沫的粗化</title>
+<meta name="description" content="界面館常設展〈第一槽〉：一團依 von Neumann 定律持續粗化的二維泡沫，可吹泡、命名、抽液，看膜厚如何把顏色帶出來又帶走。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23DCE9E4%22%2F%3E%3Cpath%20d%3D%22M16%2016%20L16%2032%22%20stroke%3D%22%23D8479B%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20d%3D%22M16%2016%20L2.1%208%22%20stroke%3D%22%2312292B%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20d%3D%22M16%2016%20L29.9%208%22%20stroke%3D%22%2312292B%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%222.6%22%20fill%3D%22%2312292B%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --soap:#DCE9E4; --panel:#EDF4F1; --deep:#C6DAD3;
+  --ink:#12292B; --ink2:#3A5654; --mid:#8FB2B0;
+  --tc:'Noto Sans TC',system-ui,sans-serif;
+  --ar:'Archivo',system-ui,sans-serif;
+  --mo:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--soap);color:var(--ink);font-family:var(--tc);font-weight:400;line-height:1.85;
+  font-size:16px;letter-spacing:.01em}
+::selection{background:var(--ink);color:var(--soap)}
+a{color:inherit}
+img,svg{display:block}
+
+/* ---- 左緣直排刊記（裝飾） ---- */
+.spine{position:fixed;left:0;top:0;bottom:0;width:46px;border-right:2px solid var(--ink);
+  background:var(--soap);z-index:30;display:flex;align-items:flex-end;justify-content:center;padding-bottom:22px}
+.spine span{font-family:var(--mo);font-size:.62rem;letter-spacing:.42em;text-transform:uppercase;
+  writing-mode:vertical-rl;transform:rotate(180deg);color:var(--ink2);white-space:nowrap}
+.wrap{margin-left:46px}
+@media(max-width:900px){.spine{display:none}.wrap{margin-left:0}}
+
+/* ---- masthead ---- */
+.mast{border-bottom:2px solid var(--ink);padding:16px 168px 14px 26px;display:flex;gap:20px;
+  align-items:flex-end;justify-content:space-between;flex-wrap:wrap;background:var(--soap)}
+.mast .bd{display:flex;gap:13px;align-items:center;text-decoration:none}
+.mast .mk{width:46px;height:46px;flex:0 0 46px;display:block}
+.mast .mk svg{width:46px;height:46px;display:block}
+.mast .bd b{font-family:var(--tc);font-weight:900;font-size:1.42rem;letter-spacing:.16em;line-height:1}
+.mast .bd i{display:block;font-style:normal;font-family:var(--ar);font-weight:800;font-size:.62rem;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--ink2);margin-top:5px}
+.mast .info{font-family:var(--mo);font-size:.7rem;letter-spacing:.06em;color:var(--ink2);text-align:right;line-height:1.7}
+
+/* ---- cell-swell nav ---- */
+.csnav{position:fixed;right:20px;top:18px;z-index:60;width:126px;background:var(--soap);
+  border:2px solid var(--ink);padding:7px 7px 5px}
+.csnav .fig{position:relative}
+.csnav .fig svg{width:100%;height:auto}
+.csnav ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:5px}
+.csnav a{display:block;text-decoration:none;font-family:var(--mo);font-size:.6rem;letter-spacing:.04em;
+  padding:2px 3px;text-align:center;color:var(--ink2);border:1px solid transparent}
+.csnav a:hover,.csnav a:focus-visible{border-color:var(--ink);color:var(--ink)}
+.csnav a[aria-current]{background:var(--ink);color:var(--soap)}
+@media(max-width:900px){
+  .mast{padding:14px 20px 12px}
+  .csnav{position:sticky;top:0;right:auto;width:100%;border:none;border-bottom:2px solid var(--ink);padding:0}
+  .csnav .fig{display:none}
+  .csnav ul{grid-template-columns:repeat(4,1fr);gap:0;margin:0}
+  .csnav a{padding:11px 2px;font-size:.7rem;border-right:1px solid var(--ink)}
+  .csnav li:last-child a{border-right:none}
+}
+
+/* ---- page furniture ---- */
+main{padding:0 26px 80px;max-width:1180px}
+@media(max-width:620px){main{padding:0 16px 60px}.mast{padding:14px 16px 12px}}
+.plate{font-family:var(--mo);font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ink2)}
+h1{font-weight:900;font-size:clamp(2rem,5.6vw,3.5rem);line-height:1.14;letter-spacing:-.03em;margin:.18em 0 .4em}
+h2{font-weight:900;font-size:clamp(1.35rem,3vw,2rem);line-height:1.3;letter-spacing:-.02em;margin:0 0 .5em}
+h3{font-weight:900;font-size:1.05rem;letter-spacing:.02em;margin:0 0 .3em}
+p{max-width:40em;margin:0 0 1em}
+.lede{font-size:1.06rem;max-width:34em}
+.rule{border:none;border-top:2px solid var(--ink);margin:52px 0 0}
+.rule2{border:none;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);height:7px;margin:52px 0 30px}
+section{padding-top:34px}
+.mono{font-family:var(--mo);font-size:.82rem;letter-spacing:.02em}
+.small{font-size:.86rem;color:var(--ink2)}
+.tag{display:inline-block;font-family:var(--mo);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  border:1.5px solid var(--ink);padding:2px 8px;margin-right:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 34px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{border-bottom:1.5px solid var(--mid);padding:9px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--mo);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);
+  border-bottom:2px solid var(--ink)}
+td.n{font-family:var(--mo)}
+.card{border:2px solid var(--ink);background:var(--panel);padding:18px 20px}
+.btn{font-family:var(--tc);font-weight:500;font-size:.92rem;background:var(--ink);color:var(--soap);
+  border:2px solid var(--ink);padding:9px 20px;cursor:pointer;letter-spacing:.06em}
+.btn:hover{background:var(--soap);color:var(--ink)}
+.btn.gh{background:transparent;color:var(--ink)}
+.btn.gh:hover{background:var(--ink);color:var(--soap)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+input[type=text],input[type=tel],select{font-family:var(--tc);font-size:.95rem;padding:8px 10px;
+  border:2px solid var(--ink);background:var(--panel);color:var(--ink);width:100%}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+label{display:block;font-family:var(--mo);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink2);margin-bottom:5px}
+footer{border-top:2px solid var(--ink);margin-left:46px;padding:26px 26px 40px}
+@media(max-width:900px){footer{margin-left:0}}
+footer .fl{display:flex;gap:26px;flex-wrap:wrap;justify-content:space-between;align-items:flex-start}
+footer a{font-family:var(--mo);font-size:.78rem;letter-spacing:.06em}
+.disc{font-size:.76rem;color:var(--ink2);margin-top:16px;max-width:44em}
+@media(max-width:620px){table{font-size:.8rem}th,td{padding:7px 6px}}
+</style>
+<style>
+.tank-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.tank-head-r{font-size:.78rem;letter-spacing:.12em;color:var(--ink2);border:1.5px solid var(--ink);padding:4px 10px;white-space:nowrap}
+.tankbox{position:relative;border:2px solid var(--ink);background:var(--deep);margin-top:8px}
+#tank{display:block;width:100%;height:clamp(290px,54vw,540px);cursor:crosshair;touch-action:manipulation}
+.tank-legend{position:absolute;left:0;bottom:0;background:var(--ink);color:var(--soap);
+  font-size:.62rem;letter-spacing:.14em;padding:3px 9px}
+.readout{display:grid;grid-template-columns:repeat(5,1fr);border:2px solid var(--ink);border-top:none}
+.readout div{padding:9px 11px;border-right:1.5px solid var(--mid)}
+.readout div:last-child{border-right:none}
+.readout b{display:block;font-family:var(--mo);font-weight:500;font-size:1.25rem;line-height:1.2}
+.readout span{font-size:.66rem;letter-spacing:.1em;color:var(--ink2)}
+@media(max-width:760px){.readout{grid-template-columns:repeat(2,1fr)}
+  .readout div{border-bottom:1.5px solid var(--mid)}
+  .readout div:nth-child(5){grid-column:1/-1;border-bottom:none}}
+
+.ctl{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:0;border:2px solid var(--ink);border-top:none;margin-bottom:26px}
+.ctl-blk{padding:16px 18px;border-right:2px solid var(--ink)}
+.ctl-blk:last-child{border-right:none}
+@media(max-width:900px){.ctl{grid-template-columns:1fr}
+  .ctl-blk{border-right:none;border-bottom:2px solid var(--ink)}
+  .ctl-blk:last-child{border-bottom:none}}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:26px;margin:2px 0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;background:var(--ink)}
+input[type=range]::-moz-range-track{height:6px;background:var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:26px;background:var(--soap);
+  border:2px solid var(--ink);margin-top:-10px}
+input[type=range]::-moz-range-thumb{width:14px;height:24px;background:var(--soap);border:2px solid var(--ink);border-radius:0}
+.ctl-scale{display:flex;justify-content:space-between;font-size:.6rem;letter-spacing:.1em;color:var(--ink2)}
+.chips{display:flex;gap:0;border:1.5px solid var(--ink);width:fit-content}
+.chip{font-family:var(--mo);font-size:.76rem;padding:5px 13px;background:transparent;border:none;
+  border-right:1.5px solid var(--ink);cursor:pointer;color:var(--ink)}
+.chip:last-child{border-right:none}
+.chip.on{background:var(--ink);color:var(--soap)}
+
+.mine{margin-bottom:18px}
+.mine-hd h3{margin:.15em 0 .5em;font-size:1.3rem}
+.mine-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+.mine-stats b{display:block;font-family:var(--mo);font-weight:500;font-size:1.15rem}
+.mine-stats span{font-size:.66rem;letter-spacing:.1em;color:var(--ink2)}
+@media(max-width:560px){.mine-stats{grid-template-columns:1fr 1fr}}
+.fate{font-family:var(--mo);font-size:.8rem;border-top:1.5px solid var(--mid);margin-top:12px;padding-top:10px}
+.jcard{border:2px solid var(--ink);border-top:none;padding:14px 18px;background:var(--soap)}
+.jcard:first-child{border-top:2px solid var(--ink);margin-top:14px}
+.jcard h4{font-weight:900;font-size:1rem;margin:0 0 4px}
+.jcard .jr{font-family:var(--mo);font-size:.76rem;color:var(--ink2);line-height:1.8}
+.labels{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--ink);border-left:2px solid var(--ink)}
+.lb{border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);padding:16px 18px}
+.lb h3{margin:.3em 0 .35em;font-size:1.45rem}
+.lb p{font-size:.9rem;margin:0}
+@media(max-width:900px){.labels{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.labels{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="spine" aria-hidden="true"><span>Jiemian Interface Hall &middot; Tainan Anping &middot; Two-Dimensional Foam</span></div>
+<nav class="csnav" aria-label="主導覽">
+  <div class="fig" aria-hidden="true"><svg viewBox="0 0 98 74" aria-hidden="true"><polygon class="cs-c0 cs-on" points="0.00,0.00 65.75,0.00 70.91,40.00 55.64,60.34 0.00,43.57" fill="#12292B"/><polygon class="cs-c1" points="65.75,0.00 98.00,0.00 98.00,43.39 70.91,40.00" fill="#CFE3DC"/><polygon class="cs-c2" points="56.57,74.00 0.00,74.00 0.00,43.57 55.64,60.34" fill="#CFE3DC"/><polygon class="cs-c3" points="98.00,43.39 98.00,74.00 56.57,74.00 55.64,60.34 70.91,40.00" fill="#CFE3DC"/><line x1="65.75" y1="0.00" x2="70.91" y2="40.00" stroke="#12292B" stroke-width="1.6" stroke-linecap="round"/><line x1="70.91" y1="40.00" x2="55.64" y2="60.34" stroke="#12292B" stroke-width="1.6" stroke-linecap="round"/><line x1="55.64" y1="60.34" x2="0.00" y2="43.57" stroke="#12292B" stroke-width="1.6" stroke-linecap="round"/><line x1="98.00" y1="43.39" x2="70.91" y2="40.00" stroke="#12292B" stroke-width="1.6" stroke-linecap="round"/><line x1="55.64" y1="60.34" x2="56.57" y2="74.00" stroke="#12292B" stroke-width="1.6" stroke-linecap="round"/><rect x=".8" y=".8" width="96.4" height="72.4" fill="none" stroke="#12292B" stroke-width="1.6"/></svg></div>
+  <ul>
+    <li><a href="index.html" aria-current="page">槽</a></li>
+    <li><a href="fa.html">法</a></li>
+    <li><a href="pu.html">譜</a></li>
+    <li><a href="guan.html">館</a></li>
+  </ul>
+</nav>
+<div class="wrap">
+<header class="mast">
+  <a class="bd" href="index.html">
+    <span class="mk"><svg class="mk-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="界面館標記"><defs><linearGradient id="jmIri" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#3FC2D6"/><stop offset=".45" stop-color="#D8479B"/><stop offset="1" stop-color="#EBA92B"/></linearGradient></defs><rect width="64" height="64" fill="#DCE9E4"/><polygon points="40.02,0.00 64.00,0.00 64.00,23.80 47.74,26.44 40.29,20.41" fill="#9EC2B9"/><polygon points="15.53,0.00 40.02,0.00 40.29,20.41 19.33,28.34 13.30,21.35" fill="#9EC2B9"/><polygon points="64.00,23.80 64.00,44.77 47.26,44.61 46.75,44.12 47.74,26.44" fill="#9EC2B9"/><polygon points="47.73,64.00 23.17,64.00 27.40,45.61 46.75,44.12 47.26,44.61" fill="#9EC2B9"/><polygon points="23.17,64.00 0.00,64.00 0.00,36.20 18.43,32.69 27.40,45.61" fill="#9EC2B9"/><polygon points="0.00,36.20 0.00,22.33 13.30,21.35 19.33,28.34 18.43,32.69" fill="#9EC2B9"/><polygon points="40.29,20.41 47.74,26.44 46.75,44.12 27.40,45.61 18.43,32.69 19.33,28.34" fill="#AFCEC5"/><polygon points="64.00,44.77 64.00,64.00 47.73,64.00 47.26,44.61" fill="#8EB6AD"/><polygon points="0.00,0.00 15.53,0.00 13.30,21.35 0.00,22.33" fill="#8EB6AD"/><line x1="64.00" y1="23.80" x2="47.74" y2="26.44" stroke="#0f9ffa" stroke-width="2" stroke-linecap="round"/><line x1="47.74" y1="26.44" x2="40.29" y2="20.41" stroke="#0e83fa" stroke-width="2" stroke-linecap="round"/><line x1="40.29" y1="20.41" x2="40.02" y2="0.00" stroke="#913471" stroke-width="2" stroke-linecap="round"/><line x1="40.29" y1="20.41" x2="19.33" y2="28.34" stroke="#0e92fa" stroke-width="2" stroke-linecap="round"/><line x1="19.33" y1="28.34" x2="13.30" y2="21.35" stroke="#0f9afa" stroke-width="2" stroke-linecap="round"/><line x1="13.30" y1="21.35" x2="15.53" y2="0.00" stroke="#893179" stroke-width="2" stroke-linecap="round"/><line x1="64.00" y1="44.77" x2="47.26" y2="44.61" stroke="#fffc50" stroke-width="2" stroke-linecap="round"/><line x1="47.26" y1="44.61" x2="46.75" y2="44.12" stroke="#fffc55" stroke-width="2" stroke-linecap="round"/><line x1="46.75" y1="44.12" x2="47.74" y2="26.44" stroke="#6efcfa" stroke-width="2" stroke-linecap="round"/><line x1="23.17" y1="64.00" x2="27.40" y2="45.61" stroke="#ffe84f" stroke-width="2" stroke-linecap="round"/><line x1="27.40" y1="45.61" x2="46.75" y2="44.12" stroke="#fffc4e" stroke-width="2" stroke-linecap="round"/><line x1="47.26" y1="44.61" x2="47.73" y2="64.00" stroke="#fff048" stroke-width="2" stroke-linecap="round"/><line x1="0.00" y1="36.20" x2="18.43" y2="32.69" stroke="#62fcfa" stroke-width="2" stroke-linecap="round"/><line x1="18.43" y1="32.69" x2="27.40" y2="45.61" stroke="#aefcb5" stroke-width="2" stroke-linecap="round"/><line x1="0.00" y1="22.33" x2="13.30" y2="21.35" stroke="#116bfa" stroke-width="2" stroke-linecap="round"/><line x1="19.33" y1="28.34" x2="18.43" y2="32.69" stroke="#31fcfa" stroke-width="2" stroke-linecap="round"/><polygon points="40.29,20.41 47.74,26.44 46.75,44.12 27.40,45.61 18.43,32.69 19.33,28.34" fill="url(#jmIri)"/><rect x="1" y="1" width="62" height="62" fill="none" stroke="#12292B" stroke-width="2"/></svg></span>
+    <span><b>界面館</b><i>Jiemian Interface Hall</i></span>
+  </a>
+  <div class="info">台南市安平區安平路 802 號&nbsp;&nbsp;06-228-4417<br>週三–週日 10:00–17:30&nbsp;&nbsp;週一、二休館</div>
+</header>
+<main>
+
+<section class="tank-sec" style="padding-top:22px">
+  <div class="tank-head">
+    <div>
+      <span class="plate">展品 01 — Exhibit 01</span>
+      <h1>第一槽</h1>
+      <p class="lede">一團二維泡沫。2019 年 4 月 3 日封槽，之後沒有再補進任何氣體。<br>它不會停在任何一個形狀上。它只會變少。</p>
+    </div>
+    <div class="tank-head-r mono" id="clock">槽齡 —</div>
+  </div>
+
+  <div class="tankbox">
+    <canvas id="tank" aria-label="第一槽：二維泡沫即時模擬" role="img"></canvas>
+    <div class="tank-legend mono" aria-hidden="true">點槽內任一處＝在該處吹一顆泡</div>
+  </div>
+
+  <div class="readout" id="readout">
+    <div><b id="r-cells">—</b><span>槽內胞數</span></div>
+    <div><b id="r-mean">—</b><span>內部平均邊數</span></div>
+    <div><b id="r-max">—</b><span>最大胞邊數</span></div>
+    <div><b id="r-gone">—</b><span>已消失</span></div>
+    <div><b id="r-h">—</b><span>膜厚 nm（槽中線）</span></div>
+  </div>
+
+  <div class="ctl">
+    <div class="ctl-blk ctl-dry">
+      <label for="dry">抽液　Drainage</label>
+      <input type="range" id="dry" min="0" max="100" value="46" step="1" aria-describedby="dryhint">
+      <div class="ctl-scale mono" aria-hidden="true"><span>濕・白膜</span><span>干涉色</span><span>乾・黑膜</span></div>
+      <p class="small" id="dryhint" style="margin:6px 0 0">把水抽掉，膜變薄，顏色才出現。膜越薄氣體越容易穿過去——<b>抽液同時讓泡沫消失得更快</b>。</p>
+    </div>
+
+    <div class="ctl-blk">
+      <label>時間　Time</label>
+      <div class="chips" role="group" aria-label="時間倍率">
+        <button type="button" class="chip" data-sp="0.5">×0.5</button>
+        <button type="button" class="chip on" data-sp="1">×1</button>
+        <button type="button" class="chip" data-sp="3">×3</button>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn gh" id="pause">暫停</button>
+        <button type="button" class="btn gh" id="stepbtn" hidden>推進 10 秒</button>
+        <button type="button" class="btn gh" id="reset">重新封槽</button>
+      </div>
+      <p class="small" id="rmnote" hidden style="margin:8px 0 0">偵測到你的系統偏好「減少動態」，本槽已停在封槽狀態，請用「推進 10 秒」逐段觀看。</p>
+    </div>
+
+    <div class="ctl-blk">
+      <label for="bname">吹一顆泡　Blow</label>
+      <input type="text" id="bname" maxlength="8" placeholder="給它一個名字（可留空）">
+      <div class="chips" role="group" aria-label="泡的大小" style="margin-top:8px">
+        <button type="button" class="chip" data-sz="0.012">小</button>
+        <button type="button" class="chip on" data-sz="0.035">中</button>
+        <button type="button" class="chip" data-sz="0.075">大</button>
+      </div>
+      <button type="button" class="btn" id="blow" style="margin-top:10px;width:100%">吹進去</button>
+      <p class="small" style="margin:8px 0 0">槽的總面積是固定的。你吹進去的每一分面積，都是從別的胞身上拿的。</p>
+    </div>
+  </div>
+
+  <div class="mine card" id="mine">
+    <div class="mine-hd">
+      <span class="plate">展品 06 — 籍</span>
+      <h3 id="mine-name">還沒有泡</h3>
+    </div>
+    <div class="mine-body">
+      <p class="small" id="mine-empty">在上面命名一顆泡並吹進去，本館會替它開一份籍：記下它每一刻的邊數、換過哪些鄰居、活了多久，以及最後是被誰併走的。</p>
+      <div class="mine-stats" id="mine-stats" hidden>
+        <div><b id="m-n">—</b><span>目前邊數</span></div>
+        <div><b id="m-area">—</b><span>佔槽面積</span></div>
+        <div><b id="m-nb">—</b><span>換過的鄰居</span></div>
+        <div><b id="m-age">—</b><span>已活</span></div>
+      </div>
+      <p id="m-fate" class="fate" hidden></p>
+    </div>
+  </div>
+
+  <div id="cards"></div>
+  <p class="small" style="margin-top:12px">全部泡籍收在 <a href="pu.html">〈譜〉</a>；胞型與 dA/dt 的對照表也在那裡。</p>
+</section>
+
+<hr class="rule2">
+
+<section>
+  <span class="plate">展品說明牌 — Exhibit Labels</span>
+  <h2>四塊牌子</h2>
+  <div class="labels">
+    <div class="lb"><span class="plate">02</span><h3>壁</h3><p>三面壁交於一點。夾角永遠是 120 度。四面壁交在一起的構型不存在——它會在你看見之前就拆成兩個三面點。</p></div>
+    <div class="lb"><span class="plate">03</span><h3>六</h3><p>邊數少於六的胞在縮小，多於六的在長大，正好六邊的既不長大也不縮小。這不是統計，是幾何。</p></div>
+    <div class="lb"><span class="plate">04</span><h3>黑膜</h3><p>膜薄到約十奈米以下時，反射光互相抵消，膜看起來是黑的。黑膜是顏色走完之後剩下的東西，通常也是最後的東西。</p></div>
+    <div class="lb"><span class="plate">05</span><h3>併</h3><p>一個胞消失時，它的面積不會不見，會被鄰居分掉。本館替每一次併吞留下紀錄：誰吃了誰。</p></div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section class="grid2">
+  <div>
+    <span class="plate">Visit</span>
+    <h2>來看</h2>
+    <p>本館只有一件常設展品。它在一樓，佔一整面牆，從開館到閉館都在動，動得很慢。多數人站三分鐘就走，也有人坐一個下午。</p>
+    <p class="mono">週三–週日 10:00–17:30（最後入場 17:00）<br>全票 120／優待票 80／未滿 6 歲免票<br>定時導覽 11:00・14:00・16:00</p>
+    <p style="margin-top:18px"><a class="btn gh" href="guan.html">參觀資訊與工作坊報名</a></p>
+  </div>
+  <div>
+    <span class="plate">Read</span>
+    <h2>先讀也可以</h2>
+    <p>如果你想先知道自己在看什麼：Plateau 的角度、von Neumann 的增減式、Laplace 壓力差，以及顏色是怎麼從膜厚長出來的——全部寫在〈法〉裡，不需要開啟任何互動就能讀完。</p>
+    <p style="margin-top:18px"><a class="btn gh" href="fa.html">泡沫的三條定律</a></p>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ===================================================================
+   界面館・第一槽
+   二維乾泡沫：Laguerre（power diagram）胞元 + von Neumann 粗化
+   + 薄膜干涉配色。零函式庫、零外部資源。
+   =================================================================== */
+(function(){
+"use strict";
+
+/* ---------- 幾何：半平面裁切（帶邊標籤） ---------- */
+function clipPoly(poly,tags,nx,ny,d,newTag){
+  var P=[],T=[],m=poly.length,i,a,b,ta,fa,fb,ina,inb,t;
+  if(!m) return [P,T];
+  for(i=0;i<m;i++){
+    a=poly[i]; b=poly[(i+1)%m]; ta=tags[i];
+    fa=nx*a[0]+ny*a[1]-d; fb=nx*b[0]+ny*b[1]-d;
+    ina=fa<=0; inb=fb<=0;
+    if(ina&&inb){P.push(a);T.push(ta);}
+    else if(ina&&!inb){
+      t=fa/(fa-fb); P.push(a);T.push(ta);
+      P.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);T.push(newTag);
+    }else if(!ina&&inb){
+      t=fa/(fa-fb);
+      P.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);T.push(ta);
+    }
+  }
+  return [P,T];
+}
+function polyArea(p){var s=0,i,a,b;for(i=0;i<p.length;i++){a=p[i];b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return s/2;}
+function polyCentroid(p){var s=0,cx=0,cy=0,i,a,b,c;
+  for(i=0;i<p.length;i++){a=p[i];b=p[(i+1)%p.length];c=a[0]*b[1]-b[0]*a[1];s+=c;cx+=(a[0]+b[0])*c;cy+=(a[1]+b[1])*c;}
+  s=s/2; if(Math.abs(s)<1e-9) return [p[0][0],p[0][1]];
+  return [cx/(6*s),cy/(6*s)];}
+
+/* Laguerre 胞：|p-c_i|^2 - w_i <= |p-c_j|^2 - w_j */
+function computeCells(B,box){
+  var W=box.w,H=box.h,out=[],i,j,poly,tags,nx,ny,d,A,c,k,a,b,len,nb,wall;
+  for(i=0;i<B.length;i++){
+    if(!B[i].alive){out.push(null);continue;}
+    poly=[[0,0],[W,0],[W,H],[0,H]]; tags=[-1,-1,-1,-1];
+    for(j=0;j<B.length;j++){
+      if(j===i||!B[j].alive)continue;
+      nx=2*(B[j].x-B[i].x); ny=2*(B[j].y-B[i].y);
+      d=(B[j].x*B[j].x+B[j].y*B[j].y-B[j].w)-(B[i].x*B[i].x+B[i].y*B[i].y-B[i].w);
+      if(Math.abs(nx)<1e-12&&Math.abs(ny)<1e-12)continue;
+      var r=clipPoly(poly,tags,nx,ny,d,j); poly=r[0]; tags=r[1];
+      if(poly.length<3)break;
+    }
+    if(poly.length<3){out.push(null);continue;}
+    A=Math.abs(polyArea(poly));
+    nb=[]; wall=0;
+    var seen={};
+    for(k=0;k<poly.length;k++){
+      a=poly[k]; b=poly[(k+1)%poly.length];
+      len=Math.hypot(b[0]-a[0],b[1]-a[1]);
+      if(len<1e-6)continue;
+      if(tags[k]>=0){ if(!seen[tags[k]]){seen[tags[k]]=0;nb.push(tags[k]);} seen[tags[k]]+=len; }
+      else wall++;
+    }
+    c=polyCentroid(poly);
+    out.push({poly:poly,tags:tags,area:A,cx:c[0],cy:c[1],nb:nb,share:seen,wall:wall,n:nb.length+wall});
+  }
+  return out;
+}
+
+/* ---------- 薄膜干涉：I(λ)=sin²(2πnh/λ)，n=1.33 ---------- */
+var NF=1.33;
+function filmRGB(h){
+  var L=[650,550,450],o=[],i,s;
+  for(i=0;i<3;i++){s=Math.sin(2*Math.PI*NF*h/L[i]);o.push(s*s);}
+  var wash=Math.min(1,Math.max(0,(h-820)/1150));
+  var m=(o[0]+o[1]+o[2])/3;
+  for(i=0;i<3;i++)o[i]=o[i]+(m-o[i])*wash;
+  return o;
+}
+var BASE=[14,42,44];
+function wallColour(h){
+  var c=filmRGB(h),o=[],i,tgt=[255,252,250];
+  for(i=0;i<3;i++)o[i]=Math.round(BASE[i]+(tgt[i]-BASE[i])*Math.min(1,c[i]*1.55));
+  return 'rgb('+o[0]+','+o[1]+','+o[2]+')';
+}
+/* 膜厚：抽液越多越薄；重力使上方先變薄 */
+function thickness(yn,dry){ return 2600*Math.pow(1-dry,2.6)*(0.40+0.60*yn)+4; }
+
+var FILL=['#7FAAA2','#8EB6AD','#9EC2B9','#AFCEC5','#C0DAD1','#CFE3DC','#DCEAE4','#E6F1EB','#EEF6F1','#F3F9F5','#F7FBF8','#FBFDFB'];
+function fillFor(n){var i=n-3; if(i<0)i=0; if(i>FILL.length-1)i=FILL.length-1; return FILL[i];}
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ---------- 狀態 ---------- */
+var cv=document.getElementById('tank'), ctx=cv.getContext('2d');
+var BOX={w:1000,h:620};
+var B=[],C=[],sim=0,gone=0,nextId=1,running=true,speed=1,dry=0.46,blowSize=0.035,mine=null,journal=[];
+var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var SEED=20190403;
+
+function totArea(){return BOX.w*BOX.h;}
+
+function seedTank(){
+  var rnd=mulberry32(SEED), N=40, i, tot=totArea(), s=0;
+  B=[];sim=0;gone=0;nextId=1;mine=null;journal=[];
+  for(i=0;i<N;i++){
+    B.push({id:nextId++,x:rnd()*BOX.w,y:rnd()*BOX.h,w:0,T:Math.exp((rnd()-0.5)*1.25),
+            alive:true,name:null,born:0,maxN:0,nbSeen:{},nbCount:0});
+  }
+  for(i=0;i<B.length;i++)s+=B[i].T;
+  for(i=0;i<B.length;i++)B[i].T*=tot/s;
+  for(i=0;i<70;i++){C=computeCells(B,BOX);relaxOnce(0.4,0.45);}
+  C=computeCells(B,BOX);
+}
+function relaxOnce(lam,gain){
+  var i,mw=-1e18;
+  for(i=0;i<B.length;i++){
+    if(!B[i].alive||!C[i])continue;
+    B[i].x+=(C[i].cx-B[i].x)*lam;
+    B[i].y+=(C[i].cy-B[i].y)*lam;
+    B[i].w+=(B[i].T-C[i].area)*gain;
+  }
+  for(i=0;i<B.length;i++)if(B[i].alive&&B[i].w>mw)mw=B[i].w;
+  for(i=0;i<B.length;i++)if(B[i].alive)B[i].w-=mw;
+}
+function labelOf(b){return b.name?b.name:('無名第 '+b.id+' 胞');}
+
+function advance(dt){
+  var tot=totArea(), kappa=tot*(0.00006+0.00034*dry), minA=tot*0.0016, i,k,sum=0,c,j;
+  sim+=dt;
+  for(i=0;i<B.length;i++){
+    if(!B[i].alive)continue; c=C[i]; if(!c)continue;
+    if(c.n>B[i].maxN)B[i].maxN=c.n;
+    for(k=0;k<c.nb.length;k++){ j=c.nb[k];
+      if(!B[i].nbSeen[j]){B[i].nbSeen[j]=1;B[i].nbCount++;}
+    }
+    B[i].T+=kappa*(c.n-6)*dt;
+    if(B[i].T<minA)die(i);
+  }
+  for(i=0;i<B.length;i++)if(B[i].alive)sum+=B[i].T;
+  if(sum>0)for(i=0;i<B.length;i++)if(B[i].alive)B[i].T*=tot/sum;
+  relaxOnce(0.30,0.42);
+  C=computeCells(B,BOX);
+}
+function die(i){
+  var c=C[i],eater=null,best=-1,k,j;
+  if(c){ for(k=0;k<c.nb.length;k++){ j=c.nb[k];
+      if(B[j]&&B[j].alive&&c.share[j]>best){best=c.share[j];eater=j;} } }
+  B[i].alive=false; gone++;
+  if(B[i].name){
+    journal.unshift({
+      name:B[i].name, born:B[i].born, died:sim, life:sim-B[i].born,
+      maxN:B[i].maxN, endN:c?c.n:0, nb:B[i].nbCount,
+      eater:(eater!==null?labelOf(B[eater]):'槽壁')
+    });
+    saveJournal(journal[0]);
+    if(mine===i){ renderFate(journal[0]); mine=null; }
+  }
+  if(mine===i)mine=null;
+}
+function blow(px,py,name,frac){
+  var tot=totArea(),i,keep=1-frac,sum=0,mw=0,cnt=0;
+  for(i=0;i<B.length;i++)if(B[i].alive){B[i].T*=keep;mw+=B[i].w;cnt++;}
+  var nb={id:nextId++,x:px,y:py,w:(cnt?mw/cnt:0)+frac*tot*0.35,T:frac*tot,alive:true,
+          name:(name||null),born:sim,maxN:0,nbSeen:{},nbCount:0};
+  B.push(nb);
+  for(i=0;i<B.length;i++)if(B[i].alive)sum+=B[i].T;
+  for(i=0;i<B.length;i++)if(B[i].alive)B[i].T*=tot/sum;
+  C=computeCells(B,BOX);
+  for(i=0;i<6;i++){relaxOnce(0.25,0.5);C=computeCells(B,BOX);}
+  if(name){ mine=B.length-1; hideFate(); }
+  draw();
+}
+
+/* ---------- 繪製 ---------- */
+var DPR=1;
+function fit(){
+  var r=cv.getBoundingClientRect();
+  if(r.width<40||r.height<40)return;
+  DPR=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.max(1,Math.round(r.width*DPR));
+  cv.height=Math.max(1,Math.round(r.height*DPR));
+  var newH=BOX.w*(r.height/Math.max(1,r.width));
+  if(Math.abs(newH-BOX.h)>1){
+    var k=newH/BOX.h,i;
+    for(i=0;i<B.length;i++){B[i].y*=k;B[i].w*=1;}
+    BOX.h=newH;
+    var tot=totArea(),sum=0;
+    for(i=0;i<B.length;i++)if(B[i].alive)sum+=B[i].T;
+    if(sum>0)for(i=0;i<B.length;i++)if(B[i].alive)B[i].T*=tot/sum;
+    C=computeCells(B,BOX);
+  }
+}
+function draw(){
+  var sx=cv.width/BOX.w, i,k,c,P,T,a,b,yn,h,drawn={},key,lw;
+  ctx.setTransform(sx,0,0,sx,0,0);
+  ctx.clearRect(0,0,BOX.w,BOX.h);
+  ctx.fillStyle='#C6DAD3'; ctx.fillRect(0,0,BOX.w,BOX.h);
+  for(i=0;i<B.length;i++){
+    c=C[i]; if(!c)continue;
+    ctx.beginPath(); P=c.poly;
+    ctx.moveTo(P[0][0],P[0][1]);
+    for(k=1;k<P.length;k++)ctx.lineTo(P[k][0],P[k][1]);
+    ctx.closePath(); ctx.fillStyle=fillFor(c.n); ctx.fill();
+  }
+  lw=(1.1+5.4*(1-dry))*(BOX.w/1000);
+  ctx.lineCap='round'; ctx.lineWidth=lw;
+  for(i=0;i<B.length;i++){
+    c=C[i]; if(!c)continue; P=c.poly; T=c.tags;
+    for(k=0;k<P.length;k++){
+      if(T[k]<0)continue;
+      key=i<T[k]?(i+'_'+T[k]):(T[k]+'_'+i);
+      if(drawn[key])continue; drawn[key]=1;
+      a=P[k]; b=P[(k+1)%P.length];
+      yn=((a[1]+b[1])/2)/BOX.h;
+      h=thickness(yn,dry);
+      ctx.strokeStyle=wallColour(h);
+      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+    }
+  }
+  if(mine!==null&&B[mine]&&B[mine].alive&&C[mine]){
+    c=C[mine];P=c.poly;
+    ctx.lineWidth=3.2*(BOX.w/1000);ctx.strokeStyle='#12292B';
+    ctx.beginPath();ctx.moveTo(P[0][0],P[0][1]);
+    for(k=1;k<P.length;k++)ctx.lineTo(P[k][0],P[k][1]);
+    ctx.closePath();ctx.stroke();
+    ctx.fillStyle='#12292B';
+    ctx.font='500 22px "IBM Plex Mono",monospace';
+    ctx.textAlign='center';
+    ctx.fillText(labelOf(B[mine]),c.cx,c.cy+7);
+  }
+  ctx.lineWidth=4*(BOX.w/1000);ctx.strokeStyle='#12292B';
+  ctx.strokeRect(0,0,BOX.w,BOX.h);
+}
+
+/* ---------- 讀數 ---------- */
+var el=function(id){return document.getElementById(id);};
+function fmtT(s){var m=Math.floor(s/60),x=Math.floor(s%60);return m+' 分 '+(x<10?'0':'')+x+' 秒';}
+function stats(){
+  var i,c,alive=0,sumInt=0,cntInt=0,mx=0;
+  for(i=0;i<B.length;i++){c=C[i];if(!c)continue;alive++;
+    if(c.wall===0){sumInt+=c.n;cntInt++;}
+    if(c.n>mx)mx=c.n;}
+  el('r-cells').textContent=alive;
+  el('r-mean').textContent=cntInt?(sumInt/cntInt).toFixed(2):'—';
+  el('r-max').textContent=mx;
+  el('r-gone').textContent=gone;
+  el('r-h').textContent=Math.round(thickness(0.5,dry));
+  el('clock').textContent='槽齡 '+fmtT(sim);
+  if(mine!==null&&B[mine]&&B[mine].alive&&C[mine]){
+    var m=B[mine],cc=C[mine];
+    el('mine-name').textContent=m.name;
+    el('mine-empty').hidden=true; el('mine-stats').hidden=false;
+    el('m-n').textContent=cc.n;
+    el('m-area').textContent=(cc.area/totArea()*100).toFixed(1)+'%';
+    el('m-nb').textContent=m.nbCount;
+    el('m-age').textContent=fmtT(sim-m.born);
+    var f=el('m-fate');f.hidden=false;
+    f.textContent = cc.n<6 ? ('n = '+cc.n+' < 6　它正在縮小。要活久一點，只能長出更多邊——也就是先變大。')
+      : cc.n===6 ? 'n = 6　既不長大也不縮小。這個狀態不會維持太久，鄰居一消失邊數就變了。'
+      : ('n = '+cc.n+' > 6　它正在長大。長大的面積，來自旁邊正在縮小的胞。');
+  }
+}
+function renderFate(rec){
+  el('mine-name').textContent=rec.name+'（已消失）';
+  el('mine-stats').hidden=true; el('mine-empty').hidden=false;
+  el('mine-empty').textContent='它結束了。籍已存下，收在〈譜〉。';
+  var f=el('m-fate');f.hidden=false;
+  f.textContent='生於槽齡 '+fmtT(rec.born)+'，活了 '+fmtT(rec.life)+'；最多長到 '+rec.maxN+' 邊，結束時 '+rec.endN+' 邊，一生換過 '+rec.nb+' 個鄰居。面積被「'+rec.eater+'」併走。';
+  renderCards();
+}
+function hideFate(){el('m-fate').hidden=true;el('mine-empty').hidden=true;el('mine-stats').hidden=false;}
+function renderCards(){
+  var box=el('cards'),i,r,h='';
+  for(i=0;i<Math.min(3,journal.length);i++){
+    r=journal[i];
+    h+='<div class="jcard"><h4>泡籍・'+esc(r.name)+'</h4><div class="jr">'+
+       '生於槽齡 '+fmtT(r.born)+'　活了 '+fmtT(r.life)+'<br>'+
+       '最多 '+r.maxN+' 邊　結束時 '+r.endN+' 邊　換過 '+r.nb+' 個鄰居<br>'+
+       '併吞者：'+esc(r.eater)+'</div></div>';
+  }
+  box.innerHTML=h;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+function saveJournal(rec){
+  try{
+    var k='jiemian.registry.v1',a=JSON.parse(localStorage.getItem(k)||'[]');
+    a.unshift({name:rec.name,life:Math.round(rec.life),maxN:rec.maxN,endN:rec.endN,nb:rec.nb,
+               eater:rec.eater,at:new Date().toISOString().slice(0,10)});
+    localStorage.setItem(k,JSON.stringify(a.slice(0,60)));
+  }catch(e){}
+}
+
+/* ---------- 迴圈 ---------- */
+var last=0,acc=0,statAcc=0,visible=true;
+function loop(ts){
+  var dt=last?Math.min(0.05,(ts-last)/1000):0; last=ts;
+  if(running&&visible&&dt>0){ advance(dt*speed); draw(); }
+  statAcc+=dt; if(statAcc>0.25){statAcc=0;stats();}
+  requestAnimationFrame(loop);
+}
+
+/* ---------- 事件 ---------- */
+function bindChips(sel,fn){
+  var g=document.querySelectorAll(sel);
+  Array.prototype.forEach.call(g,function(b){
+    b.addEventListener('click',function(){
+      Array.prototype.forEach.call(g,function(x){x.classList.remove('on');});
+      b.classList.add('on'); fn(b);
+    });
+  });
+}
+el('dry').addEventListener('input',function(){dry=this.value/100;draw();stats();});
+bindChips('.chip[data-sp]',function(b){speed=parseFloat(b.getAttribute('data-sp'));});
+bindChips('.chip[data-sz]',function(b){blowSize=parseFloat(b.getAttribute('data-sz'));});
+el('pause').addEventListener('click',function(){
+  running=!running; this.textContent=running?'暫停':'繼續';
+});
+el('reset').addEventListener('click',function(){
+  seedTank();fit();draw();stats();
+  el('mine-name').textContent='還沒有泡';
+  el('mine-stats').hidden=true;el('m-fate').hidden=true;
+  el('mine-empty').hidden=false;
+  el('mine-empty').textContent='在上面命名一顆泡並吹進去，本館會替它開一份籍：記下它每一刻的邊數、換過哪些鄰居、活了多久，以及最後是被誰併走的。';
+  el('cards').innerHTML='';
+});
+el('blow').addEventListener('click',function(){
+  var nm=el('bname').value.trim();
+  blow(BOX.w*(0.2+Math.random()*0.6),BOX.h*(0.2+Math.random()*0.6),nm,blowSize);
+  el('bname').value=''; stats();
+});
+cv.addEventListener('click',function(ev){
+  var r=cv.getBoundingClientRect();
+  var x=(ev.clientX-r.left)/r.width*BOX.w, y=(ev.clientY-r.top)/r.height*BOX.h;
+  var nm=el('bname').value.trim();
+  blow(x,y,nm,blowSize); el('bname').value=''; stats();
+});
+el('stepbtn').addEventListener('click',function(){
+  var i; for(i=0;i<80;i++)advance(10/80*speed);
+  draw();stats();
+});
+document.addEventListener('visibilitychange',function(){visible=!document.hidden;last=0;});
+window.addEventListener('resize',function(){fit();draw();});
+
+/* ---------- 啟動 ---------- */
+seedTank(); fit(); draw(); stats();
+if(REDUCED){ running=false; el('pause').textContent='繼續';
+  el('stepbtn').hidden=false; el('rmnote').hidden=false; }
+requestAnimationFrame(loop);
+})();
+</script>
+</div>
+<footer>
+  <div class="fl">
+    <div>
+      <div class="plate">Jiemian Interface Hall</div>
+      <p class="mono" style="margin:6px 0 0">界面館・泡沫科學展演館<br>台南市安平區安平路 802 號｜06-228-4417<br>週三–週日 10:00–17:30（最後入場 17:00）</p>
+    </div>
+    <div>
+      <div class="plate">Pages</div>
+      <p style="margin:6px 0 0"><a href="index.html">槽</a> &nbsp;<a href="fa.html">法</a> &nbsp;<a href="pu.html">譜</a> &nbsp;<a href="guan.html">館</a></p>
+    </div>
+    <div>
+      <div class="plate">Note</div>
+      <p class="mono" style="margin:6px 0 0">常設展〈第一槽〉<br>2019.04.03 封槽・未曾補氣</p>
+    </div>
+  </div>
+  <p class="disc">本站為網頁設計風格範例。界面館、館內人員、票價、電話、地址、展品與所有紀錄皆為虛構示意，並非真實機構。頁面上的泡沫由瀏覽器即時求解，不使用任何外部圖片或影音檔。</p>
+</footer>
+</body>
+</html>

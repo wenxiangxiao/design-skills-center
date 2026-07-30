@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周天軌道郵政 CHOU-TIEN ORBITAL POST｜寄件台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2316333D'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23F2E7D2'/%3E%3Cellipse cx='16' cy='16' rx='13' ry='7' fill='none' stroke='%23E14F2A' stroke-width='2' transform='rotate(-24 16 16)'/%3E%3Ccircle cx='26.8' cy='10.6' r='2.2' fill='%23E14F2A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#16333D; --bg2:#0F2630; --panel:#1C3E4A; --line:#2E5260;
+  --cream:#F2E7D2; --cream2:#E6D8BC; --ink:#1A2226; --ink2:#41525A;
+  --or:#E14F2A; --sky:#7DB6C4; --gold:#D9A93F; --txt:#CFDCDF; --dim:#8FA9B0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Noto Sans TC',sans-serif;font-size:16px;line-height:1.75}
+::selection{background:var(--or);color:var(--cream)}
+a{color:var(--sky)}
+.mono{font-family:'IBM Plex Mono',monospace}
+.osw{font-family:'Oswald','Noto Sans TC',sans-serif}
+
+/* ── masthead ── */
+header{border-bottom:3px double var(--line);background:var(--bg2)}
+.mast{max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px}
+.seal{width:52px;height:52px;flex:none}
+.mast h1{font-size:21px;font-weight:900;color:var(--cream);letter-spacing:.14em;line-height:1.2}
+.mast .sub{font-size:11px;color:var(--dim);letter-spacing:.22em;margin-top:2px}
+.mast .en{color:var(--gold);font-family:'Oswald',sans-serif;font-weight:500;letter-spacing:.3em;font-size:11px}
+.spacer{flex:1}
+
+/* ── frank-rack nav（分揀架蓋銷導覽）── */
+.rack{display:flex;gap:12px;align-items:flex-end}
+.rack a{display:block;width:96px;height:66px;background:var(--cream);border:1.5px solid var(--ink);position:relative;text-decoration:none;color:var(--ink);padding:12px 8px 6px;transition:transform .18s ease}
+.rack a::before{content:"";position:absolute;top:0;left:0;right:0;height:7px;background:repeating-linear-gradient(-45deg,#B8402C 0 7px,var(--cream) 7px 14px,#2A5DA8 14px 21px,var(--cream) 21px 28px)}
+.rack a .zh{display:block;font-size:13px;font-weight:700;line-height:1.3;margin-top:2px}
+.rack a .fr{display:block;font-size:8.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink2);letter-spacing:.08em}
+.rack a:hover{transform:translateY(-3px)}
+.rack a[aria-current="page"]{transform:rotate(-2.5deg)}
+.rack a[aria-current="page"] .pm{display:block}
+.pm{display:none;position:absolute;top:-14px;right:-18px;width:96px;height:56px;pointer-events:none}
+.dock{display:none}
+
+/* ── layout ── */
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+h2.sec{font-size:26px;font-weight:900;color:var(--cream);letter-spacing:.1em;margin:6px 0 18px;display:flex;align-items:center;gap:14px}
+h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ── console ── */
+.console{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);gap:0;border:2px solid var(--line);margin:26px 0 40px;background:var(--bg2)}
+.plot{position:relative;min-height:560px;border-right:2px solid var(--line)}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.readbar{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);background:rgba(15,38,48,.88);backdrop-filter:none}
+.readbar div{flex:1 1 auto;min-width:88px;padding:7px 10px;border-right:1px solid var(--line);font-family:'IBM Plex Mono',monospace}
+.readbar b{display:block;font-size:9px;color:var(--dim);letter-spacing:.18em;font-weight:400}
+.readbar span{font-size:14px;color:var(--cream)}
+.readbar .hot span{color:var(--or)}
+.plot .flag{position:absolute;top:12px;left:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.24em;color:var(--dim)}
+.plot .flag b{color:var(--or);font-weight:600}
+
+/* right rail */
+.rail{display:flex;flex-direction:column}
+.rail>div{border-bottom:1px solid var(--line);padding:16px 18px}
+.rail>div:last-child{border-bottom:none}
+
+/* mission tickets */
+.tickets{display:flex;flex-direction:column;gap:10px}
+.tk{background:var(--cream);color:var(--ink);border:1.5px solid var(--ink);position:relative;padding:10px 12px 10px 26px;cursor:pointer;text-align:left;width:100%;font-family:inherit;font-size:inherit}
+.tk::before{content:"";position:absolute;left:12px;top:8px;bottom:8px;border-left:2px dotted var(--ink2)}
+.tk .no{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ink2)}
+.tk .nm{font-weight:900;font-size:16px;letter-spacing:.06em}
+.tk .gist{font-size:12px;color:var(--ink2);line-height:1.55}
+.tk[data-on="1"]{outline:3px solid var(--or);outline-offset:-1px}
+.tk .done{position:absolute;top:6px;right:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#2E6E45;border:1.5px solid #2E6E45;padding:1px 5px;border-radius:50%;transform:rotate(8deg);display:none}
+.tk[data-ok="1"] .done{display:block}
+
+/* burn pad */
+.padgrid{display:grid;grid-template-columns:64px 64px 64px;grid-template-rows:64px 64px 64px;gap:6px;justify-content:center}
+.bb{background:var(--panel);border:1.5px solid var(--sky);color:var(--cream);font-family:'Noto Sans TC',sans-serif;font-weight:700;font-size:13px;line-height:1.25;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
+.bb small{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);font-weight:400}
+.bb:active,.bb.hold{background:var(--or);border-color:var(--or);color:var(--cream)}
+.padc{display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);text-align:center;line-height:1.5}
+.padnote{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.6}
+.padnote b{color:var(--or);font-weight:700}
+
+/* dv gauge */
+.dvbox .bar{height:14px;border:1.5px solid var(--sky);background:var(--bg);position:relative;margin:8px 0 4px}
+.dvbox .fill{position:absolute;inset:0;width:0%;background:repeating-linear-gradient(90deg,var(--or) 0 6px,#B8402C 6px 12px)}
+.dvbox .lbl{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim)}
+
+/* time controls */
+.trow{display:flex;gap:8px;flex-wrap:wrap}
+.tbtn{background:none;border:1.5px solid var(--sky);color:var(--cream);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 12px;cursor:pointer;letter-spacing:.1em}
+.tbtn[data-on="1"]{background:var(--sky);color:var(--ink)}
+.tbtn:hover{border-color:var(--cream)}
+
+/* status line */
+#stat{font-size:13.5px;line-height:1.7;min-height:66px;color:var(--txt)}
+#stat b{color:var(--gold)}
+#stat .ok{color:#7FCE9B}
+#stat .bad{color:var(--or)}
+
+/* notices */
+.board{display:grid;grid-template-columns:repeat(12,1fr);gap:22px;margin:24px 0 48px}
+.note{background:var(--cream);color:var(--ink);border:1.5px solid var(--ink);padding:20px 22px;position:relative}
+.note .fno{position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2);letter-spacing:.15em}
+.note h3{font-size:17px;font-weight:900;letter-spacing:.08em;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.note p{font-size:14px;line-height:1.85;color:#242E33}
+.note p+p{margin-top:8px}
+.n1{grid-column:1/span 5;transform:rotate(-.5deg)}
+.n2{grid-column:6/span 7;transform:rotate(.4deg)}
+.n3{grid-column:1/span 7}
+.n4{grid-column:8/span 5;transform:rotate(-.35deg)}
+.rulebig{font-size:21px;font-weight:900;line-height:1.7;margin:10px 0;padding-left:14px;border-left:6px solid var(--or)}
+.note table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+.note th,.note td{border:1px solid var(--ink2);padding:6px 9px;text-align:left}
+.note th{background:var(--cream2);font-weight:700;letter-spacing:.05em}
+.note .mono{font-size:12.5px}
+
+/* cert shelf */
+#shelf{display:flex;flex-wrap:wrap;gap:18px;margin:18px 0 8px}
+#shelf .empty{font-size:13.5px;color:var(--dim);border:1.5px dashed var(--line);padding:18px 22px}
+#shelf svg{display:block}
+
+footer{border-top:3px double var(--line);background:var(--bg2);margin-top:56px}
+.ft{max-width:1280px;margin:0 auto;padding:34px 24px;display:grid;grid-template-columns:2fr 1fr 1.6fr;gap:30px;font-size:13.5px}
+.ft h4{color:var(--cream);font-size:13px;letter-spacing:.24em;margin-bottom:10px;font-weight:700}
+.ft p,.ft li{color:var(--dim);line-height:1.9}
+.ft ul{list-style:none}
+.ft a{color:var(--sky);text-decoration:none;border-bottom:1px solid var(--line)}
+.ft a:hover{color:var(--cream)}
+.fine{border-top:1px solid var(--line);padding:12px 24px;text-align:center;font-size:11.5px;color:var(--dim);letter-spacing:.08em}
+
+@media(max-width:1080px){
+  .console{grid-template-columns:1fr}
+  .plot{min-height:480px;border-right:none;border-bottom:2px solid var(--line)}
+}
+@media(max-width:900px){
+  .rack{display:none}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bg2);border-top:2px solid var(--line)}
+  .dock a{flex:1;text-align:center;padding:11px 2px 9px;color:var(--txt);text-decoration:none;font-size:13px;font-weight:700;border-right:1px solid var(--line);position:relative}
+  .dock a:last-child{border-right:none}
+  .dock a small{display:block;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--dim);letter-spacing:.1em}
+  .dock a[aria-current="page"]{color:var(--cream)}
+  .dock a[aria-current="page"]::after{content:"";position:absolute;top:6px;right:10px;width:9px;height:9px;border:1.5px solid var(--or);border-radius:50%}
+  body{padding-bottom:64px}
+  .board{display:block}
+  .note{margin-bottom:18px;transform:none}
+}
+@media(max-width:560px){
+  .mast h1{font-size:17px}
+  .mast .sub{display:none}
+  .padgrid{grid-template-columns:56px 56px 56px;grid-template-rows:56px 56px 56px}
+  .readbar div{min-width:72px;padding:5px 7px}
+  h2.sec{font-size:21px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rack a,.tk{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mast">
+    <svg class="seal" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="#D9A93F" stroke-width="2"/>
+      <circle cx="32" cy="32" r="10" fill="#F2E7D2"/>
+      <g stroke="#16333D" stroke-width="1.1">
+        <line x1="24" y1="28" x2="40" y2="28"/><line x1="23" y1="32" x2="41" y2="32"/><line x1="24" y1="36" x2="40" y2="36"/>
+      </g>
+      <ellipse cx="32" cy="32" rx="24" ry="12" fill="none" stroke="#E14F2A" stroke-width="2" transform="rotate(-24 32 32)"/>
+      <circle cx="51" cy="21" r="3.4" fill="#E14F2A"/>
+    </svg>
+    <div>
+      <h1>周天軌道郵政</h1>
+      <div class="sub">交通部郵政總局・第七一支局（軌道業務試辦）</div>
+      <div class="en">CHOU-TIEN ORBITAL POST · KEELUNG</div>
+    </div>
+    <div class="spacer"></div>
+    <nav class="rack" aria-label="主導覽">
+      <a href="index.html" aria-current="page">
+        <span class="zh">寄件台</span><span class="fr">CONSOLE / 71-01</span>
+        <svg class="pm" viewBox="0 0 96 56" aria-hidden="true">
+          <g fill="none" stroke="#1A2226" stroke-width="1.6" opacity=".8">
+            <circle cx="28" cy="28" r="21"/>
+            <path d="M52 18q8 5 0 10t0 10"/><path d="M66 18q8 5 0 10t0 10"/><path d="M80 18q8 5 0 10t0 10"/>
+          </g>
+          <g fill="#1A2226" opacity=".85" font-family="IBM Plex Mono,monospace" text-anchor="middle">
+            <text x="28" y="24" font-size="7.5">周天支局</text>
+            <text x="28" y="33" font-size="7">115.7.30</text>
+            <text x="28" y="41" font-size="6">ORBITAL</text>
+          </g>
+        </svg>
+      </a>
+      <a href="fei.html"><span class="zh">資費帶別</span><span class="fr">TARIFF / 71-02</span></a>
+      <a href="fa.html"><span class="zh">軌道之法</span><span class="fr">MECHANICS / 71-03</span></a>
+      <a href="ji.html"><span class="zh">寄件申請</span><span class="fr">DISPATCH / 71-04</span></a>
+    </nav>
+  </div>
+</header>
+
+<nav class="dock" aria-label="主導覽（行動版）">
+  <a href="index.html" aria-current="page">寄件台<small>CONSOLE</small></a>
+  <a href="fei.html">資費<small>TARIFF</small></a>
+  <a href="fa.html">法<small>MECHANICS</small></a>
+  <a href="ji.html">申請<small>DISPATCH</small></a>
+</nav>
+
+<main class="wrap">
+
+  <!-- ════ 星曆寄件台 ════ -->
+  <section aria-label="星曆寄件台">
+    <div class="console">
+      <div class="plot">
+        <canvas id="sky"></canvas>
+        <div class="flag">EPHEMERIS · <b id="flagtxt">郵件 71-A 正在繞行</b></div>
+        <div class="readbar" id="readbar">
+          <div><b>高度 ALT</b><span id="r-alt">—</span></div>
+          <div><b>速度 VEL</b><span id="r-vel">—</span></div>
+          <div><b>近地點 PERI</b><span id="r-rp">—</span></div>
+          <div><b>遠地點 APO</b><span id="r-ra">—</span></div>
+          <div><b>離心率 e</b><span id="r-e">—</span></div>
+          <div><b>週期 T</b><span id="r-T">—</span></div>
+          <div class="hot"><b>ΔV 已用</b><span id="r-dv">0 m/s</span></div>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div>
+          <span class="tag">MISSION TICKETS</span>
+          <div class="tickets" style="margin-top:10px">
+            <button class="tk" id="tk1" data-m="1">
+              <span class="no">郵票 71-0001</span>
+              <span class="done">投訖</span>
+              <div class="nm">同步帶投遞</div>
+              <div class="gist">自近地帶（700 km 圓軌道）把包裹送入同步帶：半長軸 42 164 km、圓化 e&lt;0.05。兩次點火即可，時機是一切。</div>
+            </button>
+            <button class="tk" id="tk2" data-m="2">
+              <span class="no">郵票 71-0002</span>
+              <span class="done">投訖</span>
+              <div class="nm">前方會合</div>
+              <div class="gist">收件站在同一條圓軌道上、你前方 40°。守則第七條在此適用：<b>想追上前面的，請先煞車。</b>貼近 400 km 內、相對速度收小即完成交接。</div>
+            </button>
+            <button class="tk" id="tk3" data-m="3">
+              <span class="no">郵票 71-0003</span>
+              <span class="done">投訖</span>
+              <div class="nm">返還再入</div>
+              <div class="gist">退件一宗。於遠地點逆行點火，把近地點壓入 50–290 km 的再入窗口；壓太深即過陡燒毀，壓不進去就只是繼續繞。</div>
+            </button>
+            <button class="tk" id="tk0" data-m="0">
+              <span class="no">試投單 71-9999</span>
+              <div class="nm">自由軌道</div>
+              <div class="gist">無任務、無評判的練習空域。想把遠地點甩到多遠都行——只是脫離速度以上，郵件就再也不回來了。</div>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <span class="tag">BURN PAD · 點火盤</span>
+          <div class="padgrid" style="margin-top:10px">
+            <div class="padc"></div>
+            <button class="bb" data-d="pro">順行<small>PROGRADE</small></button>
+            <div class="padc"></div>
+            <button class="bb" data-d="in">徑內<small>RADIAL−</small></button>
+            <div class="padc">按住<br>點火</div>
+            <button class="bb" data-d="out">徑外<small>RADIAL+</small></button>
+            <div class="padc"></div>
+            <button class="bb" data-d="retro">逆行<small>RETROGRADE</small></button>
+            <div class="padc"></div>
+          </div>
+          <p class="padnote">鍵盤：<b>W</b> 順行、<b>S</b> 逆行、<b>A</b> 徑內、<b>D</b> 徑外、<b>空白鍵</b> 暫停。<b>不點火的時候，你完全不能轉向</b>——這不是故障，是軌道。</p>
+        </div>
+
+        <div class="dvbox">
+          <span class="tag">ΔV BUDGET · 燃料預算</span>
+          <div class="bar"><div class="fill" id="dvfill"></div></div>
+          <div class="lbl"><span id="dvused">0 m/s</span><span id="dvcap">— m/s</span></div>
+        </div>
+
+        <div>
+          <span class="tag">CLOCK · 星曆鐘</span>
+          <div class="trow" style="margin-top:10px">
+            <button class="tbtn" id="btnpause">暫停</button>
+            <button class="tbtn spd" data-s="0.25">1×</button>
+            <button class="tbtn spd" data-s="1" data-on="1">4×</button>
+            <button class="tbtn spd" data-s="4">16×</button>
+            <button class="tbtn" id="step10">+10 分</button>
+            <button class="tbtn" id="step90">+90 分</button>
+          </div>
+        </div>
+
+        <div>
+          <span class="tag">DESK · 窗口回報</span>
+          <p id="stat" style="margin-top:8px">受理中。點一張任務票開始作業；或先讀〈<a href="fa.html">軌道之法</a>〉再上工——本所不趕人，軌道自己會準時回來。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 執行證 ════ -->
+  <section>
+    <span class="tag">PROOF OF DELIVERY</span>
+    <h2 class="sec">執行證架</h2>
+    <p style="max-width:720px;font-size:14.5px;color:var(--dim)">每完成一宗任務，窗口即開立一枚執行證：證上那條橘線就是你實際飛出的轉移軌道，面值以 ΔV 計。同一宗任務飛得更省，證會換新——本所只留你最漂亮的那一次。</p>
+    <div id="shelf"><div class="empty">尚未開立任何執行證。三宗任務都在上面等著。</div></div>
+  </section>
+
+  <!-- ════ 告示欄 ════ -->
+  <section>
+    <span class="tag">NOTICE BOARD</span>
+    <h2 class="sec">支局告示欄</h2>
+    <div class="board">
+      <div class="note n1">
+        <span class="fno">告示 甲-7</span>
+        <h3>從業守則第七條</h3>
+        <div class="rulebig">欲追上前方之郵件，應先減速。</div>
+        <p>低軌道走得快，高軌道走得慢。對著前方的收件站踩油門，你會被抬進更高、更慢的軌道，眼睜睜看它越離越遠。正確作法：逆行點火、降到內側車道、繞幾圈把相位追回來，再把軌道抬回去。新進同仁第一週都不信，第二週都會了。</p>
+      </div>
+      <div class="note n2">
+        <span class="fno">告示 甲-1</span>
+        <h3>本所沿革</h3>
+        <p>民國五十七年，郵政總局在基隆港務大樓頂樓設第七一支局，試辦「軌道郵務」——當年連郵筒都還沒漆好，屋頂那面 6.4 公尺拋物面天線就先立起來了。首任支局長郝經綸的開局訓詞只有一句：「郵路不分天上地下，準時就好。」</p>
+        <p>五十八年間，本所共經手軌道郵件十一萬四千餘宗，遺失十七宗（均已依《軌道郵件補償要點》理賠），至今保持「同步帶隔日達」紀錄。現任軌道規劃士沈拱辰、相位管制員聞天遙、再入作業士蘇迴光，均持甲種星曆執照。</p>
+      </div>
+      <div class="note n3">
+        <span class="fno">告示 乙-3</span>
+        <h3>窗口與過境時刻</h3>
+        <table>
+          <tr><th>窗口</th><th>時間</th><th>業務</th></tr>
+          <tr><td>臨櫃收寄</td><td class="mono">週一至週六 08:00–17:00</td><td>包裹收寄、資費查詢、執行證補發</td></tr>
+          <tr><td>上行窗口 A</td><td class="mono">每日 05:40 / 17:20（±11 分）</td><td>近地帶、晨昏帶發航</td></tr>
+          <tr><td>上行窗口 B</td><td class="mono">每日 23:05（±4 分）</td><td>同步帶轉移發航</td></tr>
+          <tr><td>再入收件</td><td class="mono">依星曆表公告</td><td>返還郵件落區回收（彭佳嶼東北海域）</td></tr>
+        </table>
+        <p style="margin-top:10px">地址：基隆市仁愛區港西街 6 號 6 樓（港務大樓頂樓）｜電話：(02) 2424-7100</p>
+      </div>
+      <div class="note n4">
+        <span class="fno">告示 乙-9</span>
+        <h3>常見退件原因</h3>
+        <p>一、於錯誤的相位點火，追站不成反超支燃料。二、圓化點火過晚，遠地點掃過目標帶未及收攏。三、寄件人堅持「多燒一點比較快」——在軌道上，多燒一點只是換一條更貴的路。</p>
+        <p>本所提醒：每一條轉移軌道的最省 ΔV 都印在〈<a href="fei.html" style="color:#8A4A1F">資費帶別</a>〉。追不上、收不攏、回不來，都不是天的問題，是時機的問題。</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="ft">
+    <div>
+      <h4>周天軌道郵政</h4>
+      <p>交通部郵政總局第七一支局（軌道業務試辦）<br>基隆市仁愛區港西街 6 號 6 樓<br>(02) 2424-7100｜週一至週六 08:00–17:00</p>
+    </div>
+    <div>
+      <h4>頁面</h4>
+      <ul>
+        <li><a href="index.html">寄件台</a></li>
+        <li><a href="fei.html">資費帶別</a></li>
+        <li><a href="fa.html">軌道之法</a></li>
+        <li><a href="ji.html">寄件申請</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>聲明</h4>
+      <p>本站為 Design Skills Center 風格圖書館之示範作品。機構、人員、地址、電話、資費與一切數據皆屬虛構示意；軌道力學為二體共面簡化模型，詳〈軌道之法〉誠實聲明。</p>
+    </div>
+  </div>
+  <div class="fine">CHOU-TIEN ORBITAL POST — A FICTIONAL DEMONSTRATION SITE · 版面與圖像皆由軌道要素生成</div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+/* ── 常數與換算 ─────────────────────────────
+   長度單位 1 = 地球半徑 6371 km；μ = 1。
+   速度單位 1 = √(μ/R⊕) = 7905 m/s；時間單位 1 = 806.8 s ≈ 13.45 min */
+var TAU=Math.PI*2, VU=7905, TMIN=13.4467, KM=6371;
+var cv=document.getElementById('sky'), cx=cv.getContext('2d');
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ── 軌道力學核心 ── */
+function acc(p){var r=Math.hypot(p[0],p[1]),k=-1/(r*r*r);return[k*p[0],k*p[1]]}
+function rk4(s,h,th){ // s=[x,y,vx,vy] th=[ax,ay] 推力
+  function d(v){var a=acc(v);return[v[2],v[3],a[0]+th[0],a[1]+th[1]]}
+  var k1=d(s),k2=d(ad(s,k1,h/2)),k3=d(ad(s,k2,h/2)),k4=d(ad(s,k3,h));
+  return[s[0]+h/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]), s[1]+h/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]),
+         s[2]+h/6*(k1[2]+2*k2[2]+2*k3[2]+k4[2]), s[3]+h/6*(k1[3]+2*k2[3]+2*k3[3]+k4[3])];
+}
+function ad(s,k,h){return[s[0]+k[0]*h,s[1]+k[1]*h,s[2]+k[2]*h,s[3]+k[3]*h]}
+function elems(s){
+  var x=s[0],y=s[1],vx=s[2],vy=s[3];
+  var r=Math.hypot(x,y), v2=vx*vx+vy*vy, eps=v2/2-1/r;
+  var h=x*vy-y*vx, rv=x*vx+y*vy;
+  var ex=(v2-1/r)*x-rv*vx, ey=(v2-1/r)*y-rv*vy;
+  var e=Math.hypot(ex,ey), a=(eps<0)?-1/(2*eps):Infinity;
+  return{r:r,v:Math.sqrt(v2),eps:eps,a:a,e:e,ex:ex,ey:ey,h:h,
+         rp:(eps<0)?a*(1-e):r, ra:(eps<0)?a*(1+e):Infinity,
+         om:Math.atan2(ey,ex), T:(eps<0)?TAU*Math.pow(a,1.5):Infinity};
+}
+function circState(r,ang,lead){ // 圓軌道狀態
+  var v=Math.sqrt(1/r), a=ang;
+  return[r*Math.cos(a), r*Math.sin(a), -v*Math.sin(a), v*Math.cos(a)];
+}
+function hohmann(r1,r2){ // 轉移 ΔV（單位速度）
+  var lo=Math.min(r1,r2),hi=Math.max(r1,r2);
+  var dv1=Math.abs(Math.sqrt(2/lo-2/(lo+hi))-Math.sqrt(1/lo));
+  var dv2=Math.abs(Math.sqrt(1/hi)-Math.sqrt(2/hi-2/(lo+hi)));
+  return dv1+dv2;
+}
+
+/* ── 任務定義 ── */
+var GEO=6.6107;
+var MISS={
+ 1:{name:'同步帶投遞', start:function(){S=circState(1.11, -0.6); station=null; targetR=GEO;},
+    cap:Math.round(hohmann(1.11,GEO)*VU*1.34), opt:Math.round(hohmann(1.11,GEO)*VU),
+    brief:'目標：半長軸 42 164 km ±3%、e<0.05。提示：順行點火抬遠地點，到遠地點再點一次收圓。'},
+ 2:{name:'前方會合', start:function(){S=circState(1.60,-1.2); station={r:1.60, th:-1.2+40/180*Math.PI}; targetR=null;},
+    cap:900, opt:Math.round(0.062*VU*0.55),
+    brief:'目標：貼近收件站 400 km 內、相對速度 < 120 m/s。守則第七條：先煞車。'},
+ 3:{name:'返還再入', start:function(){ // 遠地點入軌，rp=1.68 ra=3.12
+      var a=2.4,e=0.30,ra=a*(1+e); var v=Math.sqrt(2/ra-1/a);
+      S=[ra*Math.cos(2.2), ra*Math.sin(2.2), -v*Math.sin(2.2), v*Math.cos(2.2)];
+      station=null; targetR=null;},
+    cap:900, opt:Math.round(0.0747*VU),
+    brief:'目標：近地點壓入 50–290 km（半徑 1.008–1.045 R⊕）之再入窗口。'},
+ 0:{name:'自由軌道', start:function(){S=circState(1.35,0); station=null; targetR=null;},
+    cap:12000, opt:null, brief:'練習空域。'}
+};
+
+/* ── 全域狀態 ── */
+var S, station=null, targetR=null;
+var mission=0, dv=0, paused=reduce, speed=1, thrustDir=null, okFrames=0, lostT=0;
+var trail=[], certs={};
+try{certs=JSON.parse(sessionStorage.getItem('zt-certs')||'{}')}catch(e){certs={}}
+
+var $=function(id){return document.getElementById(id)};
+var statEl=$('stat');
+
+function setMission(m,quiet){
+  mission=m; MISS[m].start(); dv=0; okFrames=0; lostT=0; trail=[];
+  document.querySelectorAll('.tk').forEach(function(t){t.dataset.on=(+t.dataset.m===m)?'1':'0'});
+  $('dvcap').textContent=fmt(MISS[m].cap)+' m/s';
+  $('flagtxt').textContent=(m===0)?'試投 71-9999 練習空域':'郵件 71-000'+m+'・'+MISS[m].name;
+  if(!quiet) say((m===0)?'試投單受理。這裡沒有評判，只有牛頓。':
+      '任務票 71-000'+m+'〈'+MISS[m].name+'〉受理。'+MISS[m].brief+' 預算 '+fmt(MISS[m].cap)+' m/s（理論最省約 '+fmt(MISS[m].opt)+'）。');
+  render();
+}
+function say(html){statEl.innerHTML=html}
+function fmt(n){return (n===null||n===undefined)?'—':Math.round(n).toLocaleString('en')}
+
+/* ── 主迴圈 ── */
+var last=performance.now();
+function loop(now){
+  var dtr=Math.min((now-last)/1000,0.1); last=now;
+  if(!paused) advance(dtr*speed);
+  render();
+  requestAnimationFrame(loop);
+}
+function advance(simDt){
+  if(simDt<=0)return;
+  var n=Math.min(600,Math.ceil(simDt/0.004)), h=simDt/n;
+  var A=0.035; // 推力加速度（單位制）
+  for(var i=0;i<n;i++){
+    var th=[0,0];
+    if(thrustDir && dv<MISS[mission].cap){
+      var vx=S[2],vy=S[3],vm=Math.hypot(vx,vy)||1e-9;
+      var ux=vx/vm,uy=vy/vm, rr=Math.hypot(S[0],S[1]),rx=S[0]/rr,ry=S[1]/rr;
+      if(thrustDir==='pro'){th=[ux*A,uy*A]}
+      else if(thrustDir==='retro'){th=[-ux*A,-uy*A]}
+      else if(thrustDir==='out'){th=[rx*A,ry*A]}
+      else{th=[-rx*A,-ry*A]}
+      dv+=A*h*VU;
+    }
+    S=rk4(S,h,th);
+    if(station){station.th+=h/Math.pow(station.r,1.5)}
+  }
+  trail.push([S[0],S[1]]); if(trail.length>500)trail.shift();
+  judge(simDt);
+}
+
+/* ── 任務判定 ── */
+function judge(simDt){
+  var el=elems(S);
+  // 墜落 / 脫離（M3 另計）
+  if(mission!==3 && el.r<1.05){
+    say('<span class="bad">郵件 71-A 誤入大氣層，於彭佳嶼上空受損。</span>依補償要點理賠後重寄——任務重新受理。');
+    MISS[mission].start(); dv=0; trail=[]; return;
+  }
+  if(el.eps>=0){ lostT+=simDt;
+    if(lostT>2.5){ say('<span class="bad">超過脫離速度，郵件已離開地球引力圈，列入遺失。</span>重寄一宗，這次別燒那麼多。');
+      MISS[mission].start(); dv=0; trail=[]; lostT=0; return;}
+  } else lostT=0;
+
+  if(mission===1){
+    if(Math.abs(el.a-GEO)/GEO<0.03 && el.e<0.05){ okFrames++; if(okFrames>110) win(el);}
+    else okFrames=0;
+  }else if(mission===2 && station){
+    var sx=station.r*Math.cos(station.th), sy=station.r*Math.sin(station.th);
+    var d=Math.hypot(S[0]-sx,S[1]-sy);
+    var sv=Math.sqrt(1/station.r);
+    var svx=-sv*Math.sin(station.th), svy=sv*Math.cos(station.th);
+    var rv=Math.hypot(S[2]-svx,S[3]-svy);
+    if(d<0.0628 && rv<0.01518){ okFrames++; if(okFrames>80) win(el);} else okFrames=0;
+  }else if(mission===3){
+    if(el.r<=1.05){
+      if(el.rp>=1.008 && el.rp<=1.045){ win(el); }
+      else{ say('<span class="bad">再入角過陡，包裹於 61 公里高度過熱燒毀。</span>回到遠地點重新來過——輕一點，逆行一小段就夠。');
+        MISS[3].start(); dv=0; trail=[]; }
+    }
+  }
+}
+function win(el){
+  var m=mission, used=Math.round(dv), opt=MISS[m].opt;
+  var old=certs[m];
+  if(!old || used<old.dv){ certs[m]={dv:used,date:stampDate()}; try{sessionStorage.setItem('zt-certs',JSON.stringify(certs))}catch(e){} }
+  document.getElementById('tk'+m).dataset.ok='1';
+  var eff=opt?('耗用 ΔV '+fmt(used)+' m/s（理論最省 '+fmt(opt)+'，效率 '+Math.round(opt/used*100)+'%）。'):'';
+  var lines={1:'查該包裹已進入同步帶指定軌道，核予投遞。',
+             2:'查該包裹已完成前方會合，收件站簽收無誤。守則第七條，驗證屬實。',
+             3:'查該包裹已循再入窗口返還，落區回收完畢。'};
+  renderShelf();
+  setMission(0,true);
+  say('<span class="ok">'+lines[m]+'</span> '+eff+'執行證已開立，陳列於下方證架。星曆已切回練習空域。');
+}
+function stampDate(){var d=new Date();return (d.getFullYear()-1911)+'.'+(d.getMonth()+1)+'.'+d.getDate()}
+
+/* ── 繪圖 ── */
+function resize(){
+  var r=cv.parentNode.getBoundingClientRect();
+  cv.width=Math.round(r.width*devicePixelRatio); cv.height=Math.round(r.height*devicePixelRatio);
+}
+addEventListener('resize',function(){resize();render()});
+
+var stars=[]; (function(){var s=1234;for(var i=0;i<90;i++){s=(s*16807)%2147483647;var a=s/2147483647;
+  s=(s*16807)%2147483647;var b=s/2147483647; s=(s*16807)%2147483647;
+  stars.push([a,b,0.4+ (s/2147483647)*1.1])}})();
+
+function render(){
+  if(!cv.width)resize();
+  var W=cv.width,H=cv.height; cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,W,H);
+  cx.fillStyle='#0C1E27'; cx.fillRect(0,0,W,H);
+  for(var i=0;i<stars.length;i++){cx.fillStyle='rgba(207,220,223,'+(0.12+0.25*stars[i][2]/1.5)+')';
+    cx.fillRect(stars[i][0]*W, stars[i][1]*H, stars[i][2]*devicePixelRatio, stars[i][2]*devicePixelRatio);}
+  var el=elems(S);
+  var worldR=Math.max((isFinite(el.ra)?el.ra:el.r*1.6)*1.14, targetR?targetR*1.22:0, station?station.r*1.5:0, 1.9);
+  var sc=Math.min(W,H*1.18)/2/worldR*0.92, ox=W/2, oy=H*0.47;
+  function px(p){return[ox+p[0]*sc, oy-p[1]*sc]}
+
+  // 目標帶（M1）
+  if(targetR){
+    cx.strokeStyle='rgba(217,169,63,.22)'; cx.lineWidth=Math.max(2,(targetR*0.06)*sc);
+    cx.beginPath(); cx.arc(ox,oy,targetR*sc,0,TAU); cx.stroke();
+    cx.strokeStyle='#D9A93F'; cx.lineWidth=1.2*devicePixelRatio; cx.setLineDash([6,7]);
+    cx.beginPath(); cx.arc(ox,oy,targetR*sc,0,TAU); cx.stroke(); cx.setLineDash([]);
+    label('同步帶 35 786 km', ox+targetR*sc*0.7071+8, oy-targetR*sc*0.7071-8,'#D9A93F');
+  }
+  // 大氣殼
+  cx.strokeStyle='rgba(125,182,196,.5)'; cx.lineWidth=1*devicePixelRatio; cx.setLineDash([3,5]);
+  cx.beginPath(); cx.arc(ox,oy,1.05*sc,0,TAU); cx.stroke(); cx.setLineDash([]);
+  if(mission===3) label('再入窗口 50–290 km', ox+1.05*sc+6, oy-10,'#7DB6C4');
+  // 地球（排線）
+  cx.save(); cx.beginPath(); cx.arc(ox,oy,1*sc,0,TAU); cx.clip();
+  cx.fillStyle='#122B33'; cx.fillRect(ox-sc,oy-sc,2*sc,2*sc);
+  cx.strokeStyle='rgba(242,231,210,.5)'; cx.lineWidth=1*devicePixelRatio;
+  var step=Math.max(4,sc/9);
+  for(var yy=-sc;yy<=sc;yy+=step){cx.beginPath();cx.moveTo(ox-sc,oy+yy);cx.lineTo(ox+sc,oy+yy);cx.stroke();}
+  cx.restore();
+  cx.strokeStyle='#F2E7D2'; cx.lineWidth=1.6*devicePixelRatio;
+  cx.beginPath(); cx.arc(ox,oy,1*sc,0,TAU); cx.stroke();
+
+  // 軌跡殘影
+  if(trail.length>2){cx.strokeStyle='rgba(125,182,196,.30)';cx.lineWidth=1*devicePixelRatio;cx.beginPath();
+    for(var t=0;t<trail.length;t++){var q=px(trail[t]); t?cx.lineTo(q[0],q[1]):cx.moveTo(q[0],q[1])} cx.stroke();}
+
+  // 預測軌道（圓錐曲線即時重解）
+  if(el.eps<0){
+    var b=el.a*Math.sqrt(1-el.e*el.e);
+    var cxE=-el.a*el.e*Math.cos(el.om), cyE=-el.a*el.e*Math.sin(el.om);
+    var c=px([cxE,cyE]);
+    cx.strokeStyle='#E14F2A'; cx.lineWidth=2*devicePixelRatio;
+    cx.beginPath(); cx.ellipse(c[0],c[1], el.a*sc, b*sc, -el.om, 0, TAU); cx.stroke();
+    // 近／遠地點刻度
+    var pp=px([el.rp*Math.cos(el.om), el.rp*Math.sin(el.om)]);
+    var pa=px([-el.ra*Math.cos(el.om), -el.ra*Math.sin(el.om)]);
+    tick(pp,el.om); tick(pa,el.om);
+    label('P '+fmt((el.rp-1)*KM), pp[0]+8, pp[1]-8, '#E14F2A');
+    label('A '+fmt((el.ra-1)*KM), pa[0]+8, pa[1]-8, '#E14F2A');
+  }else{
+    // 雙曲線：往前積分取樣
+    cx.strokeStyle='#E14F2A'; cx.lineWidth=2*devicePixelRatio; cx.setLineDash([8,6]);
+    var s2=S.slice(); cx.beginPath(); var q0=px(s2); cx.moveTo(q0[0],q0[1]);
+    for(var k=0;k<420;k++){ s2=rk4(s2,0.03,[0,0]); var q=px(s2); cx.lineTo(q[0],q[1]);
+      if(Math.hypot(s2[0],s2[1])>worldR*1.4)break;}
+    cx.stroke(); cx.setLineDash([]);
+    label('脫離軌道 — 郵件即將遺失', ox+18, oy+H*0.34, '#E14F2A');
+  }
+
+  // 收件站（M2）
+  if(station){
+    var sx=station.r*Math.cos(station.th), sy=station.r*Math.sin(station.th), q=px([sx,sy]);
+    cx.strokeStyle='#D9A93F'; cx.lineWidth=1*devicePixelRatio; cx.setLineDash([4,6]);
+    cx.beginPath(); cx.arc(ox,oy,station.r*sc,0,TAU); cx.stroke(); cx.setLineDash([]);
+    cx.fillStyle='#D9A93F'; cx.save(); cx.translate(q[0],q[1]); cx.rotate(station.th);
+    cx.fillRect(-5*devicePixelRatio,-5*devicePixelRatio,10*devicePixelRatio,10*devicePixelRatio); cx.restore();
+    label('收件站 KEELUNG-2', q[0]+10, q[1]-10, '#D9A93F');
+  }
+
+  // 包裹（信封）
+  var pq=px(S), ang=Math.atan2(-(S[3]),S[2]);
+  cx.save(); cx.translate(pq[0],pq[1]); cx.rotate(ang);
+  var w=13*devicePixelRatio,h2=9*devicePixelRatio;
+  cx.fillStyle='#F2E7D2'; cx.strokeStyle='#1A2226'; cx.lineWidth=1.2*devicePixelRatio;
+  cx.fillRect(-w/2,-h2/2,w,h2); cx.strokeRect(-w/2,-h2/2,w,h2);
+  cx.beginPath(); cx.moveTo(-w/2,-h2/2); cx.lineTo(0,1); cx.lineTo(w/2,-h2/2); cx.stroke();
+  // 點火焰
+  if(thrustDir && !paused && dv<MISS[mission].cap){
+    var dirs={pro:0, retro:Math.PI, out:0, in:0};
+    var va=Math.atan2(-(S[3]),S[2]);
+    var ra2=Math.atan2(-S[1],S[0]);
+    var fa=(thrustDir==='pro')?va+Math.PI:(thrustDir==='retro')?va:(thrustDir==='out')?ra2+Math.PI:ra2;
+    cx.rotate(-ang); cx.rotate(fa);
+    cx.strokeStyle='#E14F2A'; cx.lineWidth=2.5*devicePixelRatio;
+    cx.beginPath(); cx.moveTo(10*devicePixelRatio,0); cx.lineTo(24*devicePixelRatio,0); cx.stroke();
+    cx.beginPath(); cx.moveTo(19*devicePixelRatio,-4*devicePixelRatio); cx.lineTo(24*devicePixelRatio,0); cx.lineTo(19*devicePixelRatio,4*devicePixelRatio); cx.stroke();
+  }
+  cx.restore();
+
+  // 讀數
+  $('r-alt').textContent=fmt((el.r-1)*KM)+' km';
+  $('r-vel').textContent=fmt(el.v*VU)+' m/s';
+  $('r-rp').textContent=(el.eps<0)?fmt((el.rp-1)*KM)+' km':'—';
+  $('r-ra').textContent=(el.eps<0)?fmt((el.ra-1)*KM)+' km':'∞';
+  $('r-e').textContent=el.e.toFixed(3);
+  $('r-T').textContent=(el.eps<0)?fmt(el.T*TMIN)+' 分':'—';
+  $('r-dv').textContent=fmt(dv)+' m/s';
+  $('dvused').textContent=fmt(dv)+' m/s';
+  $('dvfill').style.width=Math.min(100,dv/MISS[mission].cap*100)+'%';
+
+  function tick(p,om){
+    cx.save(); cx.translate(p[0],p[1]); cx.rotate(-om);
+    cx.strokeStyle='#E14F2A'; cx.lineWidth=1.6*devicePixelRatio;
+    cx.beginPath(); cx.moveTo(0,-6*devicePixelRatio); cx.lineTo(0,6*devicePixelRatio); cx.stroke(); cx.restore();
+  }
+  function label(t,x,y,c){
+    cx.font=(10.5*devicePixelRatio)+'px "IBM Plex Mono",monospace';
+    cx.fillStyle=c||'#8FA9B0'; cx.fillText(t,x,y);
+  }
+}
+
+/* ── 執行證印製（圓錐曲線引擎）── */
+function certSVG(m,info){
+  var spec={1:{r1:1.11,r2:GEO,e:0},2:{r1:1.6,r2:1.28,e:0.11},3:{r1:2.4,r2:1.03,e:0.3}}[m];
+  var W=168,H=210,cx0=W/2,cy0=H/2+14,s=(m===1)?9.5:(m===2)?34:26;
+  function ell(a,e,om,col,dash){
+    var b=a*Math.sqrt(1-e*e),c=a*e;
+    return '<ellipse cx="'+(cx0-c*Math.cos(om)*s)+'" cy="'+(cy0+c*Math.sin(om)*s)+'" rx="'+(a*s)+'" ry="'+(b*s)+
+      '" transform="rotate('+(-om*57.3)+' '+(cx0-c*Math.cos(om)*s)+' '+(cy0+c*Math.sin(om)*s)+')" fill="none" stroke="'+col+'" stroke-width="1.6"'+(dash?' stroke-dasharray="4 3"':'')+'/>';
+  }
+  var at=(spec.r1+spec.r2)/2, et=Math.abs(spec.r2-spec.r1)/(spec.r1+spec.r2);
+  var perf=''; for(var i=0;i<14;i++){perf+='<circle cx="'+(6+i*12)+'" cy="3" r="2.6" fill="#16333D"/><circle cx="'+(6+i*12)+'" cy="'+(H-3)+'" r="2.6" fill="#16333D"/>'}
+  for(var j=1;j<17;j++){perf+='<circle cx="3" cy="'+(j*12)+'" r="2.6" fill="#16333D"/><circle cx="'+(W-3)+'" cy="'+(j*12)+'" r="2.6" fill="#16333D"/>'}
+  return '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="執行證 '+MISS[m].name+'">'+
+   '<rect width="'+W+'" height="'+H+'" fill="#F2E7D2"/>'+perf+
+   '<rect x="10" y="10" width="'+(W-20)+'" height="'+(H-20)+'" fill="none" stroke="#1A2226" stroke-width="1.4"/>'+
+   '<text x="'+cx0+'" y="26" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-weight="900" font-size="12" fill="#1A2226" letter-spacing="2">周天軌道郵政・執行證</text>'+
+   '<text x="'+cx0+'" y="40" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="#41525A">MISSION 71-000'+m+' · '+info.date+'</text>'+
+   '<circle cx="'+cx0+'" cy="'+cy0+'" r="'+(1*s)+'" fill="#16333D"/>'+
+   ell(spec.r1,0,0,'#8FA9B0',true)+ (m===1?ell(spec.r2,0,0,'#8FA9B0',true):'')+
+   ell(at,et,0,'#E14F2A',false)+
+   '<circle cx="'+(cx0+spec.r1*s)+'" cy="'+cy0+'" r="3" fill="#E14F2A"/>'+
+   '<text x="'+cx0+'" y="'+(H-34)+'" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-weight="900" font-size="13" fill="#1A2226">'+MISS[m].name+'</text>'+
+   '<text x="'+cx0+'" y="'+(H-19)+'" text-anchor="middle" font-family="Oswald,sans-serif" font-weight="700" font-size="14" fill="#B8402C">ΔV '+info.dv.toLocaleString('en')+' m/s</text></svg>';
+}
+function renderShelf(){
+  var sh=$('shelf'), ks=Object.keys(certs);
+  if(!ks.length){sh.innerHTML='<div class="empty">尚未開立任何執行證。三宗任務都在上面等著。</div>';return}
+  sh.innerHTML=ks.map(function(k){return '<div>'+certSVG(+k,certs[k])+'</div>'}).join('');
+  ks.forEach(function(k){var t=$('tk'+k); if(t)t.dataset.ok='1'});
+}
+
+/* ── 事件 ── */
+document.querySelectorAll('.tk').forEach(function(t){
+  t.addEventListener('click',function(){setMission(+t.dataset.m)});
+});
+document.querySelectorAll('.bb').forEach(function(b){
+  function on(ev){ev.preventDefault();thrustDir=b.dataset.d;b.classList.add('hold')}
+  function off(){if(thrustDir===b.dataset.d)thrustDir=null;b.classList.remove('hold')}
+  b.addEventListener('pointerdown',on);
+  b.addEventListener('pointerup',off); b.addEventListener('pointerleave',off); b.addEventListener('pointercancel',off);
+});
+var KEYS={w:'pro',s:'retro',a:'in',d:'out',W:'pro',S:'retro',A:'in',D:'out'};
+addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(KEYS[e.key]){thrustDir=KEYS[e.key];e.preventDefault()}
+  if(e.key===' '){togglePause();e.preventDefault()}
+});
+addEventListener('keyup',function(e){if(KEYS[e.key]&&thrustDir===KEYS[e.key])thrustDir=null});
+function togglePause(){paused=!paused;$('btnpause').textContent=paused?'續行':'暫停';$('btnpause').dataset.on=paused?'1':'0'}
+$('btnpause').addEventListener('click',togglePause);
+document.querySelectorAll('.spd').forEach(function(b){
+  b.addEventListener('click',function(){speed=+b.dataset.s;
+    document.querySelectorAll('.spd').forEach(function(x){x.dataset.on=(x===b)?'1':'0'})});
+});
+$('step10').addEventListener('click',function(){advance(10/TMIN);render()});
+$('step90').addEventListener('click',function(){advance(90/TMIN);render()});
+
+/* ── 啟動 ── */
+resize();
+setMission(1);
+renderShelf();
+if(reduce){$('btnpause').textContent='續行';$('btnpause').dataset.on='1';
+  say('偵測到減速動畫偏好：星曆鐘已暫停。用「+10 分」「+90 分」逐段推進，軌道每一格都算給你看。');}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

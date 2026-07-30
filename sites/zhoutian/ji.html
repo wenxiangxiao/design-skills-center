@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寄件申請｜周天軌道郵政</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2316333D'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23F2E7D2'/%3E%3Cellipse cx='16' cy='16' rx='13' ry='7' fill='none' stroke='%23E14F2A' stroke-width='2' transform='rotate(-24 16 16)'/%3E%3Ccircle cx='26.8' cy='10.6' r='2.2' fill='%23E14F2A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#16333D; --bg2:#0F2630; --panel:#1C3E4A; --line:#2E5260;
+  --cream:#F2E7D2; --cream2:#E6D8BC; --ink:#1A2226; --ink2:#41525A;
+  --or:#E14F2A; --sky:#7DB6C4; --gold:#D9A93F; --txt:#CFDCDF; --dim:#8FA9B0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'Noto Sans TC',sans-serif;font-size:16px;line-height:1.8}
+::selection{background:var(--or);color:var(--cream)}
+a{color:var(--sky)}
+.mono{font-family:'IBM Plex Mono',monospace}
+header{border-bottom:3px double var(--line);background:var(--bg2)}
+.mast{max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px}
+.seal{width:52px;height:52px;flex:none}
+.mast h1{font-size:21px;font-weight:900;color:var(--cream);letter-spacing:.14em;line-height:1.2}
+.mast .sub{font-size:11px;color:var(--dim);letter-spacing:.22em;margin-top:2px}
+.mast .en{color:var(--gold);font-family:'Oswald',sans-serif;font-weight:500;letter-spacing:.3em;font-size:11px}
+.spacer{flex:1}
+.rack{display:flex;gap:12px;align-items:flex-end}
+.rack a{display:block;width:96px;height:66px;background:var(--cream);border:1.5px solid var(--ink);position:relative;text-decoration:none;color:var(--ink);padding:12px 8px 6px;transition:transform .18s ease}
+.rack a::before{content:"";position:absolute;top:0;left:0;right:0;height:7px;background:repeating-linear-gradient(-45deg,#B8402C 0 7px,var(--cream) 7px 14px,#2A5DA8 14px 21px,var(--cream) 21px 28px)}
+.rack a .zh{display:block;font-size:13px;font-weight:700;line-height:1.3;margin-top:2px}
+.rack a .fr{display:block;font-size:8.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink2);letter-spacing:.08em}
+.rack a:hover{transform:translateY(-3px)}
+.rack a[aria-current="page"]{transform:rotate(-2.5deg)}
+.rack a[aria-current="page"] .pm{display:block}
+.pm{display:none;position:absolute;top:-14px;right:-18px;width:96px;height:56px;pointer-events:none}
+.dock{display:none}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+h2.sec{font-size:28px;font-weight:900;color:var(--cream);letter-spacing:.1em;margin:6px 0 16px}
+.lede{margin:40px 0 8px;max-width:720px}
+
+/* 表單（公文紙）*/
+.formpaper{background:var(--cream);color:var(--ink);border:1.5px solid var(--ink);margin:20px 0 50px;position:relative}
+.formpaper::before{content:"表 71-04（軌道郵件寄件申請書）";position:absolute;top:10px;right:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2);letter-spacing:.12em}
+.steps{display:flex;border-bottom:1.5px solid var(--ink)}
+.steps div{flex:1;padding:10px 8px;text-align:center;font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--ink2);border-right:1px solid var(--ink2);position:relative}
+.steps div:last-child{border-right:none}
+.steps div[data-on="1"]{background:var(--ink);color:var(--cream)}
+.steps div[data-done="1"]{color:#2E6E45}
+.fbody{padding:26px 30px}
+.fs{display:none}
+.fs[data-show="1"]{display:block}
+.fs h3{font-size:19px;font-weight:900;letter-spacing:.08em;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:13px;font-weight:700;letter-spacing:.08em;margin-bottom:5px}
+.fld label small{font-family:'IBM Plex Mono',monospace;color:var(--ink2);font-weight:400;letter-spacing:.05em}
+.fld input,.fld select{width:100%;padding:9px 11px;border:1.5px solid var(--ink2);background:#FBF6EA;font-family:'Noto Sans TC',sans-serif;font-size:15px;color:var(--ink)}
+.fld input:focus,.fld select:focus{outline:2px solid var(--or);outline-offset:0;border-color:var(--or)}
+.fld .err{display:none;color:#B8402C;font-size:12.5px;margin-top:4px;font-weight:700}
+.fld.bad input,.fld.bad select{border-color:#B8402C;background:#F7E8E0}
+.fld.bad .err{display:block}
+.radioband{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.radioband label{display:block;border:1.5px solid var(--ink2);padding:10px 12px;cursor:pointer;font-size:14px;background:#FBF6EA}
+.radioband label b{display:block;font-size:15px}
+.radioband label small{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)}
+.radioband input{position:absolute;opacity:0}
+.radioband label[data-on="1"]{background:var(--ink);color:var(--cream)}
+.radioband label[data-on="1"] small{color:var(--sky)}
+.btnrow{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.pbtn{background:var(--ink);color:var(--cream);border:1.5px solid var(--ink);font-family:'Noto Sans TC',sans-serif;font-weight:700;font-size:15px;letter-spacing:.14em;padding:11px 26px;cursor:pointer}
+.pbtn:hover{background:#2E3C42}
+.pbtn.ghost{background:none;color:var(--ink)}
+.quote{border:1.5px dashed var(--ink2);background:var(--cream2);padding:14px 18px;margin:14px 0;font-size:14.5px}
+.quote table{width:100%;border-collapse:collapse}
+.quote td{padding:4px 0;border:none}
+.quote td:last-child{text-align:right;font-family:'IBM Plex Mono',monospace}
+.quote .sum td{border-top:1.5px solid var(--ink);font-weight:900;font-size:16px;padding-top:8px}
+.quote .sum td:last-child{font-family:'Oswald',sans-serif;color:#B8402C;font-size:19px}
+#receipt{display:none;padding:26px 30px}
+#receipt[data-show="1"]{display:block}
+.rc{display:grid;grid-template-columns:1fr 220px;gap:26px;align-items:start}
+.rc dl{font-size:14.5px}
+.rc dt{font-weight:700;font-size:12.5px;letter-spacing:.1em;color:var(--ink2);margin-top:10px}
+.rc dd{margin:0;font-size:15.5px}
+.rc dd.mono{font-family:'IBM Plex Mono',monospace}
+.rcnote{margin-top:16px;font-size:13.5px;color:var(--ink2);border-top:1.5px solid var(--ink);padding-top:12px;line-height:1.8}
+@media(max-width:900px){
+  .rack{display:none}
+  .dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bg2);border-top:2px solid var(--line)}
+  .dock a{flex:1;text-align:center;padding:11px 2px 9px;color:var(--txt);text-decoration:none;font-size:13px;font-weight:700;border-right:1px solid var(--line);position:relative}
+  .dock a:last-child{border-right:none}
+  .dock a small{display:block;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--dim);letter-spacing:.1em}
+  .dock a[aria-current="page"]{color:var(--cream)}
+  .dock a[aria-current="page"]::after{content:"";position:absolute;top:6px;right:10px;width:9px;height:9px;border:1.5px solid var(--or);border-radius:50%}
+  body{padding-bottom:64px}
+  .grid2{grid-template-columns:1fr}
+  .rc{grid-template-columns:1fr}
+  .fbody{padding:20px 16px}
+}
+@media(max-width:560px){.mast h1{font-size:17px}.mast .sub{display:none}.steps div{font-size:11px;padding:8px 4px}}
+footer{border-top:3px double var(--line);background:var(--bg2);margin-top:56px}
+.ft{max-width:1280px;margin:0 auto;padding:34px 24px;display:grid;grid-template-columns:2fr 1fr 1.6fr;gap:30px;font-size:13.5px}
+.ft h4{color:var(--cream);font-size:13px;letter-spacing:.24em;margin-bottom:10px;font-weight:700}
+.ft p,.ft li{color:var(--dim);line-height:1.9}
+.ft ul{list-style:none}
+.ft a{color:var(--sky);text-decoration:none;border-bottom:1px solid var(--line)}
+.fine{border-top:1px solid var(--line);padding:12px 24px;text-align:center;font-size:11.5px;color:var(--dim);letter-spacing:.08em}
+@media(max-width:900px){.ft{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mast">
+    <svg class="seal" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="#D9A93F" stroke-width="2"/>
+      <circle cx="32" cy="32" r="10" fill="#F2E7D2"/>
+      <g stroke="#16333D" stroke-width="1.1"><line x1="24" y1="28" x2="40" y2="28"/><line x1="23" y1="32" x2="41" y2="32"/><line x1="24" y1="36" x2="40" y2="36"/></g>
+      <ellipse cx="32" cy="32" rx="24" ry="12" fill="none" stroke="#E14F2A" stroke-width="2" transform="rotate(-24 32 32)"/>
+      <circle cx="51" cy="21" r="3.4" fill="#E14F2A"/>
+    </svg>
+    <div>
+      <h1>周天軌道郵政</h1>
+      <div class="sub">交通部郵政總局・第七一支局（軌道業務試辦）</div>
+      <div class="en">CHOU-TIEN ORBITAL POST · KEELUNG</div>
+    </div>
+    <div class="spacer"></div>
+    <nav class="rack" aria-label="主導覽">
+      <a href="index.html"><span class="zh">寄件台</span><span class="fr">CONSOLE / 71-01</span></a>
+      <a href="fei.html"><span class="zh">資費帶別</span><span class="fr">TARIFF / 71-02</span></a>
+      <a href="fa.html"><span class="zh">軌道之法</span><span class="fr">MECHANICS / 71-03</span></a>
+      <a href="ji.html" aria-current="page"><span class="zh">寄件申請</span><span class="fr">DISPATCH / 71-04</span>
+        <svg class="pm" viewBox="0 0 96 56" aria-hidden="true">
+          <g fill="none" stroke="#1A2226" stroke-width="1.6" opacity=".8">
+            <circle cx="28" cy="28" r="21"/>
+            <path d="M52 18q8 5 0 10t0 10"/><path d="M66 18q8 5 0 10t0 10"/><path d="M80 18q8 5 0 10t0 10"/>
+          </g>
+          <g fill="#1A2226" opacity=".85" font-family="IBM Plex Mono,monospace" text-anchor="middle">
+            <text x="28" y="24" font-size="7.5">周天支局</text><text x="28" y="33" font-size="7">115.7.30</text><text x="28" y="41" font-size="6">ORBITAL</text>
+          </g>
+        </svg>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<nav class="dock" aria-label="主導覽（行動版）">
+  <a href="index.html">寄件台<small>CONSOLE</small></a>
+  <a href="fei.html">資費<small>TARIFF</small></a>
+  <a href="fa.html">法<small>MECHANICS</small></a>
+  <a href="ji.html" aria-current="page">申請<small>DISPATCH</small></a>
+</nav>
+
+<main class="wrap">
+  <div class="lede">
+    <span class="tag">DISPATCH FORM 71-04</span>
+    <h2 class="sec">寄件申請</h2>
+    <p>填一份申請書，本所即依霍曼兩式核算你的 ΔV 與資費，開立收執並蓋發航印。臨櫃亦受理，但排隊的多半是來看天線的。</p>
+  </div>
+
+  <form class="formpaper" id="dform" novalidate>
+    <div class="steps" aria-hidden="true">
+      <div data-on="1" id="st1">一、包裹</div>
+      <div id="st2">二、郵路</div>
+      <div id="st3">三、窗口</div>
+      <div id="st4">四、核資費</div>
+    </div>
+
+    <div class="fbody">
+      <!-- step 1 -->
+      <section class="fs" data-show="1" id="fs1">
+        <h3>包裹資料</h3>
+        <div class="grid2">
+          <div class="fld" id="f-name">
+            <label for="i-name">寄件人姓名 <small>SENDER</small></label>
+            <input id="i-name" type="text" autocomplete="name" placeholder="例：沈拱辰">
+            <div class="err">請填寫姓名（至少兩字）。</div>
+          </div>
+          <div class="fld" id="f-tel">
+            <label for="i-tel">聯絡電話 <small>TEL</small></label>
+            <input id="i-tel" type="tel" inputmode="tel" placeholder="例：02-24247100">
+            <div class="err">電話格式不對——數字與連字號，至少八碼。</div>
+          </div>
+          <div class="fld" id="f-item">
+            <label for="i-item">品名 <small>CONTENTS</small></label>
+            <input id="i-item" type="text" placeholder="例：石英振盪器一批">
+            <div class="err">請填寫品名。禁寄物品清單見〈資費帶別〉。</div>
+          </div>
+          <div class="fld" id="f-kg">
+            <label for="i-kg">重量（公斤）<small>MASS 0.1–120</small></label>
+            <input id="i-kg" type="number" min="0.1" max="120" step="0.1" value="1.0">
+            <div class="err">重量須在 0.1–120 公斤之間。</div>
+          </div>
+        </div>
+        <div class="btnrow"><button type="button" class="pbtn" data-go="2">下一步（郵路）</button></div>
+      </section>
+
+      <!-- step 2 -->
+      <section class="fs" id="fs2">
+        <h3>郵路選擇</h3>
+        <div class="fld" id="f-from">
+          <label>出發帶 <small>FROM</small></label>
+          <div class="radioband" id="fromband"></div>
+          <div class="err">請選擇出發帶。</div>
+        </div>
+        <div class="fld" id="f-to" style="margin-top:14px">
+          <label>目的帶 <small>TO</small></label>
+          <div class="radioband" id="toband"></div>
+          <div class="err">請選擇目的帶，且不可與出發帶相同。</div>
+        </div>
+        <div class="btnrow">
+          <button type="button" class="pbtn ghost" data-go="1">上一步</button>
+          <button type="button" class="pbtn" data-go="3">下一步（窗口）</button>
+        </div>
+      </section>
+
+      <!-- step 3 -->
+      <section class="fs" id="fs3">
+        <h3>發航窗口</h3>
+        <div class="grid2">
+          <div class="fld" id="f-date">
+            <label for="i-date">發航日期 <small>不早於明日</small></label>
+            <input id="i-date" type="date">
+            <div class="err">請選擇明天（含）以後的日期。</div>
+          </div>
+          <div class="fld" id="f-win">
+            <label for="i-win">窗口班次 <small>WINDOW</small></label>
+            <select id="i-win">
+              <option value="">— 請選擇 —</option>
+              <option value="A1">上行 A1・05:40（±11 分）</option>
+              <option value="A2">上行 A2・17:20（±11 分）</option>
+              <option value="B">上行 B・23:05（±4 分）</option>
+            </select>
+            <div class="err">請選擇窗口班次。</div>
+          </div>
+        </div>
+        <div class="btnrow">
+          <button type="button" class="pbtn ghost" data-go="2">上一步</button>
+          <button type="button" class="pbtn" data-go="4">下一步（核資費）</button>
+        </div>
+      </section>
+
+      <!-- step 4 -->
+      <section class="fs" id="fs4">
+        <h3>資費核算</h3>
+        <div class="quote"><table id="qtable"></table></div>
+        <p style="font-size:13px;color:var(--ink2)">ΔV 依霍曼轉移兩式核算（式見〈軌道之法〉第三條）；逾一公斤部分每公斤加收一成。按下寄出即視同同意《軌道郵件補償要點》。</p>
+        <div class="btnrow">
+          <button type="button" class="pbtn ghost" data-go="3">上一步</button>
+          <button type="submit" class="pbtn">寄出，開立收執</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- receipt -->
+    <div id="receipt">
+      <h3 style="font-size:19px;font-weight:900;letter-spacing:.08em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--ink)">收執聯・第七一支局</h3>
+      <div class="rc">
+        <dl id="rdl"></dl>
+        <div id="rseal" aria-label="發航印"></div>
+      </div>
+      <p class="rcnote">憑此收執於發航日至臨櫃交寄。印面上那條軌道不是裝飾——它是依你的郵路解出的轉移橢圓，散布的星點由收執號碼決定，全世界只有這一張。想先練飛一遍，寄件台隨時開著。</p>
+      <div class="btnrow" style="padding:0 0 6px"><button type="button" class="pbtn ghost" id="again">再寄一件</button></div>
+    </div>
+  </form>
+</main>
+
+<footer>
+  <div class="ft">
+    <div>
+      <h4>周天軌道郵政</h4>
+      <p>交通部郵政總局第七一支局（軌道業務試辦）<br>基隆市仁愛區港西街 6 號 6 樓<br>(02) 2424-7100｜週一至週六 08:00–17:00</p>
+    </div>
+    <div>
+      <h4>頁面</h4>
+      <ul>
+        <li><a href="index.html">寄件台</a></li>
+        <li><a href="fei.html">資費帶別</a></li>
+        <li><a href="fa.html">軌道之法</a></li>
+        <li><a href="ji.html">寄件申請</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>聲明</h4>
+      <p>本站為 Design Skills Center 風格圖書館之示範作品。機構、人員、地址、電話、資費與一切數據皆屬虛構示意；表單不會送出任何資料。</p>
+    </div>
+  </div>
+  <div class="fine">CHOU-TIEN ORBITAL POST — A FICTIONAL DEMONSTRATION SITE · 收執印記由申請資料決定性生成</div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var VU=7905;
+var BANDS=[
+ {id:'leo', nm:'近地帶', en:'LEO 700 km', r:1.11},
+ {id:'sso', nm:'晨昏帶', en:'SSO 800 km', r:1.126},
+ {id:'mol', nm:'半日帶', en:'MOLNIYA 39 400 km', r:4.16},
+ {id:'geo', nm:'同步帶', en:'GEO 35 786 km', r:6.611},
+ {id:'gy',  nm:'墓地帶', en:'GRAVEYARD 36 086 km', r:6.658},
+ {id:'re',  nm:'返還再入', en:'REENTRY 落區', r:1.03}
+];
+function hohmann(r1,r2){
+  var lo=Math.min(r1,r2),hi=Math.max(r1,r2);
+  var dv1=Math.abs(Math.sqrt(2/lo-2/(lo+hi))-Math.sqrt(1/lo));
+  var dv2=Math.abs(Math.sqrt(1/hi)-Math.sqrt(2/hi-2/(lo+hi)));
+  return Math.round((dv1+dv2)*VU);
+}
+function transferTime(r1,r2){ // 半圈滑行，單位分
+  var at=(r1+r2)/2; return Math.round(Math.PI*Math.pow(at,1.5)*13.4467);
+}
+var $=function(id){return document.getElementById(id)};
+var state={from:null,to:null};
+
+/* 帶別選鈕 */
+function band(el,key){
+  el.innerHTML=BANDS.map(function(b){
+    return '<label data-b="'+b.id+'"><input type="radio" name="'+key+'" value="'+b.id+'"><b>'+b.nm+'</b><small>'+b.en+'</small></label>';
+  }).join('');
+  el.addEventListener('click',function(ev){
+    var lb=ev.target.closest('label'); if(!lb)return;
+    state[key]=lb.dataset.b;
+    el.querySelectorAll('label').forEach(function(x){x.dataset.on=(x===lb)?'1':'0'});
+  });
+}
+band($('fromband'),'from'); band($('toband'),'to');
+
+/* 步驟切換與驗證 */
+var cur=1;
+function show(n){
+  cur=n;
+  for(var i=1;i<=4;i++){
+    $('fs'+i).dataset.show=(i===n)?'1':'0';
+    $('st'+i).dataset.on=(i===n)?'1':'0';
+    $('st'+i).dataset.done=(i<n)?'1':'0';
+  }
+  if(n===4)quote();
+}
+function bad(id,is){ $(id).classList.toggle('bad',!!is); return !!is }
+function v1(){
+  var e=false;
+  e=bad('f-name', $('i-name').value.trim().length<2)||e;
+  e=bad('f-tel', !/^[0-9\-() ]{8,}$/.test($('i-tel').value.trim()))||e;
+  e=bad('f-item', $('i-item').value.trim().length<1)||e;
+  var kg=parseFloat($('i-kg').value);
+  e=bad('f-kg', !(kg>=0.1&&kg<=120))||e;
+  return !e;
+}
+function v2(){
+  var e=false;
+  e=bad('f-from', !state.from)||e;
+  e=bad('f-to', !state.to||state.to===state.from)||e;
+  return !e;
+}
+function v3(){
+  var e=false;
+  var d=$('i-date').value; var ok=false;
+  if(d){var t=new Date(d+'T00:00:00'); var tm=new Date(); tm.setHours(0,0,0,0); tm.setDate(tm.getDate()+1); ok=t>=tm}
+  e=bad('f-date',!ok)||e;
+  e=bad('f-win', !$('i-win').value)||e;
+  return !e;
+}
+document.querySelectorAll('[data-go]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var to=+b.dataset.go;
+    if(to>cur){
+      if(cur===1&&!v1())return;
+      if(cur===2&&!v2())return;
+      if(cur===3&&!v3())return;
+    }
+    show(to);
+  });
+});
+
+/* 核資費 */
+function calc(){
+  var f=BANDS.find(function(b){return b.id===state.from});
+  var t=BANDS.find(function(b){return b.id===state.to});
+  var kg=parseFloat($('i-kg').value)||1;
+  var dv=hohmann(f.r,t.r);
+  var base=Math.round(dv*1.2)+180;
+  var over=Math.max(0,Math.ceil(kg-1));
+  var extra=Math.round(dv*1.2*0.1)*over;
+  return {f:f,t:t,kg:kg,dv:dv,base:base,extra:extra,total:base+extra,mins:transferTime(f.r,t.r)};
+}
+function quote(){
+  var q=calc();
+  $('qtable').innerHTML=
+   '<tr><td>郵路</td><td>'+q.f.nm+' → '+q.t.nm+'</td></tr>'+
+   '<tr><td>轉移 ΔV（霍曼理論值）</td><td>'+q.dv.toLocaleString('en')+' m/s</td></tr>'+
+   '<tr><td>轉移滑行時間</td><td>約 '+Math.floor(q.mins/60)+' 時 '+(q.mins%60)+' 分</td></tr>'+
+   '<tr><td>基本資費（ΔV × 1.2 ＋掛號 180）</td><td>NT$ '+q.base.toLocaleString('en')+'</td></tr>'+
+   '<tr><td>逾重加費（'+q.kg.toFixed(1)+' kg）</td><td>NT$ '+q.extra.toLocaleString('en')+'</td></tr>'+
+   '<tr class="sum"><td>應收合計</td><td>NT$ '+q.total.toLocaleString('en')+'</td></tr>';
+}
+
+/* 收執印記：FNV-1a → mulberry32 決定性生成 */
+function fnv(str){var h=2166136261;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function mul32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function sealSVG(no,q){
+  var rnd=mul32(fnv(no));
+  var W=220,H=220,cx=110,cy=118;
+  var hi=Math.max(q.f.r,q.t.r), ss=56/hi;
+  var at=(q.f.r+q.t.r)/2, et=Math.abs(q.t.r-q.f.r)/(q.f.r+q.t.r), c=at*et;
+  var rot=Math.round(rnd()*360);
+  var starsv='';
+  for(var i=0;i<26;i++){
+    var a=rnd()*Math.PI*2, rr=78+rnd()*24, sz=0.8+rnd()*1.7;
+    starsv+='<circle cx="'+(cx+Math.cos(a)*rr).toFixed(1)+'" cy="'+(cy+Math.sin(a)*rr*0.92).toFixed(1)+'" r="'+sz.toFixed(1)+'" fill="#E14F2A" opacity="'+(0.35+rnd()*0.5).toFixed(2)+'"/>';
+  }
+  var hatch='';
+  for(var y=-0.8;y<=0.85;y+=0.4){var hw=Math.sqrt(Math.max(0,1-y*y))*ss;
+    hatch+='<line x1="'+(cx-hw)+'" y1="'+(cy+y*ss)+'" x2="'+(cx+hw)+'" y2="'+(cy+y*ss)+'" stroke="#F2E7D2" stroke-width=".8"/>'}
+  return '<svg width="220" height="220" viewBox="0 0 220 220" role="img" aria-label="發航印 '+no+'">'+
+   '<circle cx="'+cx+'" cy="'+cy+'" r="102" fill="none" stroke="#B8402C" stroke-width="2.4"/>'+
+   '<circle cx="'+cx+'" cy="'+cy+'" r="86" fill="none" stroke="#B8402C" stroke-width="1"/>'+starsv+
+   '<circle cx="'+cx+'" cy="'+cy+'" r="'+ss+'" fill="#16333D"/>'+hatch+
+   '<g transform="rotate('+rot+' '+cx+' '+cy+')">'+
+   '<ellipse cx="'+(cx-c*ss)+'" cy="'+cy+'" rx="'+(at*ss)+'" ry="'+(at*Math.sqrt(1-et*et)*ss)+'" fill="none" stroke="#B8402C" stroke-width="2"/>'+
+   '<circle cx="'+(cx+q.f.r*ss)+'" cy="'+cy+'" r="3.4" fill="#B8402C"/></g>'+
+   '<text x="'+cx+'" y="30" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-weight="900" font-size="13" fill="#B8402C" letter-spacing="4">周天軌道郵政</text>'+
+   '<text x="'+cx+'" y="208" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="#B8402C" letter-spacing="1">'+no+'</text></svg>';
+}
+$('dform').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  if(!(v1()&&v2()&&v3()))return;
+  var q=calc();
+  var d=new Date();
+  var no='CT-'+(d.getFullYear()-1911)+String(fnv($('i-name').value+$('i-item').value+$('i-date').value)%100000).padStart(5,'0');
+  document.querySelector('.fbody').style.display='none';
+  document.querySelector('.steps').style.visibility='hidden';
+  $('receipt').dataset.show='1';
+  $('rdl').innerHTML=
+   '<dt>收執號碼</dt><dd class="mono">'+no+'</dd>'+
+   '<dt>寄件人</dt><dd>'+esc($('i-name').value)+'（'+esc($('i-tel').value)+'）</dd>'+
+   '<dt>品名／重量</dt><dd>'+esc($('i-item').value)+'・'+(parseFloat($('i-kg').value)).toFixed(1)+' kg</dd>'+
+   '<dt>郵路</dt><dd>'+q.f.nm+' → '+q.t.nm+'（ΔV '+q.dv.toLocaleString('en')+' m/s）</dd>'+
+   '<dt>發航</dt><dd>'+esc($('i-date').value)+'・窗口 '+esc($('i-win').value)+'</dd>'+
+   '<dt>應收資費</dt><dd class="mono">NT$ '+q.total.toLocaleString('en')+'</dd>';
+  $('rseal').innerHTML=sealSVG(no,q);
+});
+function esc(s){return s.replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]})}
+$('again').addEventListener('click',function(){
+  $('receipt').dataset.show='0';
+  document.querySelector('.fbody').style.display='';
+  document.querySelector('.steps').style.visibility='';
+  show(1);
+});
+/* 日期欄預設 min */
+(function(){var d=new Date();d.setDate(d.getDate()+1);$('i-date').min=d.toISOString().slice(0,10)})();
+})();
+</script>
+</body>
+</html>

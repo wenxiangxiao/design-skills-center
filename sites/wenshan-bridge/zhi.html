@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%231E2E6B"/><path d="M16 3v26M3 16h26" stroke="%238AA0D8" stroke-width="1.2"/><path d="M9 6.4c1.8 1.6 3.4 2.6 3.4 4.1 0 1-.8 1.6-1.6 1.6-.7 0-1.3-.4-1.8-1-.5.6-1.1 1-1.8 1-.8 0-1.6-.6-1.6-1.6C5.6 9 7.2 8 9 6.4z" fill="%23D9DCE1"/><path d="M23 12.6c-1.8-1.6-3.4-2.6-3.4-4.1 0-1 .8-1.6 1.6-1.6.7 0 1.3.4 1.8 1 .5-.6 1.1-1 1.8-1 .8 0 1.6.6 1.6 1.6 0 1.5-1.6 2.5-3.4 4.1z" fill="%23D33A2E"/><path d="M9 19.4l3.4 4.2L9 27.8l-3.4-4.2z" fill="%23D33A2E"/><path d="M23 19.6c.9 0 1.7.8 1.7 1.7 0 .4-.1.7-.3 1 .3-.2.7-.3 1.1-.3.9 0 1.7.8 1.7 1.7s-.8 1.7-1.7 1.7c-.5 0-1-.2-1.3-.6l.5 2.3h-3.4l.5-2.3c-.3.4-.8.6-1.3.6-.9 0-1.7-.8-1.7-1.7s.8-1.7 1.7-1.7c.4 0 .8.1 1.1.3-.2-.3-.3-.6-.3-1 0-.9.8-1.7 1.7-1.7z" fill="%23D9DCE1"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<title>制｜文山大學橋藝社——文山制系統表、推論帶算法與叫品字典</title>
+<meta name="description" content="社課講義線上版：五張高花開叫、15–17 無王、史坦曼；應叫與再叫門檻、插叫、計分表、推論帶的區間交集算法，以及練習台那台電腦的打牌規則與已知弱點。">
+<style>
+:root{
+  --ink:#1E2E6B; --ink2:#16224F; --ink3:#101838; --ink4:#0A1028;
+  --card:#D9DCE1; --card2:#C4C9D2; --card3:#AEB5C2;
+  --paper:#EDEFF2;
+  --red:#D33A2E; --redD:#A82A20;
+  --sky:#8AA0D8; --skyD:#5D74B0;
+  --line:rgba(217,220,225,.26);
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --disp:'Archivo',sans-serif; --mono:'Roboto Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--ink);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23n)'/%3E%3C/svg%3E");
+  color:var(--card);font-family:var(--sans);font-size:16px;line-height:1.7;
+}
+::selection{background:var(--sky);color:var(--ink3)}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.32;font-weight:700}
+.mono{font-family:var(--mono)}
+.hide{display:none!important}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+/* ── 頂條 ───────────────────────── */
+.top{display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--ink4);border-bottom:1px solid var(--sky)}
+.top .mk{flex:0 0 auto}
+.top .nm{font-family:var(--serif);font-weight:900;font-size:1.06rem;letter-spacing:.14em}
+.top .nm small{display:block;font-family:var(--disp);font-weight:700;font-size:.55rem;letter-spacing:.3em;color:var(--sky)}
+.top .meta{margin-left:auto;text-align:right;font-family:var(--mono);font-size:.63rem;line-height:1.6;color:#9aa6c8;letter-spacing:.04em}
+@media(max-width:560px){.top .meta{display:none}}
+/* ── 席次方位盤導覽（南北東西四家各守一頁） ─────── */
+.seatdock{display:flex;background:var(--ink4);border-top:1px solid var(--sky);border-bottom:1px solid var(--sky);margin-top:24px}
+.seatdock a{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 2px;text-decoration:none;
+  border-right:1px solid rgba(138,160,216,.28);transition:background .18s linear}
+.seatdock a:last-child{border-right:0}
+.seatdock a:hover{background:var(--ink2)}
+.seatdock a[aria-current="page"]{background:var(--card);color:var(--ink3)}
+.seatdock .s{font-family:var(--serif);font-weight:900;font-size:.98rem;line-height:1}
+.seatdock .t{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:#94a2c6}
+.seatdock a[aria-current="page"] .t{color:var(--ink2)}
+@media(min-width:1340px){
+  body{padding-bottom:132px}
+  .seatdock{position:fixed;left:18px;bottom:18px;z-index:70;margin:0;width:106px;height:126px;
+    display:grid;grid-template-columns:53px 53px;grid-template-rows:38px 46px 42px;
+    border:1px solid var(--sky)}
+  .seatdock a{border:1px solid rgba(138,160,216,.28);flex-direction:column;gap:1px;padding:0}
+  .seatdock .n1{grid-column:1/3;grid-row:1;flex-direction:row;gap:7px}
+  .seatdock .w1{grid-column:1;grid-row:2}
+  .seatdock .e1{grid-column:2;grid-row:2}
+  .seatdock .s1{grid-column:1/3;grid-row:3;flex-direction:row;gap:7px}
+  .seatdock .t{font-size:.5rem;letter-spacing:.06em}
+}
+/* ── 版心 ───────────────────────── */
+main{max-width:1140px;margin:0 auto;padding:22px 20px 56px}
+@media(max-width:700px){main{padding:16px 13px 40px}}
+.panel{background:var(--ink3);border:1px solid var(--line);padding:16px 18px;margin-bottom:16px}
+.panel.lit{background:var(--card);color:var(--ink3);border-color:var(--ink3)}
+.panel.lit a{color:var(--ink)}
+.sect{font-family:var(--disp);font-weight:700;font-size:.6rem;letter-spacing:.3em;color:var(--sky);margin-bottom:8px}
+.panel.lit .sect{color:var(--skyD)}
+h2.big{font-size:clamp(1.24rem,2.7vw,1.72rem);font-weight:900;letter-spacing:.03em;margin-bottom:10px}
+p{margin-bottom:10px}
+p:last-child{margin-bottom:0}
+.small{font-size:.83rem;color:#b7bfd4}
+.panel.lit .small{color:#4a5573}
+/* ── 花色符號 ───────────────────── */
+.suit{width:.86em;height:.86em;vertical-align:-.06em;display:inline-block}
+.sR{fill:var(--red)}.sB{fill:var(--card)}
+.panel.lit .sB,.pc .sB,.bb .sB,.plate .sB{fill:var(--ink3)}
+/* ── 牌 ─────────────────────────── */
+.hand{display:flex;flex-wrap:wrap;gap:4px}
+.pc{width:44px;height:62px;background:var(--card);color:var(--ink3);border:1px solid var(--ink3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-family:var(--mono);font-weight:700;font-size:1.02rem;position:relative;transition:transform .16s ease-out,background .16s linear}
+.pc .suit{width:15px;height:15px}
+.pc.red{color:var(--red)}
+.pc.play:hover:not(:disabled){transform:translateY(-9px);background:#fff}
+.pc:disabled{opacity:.42}
+.pc.sel{transform:translateY(-9px);background:#fff}
+.pc.back{background:repeating-linear-gradient(45deg,var(--ink2) 0 4px,var(--ink) 4px 8px);border-color:var(--sky)}
+@media(max-width:560px){.pc{width:33px;height:47px;font-size:.82rem}.pc .suit{width:11px;height:11px}}
+/* ── 表格 ───────────────────────── */
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.panel.lit th,.panel.lit td{border-color:rgba(16,24,56,.22)}
+th{font-family:var(--disp);font-weight:700;font-size:.62rem;letter-spacing:.16em;color:var(--sky);text-transform:uppercase}
+.panel.lit th{color:var(--skyD)}
+td.m{font-family:var(--mono)}
+/* ── 頁尾 ───────────────────────── */
+footer{background:var(--ink4);border-top:1px solid var(--sky);padding:26px 20px 30px;margin-top:30px}
+footer .fin{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:22px}
+@media(max-width:700px){footer .fin{grid-template-columns:1fr}}
+footer h4{font-family:var(--disp);font-weight:700;font-size:.6rem;letter-spacing:.28em;color:var(--sky);margin-bottom:8px}
+footer .fl{font-size:.82rem;color:#b7bfd4;line-height:1.85}
+footer a{text-decoration:none;border-bottom:1px solid rgba(138,160,216,.4)}
+footer a:hover{color:#fff}
+.disc{max-width:1140px;margin:18px auto 0;font-family:var(--mono);font-size:.6rem;color:#7d89ad;letter-spacing:.04em;line-height:1.8}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="sp" viewBox="0 0 32 32"><path d="M16 3C16 3 5 12.5 5 19.4 5 23.2 7.7 26 11.2 26c2 0 3.6-.9 4.6-2.3-.3 2.6-1.3 4.4-2.9 5.3h6.2c-1.6-.9-2.6-2.7-2.9-5.3 1 1.4 2.6 2.3 4.6 2.3 3.5 0 6.3-2.8 6.3-6.6C27 12.5 16 3 16 3z"/></symbol>
+<symbol id="he" viewBox="0 0 32 32"><path d="M16 28.5S3 19.6 3 11.9C3 7.9 6.1 5 9.7 5c2.7 0 5 1.6 6.3 3.9C17.3 6.6 19.6 5 22.3 5 25.9 5 29 7.9 29 11.9c0 7.7-13 16.6-13 16.6z"/></symbol>
+<symbol id="di" viewBox="0 0 32 32"><path d="M16 2.5 26.5 16 16 29.5 5.5 16z"/></symbol>
+<symbol id="cl" viewBox="0 0 32 32"><path d="M16 3.2c3 0 5.4 2.4 5.4 5.4 0 1.1-.3 2.1-.9 3 .9-.6 2-1 3.1-1 3 0 5.4 2.4 5.4 5.4s-2.4 5.4-5.4 5.4c-1.9 0-3.6-1-4.6-2.5.4 3.6 1.5 6 3.1 7.3h-8.2c1.6-1.3 2.7-3.7 3.1-7.3-1 1.5-2.7 2.5-4.6 2.5C9.4 21.4 7 19 7 16s2.4-5.4 5.4-5.4c1.1 0 2.2.4 3.1 1-.6-.9-.9-1.9-.9-3 0-3 2.4-5.4 5.4-5.4z"/></symbol>
+<symbol id="mark" viewBox="0 0 44 44"><rect width="44" height="44" fill="#101838" stroke="#8AA0D8"/><path d="M22 1v42M1 22h42" stroke="#8AA0D8" stroke-width="1"/><g transform="translate(5.5,5.5) scale(.34)"><use href="#sp" fill="#D9DCE1"/></g><g transform="translate(27,5.5) scale(.34)"><use href="#he" fill="#D33A2E"/></g><g transform="translate(5.5,27) scale(.34)"><use href="#di" fill="#D33A2E"/></g><g transform="translate(27,27) scale(.34)"><use href="#cl" fill="#D9DCE1"/></g></symbol>
+</defs></svg>
+<header class="top">
+  <svg class="mk" width="40" height="40" viewBox="0 0 44 44" aria-hidden="true"><use href="#mark"/></svg>
+  <div class="nm">文山大學橋藝社<small>WENSHAN UNIV. CONTRACT BRIDGE CLUB</small></div>
+  <div class="meta">社課 每週三 19:00–22:30・綜合教學館 205<br>社辦 學生活動中心 B107（週一至週五 12:10–13:30 有人）</div>
+</header>
+<style>
+.rd{max-width:820px}
+.rd h2{font-size:clamp(1.2rem,2.6vw,1.6rem);font-weight:900;margin:26px 0 10px;letter-spacing:.04em}
+.rd h3{font-size:1.02rem;margin:18px 0 8px}
+.rd p{margin-bottom:11px}
+.rd ul{margin:0 0 12px 20px}
+.rd li{margin-bottom:5px}
+.rd table{margin:10px 0 16px}
+.toc{display:flex;flex-wrap:wrap;gap:6px 10px;font-family:var(--mono);font-size:.72rem;margin-bottom:6px}
+.toc a{text-decoration:none;border-bottom:1px solid rgba(138,160,216,.45);padding-bottom:1px}
+.dict{width:100%;font-size:.82rem}
+.dict td{vertical-align:middle}
+.dict td.b{font-family:var(--mono);font-weight:700;width:74px;white-space:nowrap}
+.dict .suit{width:13px;height:13px}
+.dictctl{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.tab{font-family:var(--mono);font-size:.72rem;border:1px solid var(--sky);padding:6px 13px;background:var(--ink2)}
+.tab[aria-pressed="true"]{background:var(--card);color:var(--ink3);font-weight:700}
+</style>
+<main>
+  <section class="panel">
+    <div class="sect">NORTH · 制</div>
+    <h1 style="font-family:var(--serif);font-weight:900;font-size:clamp(1.4rem,3.2vw,2rem);letter-spacing:.04em;margin-bottom:8px">文山制：三十六句話各是什麼意思</h1>
+    <p class="small rd">這一頁是社課講義的線上版，也是練習台那台電腦的全部腦袋。下面每一條規則，練習台的搭檔、對手、推論帶與結算都在用同一份——你可以拿任何一局回去對，對不上就是我們寫錯了，請寄信到社辦信箱。</p>
+    <div class="toc" style="margin-top:12px">
+      <a href="#a">一 制度總覽</a><a href="#b">二 開叫</a><a href="#c">三 應叫</a><a href="#d">四 再叫與成局門檻</a><a href="#e">五 插叫</a>
+      <a href="#f">六 推論帶怎麼算</a><a href="#g">七 計分</a><a href="#h">八 電腦怎麼打牌</a><a href="#i">九 「應到定約」怎麼判</a><a href="#j">十 叫品字典</a>
+    </div>
+  </section>
+
+  <section class="panel lit rd" id="a">
+    <div class="sect">一</div>
+    <h2>制度總覽</h2>
+    <p>社上用的是一套削到最薄的標準美式：<strong>五張高花開叫、15–17 點的 1NT、史坦曼、沒有轉移叫</strong>。學期中不加任何約定叫，因為社課的重點不是背約定，是練「把一手牌講清楚」這件事本身。</p>
+    <p>大牌點照 4-3-2-1 算（A 四點、K 三點、Q 兩點、J 一點），全副牌共 40 點。均勢牌型指 4333、4432、5332 三種。開叫門檻 12 點；兩家合起來 25 點左右可以打成局，33 點左右可以打小滿貫——這兩個數字是整套制度的地基，後面所有的規則都只是在問一件事：<strong>我們兩手加起來到底有幾點、配不配得起來。</strong></p>
+    <p>完整的橋牌其實有三十八句話：三十五個定約叫品、PASS、加倍、再加倍。練習台上沒有加倍與再加倍，所以能用的是三十六句。不是因為它不重要，是因為初學者一學會加倍就會亂加倍，社課第一學期一律不教。</p>
+  </section>
+
+  <section class="panel rd" id="b">
+    <div class="sect">二</div>
+    <h2>開叫</h2>
+    <table><thead><tr><th>叫品</th><th>意思</th><th>點力</th></tr></thead><tbody>
+      <tr><td class="m">1NT</td><td>均勢牌型，沒有五張高花以外的故事</td><td class="m">15–17</td></tr>
+      <tr><td class="m">2NT</td><td>均勢，強</td><td class="m">20–21</td></tr>
+      <tr><td class="m">1<svg class="suit sR"><use href="#he"/></svg>／1<svg class="suit sB"><use href="#sp"/></svg></td><td>該門五張以上</td><td class="m">12–21</td></tr>
+      <tr><td class="m">1<svg class="suit sB"><use href="#cl"/></svg>／1<svg class="suit sR"><use href="#di"/></svg></td><td>該門三張以上（沒有五張高花時的落腳處）</td><td class="m">12–21</td></tr>
+      <tr><td class="m">2<svg class="suit sB"><use href="#cl"/></svg></td><td>強牌，逼叫，與花色無關</td><td class="m">22+</td></tr>
+      <tr><td class="m">2<svg class="suit sR"><use href="#di"/></svg>／2<svg class="suit sR"><use href="#he"/></svg>／2<svg class="suit sB"><use href="#sp"/></svg></td><td>弱二：該門<em>恰</em>六張，阻塞對方</td><td class="m">5–10</td></tr>
+      <tr><td class="m">3 階</td><td>阻塞：該門七張以上</td><td class="m">5–9</td></tr>
+      <tr><td class="m">PASS</td><td>不夠開叫</td><td class="m">0–11</td></tr>
+    </tbody></table>
+    <p class="small">兩門都五張以上時先叫高的那門（黑桃優先於紅心）；兩門都四張的低花，先叫方塊。這是社上的簡化取捨，不是唯一標準做法。</p>
+  </section>
+
+  <section class="panel rd" id="c">
+    <div class="sect">三</div>
+    <h2>應叫：搭檔開叫之後，你的三條岔路</h2>
+    <p>搭檔開叫一門花色之後，你要在三件事裡挑一件講：<strong>我支持你這門</strong>、<strong>我另外有一門</strong>、<strong>我沒話講但有點力（無王）</strong>。點力決定講到多高。</p>
+    <table><thead><tr><th>你的應叫</th><th>承諾</th></tr></thead><tbody>
+      <tr><td class="m">PASS</td><td>0–5 點</td></tr>
+      <tr><td class="m">2<svg class="suit sR"><use href="#he"/></svg>（加叫搭檔的高花）</td><td>他那門三張以上、6–9 點</td></tr>
+      <tr><td class="m">3<svg class="suit sR"><use href="#he"/></svg>（跳加叫）</td><td>四張支持、10–12 點</td></tr>
+      <tr><td class="m">4<svg class="suit sR"><use href="#he"/></svg>（加叫成局）</td><td>四張支持、13 點以上</td></tr>
+      <tr><td class="m">一階新花</td><td>該門四張以上、6 點以上，逼叫一輪</td></tr>
+      <tr><td class="m">二階新花</td><td>該門四張以上、10 點以上</td></tr>
+      <tr><td class="m">跳新花</td><td>五張以上、16 點以上</td></tr>
+      <tr><td class="m">1NT</td><td>6–10 點，沒有支持也沒有能在一階講的花色</td></tr>
+      <tr><td class="m">2NT／3NT</td><td>11–12／13–15 點，均勢</td></tr>
+    </tbody></table>
+    <h3>搭檔開 1NT 的時候</h3>
+    <ul>
+      <li><strong>2<svg class="suit sB"><use href="#cl"/></svg> 史坦曼</strong>：8 點以上、手上至少一門四張高花，問他有沒有四張高花。</li>
+      <li><strong>2<svg class="suit sR"><use href="#di"/></svg>／2<svg class="suit sR"><use href="#he"/></svg>／2<svg class="suit sB"><use href="#sp"/></svg></strong>：0–7 點、該門五張以上，這是逃命，不是邀請。</li>
+      <li><strong>2NT</strong>：8–9 點邀叫。<strong>3NT</strong>：10–15 點，直接成局。</li>
+    </ul>
+  </section>
+
+  <section class="panel rd" id="d">
+    <div class="sect">四</div>
+    <h2>再叫與成局門檻</h2>
+    <p>第二輪才是真正決定成敗的地方。到這時你已經聽過搭檔一句話，可以把他的區間取中值，加上自己的點力，得到一個「兩手合計」的估計：</p>
+    <ul>
+      <li>合計 <strong>25 點以上</strong>：有八張以上高花配合就叫 4<svg class="suit sR"><use href="#he"/></svg>／4<svg class="suit sB"><use href="#sp"/></svg>；沒有配合但均勢就叫 3NT；只有低花配合而合計 28 點以上才碰 5<svg class="suit sB"><use href="#cl"/></svg>／5<svg class="suit sR"><use href="#di"/></svg>（低花成局要 11 墩，很貴）。</li>
+      <li>合計 <strong>22–24 點</strong>：往上再問一句（支持搭檔、再叫自己的六張套、或叫無王），但不衝成局。</li>
+      <li>合計 <strong>33 點以上</strong>且有配合、自己 16 點以上、搭檔下限 13 點以上：可以直接叫 6 階小滿貫。社課階段不練滿貫叫牌流程，練習台的電腦也很少叫到。</li>
+      <li>其餘：PASS。<strong>停下來也是一句話。</strong></li>
+    </ul>
+  </section>
+
+  <section class="panel rd" id="e">
+    <div class="sect">五</div>
+    <h2>插叫：在對方的頻道上插話</h2>
+    <table><thead><tr><th>叫品</th><th>承諾</th></tr></thead><tbody>
+      <tr><td class="m">一階插叫</td><td>該門五張以上、8–16 點</td></tr>
+      <tr><td class="m">二階插叫</td><td>該門五張以上、10–17 點</td></tr>
+      <tr><td class="m">跳插叫</td><td>六張套、6–11 點（阻塞用）</td></tr>
+      <tr><td class="m">1NT 插叫</td><td>15–18 點均勢</td></tr>
+      <tr><td class="m">PASS</td><td>0–8 點，或沒有可以插的五張套</td></tr>
+    </tbody></table>
+    <p>插叫有兩個目的：搶定約，以及告訴搭檔首攻打哪一門。第二個目的往往比第一個值錢——即使你們最後沒有拿到定約，防守時他知道該打你插的那門。<strong>不插進去，你的搭檔在防守時只能猜。</strong></p>
+    <p class="small">電腦不會插叫對方已經叫過的花色（不打示指叫），也不會做技術性加倍。這是刻意的簡化。</p>
+  </section>
+
+  <section class="panel lit rd" id="f">
+    <div class="sect">六</div>
+    <h2>推論帶怎麼算</h2>
+    <p>練習台右邊那兩組帶子不是裝飾，是一段很短的程式。每一句叫品在系統表上都對應一組<strong>區間</strong>：點力的上下限，以及四門花色張數的上下限。一個人講的每一句話，都會把他自己的區間往內夾一次——數學上就是把新舊兩組區間<strong>取交集</strong>：</p>
+    <p class="m" style="font-family:var(--mono);font-size:.82rem;background:rgba(16,24,56,.07);padding:9px 12px">下限 ← max(舊下限, 新下限)　　上限 ← min(舊上限, 新上限)</p>
+    <p>所以帶子只會變窄，不會變寬。這就是「單調遞增的頻道」在資訊上的另一面：<strong>你說出去的話沒辦法收回，只能繼續加條件。</strong>如果你叫了一句系統上不該叫的話（例如 6 點就跳新花），帶子還是會照系統夾——搭檔不會知道你在亂講，他只會照著錯的區間去決定要不要衝成局。這正是結算裡「溝通 x/5」在數的東西：<strong>你的真值有沒有落在他夾出來的區間裡。</strong></p>
+    <p>PASS 也是一句話，也會夾：開叫位置的 PASS 承諾 0–11 點，應叫位置的 PASS 承諾 0–5 點。已經叫過牌之後的 PASS 不帶新資訊。</p>
+  </section>
+
+  <section class="panel rd" id="g">
+    <div class="sect">七</div>
+    <h2>計分（比賽計分法）</h2>
+    <table><thead><tr><th>項目</th><th>無王</th><th>高花 <svg class="suit sR"><use href="#he"/></svg><svg class="suit sB"><use href="#sp"/></svg></th><th>低花 <svg class="suit sB"><use href="#cl"/></svg><svg class="suit sR"><use href="#di"/></svg></th></tr></thead><tbody>
+      <tr><td>每一墩（定約墩）</td><td class="m">第一墩 40，之後每墩 30</td><td class="m">30</td><td class="m">20</td></tr>
+      <tr><td>超額墩</td><td class="m">30</td><td class="m">30</td><td class="m">20</td></tr>
+    </tbody></table>
+    <ul>
+      <li>定約墩合計 <strong>100 分以上算成局</strong>，加獎 300 分（無局）／500 分（有局）；不到 100 分是部分定約，加獎 50 分。</li>
+      <li>小滿貫（6 階）另加 500／750；大滿貫（7 階）另加 1000／1500。</li>
+      <li>被打宕：每宕一墩 50 分（無局）／100 分（有局），記給防守方。</li>
+      <li>局況（有局／無局）由局號決定，十六局一循環，與真實比賽的排法相同。</li>
+    </ul>
+    <p class="small">例：4<svg class="suit sR"><use href="#he"/></svg> 做成十墩、無局＝30×4＝120（成局）＋300＝420 分。同一副牌停在 2<svg class="suit sR"><use href="#he"/></svg> 也做十墩，只有 30×2＝60＋兩墩超額 60＋50＝170 分。<strong>差的 250 分不是打牌打掉的，是叫牌沒叫上去。</strong></p>
+  </section>
+
+  <section class="panel rd" id="h">
+    <div class="sect">八</div>
+    <h2>電腦怎麼打牌（以及它哪裡爛）</h2>
+    <p>四家共用同一支打牌函式，而且<strong>每一家只看得到自己的十三張牌加上檯面上已經打出來的牌</strong>——它不會偷看。規則就這幾條：</p>
+    <ul>
+      <li><strong>領牌</strong>：主打方若有將牌、且防守方手上還有將牌，先出最大的將牌抽將；否則找一張「還沒出現過比它大的牌」的必贏牌出掉；再否則從最長的副牌出小牌。</li>
+      <li><strong>跟牌</strong>：有該門必須跟。搭檔目前贏著、而且他那張已經沒有更大的牌能蓋，就跟最小的；否則出「能贏的牌裡最小的那張」；贏不了就丟最小的。</li>
+      <li><strong>缺門</strong>：對方贏著就用最小的將牌吃，否則墊最小的副牌。</li>
+    </ul>
+    <p><strong>叫牌真的會被對手拿去用：</strong>防守方首攻時，會優先打出「搭檔在叫牌時講過的那一門」（該門只剩一兩張就打大的，否則打小的）。所以你插的那一句話，不只告訴搭檔，也把首攻方向交了出去——這是本站唯一一處讓「共用頻道」產生實際後果的地方，其餘的叫牌資訊電腦還不會利用。</p>
+    <p><strong>誠實聲明：</strong>這支引擎沒有做飛牌（finesse）、沒有數對方的牌型、不做安全出牌、也不會做壓縮。它大概是社課初學桌第三週的水準。實測 400 副由電腦自己叫、自己打的牌，定約做成率約 57%——真實比賽大約在七成，差的那一截主要就是主打技巧。</p>
+    <p>結算第三格「打牌 ±N 墩」是拿同一個定約、同一副牌，交給這支引擎跑一次的墩數來跟你比。<strong>它是一把很鈍的尺，但它對你我一樣鈍。</strong></p>
+  </section>
+
+  <section class="panel rd" id="i">
+    <div class="sect">九</div>
+    <h2>「應到定約」怎麼判</h2>
+    <p>結算第二格會說「你方這副牌最好的定約是 X」。這個 X 的算法是：把五個花色（<svg class="suit sB"><use href="#cl"/></svg><svg class="suit sR"><use href="#di"/></svg><svg class="suit sR"><use href="#he"/></svg><svg class="suit sB"><use href="#sp"/></svg> 與無王）各<strong>試打一次</strong>——由南主打、四家都用上面那支引擎、完全攤牌不藏——得到各花色能拿幾墩，換算成能做成的最高階，再照計分表算分，取分數最高的那個。</p>
+    <p>所以這不是雙明手最佳解（double dummy par），是「<strong>用我們自己這把鈍尺量出來的最佳定約</strong>」。它會低估需要飛牌與精細主打的定約。這一點請記住：當結算說你少賺了 250 分，它的意思是「連這台笨機器都拿得到的東西你們沒拿到」，那通常真的是叫牌的問題。</p>
+  </section>
+
+  <section class="panel lit rd" id="j" style="max-width:none">
+    <div class="sect">十</div>
+    <h2>叫品字典</h2>
+    <p class="small">下面這張表不是手打的，是呼叫練習台同一支 <span class="m" style="font-family:var(--mono)">meaning()</span> 函式當場生出來的。換句話說：表上寫什麼，搭檔就聽見什麼。</p>
+    <div class="dictctl" role="group" aria-label="情境">
+      <button class="tab" data-ctx="open" aria-pressed="true">你是開叫的人</button>
+      <button class="tab" data-ctx="respond" aria-pressed="false">搭檔開了 1<svg class="suit sR"><use href="#he"/></svg>，輪到你</button>
+      <button class="tab" data-ctx="overcall" aria-pressed="false">右手對家開了 1<svg class="suit sR"><use href="#he"/></svg>，輪到你</button>
+    </div>
+    <div id="dict"></div>
+    <noscript><p class="small">這張表需要 JavaScript 才會生成；上面第二到第五節已經是同一套規則的文字版。</p></noscript>
+  </section>
+</main>
+<nav class="seatdock" aria-label="席次方位導覽">
+  <a class="n1" href="zhi.html" aria-current="page"><span class="s">北</span><span class="t">制</span></a>
+  <a class="w1" href="she.html"><span class="s">西</span><span class="t">社</span></a>
+  <a class="e1" href="pu.html"><span class="s">東</span><span class="t">譜</span></a>
+  <a class="s1" href="index.html"><span class="s">南</span><span class="t">練習台</span></a>
+</nav>
+<footer>
+  <div class="fin">
+    <div>
+      <h4>WENSHAN BRIDGE</h4>
+      <div class="fl">文山大學橋藝社<br>
+      社辦：學生活動中心 B107（信箱 B107-14）<br>
+      社課：每週三 19:00–22:30，綜合教學館 205<br>
+      電話：(02) 2938-4471 轉 3207（社辦，社課時段接聽）<br>
+      信箱：wsu.bridge@wenshan.edu.tw</div>
+    </div>
+    <div>
+      <h4>四家</h4>
+      <div class="fl">
+        <a href="index.html">南｜練習台</a><br>
+        <a href="zhi.html">北｜制（系統表與判準）</a><br>
+        <a href="pu.html">東｜譜（牌例室）</a><br>
+        <a href="she.html">西｜社（入社與社課）</a>
+      </div>
+    </div>
+    <div>
+      <h4>幹部</h4>
+      <div class="fl">社長 林亞倫（資工三）<br>教學長 陳頌音（外文二）<br>賽務 高敏之（經濟四）<br>指導老師 郭建霖（數學系副教授）</div>
+    </div>
+  </div>
+  <div class="disc">本站所有人物、社團、賽事、電話、地址與價格皆為虛構示意；橋牌規則、叫牌制與計分法為真。叫牌與打牌的電腦端由本站啟發式引擎執行，強度僅相當於社課練習對手，判準全部寫在〈制〉頁可複核。</div>
+</footer>
+<script>
+/* ══ 文山橋藝社 · 發牌／叫牌／打牌／計分引擎 ═══════════════════════════
+   判準全部寫在 zhi.html，可逐條複核。引擎只看得到自己那十三張牌。      */
+"use strict";
+var RN=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+var SUM=['sp','he','di','cl'], SUN=['黑桃','紅心','方塊','梅花'], SRED=[0,1,1,0];
+var STN=['梅花','方塊','紅心','黑桃','無王'], ST2SU=[3,2,1,0];
+var SEATN=['北','東','南','西'], SEATE=['N','E','S','W'];
+var VULT=['-','NS','EW','ALL','NS','EW','ALL','-','EW','ALL','-','NS','ALL','-','NS','EW'];
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function deal(board){
+  var rng=mulberry32(board*2654435761+7919),d=[],i,j,t;
+  for(i=0;i<52;i++)d.push({s:(i/13)|0,r:i%13+2});
+  for(i=51;i>0;i--){j=(rng()*(i+1))|0;t=d[i];d[i]=d[j];d[j]=t}
+  var h=[[],[],[],[]];
+  for(i=0;i<52;i++)h[i%4].push(d[i]);
+  for(i=0;i<4;i++)h[i].sort(function(a,b){return a.s-b.s||b.r-a.r});
+  return {board:board,hands:h,dealer:(board-1)%4,vul:VULT[(board-1)%16]};
+}
+function hcpOf(h){var v=0;for(var i=0;i<h.length;i++)if(h[i].r>10)v+=h[i].r-10;return v}
+function lensOf(h){var L=[0,0,0,0];for(var i=0;i<h.length;i++)L[h[i].s]++;return L}
+function isBal(L){var s=L.slice().sort(function(a,b){return b-a});
+  return (s[0]===4&&s[1]===3&&s[2]===3)||(s[0]===4&&s[1]===4&&s[2]===3)||(s[0]===5&&s[1]===3&&s[2]===3)}
+function sideOf(seat){return seat%2}           /* 0 = 北南(NS)，1 = 東西(EW) */
+function partner(seat){return (seat+2)%4}
+function bidIdx(level,strain){return (level-1)*5+strain}
+function bidLevel(b){return ((b/5)|0)+1}
+function bidStrain(b){return b%5}
+function bidText(b){return b==='P'?'PASS':bidLevel(b)+STN[bidStrain(b)]}
+function bidHTML(b){
+  if(b==='P')return '<span class="bp">PASS</span>';
+  var st=bidStrain(b);
+  if(st===4)return bidLevel(b)+'<span class="nt">NT</span>';
+  var su=ST2SU[st];
+  return bidLevel(b)+'<svg class="suit '+(SRED[su]?'sR':'sB')+'"><use href="#'+SUM[su]+'"/></svg>';
+}
+/* ── 約束（cons）：一句叫品說出口，就是對自家牌的一組承諾 ── */
+function newCons(){return {hcp:[0,37],len:[[0,13],[0,13],[0,13],[0,13]],notes:[]}}
+function meet(a,b){
+  var c=newCons(),i;
+  c.hcp=[Math.max(a.hcp[0],b.hcp[0]),Math.min(a.hcp[1],b.hcp[1])];
+  for(i=0;i<4;i++)c.len[i]=[Math.max(a.len[i][0],b.len[i][0]),Math.min(a.len[i][1],b.len[i][1])];
+  if(c.hcp[1]<c.hcp[0])c.hcp[1]=c.hcp[0];
+  for(i=0;i<4;i++)if(c.len[i][1]<c.len[i][0])c.len[i][1]=c.len[i][0];
+  c.notes=a.notes.concat(b.notes);return c;
+}
+function C(hcp,lenPairs,note){
+  var c=newCons();if(hcp)c.hcp=hcp;
+  if(lenPairs)for(var k in lenPairs)c.len[k]=lenPairs[k];
+  if(note)c.notes=[note];return c;
+}
+/* 叫牌情境：開叫／應叫／再叫／插叫 */
+function auctionCtx(auction,seat){
+  var i,anyBid=false,pFirst=null,myBids=[],oppBid=false,pSeat=partner(seat);
+  for(i=0;i<auction.length;i++){
+    var a=auction[i];if(a.bid==='P')continue;anyBid=true;
+    if(a.seat===seat)myBids.push(a.bid);
+    else if(a.seat===pSeat){if(pFirst===null)pFirst=a.bid}
+    else oppBid=true;
+  }
+  if(myBids.length)return {role:'rebid',pFirst:pFirst,my:myBids};
+  if(pFirst!==null)return {role:'respond',pFirst:pFirst,my:myBids};
+  if(oppBid)return {role:'overcall',pFirst:null,my:myBids};
+  return {role:'open',pFirst:null,my:myBids};
+}
+function lastBid(auction){for(var i=auction.length-1;i>=0;i--)if(auction[i].bid!=='P')return auction[i];return null}
+/* 一句叫品的系統意義（同一張表：人叫、電腦叫、搭檔推論，三者共用） */
+function meaning(bid,ctx,auction){
+  var lv,st,su,pst,psu,jump,lb;
+  if(bid==='P'){
+    if(ctx.role==='open')return {t:'牌力不足開叫',c:C([0,11],null,'PASS：0–11 點')};
+    if(ctx.role==='respond')return {t:'不足應叫，讓搭檔的定約停在這裡',c:C([0,5],null,'PASS：0–5 點')};
+    if(ctx.role==='overcall')return {t:'不插叫',c:C([0,8],null,'不插叫：0–8 點或無五張套')};
+    return {t:'無新訊息',c:newCons()};
+  }
+  lv=bidLevel(bid);st=bidStrain(bid);su=ST2SU[st];
+  lb=lastBid(auction);
+  if(ctx.role==='open'){
+    if(st===4&&lv===1)return {t:'均勢 15–17 點',c:C([15,17],{0:[2,5],1:[2,5],2:[2,5],3:[2,5]},'1NT 開叫：15–17 點均勢')};
+    if(st===4&&lv===2)return {t:'均勢 20–21 點',c:C([20,21],{0:[2,5],1:[2,5],2:[2,5],3:[2,5]},'2NT 開叫：20–21 點均勢')};
+    if(lv===2&&st===0)return {t:'強牌開叫，逼叫',c:C([22,37],null,'2梅花開叫：22 點以上，逼叫')};
+    if(lv===1&&st>=2){var p={};p[su]=[5,13];return {t:'五張以上高花，12–21 點',c:C([12,21],p,'1'+STN[st]+' 開叫：'+SUN[su]+'五張以上、12–21 點')}}
+    if(lv===1&&st<2){var q={};q[su]=[3,13];return {t:'低花開叫，12–21 點',c:C([12,21],q,'1'+STN[st]+' 開叫：'+SUN[su]+'三張以上、12–21 點')}}
+    if(lv===2&&st>=1){var w={};w[su]=[6,6];return {t:'阻塞性弱二，六張套 5–10 點',c:C([5,10],w,'弱二開叫：'+SUN[su]+'恰六張、5–10 點')}}
+    var z={};z[su]=[7,13];return {t:'阻塞開叫，長套 5–9 點',c:C([5,9],z,'阻塞開叫：'+SUN[su]+'七張以上、5–9 點')};
+  }
+  if(ctx.role==='overcall'){
+    if(st===4)return {t:'無王插叫，15–18 點均勢',c:C([15,18],{0:[2,5],1:[2,5],2:[2,5],3:[2,5]},'1NT 插叫：15–18 點均勢')};
+    var o={};o[su]=[5,13];
+    jump=lb&&bid>lb.bid+5;
+    if(jump)return {t:'跳插叫，長套弱牌',c:C([6,11],{},'跳插叫：六張套、6–11 點')};
+    return {t:'自然插叫，五張套',c:C(lv>=2?[10,17]:[8,16],o,'插叫：'+SUN[su]+'五張以上、'+(lv>=2?'10–17':'8–16')+' 點')};
+  }
+  if(ctx.role==='respond'){
+    pst=bidStrain(ctx.pFirst);psu=ST2SU[pst];
+    if(pst===4&&bidLevel(ctx.pFirst)===1){ /* 搭檔開叫 1NT */
+      if(lv===2&&st===0)return {t:'史坦曼：問四張高花',c:C([8,37],null,'2梅花史坦曼：8 點以上、至少一門四張高花')};
+      if(lv===2&&st===4)return {t:'邀叫',c:C([8,9],null,'2NT：8–9 點邀叫')};
+      if(lv===3&&st===4)return {t:'成局',c:C([10,15],null,'3NT：10–15 點')};
+      if(lv===2){var s2={};s2[su]=[5,13];return {t:'弱牌轉停',c:C([0,7],s2,'2 階花色轉停：0–7 點、五張以上')}}
+      if(lv===4&&st>=2){var s4={};s4[su]=[6,13];return {t:'高花成局',c:C([10,15],s4,'4 階高花：六張套、10–15 點')}}
+    }
+    if(st===psu||st===pst){
+      if(lv===2)return {t:'單加叫，配合',c:C([6,9],(function(){var x={};x[psu]=[3,13];return x})(),'2 階加叫：搭檔的門三張以上、6–9 點')};
+      if(lv===3)return {t:'限制性加叫',c:C([10,12],(function(){var x={};x[psu]=[4,13];return x})(),'3 階加叫：四張支持、10–12 點')};
+      if(lv===4)return {t:'加叫成局',c:C([13,16],(function(){var x={};x[psu]=[4,13];return x})(),'4 階加叫：四張支持、13 點以上')};
+    }
+    if(st===4){
+      if(lv===1)return {t:'無配合、無可叫花色',c:C([6,10],null,'1NT 應叫：6–10 點、無支持')};
+      if(lv===2)return {t:'均勢邀叫',c:C([11,12],{0:[2,5],1:[2,5],2:[2,5],3:[2,5]},'2NT 應叫：11–12 點均勢')};
+      return {t:'均勢成局',c:C([13,15],{0:[2,5],1:[2,5],2:[2,5],3:[2,5]},'3NT 應叫：13–15 點均勢')};
+    }
+    var n={};n[su]=[4,13];
+    if(lv===1)return {t:'新花，一階，逼叫一輪',c:C([6,21],n,'一階新花：四張以上、6 點以上')};
+    jump=lb&&bid>lb.bid+5;
+    if(jump){n[su]=[5,13];return {t:'跳新花，強牌',c:C([16,21],n,'跳新花：五張以上、16 點以上')}}
+    return {t:'新花，二階',c:C([10,21],n,'二階新花：四張以上、10 點以上')};
+  }
+  /* rebid */
+  var mine=ctx.my,first=mine[0],fst=bidStrain(first),fsu=ST2SU[fst];
+  if(st===fst&&st!==4){var rr={};rr[su]=[6,13];return {t:'再叫本門，長套',c:C([12,21],rr,'再叫本門：'+SUN[su]+'六張以上')}}
+  if(st===4){
+    if(lv===1)return {t:'均勢最低限',c:C([12,14],null,'1NT 再叫：12–14 點均勢')};
+    if(lv===2)return {t:'均勢強牌',c:C([18,19],null,'2NT 再叫：18–19 點')};
+    return {t:'均勢成局',c:C([19,21],null,'3NT 再叫：19–21 點')};
+  }
+  if(ctx.pFirst!==null&&st===bidStrain(ctx.pFirst)){var pr={};pr[ST2SU[bidStrain(ctx.pFirst)]]=[3,13];return {t:'支持搭檔',c:C([12,21],pr,'支持搭檔：三張以上')}}
+  var nn={};nn[su]=[4,13];return {t:'第二門花色',c:C([12,21],nn,'第二門花色：四張以上')};
+}
+/* 搭檔（或對手）從叫品推論出來的手牌模型 */
+function modelOf(auction,seat){
+  var m=newCons(),i,sub=[];
+  for(i=0;i<auction.length;i++){
+    sub.push(auction[i]);
+    if(auction[i].seat!==seat)continue;
+    var ctx=auctionCtx(auction.slice(0,i),seat);
+    var mn=meaning(auction[i].bid,ctx,auction.slice(0,i));
+    m=meet(m,mn.c);
+  }
+  return m;
+}
+/* ── 電腦的叫牌：同一張系統表，反向使用 ─────────────────────────── */
+function legalUp(bid,auction){var lb=lastBid(auction);return lb===null||bid>lb.bid}
+function aiBid(auction,seat,hand){
+  var L=lensOf(hand),hp=hcpOf(hand),bal=isBal(L),ctx=auctionCtx(auction,seat),lb=lastBid(auction),i,c;
+  function ok(b){return b!=null&&legalUp(b,auction)?b:null}
+  function firstOk(list){for(var k=0;k<list.length;k++){var b=ok(list[k]);if(b!==null)return b}return null}
+  var out=null;
+  if(ctx.role==='open'){
+    if(bal&&hp>=15&&hp<=17)out=bidIdx(1,4);
+    else if(bal&&hp>=20&&hp<=21)out=bidIdx(2,4);
+    else if(hp>=22)out=bidIdx(2,0);
+    else if(hp>=12||(hp>=11&&Math.max.apply(null,L)>=6)){
+      if(L[0]>=5)out=bidIdx(1,3);else if(L[1]>=5)out=bidIdx(1,2);
+      else if(L[2]>=4)out=bidIdx(1,1);else if(L[3]>=3)out=bidIdx(1,0);else out=bidIdx(1,1);
+    }
+    else if(hp>=5&&hp<=10&&(L[0]===6||L[1]===6||L[2]===6))out=bidIdx(2,L[0]===6?3:(L[1]===6?2:1));
+    else if(hp>=5&&hp<=9&&Math.max.apply(null,L)>=7){for(i=0;i<4;i++)if(L[i]>=7)out=bidIdx(3,3-i)}
+    return ok(out)===null?'P':out;
+  }
+  if(ctx.role==='overcall'){
+    var lvl=lb?bidLevel(lb.bid):1;
+    if(bal&&hp>=15&&hp<=18)out=firstOk([bidIdx(1,4),bidIdx(2,4)]);
+    if(out===null){
+      var oppSu={};for(i=0;i<auction.length;i++){var oa=auction[i];if(oa.bid!=='P'&&sideOf(oa.seat)!==sideOf(seat)&&bidStrain(oa.bid)<4)oppSu[ST2SU[bidStrain(oa.bid)]]=1}
+      var best=-1;for(i=0;i<4;i++)if(L[i]>=5&&!oppSu[i]&&(best<0||L[i]>L[best]))best=i;
+      if(best>=0){
+        var st=3-best,want=null;
+        for(var lv=1;lv<=3;lv++){var b=bidIdx(lv,st);if(legalUp(b,auction)){want=b;break}}
+        if(want!==null){
+          var need=bidLevel(want)>=3?13:(bidLevel(want)>=2?10:8);
+          if(hp>=need&&hp<=17)out=want;
+          else if(hp>=6&&hp<=11&&L[best]>=6&&bidLevel(want)<=2)out=want;
+        }
+      }
+    }
+    return ok(out)===null?'P':out;
+  }
+  var pm=modelOf(auction,partner(seat)),pMid=(pm.hcp[0]+pm.hcp[1])/2,tot=hp+pMid;
+  var pb=ctx.pFirst===null?null:ctx.pFirst,pst=pb===null?null:bidStrain(pb),psu=pst===null?null:ST2SU[pst];
+  if(ctx.role==='respond'){
+    if(hp<6&&!(Math.max.apply(null,L)>=7&&hp>=4))return 'P';
+    if(pst===4&&bidLevel(pb)===1){
+      if(hp>=8&&(L[0]>=4||L[1]>=4))out=bidIdx(2,0);
+      else if(hp>=10)out=bidIdx(3,4);
+      else if(hp>=8)out=bidIdx(2,4);
+      else if(L[0]>=5)out=bidIdx(2,3);else if(L[1]>=5)out=bidIdx(2,2);
+      return ok(out)===null?'P':out;
+    }
+    if(pst>=2&&L[psu]>=3){                    /* 搭檔開高花、我有支持 */
+      if(hp>=13)out=bidIdx(4,pst);
+      else if(hp>=10&&L[psu]>=4)out=bidIdx(3,pst);
+      else if(hp>=6)out=bidIdx(2,pst);
+      if(ok(out)!==null)return out;
+    }
+    if(hp>=13&&bal&&(pst<2||L[psu]<3)){out=firstOk([bidIdx(3,4)]);if(out!==null)return out}
+    var cand=[];
+    var oppS={};for(i=0;i<auction.length;i++){var ra=auction[i];if(ra.bid!=='P'&&sideOf(ra.seat)!==sideOf(seat)&&bidStrain(ra.bid)<4)oppS[ST2SU[bidStrain(ra.bid)]]=1}
+    for(i=0;i<4;i++)if(L[i]>=4&&!oppS[i]&&(pst===null||i!==psu))cand.push(i);
+    cand.sort(function(a,b){return L[b]-L[a]||a-b});
+    for(i=0;i<cand.length;i++){
+      var s1=3-cand[i],b1=null;
+      for(var lv2=1;lv2<=3;lv2++){var bb=bidIdx(lv2,s1);if(legalUp(bb,auction)){b1=bb;break}}
+      if(b1===null)continue;
+      var nd=bidLevel(b1)>=2?10:6;
+      if(hp>=nd){out=b1;break}
+    }
+    if(out===null){
+      if(hp>=11&&hp<=12&&bal)out=bidIdx(2,4);
+      else if(hp>=6&&hp<=10)out=bidIdx(1,4);
+      else if(hp>=6&&pst!==null&&pst<2&&L[psu]>=4)out=bidIdx(2,pst);
+    }
+    return ok(out)===null?'P':out;
+  }
+  /* rebid：這裡才真正決定要不要衝成局 */
+  var mine=ctx.my,first=mine[0],fst=bidStrain(first),fsu=ST2SU[fst];
+  var lastP=null;for(i=auction.length-1;i>=0;i--)if(auction[i].seat===partner(seat)&&auction[i].bid!=='P'){lastP=auction[i].bid;break}
+  var lastPst=lastP===null?null:bidStrain(lastP),lastPsu=lastPst===null?null:ST2SU[lastPst];
+  var ourLast=lb&&sideOf(lb.seat)===sideOf(seat)?lb.bid:null;
+  if(lastP===null)return 'P';
+  var fit=(lastPst!==null&&lastPst<4&&L[lastPsu]>=3)?lastPst:((fst<4&&pm.len[fsu][0]>=3)?fst:null);
+  if(tot>=33&&fit!==null&&hp>=16&&pm.hcp[0]>=13){out=ok(bidIdx(6,fit));if(out!==null&&bidLevel(lb.bid)>=3)return out}
+  if(tot>=25){
+    if(fit!==null&&fit>=2)out=ok(bidIdx(4,fit));
+    if(out===null&&bal&&tot>=25)out=ok(bidIdx(3,4));
+    if(out===null&&fit!==null&&fit<2&&tot>=28)out=ok(bidIdx(5,fit));
+    if(out!==null)return out;
+  }
+  if(ourLast!==null&&bidLevel(ourLast)>=3)return 'P';
+  if(tot>=22){
+    if(fit!==null){out=ok(bidIdx(bidLevel(lb.bid)+((lb&&sideOf(lb.seat)!==sideOf(seat))?0:1),fit));if(out!==null&&bidLevel(out)<=3)return out}
+    if(L[fsu]>=6){out=ok(bidIdx(2,fst));if(out!==null&&bidLevel(out)<=3)return out}
+    if(bal&&hp>=12&&hp<=14){out=ok(bidIdx(1,4));if(out!==null)return out}
+    if(bal&&hp>=18){out=ok(bidIdx(2,4));if(out!==null)return out}
+    for(i=0;i<4;i++)if(L[i]>=4&&i!==fsu){out=ok(bidIdx(bidLevel(lb.bid),3-i));if(out!==null&&bidLevel(out)<=2)return out}
+  }
+  return 'P';
+}
+function auctionDone(auction){
+  if(auction.length<4)return false;
+  var last3=auction.slice(-3).every(function(a){return a.bid==='P'});
+  if(!last3)return false;
+  if(lastBid(auction)!==null)return true;
+  return auction.every(function(a){return a.bid==='P'});
+}
+function contractOf(auction){
+  var lb=lastBid(auction);if(!lb)return null;
+  var st=bidStrain(lb.bid),side=sideOf(lb.seat),dec=null,i;
+  for(i=0;i<auction.length;i++){
+    var a=auction[i];
+    if(a.bid!=='P'&&sideOf(a.seat)===side&&bidStrain(a.bid)===st){dec=a.seat;break}
+  }
+  return {level:bidLevel(lb.bid),strain:st,declarer:dec,side:side};
+}
+/* ── 打牌引擎（啟發式，四家共用同一支；不看別家的牌） ─────────────── */
+function cid(c){return c.s*13+c.r}
+function leadHints(auction,ct){
+  /* 防守方的首攻線索：搭檔在叫牌時說過哪一門，對手也聽得見 —— 頻道是共用的 */
+  var hint=[-1,-1,-1,-1],i;
+  if(!auction)return hint;
+  for(i=0;i<auction.length;i++){
+    var a=auction[i];
+    if(a.bid==='P'||bidStrain(a.bid)===4)continue;
+    if(sideOf(a.seat)===sideOf(ct.declarer))continue;
+    hint[partner(a.seat)]=ST2SU[bidStrain(a.bid)];
+  }
+  return hint;
+}
+function newPlay(hands,ct,auction){
+  return {h:[hands[0].slice(),hands[1].slice(),hands[2].slice(),hands[3].slice()],
+    trump:ct.strain===4?-1:ST2SU[ct.strain],declarer:ct.declarer,ct:ct,
+    hint:leadHints(auction,ct),
+    trick:[],turn:(ct.declarer+1)%4,won:[0,0],tricks:[],played:[]};
+}
+function beats(a,b,trump){ /* a 是否勝過 b（b 為目前最大，a 與 b 同墩） */
+  if(a.s===b.s)return a.r>b.r;
+  if(trump>=0&&a.s===trump)return true;
+  return false;
+}
+function trickBest(tr,trump){
+  var bi=0,i;for(i=1;i<tr.length;i++)if(beats(tr[i].c,tr[bi].c,trump))bi=i;return bi;
+}
+function unseenHigher(st,seat,card){
+  var n=0,r;
+  for(r=card.r+1;r<=14;r++){
+    var id=card.s*13+r,mine=false,pl=false,i;
+    for(i=0;i<st.h[seat].length;i++)if(cid(st.h[seat][i])===id)mine=true;
+    for(i=0;i<st.played.length;i++)if(st.played[i]===id)pl=true;
+    if(!mine&&!pl)n++;
+  }
+  return n;
+}
+function unseenSuit(st,seat,suit){
+  var n=0,r,i;
+  for(r=2;r<=14;r++){
+    var id=suit*13+r,mine=false,pl=false;
+    for(i=0;i<st.h[seat].length;i++)if(cid(st.h[seat][i])===id)mine=true;
+    for(i=0;i<st.played.length;i++)if(st.played[i]===id)pl=true;
+    if(!mine&&!pl)n++;
+  }
+  return n;
+}
+function legalCards(st,seat){
+  var hand=st.h[seat];
+  if(!st.trick.length)return hand.slice();
+  var led=st.trick[0].c.s,f=hand.filter(function(c){return c.s===led});
+  return f.length?f:hand.slice();
+}
+function chooseCard(st,seat){
+  var hand=st.h[seat],legal=legalCards(st,seat),i,c,L=lensOf(hand);
+  function lowest(list){return list.slice().sort(function(a,b){return a.r-b.r})[0]}
+  function highest(list){return list.slice().sort(function(a,b){return b.r-a.r})[0]}
+  if(!st.trick.length){
+    var isDec=sideOf(seat)===sideOf(st.declarer);
+    if(!isDec&&!st.tricks.length&&st.hint&&st.hint[seat]>=0){
+      var hs=hand.filter(function(c){return c.s===st.hint[seat]});
+      if(hs.length)return hs.length<=2?highest(hs):lowest(hs);
+    }
+    if(isDec&&st.trump>=0){
+      var mineT=hand.filter(function(c){return c.s===st.trump});
+      var pt=partner(seat),ptT=st.h[pt].filter(function(c){return c.s===st.trump}).length;
+      var outT=unseenSuit(st,seat,st.trump)-ptT;
+      if(mineT.length&&outT>0)return highest(mineT);
+    }
+    var win=null;
+    for(i=0;i<hand.length;i++){c=hand[i];
+      if(st.trump>=0&&c.s===st.trump&&isDec)continue;
+      if(unseenHigher(st,seat,c)===0&&(win===null||c.r>win.r))win=c;}
+    if(win)return win;
+    var suits=[0,1,2,3].filter(function(s){return L[s]>0&&(st.trump<0||s!==st.trump)});
+    if(!suits.length)suits=[0,1,2,3].filter(function(s){return L[s]>0});
+    suits.sort(function(a,b){return L[b]-L[a]});
+    return lowest(hand.filter(function(c){return c.s===suits[0]}));
+  }
+  var bi=trickBest(st.trick,st.trump),wseat=st.trick[bi].seat,best=st.trick[bi].c;
+  var pWin=partner(seat)===wseat;
+  if(pWin&&(unseenHigher(st,seat,best)===0||best.r>=13))return lowest(legal);
+  var winners=legal.filter(function(c){return beats(c,best,st.trump)});
+  if(winners.length){
+    if(st.trump>=0&&legal[0]&&legal[0].s!==st.trick[0].c.s){
+      var tw=winners.filter(function(c){return c.s===st.trump});
+      if(tw.length)return lowest(tw);
+    }
+    return lowest(winners);
+  }
+  var nonT=legal.filter(function(c){return st.trump<0||c.s!==st.trump});
+  return lowest(nonT.length?nonT:legal);
+}
+function playCard(st,seat,card){
+  var h=st.h[seat],i;
+  for(i=0;i<h.length;i++)if(cid(h[i])===cid(card)){h.splice(i,1);break}
+  st.trick.push({seat:seat,c:card});st.played.push(cid(card));
+  if(st.trick.length===4){
+    var w=st.trick[trickBest(st.trick,st.trump)].seat;
+    st.won[sideOf(w)]++;st.tricks.push({cards:st.trick.slice(),w:w});
+    st.trick=[];st.turn=w;
+  }else st.turn=(seat+1)%4;
+}
+function autoPlay(hands,ct,auction){
+  var st=newPlay(hands,ct,auction),guard=0;
+  while(st.tricks.length<13&&guard++<60)playCard(st,st.turn,chooseCard(st,st.turn));
+  return st;
+}
+/* ── 計分（比賽計分法，無加倍） ───────────────────────────────── */
+function isVul(vul,side){return vul==='ALL'||(side===0&&vul==='NS')||(side===1&&vul==='EW')}
+function scoreOf(ct,tricks,vul){
+  var need=6+ct.level,v=isVul(vul,ct.side),per=ct.strain===4?30:(ct.strain>=2?30:20);
+  if(tricks>=need){
+    var tp=ct.strain===4?40+30*(ct.level-1):per*ct.level;
+    var over=(tricks-need)*per;
+    var bonus=tp>=100?(v?500:300):50;
+    var slam=ct.level===6?(v?750:500):(ct.level===7?(v?1500:1000):0);
+    return tp+over+bonus+slam;
+  }
+  return -(v?100:50)*(need-tricks);
+}
+function parForNS(hands,vul){
+  var best={score:-99999,level:0,strain:0,tricks:0},s;
+  for(s=0;s<5;s++){
+    var ct={level:1,strain:s,declarer:2,side:0};
+    var t=autoPlay(hands,ct).won[0];
+    if(t<7)continue;
+    var lv=t-6,sc=scoreOf({level:lv,strain:s,declarer:2,side:0},t,vul);
+    if(sc>best.score)best={score:sc,level:lv,strain:s,tricks:t};
+  }
+  return best.score===-99999?null:best;
+}
+/* ── 牌例圖版（全站每一張圖都由這支函式畫出來） ─────────────────── */
+function handLines(h){
+  var out=[[],[],[],[]],i;
+  for(i=0;i<h.length;i++)out[h[i].s].push(RN[h[i].r-2]);
+  return out.map(function(a){return a.length?a.join(' '):'—'});
+}
+function plateSVG(d,o){
+  o=o||{};var W=300,H=234,f=o.fs||9.4,txt=o.dark?'#101838':'#D9DCE1',ln=o.dark?'rgba(16,24,56,.3)':'rgba(138,160,216,.42)';
+  var pos=[[110,6],[204,84],[110,158],[16,84]],s='',i,j;
+  s+='<svg viewBox="0 0 '+W+' '+H+'" class="plate" role="img" aria-label="第 '+d.board+' 局四家牌型圖版">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="'+(o.dark?'#D9DCE1':'#101838')+'"/>';
+  s+='<rect x="110" y="82" width="80" height="70" fill="none" stroke="'+ln+'"/>';
+  s+='<text x="150" y="104" font-family="Roboto Mono, monospace" font-size="8" fill="'+txt+'" text-anchor="middle" opacity=".75">第 '+d.board+' 局</text>';
+  s+='<text x="150" y="120" font-family="Roboto Mono, monospace" font-size="8" fill="'+txt+'" text-anchor="middle" opacity=".75">莊 '+SEATN[d.dealer]+'</text>';
+  s+='<text x="150" y="136" font-family="Roboto Mono, monospace" font-size="8" fill="'+txt+'" text-anchor="middle" opacity=".75">局 '+(d.vul==='-'?'無':d.vul==='ALL'?'雙':d.vul)+'</text>';
+  for(i=0;i<4;i++){
+    var L=handLines(d.hands[i]),x=pos[i][0],y=pos[i][1];
+    s+='<text x="'+x+'" y="'+(y-2)+'" font-family="Roboto Mono, monospace" font-size="7" fill="'+txt+'" opacity=".6">'+SEATE[i]+' '+SEATN[i]+'</text>';
+    for(j=0;j<4;j++){
+      s+='<use href="#'+SUM[j]+'" x="'+x+'" y="'+(y+j*15)+'" width="9" height="9" fill="'+(SRED[j]?'#D33A2E':txt)+'"/>';
+      s+='<text x="'+(x+12)+'" y="'+(y+j*15+8.4)+'" font-family="Roboto Mono, monospace" font-size="'+f+'" fill="'+txt+'">'+L[j]+'</text>';
+    }
+  }
+  s+='</svg>';return s;
+}
+</script>
+<script>
+"use strict";
+(function(){
+  var box=document.getElementById('dict');
+  function build(ctxKind){
+    var auction,seat=2,i,lv,st,s='';
+    if(ctxKind==='open')auction=[];
+    else if(ctxKind==='respond')auction=[{seat:0,bid:bidIdx(1,2)}];
+    else auction=[{seat:1,bid:bidIdx(1,2)}];
+    var ctx=auctionCtx(auction,seat);
+    s+='<table class="dict"><thead><tr><th>叫品</th><th>系統意思</th><th>它承諾了什麼</th></tr></thead><tbody>';
+    var pm=meaning('P',ctx,auction);
+    s+='<tr><td class="b">PASS</td><td>'+pm.t+'</td><td>'+(pm.c.notes[0]||'—')+'</td></tr>';
+    for(lv=1;lv<=7;lv++)for(st=0;st<5;st++){
+      var b=bidIdx(lv,st);
+      if(auction.length&&b<=auction[0].bid)continue;
+      var m=meaning(b,ctx,auction);
+      s+='<tr><td class="b">'+bidHTML(b)+'</td><td>'+m.t+'</td><td>'+(m.c.notes[0]||'—')+'</td></tr>';
+    }
+    s+='</tbody></table>';
+    box.innerHTML=s;
+  }
+  var tabs=document.querySelectorAll('.tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].onclick=function(){
+    for(var j=0;j<tabs.length;j++)tabs[j].setAttribute('aria-pressed',tabs[j]===this?'true':'false');
+    build(this.dataset.ctx);
+  };
+  build('open');
+})();
+</script>
+</body>
+</html>

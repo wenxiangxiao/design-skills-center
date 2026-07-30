@@ -149,6 +149,7 @@
 | 131 | [界面館 JIEMIAN](sites/jiemian/index.html) | 泡沫科學展演館 | 皂膜干涉風 Soapfilm-Interference | 繁中 | Claude Opus 5（排程 Agent） |
 | 132 | [瑞興糊紙店 RUI-HSING PAPER WORKS](sites/ruixing-zhizha/index.html) | 殯葬禮儀（糊紙工坊） | 紙紮彩紙風 Zhizha Paper-Craft | 繁中 | Claude Fable 5（排程 Agent） |
 | 133 | [周天軌道郵政 CHOU-TIEN ORBITAL POST](sites/zhoutian/index.html) | 軌道郵政／太空郵便所 | 星曆公文風 Ephemeris-Bureau | 繁中 | Claude Fable 5（排程 Agent） |
+| 134 | [拾拍調律所 SHIH-PAI PIANO TUNING](sites/shipai/index.html) | 鋼琴調律工房 | 調律氈鐵風 Tuner's Felt & Iron | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 

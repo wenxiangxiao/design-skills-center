@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拾拍調律所｜調律之法——拍、不諧和度與平均律的拍速</title>
+<meta name="description" content="拍是什麼、部分音為何比整數倍寬、八度為何要拉伸、平均律的五度為何必須窄——本頁不需 JavaScript，全文可讀。">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%23A93226"/><path d="M27 17L27 20L26 23L24 26L21 27L18 27L15 25L13 22L12 19L11 15L11 11L12 8L14 6L16 6L19 7L21 10L22 13L23 17L23 21L22 24L20 26L17 27L14 26L12 24L11 21L11 17L12 13L13 10L15 7L17 6L20 6L22 8L23 11L23 14L22 18L21 22L19 25L16 27L14 26L12 23L11 20L11 16L12 12L14 9L16 7L19 7L21 9L22 12L23 16" fill="none" stroke="%23E0B45E" stroke-width="1.6"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --felt:#A93226; --felt2:#8C2A20; --felt3:#651E17;
+  --ivory:#F4ECDC; --ivory2:#E9DDC4; --ivory3:#DCCEB0;
+  --iron:#241C15; --iron2:#33281E; --iron3:#463726;
+  --brass:#C8963E; --brassL:#E0B45E;
+  --peacock:#1E6E63; --peacockL:#2E8A7C;
+  --line:rgba(36,28,21,.28);
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --disp:'Fraunces',serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--felt);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),repeating-linear-gradient(0deg,rgba(0,0,0,.05) 0 1px,transparent 1px 4px);
+  color:var(--ivory);font-family:var(--sans);font-size:16px;line-height:1.75;
+  padding-right:76px;
+}
+::selection{background:var(--brass);color:var(--iron)}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);line-height:1.3}
+.mono{font-family:var(--mono)}
+/* ── 頂條（非 hero）─────────────── */
+.topstrip{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:2px solid var(--brass);background:var(--iron)}
+.topstrip .mark{flex:0 0 auto;display:block}
+.topstrip .bn{font-family:var(--serif);font-weight:900;font-size:1.25rem;letter-spacing:.12em}
+.topstrip .bn small{display:block;font-family:var(--mono);font-weight:400;font-size:.62rem;letter-spacing:.28em;color:var(--brassL)}
+.topstrip .side{margin-left:auto;text-align:right;font-family:var(--mono);font-size:.68rem;color:var(--ivory2);letter-spacing:.08em}
+/* ── 制音器側桿導覽 ─────────────── */
+.rail{position:fixed;top:0;right:0;bottom:0;width:76px;background:var(--iron);border-left:2px solid var(--brass);display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0;z-index:60}
+.rail .rl{display:flex;flex-direction:column;align-items:center;text-decoration:none;padding:8px 4px;flex:1;max-height:160px;outline-offset:3px}
+.rail .rl:hover .lab{color:var(--brassL)}
+.rail svg{display:block}
+.rail .lab{writing-mode:vertical-rl;font-family:var(--serif);font-weight:700;font-size:.85rem;letter-spacing:.3em;color:var(--ivory2);margin-top:6px}
+.rail .en{font-family:var(--mono);font-size:.5rem;letter-spacing:.18em;color:#8a7a63;margin-top:4px}
+.rail .rl[aria-current="page"] .lab{color:var(--brassL)}
+.rail .dstr{stroke:#6d5c43;stroke-width:2}
+.rail .rl[aria-current="page"] .dstr{stroke:var(--brassL)}
+.rail .dfelt{fill:var(--felt);stroke:#651E17;stroke-width:1}
+.rail .dwave{stroke:var(--brassL);stroke-width:1.2;fill:none;opacity:0}
+.rail .rl[aria-current="page"] .dfelt{transform:translateX(11px)}
+.rail .rl[aria-current="page"] .dwave{opacity:1}
+.rail .dfelt{transition:transform .3s cubic-bezier(.3,.9,.3,1)}
+/* ── 調律台 ─────────────── */
+main{max-width:1180px;margin:0 auto;padding:26px 24px 60px}
+.jobline{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline;padding:10px 2px 16px}
+.jobline .jt{font-family:var(--serif);font-weight:900;font-size:clamp(1.3rem,2.6vw,1.8rem);letter-spacing:.05em}
+.jobline .jm{font-family:var(--mono);font-size:.72rem;color:var(--ivory2);letter-spacing:.06em}
+.jobline .swap{margin-left:auto;font-family:var(--mono);font-size:.7rem;background:none;border:1px solid var(--brass);color:var(--brassL);padding:5px 12px;cursor:pointer;letter-spacing:.1em}
+.jobline .swap:hover{background:var(--brass);color:var(--iron)}
+.tabs{display:flex;flex-wrap:wrap;gap:0;border:2px solid var(--iron);background:var(--iron)}
+.tabs button{flex:1 1 0;min-width:118px;font-family:var(--serif);font-weight:700;font-size:.9rem;letter-spacing:.08em;background:var(--iron);color:var(--ivory2);border:none;border-right:1px solid var(--iron3);padding:11px 6px;cursor:pointer}
+.tabs button:last-child{border-right:none}
+.tabs button:hover{color:var(--brassL)}
+.tabs button[aria-selected="true"]{background:var(--ivory);color:var(--iron)}
+.tabs button .tn{font-family:var(--mono);font-size:.6rem;display:block;letter-spacing:.2em;color:#8a7a63}
+.tabs button[aria-selected="true"] .tn{color:var(--felt)}
+.tabs button .ok{color:var(--peacockL);font-weight:700}
+.tabs button[aria-selected="true"] .ok{color:var(--peacock)}
+.bench{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:0;border:2px solid var(--iron);border-top:none;background:var(--ivory);color:var(--iron)}
+.strings-side{padding:18px 18px 14px;border-right:2px solid var(--line)}
+.lv-brief{font-size:.86rem;color:#4a3c2c;border-left:4px solid var(--brass);padding:4px 12px;margin-bottom:12px}
+#stringsBox{width:100%;display:block}
+.pinbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding:12px;border:1.5px solid var(--line);background:var(--ivory2)}
+.pinbar .plate{font-family:var(--serif);font-weight:900;font-size:1.02rem;min-width:7.5em}
+.pinbar .plate small{display:block;font-family:var(--mono);font-weight:400;font-size:.6rem;letter-spacing:.14em;color:#7a6448}
+.pinbar .tbtn{font-family:var(--sans);font-weight:700;font-size:.8rem;border:1.5px solid var(--iron);background:var(--ivory);color:var(--iron);padding:8px 12px;cursor:pointer;letter-spacing:.05em}
+.pinbar .tbtn:hover{background:var(--iron);color:var(--ivory)}
+.pinbar .tbtn:active{background:var(--felt);border-color:var(--felt);color:var(--ivory)}
+.pinbar .tbtn[disabled]{opacity:.35;cursor:not-allowed}
+.pinbar .hint{flex-basis:100%;font-family:var(--mono);font-size:.62rem;color:#7a6448;letter-spacing:.04em}
+.meter-side{padding:18px;background:var(--iron);color:var(--ivory);display:flex;flex-direction:column;gap:14px}
+.meter-side h2{font-size:1rem;letter-spacing:.2em;color:var(--brassL);border-bottom:1px solid var(--iron3);padding-bottom:8px}
+.feltrow{display:flex;flex-wrap:wrap;gap:6px}
+.feltrow button{font-family:var(--sans);font-size:.76rem;font-weight:500;border:1px solid var(--iron3);background:var(--iron2);color:var(--ivory2);padding:6px 10px;cursor:pointer}
+.feltrow button:hover{border-color:var(--brass)}
+.feltrow button[aria-pressed="true"]{background:var(--felt);border-color:var(--felt);color:var(--ivory);font-weight:700}
+.beatbox{display:flex;align-items:center;gap:14px;border:1px solid var(--iron3);padding:12px}
+.lamp{width:34px;height:34px;border-radius:50%;background:var(--brassL);flex:0 0 auto;box-shadow:0 0 14px rgba(224,180,94,.55)}
+.beatbox .bd{font-family:var(--mono)}
+.beatbox .bv{font-size:1.35rem;color:var(--brassL);font-weight:500}
+.beatbox .bl{font-size:.62rem;letter-spacing:.16em;color:#9a8868}
+#liss{display:block;width:100%;background:#1b1510;border:1px solid var(--iron3)}
+.sndrow{display:flex;align-items:center;gap:10px}
+.sndrow .play{flex:1;font-family:var(--serif);font-weight:700;font-size:.95rem;letter-spacing:.14em;border:1.5px solid var(--brass);background:none;color:var(--brassL);padding:10px;cursor:pointer}
+.sndrow .play[aria-pressed="true"]{background:var(--brass);color:var(--iron)}
+.sndrow input[type="range"]{width:88px;accent-color:var(--brass)}
+.judge{font-family:var(--serif);font-weight:900;font-size:1.05rem;letter-spacing:.3em;border:none;background:var(--felt);color:var(--ivory);padding:13px;cursor:pointer}
+.judge:hover{background:var(--felt2)}
+.verdict{border:1px dashed var(--iron3);padding:12px 14px;font-size:.84rem;line-height:1.8;min-height:3.2em}
+.verdict.ok{border:2px solid var(--peacockL);color:#d9efe9}
+.verdict.no{border:2px solid var(--felt);color:#f3d9cf}
+.verdict .vs{font-family:var(--serif);font-weight:900;letter-spacing:.2em;font-size:1rem;display:block;margin-bottom:4px}
+.verdict.ok .vs{color:var(--peacockL)}
+.verdict.no .vs{color:#e77c5f}
+.verdict .vd{font-family:var(--mono);font-size:.68rem;color:#9a8868;display:block;margin-top:6px}
+/* ── 下段 ─────────────── */
+.lower{display:grid;grid-template-columns:1.4fr 1fr;gap:26px;margin-top:34px}
+.card{background:var(--ivory);color:var(--iron);border:2px solid var(--iron);padding:22px 24px}
+.card h2{font-size:1.15rem;letter-spacing:.14em;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brass)}
+.card p{font-size:.9rem;margin-bottom:10px;color:#3c3122}
+.card p b{color:var(--felt2)}
+.card .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;color:#7a6448}
+.gradebox .gv{font-family:var(--serif);font-weight:900;font-size:1.7rem;color:var(--felt2);letter-spacing:.1em}
+.gradebox ul{list-style:none;margin:10px 0}
+.gradebox li{font-size:.82rem;padding:6px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px}
+.gradebox li .st{font-family:var(--mono);font-size:.7rem}
+.gradebox li .st.y{color:var(--peacock);font-weight:700}
+.gradebox li .st.n{color:#9a8868}
+.gradebox .rst{font-family:var(--mono);font-size:.66rem;background:none;border:1px solid var(--line);color:#7a6448;padding:4px 10px;cursor:pointer;margin-top:8px}
+.honest{margin-top:26px;background:var(--iron);border:2px solid var(--iron);color:var(--ivory2);padding:20px 24px}
+.honest h2{color:var(--brassL);font-size:.95rem;letter-spacing:.22em;margin-bottom:10px}
+.honest ol{margin-left:1.4em;font-size:.8rem;color:#c9b899}
+.honest ol li{margin-bottom:5px}
+/* ── footer ─────────────── */
+footer{border-top:2px solid var(--brass);background:var(--iron);margin-top:52px;padding:30px 24px 80px}
+.fgrid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:26px}
+footer h3{font-family:var(--serif);font-size:.9rem;letter-spacing:.2em;color:var(--brassL);margin-bottom:10px}
+footer p,footer a{font-size:.8rem;color:var(--ivory2);text-decoration:none}
+footer .fl a{display:block;padding:3px 0}
+footer .fl a:hover{color:var(--brassL)}
+.fnote{max-width:1180px;margin:22px auto 0;font-family:var(--mono);font-size:.62rem;color:#8a7a63;letter-spacing:.05em;border-top:1px solid var(--iron3);padding-top:14px}
+/* ── RWD ─────────────── */
+@media (max-width:900px){
+  body{padding-right:0;padding-bottom:64px}
+  .rail{top:auto;bottom:0;left:0;right:0;width:auto;height:60px;flex-direction:row;border-left:none;border-top:2px solid var(--brass);padding:0;gap:0}
+  .rail .rl{flex:1;max-height:none;flex-direction:row;justify-content:center;gap:8px;padding:4px}
+  .rail svg{display:none}
+  .rail .lab{writing-mode:horizontal-tb;margin-top:0;font-size:.9rem}
+  .rail .en{display:none}
+  .rail .rl[aria-current="page"]{background:var(--felt3);box-shadow:inset 0 3px 0 var(--brassL)}
+  .bench{grid-template-columns:1fr}
+  .strings-side{border-right:none;border-bottom:2px solid var(--line)}
+  .lower{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .topstrip{padding:10px 14px}
+  .topstrip .side{display:none}
+  main{padding:18px 14px 40px}
+  .tabs button{min-width:33%}
+  .fgrid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rail .dfelt{transition:none}
+}
+</style>
+</head><body>
+<nav class="rail" aria-label="全站導覽">
+  <a class="rl" href="index.html">
+    <svg width="34" height="92" viewBox="0 0 34 92" aria-hidden="true">
+      <line class="dstr" x1="13" y1="4" x2="13" y2="88"/>
+      <path class="dwave" d="M13 22 Q9 30 13 38 Q17 46 13 54"/>
+      <rect class="dfelt" x="7" y="30" width="12" height="17"/>
+    </svg>
+    <span class="lab">調律台</span><span class="en">BENCH</span>
+  </a>
+  <a class="rl" href="qin.html">
+    <svg width="34" height="92" viewBox="0 0 34 92" aria-hidden="true">
+      <line class="dstr" x1="13" y1="4" x2="13" y2="88"/>
+      <rect class="dfelt" x="7" y="30" width="12" height="17"/>
+    </svg>
+    <span class="lab">委託琴鑑</span><span class="en">PIANOS</span>
+  </a>
+  <a class="rl" href="fa.html" aria-current="page">
+    <svg width="34" height="92" viewBox="0 0 34 92" aria-hidden="true">
+      <line class="dstr" x1="13" y1="4" x2="13" y2="88"/>
+      <path class="dwave" d="M13 22 Q9 30 13 38 Q17 46 13 54"/>
+      <rect class="dfelt" x="7" y="30" width="12" height="17"/>
+    </svg>
+    <span class="lab">調律之法</span><span class="en">METHOD</span>
+  </a>
+  <a class="rl" href="yue.html">
+    <svg width="34" height="92" viewBox="0 0 34 92" aria-hidden="true">
+      <line class="dstr" x1="13" y1="4" x2="13" y2="88"/>
+      <rect class="dfelt" x="7" y="30" width="12" height="17"/>
+    </svg>
+    <span class="lab">預約調律</span><span class="en">BOOKING</span>
+  </a>
+</nav>
+<header class="topstrip">
+  <svg class="mark" width="44" height="44" viewBox="0 0 100 100" aria-hidden="true">
+    <rect width="100" height="100" fill="#241C15"/>
+    <path d="M69.2 50.0L71.0 51.7L72.5 53.4L73.9 55.1L75.1 56.8L76.1 58.5L76.9 60.1L77.5 61.7L77.9 63.2L78.0 64.8L77.9 66.2L77.6 67.6L77.1 69.0L76.4 70.3L75.5 71.5L74.3 72.7L73.0 73.8L71.5 74.8L69.8 75.7L68.0 76.5L66.0 77.3L63.9 78.0L61.6 78.5L59.3 79.0L56.9 79.4L54.4 79.7L51.8 79.9L49.3 80.0L46.7 80.0L44.2 79.9L41.6 79.7L39.1 79.4L36.7 79.0L34.4 78.5L32.1 78.0L30.0 77.3L28.0 76.5L26.2 75.7L24.5 74.8L23.0 73.8L21.7 72.7L20.5 71.5L19.6 70.3L18.9 69.0L18.4 67.6L18.1 66.2L18.0 64.8L18.1 63.2L18.5 61.7L19.1 60.1L19.9 58.5L20.9 56.8L22.1 55.1L23.5 53.4L25.0 51.7L26.8 50.0L28.7 48.3L30.7 46.6L32.9 44.9L35.1 43.2L37.5 41.5L40.0 39.9L42.5 38.3L45.0 36.8L47.6 35.2L50.1 33.8L52.7 32.4L55.2 31.0L57.7 29.7L60.1 28.5L62.4 27.3L64.6 26.2L66.7 25.2L68.6 24.3L70.4 23.5L72.0 22.7L73.5 22.0L74.7 21.5L75.8 21.0L76.7 20.6L77.3 20.3L77.8 20.1L78.0 20.0L78.0 20.0L77.8 20.1L77.3 20.3L76.7 20.6L75.8 21.0L74.7 21.5L73.5 22.0L72.0 22.7L70.4 23.5L68.6 24.3L66.7 25.2L64.6 26.2L62.4 27.3L60.1 28.5L57.7 29.7L55.2 31.0L52.7 32.4L50.1 33.8L47.6 35.2L45.0 36.8L42.5 38.3L40.0 39.9L37.5 41.5L35.1 43.2L32.9 44.9L30.7 46.6L28.7 48.3L26.8 50.0L25.0 51.7L23.5 53.4L22.1 55.1L20.9 56.8L19.9 58.5L19.1 60.1L18.5 61.7L18.1 63.2L18.0 64.8L18.1 66.2L18.4 67.6L18.9 69.0L19.6 70.3L20.5 71.5L21.7 72.7L23.0 73.8L24.5 74.8L26.2 75.7L28.0 76.5L30.0 77.3L32.1 78.0L34.4 78.5L36.7 79.0L39.1 79.4L41.6 79.7L44.2 79.9L46.7 80.0L49.3 80.0L51.8 79.9L54.4 79.7L56.9 79.4L59.3 79.0L61.6 78.5L63.9 78.0L66.0 77.3L68.0 76.5L69.8 75.7L71.5 74.8L73.0 73.8L74.3 72.7L75.5 71.5L76.4 70.3L77.1 69.0L77.6 67.6L77.9 66.2L78.0 64.8L77.9 63.2L77.5 61.7L76.9 60.1L76.1 58.5L75.1 56.8L73.9 55.1L72.5 53.4L71.0 51.7L69.2 50.0L67.3 48.3L65.3 46.6L63.1 44.9L60.9 43.2L58.5 41.5L56.0 39.9L53.5 38.3L51.0 36.8L48.4 35.2L45.9 33.8L43.3 32.4L40.8 31.0L38.3 29.7L35.9 28.5L33.6 27.3L31.4 26.2L29.3 25.2L27.4 24.3L25.6 23.5L24.0 22.7L22.5 22.0L21.3 21.5L20.2 21.0L19.3 20.6L18.7 20.3L18.2 20.1L18.0 20.0L18.0 20.0L18.2 20.1L18.7 20.3L19.3 20.6L20.2 21.0L21.3 21.5L22.5 22.0L24.0 22.7L25.6 23.5L27.4 24.3L29.3 25.2L31.4 26.2L33.6 27.3L35.9 28.5L38.3 29.7L40.8 31.0L43.3 32.4L45.9 33.8L48.4 35.2L51.0 36.8L53.5 38.3L56.0 39.9L58.5 41.5L60.9 43.2L63.1 44.9L65.3 46.6L67.3 48.3L69.2 50.0" fill="none" stroke="#E0B45E" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+  <div class="bn">拾拍調律所<small>SHIH-PAI PIANO TUNING ATELIER</small></div>
+  <div class="side">調律之法・全文不需 JavaScript</div>
+</header>
+
+<main>
+  <div class="jobline"><span class="jt">調律之法</span><span class="jm">METHOD — 拍、不諧和度、平均律。讀完這一頁，調律台上每一關的「為什麼」都有出處。</span></div>
+
+  <section class="card" style="margin-bottom:26px">
+    <h2>一、拍：兩個音互相干涉的呼吸</h2>
+    <p>兩根弦的頻率差 1 Hz，同響時你不會聽到兩個音——你聽到一個音在<b>呼吸</b>：每秒漲落一次。這個漲落叫「拍」（beats），每秒拍數恰等於兩頻之差。頻差越小拍越慢；頻差為零，拍停。</p>
+    <svg viewBox="0 0 680 140" role="img" aria-label="拍的波形：10 Hz 與 11 Hz 兩音疊加，包絡每秒漲落一次" style="width:100%;display:block;background:#241C15;border:1px solid #463726">
+      <path d="M20.0 18.0L23.2 18.0L26.4 18.1L29.6 18.2L32.8 18.4L36.0 18.6L39.2 18.9L42.4 19.3L45.6 19.6L48.8 20.1L52.0 20.5L55.2 21.1L58.4 21.7L61.6 22.3L64.8 22.9L68.0 23.7L71.2 24.4L74.4 25.2L77.6 26.1L80.8 27.0L84.0 27.9L87.2 28.9L90.4 29.9L93.6 31.0L96.8 32.1L100.0 33.2L103.2 34.4L106.4 35.6L109.6 36.9L112.8 38.1L116.0 39.4L119.2 40.8L122.4 42.1L125.6 43.5L128.8 44.9L132.0 46.4L135.2 47.9L138.4 49.3L141.6 50.9L144.8 52.4L148.0 53.9L151.2 55.5L154.4 57.1L157.6 58.7L160.8 60.3L164.0 61.9L167.2 63.5L170.4 65.1L173.6 66.7L176.8 68.4L180.0 70.0L183.2 68.4L186.4 66.7L189.6 65.1L192.8 63.5L196.0 61.9L199.2 60.3L202.4 58.7L205.6 57.1L208.8 55.5L212.0 53.9L215.2 52.4L218.4 50.9L221.6 49.3L224.8 47.9L228.0 46.4L231.2 44.9L234.4 43.5L237.6 42.1L240.8 40.8L244.0 39.4L247.2 38.1L250.4 36.9L253.6 35.6L256.8 34.4L260.0 33.2L263.2 32.1L266.4 31.0L269.6 29.9L272.8 28.9L276.0 27.9L279.2 27.0L282.4 26.1L285.6 25.2L288.8 24.4L292.0 23.7L295.2 22.9L298.4 22.3L301.6 21.7L304.8 21.1L308.0 20.5L311.2 20.1L314.4 19.6L317.6 19.3L320.8 18.9L324.0 18.6L327.2 18.4L330.4 18.2L333.6 18.1L336.8 18.0L340.0 18.0L343.2 18.0L346.4 18.1L349.6 18.2L352.8 18.4L356.0 18.6L359.2 18.9L362.4 19.3L365.6 19.6L368.8 20.1L372.0 20.5L375.2 21.1L378.4 21.7L381.6 22.3L384.8 22.9L388.0 23.7L391.2 24.4L394.4 25.2L397.6 26.1L400.8 27.0L404.0 27.9L407.2 28.9L410.4 29.9L413.6 31.0L416.8 32.1L420.0 33.2L423.2 34.4L426.4 35.6L429.6 36.9L432.8 38.1L436.0 39.4L439.2 40.8L442.4 42.1L445.6 43.5L448.8 44.9L452.0 46.4L455.2 47.9L458.4 49.3L461.6 50.9L464.8 52.4L468.0 53.9L471.2 55.5L474.4 57.1L477.6 58.7L480.8 60.3L484.0 61.9L487.2 63.5L490.4 65.1L493.6 66.7L496.8 68.4L500.0 70.0L503.2 68.4L506.4 66.7L509.6 65.1L512.8 63.5L516.0 61.9L519.2 60.3L522.4 58.7L525.6 57.1L528.8 55.5L532.0 53.9L535.2 52.4L538.4 50.9L541.6 49.3L544.8 47.9L548.0 46.4L551.2 44.9L554.4 43.5L557.6 42.1L560.8 40.8L564.0 39.4L567.2 38.1L570.4 36.9L573.6 35.6L576.8 34.4L580.0 33.2L583.2 32.1L586.4 31.0L589.6 29.9L592.8 28.9L596.0 27.9L599.2 27.0L602.4 26.1L605.6 25.2L608.8 24.4L612.0 23.7L615.2 22.9L618.4 22.3L621.6 21.7L624.8 21.1L628.0 20.5L631.2 20.1L634.4 19.6L637.6 19.3L640.8 18.9L644.0 18.6L647.2 18.4L650.4 18.2L653.6 18.1L656.8 18.0L660.0 18.0" fill="none" stroke="#A93226" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <path d="M20.0 122.0L23.2 122.0L26.4 121.9L29.6 121.8L32.8 121.6L36.0 121.4L39.2 121.1L42.4 120.7L45.6 120.4L48.8 119.9L52.0 119.5L55.2 118.9L58.4 118.3L61.6 117.7L64.8 117.1L68.0 116.3L71.2 115.6L74.4 114.8L77.6 113.9L80.8 113.0L84.0 112.1L87.2 111.1L90.4 110.1L93.6 109.0L96.8 107.9L100.0 106.8L103.2 105.6L106.4 104.4L109.6 103.1L112.8 101.9L116.0 100.6L119.2 99.2L122.4 97.9L125.6 96.5L128.8 95.1L132.0 93.6L135.2 92.1L138.4 90.7L141.6 89.1L144.8 87.6L148.0 86.1L151.2 84.5L154.4 82.9L157.6 81.3L160.8 79.7L164.0 78.1L167.2 76.5L170.4 74.9L173.6 73.3L176.8 71.6L180.0 70.0L183.2 71.6L186.4 73.3L189.6 74.9L192.8 76.5L196.0 78.1L199.2 79.7L202.4 81.3L205.6 82.9L208.8 84.5L212.0 86.1L215.2 87.6L218.4 89.1L221.6 90.7L224.8 92.1L228.0 93.6L231.2 95.1L234.4 96.5L237.6 97.9L240.8 99.2L244.0 100.6L247.2 101.9L250.4 103.1L253.6 104.4L256.8 105.6L260.0 106.8L263.2 107.9L266.4 109.0L269.6 110.1L272.8 111.1L276.0 112.1L279.2 113.0L282.4 113.9L285.6 114.8L288.8 115.6L292.0 116.3L295.2 117.1L298.4 117.7L301.6 118.3L304.8 118.9L308.0 119.5L311.2 119.9L314.4 120.4L317.6 120.7L320.8 121.1L324.0 121.4L327.2 121.6L330.4 121.8L333.6 121.9L336.8 122.0L340.0 122.0L343.2 122.0L346.4 121.9L349.6 121.8L352.8 121.6L356.0 121.4L359.2 121.1L362.4 120.7L365.6 120.4L368.8 119.9L372.0 119.5L375.2 118.9L378.4 118.3L381.6 117.7L384.8 117.1L388.0 116.3L391.2 115.6L394.4 114.8L397.6 113.9L400.8 113.0L404.0 112.1L407.2 111.1L410.4 110.1L413.6 109.0L416.8 107.9L420.0 106.8L423.2 105.6L426.4 104.4L429.6 103.1L432.8 101.9L436.0 100.6L439.2 99.2L442.4 97.9L445.6 96.5L448.8 95.1L452.0 93.6L455.2 92.1L458.4 90.7L461.6 89.1L464.8 87.6L468.0 86.1L471.2 84.5L474.4 82.9L477.6 81.3L480.8 79.7L484.0 78.1L487.2 76.5L490.4 74.9L493.6 73.3L496.8 71.6L500.0 70.0L503.2 71.6L506.4 73.3L509.6 74.9L512.8 76.5L516.0 78.1L519.2 79.7L522.4 81.3L525.6 82.9L528.8 84.5L532.0 86.1L535.2 87.6L538.4 89.1L541.6 90.7L544.8 92.1L548.0 93.6L551.2 95.1L554.4 96.5L557.6 97.9L560.8 99.2L564.0 100.6L567.2 101.9L570.4 103.1L573.6 104.4L576.8 105.6L580.0 106.8L583.2 107.9L586.4 109.0L589.6 110.1L592.8 111.1L596.0 112.1L599.2 113.0L602.4 113.9L605.6 114.8L608.8 115.6L612.0 116.3L615.2 117.1L618.4 117.7L621.6 118.3L624.8 118.9L628.0 119.5L631.2 119.9L634.4 120.4L637.6 120.7L640.8 121.1L644.0 121.4L647.2 121.6L650.4 121.8L653.6 121.9L656.8 122.0L660.0 122.0" fill="none" stroke="#A93226" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <path d="M20.0 70.0L20.7 62.4L21.4 55.0L22.1 47.9L22.8 41.2L23.6 35.2L24.3 30.0L25.0 25.6L25.7 22.1L26.4 19.7L27.1 18.4L27.8 18.2L28.5 19.1L29.2 21.1L30.0 24.1L30.7 28.2L31.4 33.1L32.1 38.8L32.8 45.1L33.5 52.0L34.2 59.3L34.9 66.8L35.6 74.3L36.4 81.7L37.1 88.9L37.8 95.6L38.5 101.8L39.2 107.2L39.9 111.9L40.6 115.6L41.3 118.4L42.0 120.1L42.8 120.7L43.5 120.2L44.2 118.7L44.9 116.1L45.6 112.5L46.3 108.1L47.0 102.8L47.7 96.8L48.4 90.3L49.2 83.4L49.9 76.2L50.6 69.0L51.3 61.7L52.0 54.7L52.7 48.1L53.4 41.9L54.1 36.4L54.8 31.6L55.6 27.7L56.3 24.7L57.0 22.7L57.7 21.7L58.4 21.7L59.1 22.8L59.8 24.9L60.5 28.0L61.2 31.9L62.0 36.7L62.7 42.1L63.4 48.1L64.1 54.5L64.8 61.2L65.5 68.0L66.2 74.9L66.9 81.6L67.6 88.0L68.4 94.0L69.1 99.4L69.8 104.1L70.5 108.1L71.2 111.2L71.9 113.5L72.6 114.7L73.3 115.0L74.0 114.4L74.8 112.8L75.5 110.2L76.2 106.9L76.9 102.8L77.6 98.0L78.3 92.6L79.0 86.9L79.7 80.8L80.4 74.5L81.2 68.2L81.9 62.0L82.6 56.0L83.3 50.4L84.0 45.3L84.7 40.7L85.4 36.8L86.1 33.7L86.8 31.4L87.6 29.9L88.3 29.3L89.0 29.6L89.7 30.8L90.4 32.7L91.1 35.5L91.8 39.0L92.5 43.1L93.2 47.7L94.0 52.7L94.7 58.1L95.4 63.6L96.1 69.2L96.8 74.8L97.5 80.1L98.2 85.2L98.9 89.9L99.6 94.1L100.4 97.7L101.1 100.7L101.8 103.0L102.5 104.5L103.2 105.3L103.9 105.3L104.6 104.6L105.3 103.1L106.0 100.9L106.8 98.1L107.5 94.8L108.2 90.9L108.9 86.7L109.6 82.2L110.3 77.5L111.0 72.7L111.7 68.0L112.4 63.3L113.2 58.9L113.9 54.9L114.6 51.2L115.3 48.0L116.0 45.3L116.7 43.2L117.4 41.7L118.1 40.8L118.8 40.6L119.6 41.1L120.3 42.1L121.0 43.8L121.7 45.9L122.4 48.5L123.1 51.6L123.8 54.9L124.5 58.5L125.2 62.3L126.0 66.2L126.7 70.0L127.4 73.8L128.1 77.3L128.8 80.7L129.5 83.7L130.2 86.3L130.9 88.6L131.6 90.3L132.4 91.6L133.1 92.4L133.8 92.7L134.5 92.4L135.2 91.7L135.9 90.6L136.6 89.0L137.3 87.1L138.0 84.9L138.8 82.4L139.5 79.7L140.2 76.9L140.9 74.1L141.6 71.2L142.3 68.4L143.0 65.8L143.7 63.3L144.4 61.1L145.2 59.2L145.9 57.5L146.6 56.2L147.3 55.3L148.0 54.7L148.7 54.5L149.4 54.6L150.1 55.1L150.8 55.9L151.6 56.9L152.3 58.2L153.0 59.7L153.7 61.3L154.4 63.1L155.1 64.9L155.8 66.7L156.5 68.5L157.2 70.2L158.0 71.9L158.7 73.3L159.4 74.6L160.1 75.8L160.8 76.7L161.5 77.4L162.2 77.8L162.9 78.1L163.6 78.1L164.4 77.9L165.1 77.6L165.8 77.1L166.5 76.4L167.2 75.7L167.9 74.9L168.6 74.1L169.3 73.2L170.0 72.4L170.8 71.5L171.5 70.8L172.2 70.2L172.9 69.6L173.6 69.2L174.3 68.9L175.0 68.7L175.7 68.6L176.4 68.7L177.2 68.8L177.9 69.0L178.6 69.3L179.3 69.6L180.0 70.0L180.7 70.4L181.4 70.7L182.1 71.0L182.8 71.2L183.6 71.3L184.3 71.4L185.0 71.3L185.7 71.1L186.4 70.8L187.1 70.4L187.8 69.8L188.5 69.2L189.2 68.5L190.0 67.6L190.7 66.8L191.4 65.9L192.1 65.1L192.8 64.3L193.5 63.6L194.2 62.9L194.9 62.4L195.6 62.1L196.4 61.9L197.1 61.9L197.8 62.2L198.5 62.6L199.2 63.3L199.9 64.2L200.6 65.4L201.3 66.7L202.0 68.1L202.8 69.8L203.5 71.5L204.2 73.3L204.9 75.1L205.6 76.9L206.3 78.7L207.0 80.3L207.7 81.8L208.4 83.1L209.2 84.1L209.9 84.9L210.6 85.4L211.3 85.5L212.0 85.3L212.7 84.7L213.4 83.8L214.1 82.5L214.8 80.8L215.6 78.9L216.3 76.7L217.0 74.2L217.7 71.6L218.4 68.8L219.1 65.9L219.8 63.1L220.5 60.3L221.2 57.6L222.0 55.1L222.7 52.9L223.4 51.0L224.1 49.4L224.8 48.3L225.5 47.6L226.2 47.3L226.9 47.6L227.6 48.4L228.4 49.7L229.1 51.4L229.8 53.7L230.5 56.3L231.2 59.3L231.9 62.7L232.6 66.2L233.3 70.0L234.0 73.8L234.8 77.7L235.5 81.5L236.2 85.1L236.9 88.4L237.6 91.5L238.3 94.1L239.0 96.2L239.7 97.9L240.4 98.9L241.2 99.4L241.9 99.2L242.6 98.3L243.3 96.8L244.0 94.7L244.7 92.0L245.4 88.8L246.1 85.1L246.8 81.1L247.6 76.7L248.3 72.0L249.0 67.3L249.7 62.5L250.4 57.8L251.1 53.3L251.8 49.1L252.5 45.2L253.2 41.9L254.0 39.1L254.7 36.9L255.4 35.4L256.1 34.7L256.8 34.7L257.5 35.5L258.2 37.0L258.9 39.3L259.6 42.3L260.4 45.9L261.1 50.1L261.8 54.8L262.5 59.9L263.2 65.2L263.9 70.8L264.6 76.4L265.3 81.9L266.0 87.3L266.8 92.3L267.5 96.9L268.2 101.0L268.9 104.5L269.6 107.3L270.3 109.2L271.0 110.4L271.7 110.7L272.4 110.1L273.2 108.6L273.9 106.3L274.6 103.2L275.3 99.3L276.0 94.7L276.7 89.6L277.4 84.0L278.1 78.0L278.8 71.8L279.6 65.5L280.3 59.2L281.0 53.1L281.7 47.4L282.4 42.0L283.1 37.2L283.8 33.1L284.5 29.8L285.2 27.2L286.0 25.6L286.7 25.0L287.4 25.3L288.1 26.5L288.8 28.8L289.5 31.9L290.2 35.9L290.9 40.6L291.6 46.0L292.4 52.0L293.1 58.4L293.8 65.1L294.5 72.0L295.2 78.8L295.9 85.5L296.6 91.9L297.3 97.9L298.0 103.3L298.8 108.1L299.5 112.0L300.2 115.1L300.9 117.2L301.6 118.3L302.3 118.3L303.0 117.3L303.7 115.3L304.4 112.3L305.2 108.4L305.9 103.6L306.6 98.1L307.3 91.9L308.0 85.3L308.7 78.3L309.4 71.0L310.1 63.8L310.8 56.6L311.6 49.7L312.3 43.2L313.0 37.2L313.7 31.9L314.4 27.5L315.1 23.9L315.8 21.3L316.5 19.8L317.2 19.3L318.0 19.9L318.7 21.6L319.4 24.4L320.1 28.1L320.8 32.8L321.5 38.2L322.2 44.4L322.9 51.1L323.6 58.3L324.4 65.7L325.1 73.2L325.8 80.7L326.5 88.0L327.2 94.9L327.9 101.2L328.6 106.9L329.3 111.8L330.0 115.9L330.8 118.9L331.5 120.9L332.2 121.8L332.9 121.6L333.6 120.3L334.3 117.9L335.0 114.4L335.7 110.0L336.4 104.8L337.2 98.8L337.9 92.1L338.6 85.0L339.3 77.6L340.0 70.0L340.7 62.4L341.4 55.0L342.1 47.9L342.8 41.2L343.6 35.2L344.3 30.0L345.0 25.6L345.7 22.1L346.4 19.7L347.1 18.4L347.8 18.2L348.5 19.1L349.2 21.1L350.0 24.1L350.7 28.2L351.4 33.1L352.1 38.8L352.8 45.1L353.5 52.0L354.2 59.3L354.9 66.8L355.6 74.3L356.4 81.7L357.1 88.9L357.8 95.6L358.5 101.8L359.2 107.2L359.9 111.9L360.6 115.6L361.3 118.4L362.0 120.1L362.8 120.7L363.5 120.2L364.2 118.7L364.9 116.1L365.6 112.5L366.3 108.1L367.0 102.8L367.7 96.8L368.4 90.3L369.2 83.4L369.9 76.2L370.6 69.0L371.3 61.7L372.0 54.7L372.7 48.1L373.4 41.9L374.1 36.4L374.8 31.6L375.6 27.7L376.3 24.7L377.0 22.7L377.7 21.7L378.4 21.7L379.1 22.8L379.8 24.9L380.5 28.0L381.2 31.9L382.0 36.7L382.7 42.1L383.4 48.1L384.1 54.5L384.8 61.2L385.5 68.0L386.2 74.9L386.9 81.6L387.6 88.0L388.4 94.0L389.1 99.4L389.8 104.1L390.5 108.1L391.2 111.2L391.9 113.5L392.6 114.7L393.3 115.0L394.0 114.4L394.8 112.8L395.5 110.2L396.2 106.9L396.9 102.8L397.6 98.0L398.3 92.6L399.0 86.9L399.7 80.8L400.4 74.5L401.2 68.2L401.9 62.0L402.6 56.0L403.3 50.4L404.0 45.3L404.7 40.7L405.4 36.8L406.1 33.7L406.8 31.4L407.6 29.9L408.3 29.3L409.0 29.6L409.7 30.8L410.4 32.7L411.1 35.5L411.8 39.0L412.5 43.1L413.2 47.7L414.0 52.7L414.7 58.1L415.4 63.6L416.1 69.2L416.8 74.8L417.5 80.1L418.2 85.2L418.9 89.9L419.6 94.1L420.4 97.7L421.1 100.7L421.8 103.0L422.5 104.5L423.2 105.3L423.9 105.3L424.6 104.6L425.3 103.1L426.0 100.9L426.8 98.1L427.5 94.8L428.2 90.9L428.9 86.7L429.6 82.2L430.3 77.5L431.0 72.7L431.7 68.0L432.4 63.3L433.2 58.9L433.9 54.9L434.6 51.2L435.3 48.0L436.0 45.3L436.7 43.2L437.4 41.7L438.1 40.8L438.8 40.6L439.6 41.1L440.3 42.1L441.0 43.8L441.7 45.9L442.4 48.5L443.1 51.6L443.8 54.9L444.5 58.5L445.2 62.3L446.0 66.2L446.7 70.0L447.4 73.8L448.1 77.3L448.8 80.7L449.5 83.7L450.2 86.3L450.9 88.6L451.6 90.3L452.4 91.6L453.1 92.4L453.8 92.7L454.5 92.4L455.2 91.7L455.9 90.6L456.6 89.0L457.3 87.1L458.0 84.9L458.8 82.4L459.5 79.7L460.2 76.9L460.9 74.1L461.6 71.2L462.3 68.4L463.0 65.8L463.7 63.3L464.4 61.1L465.2 59.2L465.9 57.5L466.6 56.2L467.3 55.3L468.0 54.7L468.7 54.5L469.4 54.6L470.1 55.1L470.8 55.9L471.6 56.9L472.3 58.2L473.0 59.7L473.7 61.3L474.4 63.1L475.1 64.9L475.8 66.7L476.5 68.5L477.2 70.2L478.0 71.9L478.7 73.3L479.4 74.6L480.1 75.8L480.8 76.7L481.5 77.4L482.2 77.8L482.9 78.1L483.6 78.1L484.4 77.9L485.1 77.6L485.8 77.1L486.5 76.4L487.2 75.7L487.9 74.9L488.6 74.1L489.3 73.2L490.0 72.4L490.8 71.5L491.5 70.8L492.2 70.2L492.9 69.6L493.6 69.2L494.3 68.9L495.0 68.7L495.7 68.6L496.4 68.7L497.2 68.8L497.9 69.0L498.6 69.3L499.3 69.6L500.0 70.0L500.7 70.4L501.4 70.7L502.1 71.0L502.8 71.2L503.6 71.3L504.3 71.4L505.0 71.3L505.7 71.1L506.4 70.8L507.1 70.4L507.8 69.8L508.5 69.2L509.2 68.5L510.0 67.6L510.7 66.8L511.4 65.9L512.1 65.1L512.8 64.3L513.5 63.6L514.2 62.9L514.9 62.4L515.6 62.1L516.4 61.9L517.1 61.9L517.8 62.2L518.5 62.6L519.2 63.3L519.9 64.2L520.6 65.4L521.3 66.7L522.0 68.1L522.8 69.8L523.5 71.5L524.2 73.3L524.9 75.1L525.6 76.9L526.3 78.7L527.0 80.3L527.7 81.8L528.4 83.1L529.2 84.1L529.9 84.9L530.6 85.4L531.3 85.5L532.0 85.3L532.7 84.7L533.4 83.8L534.1 82.5L534.8 80.8L535.6 78.9L536.3 76.7L537.0 74.2L537.7 71.6L538.4 68.8L539.1 65.9L539.8 63.1L540.5 60.3L541.2 57.6L542.0 55.1L542.7 52.9L543.4 51.0L544.1 49.4L544.8 48.3L545.5 47.6L546.2 47.3L546.9 47.6L547.6 48.4L548.4 49.7L549.1 51.4L549.8 53.7L550.5 56.3L551.2 59.3L551.9 62.7L552.6 66.2L553.3 70.0L554.0 73.8L554.8 77.7L555.5 81.5L556.2 85.1L556.9 88.4L557.6 91.5L558.3 94.1L559.0 96.2L559.7 97.9L560.4 98.9L561.2 99.4L561.9 99.2L562.6 98.3L563.3 96.8L564.0 94.7L564.7 92.0L565.4 88.8L566.1 85.1L566.8 81.1L567.6 76.7L568.3 72.0L569.0 67.3L569.7 62.5L570.4 57.8L571.1 53.3L571.8 49.1L572.5 45.2L573.2 41.9L574.0 39.1L574.7 36.9L575.4 35.4L576.1 34.7L576.8 34.7L577.5 35.5L578.2 37.0L578.9 39.3L579.6 42.3L580.4 45.9L581.1 50.1L581.8 54.8L582.5 59.9L583.2 65.2L583.9 70.8L584.6 76.4L585.3 81.9L586.0 87.3L586.8 92.3L587.5 96.9L588.2 101.0L588.9 104.5L589.6 107.3L590.3 109.2L591.0 110.4L591.7 110.7L592.4 110.1L593.2 108.6L593.9 106.3L594.6 103.2L595.3 99.3L596.0 94.7L596.7 89.6L597.4 84.0L598.1 78.0L598.8 71.8L599.6 65.5L600.3 59.2L601.0 53.1L601.7 47.4L602.4 42.0L603.1 37.2L603.8 33.1L604.5 29.8L605.2 27.2L606.0 25.6L606.7 25.0L607.4 25.3L608.1 26.5L608.8 28.8L609.5 31.9L610.2 35.9L610.9 40.6L611.6 46.0L612.4 52.0L613.1 58.4L613.8 65.1L614.5 72.0L615.2 78.8L615.9 85.5L616.6 91.9L617.3 97.9L618.0 103.3L618.8 108.1L619.5 112.0L620.2 115.1L620.9 117.2L621.6 118.3L622.3 118.3L623.0 117.3L623.7 115.3L624.4 112.3L625.2 108.4L625.9 103.6L626.6 98.1L627.3 91.9L628.0 85.3L628.7 78.3L629.4 71.0L630.1 63.8L630.8 56.6L631.6 49.7L632.3 43.2L633.0 37.2L633.7 31.9L634.4 27.5L635.1 23.9L635.8 21.3L636.5 19.8L637.2 19.3L638.0 19.9L638.7 21.6L639.4 24.4L640.1 28.1L640.8 32.8L641.5 38.2L642.2 44.4L642.9 51.1L643.6 58.3L644.4 65.7L645.1 73.2L645.8 80.7L646.5 88.0L647.2 94.9L647.9 101.2L648.6 106.9L649.3 111.8L650.0 115.9L650.8 118.9L651.5 120.9L652.2 121.8L652.9 121.6L653.6 120.3L654.3 117.9L655.0 114.4L655.7 110.0L656.4 104.8L657.2 98.8L657.9 92.1L658.6 85.0L659.3 77.6L660.0 70.0" fill="none" stroke="#E0B45E" stroke-width="1"/>
+      <text x="24" y="20" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#9a8868">sin(2π·10t) + sin(2π·11t)　→　每秒 1 拍</text>
+      <text x="540" y="132" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#A93226">— 包絡（拍）</text>
+    </svg>
+    <p style="margin-top:10px">調律師的耳朵不量頻率，量的是這個呼吸的<b>速度</b>。拍從每秒三次慢到一次、再慢到半分鐘一次——扳手就該停了。這也是為什麼工房調律時要安靜：拍很小聲。</p>
+  </section>
+
+  <section class="card" style="margin-bottom:26px">
+    <h2>二、部分音與不諧和度：琴弦不說整數</h2>
+    <p>理想的弦，泛音是基音的整數倍。真實的琴弦有<b>硬度</b>，越高次的部分音被抬得越寬：f<sub>n</sub> = n·f₀·√(1+B·n²)，B 是不諧和度係數。A3（220 Hz、B=0.00038）的部分音不是 440、660、880——是 440.33、661.13、882.67。</p>
+    <svg viewBox="0 0 680 210" role="img" aria-label="A3 部分音階梯：實際部分音比整數倍逐級偏寬" style="width:100%;display:block;background:#F4ECDC;border:1.5px solid rgba(36,28,21,.28)">
+      <text x="24" y="26" font-family="'Noto Serif TC',serif" font-weight="900" font-size="13" fill="#241C15">整數倍（理想弦）</text>
+      <text x="360" y="26" font-family="'Noto Serif TC',serif" font-weight="900" font-size="13" fill="#8C2A20">實際部分音（B=0.00038）</text>
+      <g font-family="'IBM Plex Mono',monospace" font-size="10">
+        <line x1="24" y1="180" x2="300" y2="180" stroke="#241C15" stroke-width="2"/><text x="308" y="184" fill="#241C15">220.00</text>
+        <line x1="24" y1="146" x2="300" y2="146" stroke="#241C15" stroke-width="2"/><text x="308" y="150" fill="#241C15">440.00</text>
+        <line x1="24" y1="112" x2="300" y2="112" stroke="#241C15" stroke-width="2"/><text x="308" y="116" fill="#241C15">660.00</text>
+        <line x1="24" y1="78"  x2="300" y2="78"  stroke="#241C15" stroke-width="2"/><text x="308" y="82" fill="#241C15">880.00</text>
+        <line x1="24" y1="44"  x2="300" y2="44"  stroke="#241C15" stroke-width="2"/><text x="308" y="48" fill="#241C15">1100.00</text>
+        <line x1="360" y1="180" x2="636" y2="180" stroke="#8C2A20" stroke-width="2"/><text x="560" y="176" fill="#8C2A20">220.04</text>
+        <line x1="360" y1="145" x2="636" y2="145" stroke="#8C2A20" stroke-width="2"/><text x="560" y="141" fill="#8C2A20">440.33</text>
+        <line x1="360" y1="109" x2="636" y2="109" stroke="#8C2A20" stroke-width="2"/><text x="560" y="105" fill="#8C2A20">661.13</text>
+        <line x1="360" y1="72"  x2="636" y2="72"  stroke="#8C2A20" stroke-width="2"/><text x="560" y="68" fill="#8C2A20">882.67</text>
+        <line x1="360" y1="34"  x2="636" y2="34"  stroke="#8C2A20" stroke-width="2"/><text x="560" y="30" fill="#8C2A20">1105.24</text>
+        <text x="360" y="200" fill="#7a6448" font-size="9">↑ 越高次偏得越多（圖中偏移已依比例呈現）</text>
+      </g>
+    </svg>
+    <p style="margin-top:10px">後果：把 A3 調成剛好 220，它的第二部分音（440.33）對上 A4 的基音（440）反而<b>每秒拍 0.33 次</b>。要讓八度無拍，A3 得往下讓 1.3 音分——這叫<b>拉伸</b>（stretch）。鋼琴全音域調完，低音比理論低、高音比理論高，總拉伸可達 30 音分以上。不是琴走音，是琴弦的物理。</p>
+  </section>
+
+  <section class="card" style="margin-bottom:26px">
+    <h2>三、平均律：把畢氏音差分期付款</h2>
+    <p>十二個純五度（3:2）疊起來，比七個純八度多出約 23.5 音分——這筆債叫<b>畢氏音差</b>。平均律的作法是讓每個五度各吸收約 2 音分：於是<b>每一個五度都窄、都有拍</b>，每一個大三度都寬、拍得更快。無拍的五度是純律的甜，但它把債留給別的調；調律師的工作是把債分平。</p>
+    <p>所以調律台第三關交出「無拍」反而不合格——下表是本工房 B 值下、A4=440 時各音程該有的拍速：</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+      <thead><tr style="font-family:'Noto Serif TC',serif;background:#241C15;color:#E0B45E">
+        <th style="padding:8px;border:1px solid #463726">音程</th><th style="padding:8px;border:1px solid #463726">方向</th><th style="padding:8px;border:1px solid #463726">該拍的速度</th><th style="padding:8px;border:1px solid #463726">聽感</th></tr></thead>
+      <tbody style="font-family:'IBM Plex Mono',monospace">
+        <tr><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">五度 F3–C4</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">窄</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">1.1 拍/秒</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">緩慢的呼吸</td></tr>
+        <tr><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">五度 A3–E4</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">窄</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">1.4 拍/秒</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">呼吸略快</td></tr>
+        <tr><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">四度 A3–D4</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">寬</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">0.2 拍/秒</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">本館 B 值下幾乎被不諧和度抵銷</td></tr>
+        <tr><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">大三度 F3–A3</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">寬</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">5.5 拍/秒</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">滾珠</td></tr>
+        <tr><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">大三度 A3–C♯4</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">寬</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">6.9 拍/秒</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">快滾珠</td></tr>
+        <tr><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">大三度 C4–E4</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">寬</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">8.2 拍/秒</td><td style="padding:7px;border:1px solid rgba(36,28,21,.28)">近乎粗糙</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#7a6448">大三度的拍速沿音域往上爬（5.5 → 6.9 → 8.2……），相鄰三度的拍速比約為 2^(4/12)≈1.26——老派調律師靠這條「三度階梯」檢查整段音律有沒有平。</p>
+  </section>
+
+  <section class="card" style="margin-bottom:26px">
+    <h2>四、工序：一台琴怎麼被調準</h2>
+    <p><b>① 定音。</b>音叉或標準音源給 A4（440 或演奏會的 442）。全琴只有這一個音來自外部，其餘全部由拍推出去。</p>
+    <p><b>② 設律。</b>在中央一個八度內，用窄五度、寬四度、快三度彼此交叉檢核，鋪出十二個半音——這一段叫 temperament，是整台琴的憲法。</p>
+    <p><b>③ 展開。</b>以八度（含拉伸）把音律向低音與高音推展。低音聽第二、四部分音，高音聽基音；每推一個八度，用五度與三度回頭抽查。</p>
+    <p><b>④ 同音弦。</b>中高音區一音三弦：塞止音氈、先調當中一根，再放出左右逐一對齊到無拍。同音弦沒調乾淨，前面全部白做——一根弦的渾濁會蓋掉所有音程的拍。</p>
+    <p><b>⑤ 複檢。</b>大和弦、八度琶音、極強奏。強奏會讓沒「定弦」的弦軸滑回去——所以扳手的最後一手是往回頂一點點，把張力鎖進弦軸板。</p>
+  </section>
+
+  <section class="card">
+    <h2>五、走音從哪來</h2>
+    <p>琴弦總張力近二十噸，掛在一塊木頭上。<b>濕度</b>是最大的敵人：梅雨季響板吸水膨脹、把弦頂高，音升；冬天暖氣抽乾木頭，音塌。<b>新弦</b>頭一年會持續鬆弛；<b>搬運</b>與<b>強奏</b>讓弦軸滑動。所以工房的規矩是一年至少調一次、換季後最好——不是生意話，是木頭的行程表。</p>
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:#7a6448;margin-top:12px">本頁公式與拍速表採用工房調律台的簡化模型（前五部分音、B 為常數）；數字與〈調律台〉的判定引擎完全一致，可互相驗算。</p>
+  </section>
+</main>
+<footer>
+  <div class="fgrid">
+    <div>
+      <h3>拾拍調律所</h3>
+      <p>台中市西區福人街 22 號 1 樓（工房）<br>04-2372-1187・週二—週六 10:00–18:30<br>主理人 温以磬｜乙級鋼琴調音技術士<br>到府調律範圍：台中市區・大里・太平</p>
+    </div>
+    <div class="fl">
+      <h3>頁面</h3>
+      <a href="index.html">調律台 BENCH</a>
+      <a href="qin.html">委託琴鑑 PIANOS</a>
+      <a href="fa.html">調律之法 METHOD</a>
+      <a href="yue.html">預約調律 BOOKING</a>
+    </div>
+    <div>
+      <h3>工房規矩</h3>
+      <p>一年至少調一次，換季後最好。<br>調律當日請留一小時安靜；<br>拍很小聲，工房要聽得見它。</p>
+    </div>
+  </div>
+  <p class="fnote">本站為設計範例，所有人物、琴、價格、電話皆為虛構。拍（beats）、不諧和度與平均律拍速之物理為真。SHIH-PAI PIANO TUNING ATELIER — DEMO SITE.</p>
+</footer></body>
+</html>

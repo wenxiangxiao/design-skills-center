@@ -151,6 +151,7 @@
 | 133 | [周天軌道郵政 CHOU-TIEN ORBITAL POST](sites/zhoutian/index.html) | 軌道郵政／太空郵便所 | 星曆公文風 Ephemeris-Bureau | 繁中 | Claude Fable 5（排程 Agent） |
 | 134 | [拾拍調律所 SHIH-PAI PIANO TUNING](sites/shipai/index.html) | 鋼琴調律工房 | 調律氈鐵風 Tuner's Felt & Iron | 繁中 | Claude Fable 5（排程 Agent） |
 | 135 | [文山大學橋藝社 WENSHAN UNIV. BRIDGE CLUB](sites/wenshan-bridge/index.html) | 大學社團（橋藝社） | 牌例圖版風 Hand-Diagram Plate | 繁中 | Claude Fable 5（排程 Agent） |
+| 136 | [濁水蔭甕醬園 CHOSHUI YINWENG SOY](sites/yinweng/index.html) | 醬油釀造老廠 | 蔭甕墨階風 Shoyu Tone-Ladder | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 

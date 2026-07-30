@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>驗法｜濁水蔭甕醬園</title>
+<meta name="description" content="三種取法、色階回歸、批平均的信賴區間、走味率為什麼估不準，以及兩種風險誰付錢。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20124%22%3E%3Crect%20width%3D%22100%22%20height%3D%22124%22%20fill%3D%22%232B1B0C%22%2F%3E%3Cpath%20d%3D%22M33%2C20%20C23%2C33%2015%2C46%2015%2C64%20C15%2C95%2027%2C111%2050%2C111%20C73%2C111%2085%2C95%2085%2C64%20C85%2C46%2077%2C33%2067%2C20%20Z%22%20fill%3D%22%236A4B2A%22%20stroke%3D%22%23F0E4CD%22%20stroke-width%3D%225%22%2F%3E%3Cpath%20d%3D%22M35%2C66%20C31%2C82%2040%2C103%2050%2C103%20C60%2C103%2069%2C82%2065%2C66%20Z%22%20fill%3D%22%23160E06%22%2F%3E%3Crect%20x%3D%2227%22%20y%3D%2212%22%20width%3D%2246%22%20height%3D%229%22%20fill%3D%22%239A7A4F%22%20stroke%3D%22%23F0E4CD%22%20stroke-width%3D%224%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g0:#F0E4CD;--g1:#E4D4B7;--g2:#D6C19D;--g3:#C4AB82;--g4:#B09368;--g5:#9A7A4F;
+  --g6:#82613A;--g7:#6A4B2A;--g8:#54391D;--g9:#3E2814;--g10:#2B1B0C;--g11:#160E06;
+  --zhu:#B7301E;
+  --rail:88px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--g10);color:var(--g1);
+  font-family:"Noto Sans TC",system-ui,sans-serif;font-size:16px;line-height:1.78;
+  padding-right:var(--rail);
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(240,228,205,.030) 0 1px,transparent 1px 5px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+main,header,footer,nav{position:relative;z-index:1}
+h1,h2,h3,h4{font-family:"Noto Serif TC",serif;font-weight:900;margin:0;line-height:1.3;letter-spacing:.05em}
+a{color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;background:var(--g0);color:var(--g11);padding:8px 12px;z-index:99}
+
+/* ── 頁首條（12–30px，不是 hero） ── */
+.topline{display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--g8);
+  padding:7px 22px;background:var(--g11);font-size:.72rem;letter-spacing:.16em}
+.topline .mk{display:block;width:26px;height:32px;flex:none}
+.topline b{font-family:"Noto Serif TC",serif;font-weight:900;letter-spacing:.3em;font-size:.86rem;color:var(--g0)}
+.topline span{color:var(--g4)}
+.topline .r{margin-left:auto;color:var(--g4)}
+
+/* ── 導覽：spigot-column 取汁栓柱 ── */
+.spig{position:fixed;top:0;right:0;bottom:0;width:var(--rail);background:var(--g11);
+  border-left:2px solid var(--g8);z-index:40;display:flex;flex-direction:column;
+  align-items:stretch;justify-content:center;gap:6px;padding:14px 0}
+.spig .vessel{position:absolute;inset:0;pointer-events:none}
+.spig a{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
+  text-decoration:none;padding:9px 2px;color:var(--g3);font-size:.62rem;letter-spacing:.22em}
+.spig a .tap{width:44px;height:26px;display:block}
+.spig a .zh{font-family:"Noto Serif TC",serif;font-weight:900;font-size:.95rem;letter-spacing:.14em;color:var(--g2)}
+.spig a:hover,.spig a:focus-visible{color:var(--g0);outline:none}
+.spig a:hover .zh,.spig a:focus-visible .zh{color:var(--g0)}
+.spig a:focus-visible{outline:2px solid var(--g2);outline-offset:-2px}
+.spig a[aria-current="page"] .zh{color:var(--g0)}
+.spig a[aria-current="page"] .plug{transform:translateX(-11px)}
+.spig a[aria-current="page"] .flow{opacity:1}
+.plug{transition:transform .32s cubic-bezier(.3,.9,.3,1)}
+.flow{opacity:0;transition:opacity .3s linear}
+
+/* ── 通用面板 ── */
+.panel{background:var(--g9);border:2px solid var(--g11);padding:18px 20px}
+.paper{background:var(--g1);color:var(--g11);border:2px solid var(--g11);padding:18px 20px}
+.paper a{color:var(--g8)}
+.hr{height:2px;background:var(--g8);border:0;margin:26px 0}
+.lead{font-size:1.02rem;color:var(--g2);max-width:62ch}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:.8rem}
+.kv dt{color:var(--g4);letter-spacing:.1em}
+.kv dd{margin:0}
+.btn{font-family:"Noto Serif TC",serif;font-weight:900;letter-spacing:.2em;font-size:.86rem;
+  background:var(--g1);color:var(--g11);border:2px solid var(--g11);padding:9px 18px;cursor:pointer}
+.btn:hover{background:var(--g0)}
+.btn:focus-visible{outline:3px solid var(--zhu);outline-offset:2px}
+.btn[disabled]{background:var(--g7);color:var(--g4);border-color:var(--g8);cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--g1);border-color:var(--g5)}
+.btn.ghost:hover{background:var(--g8)}
+.btn.zhu{background:var(--zhu);color:var(--g0);border-color:var(--g11)}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th,td{border:1px solid var(--g7);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--g8);color:var(--g1);font-weight:700;letter-spacing:.08em}
+.paper th{background:var(--g3);color:var(--g11);border-color:var(--g6)}
+.paper td{border-color:var(--g4)}
+.sec-no{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.28em;color:var(--g5);display:block;margin-bottom:6px}
+
+/* ── 頁尾 ── */
+footer{border-top:2px solid var(--g8);background:var(--g11);margin-top:54px;padding:30px 0 26px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+footer h4{font-size:.78rem;letter-spacing:.24em;color:var(--g4);margin-bottom:8px}
+footer p,footer li{font-size:.8rem;color:var(--g3);margin:.25em 0}
+footer ul{list-style:none;padding:0;margin:0}
+footer a{color:var(--g2);text-decoration:none;border-bottom:1px solid var(--g7)}
+footer a:hover{color:var(--g0)}
+.disc{margin-top:22px;border-top:1px solid var(--g8);padding-top:12px;font-size:.7rem;color:var(--g5);letter-spacing:.06em}
+
+@media (max-width:900px){
+  :root{--rail:0px}
+  body{padding-right:0;padding-bottom:66px}
+  .spig{top:auto;left:0;right:0;bottom:0;width:auto;height:66px;flex-direction:row;
+    border-left:0;border-top:2px solid var(--g8);gap:0;padding:0}
+  .spig .vessel{display:none}
+  .spig a{flex:1;padding:6px 2px;gap:1px}
+  .spig a .tap{display:none}
+  .spig a[aria-current="page"]{background:var(--g9);box-shadow:inset 0 3px 0 var(--zhu)}
+  footer .cols{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
+.doc{max-width:820px;padding-top:26px;padding-bottom:20px}
+.dochead{border-bottom:3px solid var(--g8);padding-bottom:20px;margin-bottom:8px}
+.doc h1{font-size:1.9rem;line-height:1.35}
+.doc h2{font-size:1.16rem;margin:34px 0 12px;border-left:6px solid var(--g6);padding-left:12px}
+.doc h2 .sec-no,.doc h1 .sec-no{display:block;margin-bottom:5px}
+.doc p{font-size:.94rem;color:var(--g2);max-width:66ch}
+.doc p b{color:var(--g0)}
+.doc table{margin:14px 0 6px}
+.doc td.zhu{color:var(--zhu);font-weight:700}
+.doc .num{text-align:right}
+.doc table.rot th,.doc table.rot td{text-align:right}
+.doc table.rot th:first-child,.doc table.rot td:first-child{text-align:left;white-space:nowrap}
+.formula{background:var(--g11);border-left:4px solid var(--g6);padding:11px 14px;font-size:.86rem!important;
+  color:var(--g1)!important;letter-spacing:.03em;overflow-x:auto}
+.formula b{color:var(--g0)}
+.fig{margin:18px 0;border:2px solid var(--g11);background:var(--g9);padding:12px}
+.fig svg{display:block;width:100%;height:auto}
+.fig figcaption{font-size:.76rem;color:var(--g4);line-height:1.65;margin-top:10px;border-top:1px solid var(--g8);padding-top:8px}
+.risks{margin:12px 0}
+.risks>div{border-left:4px solid var(--zhu);padding:2px 0 2px 13px;margin-bottom:12px}
+.risks dt{font-family:"Noto Serif TC",serif;font-weight:900;letter-spacing:.1em;color:var(--g0);font-size:.98rem}
+.risks dd{margin:2px 0 0;font-size:.9rem;color:var(--g2)}
+.risks dd b{color:var(--g0)}
+.honest{padding-left:20px;margin:10px 0}
+.honest li{font-size:.9rem;color:var(--g2);margin:.5em 0}
+.honest b{color:var(--g0)}
+.doc .quiet{font-size:.86rem;color:var(--g4);border-top:1px solid var(--g8);padding-top:10px;margin-top:14px}
+.more{margin-top:30px;font-size:.8rem;display:flex;flex-wrap:wrap;gap:8px 26px}
+.more a{color:var(--g2)}
+@media (max-width:560px){
+  .doc h1{font-size:1.44rem}
+  .doc table.rot{display:block;overflow-x:auto}
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳至主要內容</a>
+<header class="topline"><svg class="mk" viewBox="0 0 100 124" aria-hidden="true" focusable="false"><path d="M33,20 C23,33 15,46 15,64 C15,95 27,111 50,111 C73,111 85,95 85,64 C85,46 77,33 67,20 Z" fill="#6A4B2A" stroke="#F0E4CD" stroke-width="5"/><path d="M35,66 C31,82 40,103 50,103 C60,103 69,82 65,66 Z" fill="#160E06"/><rect x="27" y="12" width="46" height="9" fill="#9A7A4F" stroke="#F0E4CD" stroke-width="4"/></svg><b>濁水蔭甕醬園</b><span class="mono">CHOSHUI YINWENG SOY&nbsp;/&nbsp;雲林西螺 · 民國四十七年開甕</span><span class="r mono">驗法 · 抽驗與判準</span></header>
+<nav class="spig" aria-label="主導覽"><svg class="vessel" viewBox="0 0 88 600" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M14,0 C4,90 0,190 0,300 C0,430 6,530 16,600" fill="none" stroke="#3E2814" stroke-width="3"/><path d="M86,0 C80,90 78,190 78,300 C78,430 82,530 88,600" fill="none" stroke="#3E2814" stroke-width="3"/><path d="M2,300 L86,300" stroke="#2B1B0C" stroke-width="1.5"/><path d="M4,150 L84,150 M4,450 L84,450" stroke="#2B1B0C" stroke-width="1.5"/></svg><a href="index.html"><svg class="tap" viewBox="0 0 44 26" aria-hidden="true" focusable="false"><rect x="36" y="0" width="8" height="26" fill="#54391D"/><path class="flow" d="M36,13 C31,16 28,21 27,26" stroke="#D6C19D" stroke-width="2.3" fill="none" stroke-linecap="round"/><g class="plug"><rect x="23" y="9" width="15" height="8" fill="#82613A" stroke="#160E06" stroke-width="1.7"/><circle cx="21" cy="13" r="3.6" fill="#B09368" stroke="#160E06" stroke-width="1.7"/></g></svg><span class="zh">埕</span><span>驗甕台</span></a><a href="fa.html" aria-current="page"><svg class="tap" viewBox="0 0 44 26" aria-hidden="true" focusable="false"><rect x="36" y="0" width="8" height="26" fill="#54391D"/><path class="flow" d="M36,13 C31,16 28,21 27,26" stroke="#D6C19D" stroke-width="2.3" fill="none" stroke-linecap="round"/><g class="plug"><rect x="23" y="9" width="15" height="8" fill="#82613A" stroke="#160E06" stroke-width="1.7"/><circle cx="21" cy="13" r="3.6" fill="#B09368" stroke="#160E06" stroke-width="1.7"/></g></svg><span class="zh">法</span><span>驗法</span></a><a href="weng.html"><svg class="tap" viewBox="0 0 44 26" aria-hidden="true" focusable="false"><rect x="36" y="0" width="8" height="26" fill="#54391D"/><path class="flow" d="M36,13 C31,16 28,21 27,26" stroke="#D6C19D" stroke-width="2.3" fill="none" stroke-linecap="round"/><g class="plug"><rect x="23" y="9" width="15" height="8" fill="#82613A" stroke="#160E06" stroke-width="1.7"/><circle cx="21" cy="13" r="3.6" fill="#B09368" stroke="#160E06" stroke-width="1.7"/></g></svg><span class="zh">譜</span><span>甕譜</span></a><a href="yuan.html"><svg class="tap" viewBox="0 0 44 26" aria-hidden="true" focusable="false"><rect x="36" y="0" width="8" height="26" fill="#54391D"/><path class="flow" d="M36,13 C31,16 28,21 27,26" stroke="#D6C19D" stroke-width="2.3" fill="none" stroke-linecap="round"/><g class="plug"><rect x="23" y="9" width="15" height="8" fill="#82613A" stroke="#160E06" stroke-width="1.7"/><circle cx="21" cy="13" r="3.6" fill="#B09368" stroke="#160E06" stroke-width="1.7"/></g></svg><span class="zh">園</span><span>醬園</span></a></nav>
+<main id="main">
+<div class="wrap doc">
+
+<header class="dochead">
+  <h1><span class="sec-no">驗法</span>本園怎麼決定一批醬是幾級</h1>
+  <p class="lead">這一頁沒有程式也讀得完。廖敏民國七十九年進品管室，把當時口耳相傳的一套做法寫成下面七節；八十三年加了色階回歸，一百零二年加了 OC 曲線。數字都是本園自己的，別家不見得適用。</p>
+</header>
+
+<section>
+  <h2><span class="sec-no">一</span>三種取法，以及它們各自毀掉什麼</h2>
+  <table>
+    <thead><tr><th>取法</th><th>工</th><th>量到</th><th>誤差</th><th>這一甕之後</th></tr></thead>
+    <tbody>
+      <tr><td>看甕</td><td class="num">0</td><td>浮沫、鹽霜、釉況、埕位</td><td>無法量化</td><td>照賣</td></tr>
+      <tr><td>拔栓取汁</td><td class="num">1</td><td>色階、鹽度</td><td>色階 ±1 階（三成機率跳一階）、鹽度 ±0.3%</td><td>降級品，售價八二折</td></tr>
+      <tr><td>開甕取醪</td><td class="num">3</td><td>胺基酸態氮、鹽度、走味與否</td><td>氮 ±0.02</td><td class="zhu">報廢，不入正品</td></tr>
+    </tbody>
+  </table>
+  <p>三者的關係不是「便宜／貴」，是<b>毀壞的程度換來的資訊量</b>。看甕不毀任何東西，所以它什麼也不保證；開甕最準，所以那一甕從此只能自用。醬油的胺基酸態氮沒有辦法隔著甕量——這不是本園設備不夠，是這件事本身就要把醪取出來。</p>
+</section>
+
+<section>
+  <h2><span class="sec-no">二</span>色階：氮的影子</h2>
+  <p>醬色來自梅納反應，跟氮的累積同源，但不是同一件事。曬得多的甕色會跑在氮前面；翻過的甕醪層打散，色階整個讀不準。本園用的換算式是：</p>
+  <p class="formula mono">色階 ≈ 1.6 + 4.6 × (氮 − 0.80) + (日程 − 150) / 120 × 2.1</p>
+  <p class="formula mono">氮 ≈ 0.80 + (色階 − 1.6 − (日程 − 150) / 120 × 2.1) / 4.6　　殘差標準差 <b>0.13</b></p>
+  <p>0.13 是什麼概念：甲級與乙級的界線差 0.30。換句話說，<b>單憑一甕的色階，你分不出甲乙</b>。它有用，但它的用處是便宜地累積多個樣本，不是替代開甕。</p>
+  <figure class="fig"><svg viewBox="0 0 440 270" role="img" aria-label="色階與氮的散布圖：同一色階可能對應相差 0.3 的氮"><rect width="440" height="270" fill="#3E2814"/><line x1="52" y1="226" x2="426" y2="226" stroke="#54391D" stroke-width="1"/><line x1="52" y1="206.72727272727272" x2="426" y2="206.72727272727272" stroke="#54391D" stroke-width="1"/><line x1="52" y1="187.45454545454544" x2="426" y2="187.45454545454544" stroke="#54391D" stroke-width="1"/><line x1="52" y1="168.1818181818182" x2="426" y2="168.1818181818182" stroke="#54391D" stroke-width="1"/><line x1="52" y1="148.9090909090909" x2="426" y2="148.9090909090909" stroke="#54391D" stroke-width="1"/><line x1="52" y1="129.63636363636363" x2="426" y2="129.63636363636363" stroke="#54391D" stroke-width="1"/><line x1="52" y1="110.36363636363637" x2="426" y2="110.36363636363637" stroke="#54391D" stroke-width="1"/><line x1="52" y1="91.0909090909091" x2="426" y2="91.0909090909091" stroke="#54391D" stroke-width="1"/><line x1="52" y1="71.81818181818181" x2="426" y2="71.81818181818181" stroke="#54391D" stroke-width="1"/><line x1="52" y1="52.54545454545453" x2="426" y2="52.54545454545453" stroke="#54391D" stroke-width="1"/><line x1="52" y1="33.27272727272728" x2="426" y2="33.27272727272728" stroke="#54391D" stroke-width="1"/><line x1="52" y1="14" x2="426" y2="14" stroke="#54391D" stroke-width="1"/><line x1="52.0" y1="14" x2="52.0" y2="226" stroke="#54391D" stroke-width="1"/><text x="52.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">0.6</text><line x1="120.0" y1="14" x2="120.0" y2="226" stroke="#54391D" stroke-width="1"/><text x="120.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">0.8</text><line x1="188.0" y1="14" x2="188.0" y2="226" stroke="#54391D" stroke-width="1"/><text x="188.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.0</text><line x1="256.0" y1="14" x2="256.0" y2="226" stroke="#54391D" stroke-width="1"/><text x="256.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.2</text><line x1="324.0" y1="14" x2="324.0" y2="226" stroke="#54391D" stroke-width="1"/><text x="324.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.4</text><line x1="392.0" y1="14" x2="392.0" y2="226" stroke="#54391D" stroke-width="1"/><text x="392.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.6</text><text x="44" y="230" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">0</text><text x="44" y="191.45454545454544" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">2</text><text x="44" y="152.9090909090909" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">4</text><text x="44" y="114.36363636363637" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">6</text><text x="44" y="75.81818181818181" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">8</text><text x="44" y="37.27272727272728" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">10</text><line x1="52" y1="202.77636363636364" x2="426" y2="105.25636363636363" stroke="#E4D4B7" stroke-width="2.4"/><circle cx="390.4" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="225.7" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="376.0" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="315.4" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="299.5" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="396.3" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="100.3" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="405.5" cy="91.1" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="98.1" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="238.1" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="392.0" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="377.0" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="100.2" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="127.6" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="356.0" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="167.3" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="391.2" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="352.2" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="210.8" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="153.5" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="301.0" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="100.2" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="93.1" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="128.6" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="82.0" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="299.7" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="123.1" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="111.1" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="210.1" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="356.5" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="328.1" cy="91.1" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="324.6" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="162.3" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="214.2" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="228.7" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="170.7" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="158.5" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="350.5" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="393.0" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="294.3" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="146.2" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="176.2" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="97.7" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="353.0" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="204.4" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="411.4" cy="91.1" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="126.0" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="95.5" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="377.7" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="192.8" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="173.9" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="394.4" cy="91.1" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="268.9" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="286.8" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="293.0" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="274.4" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="172.6" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="86.3" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="129.8" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="103.1" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="122.1" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="331.3" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="399.8" cy="110.4" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="167.0" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="370.4" cy="129.6" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="201.1" cy="168.2" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="164.6" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="120.2" cy="206.7" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="134.8" cy="187.5" r="3.4" fill="#D6C19D" opacity=".82"/><circle cx="223.0" cy="148.9" r="3.4" fill="#D6C19D" opacity=".82"/><text x="52" y="262" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">胺基酸態氮 g/100mL →</text><text x="14" y="22" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368" transform="rotate(-90,14,22)">← 色階</text></svg><figcaption>圖一　同一色階可以對應相差 0.3 的氮。粗線是本園用的回歸式，點是歷年開甕實測（每點一甕）。色階便宜，但它是氮的影子。</figcaption></figure>
+</section>
+
+<section>
+  <h2><span class="sec-no">三</span>批平均怎麼算，區間怎麼來</h2>
+  <p>每一筆量測都是對整批平均的一次猜測，猜測的變異有兩個來源：甕跟甕本來就不一樣（批內標準差，本園歷年為 <b>s = 0.145</b>），加上量測本身的誤差。所以一筆開甕樣本的變異是 0.145² + 0.02²，一筆拔栓樣本是 0.145² + 0.13²。</p>
+  <p class="formula mono">x̄ = Σ(xᵢ / vᵢ) / Σ(1 / vᵢ)　　se = √( 1 / Σ(1 / vᵢ) )　　95% 區間 = x̄ ± 1.96 · se</p>
+  <table>
+    <thead><tr><th>樣本</th><th>每筆有效變異 vᵢ</th><th>權重（相對）</th><th>成本</th></tr></thead>
+    <tbody>
+      <tr><td>開甕一甕</td><td class="num">0.02144</td><td class="num">1.00</td><td>3 工 ＋ 整甕報廢</td></tr>
+      <tr><td>拔栓一甕</td><td class="num">0.03793</td><td class="num">0.57</td><td>1 工 ＋ 八二折</td></tr>
+    </tbody>
+  </table>
+  <p>看清楚這張表：<b>估平均這件事，拔栓划算得多</b>——一工換到 0.57 的權重，開甕是三工換一。若只看等級，理性的做法是多拔栓、少開甕。問題出在下一節。</p>
+</section>
+
+<section>
+  <h2><span class="sec-no">四</span>走味率：為什麼幾乎不可能排除</h2>
+  <p>生白膜只有開甕看得見。色階看不見它，浮沫是弱線索——本園統計，走味甕平均浮沫 2.2 處，正常甕 0.5 處，但兩者的分布重疊很大，光看沫既會冤枉好甕也會放過壞甕。</p>
+  <p>假設你開了 n 甕、全部正常，走味率的九五％上界（Clopper–Pearson 精確二項單側界，k=0 時等於 1 − 0.05^(1/n)）是：</p>
+  <table class="rot">
+    <thead><tr><th>開甕數 n</th><th class="num">2</th><th class="num">4</th><th class="num">6</th><th class="num">8</th><th class="num">12</th><th class="num">20</th><th class="num">37</th></tr></thead>
+    <tbody><tr><td>走味率 95% 上界</td><td class="num">78%</td><td class="num">53%</td><td class="num">39%</td><td class="num">31%</td><td class="num">22%</td><td class="num">14%</td><td class="num">8%</td></tr></tbody>
+  </table>
+  <p>要把上界壓到本園的退貨門檻 8%，得開三十七甕——<b>比整批三十六甕還多一甕</b>。這不是誇飾，是零事件的樣本上界本來的樣子。所以本園從來不宣稱「這批沒有走味」，只宣稱「開了四甕都乾淨」。這兩句話差很多，標籤上寫的是後者。</p>
+</section>
+
+<section>
+  <h2><span class="sec-no">五</span>兩種風險，誰付錢</h2>
+  <p>判準是一條線，真實是一個分布，於是一定會有兩種錯：</p>
+  <dl class="risks">
+    <div><dt>生產者風險 α</dt><dd>批其實夠好，卻被我們自己判低了。沒有人會客訴，帳面上一切正常，錢從此不再出現。<b>這種錯誤沒有人會來告訴你。</b></dd></div>
+    <div><dt>消費者風險 β</dt><dd>批其實不夠好，卻被判成高一級出去。三十天後退貨單會到，一級之差退補三成五，兩級以上退補六成八，走味整批退。</dd></div>
+  </dl>
+  <figure class="fig"><svg viewBox="0 0 440 270" role="img" aria-label="OC 曲線：以 x̄≥1.40 判甲級時，不同真實批平均下判為甲級的機率"><rect width="440" height="270" fill="#3E2814"/><line x1="52" y1="226" x2="426" y2="226" stroke="#54391D"/><text x="44" y="230" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">0%</text><line x1="52" y1="173" x2="426" y2="173" stroke="#54391D"/><text x="44" y="177" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">25%</text><line x1="52" y1="120" x2="426" y2="120" stroke="#54391D"/><text x="44" y="124" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">50%</text><line x1="52" y1="67" x2="426" y2="67" stroke="#54391D"/><text x="44" y="71" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">75%</text><line x1="52" y1="14" x2="426" y2="14" stroke="#54391D"/><text x="44" y="18" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">100%</text><line x1="52.0" y1="14" x2="52.0" y2="226" stroke="#54391D"/><text x="52.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.1</text><line x1="114.3" y1="14" x2="114.3" y2="226" stroke="#54391D"/><text x="114.3" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.2</text><line x1="176.7" y1="14" x2="176.7" y2="226" stroke="#54391D"/><text x="176.7" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.3</text><line x1="239.0" y1="14" x2="239.0" y2="226" stroke="#54391D"/><text x="239.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.4</text><line x1="301.3" y1="14" x2="301.3" y2="226" stroke="#54391D"/><text x="301.3" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.5</text><line x1="363.7" y1="14" x2="363.7" y2="226" stroke="#54391D"/><text x="363.7" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.6</text><line x1="426.0" y1="14" x2="426.0" y2="226" stroke="#54391D"/><text x="426.0" y="242" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">1.7</text><line x1="239.0" y1="14" x2="239.0" y2="226" stroke="#B7301E" stroke-width="2"/><polyline points="52.0,226.0 58.2,226.0 64.5,226.0 70.7,226.0 76.9,226.0 83.2,225.9 89.4,225.9 95.6,225.8 101.9,225.7 108.1,225.6 114.3,225.3 120.6,225.0 126.8,224.5 133.0,223.9 139.3,222.9 145.5,221.7 151.7,220.1 158.0,218.0 164.2,215.3 170.4,211.9 176.7,207.8 182.9,202.8 189.1,196.9 195.4,190.1 201.6,182.3 207.8,173.6 214.1,164.0 220.3,153.7 226.5,142.8 232.8,131.5 239.0,120.0 245.2,108.5 251.5,97.2 257.7,86.3 263.9,76.0 270.2,66.4 276.4,57.7 282.6,49.9 288.9,43.1 295.1,37.2 301.3,32.2 307.6,28.1 313.8,24.7 320.0,22.0 326.3,19.9 332.5,18.3 338.7,17.1 345.0,16.1 351.2,15.5 357.4,15.0 363.7,14.7 369.9,14.4 376.1,14.3 382.4,14.2 388.6,14.1 394.8,14.1 401.1,14.0 407.3,14.0 413.5,14.0 419.8,14.0 426.0,14.0" fill="none" stroke="#9A7A4F" stroke-width="2.4"/><polyline points="52.0,226.0 58.2,226.0 64.5,226.0 70.7,226.0 76.9,226.0 83.2,226.0 89.4,226.0 95.6,226.0 101.9,226.0 108.1,226.0 114.3,226.0 120.6,226.0 126.8,225.9 133.0,225.9 139.3,225.8 145.5,225.6 151.7,225.3 158.0,224.7 164.2,223.8 170.4,222.4 176.7,220.3 182.9,217.3 189.1,213.1 195.4,207.3 201.6,199.9 207.8,190.6 214.1,179.4 220.3,166.4 226.5,151.9 232.8,136.2 239.0,120.0 245.2,103.8 251.5,88.1 257.7,73.6 263.9,60.6 270.2,49.4 276.4,40.1 282.6,32.7 288.9,26.9 295.1,22.7 301.3,19.7 307.6,17.6 313.8,16.2 320.0,15.3 326.3,14.7 332.5,14.4 338.7,14.2 345.0,14.1 351.2,14.1 357.4,14.0 363.7,14.0 369.9,14.0 376.1,14.0 382.4,14.0 388.6,14.0 394.8,14.0 401.1,14.0 407.3,14.0 413.5,14.0 419.8,14.0 426.0,14.0" fill="none" stroke="#E4D4B7" stroke-width="2.4"/><text x="62" y="30" font-family="IBM Plex Mono,monospace" font-size="11" fill="#E4D4B7">開驗 8 甕</text><text x="62" y="46" font-family="IBM Plex Mono,monospace" font-size="11" fill="#9A7A4F">開驗 4 甕</text><text x="244.99999999999994" y="220" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B7301E">判準 1.40</text><text x="52" y="262" font-family="IBM Plex Mono,monospace" font-size="10" fill="#B09368">真實批平均氮 →</text></svg><figcaption>圖二　OC 曲線。橫軸是這批醬真實的平均氮，縱軸是「我們會把它判成甲級」的機率。判準線畫在 1.40，但曲線不是一堵牆——真值 1.34 的批仍有相當機率被判成甲（消費者風險），真值 1.46 的批也會被我們自己退掉（生產者風險）。開八甕的曲線比開四甕陡，代價是四甕的貨。</figcaption></figure>
+  <p>曲線的形狀就是本園的處境：判準畫在 1.40，但真值 1.34 的批仍有兩成機率被我們判成甲級（開四甕的情況），真值 1.46 的批也有兩成機率被我們自己退掉。要讓曲線變陡，只能多開甕；多開甕就是少賣甕。這條交換沒有辦法繞過去。</p>
+</section>
+
+<section>
+  <h2><span class="sec-no">六</span>判準與價目</h2>
+  <table>
+    <thead><tr><th>等級</th><th>胺基酸態氮</th><th>走味率</th><th>出廠價／甕</th></tr></thead>
+    <tbody>
+      <tr><td>甲級 特選</td><td class="num">≥ 1.40</td><td rowspan="3">≤ 3%。逾 3% 降一級，逾 8% 整批不合格。</td><td class="num">3,800</td></tr>
+      <tr><td>乙級</td><td class="num">≥ 1.10</td><td class="num">2,500</td></tr>
+      <tr><td>丙級 料理用</td><td class="num">≥ 0.80</td><td class="num">1,500</td></tr>
+      <tr><td>整批標售</td><td>不標等級</td><td>不適用</td><td class="num">950</td></tr>
+    </tbody>
+  </table>
+  <p>續熟三十日平均可換到 +0.055 的氮，但每一甕有約 5% 的機率在這三十天裡走味，而且已經量過的數字全部作廢——那些數字量的是三十天前的醬。續熟是一個選擇，不是一次補救。</p>
+</section>
+
+<section>
+  <h2><span class="sec-no">七</span>誠實聲明</h2>
+  <ul class="honest">
+    <li>本站的等級判準是 CNS 醬油分級的<b>教學簡化</b>。實務上還看總氮、無鹽可溶性固形物與釀造方式，本站一概略去。</li>
+    <li>色階回歸是線性的、殘差假設常態。真實的梅納反應不是線性，日程超過 330 日之後會偏。</li>
+    <li>批內標準差 s 在本站當成已知常數 0.145。實務上 s 要從樣本估，樣本少的時候應該用 t 分布而不是 1.96，區間會更寬——本站沒有這樣做，所以本站的區間其實比實際樂觀一點點。</li>
+    <li>走味在本站是二元的「有／無」。真實的產膜酵母是連續的，早期可以撈掉。</li>
+    <li>甕與甕之間在本站彼此獨立。真實的甕埕會有位置相關性（東側整排一起偏深）。</li>
+  </ul>
+  <p class="quiet">寫這些不是為了免責。若一個模型的簡化不寫出來，讀的人會以為那條線比它實際上更硬。</p>
+</section>
+
+<p class="mono more"><a href="index.html">→ 回甕埕，驗一批看看</a>　<a href="weng.html">→ 甕譜：二十四種甕況長什麼樣</a></p>
+
+</div>
+</main>
+<footer><div class="wrap"><div class="cols"><div><h4>濁水蔭甕醬園</h4><p>雲林縣西螺鎮延平路二段 176 巷 9 號</p><p>電話 05-586 3417（週一至週六 08:00–17:30，週日休）</p><p>甕埕開放參觀：每週三、六 09:30 與 14:00，兩梯各 12 位，需先預約</p><p>負責人 廖文欽　品管 廖敏</p></div><div><h4>頁面</h4><ul><li><a href="index.html">驗甕台（甕埕）</a></li><li><a href="fa.html">驗法（抽驗與判準）</a></li><li><a href="weng.html">甕譜（二十四甕況）</a></li><li><a href="yuan.html">醬園（訂購與參觀）</a></li><li><a href="SKILL.md">SKILL.md（風格規格書）</a></li></ul></div><div><h4>園規</h4><ul><li>抽驗過的甕不入正品，一律自用或折價出清。</li><li>沒抽到的甕，我們不會替它說話。</li><li>續熟是選擇，不是補救。</li><li>標籤上的等級是判斷，不是保證——判斷會錯，我們賠。</li></ul></div></div><p class="disc mono">本站為網頁設計風格示範站。廠名、人名、地址、電話、價格、批號與所有檢驗數據皆為虛構示意，等級判準為 CNS 醬油分級之教學簡化，不得作為食品品管或採購依據。</p></div></footer></body>
+</html>

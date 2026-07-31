@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>夜更試｜南汐航路標識管理站</title>
+<meta name="description" content="夜更試三關：跟按量燈質、方位交會定船位、光弧判讀。全程使用南汐水道真實燈份表資料。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101C26'/%3E%3Crect x='11' y='10' width='10' height='4' fill='%23F4EEE1'/%3E%3Crect x='11' y='14' width='10' height='4' fill='%23C7331B'/%3E%3Crect x='11' y='18' width='10' height='4' fill='%23F4EEE1'/%3E%3Crect x='11' y='22' width='10' height='4' fill='%23C7331B'/%3E%3Crect x='9' y='26' width='14' height='2' fill='%23F4EEE1'/%3E%3Ccircle cx='16' cy='6' r='3.2' fill='%23FFD75C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#C7331B; --red-d:#9E2712; --white:#F4EEE1; --ink:#101C26;
+  --lamp:#FFD75C; --teal:#35707E; --ink-2:#1B2B39; --line:#2C3E4E; --redlamp:#FF7A5C;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--ink);color:var(--white);line-height:1.75}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit}
+::selection{background:var(--lamp);color:var(--ink)}
+.skyline{background:var(--ink);color:var(--white);border-bottom:6px solid var(--red);display:flex;align-items:stretch}
+.plate{display:flex;flex-direction:column;justify-content:center;gap:2px;background:var(--red);color:var(--white);text-decoration:none;padding:14px 20px;font-weight:900;font-size:22px;letter-spacing:4px;border-right:3px solid var(--white);box-shadow:inset 0 0 0 3px var(--red),inset 0 0 0 5px var(--white)}
+.plate span{font-size:11px;font-weight:700;letter-spacing:3px;opacity:.92}
+.horizon{flex:1;display:flex;align-items:stretch;position:relative;overflow-x:auto}
+.horizon::before{content:"";position:absolute;left:0;right:0;top:34px;height:1px;background:var(--line)}
+.hz{flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;padding:12px 8px 10px;position:relative;border-left:1px solid var(--line)}
+.hz b{font-size:14px;letter-spacing:2px;font-weight:700}
+.hz i{font-style:normal;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8FA6B5;letter-spacing:.5px}
+.hz.cur b{color:var(--lamp)}
+.hz:hover{background:var(--ink-2)}
+.ldot{width:13px;height:13px;border-radius:50%;background:#26394A;display:inline-block}
+.ldot.lit{background:var(--c,#FFD75C);box-shadow:0 0 12px 3px var(--c,#FFD75C)}
+.navnote{background:var(--ink);color:#7E97A8;font-size:11.5px;letter-spacing:1px;text-align:right;padding:0 14px 6px;font-family:'IBM Plex Mono',monospace}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.testhead{padding:40px 0 8px;border-bottom:1px solid var(--line)}
+.testhead h1{font-weight:900;font-size:clamp(24px,3.4vw,34px);letter-spacing:5px}
+.testhead p{color:#B9C8D2;max-width:42em;margin-top:8px;font-size:14.5px}
+.scenbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0 22px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#8FA6B5}
+.scenbar b{color:var(--lamp);font-weight:600}
+.scenbar button{font-family:inherit;font-size:12px;background:none;border:1px solid var(--line);color:#C8D6DF;padding:5px 12px;cursor:pointer;letter-spacing:1px}
+.scenbar button:hover{border-color:var(--lamp);color:var(--lamp)}
+
+.stage{border:1px solid var(--line);margin:26px 0;background:var(--ink-2)}
+.stage.locked{opacity:.45;pointer-events:none}
+.stage-h{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.stage-h .num{font-family:'IBM Plex Mono',monospace;background:var(--red);color:var(--white);padding:3px 10px;font-size:13px;letter-spacing:2px}
+.stage-h h2{font-size:18px;letter-spacing:3px;font-weight:900}
+.stage-h .st{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8FA6B5}
+.stage-h .st.pass{color:var(--lamp)}
+.stage-b{padding:20px 18px 26px}
+.stage-b p.desc{color:#B9C8D2;font-size:14px;max-width:46em;margin-bottom:16px}
+
+/* Stage 1 */
+.lamproom{display:grid;grid-template-columns:280px 1fr;gap:26px;align-items:start}
+.lampbox{background:var(--ink);border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.biglamp{width:84px;height:84px;border-radius:50%;background:#233442}
+.biglamp.lit{background:var(--lc,#FFD75C);box-shadow:0 0 46px 14px var(--lc,#FFD75C)}
+.lampbox .cap{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5E7688;letter-spacing:2px;text-align:center}
+.followkey{width:100%;padding:20px 10px;font-family:'Noto Sans TC',sans-serif;font-weight:900;font-size:16px;letter-spacing:3px;background:var(--white);color:var(--ink);border:none;border-bottom:6px solid #B7AF9D;cursor:pointer;user-select:none;touch-action:none}
+.followkey:active,.followkey.down{border-bottom-width:2px;transform:translateY(4px);background:var(--lamp)}
+.recrow{display:flex;gap:10px;width:100%}
+.recrow button{flex:1;font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:9px 6px;background:none;border:1px solid var(--line);color:#C8D6DF;cursor:pointer;letter-spacing:1px}
+.recrow button:hover{border-color:var(--lamp);color:var(--lamp)}
+.recrow button:disabled{opacity:.4;cursor:default}
+.rec-ind{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--redlamp)}
+.readout{background:var(--ink);border:1px solid var(--line);padding:16px 18px}
+.readout h3{font-size:14px;letter-spacing:2px;margin-bottom:10px;color:var(--lamp)}
+.readout .feat{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#C8D6DF;margin-bottom:10px;line-height:2}
+.cands{display:flex;flex-direction:column;gap:6px;margin:10px 0 16px}
+.cand{display:grid;grid-template-columns:15em 1fr 3.5em;gap:10px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#C8D6DF}
+.cand .bar{height:10px;background:#233442;position:relative}
+.cand .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--teal)}
+.cand.top .bar i{background:var(--lamp)}
+.cand.top{color:var(--lamp)}
+.pressvis{margin:10px 0}
+.pressvis p{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5E7688;letter-spacing:1px;margin:6px 0 3px}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pickrow button{font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:9px 12px;background:none;border:1px solid var(--line);color:#C8D6DF;cursor:pointer}
+.pickrow button:hover{border-color:var(--lamp);color:var(--lamp)}
+.verdict{margin-top:12px;padding:12px 14px;border-left:4px solid var(--teal);font-size:14px;background:rgba(53,112,126,.12)}
+.verdict.ok{border-color:var(--lamp);background:rgba(255,215,92,.08)}
+.verdict.no{border-color:var(--redlamp);background:rgba(255,122,92,.08)}
+
+/* Stage 2 */
+.brgstrip{background:var(--ink);border:1px solid var(--line);padding:14px 14px 6px;position:relative}
+.brgstrip svg{display:block;width:100%}
+.pelorus{width:100%;margin:10px 0 4px;-webkit-appearance:none;appearance:none;height:26px;background:transparent;cursor:ew-resize}
+.pelorus::-webkit-slider-runnable-track{height:6px;background:#233442}
+.pelorus::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:26px;margin-top:-10px;background:var(--lamp);border:2px solid var(--ink);clip-path:polygon(50% 0,100% 30%,100% 100%,0 100%,0 30%)}
+.pelorus::-moz-range-track{height:6px;background:#233442}
+.pelorus::-moz-range-thumb{width:16px;height:24px;background:var(--lamp);border:2px solid var(--ink);border-radius:0}
+.brgread{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:13px;color:#C8D6DF;padding:6px 0 10px}
+.brgread b{font-size:20px;color:var(--lamp);font-weight:600}
+.brgread button{font-family:inherit;font-size:12.5px;padding:8px 14px;background:var(--red);border:none;color:var(--white);cursor:pointer;letter-spacing:2px}
+.brgread button:hover{background:var(--red-d)}
+.locklist{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#C8D6DF;display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}
+.locklist span{border:1px solid var(--line);padding:6px 10px}
+.locklist span.got{border-color:var(--lamp);color:var(--lamp)}
+.chartwrap{margin-top:16px;border:1px solid var(--line);background:#0B141C;display:none}
+.chartwrap.show{display:block}
+.chartwrap svg{width:100%;height:auto;display:block}
+
+/* Stage 3 */
+.sec3{display:grid;grid-template-columns:230px 1fr;gap:26px;align-items:start}
+.seclamp{background:var(--ink);border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opts button{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:14.5px;padding:13px 16px;background:none;border:1px solid var(--line);color:var(--white);cursor:pointer;line-height:1.6}
+.opts button:hover{border-color:var(--lamp)}
+.opts button b{font-family:'IBM Plex Mono',monospace;margin-right:10px;color:var(--lamp)}
+
+/* Cert */
+.certzone{margin:30px 0 60px;display:none}
+.certzone.show{display:block}
+.certzone .nameline{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.certzone input{font-family:'Noto Sans TC',sans-serif;font-size:15px;padding:10px 14px;background:var(--ink);border:1px solid var(--line);color:var(--white);letter-spacing:2px}
+.certzone .nameline button{font-size:13.5px;font-weight:700;letter-spacing:2px;padding:10px 18px;background:var(--lamp);color:var(--ink);border:none;cursor:pointer}
+#cert{background:var(--white);color:var(--ink);border:none;padding:0}
+footer{background:var(--ink);color:#9FB4C2;border-top:6px solid var(--red);padding:36px 0 42px;font-size:13px;margin-top:40px}
+.f-inner{max-width:1080px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px}
+footer b{color:var(--white);letter-spacing:2px;display:block;margin-bottom:8px}
+footer a{color:#C8D6DF;text-decoration:none;border-bottom:1px solid #3B5266}
+footer a:hover{color:var(--lamp)}
+footer ul{list-style:none}
+footer li{margin-bottom:6px}
+.disclaim{max-width:1080px;margin:26px auto 0;padding:14px 24px 0;border-top:1px solid var(--line);font-size:11.5px;color:#6E8798;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px}
+
+@media (max-width:860px){
+  .lamproom,.sec3{grid-template-columns:1fr}
+  .f-inner{grid-template-columns:1fr}
+  .cand{grid-template-columns:9em 1fr 3.2em}
+}
+@media (max-width:620px){
+  .skyline{flex-direction:column}
+  .plate{border-right:none;border-bottom:3px solid var(--white)}
+  .horizon{display:grid;grid-template-columns:1fr 1fr}
+  .hz{border-top:1px solid var(--line)}
+}
+@media print{
+  body *{visibility:hidden}
+  #cert,#cert *{visibility:visible}
+  #cert{position:absolute;left:0;top:0;width:100%}
+}
+</style>
+</head>
+<body>
+
+<header class="skyline">
+  <a class="plate" href="index.html">南汐<span>航路標識管理站</span></a>
+  <nav class="horizon" aria-label="燈列導覽">
+    <a href="index.html" class="hz"><span class="ldot" data-char="pailai" style="--c:#FFD75C"></span><b>站務・燈份表</b><i>Fl(2) W 10s</i></a>
+    <a href="lights.html" class="hz"><span class="ldot" data-char="bangken" style="--c:#FFD75C"></span><b>燈籍簿</b><i>Fl(3) W 15s</i></a>
+    <a href="watch.html" class="hz cur" aria-current="page"><span class="ldot" data-char="haukhak" data-fixed="1" style="--c:#FFD75C"></span><b>夜更試</b><i>F 定光（本頁）</i></a>
+    <a href="notation.html" class="hz"><span class="ldot" data-char="angthau" style="--c:#FF7A5C"></span><b>燈質學</b><i>Oc R 6s</i></a>
+  </nav>
+</header>
+<div class="navnote">導覽即燈列：各頁依其燈質閃爍，現用頁改掛定光 F</div>
+
+<div class="wrap">
+  <div class="testhead">
+    <h1>夜更試</h1>
+    <p>三關。第一關量一盞不知名的燈；第二關用兩座燈塔把自己放回海圖上；第三關看一眼指向燈，決定走或轉。工具只有碼錶、跟按鍵和燈份表——夜航者本來也只有這些。</p>
+  </div>
+  <div class="scenbar">
+    <span>考夜 <b id="scen-label">第一夜</b></span>
+    <span>海況：浪 1.5m・能見度良好</span>
+    <button id="btn-newnight" type="button">換一晚（換題）</button>
+    <a href="notation.html" style="color:#C8D6DF">先讀燈質學 →</a>
+  </div>
+
+  <!-- ── STAGE 1 ── -->
+  <section class="stage" id="stage1">
+    <div class="stage-h"><span class="num">第一關</span><h2>燈質判讀</h2><span class="st" id="st1">未通過</span></div>
+    <div class="stage-b">
+      <p class="desc">正前方海面出現一盞燈。按「開始跟按」後，燈亮時把跟按鍵按住、燈滅時放開（滑鼠、觸控或空白鍵皆可），跟滿約 30 秒，站內的節奏比對器會把你的按鍵紀錄拿去和燈份表比對。之後從表中指認它是誰。</p>
+      <div class="lamproom">
+        <div class="lampbox">
+          <div class="biglamp" id="biglamp" role="img" aria-label="待判讀之未知燈"></div>
+          <p class="cap" id="lampcap">未知燈 ── 方位 000°（正艏）</p>
+          <button class="followkey" id="followkey" type="button" aria-label="跟按鍵：燈亮按住、燈滅放開">跟 按 鍵</button>
+          <div class="recrow">
+            <button id="btn-rec" type="button">開始跟按（30s）</button>
+            <button id="btn-stop" type="button" disabled>提前結束</button>
+          </div>
+          <p class="cap"><span class="rec-ind" id="recind"></span></p>
+        </div>
+        <div class="readout">
+          <h3>節奏比對器</h3>
+          <div class="feat" id="feat">尚無紀錄。跟按至少兩個完整週期，比對器才開口。</div>
+          <div class="pressvis" id="pressvis"></div>
+          <div class="cands" id="cands"></div>
+          <div id="pickzone" style="display:none">
+            <p class="desc" style="margin-bottom:6px">指認：這盞燈是——</p>
+            <div class="pickrow" id="pickrow"></div>
+          </div>
+          <div id="verdict1"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STAGE 2 ── -->
+  <section class="stage locked" id="stage2">
+    <div class="stage-h"><span class="num">第二關</span><h2>方位交會</h2><span class="st" id="st2">未通過</span></div>
+    <div class="stage-b">
+      <p class="desc">海平線上現在有兩座已識別的燈塔。拖動方位環，把十字線對準一盞燈、按「鎖定方位」；兩條方位線都取到後按「標繪船位」，兩條位置線的交點就是你。誤差 0.9 浬內通過。浮標不得用於定位——它會走錨。</p>
+      <div class="brgstrip">
+        <svg id="stripsvg" viewBox="0 0 1000 130" preserveAspectRatio="none" aria-label="全周方位海平線"></svg>
+        <input class="pelorus" id="pelorus" type="range" min="0" max="359.5" step="0.5" value="180" aria-label="方位環（度）">
+        <div class="brgread">
+          <span>方位環</span><b id="brgval">180.0°</b>
+          <button id="btn-lock" type="button">鎖定方位</button>
+          <span id="lockmsg" style="color:#8FA6B5"></span>
+        </div>
+        <div class="locklist" id="locklist"></div>
+        <div class="brgread" style="padding-top:0">
+          <button id="btn-plot" type="button" disabled>標繪船位</button>
+          <button id="btn-relock" type="button" style="background:none;border:1px solid var(--line);color:#C8D6DF">重取方位</button>
+        </div>
+      </div>
+      <div class="chartwrap" id="chartwrap">
+        <svg id="chartsvg" viewBox="0 0 640 640" aria-label="南汐水道海圖"></svg>
+      </div>
+      <div id="verdict2"></div>
+    </div>
+  </section>
+
+  <!-- ── STAGE 3 ── -->
+  <section class="stage locked" id="stage3">
+    <div class="stage-h"><span class="num">第三關</span><h2>光弧判讀</h2><span class="st" id="st3">未通過</span></div>
+    <div class="stage-b">
+      <p class="desc">船位有了。抬頭看淺堆指向燈（Iso 4s，等明等暗）——從你現在的位置，它是什麼顏色？白光弧 018°–042° 是航道，紅光弧是淺堆。決定你的動作。</p>
+      <div class="sec3">
+        <div class="seclamp">
+          <div class="biglamp" id="seclamp" role="img" aria-label="淺堆指向燈"></div>
+          <p class="cap">淺堆指向燈 ── Iso 4s<br>方位 <span id="secbrg">---</span>（自你的船位）</p>
+        </div>
+        <div>
+          <div class="opts">
+            <button type="button" data-ans="W"><b>甲</b>白光弧內——船在航道中，保持航向續航。</button>
+            <button type="button" data-ans="R"><b>乙</b>紅光弧內——船已偏出航道，立即修正航向、查測深。</button>
+          </div>
+          <div id="verdict3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CERT ── -->
+  <section class="certzone" id="certzone">
+    <div class="nameline">
+      <label for="certname" style="font-size:14px;letter-spacing:2px">受試者姓名</label>
+      <input id="certname" type="text" maxlength="12" value="" placeholder="值更員">
+      <button id="btn-cert" type="button">發給合格證</button>
+      <button id="btn-print" type="button" style="background:none;border:1px solid var(--line);color:#C8D6DF;display:none">列印</button>
+    </div>
+    <div id="cert"></div>
+  </section>
+</div>
+
+<footer>
+  <div class="f-inner">
+    <div>
+      <b>南汐航路標識管理站</b>
+      <ul>
+        <li>屏東縣琉球鄉南汐路 11-3 號</li>
+        <li>電話 (08) 861-2247</li>
+        <li>VHF CH16 呼叫・CH12 守值</li>
+        <li>隸屬 航港局南部航務中心</li>
+      </ul>
+    </div>
+    <div>
+      <b>頁面</b>
+      <ul>
+        <li><a href="index.html">站務・燈份表</a></li>
+        <li><a href="lights.html">燈籍簿</a></li>
+        <li><a href="watch.html">夜更試</a></li>
+        <li><a href="notation.html">燈質學</a></li>
+      </ul>
+    </div>
+    <div>
+      <b>值更備忘</b>
+      <ul>
+        <li>認燈先量節奏，再對燈份表。</li>
+        <li>不得以浮標定位——浮標會走錨。</li>
+        <li>燈質異常即通報，寧誤報不漏報。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="disclaim">本站為網頁設計範例，機關、人員、航標與海圖皆為虛構，不得用於實際航行。DESIGN SPECIMEN — NOT FOR NAVIGATION.</div>
+</footer>
+
+<script>
+/* ── 燈質引擎（全站共用） ── */
+const CHARS={
+  pailai:{name:"白瀨燈塔",label:"Fl(2) W 10s",period:10,on:[[0,.8],[1.6,2.4]],c:"#FFD75C",type:"fl",n:2},
+  bangken:{name:"望更角燈塔",label:"Fl(3) W 15s",period:15,on:[[0,.7],[1.4,2.1],[2.8,3.5]],c:"#FFD75C",type:"fl",n:3},
+  angthau:{name:"紅頭堆燈杆",label:"Oc R 6s",period:6,on:[[0,4.5]],c:"#FF7A5C",type:"oc",n:1},
+  haukhak:{name:"鱟殼礁燈浮標",label:"Q(9) W 15s",period:15,on:[0,1,2,3,4,5,6,7,8].map(function(i){return [i*.5,i*.5+.28];}),c:"#FFD75C",type:"fl",n:9},
+  iso4:{name:"淺堆指向燈",label:"Iso WR 4s",period:4,on:[[0,2]],c:"#FFD75C",type:"iso",n:1},
+  fl5:{name:"外管燈（他轄）",label:"Fl W 5s",period:5,on:[[0,.8]],c:"#FFD75C",type:"fl",n:1},
+  iso6:{name:"外管燈（他轄）",label:"Iso W 6s",period:6,on:[[0,3]],c:"#FFD75C",type:"iso",n:1}
+};
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function litAt(s,t){t=((t%s.period)+s.period)%s.period;return s.on.some(function(p){return t>=p[0]&&t<p[1];});}
+function barSVG(s,w,h,dark,lit){
+  dark=dark||"#26394A";lit=lit||s.c;
+  var seg=s.on.map(function(p){
+    return '<rect x="'+(p[0]/s.period*w).toFixed(2)+'" y="0" width="'+Math.max(1.5,(p[1]-p[0])/s.period*w).toFixed(2)+'" height="'+h+'" fill="'+lit+'"/>';
+  }).join('');
+  var ticks='';
+  for(var i=1;i<s.period;i++){ticks+='<line x1="'+(i/s.period*w).toFixed(2)+'" y1="'+h+'" x2="'+(i/s.period*w).toFixed(2)+'" y2="'+(h+4)+'" stroke="#5E7688" stroke-width="1"/>';}
+  return '<svg viewBox="0 0 '+w+' '+(h+5)+'" width="100%" height="'+(h+8)+'" preserveAspectRatio="none" role="img" aria-label="燈質時間條 '+s.label+'"><rect x="0" y="0" width="'+w+'" height="'+h+'" fill="'+dark+'"/>'+seg+ticks+'</svg>';
+}
+function startNavLights(){
+  var els=Array.prototype.slice.call(document.querySelectorAll('.ldot[data-char]'));
+  if(RM){
+    els.forEach(function(el){var s=CHARS[el.dataset.char];if(!s)return;el.style.width='56px';el.style.borderRadius='0';el.style.background='none';el.style.boxShadow='none';el.innerHTML=barSVG(s,120,8);});
+    return;
+  }
+  function loop(){
+    var now=performance.now()/1000;
+    els.forEach(function(el){
+      var s=CHARS[el.dataset.char];if(!s)return;
+      if(el.dataset.fixed==='1'){el.classList.add('lit');return;}
+      el.classList.toggle('lit',litAt(s,now));
+    });
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+startNavLights();
+
+/* ── 海圖資料（浬座標，x 東 y 北） ── */
+const MARKS={
+  bangken:{x:4,y:20},  pailai:{x:18,y:6},  angthau:{x:26,y:18},
+  haukhak:{x:12,y:26}, sector:{x:20,y:28}
+};
+const WHITE_ARC=[18,42]; /* 自船觀測方位 */
+const SCEN=[
+  {label:"第一夜",ship:{x:14,y:14},unknown:"pailai", fixA:"bangken",fixB:"pailai"},
+  {label:"第二夜",ship:{x:22,y:12},unknown:"angthau",fixA:"bangken",fixB:"angthau"},
+  {label:"第三夜",ship:{x:10,y:20},unknown:"haukhak",fixA:"bangken",fixB:"pailai"}
+];
+let scenIdx=(new Date().getDate())%SCEN.length;
+function scen(){return SCEN[scenIdx];}
+function brgTo(from,to){
+  var dx=to.x-from.x,dy=to.y-from.y;
+  return (Math.atan2(dx,dy)*180/Math.PI+360)%360;
+}
+function fmtB(b){return ('00'+Math.round(b)).slice(-3)+'°';}
+
+/* ── 進度狀態 ── */
+const S={p1:false,p2:false,p3:false,conf:0,fixErr:null,fix:null,secColor:null};
+
+/* ── Stage 1：跟按量燈質 ── */
+const big=document.getElementById('biglamp');
+let unknown=null;
+let recording=false,recT0=0,presses=[],curDown=null,recTimer=null;
+function setupStage1(){
+  unknown=CHARS[scen().unknown];
+  big.style.setProperty('--lc',unknown.c);
+  document.getElementById('lampcap').textContent='未知燈 ── 方位 000°（正艏）';
+  document.getElementById('feat').textContent='尚無紀錄。跟按至少兩個完整週期，比對器才開口。';
+  document.getElementById('cands').innerHTML='';
+  document.getElementById('pressvis').innerHTML='';
+  document.getElementById('pickzone').style.display='none';
+  document.getElementById('verdict1').innerHTML='';
+  if(RM){
+    big.style.display='none';
+    document.getElementById('lampcap').innerHTML='動畫已停用。未知燈的燈質以時間條呈現：<br><span id="rmbar"></span>';
+    document.getElementById('rmbar').innerHTML=barSVG(unknown,300,14,"#233442");
+    document.getElementById('feat').textContent='讀上方時間條（1 格 = 1 秒），直接於下方指認。';
+    showPick();
+  }
+}
+if(!RM){
+  (function lampLoop(){
+    if(unknown){big.classList.toggle('lit',litAt(unknown,performance.now()/1000));}
+    requestAnimationFrame(lampLoop);
+  })();
+}
+const fkey=document.getElementById('followkey');
+function pressStart(){
+  fkey.classList.add('down');
+  if(recording&&curDown===null)curDown=performance.now()/1000-recT0;
+}
+function pressEnd(){
+  fkey.classList.remove('down');
+  if(recording&&curDown!==null){
+    var t=performance.now()/1000-recT0;
+    if(t-curDown>0.06)presses.push([curDown,t]);
+    curDown=null;
+  }
+}
+fkey.addEventListener('pointerdown',function(e){e.preventDefault();pressStart();});
+window.addEventListener('pointerup',pressEnd);
+window.addEventListener('pointercancel',pressEnd);
+window.addEventListener('keydown',function(e){
+  if(e.code==='Space'&&!e.repeat&&recording){e.preventDefault();pressStart();}
+});
+window.addEventListener('keyup',function(e){
+  if(e.code==='Space'&&recording){e.preventDefault();pressEnd();}
+});
+document.getElementById('btn-rec').addEventListener('click',function(){
+  presses=[];curDown=null;recording=true;recT0=performance.now()/1000;
+  this.disabled=true;document.getElementById('btn-stop').disabled=false;
+  var left=30;var ind=document.getElementById('recind');
+  ind.textContent='● 記錄中 30s';
+  recTimer=setInterval(function(){
+    left--;ind.textContent='● 記錄中 '+left+'s';
+    if(left<=0)stopRec();
+  },1000);
+});
+document.getElementById('btn-stop').addEventListener('click',stopRec);
+function stopRec(){
+  if(!recording)return;
+  if(curDown!==null){presses.push([curDown,performance.now()/1000-recT0]);curDown=null;}
+  recording=false;clearInterval(recTimer);
+  document.getElementById('recind').textContent='';
+  document.getElementById('btn-rec').disabled=false;
+  document.getElementById('btn-stop').disabled=true;
+  analyse();
+}
+function median(a){if(!a.length)return 0;var b=a.slice().sort(function(x,y){return x-y;});return b[Math.floor(b.length/2)];}
+function analyse(){
+  var feat=document.getElementById('feat');
+  if(presses.length<2){feat.textContent='紀錄太短（至少要有 2 次按鍵）。再跟一輪。';return;}
+  var durs=presses.map(function(p){return p[1]-p[0];});
+  var medDur=median(durs);
+  var type=medDur>1.5?'long':'fl';
+  var n,period;
+  if(type==='long'){
+    var starts=presses.map(function(p){return p[0];});
+    var iv=[];for(var i=1;i<starts.length;i++)iv.push(starts[i]-starts[i-1]);
+    period=median(iv);n=1;
+  }else{
+    var groups=[[presses[0]]];
+    for(var j=1;j<presses.length;j++){
+      if(presses[j][0]-presses[j-1][1]>2.2)groups.push([presses[j]]);
+      else groups[groups.length-1].push(presses[j]);
+    }
+    var full=groups.length>2?groups.slice(1,-1):groups;
+    n=Math.round(median(full.map(function(g){return g.length;})));
+    var gs=groups.map(function(g){return g[0][0];});
+    var giv=[];for(var k=1;k<gs.length;k++)giv.push(gs[k]-gs[k-1]);
+    period=giv.length?median(giv):0;
+  }
+  var duty=type==='long'&&period>0?medDur/period:0;
+  feat.innerHTML='量得特徵：'+(type==='long'?'長明型（明久暗短／等明等暗）':'閃光型')+
+    ' ・ 每週期 '+(type==='long'?'明 '+medDur.toFixed(1)+'s':'閃 '+n+' 下')+
+    ' ・ 週期約 <b style="color:var(--lamp)">'+(period?period.toFixed(1):'?')+'s</b>'+
+    (type==='long'&&period?' ・ 明暗比 '+duty.toFixed(2):'');
+  /* 比對 */
+  var scored=Object.keys(CHARS).filter(function(k){return k!=='iso4';}).map(function(k){
+    var c=CHARS[k];
+    var err=0;
+    var cType=(c.type==='fl')?'fl':'long';
+    if(cType!==type)err+=1.0;
+    if(period>0)err+=Math.abs(period-c.period)/c.period;else err+=0.5;
+    if(type==='fl')err+=Math.abs(n-c.n)/Math.max(c.n,1)*0.8;
+    if(type==='long'&&period>0){
+      var cduty=(c.on[0][1]-c.on[0][0])/c.period;
+      err+=Math.abs(duty-cduty)*1.2;
+    }
+    return {k:k,c:c,score:Math.max(0,1-err)};
+  }).sort(function(a,b){return b.score-a.score;});
+  var cands=document.getElementById('cands');
+  cands.innerHTML=scored.map(function(s,i){
+    return '<div class="cand'+(i===0?' top':'')+'"><span>'+s.c.name+' '+s.c.label+'</span><span class="bar"><i style="width:'+(s.score*100).toFixed(0)+'%"></i></span><span>'+(s.score*100).toFixed(0)+'%</span></div>';
+  }).join('');
+  S.conf=scored[0].score;
+  /* 按鍵紀錄 vs 真值 對照條 */
+  var T=Math.min(30,presses[presses.length-1][1]);
+  var w=600,h=10;
+  var user='<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="12" preserveAspectRatio="none"><rect width="'+w+'" height="'+h+'" fill="#233442"/>'+
+    presses.map(function(p){return '<rect x="'+(p[0]/T*w).toFixed(1)+'" y="0" width="'+Math.max(1.5,(p[1]-p[0])/T*w).toFixed(1)+'" height="'+h+'" fill="#8FD3C7"/>';}).join('')+'</svg>';
+  var phase0=presses[0][0];
+  var segs=[];
+  for(var t=0;t<T;t+=0.05){
+    var lit=litAt(unknown,t+ (unknown.period - (phase0%unknown.period)) %unknown.period + 0 );
+    segs.push(lit);
+  }
+  var truth='<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="12" preserveAspectRatio="none"><rect width="'+w+'" height="'+h+'" fill="#233442"/>';
+  var run=null;
+  for(var q=0;q<segs.length;q++){
+    if(segs[q]&&run===null)run=q;
+    if((!segs[q]||q===segs.length-1)&&run!==null){
+      truth+='<rect x="'+(run*0.05/T*w).toFixed(1)+'" y="0" width="'+Math.max(1.5,((q-run)*0.05)/T*w).toFixed(1)+'" height="'+h+'" fill="'+unknown.c+'"/>';
+      run=null;
+    }
+  }
+  truth+='</svg>';
+  document.getElementById('pressvis').innerHTML='<p>你的跟按（青）</p>'+user+'<p>該燈真值（以你第一次按下對齊）</p>'+truth;
+  showPick();
+}
+function showPick(){
+  var pz=document.getElementById('pickzone');pz.style.display='block';
+  var row=document.getElementById('pickrow');
+  var opts=['pailai','bangken','angthau','haukhak','fl5','iso6'];
+  row.innerHTML='';
+  opts.forEach(function(k){
+    var b=document.createElement('button');
+    b.type='button';
+    b.textContent=CHARS[k].name+' '+CHARS[k].label;
+    b.addEventListener('click',function(){pick(k);});
+    row.appendChild(b);
+  });
+}
+function pick(k){
+  var v=document.getElementById('verdict1');
+  if(k===scen().unknown){
+    S.p1=true;
+    v.innerHTML='<div class="verdict ok">指認正確——這是 <b>'+unknown.name+'（'+unknown.label+'）</b>。'+(S.conf?'比對器信心 '+(S.conf*100).toFixed(0)+'%。':'')+'第二關開啟：拿它和另一座塔交會出你的船位。</div>';
+    document.getElementById('st1').textContent='通過';
+    document.getElementById('st1').classList.add('pass');
+    unlock(2);
+  }else{
+    v.innerHTML='<div class="verdict no">不是 '+CHARS[k].name+'。'+(CHARS[k].period!==unknown.period?'週期就對不上（'+CHARS[k].period+'s vs 你量到的節奏）':'再數一次每週期的閃數')+'。認錯燈在夜裡是要出事的——再量一輪。</div>';
+  }
+}
+
+/* ── Stage 2：方位交會 ── */
+const STRIPW=1000,STRIPH=130;
+let locks=[];/* {mark, brg} */
+function fixLights(){var sc=scen();return [sc.fixA,sc.fixB];}
+function drawStrip(){
+  var svg=document.getElementById('stripsvg');
+  var sc=scen();
+  var html='<rect width="'+STRIPW+'" height="90" fill="#101C26"/><rect y="90" width="'+STRIPW+'" height="40" fill="#0B141C"/><line x1="0" y1="90" x2="'+STRIPW+'" y2="90" stroke="#2C3E4E"/>';
+  for(var b=0;b<360;b+=10){
+    var x=b/360*STRIPW;
+    html+='<line x1="'+x.toFixed(1)+'" y1="86" x2="'+x.toFixed(1)+'" y2="94" stroke="#22323F"/>';
+    if(b%30===0)html+='<text x="'+x.toFixed(1)+'" y="108" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#3B5266">'+('00'+b).slice(-3)+'°</text>';
+  }
+  fixLights().forEach(function(mk){
+    var b=brgTo(sc.ship,MARKS[mk]);
+    var x=b/360*STRIPW;
+    html+='<circle id="sl-'+mk+'" cx="'+x.toFixed(1)+'" cy="66" r="7" fill="#26394A"/>'+
+      '<text x="'+x.toFixed(1)+'" y="52" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#5E7688">'+CHARS[mk].name+'</text>';
+    if(RM){
+      html+='<g transform="translate('+(x-30).toFixed(1)+',72)">'+barSVG(CHARS[mk],60,5,"#233442").replace('width="100%" height="13"','width="60" height="9"')+'</g>';
+    }
+  });
+  html+='<line id="hairline" x1="500" y1="10" x2="500" y2="120" stroke="#FFD75C" stroke-width="1.5"/>';
+  svg.innerHTML=html;
+}
+function stripLoop(){
+  if(!RM){
+    var sc=scen(),now=performance.now()/1000;
+    fixLights().forEach(function(mk){
+      var el=document.getElementById('sl-'+mk);if(!el)return;
+      var lit=litAt(CHARS[mk],now);
+      el.setAttribute('fill',lit?CHARS[mk].c:'#26394A');
+    });
+  }
+  requestAnimationFrame(stripLoop);
+}
+const pel=document.getElementById('pelorus');
+pel.addEventListener('input',function(){
+  document.getElementById('brgval').textContent=Number(pel.value).toFixed(1)+'°';
+  var hl=document.getElementById('hairline');
+  if(hl){var x=pel.value/360*STRIPW;hl.setAttribute('x1',x);hl.setAttribute('x2',x);}
+});
+document.getElementById('btn-lock').addEventListener('click',function(){
+  var sc=scen(),val=Number(pel.value);
+  var msg=document.getElementById('lockmsg');
+  var hit=null;
+  fixLights().forEach(function(mk){
+    if(locks.some(function(L){return L.mark===mk;}))return;
+    var tb=brgTo(sc.ship,MARKS[mk]);
+    var d=Math.abs(((val-tb+540)%360)-180);
+    if(d<=4)hit={mark:mk,brg:val};
+  });
+  if(hit){
+    locks.push(hit);
+    msg.textContent='已鎖定 '+CHARS[hit.mark].name;
+    renderLocks();
+  }else{
+    msg.textContent='十字線上沒有燈——對準再鎖。';
+  }
+});
+document.getElementById('btn-relock').addEventListener('click',function(){
+  locks=[];renderLocks();
+  document.getElementById('chartwrap').classList.remove('show');
+  document.getElementById('verdict2').innerHTML='';
+  document.getElementById('lockmsg').textContent='';
+});
+function renderLocks(){
+  var ll=document.getElementById('locklist');
+  var out=fixLights().map(function(mk){
+    var L=locks.filter(function(x){return x.mark===mk;})[0];
+    return '<span class="'+(L?'got':'')+'">'+CHARS[mk].name+'：'+(L?L.brg.toFixed(1)+'°':'未取')+'</span>';
+  });
+  ll.innerHTML=out.join('');
+  document.getElementById('btn-plot').disabled=locks.length<2;
+}
+document.getElementById('btn-plot').addEventListener('click',plotFix);
+function plotFix(){
+  var sc=scen();
+  /* 位置線：自燈沿（方位+180）方向 */
+  function dir(b){var r=(b+180)*Math.PI/180;return {x:Math.sin(r),y:Math.cos(r)};}
+  var L1=locks[0],L2=locks[1];
+  var M1=MARKS[L1.mark],M2=MARKS[L2.mark];
+  var u=dir(L1.brg),v=dir(L2.brg);
+  var det=u.x*(-v.y)-(-v.x)*u.y;
+  var det2=(-v.y)*u.x+v.x*u.y; /* same */
+  var dx=M2.x-M1.x,dy=M2.y-M1.y;
+  var denom=u.x*v.y-u.y*v.x;
+  var v2=document.getElementById('verdict2');
+  if(Math.abs(denom)<1e-6){
+    v2.innerHTML='<div class="verdict no">兩條位置線幾乎平行，交會不出船位——換角度大一點的兩盞燈重取。</div>';
+    return;
+  }
+  var t=(dx*v.y-dy*v.x)/denom;
+  var fix={x:M1.x+u.x*t,y:M1.y+u.y*t};
+  var err=Math.hypot(fix.x-sc.ship.x,fix.y-sc.ship.y);
+  S.fix=fix;S.fixErr=err;
+  drawChart(fix,err);
+  document.getElementById('chartwrap').classList.add('show');
+  if(err<=0.9){
+    S.p2=true;
+    v2.innerHTML='<div class="verdict ok">定位成功——交會誤差 <b>'+err.toFixed(2)+' 浬</b>。船位標繪於海圖（⊗）。第三關開啟。</div>';
+    document.getElementById('st2').textContent='通過';
+    document.getElementById('st2').classList.add('pass');
+    unlock(3);
+  }else{
+    v2.innerHTML='<div class="verdict no">交會誤差 '+err.toFixed(2)+' 浬，超過 0.9 浬。十字線再對準一點（放大拖慢一點按），按「重取方位」再來。</div>';
+  }
+}
+const CW=640,CSC=20;/* 20px per nm, y flip: py=CW-y*CSC-20 */
+function px(x){return x*CSC+10;}
+function py(y){return CW-y*CSC-10;}
+function drawChart(fix,err){
+  var sc=scen();
+  var h='<rect width="'+CW+'" height="'+CW+'" fill="#0B141C"/>';
+  /* 經緯格 */
+  for(var g=0;g<=30;g+=5){
+    h+='<line x1="'+px(g)+'" y1="'+py(0)+'" x2="'+px(g)+'" y2="'+py(30)+'" stroke="#16232E"/>';
+    h+='<line x1="'+px(0)+'" y1="'+py(g)+'" x2="'+px(30)+'" y2="'+py(g)+'" stroke="#16232E"/>';
+  }
+  /* 陸地：西岸與望更角 */
+  h+='<path d="M'+px(0)+' '+py(30)+' L'+px(2.4)+' '+py(30)+' L'+px(2.8)+' '+py(24)+' L'+px(4.6)+' '+py(20.6)+' L'+px(4.9)+' '+py(19.6)+' L'+px(3)+' '+py(17.5)+' L'+px(2.5)+' '+py(10)+' L'+px(1.8)+' '+py(0)+' L'+px(0)+' '+py(0)+' Z" fill="#1E2F1F" stroke="#35707E" stroke-width="1.5"/>';
+  /* 白瀨嶼 */
+  h+='<path d="M'+px(16.4)+' '+py(5.2)+' Q'+px(17)+' '+py(7.6)+' '+px(18.6)+' '+py(7.2)+' Q'+px(20.4)+' '+py(6.6)+' '+px(19.8)+' '+py(4.6)+' Q'+px(18.6)+' '+py(3.2)+' '+px(17.2)+' '+py(3.8)+' Z" fill="#1E2F1F" stroke="#35707E" stroke-width="1.5"/>';
+  /* 紅頭堆礁盤 */
+  h+='<path d="M'+px(25.2)+' '+py(17.4)+' Q'+px(26)+' '+py(18.8)+' '+px(26.9)+' '+py(17.9)+' Q'+px(26.4)+' '+py(16.8)+' '+px(25.2)+' '+py(17.4)+' Z" fill="none" stroke="#35707E" stroke-width="1.2" stroke-dasharray="3 3"/>';
+  /* 淺堆（斜線區） */
+  h+='<g stroke="#35707E" stroke-width="1" opacity="0.55">';
+  for(var s=0;s<7;s++){h+='<line x1="'+px(17.5+s*0.8)+'" y1="'+py(30)+'" x2="'+px(16+s*0.8)+'" y2="'+py(26.5)+'"/>';}
+  h+='</g><text x="'+px(18)+'" y="'+py(29.2)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#35707E">淺堆</text>';
+  /* 航標符號 */
+  function mark(mk,sym){
+    var m=MARKS[mk];
+    var star='<path d="M'+px(m.x)+' '+(py(m.y)-7)+' l1.8 4.2 4.6.4-3.5 3 1.1 4.5-4-2.4-4 2.4 1.1-4.5-3.5-3 4.6-.4 Z" fill="#FFD75C"/>';
+    var lbl='<text x="'+(px(m.x)+9)+'" y="'+(py(m.y)-8)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#8FA6B5">'+CHARS[mk].name+' '+CHARS[mk].label+'</text>';
+    return star+lbl;
+  }
+  ['bangken','pailai','angthau','sector'].forEach(function(mk){h+=mark(mk);});
+  /* 浮標（不得定位）符號 */
+  var d=MARKS.haukhak;
+  h+='<circle cx="'+px(d.x)+'" cy="'+py(d.y)+'" r="4" fill="none" stroke="#FFD75C" stroke-width="1.5"/><line x1="'+px(d.x)+'" y1="'+(py(d.y)-4)+'" x2="'+px(d.x)+'" y2="'+(py(d.y)-10)+'" stroke="#FFD75C" stroke-width="1.5"/><text x="'+(px(d.x)+8)+'" y="'+py(d.y)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#8FA6B5">鱟殼礁浮標（不得定位）</text>';
+  /* 位置線 */
+  locks.forEach(function(L){
+    var M=MARKS[L.mark];
+    var r=(L.brg+180)*Math.PI/180;
+    var ex=M.x+Math.sin(r)*40,ey=M.y+Math.cos(r)*40;
+    h+='<line x1="'+px(M.x)+'" y1="'+py(M.y)+'" x2="'+px(ex)+'" y2="'+py(ey)+'" stroke="#8FD3C7" stroke-width="1.2" stroke-dasharray="6 4"/>';
+    h+='<text x="'+(px(M.x)+14)+'" y="'+(py(M.y)+16)+'" font-family="IBM Plex Mono,monospace" font-size="10" fill="#8FD3C7">LOP '+L.brg.toFixed(1)+'°</text>';
+  });
+  /* 交會船位 */
+  h+='<g><circle cx="'+px(fix.x)+'" cy="'+py(fix.y)+'" r="7" fill="none" stroke="#FFD75C" stroke-width="2"/><line x1="'+(px(fix.x)-10)+'" y1="'+py(fix.y)+'" x2="'+(px(fix.x)+10)+'" y2="'+py(fix.y)+'" stroke="#FFD75C" stroke-width="2"/><line x1="'+px(fix.x)+'" y1="'+(py(fix.y)-10)+'" x2="'+px(fix.x)+'" y2="'+(py(fix.y)+10)+'" stroke="#FFD75C" stroke-width="2"/></g>';
+  h+='<text x="'+(px(fix.x)+12)+'" y="'+(py(fix.y)+4)+'" font-family="IBM Plex Mono,monospace" font-size="11" fill="#FFD75C">FIX（誤差 '+err.toFixed(2)+' 浬）</text>';
+  h+='<text x="16" y="24" font-family="IBM Plex Mono,monospace" font-size="11" fill="#5E7688">南汐水道 1:150,000 ── 格線 5 浬</text>';
+  document.getElementById('chartsvg').innerHTML=h;
+}
+
+/* ── Stage 3：光弧判讀 ── */
+const seclampEl=document.getElementById('seclamp');
+let secSpec=null;
+function setupStage3(){
+  var from=S.fix||scen().ship;
+  var b=brgTo(from,MARKS.sector);
+  var inWhite=b>=WHITE_ARC[0]&&b<=WHITE_ARC[1];
+  S.secColor=inWhite?'W':'R';
+  document.getElementById('secbrg').textContent=fmtB(b);
+  secSpec={period:4,on:[[0,2]],c:inWhite?'#F4EEE1':'#FF7A5C',label:'Iso 4s'};
+  seclampEl.style.setProperty('--lc',secSpec.c);
+  if(RM){
+    seclampEl.style.display='none';
+    var cap=seclampEl.parentElement.querySelector('.cap');
+    cap.innerHTML='淺堆指向燈 ── Iso 4s・你所見光色：<b style="color:'+secSpec.c+'">'+(inWhite?'白':'紅')+'</b><br>方位 '+fmtB(b)+'（自你的船位）';
+  }
+}
+(function secLoop(){
+  if(secSpec&&!RM){seclampEl.classList.toggle('lit',litAt(secSpec,performance.now()/1000));}
+  requestAnimationFrame(secLoop);
+})();
+document.querySelectorAll('.opts button').forEach(function(b){
+  b.addEventListener('click',function(){
+    var v=document.getElementById('verdict3');
+    if(b.dataset.ans===S.secColor){
+      S.p3=true;
+      v.innerHTML='<div class="verdict ok">判讀正確。'+(S.secColor==='W'?'白光弧內，航道暢通——保持航向。':'紅光一亮就是淺堆在說話——修正航向，直到燈色轉白。')+'三關俱過，領你的合格證。</div>';
+      document.getElementById('st3').textContent='通過';
+      document.getElementById('st3').classList.add('pass');
+      document.getElementById('certzone').classList.add('show');
+      document.getElementById('certzone').scrollIntoView({behavior:RM?'auto':'smooth'});
+    }else{
+      v.innerHTML='<div class="verdict no">再看一眼燈色。指向燈的話只有一句：白是路，紅是牆。</div>';
+    }
+  });
+});
+
+/* ── 合格證 ── */
+function fnv(str){
+  var h=0x811c9dc5;
+  for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=(h*0x01000193)>>>0;}
+  return h;
+}
+document.getElementById('btn-cert').addEventListener('click',function(){
+  var name=(document.getElementById('certname').value||'值更員').slice(0,12);
+  var today=new Date();
+  var ds=today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+today.getDate()).slice(-2);
+  var hash=fnv(name+ds+scen().unknown+(S.fixErr||0).toFixed(2));
+  /* 印記：外環＝該夜未知燈的燈質環，內圈刻紋由 hash 決定 */
+  var u=CHARS[scen().unknown];
+  var ring='';
+  u.on.forEach(function(p){
+    var a1=p[0]/u.period*360-90,a2=p[1]/u.period*360-90;
+    if(a2-a1<3)a2=a1+3;
+    var r=54,cx=110,cy=110;
+    var x1=cx+r*Math.cos(a1*Math.PI/180),y1=cy+r*Math.sin(a1*Math.PI/180);
+    var x2=cx+r*Math.cos(a2*Math.PI/180),y2=cy+r*Math.sin(a2*Math.PI/180);
+    ring+='<path d="M'+x1.toFixed(1)+' '+y1.toFixed(1)+' A54 54 0 0 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+'" stroke="#C7331B" stroke-width="10" fill="none"/>';
+  });
+  var ticks='';
+  for(var i=0;i<12;i++){
+    if((hash>>i)&1){
+      var a=i*30*Math.PI/180;
+      ticks+='<line x1="'+(110+30*Math.cos(a)).toFixed(1)+'" y1="'+(110+30*Math.sin(a)).toFixed(1)+'" x2="'+(110+40*Math.cos(a)).toFixed(1)+'" y2="'+(110+40*Math.sin(a)).toFixed(1)+'" stroke="#C7331B" stroke-width="3"/>';
+    }
+  }
+  var seal='<svg viewBox="0 0 220 220" width="150" height="150" role="img" aria-label="合格印記"><circle cx="110" cy="110" r="54" fill="none" stroke="#EAD9C4" stroke-width="10"/>'+ring+ticks+'<circle cx="110" cy="110" r="16" fill="#C7331B"/><text x="110" y="116" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="14" fill="#F4EEE1">合</text></svg>';
+  document.getElementById('cert').innerHTML=
+    '<div style="border:3px solid #101C26;padding:0;background:#F4EEE1">'+
+    '<div style="height:16px;background:repeating-linear-gradient(90deg,#C7331B 0 40px,#F4EEE1 40px 80px)"></div>'+
+    '<div style="padding:30px 34px;display:grid;grid-template-columns:1fr 160px;gap:20px;align-items:center">'+
+    '<div>'+
+    '<p style="font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:3px;color:#35707E">NAM-SEK SEAMARK STATION ── WATCHKEEPING CERTIFICATE</p>'+
+    '<h2 style="font-size:26px;letter-spacing:6px;margin:8px 0;color:#101C26">夜更合格證</h2>'+
+    '<p style="font-size:15px;color:#101C26;line-height:2">茲證明 <b style="letter-spacing:2px">'+name+'</b> 於 '+ds+'（'+scen().label+'）通過本站夜更試：<br>'+
+    '一、燈質判讀：'+u.name+' '+u.label+'——指認無誤'+(S.conf?'（比對信心 '+(S.conf*100).toFixed(0)+'%）':'')+'。<br>'+
+    '二、方位交會：兩標交會定位，誤差 '+(S.fixErr!==null?S.fixErr.toFixed(2):'—')+' 浬。<br>'+
+    '三、光弧判讀：淺堆指向燈'+(S.secColor==='W'?'白':'紅')+'光弧，處置正確。</p>'+
+    '<p style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#9E2712;margin-top:8px">站長 顏水吉 ・ 編號 NS-'+String(hash%10000).padStart(4,'0')+' ・ 本證為設計範例，不具航行效力</p>'+
+    '</div>'+
+    '<div style="text-align:center">'+seal+'</div>'+
+    '</div>'+
+    '<div style="height:16px;background:repeating-linear-gradient(90deg,#C7331B 0 40px,#F4EEE1 40px 80px)"></div>'+
+    '</div>';
+  document.getElementById('btn-print').style.display='inline-block';
+});
+document.getElementById('btn-print').addEventListener('click',function(){window.print();});
+
+/* ── 骨架：解鎖與換夜 ── */
+function unlock(n){
+  document.getElementById('stage'+n).classList.remove('locked');
+  if(n===3)setupStage3();
+}
+function resetAll(){
+  S.p1=S.p2=S.p3=false;S.conf=0;S.fixErr=null;S.fix=null;S.secColor=null;
+  locks=[];presses=[];secSpec=null;
+  ['2','3'].forEach(function(n){document.getElementById('stage'+n).classList.add('locked');});
+  ['1','2','3'].forEach(function(n){
+    var st=document.getElementById('st'+n);st.textContent='未通過';st.classList.remove('pass');
+    document.getElementById('verdict'+n).innerHTML='';
+  });
+  document.getElementById('chartwrap').classList.remove('show');
+  document.getElementById('certzone').classList.remove('show');
+  document.getElementById('cert').innerHTML='';
+  document.getElementById('scen-label').textContent=scen().label;
+  setupStage1();drawStrip();renderLocks();
+}
+document.getElementById('btn-newnight').addEventListener('click',function(){
+  scenIdx=(scenIdx+1)%SCEN.length;resetAll();
+});
+resetAll();
+stripLoop();
+</script>
+</body>
+</html>

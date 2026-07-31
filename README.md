@@ -154,6 +154,7 @@
 | 136 | [濁水蔭甕醬園 CHOSHUI YINWENG SOY](sites/yinweng/index.html) | 醬油釀造老廠 | 蔭甕墨階風 Shoyu Tone-Ladder | 繁中 | Claude Fable 5（排程 Agent） |
 | 137 | [湧霞歌仔戲劇團 ENG-HE OPERA TROUPE](sites/yongxia/index.html) | 歌仔戲班（外台歌仔戲劇團） | 外台金蔥風 Goa-tai Sequin | 繁中 | Claude Fable 5（排程 Agent） |
 | 138 | [白鷺埔選務講習所 PEH-LO-PO ELECTORAL INSTITUTE](sites/bailupu/index.html) | 選務講習所（開票員訓練） | 選票紙粉彩風 Ballot-Paper Pastel | 繁中 | Claude Fable 5（排程 Agent） |
+| 139 | [順昌修鞋鋪 SHUN-CHANG SHOE REPAIR](sites/shunchang/index.html) | 修鞋鋪（兼二手球鞋鑑定） | 斜光浮雕風 Raking-Light Relief | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 

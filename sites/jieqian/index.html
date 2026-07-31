@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>界墘測繪社 — 套合台｜雲林西螺・無人機測繪與地籍重測協力</title>
+<meta name="description" content="界墘測繪社，雲林縣西螺鎮。無人機正射影像與地籍舊圖套合、界址平差與協議定界。套合台：自己決定信哪一個控制點，看那條界線落在誰的牆的哪一邊。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2333231A'/%3E%3Crect x='5' y='6' width='13' height='13' fill='none' stroke='%23E8C89A' stroke-width='1.6' stroke-dasharray='3 2'/%3E%3Crect x='12' y='11' width='13' height='13' fill='none' stroke='%233FD3E0' stroke-width='1.6'/%3E%3Cpath d='M11 12 L20 19' stroke='%23F2452F' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#33231A; --paper2:#3E2C21; --paper3:#2A1C14; --deep:#1E140E;
+  --old:#E8C89A; --oldline:#C89A63; --new:#3FD3E0; --newdim:#2A8A93;
+  --ink:#EFE7DA; --dim:#B9A48D; --alarm:#F2452F;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sans:'Noto Sans TC',system-ui,sans-serif;
+  --serif:'Noto Serif TC',serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.75;
+  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0 1px,transparent 1px 5px);}
+a{color:var(--new);text-underline-offset:3px}
+h1,h2,h3{font-family:var(--serif);font-weight:900;line-height:1.25;margin:0}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+
+/* 頁首條 */
+.strip{border-bottom:1px solid var(--oldline);background:var(--deep)}
+.strip .wrap{display:flex;gap:18px;align-items:center;justify-content:space-between;height:38px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--dim)}
+.strip b{color:var(--old);font-weight:500}
+.strip .rt{display:flex;gap:16px}
+@media(max-width:700px){.strip .rt span:nth-child(2){display:none}}
+
+/* 圖幅接合表導覽 */
+.sheetnav{position:fixed;right:20px;top:56px;z-index:40;width:168px}
+.sheetnav .cap{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--dim);margin-bottom:5px}
+.sheetgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--oldline);background:var(--paper3)}
+.sheet{position:relative;display:block;padding:10px 8px 9px;text-decoration:none;color:var(--old);
+  border-right:1px dashed rgba(200,154,99,.5);border-bottom:1px dashed rgba(200,154,99,.5);min-height:60px}
+.sheetgrid a:nth-child(2n){border-right:none}
+.sheetgrid a:nth-child(n+3){border-bottom:none}
+.sheet .no{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim);display:block}
+.sheet .nm{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.08em;display:block;margin-top:2px}
+.sheet .en{font-family:var(--mono);font-size:8px;letter-spacing:.06em;color:var(--dim);display:block}
+.sheet:hover,.sheet:focus-visible{background:rgba(232,200,154,.10);outline:none}
+.sheet[aria-current="page"]{background:var(--old);color:var(--paper3)}
+.sheet[aria-current="page"] .no,.sheet[aria-current="page"] .en{color:#6B4A2C}
+.sheet[aria-current="page"]::before,.sheet[aria-current="page"]::after{content:"";position:absolute;width:9px;height:9px}
+.sheet[aria-current="page"]::before{left:3px;top:3px;border-left:2px solid var(--alarm);border-top:2px solid var(--alarm)}
+.sheet[aria-current="page"]::after{right:3px;bottom:3px;border-right:2px solid var(--alarm);border-bottom:2px solid var(--alarm)}
+.sheetnav .foot{font-family:var(--mono);font-size:8.5px;color:var(--dim);margin-top:5px;letter-spacing:.04em}
+@media(max-width:1180px){
+  .sheetnav{position:static;width:auto;margin:14px auto 0;max-width:1280px;padding:0 22px}
+  .sheetgrid{grid-template-columns:repeat(4,1fr)}
+  .sheet{min-height:0;border-bottom:none!important}
+  .sheetgrid a:nth-child(n+3){border-right:1px dashed rgba(200,154,99,.5)}
+  .sheetgrid a:last-child{border-right:none}
+}
+@media(max-width:560px){.sheetgrid{grid-template-columns:1fr 1fr}.sheetgrid a:nth-child(2n){border-right:none}
+  .sheetgrid a:nth-child(-n+2){border-bottom:1px dashed rgba(200,154,99,.5)!important}}
+
+/* 版心 */
+main{padding-bottom:60px}
+.headline{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:26px;align-items:end;
+  padding:26px 0 14px;border-bottom:2px solid var(--oldline)}
+@media(max-width:1180px){.headline{grid-template-columns:1fr;padding-top:16px}}
+.case{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--new)}
+.headline h1{font-size:clamp(21px,3.1vw,33px);letter-spacing:.02em;margin-top:6px}
+.headline p{margin:9px 0 0;max-width:64ch;font-size:14.5px;color:var(--dim)}
+.stampbox{border:1px solid var(--oldline);padding:8px 10px;font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.6}
+.stampbox b{color:var(--old);font-weight:500}
+
+/* 三欄工作面 */
+.bench{display:grid;grid-template-columns:274px minmax(0,1fr) 300px;gap:0;border:1px solid var(--oldline);
+  border-top:none;background:var(--paper3);margin-top:0}
+.col{padding:14px 14px 18px;min-width:0}
+.col+.col{border-left:1px solid var(--oldline)}
+@media(max-width:1180px){.bench{grid-template-columns:1fr}.col+.col{border-left:none;border-top:1px solid var(--oldline)}}
+.colhd{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--new);border-bottom:1px solid rgba(200,154,99,.45);
+  padding-bottom:5px;margin-bottom:10px;display:flex;justify-content:space-between}
+.colhd i{font-style:normal;color:var(--dim)}
+
+/* 控制點清冊 */
+.cp{border-bottom:1px dashed rgba(200,154,99,.35);padding:7px 0}
+.cp .r1{display:flex;gap:7px;align-items:baseline}
+.cp .id{font-family:var(--mono);font-size:11px;color:var(--new);width:22px;flex:none}
+.cp .nm{font-size:12.5px;line-height:1.45;flex:1}
+.cp .kind{font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.04em;margin-left:29px;display:block}
+.cp .r2{display:flex;gap:6px;align-items:center;margin:5px 0 0 29px}
+.wbtn{font-family:var(--mono);font-size:10.5px;background:transparent;border:1px solid var(--oldline);color:var(--dim);
+  padding:2px 8px;cursor:pointer;line-height:1.5}
+.wbtn[aria-pressed="true"]{background:var(--old);border-color:var(--old);color:var(--paper3);font-weight:600}
+.wbtn:focus-visible{outline:2px solid var(--new);outline-offset:1px}
+.cp .res{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-left:auto}
+.cp .res.bad{color:var(--alarm)}
+.cp .ev{margin:6px 0 2px 29px}
+.cp .ev summary{font-family:var(--mono);font-size:9.5px;color:var(--new);cursor:pointer;letter-spacing:.04em}
+.cp .ev p{margin:5px 0 0;font-size:11.5px;line-height:1.65;color:var(--dim);border-left:2px solid var(--newdim);padding-left:8px}
+
+/* 圖面 */
+.plate{background:var(--deep);border:1px solid rgba(200,154,99,.4);position:relative}
+.plate svg{display:block;width:100%;height:auto}
+.plateopts{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.plateopts label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:9px 0 0;font-family:var(--mono);font-size:10px;color:var(--dim)}
+.legend i{display:inline-block;width:18px;height:0;border-top-width:2px;border-top-style:solid;margin-right:5px;vertical-align:middle}
+.refuse{border:1px solid var(--alarm);border-left-width:4px;padding:9px 12px;margin-top:10px;font-size:12.5px;line-height:1.7;background:rgba(242,69,47,.07)}
+.refuse b{color:var(--alarm);font-family:var(--mono);font-size:11px;letter-spacing:.08em;display:block;margin-bottom:2px}
+
+/* 解算結果 */
+.kv{display:grid;grid-template-columns:auto auto;gap:2px 10px;font-family:var(--mono);font-size:11px;color:var(--dim);margin-bottom:12px}
+.kv b{color:var(--ink);font-weight:500;text-align:right}
+.kv b.bad{color:var(--alarm)}
+table.area{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:10.5px;margin-bottom:12px}
+table.area th{text-align:right;font-weight:500;color:var(--dim);border-bottom:1px solid rgba(200,154,99,.4);padding:3px 2px;font-size:9.5px;letter-spacing:.04em}
+table.area th:first-child,table.area td:first-child{text-align:left}
+table.area td{padding:3px 2px;text-align:right;border-bottom:1px dotted rgba(200,154,99,.22)}
+table.area td.up{color:var(--new)}
+/* 當事人 */
+.party{border-bottom:1px dashed rgba(200,154,99,.35);padding:8px 0}
+.party .l1{display:flex;gap:8px;align-items:baseline}
+.party .lot{font-family:var(--mono);font-size:11px;color:var(--new);flex:none}
+.party .who{font-size:13px;flex:1}
+.party .st{font-family:var(--mono);font-size:10px;padding:1px 6px;border:1px solid var(--dim);color:var(--dim);flex:none}
+.party .st.ok{border-color:var(--new);color:var(--new)}
+.party .st.no{border-color:var(--alarm);color:var(--alarm)}
+.party .why{font-size:11.5px;color:var(--dim);line-height:1.6;margin:4px 0 0 0}
+.party .why.no{color:#F5907E}
+/* 界移紀錄條 */
+.ledger{margin-top:12px}
+.ledger .rowb{display:flex;gap:1px;align-items:flex-end;height:26px;border-bottom:1px solid rgba(200,154,99,.35);margin-bottom:4px;overflow:hidden}
+.bar{width:5px;flex:none;background:var(--old);align-self:flex-end}
+.bar.lose{background:var(--newdim)}
+.bar.cross{background:var(--alarm)}
+.ledger .lb{font-family:var(--mono);font-size:9.5px;color:var(--dim);display:flex;justify-content:space-between}
+@media(prefers-reduced-motion:no-preference){.bar{animation:grow .16s linear}}
+@keyframes grow{from{transform:scaleY(.02)}to{transform:scaleY(1)}}
+
+/* 動作列 */
+.acts{border:1px solid var(--oldline);border-top:none;background:var(--paper2);padding:13px 14px;display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.btn{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;background:transparent;border:1px solid var(--old);color:var(--old);
+  padding:6px 13px;cursor:pointer}
+.btn:hover,.btn:focus-visible{background:var(--old);color:var(--paper3);outline:none}
+.btn.go{border-color:var(--new);color:var(--new)}
+.btn.go:hover,.btn.go:focus-visible{background:var(--new);color:var(--deep)}
+.acts .hint{font-family:var(--mono);font-size:10px;color:var(--dim);margin-left:auto}
+@media(max-width:700px){.acts .hint{margin-left:0;width:100%}}
+
+/* 結案 */
+.result{border:1px solid var(--oldline);border-top:none;padding:16px 18px 20px;background:var(--paper3)}
+.result h3{font-size:17px;letter-spacing:.04em;margin-bottom:6px}
+.result .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--new)}
+.result p{margin:8px 0 0;font-size:13.5px;max-width:74ch}
+.result ol{font-size:13px;margin:9px 0 0;padding-left:20px}
+.result li{margin:4px 0}
+.doc{border:1px solid var(--old);padding:14px 16px;margin-top:12px;background:rgba(232,200,154,.06);position:relative}
+.doc h4{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.14em;margin:0 0 8px}
+.doc .fine{font-family:var(--mono);font-size:10.5px;color:var(--dim);line-height:1.85}
+.doc .sig{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.doc .sig span{font-family:var(--mono);font-size:10px;border:1px solid var(--new);color:var(--new);padding:2px 7px}
+.doc .sig span.no{border-color:var(--alarm);color:var(--alarm)}
+
+/* 散文 */
+.reading{padding-top:34px}
+.reading h2{font-size:clamp(18px,2.4vw,25px);letter-spacing:.03em;margin-bottom:10px}
+.cols{column-count:2;column-gap:38px;column-rule:1px dashed rgba(200,154,99,.35);font-size:14.5px}
+@media(max-width:860px){.cols{column-count:1}}
+.cols p{margin:0 0 14px}
+.cols p:first-child::first-letter{font-family:var(--serif);font-weight:900;font-size:2.6em;float:left;line-height:.86;
+  margin:5px 8px 0 0;color:var(--old)}
+.pull{border-left:3px solid var(--alarm);padding:2px 0 2px 14px;margin:22px 0;font-family:var(--serif);font-weight:600;
+  font-size:clamp(17px,2.3vw,22px);line-height:1.6;color:var(--old);break-inside:avoid}
+.factrow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--oldline);margin-top:30px}
+.factrow div{padding:12px 14px;border-right:1px solid var(--oldline)}
+.factrow div:last-child{border-right:none}
+.factrow b{display:block;font-family:var(--mono);font-size:19px;color:var(--new)}
+.factrow span{font-size:11.5px;color:var(--dim)}
+@media(max-width:760px){.factrow{grid-template-columns:1fr 1fr}.factrow div{border-bottom:1px solid var(--oldline)}}
+
+footer{border-top:2px solid var(--oldline);margin-top:44px;padding:24px 0 40px;background:var(--deep)}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+@media(max-width:820px){.fgrid{grid-template-columns:1fr}}
+footer p,footer li{font-size:12.5px;color:var(--dim);margin:0 0 5px}
+footer ul{list-style:none;padding:0;margin:0}
+footer h4{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--new);margin:0 0 8px;font-weight:500}
+.fine2{font-family:var(--mono);font-size:10px;color:#8A7560;margin-top:18px;line-height:1.8}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;position:fixed;z-index:99;background:var(--old);color:var(--paper3);padding:8px 12px}
+
+@media(max-width:560px){
+  .wrap{padding:0 14px}
+  .strip .wrap{height:auto;padding-top:6px;padding-bottom:6px;flex-wrap:wrap;gap:2px 12px;font-size:10.5px}
+  .strip .rt{gap:10px;flex-wrap:wrap}
+}
+
+@media(max-width:560px){
+  .col{padding:12px 12px 16px}
+  .headline .stampbox{font-size:9.5px}
+  .acts{padding:11px 12px}
+  .result{padding:14px 13px 18px}
+  .doc{padding:12px 12px}
+  .doc .fine{font-size:10px}
+  .factrow div{padding:10px 11px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#bench">跳至套合台</a>
+<div class="strip"><div class="wrap">
+  <span><b>界墘測繪社</b>　KÀI-KÎNN SURVEY &amp; MAPPING</span>
+  <span class="rt"><span>雲林縣西螺鎮延平路二段 118 號</span><span>05-586 4412</span><span>技師 呂志堅・技字第 04128 號</span></span>
+</div></div>
+
+<nav class="sheetnav" aria-label="圖幅接合表導覽">
+  <div class="cap">圖幅接合表 SHEET INDEX</div>
+  <div class="sheetgrid">
+    <a class="sheet" href="index.html" aria-current="page"><span class="no">0247-I</span><span class="nm">套合台</span><span class="en">OVERLAY BENCH</span></a>
+    <a class="sheet" href="an.html"><span class="no">0247-II</span><span class="nm">案卷室</span><span class="en">CASE FILES</span></a>
+    <a class="sheet" href="fa.html"><span class="no">0247-III</span><span class="nm">定界之法</span><span class="en">METHOD</span></a>
+    <a class="sheet" href="tuo.html"><span class="no">0247-IV</span><span class="nm">委託測繪</span><span class="en">COMMISSION</span></a>
+  </div>
+  <div class="foot">調閱中之圖幅以骨白填實</div>
+</nav>
+
+<main class="wrap">
+  <div class="headline">
+    <div>
+      <div class="case">案號 111-西螺-廣興段-0247　／　地籍圖重測界址協助案　／　委託人：西螺鎮公所地政課</div>
+      <h1>這條線不是量出來的，是被承認的。</h1>
+      <p>廣興段 21、22、23、24、25 地號，五筆地，一張大正十年的原圖，一次無人機正射影像。舊圖上的線套到今天的地面上，四個角一個都對不齊——差在十幾到六十幾公分之間。你在下面那張圖上要做的不是把誤差消掉：誤差消不掉。你只能決定，把它留給誰。</p>
+    </div>
+    <div class="stampbox">
+      收件　<b>111.03.14</b><br>外業　<b>111.04.02　空拍 曾雅萍</b><br>
+      正射影像　<b>GSD 1.4 cm/px</b><br>控制　<b>RTK 固定解・e-GNSS</b><br>舊圖　<b>大正10年 1/1200 原圖</b>
+    </div>
+  </div>
+
+  <section class="bench" id="bench">
+    <div class="col">
+      <div class="colhd"><span>控制點清冊　CONTROL</span><i>0 / 1 / 3</i></div>
+      <div id="cplist"></div>
+      <p style="font-size:11.5px;color:var(--dim);line-height:1.65;margin:12px 0 0">
+        權重是你給的。平差不知道哪一支樁被人拔起來重埋過——只有卷裡的工程接管清冊知道。點開每一點的〈卷內附件〉再決定。
+      </p>
+    </div>
+
+    <div class="col">
+      <div class="colhd"><span>套合圖面　PLATE 0247</span><i id="plateno">解 #01</i></div>
+      <div class="plate"><svg id="plate" viewBox="0 0 870 690" role="img" aria-labelledby="plateTitle plateDesc">
+        <title id="plateTitle">廣興段 0247 號套合圖</title>
+        <desc id="plateDesc">褐色虛線為大正十年地籍原圖經相似變換套合後的界址線；青色實線為無人機正射影像判繪的現況構造物；硃色箭頭為各控制點的殘差，放大二十倍。</desc>
+      </svg></div>
+      <div class="plateopts">
+        <label><input type="checkbox" id="optGhost"> 顯示未套合的原圖（灰影）</label>
+        <label><input type="checkbox" id="optRes" checked> 殘差向量 ×20</label>
+        <label><input type="checkbox" id="optSigma" checked> 點位中誤差圓 ×20</label>
+      </div>
+      <div class="legend">
+        <span><i style="border-color:var(--oldline);border-top-style:dashed"></i>舊圖套合界址線</span>
+        <span><i style="border-color:var(--new)"></i>今測構造物</span>
+        <span><i style="border-color:var(--alarm)"></i>殘差／越界</span>
+      </div>
+      <div id="refuse"></div>
+    </div>
+
+    <div class="col">
+      <div class="colhd"><span>解算結果　ADJUSTMENT</span><i id="npts">n=8</i></div>
+      <div class="kv" id="stats"></div>
+      <div class="colhd"><span>面積　AREA (m²)</span><i>登記／重測</i></div>
+      <table class="area"><thead><tr><th>地號</th><th>登記</th><th>重測</th><th>差</th></tr></thead><tbody id="areatb"></tbody></table>
+      <div class="colhd"><span>到場當事人　PARTIES</span><i id="signct">0/5</i></div>
+      <div id="parties"></div>
+      <div class="ledger">
+        <div class="colhd" style="margin-top:14px"><span>界移紀錄　LINE-SHIFT LEDGER</span><i id="ledgerct">0</i></div>
+        <div class="rowb" id="ledgerbar"></div>
+        <div class="lb"><span>褐＝界線離開該戶（得地）</span><span>青＝逼近（失地）</span></div>
+        <div class="lb"><span style="color:var(--alarm)">硃＝該次重解使其構造物越界</span><span>1cm = 2px</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="acts">
+    <button class="btn" data-preset="all">全部等權</button>
+    <button class="btn" data-preset="nostake">剔除民國62年重設樁</button>
+    <button class="btn" data-preset="withwall">再納入陳家昭和13年牆角</button>
+    <button class="btn" data-preset="old4">只信四個老點</button>
+    <button class="btn go" id="btnSign">請五方到場指界並簽章</button>
+    <span class="hint">鍵盤：Tab 走清冊，Enter／空白鍵改權重</span>
+  </div>
+  <div class="result" id="result">
+    <span class="tag">尚未取得指界</span>
+    <h3>先把解算出來，再去敲門。</h3>
+    <p>本所不在當事人不在場的時候決定界址。你可以先試各種權重組合，把圖面上的越界處看清楚了，再按上面那顆鍵請五方到場——他們簽不簽，看的不是你的殘差平方和，是那條線離他家的牆有幾公分。</p>
+  </div>
+
+  <section class="reading">
+    <h2>紙會縮，人不會退</h2>
+    <div class="cols">
+      <p>大正十年的原圖畫在和紙上，比例尺一千二百分之一。一百零一年之後我們把它取出來，紙已經沿著捲軸的方向縮了大約千分之三點二。這不是誰的錯，是纖維的事。可是面積是照圖上的尺寸算的，所以廣興段這五筆地，登記謄本上的面積全部比地面上實際的小了大約百分之零點六——二十一號那筆，紙上二〇九點七八平方公尺，地上二一一點一。多出來的一點三平方公尺一直都在，只是沒有人寫在紙上。</p>
+      <p>重測的時候，大部分人是為了這一點多出來或少下去的面積來的。可是十六年做下來，真正吵起來的從來不是面積。是林春木家的東牆。那面牆一九六八年砌的，磚縫都長青苔了，它離我們算出來的界線只有七公分——七公分，比我們這次套合的點位中誤差還小。也就是說，我們沒有辦法用測量的語言說出「它沒有越界」這句話。我們只能說：我們量不出來。</p>
+      <p>量不出來的時候，法律怎麼辦？土地法第四十六條之二寫得很清楚：先看鄰地界址、再看現使用人指界、再參照舊地籍圖、最後才問地方習慣。你注意到沒有——「指界」排在「舊地籍圖」前面。也就是說在這個國家的制度裡，兩個人站在牆邊指著同一個點說「就是這裡」，比一張圖有效。</p>
+      <p>所以本所的套合台是這樣設計的：它會算，會算到公釐，會告訴你殘差平方和最小的那一組解是哪一組。然後它不會替你按下確認。因為最小二乘法有一件事永遠做不到——它不知道哪一支樁被人移過。民國六十二年延平路拓寬，路邊那兩支水泥樁是拓寬完才重新埋回去的，往北偏了半公尺多。平差看不見這件事。平差看見的只是「這兩點不太合群」，然後它會很公平地、很盡責地，把這兩點的錯誤平均分攤到其他七個點身上——分完之後每一點的殘差都變小了，看起來還挺漂亮的，而林春木家的牆就這樣被判越界十一公分。</p>
+      <div class="pull">平差不會告訴你哪一點是錯的。<br>它只會把錯，平均攤到每一個人身上。</div>
+      <p>把那兩支樁剔掉，殘差反而變大——從二十六公分掉到十二公分，數字上是變好了，但比起「只用四個最老的點」的三點六公分，還是難看。有些同行會選那個三點六。我們不選。四個點解四個未知數，多餘觀測只剩四個，等於這張圖上幾乎沒有地方可以讓錯誤現形；殘差小得漂亮，是因為根本沒有東西在檢核它。點少的解看起來比較有把握，那個把握是假的。</p>
+      <p>本所五個人。呂志堅技師負責平差與簽證，曾雅萍飛機、做像控，何秉聰跑地政事務所調圖、抄卷、找七十歲以上還記得樁在哪裡的人。剩下兩個是外業助理，扛稜鏡的。我們接的案子有一半是農地與工廠的界址協助，另一半是鎮公所發包的重測協力。收費照測繪業技師公會的建議標準，界址協助案每筆地新台幣八千起，含一次到場指界與一份成果圖；調處與訴訟階段的圖說另計。</p>
+      <p>有人問我們，既然最後是靠簽名，那量得這麼精幹嘛。因為要讓人簽名，得先讓他看見那條線在哪裡、離他家的牆幾公分、他退一步是退幾平方公尺。我們量到公釐，不是為了得到真相——是為了讓五個人可以站在同一張圖前面吵架，吵完了還簽得下去。</p>
+    </div>
+    <div class="factrow">
+      <div><b>1/1200</b><span>大正10年原圖比例尺</span></div>
+      <div><b>0.32%</b><span>和紙百年線性收縮量</span></div>
+      <div><b>1.4 cm</b><span>正射影像地面解析度</span></div>
+      <div><b>±0.09 m</b><span>圖解法重測界址點容許誤差</span></div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div>
+      <img src="assets/logo.svg" alt="界墘測繪社" width="240" height="64" style="max-width:100%;height:auto;border:1px solid rgba(200,154,99,.4)">
+      <p style="margin-top:12px">界墘測繪社　雲林縣西螺鎮延平路二段 118 號 2 樓<br>週一至週五 08:30–17:30（外業日不定，請先電話）<br>05-586 4412　kai.kinn.survey@example.tw</p>
+    </div>
+    <div><h4>業務</h4><ul>
+      <li>地籍圖重測界址協助（每筆 NT$8,000 起）</li>
+      <li>無人機正射影像測繪（10 公頃以內 NT$28,000）</li>
+      <li>建物測量、地形圖測製、土方計算</li>
+      <li>調處／訴訟用鑑定圖說（另計）</li>
+    </ul></div>
+    <div><h4>圖幅</h4><ul>
+      <li><a href="index.html">0247-I　套合台</a></li>
+      <li><a href="an.html">0247-II　案卷室</a></li>
+      <li><a href="fa.html">0247-III　定界之法</a></li>
+      <li><a href="tuo.html">0247-IV　委託測繪</a></li>
+    </ul></div>
+  </div>
+  <p class="fine2">本站所有人名、地號、案號、價格、電話與地址皆為虛構示意，不指涉真實個人或土地。所稱法條為現行條文之教學性引述，個案請洽地政事務所或不動產糾紛調處委員會。<br>本站無外部圖片與音檔，全部圖像由套合引擎即時解算生成。</p>
+</div></footer>
+
+<script>
+"use strict";
+/* ── 資料：大正十年原圖（圖上座標，公尺）與今測（TWD97 局部，公尺） ───────── */
+var OLDB={b1:[0.04,-0.03],b2:[12.31,0.138],b3:[24.89,0.176],b4:[35.057,0.15],b5:[45.872,0.328],
+ b6:[45.591,32.215],b7:[34.936,32.067],b8:[-0.22,31.957],b9:[-0.048,17.175],b10:[12.182,17.182],
+ b11:[24.742,17.241],b12:[34.939,17.415]};
+var OLDC={c1:[45.882,0.308],c2:[-0.22,31.937],c3:[0.04,-0.03],c4:[44.223,29.515],c5:[22.917,34.792],
+ c6:[18.998,-0.9],c7:[37.907,-0.842],c8:[8.607,21.647],c9:[11.867,0.567]};
+var MODC={c1:[46,0],c2:[0,32],c3:[0,0],c4:[44.6,29.3],c5:[23.1,34.9],c6:[18.5,-1.2],c7:[37.4,-1.2],
+ c8:[8.9,21.5],c9:[12.55,0.4]};
+var CP=[
+ {id:"c1",nm:"廣興段東南界　舊花崗石標",k:"大正10年原標・現存・標頂十字完整",w:1,
+  ev:"民國46年地籍調查表附圖與大正10年原圖之圖根點位相符。標身刻「界」字，埋設深度 0.9 m，四周無翻修痕跡。本所以稜鏡直接觀測標頂十字中心。"},
+ {id:"c2",nm:"廣興段西北界　舊花崗石標",k:"大正10年原標・現存・標身傾斜 3°",w:1,
+  ev:"標身向北傾斜約 3 度，經探掘確認底部未被擾動，傾斜係樹根抬升所致，標心平面位置以標底反算改正 1.2 cm 後採用。"},
+ {id:"c3",nm:"延平路南界　舊花崗石標",k:"大正10年原標・現存",w:1,
+  ev:"位於延平路二段與廣興巷交會處人行道內，民國62年拓寬時因位於退縮帶外而未受影響（見工程接管清冊第 14 頁）。"},
+ {id:"c4",nm:"福安宮正殿東北角柱",k:"明治41年建・未改建・角柱外緣",w:1,
+  ev:"福安宮沿革碑記載明治41年建殿、昭和9年修屋頂、民國78年重修神龕，殿身柱位未動。大正10年原圖有繪殿身輪廓，可據以取角。惟圖上為 0.3 mm 線寬，換算地面 36 cm，本點的圖上判讀精度先天有限。"},
+ {id:"c5",nm:"廣興圳北岸轉角",k:"民國42年整治後之漿砌護岸角",w:1,
+  ev:"水利會檔案：民國42年整治，渠線南移約 0.4 m。舊圖所繪為整治前之土溝轉角，與現況護岸角並非同一位置。是否採用由你決定，本所在成果報告書內註明其為「近似同名點」。"},
+ {id:"c6",nm:"延平路北側水泥樁（西）",k:"民國62年拓寬後重設・樁頂鋼釘",w:1,
+  ev:"雲林縣政府民國62年「延平路二段拓寬工程」接管清冊第 9 頁：原有界樁於施工中拔除，完工後由承包商依設計圖重埋，未辦理複丈。本所實測與舊圖差 0.55 m，與東側同批樁的偏移方向一致。"},
+ {id:"c7",nm:"延平路北側水泥樁（東）",k:"民國62年拓寬後重設・樁頂鋼釘",w:1,
+  ev:"同上案接管清冊第 9 頁。與西側樁為同一批、同一天重埋，實測與舊圖差 0.62 m，偏移方向與西側樁相差 8 度。兩支一起用，等於把同一個錯誤投票兩次。"},
+ {id:"c8",nm:"廣興舊井　井圈中心",k:"清代開鑿・井圈現存・圖上為符號",w:1,
+  ev:"井還在，井圈完整。但大正10年原圖上的井是以一個直徑 1.5 mm 的圓形符號表示，符號中心與實際井心的關係無從查考，圖上判讀誤差可達地面 30 cm 以上。"},
+ {id:"c9",nm:"陳宅西南牆角（昭和13年增建）",k:"昭和13年增建・原圖有補繪",w:0,
+  ev:"陳美雲女士提出：昭和13年家屋增建執照附圖與大正10年原圖之補繪紅線相符，主張此牆角應作為同名點。惟該補繪係手繪加註、未經測量，且增建當時牆體外緣與界址的關係未載明。採用與否影響 22、23 地號之間那條線約 15 公分。"}
+];
+/* 今測構造物（無人機正射判繪 + RTK 檢核） */
+var FEAT={
+ road:[[-6,-5.6],[52,-5.6],[52,-0.15],[-6,-0.15]],
+ bldg:[
+  {p:[[1.6,1.8],[12.28,1.8],[12.28,9.4],[1.6,9.4]],t:"林宅（21）磚造二層"},
+  {p:[[13.6,1.5],[23.4,1.5],[23.4,8.6],[13.6,8.6]],t:"陳宅（22）加強磚造"},
+  {p:[[26.4,8.0],[34.2,8.0],[34.2,15.4],[26.4,15.4]],t:"王宅（23）"},
+  {p:[[25.03,0.6],[30.0,0.6],[30.0,6.4],[25.03,6.4]],t:"王家車庫"},
+  {p:[[37.4,20.5],[44.6,20.5],[44.6,29.3],[37.4,29.3]],t:"福安宮正殿（24）"},
+  {p:[[2.0,26.0],[7.4,26.0],[7.4,30.4],[2.0,30.4]],t:"農具間（25）"}
+ ],
+ wall:[
+  {p:[[13.0,17.05],[24.5,17.05]],t:"陳宅後牆"},
+  {p:[[35.42,0.4],[35.42,12.0]],t:"廟埕磚牆"},
+  {p:[[0.3,10.2],[0.3,16.6]],t:"林宅圍牆"}
+ ],
+ lion:[45.86,1.15], well:[8.9,21.5],
+ ditch:[[-6,34.4],[23.1,34.9],[52,34.2]]
+};
+var LOTS={"21":["b1","b2","b10","b9"],"22":["b2","b3","b11","b10"],"23":["b3","b4","b12","b11"],
+ "24":["b4","b5","b6","b7"],"25":["b9","b12","b7","b8"]};
+var REG={"21":209.78,"22":214.38,"23":174.78,"24":342.50,"25":516.16};
+var PARTY=[
+ {lot:"21",who:"林春木（78）自住",note:"自家東牆一九六八年砌"},
+ {lot:"22",who:"陳美雲（61）自住",note:"在意他人構造物越入"},
+ {lot:"23",who:"王仁德（54）自住・車庫",note:"車庫民國89年增建"},
+ {lot:"24",who:"福安宮　主委 蔡萬得",note:"廟埕石獅座不得落在道路用地"},
+ {lot:"25",who:"林俊儒（46）　委任其父 林春木",note:"人在台中，出具委任狀"}
+];
+var PRESETS={
+ all:{c1:1,c2:1,c3:1,c4:1,c5:1,c6:1,c7:1,c8:1,c9:0},
+ nostake:{c1:1,c2:1,c3:1,c4:1,c5:1,c6:0,c7:0,c8:1,c9:0},
+ withwall:{c1:1,c2:1,c3:1,c4:1,c5:1,c6:0,c7:0,c8:1,c9:1},
+ old4:{c1:1,c2:1,c3:1,c4:1,c5:0,c6:0,c7:0,c8:0,c9:0}
+};
+/* ── 平差引擎：加權二維相似變換（Helmert） ─────────────────────────────── */
+function solve(w){
+ var keys=[],i,k; for(i=0;i<CP.length;i++){k=CP[i].id; if(w[k]>0)keys.push(k);}
+ if(keys.length<3)return {n:keys.length,keys:keys,ok:false};
+ var sw=0,ou=0,ov=0,mx=0,my=0;
+ for(i=0;i<keys.length;i++){k=keys[i];var wi=w[k];sw+=wi;
+  ou+=wi*OLDC[k][0];ov+=wi*OLDC[k][1];mx+=wi*MODC[k][0];my+=wi*MODC[k][1];}
+ ou/=sw;ov/=sw;mx/=sw;my/=sw;
+ var na=0,nb=0,den=0;
+ for(i=0;i<keys.length;i++){k=keys[i];var q=w[k];
+  var u=OLDC[k][0]-ou,v=OLDC[k][1]-ov,x=MODC[k][0]-mx,y=MODC[k][1]-my;
+  na+=q*(u*x+v*y);nb+=q*(u*y-v*x);den+=q*(u*u+v*v);}
+ if(den<1e-9)return {n:keys.length,keys:keys,ok:false,collinear:true};
+ var a=na/den,b=nb/den;
+ var T=function(p){var u=p[0]-ou,v=p[1]-ov;return [a*u-b*v+mx,b*u+a*v+my];};
+ var res={},ss=0;
+ for(i=0;i<keys.length;i++){k=keys[i];var t=T(OLDC[k]);
+  var dx=t[0]-MODC[k][0],dy=t[1]-MODC[k][1];res[k]=[dx,dy];ss+=w[k]*(dx*dx+dy*dy);}
+ var r=2*keys.length-4;
+ var sigma=r>0?Math.sqrt(ss/r):0;
+ var B={}; for(k in OLDB)B[k]=T(OLDB[k]);
+ return {ok:true,n:keys.length,keys:keys,T:T,res:res,sigma:sigma,r:r,
+  scale:Math.sqrt(a*a+b*b),rot:Math.atan2(b,a)*180/Math.PI,B:B,hull:hullArea(keys)};
+}
+function hullArea(keys){
+ var pts=keys.map(function(k){return MODC[k];}).slice().sort(function(p,q){return p[0]-q[0]||p[1]-q[1];});
+ if(pts.length<3)return 0;
+ function cr(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+ var lo=[],up=[],i;
+ for(i=0;i<pts.length;i++){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],pts[i])<=0)lo.pop();lo.push(pts[i]);}
+ for(i=pts.length-1;i>=0;i--){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],pts[i])<=0)up.pop();up.push(pts[i]);}
+ var h=lo.slice(0,lo.length-1).concat(up.slice(0,up.length-1));
+ return Math.abs(poly(h));
+}
+function poly(p){var s=0;for(var i=0;i<p.length;i++){var q=p[(i+1)%p.length];s+=p[i][0]*q[1]-q[0]*p[i][1];}return s/2;}
+function segAtY(B,p,q,y){var a=B[p],b=B[q],t=(y-a[1])/(b[1]-a[1]);return a[0]+t*(b[0]-a[0]);}
+function segAtX(B,p,q,x){var a=B[p],b=B[q],t=(x-a[0])/(b[0]-a[0]);return a[1]+t*(b[1]-a[1]);}
+/* 四處構造物與界線的關係（公尺，正值＝未越界） */
+function clearances(B){
+ return {
+  k1:segAtY(B,"b2","b10",5.0)-12.28,      /* 林宅東牆 vs 21|22 界 */
+  k2:25.03-segAtY(B,"b3","b11",3.2),      /* 王家車庫西牆 vs 22|23 界 */
+  k3:segAtY(B,"b5","b6",1.15)-45.86,      /* 廟埕石獅座 vs 24 東界 */
+  k4:segAtX(B,"b10","b11",18.0)-17.05     /* 陳宅後牆 vs 22|25 界 */
+ };
+}
+var CLR=[
+ {k:"k1",t:"林宅（21）東牆越入 22 地號",who:"21",also:"22"},
+ {k:"k2",t:"王家車庫（23）西牆越入 22 地號",who:"23",also:"22"},
+ {k:"k3",t:"福安宮石獅座落在道路用地內",who:"24",also:null},
+ {k:"k4",t:"陳宅（22）後牆越入 25 地號",who:"22",also:"25"}
+];
+/* ── 繪圖 ─────────────────────────────────────────────────────────────── */
+var SC=15, OX=6, OY=38;
+function px(p){return [(p[0]+OX)*SC,(OY-p[1])*SC];}
+function path(pts,close){var d="",i;for(i=0;i<pts.length;i++){var q=px(pts[i]);d+=(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1);}return d+(close?"Z":"");}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function draw(S,opt){
+ var g=[],i,k;
+ g.push('<rect x="0" y="0" width="870" height="690" fill="#1E140E"/>');
+ /* 格網 10 m */
+ for(i=0;i<=50;i+=10){var a=px([i,-8]),b=px([i,38]);
+  g.push('<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#C89A63" stroke-opacity=".16" stroke-dasharray="1 6"/>');
+  if(i<=40)g.push('<text x="'+(a[0]+3)+'" y="682" fill="#8A7560" font-family="IBM Plex Mono,monospace" font-size="9">E'+(1200+i)+'</text>');}
+ for(i=-0;i<=30;i+=10){var c=px([-6,i]),d=px([52,i]);
+  g.push('<line x1="'+c[0]+'" y1="'+c[1]+'" x2="'+d[0]+'" y2="'+c[1]+'" stroke="#C89A63" stroke-opacity=".16" stroke-dasharray="1 6"/>');
+  g.push('<text x="4" y="'+(c[1]-3)+'" fill="#8A7560" font-family="IBM Plex Mono,monospace" font-size="9">N'+(800+i)+'</text>');}
+ g.push('<rect x="14" y="12" width="842" height="648" fill="none" stroke="#C89A63" stroke-opacity=".5"/>');
+ /* 今測層：道路 */
+ g.push('<path d="'+path(FEAT.road,true)+'" fill="#3FD3E0" fill-opacity=".05" stroke="#2A8A93" stroke-width="1.2"/>');
+ var rl=px([2,-2.9]);
+ g.push('<text x="'+rl[0]+'" y="'+rl[1]+'" fill="#2A8A93" font-family="Noto Sans TC,sans-serif" font-size="12" letter-spacing="4">延平路二段</text>');
+ /* 未套合原圖（灰影） */
+ if(opt.ghost){for(k in LOTS){var gp=LOTS[k].map(function(n){return OLDB[n];});
+  g.push('<path d="'+path(gp,true)+'" fill="none" stroke="#E8C89A" stroke-opacity=".22" stroke-width="1"/>');}}
+ /* 今測層：構造物 */
+ for(i=0;i<FEAT.bldg.length;i++){var bd=FEAT.bldg[i];
+  g.push('<path d="'+path(bd.p,true)+'" fill="#3FD3E0" fill-opacity=".10" stroke="#3FD3E0" stroke-width="1.6"/>');
+  var ct=px([(bd.p[0][0]+bd.p[2][0])/2,(bd.p[0][1]+bd.p[2][1])/2]);
+  g.push('<text x="'+ct[0]+'" y="'+ct[1]+'" fill="#3FD3E0" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-size="10.5">'+esc(bd.t)+'</text>');}
+ for(i=0;i<FEAT.wall.length;i++){g.push('<path d="'+path(FEAT.wall[i].p,false)+'" fill="none" stroke="#3FD3E0" stroke-width="2.6" stroke-linecap="square"/>');}
+ var lo=px(FEAT.lion),we=px(FEAT.well);
+ g.push('<circle cx="'+lo[0]+'" cy="'+lo[1]+'" r="8" fill="none" stroke="#3FD3E0" stroke-width="1.6"/><text x="'+(lo[0]-12)+'" y="'+(lo[1]+16)+'" fill="#3FD3E0" text-anchor="end" font-family="Noto Sans TC,sans-serif" font-size="10">石獅座</text>');
+ g.push('<circle cx="'+we[0]+'" cy="'+we[1]+'" r="7" fill="none" stroke="#3FD3E0" stroke-width="1.4"/><circle cx="'+we[0]+'" cy="'+we[1]+'" r="2" fill="#3FD3E0"/>');
+ g.push('<path d="'+path(FEAT.ditch,false)+'" fill="none" stroke="#2A8A93" stroke-width="3" stroke-dasharray="14 5"/>');
+ if(!S.ok){
+  g.push('<text x="435" y="330" fill="#F2452F" text-anchor="middle" font-family="Noto Serif TC,serif" font-weight="900" font-size="26">本所不以此解出圖</text>');
+  g.push('<text x="435" y="360" fill="#B9A48D" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-size="13">控制點少於三點，多餘觀測為零，殘差恆等於零——那個零不是精度，是沒有檢核。</text>');
+  return g.join("");}
+ var B=S.B;
+ /* 套合後界址線 */
+ for(k in LOTS){var pp=LOTS[k].map(function(n){return B[n];});
+  g.push('<path d="'+path(pp,true)+'" fill="#E8C89A" fill-opacity=".045" stroke="#C89A63" stroke-width="2.2" stroke-dasharray="9 4"/>');
+  var cc=[0,0],j;for(j=0;j<pp.length;j++){cc[0]+=pp[j][0]/4;cc[1]+=pp[j][1]/4;}
+  var cp2=px(cc);
+  g.push('<text x="'+cp2[0]+'" y="'+(cp2[1]-4)+'" fill="#E8C89A" text-anchor="middle" font-family="Noto Serif TC,serif" font-weight="600" font-size="17">'+k+'</text>');
+  g.push('<text x="'+cp2[0]+'" y="'+(cp2[1]+11)+'" fill="#B9A48D" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5">'+poly(pp.map(function(q){return q;})).toFixed(2).replace("-","")+' m²</text>');}
+ /* 界址點 */
+ for(k in B){var q=px(B[k]);
+  g.push('<rect x="'+(q[0]-3.5)+'" y="'+(q[1]-3.5)+'" width="7" height="7" fill="#E8C89A"/>');}
+ /* 殘差向量與中誤差圓 */
+ for(i=0;i<S.keys.length;i++){var id=S.keys[i],m=px(MODC[id]),r=S.res[id];
+  if(opt.sigma&&S.sigma>0)g.push('<circle cx="'+m[0]+'" cy="'+m[1]+'" r="'+(S.sigma*20*SC).toFixed(1)+'" fill="none" stroke="#B9A48D" stroke-opacity=".45" stroke-width="1" stroke-dasharray="3 3"/>');
+  g.push('<circle cx="'+m[0]+'" cy="'+m[1]+'" r="3" fill="#3FD3E0"/>');
+  g.push('<text x="'+(m[0]+7)+'" y="'+(m[1]-6)+'" fill="#3FD3E0" font-family="IBM Plex Mono,monospace" font-size="10">'+id.toUpperCase()+'</text>');
+  if(opt.res){var e=px([MODC[id][0]+r[0]*20,MODC[id][1]+r[1]*20]);
+   var ang=Math.atan2(e[1]-m[1],e[0]-m[0]),L=Math.hypot(e[0]-m[0],e[1]-m[1]);
+   if(L>3){g.push('<line x1="'+m[0]+'" y1="'+m[1]+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#F2452F" stroke-width="1.8"/>');
+    g.push('<path d="M'+e[0].toFixed(1)+' '+e[1].toFixed(1)+' L'+(e[0]-9*Math.cos(ang-0.4)).toFixed(1)+' '+(e[1]-9*Math.sin(ang-0.4)).toFixed(1)+' L'+(e[0]-9*Math.cos(ang+0.4)).toFixed(1)+' '+(e[1]-9*Math.sin(ang+0.4)).toFixed(1)+' Z" fill="#F2452F"/>');}}}
+ /* 越界標示 */
+ var cl=clearances(B),marks=[[ [12.28,5.0],cl.k1,"林宅東牆"],[[25.03,3.2],cl.k2,"王家車庫"],[[45.86,1.15],cl.k3,"石獅座"],[[18.0,17.05],cl.k4,"陳宅後牆"]];
+ for(i=0;i<marks.length;i++){var mk=marks[i],pt=px(mk[0]),cm=mk[1]*100;
+  var col=cm<0?"#F2452F":(Math.abs(cm)<S.sigma*100?"#E8C89A":"#3FD3E0");
+  g.push('<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="'+(cm<0?11:7)+'" fill="none" stroke="'+col+'" stroke-width="'+(cm<0?2.4:1.2)+'"/>');
+  g.push('<text x="'+(pt[0]+13)+'" y="'+(pt[1]+4)+'" fill="'+col+'" font-family="IBM Plex Mono,monospace" font-size="10.5">'+(cm<0?"越界 ":"餘裕 ")+Math.abs(cm).toFixed(1)+' cm</text>');}
+ /* 圖廓註記 */
+ g.push('<text x="22" y="30" fill="#8A7560" font-family="IBM Plex Mono,monospace" font-size="10">廣興段 0247　1:400　套合：加權相似變換（'+S.n+' 點・多餘觀測 '+S.r+'）</text>');
+ g.push('<text x="848" y="30" fill="#8A7560" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10">σ = ±'+(S.sigma*100).toFixed(1)+' cm</text>');
+ return g.join("");
+}
+/* ── 狀態與畫面更新 ───────────────────────────────────────────────────── */
+var W={},solveCount=0,prevClr=null,bars=[],signed=false;
+CP.forEach(function(c){W[c.id]=c.w;});
+var $=function(s){return document.querySelector(s);};
+function buildList(){
+ var h="";
+ CP.forEach(function(c){
+  h+='<div class="cp" data-id="'+c.id+'">'
+   +'<div class="r1"><span class="id">'+c.id.toUpperCase()+'</span><span class="nm">'+esc(c.nm)+'</span></div>'
+   +'<span class="kind">'+esc(c.k)+'</span>'
+   +'<div class="r2">'
+   +[0,1,3].map(function(v){return '<button class="wbtn" data-w="'+v+'" aria-pressed="false" aria-label="'+c.id.toUpperCase()+' 權重 '+v+'">'+v+'</button>';}).join("")
+   +'<span class="res" data-res="'+c.id+'">—</span></div>'
+   +'<details class="ev"><summary>卷內附件</summary><p>'+esc(c.ev)+'</p></details></div>';
+ });
+ $("#cplist").innerHTML=h;
+ $("#cplist").addEventListener("click",function(e){
+  var b=e.target.closest(".wbtn");if(!b)return;
+  var id=b.closest(".cp").getAttribute("data-id");
+  W[id]=parseInt(b.getAttribute("data-w"),10);update();});
+}
+function fmt(v,d){return (v>=0?"+":"−")+Math.abs(v).toFixed(d===undefined?1:d);}
+function update(){
+ var S=solve(W),i,k;
+ /* 權重鈕狀態 */
+ Array.prototype.forEach.call(document.querySelectorAll(".cp"),function(row){
+  var id=row.getAttribute("data-id");
+  Array.prototype.forEach.call(row.querySelectorAll(".wbtn"),function(b){
+   b.setAttribute("aria-pressed",String(parseInt(b.getAttribute("data-w"),10)===W[id]));});
+  var cell=row.querySelector(".res");
+  if(S.ok&&S.res[id]){var m=Math.hypot(S.res[id][0],S.res[id][1])*100;
+   cell.textContent="r "+m.toFixed(1)+" cm";cell.className="res"+(m>2*S.sigma*100?" bad":"");}
+  else {cell.textContent=W[id]>0?"—":"未使用";cell.className="res";}
+ });
+ $("#npts").textContent="n="+S.n;
+ $("#plateno").textContent="解 #"+String(++solveCount).padStart(2,"0");
+ var opt={ghost:$("#optGhost").checked,res:$("#optRes").checked,sigma:$("#optSigma").checked};
+ $("#plate").innerHTML='<title id="plateTitle">廣興段 0247 號套合圖</title><desc id="plateDesc">褐色虛線為大正十年地籍原圖經加權相似變換套合後的界址線；青色實線為無人機正射影像判繪的現況構造物；硃色箭頭為各控制點的殘差，放大二十倍。</desc>'+draw(S,opt);
+ /* 拒絕條款 */
+ var rf="";
+ if(!S.ok){rf='<div class="refuse"><b>本所拒絕出圖　REFUSED</b>控制點少於三點時多餘觀測數為零，殘差必然全部等於零。那不是精度好，是沒有任何東西在檢核它。請至少採用三個同名點。</div>';}
+ else if(S.hull<0.20*1472){rf='<div class="refuse"><b>控制不足以作結論　NO CONCLUSION</b>你採用的控制點凸包只涵蓋測區的 '+(S.hull/1472*100).toFixed(0)+'%，其餘範圍是外插。外插區的界址位置無法檢核，本所在該區段不作「越界／未越界」的判斷，成果圖上以斜線標示。</div>';}
+ else if(S.r<=4){rf='<div class="refuse" style="border-color:var(--old);background:rgba(232,200,154,.06)"><b style="color:var(--old)">殘差好看，但沒有東西在檢核　LOW REDUNDANCY</b>多餘觀測只有 '+S.r+' 個。四個點解四個未知數，任何一點若有粗差，都會被變換吸收進去而不出現在殘差裡。σ = ±'+(S.sigma*100).toFixed(1)+' cm 這個數字是真的，它代表的把握不是。</div>';}
+ $("#refuse").innerHTML=rf;
+ /* 解算數值 */
+ if(S.ok){
+  $("#stats").innerHTML=
+   '<span>尺度因數 s</span><b>'+S.scale.toFixed(6)+'</b>'
+   +'<span>旋轉 θ</span><b>'+fmt(S.rot,4)+'°</b>'
+   +'<span>採用點數 n</span><b>'+S.n+'</b>'
+   +'<span>多餘觀測 r</span><b class="'+(S.r<=4?"bad":"")+'">'+S.r+'</b>'
+   +'<span>單位權中誤差 σ</span><b>±'+(S.sigma*100).toFixed(1)+' cm</b>'
+   +'<span>最大殘差</span><b>'+(Math.max.apply(null,S.keys.map(function(k){return Math.hypot(S.res[k][0],S.res[k][1]);}))*100).toFixed(1)+' cm</b>';
+ }else{$("#stats").innerHTML='<span>狀態</span><b class="bad">無解</b>';}
+ /* 面積 */
+ var atb="";
+ if(S.ok){for(k in LOTS){var A=Math.abs(poly(LOTS[k].map(function(n){return S.B[n];})));
+  atb+='<tr><td>'+k+'</td><td>'+REG[k].toFixed(2)+'</td><td>'+A.toFixed(2)+'</td><td class="up">'+fmt(A-REG[k],2)+'</td></tr>';}
+  atb+='<tr><td colspan="4" style="border:none;color:var(--dim);text-align:left;padding-top:6px;line-height:1.6">五筆一致偏大約 0.6%：和紙百年收縮 0.32%，面積差為其平方。此非增減，係更正。</td></tr>';}
+ $("#areatb").innerHTML=atb;
+ /* 越界與當事人 */
+ var cl=S.ok?clearances(S.B):null,cross={},near={};
+ if(cl){CLR.forEach(function(c){
+   if(cl[c.k]<0){var msg=c.t+"，越界 "+Math.abs(cl[c.k]*100).toFixed(1)+" cm。";
+     cross[c.who]=msg; if(c.also)cross[c.also]=msg;}
+   else if(cl[c.k]<S.sigma){near[c.who]=c.t;if(c.also)near[c.also]=c.t;} });}
+ var ph="",okc=0;
+ PARTY.forEach(function(p){
+  var st="待指界",cls="",why=p.note;
+  if(cl){
+   if(cross[p.lot]){st="不簽";cls="no";why=cross[p.lot];}
+   else if(p.lot==="25"&&cross["21"]){st="不簽";cls="no";why="委任人 21 未簽，本筆亦不簽。";}
+   else if(!S.ok){st="待指界";}
+   else {st="可簽";cls="ok";okc++;
+    why=near[p.lot]?("界線與其構造物之距離小於 σ，簽章時加註「經到場指界確認」。"):p.note;}
+  }
+  ph+='<div class="party"><div class="l1"><span class="lot">'+p.lot+'</span><span class="who">'+esc(p.who)+'</span><span class="st '+cls+'">'+st+'</span></div><p class="why '+cls+'">'+esc(why)+'</p></div>';
+ });
+ $("#parties").innerHTML=ph;$("#signct").textContent=(cl?okc:0)+"/5";
+ /* 界移紀錄條 */
+ if(cl){
+  if(prevClr){
+   var keys=["k1","k2","k3","k4"],map={k1:"21",k2:"23",k3:"24",k4:"22"};
+   keys.forEach(function(kk){
+    var d=(cl[kk]-prevClr[kk])*100;if(Math.abs(d)<0.05)return;
+    bars.push({h:Math.max(3,Math.min(26,Math.abs(d)*2)),cls:cl[kk]<0?"cross":(d<0?"lose":"")});
+   });
+   if(bars.length>96)bars=bars.slice(-96);
+   $("#ledgerbar").innerHTML=bars.map(function(b){return '<span class="bar '+b.cls+'" style="height:'+b.h.toFixed(0)+'px"></span>';}).join("");
+   $("#ledgerct").textContent=bars.length;
+  }
+  prevClr=cl;
+ }
+ if(signed){signed=false;}
+ window.__S=S;window.__CL=cl;window.__CROSS=cross;window.__NEAR=near;
+}
+/* ── 指界與結案 ───────────────────────────────────────────────────────── */
+function today(){var d=new Date();return (d.getFullYear()-1911)+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");}
+function sign(){
+ var S=window.__S,cl=window.__CL,cross=window.__CROSS||{},near=window.__NEAR||{},R=$("#result");
+ if(!S||!S.ok){R.innerHTML='<span class="tag">未出圖</span><h3>沒有解，就沒有可以指的界。</h3><p>控制點少於三點，本所不出圖，也不會請當事人到場。請回到左欄，至少採用三個同名點。</p>';R.scrollIntoView({behavior:"smooth",block:"nearest"});return;}
+ if(S.hull<0.20*1472){R.innerHTML='<span class="tag">不作結論</span><h3>可以到場，但這張圖不能拿來指界。</h3><p>採用的控制點只圍出測區的 '+(S.hull/1472*100).toFixed(0)+'%，其餘為外插。外插區的界址點沒有任何觀測在檢核，本所不會在成果圖上宣稱它們的位置，也不會請當事人在上面簽名。</p>';R.scrollIntoView({behavior:"smooth",block:"nearest"});return;}
+ var refuse=PARTY.filter(function(p){return cross[p.lot]||(p.lot==="25"&&cross["21"]);});
+ var nearSeg=Object.keys(near);
+ if(refuse.length===0){
+  var notes=nearSeg.length?('<li>下列界線與現有構造物之距離小於本次套合之點位中誤差 ±'+(S.sigma*100).toFixed(1)+' cm，不得以測量成果宣稱其未越界，爰依到場指界結果認定，並於成果圖加註：'+nearSeg.map(function(l){return l+" 地號";}).join("、")+'。</li>'):'';
+  R.innerHTML='<span class="tag">界址確認完成</span><h3>五方到齊，簽了。</h3>'
+   +'<p>這不是因為你算得對。是因為在你這一組權重之下，沒有任何一個人被要求拆掉他家的牆。</p>'
+   +'<div class="doc"><h4>土 地 界 址 協 議 書</h4><div class="fine">'
+   +'案號：111-西螺-廣興段-0247　　日期：民國 '+today()+'<br>'
+   +'標的：雲林縣西螺鎮廣興段 21、22、23、24、25 地號<br>'
+   +'成果：加權相似變換套合，採用同名點 '+S.n+' 點，多餘觀測 '+S.r+'，尺度因數 '+S.scale.toFixed(6)+'，旋轉 '+fmt(S.rot,4)+'°，點位中誤差 ±'+(S.sigma*100).toFixed(1)+' cm。'
+   +'<ol style="padding-left:18px;margin:8px 0">'
+   +'<li>本協議所定界址，係全體到場當事人於現場共同指認之結果，非單以測量成果認定。</li>'
+   +notes
+   +'<li>登記面積與重測面積之差係大正十年原圖紙張收縮所致，依地籍測量實施規則辦理面積更正，非增減土地。</li>'
+   +'<li>本協議書經全體簽章後，作為地籍圖重測成果之依據；未簽章者不受拘束。</li></ol>'
+   +'</div><div class="sig">'+PARTY.map(function(p){return '<span>'+p.lot+'　'+p.who.split("（")[0]+'　簽章</span>';}).join("")+'</div>'
+   +'<div class="fine" style="margin-top:8px">測量技師 呂志堅（技字第 04128 號）簽證　／　外業 曾雅萍・何秉聰</div></div>'
+   +'<p style="color:var(--dim);font-size:12.5px">換一組權重再按一次，你會看到同一批人做出不同的決定——他們看的從來不是殘差平方和。</p>';
+ } else {
+  R.innerHTML='<span class="tag">指界不成立　→　調處</span><h3>'+refuse.length+' 方拒簽。案子出去了。</h3>'
+   +'<p>下列當事人在現場拒絕簽章，理由都不是「你算錯了」：</p><ol>'
+   +refuse.map(function(p){return '<li><b>'+p.lot+' '+esc(p.who.split("（")[0])+'</b>：'+esc(cross[p.lot]||"委任人未簽")+'</li>';}).join("")
+   +'</ol>'
+   +'<div class="doc"><h4>不動產糾紛調處結果通知</h4><div class="fine">'
+   +'依土地法第 46 條之 2，調處委員會就本案界址依序審酌：<br>'
+   +'一、鄰地界址　——　兩側鄰地重測成果已確定，可資參考者僅南側路界。<br>'
+   +'二、現使用人指界　——　林春木指其東牆外緣、王仁德指車庫西牆外緣，兩造所指與其構造物一致。<br>'
+   +'三、參照舊地籍圖　——　大正十年原圖經套合後之位置。<br>'
+   +'四、地方習慣　——　廣興地區向以牆身外緣為界，牆體歸砌牆者所有。<br>'
+   +'<b style="color:var(--old)">調處結論：界址依現使用人指界（第二順位）認定，即沿林宅東牆外緣與王家車庫西牆外緣。</b><br>'
+   +'亦即：委員會採用的那條線，不是你算出來的任何一條。它是牆。'
+   +'</div><div class="sig"><span class="no">未達成協議</span><span>調處案號 111-調-0413</span></div></div>'
+   +'<p>對調處結果不服者，得於接到通知後 15 日內向管轄法院訴請確定界址；逾期未起訴，依調處結果辦理。本所之成果圖於該欄位標記「界址爭議」，並保留全部原始觀測資料供鑑定使用。</p>'
+   +'<p style="color:var(--dim);font-size:12.5px">你可以回去換權重再試一次。但請注意：這一次的殘差平方和 '+(S.sigma*100).toFixed(1)+' cm，從頭到尾沒有出現在委員會的任何一份文件裡。</p>';
+ }
+ R.scrollIntoView({behavior:((window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)?"auto":"smooth"),block:"nearest"});
+}
+/* ── 啟動 ─────────────────────────────────────────────────────────────── */
+buildList();
+Array.prototype.forEach.call(document.querySelectorAll("[data-preset]"),function(b){
+ b.addEventListener("click",function(){var p=PRESETS[b.getAttribute("data-preset")];for(var k in p)W[k]=p[k];update();});});
+["optGhost","optRes","optSigma"].forEach(function(id){$("#"+id).addEventListener("change",update);});
+$("#btnSign").addEventListener("click",sign);
+update();
+prevClr=clearances(solve(W).B);
+</script>
+</body>
+</html>

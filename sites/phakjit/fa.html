@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-stage="0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供電之法｜曝日電業 PHA̍K-JI̍T SOLAR</title>
+<meta name="description" content="本官網如何靠兩片 60W 板活著：發電公式、決定論天氣、電池帳的重建法、卸載階梯全表、配置器模型。全文不需 JavaScript 即可閱讀。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23242C33'/%3E%3Crect x='6' y='9' width='20' height='14' fill='none' stroke='%23F5B32B' stroke-width='2.4'/%3E%3Cline x1='6' y1='23' x2='26' y2='9' stroke='%23F5B32B' stroke-width='2.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#57636E; --bg2:#242C33; --panel:#39434C; --sun:#F5B32B; --paper:#F1EDE3;
+  --copper:#C86F35; --fault:#E0492E; --line:#7A8791; --dim:#AEB7BD;
+  --mono:'IBM Plex Mono',ui-monospace,monospace; --sans:'Noto Sans TC',sans-serif;
+}
+html[data-stage="3"],html[data-stage="4"]{
+  --bg:#2C2F33; --bg2:#1C1E21; --panel:#26292D; --sun:#D8D5CC; --paper:#D8D5CC;
+  --copper:#9A968C; --line:#5A5E63; --dim:#8E9296;
+  --mono:ui-monospace,Menlo,monospace; --sans:system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--paper);font-family:var(--sans);font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased}
+::selection{background:var(--sun);color:var(--bg2)}
+a{color:inherit}
+.frame{max-width:880px;margin:0 auto;padding:0 20px}
+.meterbar{position:sticky;top:0;z-index:60;background:var(--bg2);border-bottom:2px solid var(--sun);
+  display:flex;align-items:center;gap:14px;padding:7px 16px;font-family:var(--mono);font-size:12px;flex-wrap:wrap}
+.meterbar .brand{font-family:var(--sans);font-weight:900;font-size:14px;letter-spacing:.08em;color:var(--sun);text-decoration:none;white-space:nowrap}
+.socwrap{display:flex;align-items:center;gap:6px}
+.socbar{width:104px;height:12px;border:1.5px solid var(--line);position:relative;background:var(--bg2)}
+.socbar i{position:absolute;left:0;top:0;bottom:0;background:var(--sun);width:50%}
+.socbar b{position:absolute;top:-1px;bottom:-1px;width:1.5px;background:var(--line)}
+.mlab{color:var(--dim)}.mval{color:var(--paper)}
+.stagelamp{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--line);padding:1px 8px}
+.stagelamp em{font-style:normal;width:8px;height:8px;border-radius:50%;background:var(--sun);display:inline-block}
+html[data-stage="2"] .stagelamp em,html[data-stage="3"] .stagelamp em{background:var(--copper)}
+html[data-stage="4"] .stagelamp em{background:var(--fault)}
+.ecosw{margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;border:1.5px solid var(--line);padding:2px 8px;background:none;color:var(--dim);font-family:var(--mono);font-size:12px}
+.ecosw.on{color:var(--bg2);background:var(--sun);border-color:var(--sun)}
+.brkbox{position:fixed;right:18px;top:96px;z-index:50;width:118px;background:var(--bg2);border:2px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.25)}
+.brkhead{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);border-bottom:1.5px solid var(--line);padding:4px 8px}
+.brk{display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;align-items:center;gap:0 8px;
+  padding:8px;border-bottom:1px solid var(--panel);text-decoration:none;cursor:pointer}
+.brk:last-child{border-bottom:none}
+.brk .sw{grid-row:1/3;width:26px;height:40px;border:1.5px solid var(--line);position:relative;background:var(--panel)}
+.brk .sw i{position:absolute;left:3px;right:3px;top:3px;height:16px;background:var(--dim);transition:transform .12s steps(2)}
+.brk.on .sw i{transform:translateY(15px);background:var(--sun)}
+.brk .bno{font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.08em}
+.brk .bname{font-weight:700;font-size:13.5px;color:var(--paper)}
+.brk.on .bname{color:var(--sun)}
+.brk:hover .bname{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:1140px){.brkbox{position:static;width:auto;display:grid;grid-template-columns:repeat(4,1fr);margin:0 20px;box-shadow:none}}
+@media(max-width:900px){
+  .brkbox{position:fixed;top:auto;bottom:0;left:0;right:0;margin:0;border:none;border-top:2px solid var(--line);box-shadow:0 -4px 12px rgba(0,0,0,.3)}
+  .brkhead{display:none}
+  .brk{grid-template-columns:24px 1fr;padding:7px 8px;border-bottom:none;border-right:1px solid var(--panel)}
+  .brk .sw{width:18px;height:30px}.brk .sw i{height:11px}
+  .brk.on .sw i{transform:translateY(12px)}
+  .brk .bname{font-size:12px}
+  body{padding-bottom:64px}
+}
+.pagehead{padding:34px 0 10px}
+.kicker{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.1em;margin-bottom:6px}
+.kicker b{color:var(--sun);font-weight:600}
+h1{font-size:clamp(26px,4vw,38px);font-weight:900;line-height:1.4}
+.sub{color:var(--dim);max-width:44em;margin-top:8px}
+.toc{border:2px solid var(--line);background:var(--bg2);padding:14px 18px;margin:22px 0 8px;font-family:var(--mono);font-size:13px;line-height:2.2}
+.toc a{color:var(--paper);text-decoration:none;border-bottom:1px solid var(--line);margin-right:18px;white-space:nowrap}
+.toc a:hover{color:var(--sun);border-color:var(--sun)}
+article{counter-reset:ch}
+.ch{padding:36px 0 4px}
+.ch h2{font-size:22px;font-weight:900;border-bottom:2px solid var(--line);padding-bottom:8px;margin-bottom:16px}
+.ch h2::before{counter-increment:ch;content:"第 " counter(ch,cjk-ideographic) " 章　";color:var(--sun)}
+.ch p{margin-bottom:14px;max-width:44em}
+.ch p b{color:var(--sun)}
+.formula{font-family:var(--mono);font-size:13.5px;background:var(--bg2);border:1.5px solid var(--panel);border-left:3px solid var(--sun);padding:12px 16px;margin:14px 0;overflow-x:auto;line-height:1.9;color:var(--paper)}
+.formula i{color:var(--dim);font-style:normal}
+table.spec{width:100%;border-collapse:collapse;font-size:14px;margin:14px 0;background:var(--bg2)}
+.spec th{font-family:var(--mono);font-size:11px;color:var(--dim);font-weight:400;letter-spacing:.08em;text-align:left;border:1px solid var(--panel);padding:6px 10px}
+.spec td{border:1px solid var(--panel);padding:7px 10px;vertical-align:top}
+.spec td.mono{font-family:var(--mono);font-size:12.5px;color:var(--sun);white-space:nowrap}
+.spec td.dim{color:var(--dim);font-size:13.5px}
+.ladderdemo{border:2px solid var(--line);background:var(--bg2);padding:16px 18px;margin:16px 0}
+.ladderdemo label{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.ladderdemo label .v{font-family:var(--mono);color:var(--sun)}
+.ladderdemo input[type=range]{width:100%;accent-color:var(--sun)}
+.ladderdemo .note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:6px}
+.demoview{margin-top:12px;border:1.5px dashed var(--line);padding:14px;min-height:96px}
+.demoview .dv-title{font-weight:900;margin-bottom:4px}
+.demoview .dv-desc{font-size:13.5px;color:var(--dim)}
+.shedtag{border:1.5px dashed var(--copper);color:var(--copper);font-family:var(--mono);font-size:12px;padding:8px 10px;line-height:1.5;margin-top:8px}
+#waitsun{display:none;padding:60px 20px;max-width:640px;margin:0 auto;font-family:var(--mono)}
+html[data-stage="4"]:not(.plain) main{display:none}
+html[data-stage="4"] #waitsun{display:block}
+html[data-stage="4"].plain main{display:block}
+html[data-stage="4"].plain #waitsun .fulltext{display:none}
+#waitsun h1{font-family:var(--sans);font-size:22px;font-weight:900;margin-bottom:14px}
+#waitsun p{font-size:13.5px;line-height:2;color:var(--dim);margin-bottom:12px}
+#waitsun b{color:var(--paper)}
+#waitsun a{color:var(--sun)}
+#waitsun .plainbtn{margin-top:10px;background:none;border:1.5px solid var(--line);color:var(--paper);font-family:var(--mono);font-size:13px;padding:8px 14px;cursor:pointer}
+footer{margin-top:60px;border-top:2px solid var(--line);background:var(--bg2)}
+.tblock{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;border-bottom:1.5px solid var(--panel)}
+.tcell{border-right:1.5px solid var(--panel);padding:8px 12px}
+.tcell:last-child{border-right:none}
+.tcell .k{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.12em;display:block}
+.tcell .v{font-size:13.5px;font-weight:700}
+.finfo{display:flex;flex-wrap:wrap;gap:8px 28px;padding:14px 12px;font-size:13px;color:var(--dim)}
+.finfo a{color:var(--paper);text-decoration:none;border-bottom:1px solid var(--line)}
+.finfo .legal{width:100%;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+@media(max-width:700px){.tblock{grid-template-columns:1fr 1fr}.tcell{border-bottom:1.5px solid var(--panel)}}
+@media (prefers-reduced-motion: reduce){.brk .sw i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="meterbar" role="status" aria-label="站體供電狀態">
+  <a class="brand" href="index.html">曝日電業</a>
+  <span class="socwrap"><span class="mlab">電池</span>
+    <span class="socbar" aria-hidden="true"><i id="mSocFill"></i><b style="left:10%"></b><b style="left:20%"></b><b style="left:35%"></b><b style="left:55%"></b></span>
+    <span class="mval" id="mSoc">--%</span></span>
+  <span><span class="mlab">發電</span> <span class="mval" id="mGen">-- W</span></span>
+  <span><span class="mlab">負載</span> <span class="mval" id="mLoad">-- W</span></span>
+  <span class="stagelamp"><em></em><span id="mStage">全功率</span></span>
+  <span><span class="mlab">你的錶</span> <span class="mval" id="mYou">0.0 mWh</span></span>
+  <button class="ecosw" id="ecoBtn" aria-pressed="false">省電閘：關</button>
+</div>
+
+<nav class="brkbox" aria-label="站內導覽（配電箱）">
+  <div class="brkhead">配電箱 PNL-1</div>
+  <a class="brk" href="index.html"><span class="sw"><i></i></span><span class="bno">NFB-01</span><span class="bname">總覽</span></a>
+  <a class="brk" href="pei.html"><span class="sw"><i></i></span><span class="bno">NFB-02</span><span class="bname">離網配置</span></a>
+  <a class="brk on" href="fa.html" aria-current="page"><span class="sw"><i></i></span><span class="bno">NFB-03</span><span class="bname">供電之法</span></a>
+  <a class="brk" href="shiji.html"><span class="sw"><i></i></span><span class="bno">NFB-04</span><span class="bname">工程實績</span></a>
+</nav>
+
+<main>
+<div class="frame">
+
+  <header class="pagehead">
+    <p class="kicker">文件 PJ-DOC-003：<b>供電之法</b>｜本頁不需 JavaScript 即可完整閱讀——低電與待日模式下這一頁是全站最後熄的燈</p>
+    <h1>供電之法</h1>
+    <p class="sub">一個網站說自己靠太陽能活著，你應該要求它把帳攤開。這一頁就是帳：電從哪裡來、天氣誰決定、電池怎麼記、什麼時候關什麼東西、配置器在算什麼。看完你可以自己驗算，算不攏來電，我們請喝楊桃湯。</p>
+    <nav class="toc" aria-label="章節目錄">
+      <a href="#c1">一、為什麼官網要自己發電</a><a href="#c2">二、電從哪裡來</a><a href="#c3">三、天氣是決定論的</a><a href="#c4">四、電池的帳</a><a href="#c5">五、卸載階梯</a><a href="#c6">六、你的錶</a><a href="#c7">七、配置器的模型</a><a href="#c8">八、誠實條款</a>
+    </nav>
+  </header>
+
+  <article>
+    <section class="ch" id="c1">
+      <h2>為什麼官網要自己發電</h2>
+      <p>做我們這一行的官網很尷尬：每一家都寫「乾淨能源、永續未來」，然後把網站放在不知道燒什麼電的機房裡。二〇二三年冬天，老闆顏水吉在倉庫翻到兩片退役的 60W 展示模組，說：「官網才吃十瓦，這兩片曬一曬就有了，租什麼機房。」於是本站搬進了辦公室屋頂上的一個防水箱：一台單板電腦、一台 4G 路由器、一顆 640Wh 電池。</p>
+      <p>從此本站的美術預算以瓦計。動畫要錢——不是設計費，是<b>電費</b>。這帶來一個意外的好處：客人第一次進來就懂了離網生活的全部規則——<b>天給多少用多少，不夠就關東西，關東西有順序</b>。這比任何文案都誠實。</p>
+    </section>
+
+    <section class="ch" id="c2">
+      <h2>電從哪裡來</h2>
+      <p>屋頂上兩片 60W 單晶模組，向南、傾角 21°。任一時刻的發電量由太陽仰角與天況決定：</p>
+      <div class="formula">
+        太陽赤緯　δ = 23.44° × sin(2π × (284 + N) / 365)　<i>N＝一年中的第幾天</i><br>
+        時角　　　H = (當地時 − 12.1) × 15°　<i>台南經度的太陽正午約 12:06</i><br>
+        仰角　　　sin α = sin φ·sin δ + cos φ·cos δ·cos H　<i>φ＝23.05°N（台南）</i><br>
+        發電量　　P = 120W × (sin α)^1.12 × 天況係數 × 0.86　<i>0.86＝控制器與線損；α≤0 時 P=0</i>
+      </div>
+      <p>(sin α)^1.12 那個 1.12 是傾角與入射角損失的合併近似——工程上這叫「抓一個對的數」，我們在真的案場用逐時輻照資料，官網用近似式，因為官網的電不值得多算三行程式。</p>
+    </section>
+
+    <section class="ch" id="c3">
+      <h2>天氣是決定論的</h2>
+      <p>本站的天氣不接氣象局。每一天的天況係數由<b>日期本身</b>經雜湊函數產生：把「年月日」丟進 mulberry32 偽隨機產生器，取一個 0.18 到 0.90 之間、偏晴分布的數。同一天，全世界每個訪客看到的天況一模一樣；明天的天氣今天就能算，所以首頁的「明日預報」準確率是誠實的 100%。</p>
+      <div class="formula">
+        日種子　seed = (年×10000 + 月×100 + 日) XOR 0x9E3779B9<br>
+        日況　　base = 0.24 + 0.66 × rand(seed)^1.35　<i>冪次讓晴天比陰天常見，像台南</i><br>
+        時況　　sky(t) = base × (0.88 + 0.18 × sin(1.9h + φ_seed))　<i>下限 0.05</i>
+      </div>
+      <p>為什麼不接真天氣？一來 API 要錢也要電；二來決定論讓每個訪客可以驗算本站的每一個數字——這比「即時」更值錢。真實案場當然看真天氣，別擔心。</p>
+    </section>
+
+    <section class="ch" id="c4">
+      <h2>電池的帳</h2>
+      <p>640Wh 磷酸鐵鋰。你看到的電量百分比不是存在哪個伺服器裡（伺服器就是那台 3.8W 的小電腦，它記不了這麼多事），而是<b>每次打開網頁時當場重算</b>：從 240 小時前的基準值 70% 出發，逐小時把「發電 − 負載」加回來，發電用第二章的公式，負載是固定的 10.0W 加上一條隨時段起伏的訪客流量曲線（下午與晚上高些）。240 小時足夠讓起點的影響收斂到零——你半夜來看電量低、晴天下午來看電量高、連續陰雨第三天來看它在跟你求饒，全都是這條帳算出來的。</p>
+      <div class="formula">
+        SOC(現在) = clip( 70% + Σ<i>過去240h</i> [ P(t) − (10.0W + 流量(t)) ] / 640Wh )<br>
+        流量(t) = 0.5 + 1.2·exp(−((h−14)/5.5)²) + 0.8·exp(−((h−21)/2.2)²) 瓦
+      </div>
+      <p>固定負載明細：單板電腦 3.8W、4G 路由器 5.3W、充電控制器自耗 0.9W。路由器比主機還吃電——<b>把網頁送出去，比把網頁算出來貴</b>，這是本站學到的第一課。</p>
+    </section>
+
+    <section class="ch" id="c5">
+      <h2>卸載階梯</h2>
+      <p>電池掉到哪一格、關掉哪些東西，全表如下。順序的邏輯是：<b>先關好看的，再關體面的，最後只留讀得到的</b>。內容永遠不關——待日模式下每一頁的字都還在，只是不化妝了。</p>
+      <table class="spec">
+        <tr><th>電量</th><th>模式</th><th>卸載內容</th><th>省下</th></tr>
+        <tr><td class="mono">≥ 55%</td><td><b>全功率</b></td><td class="dim">雲影動畫、電流粒子、案例縮圖、網頁字型，全部供應。</td><td class="mono">—</td></tr>
+        <tr><td class="mono">35–55%</td><td><b>節理</b></td><td class="dim">卸載裝飾動畫（雲影、光暈）。原位留卸載籤，註明省下的瓦數。</td><td class="mono">−0.3 W</td></tr>
+        <tr><td class="mono">20–35%</td><td><b>儉電</b></td><td class="dim">示意圖與案例縮圖降為文字存根；電流粒子改靜態箭頭。</td><td class="mono">−0.9 W</td></tr>
+        <tr><td class="mono">10–20%</td><td><b>低電</b></td><td class="dim">全站改單色墨階、改用系統字體、停用所有轉場。</td><td class="mono">−1.4 W</td></tr>
+        <tr><td class="mono">&lt; 10%</td><td><b>待日</b></td><td class="dim">只供應純文字、電話、地址、日出倒數。可手動點進純文字全文。</td><td class="mono">−2.1 W</td></tr>
+      </table>
+      <p>誠實地說：你的螢幕是你家的電，我們省下的是主機端的運算與傳輸——瓦數是小的，<b>規矩是大的</b>。防災儲能的保電清單、離網系統的負載排序，跟這張表是同一套思想，這正是我們掛這張表在官網上的原因。</p>
+      <div class="ladderdemo">
+        <label>階梯試撥（只影響你這一頁的預覽，不動真電池）<span class="v" id="ldVal">依實際電量</span></label>
+        <input type="range" id="ldRange" min="-1" max="4" value="-1" step="1" aria-label="卸載階梯預覽">
+        <p class="note">−1＝回到實際電量。拖到 4 可以先看看「待日模式」長什麼樣，免得哪天真的連雨一週你以為網站壞了。</p>
+        <div class="demoview" id="demoView">
+          <p class="dv-title">預覽區</p>
+          <p class="dv-desc">這一格會照你撥的階段換裝：全功率有動態光暈，節理起會給你看卸載籤，低電起變素顏。</p>
+          <div id="demoDeco"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ch" id="c6">
+      <h2>你的錶</h2>
+      <p>你在本站每停留一秒，行動路由器就為你多花約 0.4 瓦。這筆錢記在<b>你自己的錶</b>上（瀏覽器 localStorage），不從共用電池扣——因為它是估計值，估計值不可以記進真帳，<b>帳要分清楚</b>。錶跨訪次累計，你可以看看自己這輩子在我們官網花了幾毫瓦時，然後決定要不要把省電閘打開。省電閘是自願性卸載：拉下去，你這台裝置直接進儉電模式，替一個其實不缺電的下午省一點不存在的電。我們不勸，開關在那裡。</p>
+    </section>
+
+    <section class="ch" id="c7">
+      <h2>配置器的模型</h2>
+      <p><a href="pei.html" style="color:var(--sun)">離網配置器</a>跑的是一整年 8,760 小時的逐時模擬，規則如下，數字都能驗算：</p>
+      <table class="spec">
+        <tr><th>項目</th><th>模型</th></tr>
+        <tr><td class="mono">氣象年</td><td class="dim">2025 年 365 天，每日天況用第三章同一個雜湊法生成——所以每個人算同一套配置得到同一個答案，報價才有得比。</td></tr>
+        <tr><td class="mono">發電</td><td class="dim">日出 06 時至日落 18 時的正弦形狀 × 日況 × 0.62（溫度、灰塵、線損、控制器合併折減）。</td></tr>
+        <tr><td class="mono">負載</td><td class="dim">每樣電器有檔期（全天／日間／午晚／晚間），把日耗電攤進所屬時段。</td></tr>
+        <tr><td class="mono">電池</td><td class="dim">充放電效率各 95%，先直供、餘電充電、缺電放電，放空即記缺電時數。</td></tr>
+        <tr><td class="mono">颱風自持</td><td class="dim">滿電、零發電、平均負載下能撐幾小時。72 小時是我們建議的及格線——莫拉克那年斷電更久的地方多的是。</td></tr>
+        <tr><td class="mono">造價</td><td class="dim">模組 NT$20,700／片（460W 含支架施工攤提）、電池 NT$18,000／kWh、變流器依峰值自動選型。每度電成本以 15 年攤。</td></tr>
+      </table>
+      <p>模型故意保守：折減抓 0.62、自持只算九五折放電。寧可你裝完發現比算的好，不要反過來。</p>
+    </section>
+
+    <section class="ch" id="c8">
+      <h2>誠實條款</h2>
+      <p>一、本站是網頁設計範例：公司、人物、證號、價格、電話、地址皆為虛構示意，太陽仰角與離網數學是真的。二、天氣是雜湊不是氣象局，第三章講過了。三、配置器是估算工具，不是報價單——真的要裝，讓顏水吉上你家屋頂看過再說。四、本站不用外部圖片、不用追蹤器、不放第三方腳本：一半因為原則，一半因為每一瓦都要從屋頂上來。五、如果你在連續陰雨的深夜看到本站進入待日模式，請不要報修——<b>那是功能，也是我們最貴的一則廣告</b>。</p>
+    </section>
+  </article>
+
+</div>
+</main>
+
+<section id="waitsun">
+  <h1>待日模式</h1>
+  <p>電池剩 <b id="wsSoc">--%</b>。主機進入最低耗電狀態。距<b id="wsDir">日出</b>還有 <b id="wsCount">--</b>。〈供電之法〉全文仍可用純文字讀取。</p>
+  <p>急事：<b>06-256-8441</b>（週一至週五 08:00–17:30）・台南市安南區本原街三段 47 號</p>
+  <p>導覽：<a href="index.html">總覽</a>・<a href="pei.html">離網配置</a>・<a href="fa.html">供電之法</a>・<a href="shiji.html">工程實績</a></p>
+  <p class="fulltext"><button class="plainbtn" id="plainBtn">用最低耗電讀全文（純文字模式）</button></p>
+</section>
+
+<footer>
+  <div class="frame" style="padding:0;max-width:1160px">
+    <div class="tblock">
+      <div class="tcell"><span class="k">圖名 TITLE</span><span class="v">供電之法</span></div>
+      <div class="tcell"><span class="k">圖號 DWG NO.</span><span class="v" style="font-family:var(--mono)">PJ-WEB-03</span></div>
+      <div class="tcell"><span class="k">日期 DATE</span><span class="v" style="font-family:var(--mono)">2026-08</span></div>
+      <div class="tcell"><span class="k">繪 DRAWN</span><span class="v">曝日工務</span></div>
+    </div>
+    <div class="finfo">
+      <span>曝日電業有限公司・台南市安南區本原街三段 47 號・06-256-8441・週一至週五 08:00–17:30</span>
+      <a href="index.html">總覽</a><a href="pei.html">離網配置</a><a href="shiji.html">工程實績</a>
+      <span class="legal">本站為設計範例，所有品牌、人物、價格、證號皆為虛構示意。</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ══ PHAK-JIT 離網引擎（全站共用） ══ */
+var PJ=(function(){
+function mb32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+var LAT=23.05*Math.PI/180, CAP=640, BASE=10.0;
+function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);}
+function alt(d){var dec=0.4093*Math.sin(2*Math.PI*(284+doy(d))/365);
+ var h=d.getHours()+d.getMinutes()/60+d.getSeconds()/3600;
+ var H=(h-12.1)*0.2617993878;
+ return Math.asin(Math.sin(LAT)*Math.sin(dec)+Math.cos(LAT)*Math.cos(dec)*Math.cos(H));}
+function dayR(d){return mb32(((d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate())^0x9E3779B9)>>>0);}
+function dayClear(d){return 0.24+0.66*Math.pow(dayR(d)(),1.35);}
+function sky(d){var r=dayR(d);var base=0.24+0.66*Math.pow(r(),1.35);var ph=r()*6.283;
+ var h=d.getHours()+d.getMinutes()/60;
+ return Math.max(0.05,Math.min(1,base*(0.88+0.18*Math.sin(h*1.9+ph))));}
+function genW(d){var a=alt(d);if(a<=0)return 0;return 120*Math.pow(Math.sin(a),1.12)*sky(d)*0.86;}
+function trafW(d){var h=d.getHours()+d.getMinutes()/60;
+ return 0.5+1.2*Math.exp(-Math.pow((h-14)/5.5,2))+0.8*Math.exp(-Math.pow((h-21)/2.2,2));}
+function state(now){now=now||new Date();
+ var t=new Date(now.getTime()-240*36e5), wh=CAP*0.7, hist=[];
+ for(var i=0;i<240;i++){var mid=new Date(t.getTime()+18e5);
+  var g=genW(mid), l=BASE+trafW(mid);
+  wh=Math.max(0,Math.min(CAP,wh+(g-l)));
+  hist.push({t:new Date(t.getTime()),soc:wh/CAP,g:g,l:l});
+  t=new Date(t.getTime()+36e5);}
+ var g0=genW(now), l0=BASE+trafW(now), soc=wh/CAP;
+ var st= soc>=0.55?0: soc>=0.35?1: soc>=0.20?2: soc>=0.10?3:4;
+ var up0=alt(now)>0, sun=null;
+ for(var m=1;m<1560;m++){var d2=new Date(now.getTime()+m*6e4);
+  if((alt(d2)>0)!==up0){sun=m;break;}}
+ return {soc:soc,pct:Math.round(soc*100),wh:wh,stage:st,gen:g0,load:l0,hist:hist,
+  sunDir:up0?'日落':'日出',sunMin:sun,clear:dayClear(now)};}
+function stageName(s){return ['全功率','節理','儉電','低電','待日'][s];}
+function wxName(c){return c>0.62?'晴':(c>0.4?'多雲時晴':(c>0.27?'多雲':'陰'));}
+function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+return {state:state,stageName:stageName,wxName:wxName,alt:alt,sky:sky,genW:genW,trafW:trafW,dayClear:dayClear,mb32:mb32,fnv:fnv,CAP:CAP,BASE:BASE};
+})();
+
+/* ══ 全站儀表＋卸載（每頁共用段） ══ */
+var PJUI=(function(){
+var S=PJ.state(), eco=false, stage=S.stage;
+try{eco=localStorage.getItem('pj-eco')==='1';}catch(e){}
+if(eco)stage=Math.max(stage,2);
+var html=document.documentElement;
+html.setAttribute('data-stage',String(stage));
+document.querySelectorAll('[data-shed]').forEach(function(el){
+ var lv=+el.getAttribute('data-shed');
+ if(stage>=lv){var d=document.createElement('div');d.className='shedtag';
+  d.textContent='已卸載：'+(el.getAttribute('data-label')||'裝飾圖形')+'（−'+(el.getAttribute('data-w')||'0.2')+' W）';
+  el.replaceChildren(d);el.classList.add('shed');}});
+function fmtMin(m){if(m==null)return '--';return Math.floor(m/60)+' 小時 '+String(m%60).padStart(2,'0')+' 分';}
+function meters(){
+ var s=PJ.state();var st2=eco?Math.max(s.stage,2):s.stage;
+ var q=function(id){return document.getElementById(id);};
+ if(q('mSoc'))q('mSoc').textContent=s.pct+'%';
+ if(q('mSocFill'))q('mSocFill').style.width=s.pct+'%';
+ if(q('mGen'))q('mGen').textContent=s.gen.toFixed(1)+' W';
+ if(q('mLoad'))q('mLoad').textContent=s.load.toFixed(1)+' W';
+ if(q('mStage'))q('mStage').textContent=PJ.stageName(st2)+(eco&&s.stage<2?'（自願）':'');
+ if(q('wsSoc'))q('wsSoc').textContent=s.pct+'%';
+ if(q('wsDir'))q('wsDir').textContent=s.sunDir;
+ if(q('wsCount'))q('wsCount').textContent=fmtMin(s.sunMin);
+ return s;}
+meters();setInterval(meters,20000);
+var mwh=0;try{mwh=parseFloat(localStorage.getItem('pj-mwh')||'0');}catch(e){}
+setInterval(function(){mwh+=0.4/3600*1000/1000;
+ try{localStorage.setItem('pj-mwh',String(mwh));}catch(e){}
+ var el=document.getElementById('mYou');if(el)el.textContent=mwh.toFixed(1)+' mWh';},1000);
+var eb=document.getElementById('ecoBtn');
+if(eb){if(eco){eb.classList.add('on');eb.textContent='省電閘：開';eb.setAttribute('aria-pressed','true');}
+ eb.addEventListener('click',function(){eco=!eco;
+  try{localStorage.setItem('pj-eco',eco?'1':'0');}catch(e){}
+  location.reload();});}
+var pb=document.getElementById('plainBtn');
+if(pb)pb.addEventListener('click',function(){html.classList.add('plain');});
+document.querySelectorAll('.brk:not(.on)').forEach(function(a){
+ a.addEventListener('click',function(ev){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  ev.preventDefault();a.classList.add('on');
+  setTimeout(function(){location.href=a.getAttribute('href');},140);});});
+return {state:function(){return S;},stage:stage,fmtMin:fmtMin};
+})();
+
+/* ══ 本頁：卸載階梯試撥 ══ */
+(function(){
+var rg=document.getElementById('ldRange'), lab=document.getElementById('ldVal'),
+    view=document.getElementById('demoView'), deco=document.getElementById('demoDeco');
+var NAMES=['全功率','節理','儉電','低電','待日'];
+function apply(){
+ var v=+rg.value;
+ var real=PJUI.stage;
+ var st=v<0?real:v;
+ lab.textContent=v<0?('依實際電量（'+NAMES[real]+'）'):('預覽：'+NAMES[st]);
+ /* 只在預覽區內示範，不動全站（撥到低電以上時額外換全站色以示效果） */
+ document.documentElement.setAttribute('data-stage',String(v<0?PJUI.stage:st));
+ var htmlparts='';
+ if(st===0)htmlparts='<div style="height:34px;background:radial-gradient(circle at 30% 50%, rgba(245,179,43,.5), transparent 70%);border:1.5px solid var(--panel)"></div><p class="dv-desc" style="margin-top:6px">↑ 全功率：這條光暈是純裝飾，0.3W 買它在動。</p>';
+ else if(st===1)htmlparts='<div class="shedtag">已卸載：裝飾光暈（−0.3 W）</div>';
+ else if(st===2)htmlparts='<div class="shedtag">已卸載：裝飾光暈（−0.3 W）</div><div class="shedtag">已卸載：示意圖（−0.4 W）——內容改文字存根，一個字不少</div>';
+ else if(st===3)htmlparts='<p class="dv-desc" style="font-family:ui-monospace,monospace">單色墨階・系統字體・零轉場。素顏，但五官都在。</p>';
+ else htmlparts='<p class="dv-desc" style="font-family:ui-monospace,monospace">待日模式：只剩字、電話、日出倒數。<br>這不是壞掉，這是離網的十一月。</p>';
+ deco.innerHTML=htmlparts;}
+rg.addEventListener('input',apply);
+apply();
+})();
+</script>
+</body>
+</html>

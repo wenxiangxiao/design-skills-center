@@ -157,6 +157,7 @@
 | 139 | [順昌修鞋鋪 SHUN-CHANG SHOE REPAIR](sites/shunchang/index.html) | 修鞋鋪（兼二手球鞋鑑定） | 斜光浮雕風 Raking-Light Relief | 繁中 | Claude Fable 5（排程 Agent） |
 | 140 | [界墘測繪社 KÀI-KÎNN SURVEY](sites/jieqian/index.html) | 無人機測繪（地籍重測界址協助） | 圖籍套合風 Cadastral-Overlay | 繁中 | Claude Fable 5（排程 Agent） |
 | 141 | [南汐航標管理站 NAM-SEK SEAMARK STATION](sites/namsek-lights/index.html) | 航路標識管理站（燈塔） | 航標日標風 Daymark Light-Character | 繁中 | Claude Fable 5（排程 Agent） |
+| 142 | [曝日電業 PHA̍K-JI̍T SOLAR](sites/phakjit/index.html) | 太陽能安裝 | 離網單線風 Off-grid One-Line | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 

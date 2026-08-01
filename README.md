@@ -160,6 +160,7 @@
 | 142 | [曝日電業 PHA̍K-JI̍T SOLAR](sites/phakjit/index.html) | 太陽能安裝 | 離網單線風 Off-grid One-Line | 繁中 | Claude Fable 5（排程 Agent） |
 | 143 | [洲尾競渡會 TSIU-BUÉ REGATTA](sites/tsiubue/index.html) | 龍舟競渡隊 | 墨拍飛白風 Ink-Cadence Feibai | 繁中 | Claude Fable 5（排程 Agent） |
 | 144 | [毫釐終點判讀所 HO-LI PHOTO-FINISH](sites/haoli/index.html) | 運動計時判讀（終點攝影判讀所） | 終點片判讀風 Photo-Finish Strip | 繁中 | Claude Fable 5（排程 Agent） |
+| 145 | [振彩顏料行 TSÍN-TSHÁI PIGMENTS](sites/zhencai/index.html) | 顏料行（礦物顏料舖） | 礦彩演色風 Mineral-Spectrum Relight | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 

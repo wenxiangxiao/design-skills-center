@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>演色之法｜振彩顏料行 TSÍN-TSHÁI PIGMENTS</title>
+<meta name="description" content="本站色彩的全部數學：反射光譜、光源 SPD、CIE 觀察者、Kubelka–Munk 混色、色差與同色異譜、色順應。全文不需 JavaScript 可讀。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2322374b%27/><circle cx=%2716%27 cy=%2716%27 r=%2712.5%27 fill=%27%23f1f1ed%27/><circle cx=%2716%27 cy=%279.5%27 r=%273.2%27 fill=%27%23f6582d%27/><circle cx=%2722.5%27 cy=%2716%27 r=%273.2%27 fill=%27%2300a953%27/><circle cx=%2716%27 cy=%2722.5%27 r=%273.2%27 fill=%27%233c3c3c%27/><circle cx=%279.5%27 cy=%2716%27 r=%273.2%27 fill=%27%23f8d02d%27/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--c-bg:#22374b;--c-panel:#2d4358;--c-line:#4d637c;--c-paper:#f1f1ed;--c-paper2:#e2e2dc;--c-ink:#3f3f3f;--c-red:#f6582d;--c-green:#00a953;--c-gold:#f8d02d;--c-blue:#3d45b5;--c-dim:#8f9cab}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Serif TC',serif;background:var(--c-bg);color:var(--c-paper);line-height:1.85;font-size:16px;
+ background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 7px);
+ padding-left:64px}
+.relit *{transition:background-color .5s ease,color .5s ease,border-color .5s ease}
+@media(prefers-reduced-motion:reduce){.relit *{transition:none!important}html{scroll-behavior:auto}}
+.mo{font-family:'IBM Plex Mono',monospace}
+a{color:inherit}
+.rail{position:fixed;left:0;top:0;bottom:0;width:64px;z-index:40;background:var(--c-bg);
+ border-right:2px solid var(--c-line);display:flex;flex-direction:column;align-items:center;
+ padding:18px 0;gap:16px}
+.rail .vt{writing-mode:vertical-rl;font-weight:900;font-size:19px;letter-spacing:.42em;color:var(--c-paper)}
+.rail .rseal{margin-top:auto}
+.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+ padding:10px 18px;background:var(--c-bg);border-bottom:2px solid var(--c-line)}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none}
+.brand b{font-weight:900;font-size:19px;letter-spacing:.14em}
+.brand span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--c-dim);letter-spacing:.16em}
+.lsw{margin-left:auto;display:flex;align-items:center;gap:6px;border:2px solid var(--c-line);
+ padding:5px 8px;background:var(--c-panel)}
+.lsw .lab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--c-gold);padding-right:2px}
+.lsw button{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;
+ background:transparent;border:1px solid var(--c-line);color:var(--c-paper);
+ padding:5px 9px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.lsw button .dotl{width:9px;height:9px;border-radius:50%;display:inline-block}
+.lsw button.on{background:var(--c-paper);color:var(--c-ink);border-color:var(--c-paper)}
+.lsw button.tog{border-style:dashed}
+.lsw button.tog.on{background:var(--c-gold);color:var(--c-ink);border-color:var(--c-gold)}
+.illname{color:var(--c-gold)}
+.dish{position:fixed;right:16px;top:88px;z-index:45;width:106px;text-align:center}
+.dish svg{display:block;width:106px;height:auto;filter:drop-shadow(0 3px 8px rgba(0,0,0,.4))}
+.dish .dlab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--c-dim);margin-top:5px}
+.chipnav{display:none;gap:8px;padding:10px 16px;border-bottom:2px solid var(--c-line);flex-wrap:wrap;background:var(--c-bg)}
+.chipnav a{border:1px solid var(--c-line);padding:6px 11px;font-family:'IBM Plex Mono',monospace;
+ font-size:12px;text-decoration:none;letter-spacing:.08em}
+.chipnav a.on{background:var(--c-paper);color:var(--c-ink);border-color:var(--c-paper)}
+main{max-width:1060px;margin:0 auto;padding:36px 22px 80px}
+section{margin:0 0 58px}
+.klabel{display:inline-block;border:1px solid var(--c-line);padding:3px 12px;letter-spacing:.35em;
+ color:var(--c-gold);font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:12px}
+h1{font-size:clamp(30px,4.6vw,52px);font-weight:900;line-height:1.3;margin:6px 0 18px}
+h2{font-size:clamp(21px,3vw,30px);font-weight:900;margin:4px 0 14px}
+h3{font-size:17px;font-weight:900;margin:0 0 8px}
+p{margin:0 0 14px;max-width:70ch}
+p.dim,.dim{color:var(--c-dim)}
+.paperbox{background:var(--c-paper);color:var(--c-ink);padding:22px 24px;border:2px solid var(--c-line)}
+.paperbox h3{color:inherit}
+.paperbox .dim{color:#77726a}
+table{border-collapse:collapse;width:100%;margin:10px 0 16px}
+th,td{border:1px solid var(--c-line);padding:6px 10px;text-align:left;font-size:13.5px;vertical-align:top}
+th{font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.05em;font-size:12px}
+input,select,button,textarea{font-family:inherit;font-size:15px}
+.btn{background:var(--c-red);color:#fff;border:none;padding:12px 28px;font-weight:900;
+ font-size:16px;letter-spacing:.28em;cursor:pointer}
+.btn.sec{background:transparent;border:2px solid var(--c-line);color:var(--c-paper);letter-spacing:.15em;font-size:14px;padding:9px 16px}
+footer{border-top:2px solid var(--c-line);padding:26px 22px 40px;font-size:13px;color:var(--c-dim)}
+footer .fin{max-width:1060px;margin:0 auto}
+footer nav{margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap}
+footer nav a{text-decoration:none;border-bottom:1px solid var(--c-line)}
+canvas{max-width:100%;height:auto;display:block}
+@media(max-width:900px){
+ body{padding-left:0}
+ .rail{display:none}
+ .dish{display:none}
+ .chipnav{display:flex}
+}
+
+/* ── 演色之法頁 ── */
+.law{counter-reset:law}
+.law section{border-top:2px solid var(--c-line);padding-top:26px}
+.law h2::before{counter-increment:law;content:counter(law,cjk-ideographic) "、";color:var(--c-gold)}
+.frm{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--c-panel);
+ border:1px solid var(--c-line);border-left:4px solid var(--c-gold);
+ padding:12px 16px;margin:12px 0 16px;overflow-x:auto;white-space:pre;line-height:1.9;max-width:640px}
+.figrow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0;max-width:900px}
+.fig{border:1px solid var(--c-line)}
+.fig figcaption{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--c-dim);
+ padding:7px 10px;border-top:1px solid var(--c-line);letter-spacing:.05em}
+details{margin:10px 0 16px;max-width:760px}
+summary{cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--c-gold);
+ letter-spacing:.1em;padding:8px 0}
+details table td,details table th{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:3px 8px;text-align:right}
+details table th{text-align:right}
+@media(max-width:860px){.figrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="rail" aria-hidden="true">
+ <svg width="34" height="34" viewBox="0 0 34 34"><rect width="34" height="34" fill="#b5352c"/><text x="17" y="24" text-anchor="middle" font-family="serif" font-weight="900" font-size="19" fill="#f1f1ed">彩</text></svg>
+ <span class="vt">振彩顏料行</span>
+ <svg class="rseal" width="22" height="60" viewBox="0 0 22 60"><rect x="9" y="0" width="4" height="38" fill="#4d637c"/><circle cx="11" cy="48" r="8" fill="none" stroke="#4d637c" stroke-width="3"/></svg>
+</aside>
+<header class="top">
+ <a class="brand" href="index.html"><b>振彩顏料行</b><span>TSÍN-TSHÁI PIGMENTS・鹿港</span></a>
+ <div class="lsw" role="group" aria-label="全站光源（換燈整站重演色）">
+  <span class="lab">燈</span>
+  <button type="button" data-l="d65" aria-pressed="true"><i class="dotl" style="background:#dfeaff"></i>日光</button>
+  <button type="button" data-l="a" aria-pressed="false"><i class="dotl" style="background:#ffb763"></i>鎢絲</button>
+  <button type="button" data-l="f" aria-pressed="false"><i class="dotl" style="background:#c9f7d8"></i>省電</button>
+  <button type="button" id="adaptBtn" class="tog" aria-pressed="false" title="模擬眼睛的色順應（von Kries）">順應</button>
+ </div>
+</header>
+<nav class="chipnav" aria-label="頁面"><a href="index.html">調色檯</a><a href="pu.html">顏料譜</a><a href="fa.html" class="on">演色之法</a><a href="yin.html">護色印・訂製</a></nav>
+<nav class="dish" aria-label="頁面導覽（梅花碟）"><svg viewBox="0 0 120 120" role="img"><circle cx="60" cy="60" r="57" data-wui="paper"/><circle cx="60" cy="60" r="57" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="2"/><a href="index.html" aria-label="調色檯"><title>調色檯</title><circle cx="60" cy="27" r="14" data-wpig="zhusha"/></a><a href="pu.html" aria-label="顏料譜"><title>顏料譜</title><circle cx="93" cy="60" r="14" data-wpig="shilv"/></a><a href="fa.html" aria-label="演色之法"><title>演色之法</title><circle cx="60" cy="93" r="14" data-wpig="songyan"/><circle cx="60" cy="93" r="18.5" fill="none" style="stroke:var(--c-gold)" stroke-width="2.5"/><ellipse cx="57" cy="88" rx="6" ry="3.4" fill="rgba(255,255,255,.55)" transform="rotate(-24 57 88)"/></a><a href="yin.html" aria-label="護色印・訂製"><title>護色印・訂製</title><circle cx="27" cy="60" r="14" data-wui="gold"/></a><circle cx="60" cy="60" r="13" data-wui="paper2"/><text x="60" y="65" text-anchor="middle" font-family="serif" font-weight="900" font-size="13" fill="#3f3f3f">彩</text></svg><div class="dlab">演色之法</div></nav>
+<main class="law">
+
+<section style="border-top:none;padding-top:0">
+ <span class="klabel">無半步藏私</span>
+ <h1>演色之法</h1>
+ <p>本站每一個顏色的來歷，這頁全部攤開。你在別頁看到的任何一塊色，都是照下面的順序算出來的：一條反射光譜，乘現用燈的光譜功率分布，乘標準觀察者的三條配色函數，逐波長積分，換到 sRGB。本頁正文與全部表格<b>不需 JavaScript 即可完整閱讀</b>；圖是錦上添花。</p>
+</section>
+
+<section>
+ <h2>色即光譜</h2>
+ <p>一塊顏料不「是」紅色。它是一條<b>反射率曲線</b> R(λ)：對每個波長 λ，它反射入射光的比例。本站取 400–700 nm、每 10 nm 一點，共 31 點。朱砂的曲線在 585 nm 附近陡升——短波它吞掉，長波它吐回來，所以在含長波的燈下它紅得深，在缺長波的燈下它就啞。</p>
+ <p>「色」要等三件事到齊才發生：<b>光</b>（燈的光譜功率分布 S(λ)）、<b>物</b>（顏料的 R(λ)）、<b>眼</b>（觀察者的配色函數）。改其中任何一項，色就變。本站頭頂那排燈盤改的是第一項——所以整站會變色。</p>
+</section>
+
+<section>
+ <h2>光源</h2>
+ <p>本站三盞燈：</p>
+ <table style="max-width:720px">
+  <tr><th>燈</th><th>來歷</th><th>性狀</th></tr>
+  <tr><td><b>日光 D65</b></td><td class="mo">CIE 標準日光，表列值（見下）</td><td>連續而平均，藍端略盛——驗色的公道燈</td></tr>
+  <tr><td><b>鎢絲 2856 K</b></td><td class="mo">普朗克黑體輻射式即時算出</td><td>長波盛、短波衰——暖，藍的東西在它下面死一半</td></tr>
+  <tr><td><b>省電（三波長螢光）</b></td><td class="mo">435／545／612 nm 三支高斯峰合成</td><td>光集中在三支窄峰——峰外的反射率再高也照不著，同色異譜的照妖鏡</td></tr>
+ </table>
+ <div class="frm">普朗克（相對值，於 560 nm 歸一）：
+S(λ) ∝ 1 / [ λ⁵ · ( e^( c₂ / (λT) ) − 1 ) ]，c₂ = 1.4388×10⁻² m·K，T = 2856 K</div>
+ <div class="figrow">
+  <figure class="fig"><canvas id="cvSpd" width="430" height="220"></canvas>
+   <figcaption>三盞燈的 S(λ)（各自歸一）。省電燈是三支針。</figcaption></figure>
+  <figure class="fig"><canvas id="cvCmf" width="430" height="220"></canvas>
+   <figcaption>CIE 1931 2° 觀察者 x̄ ȳ z̄（表列值見下）。</figcaption></figure>
+ </div>
+</section>
+
+<section>
+ <h2>觀察者與三刺激值</h2>
+ <p>人眼三種錐細胞的響應，標準化成三條配色函數 x̄(λ)、ȳ(λ)、z̄(λ)。一塊物在一盞燈下的三刺激值：</p>
+ <div class="frm">X = k Σ S(λ) R(λ) x̄(λ) Δλ
+Y = k Σ S(λ) R(λ) ȳ(λ) Δλ
+Z = k Σ S(λ) R(λ) z̄(λ) Δλ
+k = 100 / Σ S(λ) ȳ(λ) Δλ　（令理想白 Y=100）</div>
+ <p>XYZ 再經 sRGB 線性矩陣與 γ 校正變成螢幕上的色。<b>兩條不同的 R(λ)，只要三條積分恰好相等，這盞燈下就是同一個色</b>——這就是同色異譜的數學本體。三十一維的光譜空間被壓到三維，必然有壓不出差別的方向。</p>
+ <details>
+  <summary>▸ 表列值：λ／x̄／ȳ／z̄／D65（400–700 nm，10 nm 步）</summary>
+  <table>
+   <tr><th>λ(nm)</th><th>x̄</th><th>ȳ</th><th>z̄</th><th>S_D65</th></tr>
+   <tr><td>400</td><td>0.0143</td><td>0.0004</td><td>0.0679</td><td>82.75</td></tr>
+   <tr><td>410</td><td>0.0435</td><td>0.0012</td><td>0.2074</td><td>91.49</td></tr>
+   <tr><td>420</td><td>0.1344</td><td>0.0040</td><td>0.6456</td><td>93.43</td></tr>
+   <tr><td>430</td><td>0.2839</td><td>0.0116</td><td>1.3856</td><td>86.68</td></tr>
+   <tr><td>440</td><td>0.3483</td><td>0.0230</td><td>1.7471</td><td>104.86</td></tr>
+   <tr><td>450</td><td>0.3362</td><td>0.0380</td><td>1.7721</td><td>117.01</td></tr>
+   <tr><td>460</td><td>0.2908</td><td>0.0600</td><td>1.6692</td><td>117.81</td></tr>
+   <tr><td>470</td><td>0.1954</td><td>0.0910</td><td>1.2876</td><td>114.86</td></tr>
+   <tr><td>480</td><td>0.0956</td><td>0.1390</td><td>0.8130</td><td>115.92</td></tr>
+   <tr><td>490</td><td>0.0320</td><td>0.2080</td><td>0.4652</td><td>108.81</td></tr>
+   <tr><td>500</td><td>0.0049</td><td>0.3230</td><td>0.2720</td><td>109.35</td></tr>
+   <tr><td>510</td><td>0.0093</td><td>0.5030</td><td>0.1582</td><td>107.80</td></tr>
+   <tr><td>520</td><td>0.0633</td><td>0.7100</td><td>0.0782</td><td>104.79</td></tr>
+   <tr><td>530</td><td>0.1655</td><td>0.8620</td><td>0.0422</td><td>107.69</td></tr>
+   <tr><td>540</td><td>0.2904</td><td>0.9540</td><td>0.0203</td><td>104.41</td></tr>
+   <tr><td>550</td><td>0.4334</td><td>0.9950</td><td>0.0087</td><td>104.05</td></tr>
+   <tr><td>560</td><td>0.5945</td><td>0.9950</td><td>0.0039</td><td>100.00</td></tr>
+   <tr><td>570</td><td>0.7621</td><td>0.9520</td><td>0.0021</td><td>96.33</td></tr>
+   <tr><td>580</td><td>0.9163</td><td>0.8700</td><td>0.0017</td><td>95.79</td></tr>
+   <tr><td>590</td><td>1.0263</td><td>0.7570</td><td>0.0011</td><td>88.69</td></tr>
+   <tr><td>600</td><td>1.0622</td><td>0.6310</td><td>0.0008</td><td>90.01</td></tr>
+   <tr><td>610</td><td>1.0026</td><td>0.5030</td><td>0.0003</td><td>89.60</td></tr>
+   <tr><td>620</td><td>0.8544</td><td>0.3810</td><td>0.0002</td><td>87.70</td></tr>
+   <tr><td>630</td><td>0.6424</td><td>0.2650</td><td>0.0000</td><td>83.29</td></tr>
+   <tr><td>640</td><td>0.4479</td><td>0.1750</td><td>0</td><td>83.70</td></tr>
+   <tr><td>650</td><td>0.2835</td><td>0.1070</td><td>0</td><td>80.03</td></tr>
+   <tr><td>660</td><td>0.1649</td><td>0.0610</td><td>0</td><td>80.21</td></tr>
+   <tr><td>670</td><td>0.0874</td><td>0.0320</td><td>0</td><td>82.28</td></tr>
+   <tr><td>680</td><td>0.0468</td><td>0.0170</td><td>0</td><td>78.28</td></tr>
+   <tr><td>690</td><td>0.0227</td><td>0.0082</td><td>0</td><td>69.72</td></tr>
+   <tr><td>700</td><td>0.0114</td><td>0.0041</td><td>0</td><td>71.61</td></tr>
+  </table>
+ </details>
+</section>
+
+<section>
+ <h2>混色之法（Kubelka–Munk）</h2>
+ <p>顏料混合毋是把色點平均——是把<b>吸收</b>與<b>散射</b>相加。單常數 Kubelka–Munk 法把每味料在每個波長的吸收散射比 K/S 由反射率換出，按用量加權相加，再換回反射率：</p>
+ <div class="frm">K/S = (1 − R)² / (2R)
+(K/S)混 = Σ cᵢ (K/S)ᵢ / Σ cᵢ
+R混 = 1 + (K/S)混 − √[ (K/S)混² + 2(K/S)混 ]</div>
+ <p>這解釋了兩件老師傅的口訣：其一，墨落一分就沉一分——碳黑整條曲線的 K 都大，拉誰誰暗；其二，補色相混會出濁灰——彼此的吸收峰互相把對方的反射吃掉。調色檯與三青三綠用的就是這套式。</p>
+</section>
+
+<section>
+ <h2>色差與同色異譜</h2>
+ <p>兩塊色差多少，先把 XYZ（以現用燈的白為基準）換到均勻色空間 CIE L*a*b*，再取歐氏距離：</p>
+ <div class="frm">ΔE*ab = √[ (ΔL*)² + (Δa*)² + (Δb*)² ]
+ΔE < 1 訓練過的目睭也分袂出；ΔE < 3 一般驗收線；ΔE > 6 免爭，裂開</div>
+ <p>同色異譜的製造法也攤開：光源×觀察者構成一個 3×31 的度量矩陣，它的<b>零空間</b>有 28 維——任何一條落在零空間裡的「異譜黑」（metameric black）加到光譜上，這盞燈下的 XYZ 分毫不動，換一盞燈就現形。<a href="yin.html">護色印</a>就是用格拉姆–施密特正交化把擾動投影進零空間做出來的。本行的驗貨口訣「三燈驗色」，就是要把零空間的藏身處一盞一盞抄掉。</p>
+</section>
+
+<section>
+ <h2>色順應——目睭家己會白平衡</h2>
+ <p>入鎢絲燈的房間幾分鐘後，你就不覺得紙是橘的——視覺系統會把「白」拉回白，這叫<b>色順應</b>。燈盤上的「順應」鈕模擬這件事（von Kries 對角縮放：三刺激值各除以現用燈白點、乘回日光白點）。</p>
+ <p>開了順應你會發現：紙白回來了，但<b>孿生色板的裂縫還在</b>。順應救得了白平衡，救不了同色異譜——因為它對三刺激值動手，而同色異譜的差藏在三刺激值看不到的維度裡。這就是為什麼驗色不能靠「看習慣就好」。</p>
+</section>
+
+<section>
+ <h2>教學簡化聲明</h2>
+ <p class="dim" style="font-size:14px">本站為風格示範站，色彩科學取教學級近似：CIE 1931 2° 觀察者 10 nm 表列值；D65 用表列近似；鎢絲燈以普朗克式生成；「省電燈」為三支高斯峰的示意合成，非任何實測燈管；Kubelka–Munk 取單常數式，不計粒徑、展色劑折射率與表面反射修正；ΔE 用 CIE76。要做量測級的配色，請用分光光度計與 CIE 完整表——但原理與此頁無二。</p>
+</section>
+
+</main>
+<footer><div class="fin">
+ <nav><a href="index.html">調色檯</a><a href="pu.html">顏料譜</a><a href="fa.html">演色之法</a><a href="yin.html">護色印・訂製</a></nav>
+ <p>振彩顏料行・彰化縣鹿港鎮興化巷 12 號・04-7772-158・週二至週日 09:00–17:30，週一研墨不開門。</p>
+ <p>本站為 Design Skills Center 風格示範站——全部品牌、人物、價格、地址皆為虛構示意；色彩科學為教學級近似，詳〈演色之法〉。</p>
+ <p>本站由 Claude Fable 5（排程 Agent 自動執行）設計與建置（2026-08-01）。</p>
+</div></footer>
+<script>
+'use strict';
+/* ── 振彩演色引擎 ─────────────────────────────────────────
+   全站每一個顏色都是 31 點反射光譜（400–700nm／10nm）。
+   hex 只是「這條光譜在現用燈下的樣」。
+   S(λ)×R(λ)×CIE1931 觀察者積分 → XYZ → sRGB。
+   教學簡化聲明見 fa.html。 */
+const LAM0=400,DL=10,NL=31;
+const CMX=[0.0143,0.0435,0.1344,0.2839,0.3483,0.3362,0.2908,0.1954,0.0956,0.0320,0.0049,0.0093,0.0633,0.1655,0.2904,0.4334,0.5945,0.7621,0.9163,1.0263,1.0622,1.0026,0.8544,0.6424,0.4479,0.2835,0.1649,0.0874,0.0468,0.0227,0.0114];
+const CMY=[0.0004,0.0012,0.0040,0.0116,0.0230,0.0380,0.0600,0.0910,0.1390,0.2080,0.3230,0.5030,0.7100,0.8620,0.9540,0.9950,0.9950,0.9520,0.8700,0.7570,0.6310,0.5030,0.3810,0.2650,0.1750,0.1070,0.0610,0.0320,0.0170,0.0082,0.0041];
+const CMZ=[0.0679,0.2074,0.6456,1.3856,1.7471,1.7721,1.6692,1.2876,0.8130,0.4652,0.2720,0.1582,0.0782,0.0422,0.0203,0.0087,0.0039,0.0021,0.0017,0.0011,0.0008,0.0003,0.0002,0,0,0,0,0,0,0,0];
+const D65=[82.75,91.49,93.43,86.68,104.86,117.01,117.81,114.86,115.92,108.81,109.35,107.80,104.79,107.69,104.41,104.05,100.00,96.33,95.79,88.69,90.01,89.60,87.70,83.29,83.70,80.03,80.21,82.28,78.28,69.72,71.61];
+function lam(i){return LAM0+DL*i;}
+function gauss(x,c,w){const t=(x-c)/w;return Math.exp(-t*t);}
+function sigm(l,c,w){return 1/(1+Math.exp(-(l-c)/w));}
+function planck(T){const c2=0.014388,o=[];for(let i=0;i<NL;i++){const l=lam(i)*1e-9;o.push(1/(Math.pow(l,5)*(Math.exp(c2/(l*T))-1)));}const r=o[16];return o.map(v=>100*v/r);}
+function triF(){const o=[];for(let i=0;i<NL;i++){const l=lam(i);o.push(6+95*gauss(l,435,9)+130*gauss(l,545,7)+115*gauss(l,612,10));}return o;}
+const ILLS={
+ d65:{key:'d65',name:'日光',sub:'D65',spd:D65},
+ a:{key:'a',name:'鎢絲',sub:'2856 K',spd:planck(2856)},
+ f:{key:'f',name:'省電',sub:'三波長螢光',spd:triF()}
+};
+const ILLSEQ=['d65','a','f'];
+function specXYZ(R,spd){let X=0,Y=0,Z=0,k=0;for(let i=0;i<NL;i++){const s=spd[i];X+=s*R[i]*CMX[i];Y+=s*R[i]*CMY[i];Z+=s*R[i]*CMZ[i];k+=s*CMY[i];}k=100/k;return[X*k,Y*k,Z*k];}
+const ONES=new Array(NL).fill(1);
+function whiteXYZ(ill){return specXYZ(ONES,ill.spd);}
+function xyz2srgb(X,Y,Z){X/=100;Y/=100;Z/=100;
+ let r=3.2406*X-1.5372*Y-0.4986*Z,g=-0.9689*X+1.8758*Y+0.0415*Z,b=0.0557*X-0.2040*Y+1.0570*Z;
+ const gm=v=>{v=Math.max(0,Math.min(1,v));return v<=0.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-0.055;};
+ return[gm(r),gm(g),gm(b)];}
+function rgbCss(R,ill,adapt){let[X,Y,Z]=specXYZ(R,ill.spd);
+ if(adapt){const W=whiteXYZ(ill),W6=whiteXYZ(ILLS.d65);X*=W6[0]/W[0];Y*=W6[1]/W[1];Z*=W6[2]/W[2];}
+ const[r,g,b]=xyz2srgb(X,Y,Z);
+ return'rgb('+Math.round(r*255)+','+Math.round(g*255)+','+Math.round(b*255)+')';}
+function labOf(R,ill){const[X,Y,Z]=specXYZ(R,ill.spd);const W=whiteXYZ(ill);
+ const f=t=>t>0.008856?Math.cbrt(t):(7.787*t+16/116);
+ const fx=f(X/W[0]),fy=f(Y/W[1]),fz=f(Z/W[2]);
+ return[116*fy-16,500*(fx-fy),200*(fy-fz)];}
+function dE(R1,R2,ill){const a=labOf(R1,ill),b=labOf(R2,ill);return Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);}
+function mkSpec(f){const o=[];for(let i=0;i<NL;i++){o.push(Math.min(0.97,Math.max(0.02,f(lam(i)))));}return o;}
+/* 十味礦彩：每味是一條光譜，毋是一個色點 */
+const PIGS=[
+ {id:'zhusha',  name:'朱砂',  tw:'tsu-se',        price:680,note:'硫化汞礦。屋脊剪黏與樑枋的正紅，五百年不退。',R:mkSpec(l=>0.05+0.82*sigm(l,585,11))},
+ {id:'yanzhi',  name:'胭脂紅',tw:'ian-tsi',       price:820,note:'蟲膠沉澱色料。帶紫的紅，畫牡丹用；懼強日。',R:mkSpec(l=>0.05+0.66*sigm(l,608,13)+0.17*gauss(l,452,30))},
+ {id:'xionghuang',name:'雄黃',tw:'hiông-hông',    price:300,note:'橙紅礦粉。門神甲冑的橙；與胡粉不合，忌混。',R:mkSpec(l=>0.05+0.72*sigm(l,548,14))},
+ {id:'tenghuang',name:'藤黃', tw:'tîn-hông',      price:360,note:'藤脂黃。透明度高，罩染與退暈的黃。',R:mkSpec(l=>0.05+0.80*sigm(l,502,13))},
+ {id:'zheshi',  name:'赭石',  tw:'tsiá-tsio̍h',    price:180,note:'含鐵土礦。打底、肉色、舊木補色的骨。',R:mkSpec(l=>0.07+0.45*sigm(l,572,38))},
+ {id:'shilv',   name:'石綠',  tw:'tsio̍h-li̍k',     price:520,note:'孔雀石研磨。三綠之母；目數愈細愈淺。',R:mkSpec(l=>0.06+0.50*gauss(l,522,36)+0.10*sigm(l,682,22))},
+ {id:'shiqing', name:'石青',  tw:'tsio̍h-tshinn',  price:740,note:'藍銅礦研磨。樑枋地色；三青之母。',R:mkSpec(l=>0.05+0.46*gauss(l,458,30)+0.08*sigm(l,690,18))},
+ {id:'huaqing', name:'花青',  tw:'hue-tshinn',    price:440,note:'植物靛藍沉澱。壓深退暈用，性沉。',R:mkSpec(l=>0.04+0.12*gauss(l,448,36)+0.28*sigm(l,692,16))},
+ {id:'hufen',   name:'胡粉',  tw:'ôo-hún',        price:120,note:'牡蠣殼煅粉。提白調淺；性溫，百搭。',R:mkSpec(l=>0.90-0.03*gauss(l,430,45))},
+ {id:'songyan', name:'松煙墨',tw:'siông-ian',     price:260,note:'松煙碳黑。壓暗定形；一分就有一分的沉。',R:mkSpec(l=>0.045)}
+];
+function pigById(id){return PIGS.find(p=>p.id===id);}
+/* 介面自身的光譜（換燈時整站重演色的來源） */
+const UI={
+ bg:    mkSpec(l=>0.028+0.075*gauss(l,478,30)),
+ panel: mkSpec(l=>0.042+0.095*gauss(l,478,32)),
+ line:  mkSpec(l=>0.10+0.15*gauss(l,476,36)),
+ paper: mkSpec(l=>0.88-0.04*gauss(l,430,40)),
+ paper2:mkSpec(l=>0.76-0.05*gauss(l,435,45)),
+ ink:   mkSpec(l=>0.05),
+ red:   PIGS[0].R,
+ green: PIGS[5].R,
+ gold:  mkSpec(l=>0.07+0.74*sigm(l,517,16)),
+ blue:  mkSpec(l=>0.06+0.52*gauss(l,460,30)+0.08*sigm(l,690,18)),
+ dim:   mkSpec(l=>0.30+0.12*gauss(l,470,55))
+};
+/* Kubelka–Munk 混色 */
+function ksOf(R){return R.map(r=>(1-r)*(1-r)/(2*r));}
+function mixSpec(amts){let tot=0;for(const a of amts)tot+=a;if(tot<=0)return null;
+ const KS=new Array(NL).fill(0);
+ for(let p=0;p<PIGS.length;p++){if(!amts[p])continue;const ks=ksOf(PIGS[p].R),w=amts[p]/tot;
+  for(let i=0;i<NL;i++)KS[i]+=w*ks[i];}
+ return KS.map(k=>Math.min(0.97,Math.max(0.02,1+k-Math.sqrt(k*k+2*k))));}
+/* 同色異譜：光源×觀察者度量矩陣的零空間（metameric black） */
+function dot(a,b){let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
+function metaBlack(ill,p){
+ const rows=[CMX,CMY,CMZ].map(c=>c.map((v,i)=>v*ill.spd[i]));
+ const es=[];
+ for(const r of rows){let v=r.slice();
+  for(const e of es){const d=dot(v,e);v=v.map((x,i)=>x-d*e[i]);}
+  const n=Math.sqrt(dot(v,v));es.push(v.map(x=>x/n));}
+ let b=p.slice();
+ for(const e of es){const d=dot(b,e);b=b.map((x,i)=>x-d*e[i]);}
+ return b;}
+function metaPair(base,hideIll,alpha){
+ const p=[];for(let i=0;i<NL;i++){const l=lam(i);
+  p.push(gauss(l,625,16)-gauss(l,545,14)+0.35*gauss(l,455,18));}
+ let b=metaBlack(hideIll,p);
+ const m=Math.max(...b.map(Math.abs));b=b.map(x=>x/m);
+ return base.map((r,i)=>Math.min(0.97,Math.max(0.02,r+alpha*b[i])));}
+/* 全站燈態（sessionStorage 跨頁生效） */
+const LKEY='zc-light',AKEY='zc-adapt';
+function curIll(){try{return ILLS[sessionStorage.getItem(LKEY)]||ILLS.d65;}catch(e){return ILLS.d65;}}
+function curAdapt(){try{return sessionStorage.getItem(AKEY)==='1';}catch(e){return false;}}
+const REG=[];
+function regSpec(el,spec,prop){if(el)REG.push({el:el,spec:spec,prop:prop||'backgroundColor'});}
+function relight(){
+ const ill=curIll(),ad=curAdapt(),st=document.documentElement.style;
+ for(const k in UI)st.setProperty('--c-'+k,rgbCss(UI[k],ill,ad));
+ for(const r of REG){const c=rgbCss(r.spec,ill,ad);
+  if(r.prop==='fill'||r.prop==='stroke')r.el.setAttribute(r.prop,c);
+  else r.el.style[r.prop]=c;}
+ document.querySelectorAll('.lsw button[data-l]').forEach(b=>{
+  const on=b.dataset.l===ill.key;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
+ const t=document.getElementById('adaptBtn');
+ if(t){t.classList.toggle('on',ad);t.setAttribute('aria-pressed',ad?'true':'false');}
+ document.querySelectorAll('.illname').forEach(n=>{n.textContent=ill.name+'・'+ill.sub;});
+ document.dispatchEvent(new Event('relight'));
+}
+function bootLight(){
+ document.querySelectorAll('.lsw button[data-l]').forEach(b=>b.addEventListener('click',function(){
+  try{sessionStorage.setItem(LKEY,this.dataset.l);}catch(e){}relight();}));
+ const t=document.getElementById('adaptBtn');
+ if(t)t.addEventListener('click',function(){
+  try{sessionStorage.setItem(AKEY,curAdapt()?'0':'1');}catch(e){}relight();});
+ relight();
+ requestAnimationFrame(function(){document.documentElement.classList.add('relit');});
+}
+/* 梅花碟導覽：孔內顏料隨現用燈重演色 */
+function bootDish(){
+ document.querySelectorAll('[data-wpig]').forEach(el=>{const p=pigById(el.dataset.wpig);if(p)regSpec(el,p.R,'fill');});
+ document.querySelectorAll('[data-wui]').forEach(el=>{regSpec(el,UI[el.dataset.wui],'fill');});
+}
+/* 光譜曲線繪圖 */
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function plotSpec(cv,items,ymax){
+ if(!cv)return;const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+ const L=34,Rm=10,T=10,B=24;ymax=ymax||1;
+ ctx.clearRect(0,0,W,H);
+ ctx.fillStyle=cssv('--c-panel');ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle=cssv('--c-line');ctx.lineWidth=1;
+ ctx.font='10px "IBM Plex Mono",monospace';ctx.fillStyle=cssv('--c-dim');
+ for(let x=400;x<=700;x+=50){const px=L+(x-400)/300*(W-L-Rm);
+  ctx.beginPath();ctx.moveTo(px,T);ctx.lineTo(px,H-B);ctx.globalAlpha=.35;ctx.stroke();ctx.globalAlpha=1;
+  ctx.fillText(String(x),px-11,H-8);}
+ for(let f=0;f<=1;f+=.5){const py=H-B-f*(H-B-T);
+  ctx.beginPath();ctx.moveTo(L,py);ctx.lineTo(W-Rm,py);ctx.globalAlpha=.35;ctx.stroke();ctx.globalAlpha=1;
+  ctx.fillText((f*ymax).toFixed(1),4,py+3);}
+ for(const it of items){
+  ctx.strokeStyle=it.color;ctx.lineWidth=it.w||2;
+  ctx.setLineDash(it.dash||[]);
+  ctx.beginPath();
+  for(let i=0;i<NL;i++){
+   const px=L+(lam(i)-400)/300*(W-L-Rm);
+   const py=H-B-Math.min(1,it.R[i]/ymax)*(H-B-T);
+   if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}
+  ctx.stroke();ctx.setLineDash([]);}
+}
+/* FNV-1a 決定性雜湊（回執印記用） */
+function fnv(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+
+/* ── 演色之法頁 ── */
+bootDish();
+function normArr(a){var m=Math.max.apply(null,a);return a.map(function(v){return v/m;});}
+function drawFigs(){
+ plotSpec(document.getElementById('cvSpd'),[
+  {R:normArr(ILLS.d65.spd),color:cssv('--c-paper2'),w:2},
+  {R:normArr(ILLS.a.spd),color:cssv('--c-gold'),w:2,dash:[6,4]},
+  {R:normArr(ILLS.f.spd),color:cssv('--c-red'),w:2,dash:[2,3]}
+ ]);
+ var m=1.8;
+ plotSpec(document.getElementById('cvCmf'),[
+  {R:CMX.map(function(v){return v/m;}),color:cssv('--c-red'),w:2},
+  {R:CMY.map(function(v){return v/m;}),color:cssv('--c-green'),w:2},
+  {R:CMZ.map(function(v){return v/m;}),color:cssv('--c-blue'),w:2}
+ ],1);
+}
+document.addEventListener('relight',drawFigs);
+bootLight();
+</script>
+</body>
+</html>

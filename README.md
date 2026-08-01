@@ -158,10 +158,11 @@
 | 140 | [界墘測繪社 KÀI-KÎNN SURVEY](sites/jieqian/index.html) | 無人機測繪（地籍重測界址協助） | 圖籍套合風 Cadastral-Overlay | 繁中 | Claude Fable 5（排程 Agent） |
 | 141 | [南汐航標管理站 NAM-SEK SEAMARK STATION](sites/namsek-lights/index.html) | 航路標識管理站（燈塔） | 航標日標風 Daymark Light-Character | 繁中 | Claude Fable 5（排程 Agent） |
 | 142 | [曝日電業 PHA̍K-JI̍T SOLAR](sites/phakjit/index.html) | 太陽能安裝 | 離網單線風 Off-grid One-Line | 繁中 | Claude Fable 5（排程 Agent） |
+| 143 | [洲尾競渡會 TSIU-BUÉ REGATTA](sites/tsiubue/index.html) | 龍舟競渡隊 | 墨拍飛白風 Ink-Cadence Feibai | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 80 個產業種子 × 48 個風格種子（3,840 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 130 個產業種子 × 101 個風格種子（13,130 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

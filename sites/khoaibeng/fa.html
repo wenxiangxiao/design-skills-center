@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>揀字之法｜快明打字行</title>
+<meta name="description" content="手程的定義與公式、二次指派問題、頻率與可尋性的取捨、檢字法小史。快明打字行的帳，全部攤開。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F2EBDA'/%3E%3Cg stroke='%231D4E89' stroke-width='1.2'%3E%3Cpath d='M4 11h24M4 18h24M4 25h24M11 4v24M18 4v24M25 4v24'/%3E%3C/g%3E%3Crect x='18.5' y='11.5' width='6' height='6' fill='%231D4E89'/%3E%3Cpolyline points='7.5,7.5 21.5,14.5 14.5,21.5 28,28' fill='none' stroke='%23C0392B' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pap:#EDE5D0; --pap2:#F7F1E2; --pap3:#E4DABF;
+  --blue:#1D4E89; --blue2:#16385E; --blue3:#0F2A49; --blueL:#A9C3E4; --blueM:#2F66A8;
+  --red:#C0392B; --red2:#8E2A20;
+  --ink:#2A2620; --dim:#C4D2E2;
+}
+@property --mrx{syntax:"<length>";inherits:true;initial-value:1.4px}
+@property --mry{syntax:"<length>";inherits:true;initial-value:1.4px}
+@view-transition{navigation:auto}
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation-duration:.16s}
+  ::view-transition-new(root){animation-duration:.16s}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--pap);color:var(--ink);
+  font-family:"Noto Serif TC",serif;font-size:16px;line-height:1.85;
+  background-image:repeating-linear-gradient(0deg,rgba(42,38,32,.035) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.4) 0 1px,transparent 1px 5px);}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+a{color:var(--blue)}
+.wrap{max-width:880px;margin:0 auto;padding:0 18px}
+.sign{background:var(--blue2);border-bottom:6px double var(--red)}
+.sign .wrap{display:flex;gap:13px;align-items:center;flex-wrap:wrap;padding:9px 18px}
+.sign b{font-weight:900;letter-spacing:.18em;font-size:17px;color:var(--pap2);
+  text-shadow:var(--mrx) var(--mry) 0 rgba(192,57,43,.75)}
+@media(prefers-reduced-motion:no-preference){
+  .sign b{animation:misreg 7s ease-in-out infinite alternate}
+}
+@keyframes misreg{from{--mrx:1px;--mry:1.6px}50%{--mrx:1.8px;--mry:.8px}to{--mrx:.7px;--mry:1.9px}}
+.sign span{font-size:11.5px;color:var(--dim);letter-spacing:.05em}
+.carr{position:fixed;top:10px;right:12px;width:196px;z-index:50}
+.carr svg{display:block;width:196px;height:64px;overflow:visible}
+.carr a{cursor:pointer}
+@media(max-width:900px){
+  .carr{display:none}
+  .carrow{display:flex;background:var(--blue2);border-bottom:2px solid var(--red)}
+  .carrow a{flex:1;text-align:center;padding:9px 2px;font-size:13.5px;font-weight:700;color:var(--pap2);text-decoration:none;border-right:1px solid rgba(247,241,226,.22);position:relative}
+  .carrow a:last-child{border-right:0}
+  .carrow a[aria-current]{background:var(--red);color:#FFF4EC}
+}
+@media(min-width:901px){.carrow{display:none}.sign .wrap{padding-right:216px}}
+.bar{background:var(--pap2);color:#5A5344;border-bottom:2px solid var(--blue);border-top:1px solid rgba(29,78,137,.35)}
+.bar .wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.bar b{color:var(--blue);font-weight:700}
+.btn{font-family:"Noto Serif TC",serif;font-size:13.5px;font-weight:700;letter-spacing:.06em;
+  background:var(--pap2);color:var(--blue);border:1.5px solid var(--blue);padding:6px 13px;cursor:pointer}
+.btn:hover{background:#FDF8EA}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.vio{background:var(--red);color:#FFF4EC;border-color:var(--red2)}
+.btn.vio:hover{background:#CE4A3B}
+.card{background:var(--pap2);color:var(--ink);padding:16px 18px;border:2px solid var(--blue);position:relative}
+.card::after{content:"";position:absolute;inset:4px;border:1px solid rgba(29,78,137,.5);pointer-events:none}
+.card h2{font-size:15px;margin:0 0 8px;color:var(--blue);letter-spacing:.22em;border-bottom:1px solid rgba(29,78,137,.5);padding-bottom:6px}
+.sign .wrap{max-width:1120px}
+h1{font-size:26px;letter-spacing:.24em;margin:30px 0 4px;color:var(--blue);
+  text-shadow:var(--mrx) var(--mry) 0 rgba(192,57,43,.5)}
+@media(prefers-reduced-motion:no-preference){h1{animation:misreg 7s ease-in-out infinite alternate}}
+.sub{color:#5A5344;font-size:13.5px;margin:0 0 20px}
+section{background:var(--pap2);border:2px solid var(--blue);position:relative;padding:20px 24px;margin:0 0 20px}
+section::after{content:"";position:absolute;inset:4px;border:1px solid rgba(29,78,137,.5);pointer-events:none}
+section h2{font-size:16px;letter-spacing:.14em;border-bottom:2px solid var(--red);padding-bottom:6px;margin:0 0 12px;color:var(--blue)}
+section p{margin:.6em 0;line-height:1.95}
+.fm{background:var(--blue2);color:var(--pap2);padding:12px 16px;font-size:14.5px;overflow-x:auto;margin:10px 0;position:relative;z-index:1}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+td,th{border:1px solid rgba(29,78,137,.55);padding:6px 10px;text-align:left}
+th{background:var(--pap3);color:var(--blue)}
+td.mono{color:var(--red)}
+figure{margin:14px 0;position:relative;z-index:1}
+figure svg{display:block;width:100%;height:auto;background:var(--pap3)}
+figcaption{font-size:12.5px;color:#5A5344;margin-top:6px}
+footer{background:var(--blue3);color:#8FA6C2;font-size:13px;padding:22px 0 28px;margin-top:26px}
+footer a{color:var(--dim)}
+footer .fx{display:flex;gap:26px;flex-wrap:wrap;max-width:1120px;margin:0 auto;padding:0 18px}
+
+</style>
+</head>
+<body>
+<header class="sign"><div class="wrap">
+  <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#F2EBDA"/><g stroke="#1D4E89" stroke-width="1.2"><path d="M4 11h24M4 18h24M4 25h24M11 4v24M18 4v24M25 4v24"/></g><rect x="18.5" y="11.5" width="6" height="6" fill="#1D4E89"/><polyline points="7.5,7.5 21.5,14.5 14.5,21.5 28,28" fill="none" stroke="#C0392B" stroke-width="2"/></svg>
+  <b>快明打字行</b><span>揀字之法｜本頁不需開機，全部讀得完</span>
+</div></header>
+<nav class="carr" aria-label="站內導覽"><svg viewBox="0 0 196 64"><rect x="0" y="30" width="196" height="3" fill="#0F2A49"/><g id="stops"></g><g id="carbox"></g></svg></nav>
+<nav class="carrow" aria-label="站內導覽"><a href="index.html">打字台</a><a href="pan.html">排盤室</a><a href="fa.html" aria-current="page">揀字之法</a><a href="tuo.html">委託打件</a></nav>
+
+<main class="wrap">
+<h1>揀　字　之　法</h1>
+<p class="sub">中文打字機沒有鍵盤這回事——有的是一面盤、一支錘、與一雙會找字的眼睛。本頁把快明打字行的帳全部攤開：手程怎麼算、盤怎麼排、為什麼排不到最好、以及快與找得到為什麼互相出賣。</p>
+
+<section>
+<h2>一、字盤在動，不是紙在動</h2>
+<p>民國初年商務印書館製售的舒震東式華文打字機，構造和西洋打字機相反：西洋機是字錘飛向紙，中文機是<b>整面字盤被兩支手柄拖著走</b>——打字員先橫、後縱，把目標字那一格對到固定的打字錘正下方，壓桿，錘把鉛字頂上去印在紙上。所以中文打字的成本不在按鍵，在<b>移盤的距離</b>與<b>找字的時間</b>。本行把前者叫「手程」，照格距 8mm、兩格中心直線距離累計。</p>
+<figure>
+<svg viewBox="0 0 720 200" role="img" aria-label="舒式打字機手程示意圖">
+<g stroke="rgba(29,78,137,.45)" stroke-width="1">
+<path d="M40 30h300M40 70h300M40 110h300M40 150h300M40 30v120M90 30v120M140 30v120M190 30v120M240 30v120M290 30v120M340 30v120"/>
+</g>
+<rect x="192" y="72" width="46" height="36" fill="none" stroke="#C0392B" stroke-dasharray="3 3" stroke-width="1.4"/>
+<text x="215" y="95" text-anchor="middle" font-size="13" fill="#1D4E89" font-family="Noto Serif TC,serif">歸位</text>
+<polyline points="215,90 65,50 265,130 115,90" fill="none" stroke="#C0392B" stroke-width="1.8"/>
+<g fill="#C0392B"><circle cx="215" cy="90" r="2.5"/><circle cx="65" cy="50" r="2.5"/><circle cx="265" cy="130" r="2.5"/><circle cx="115" cy="90" r="2.5"/></g>
+<text x="60" y="42" font-size="12" fill="#1D4E89" font-family="Noto Serif TC,serif">①</text>
+<text x="272" y="128" font-size="12" fill="#1D4E89" font-family="Noto Serif TC,serif">②</text>
+<text x="100" y="82" font-size="12" fill="#1D4E89" font-family="Noto Serif TC,serif">③</text>
+<g font-family="IBM Plex Mono,monospace" font-size="12" fill="#1D4E89">
+<text x="390" y="52">①  12.1 cm</text>
+<text x="390" y="80">②  17.2 cm</text>
+<text x="390" y="108">③  12.1 cm</text>
+<text x="390" y="140">合計 41.4 cm</text>
+</g>
+<text x="390" y="170" font-size="11.5" fill="#5A5344" font-family="Noto Serif TC,serif">三個字的手程：每段照兩格中心的直線量</text>
+</svg>
+<figcaption>圖一・手程的量法。線上打字台為求簡明採直線距離；師傅實際兩柄一橫一縱，走的是曼哈頓距離，平均比直線多約兩成七（√2 極端時多四成一）。定義換掉，排盤的結論不變。</figcaption>
+</figure>
+<div class="fm">手程(文章, 盤) ＝ Σ dist( 位置(第 i 字), 位置(第 i+1 字) ) × 0.8cm　　起點一律為歸位格；盤外字每字記 22cm（翻備用字盒）。</div>
+</section>
+
+<section>
+<h2>二、三面盤的實測帳</h2>
+<p>同三卷文書、同一支算法，三面盤的期望手程與同類鄰接率如下（打字台與排盤室當場實算，數字可自行驗證）：</p>
+<table>
+<tr><th>案卷</th><th>字數</th><th>類聚盤</th><th>頻率盤</th><th>頻率盤省</th></tr>
+<tr><td>公文一件</td><td class="mono">113</td><td class="mono">957.9 cm</td><td class="mono">488.4 cm</td><td class="mono">−49%</td></tr>
+<tr><td>家書一封</td><td class="mono">71</td><td class="mono">559.6 cm</td><td class="mono">346.8 cm</td><td class="mono">−38%</td></tr>
+<tr><td>喜宴菜單</td><td class="mono">63</td><td class="mono">476.6 cm</td><td class="mono">384.1 cm</td><td class="mono">−19%</td></tr>
+<tr><td colspan="2">同類鄰接率</td><td class="mono">95.9%</td><td class="mono">10.2%</td><td>—</td></tr>
+</table>
+<p>三行帳讀出三件事。<b>其一</b>，頻率盤在公文省將近一半——公文用字最集中，「行、字、盤、打」全擠在歸位格旁邊。<b>其二</b>，菜單只省 19%——菜名的字（蟳、燴、斑）本來就罕用，排到哪裡都遠。頻率盤省多少，看的是你的文章像不像它的統計。<b>其三</b>，鄰接率從 95.9% 崩到 10.2%：頻率盤上「蒸」的鄰居可能是「員」，生手無從猜起，只能一格一格掃 456 格。</p>
+</section>
+
+<section>
+<h2>三、為什麼沒有「算出正解」的按鈕</h2>
+<p>把 456 個字放進 456 格、使期望手程最小，是作業研究裡的<b>二次指派問題</b>（quadratic assignment problem）：成本不由「哪個字放哪格」單獨決定，而由「每一對字的距離 × 這對字前後相接的頻率」加總決定。此類問題屬 NP-hard，456 階乘種擺法沒有已知的多項式時間解法。所以排盤室的〈建議一手〉只做<b>貪心</b>：在常用字裡試每一種單手對調，挑省最多的那手。貪心會停在局部最優——照單全收的終點大約就是頻率盤，而頻率盤的帳上一節看過了：省了公分，賠了眼睛。</p>
+<p>本行的立場寫在店訓裡：<b>盤是排給「這間行的文章」與「這間行的人」的，不是排給算法的。</b>常打公文就把公務那兩列拉近歸位格；新學徒多，就守住鄰接率。快明的盤五十年改過四次，每次都只動兩三列——排盤是修家具，不是重蓋房子。</p>
+</section>
+
+<section>
+<h2>四、快與找得到，互相出賣</h2>
+<p>把每一次「打一個字」拆開：<span class="mono">耗時 ＝ 找字時間 ＋ 移盤時間</span>。移盤時間隨手程走，練不掉；找字時間隨熟悉度走，練得掉。於是同一面盤對兩種人是兩面盤——</p>
+<table>
+<tr><th></th><th>老師傅（字位背熟）</th><th>新學徒（靠類名猜）</th></tr>
+<tr><td>類聚盤</td><td>慢——手程長，背熟了也要拖</td><td class="mono">找得到：鄰接率 95.9%</td></tr>
+<tr><td>頻率盤</td><td class="mono">快——手程省三到五成</td><td>找不到：鄰接率 10.2%，訓練期以月計</td></tr>
+</table>
+<p>這正是西洋打字界 QWERTY 與德弗札克鍵盤爭了一世紀的那道題，搬到中文只是更兇：西洋鍵盤 26 鍵背一週，中文字盤 456 格背一季。<b>效率的帳要連訓練成本一起算</b>——本行民國五十九年試行頻率盤，師傅快了三成，三個月後師傅被同業挖走，新學徒站在盤前找不到「的」字。那一年的教訓，就是排盤室兩支錶並列的理由。</p>
+</section>
+
+<section>
+<h2>五、檢字法小史</h2>
+<p>字要找得到，古今只有三條路。<b>以形歸類</b>：部首檢字沿用九百年，四角號碼（王雲五，1920 年代）把字形編成四位數字，熟手翻字典如翻電話簿。<b>以用歸類</b>：打字行的字盤多按「常用區、備用區」分層，常用區內同類相聚、連語相鄰——本行類聚盤十八列，列名「數目時序」「公務用語」「食味飲膳」，即此路。<b>以鍵盤代盤</b>：林語堂 1947 年的明快打字機，上下兩鍵取形、一鍵選字，把「找」變成「拼」，可惜造價太高未能量產；後來電腦時代的倉頡、注音輸入法，走的正是明快開的路。字盤揀字如今只剩故事，但它留下的那道題——<b>介面的幾何，決定使用它的人要付多少成本</b>——每一代輸入法都還在答。</p>
+</section>
+
+<section>
+<h2>六、打件規格</h2>
+<table>
+<tr><th>紙張</th><td>公文用 70 磅模造紙；菜單、訃聞用宣底卡</td></tr>
+<tr><th>複寫</th><td>一式三份內含，藍紫複寫紙本行自備；第四份起每份加一成</td></tr>
+<tr><th>校對</th><td>論文含一次校對；錯漏字本行重打，不另收費</td></tr>
+<tr><th>罕用字</th><td>備用盤外字代向鑄字行尋字，每字 15 元、三個工作天</td></tr>
+<tr><th>交件</th><td>普通件三個工作天；當日件加三成、限中午前交稿</td></tr>
+</table>
+<p style="font-size:13px;color:#6E6650">本站為設計範例。舒震東式打字機、四角號碼、明快打字機為史實；快明打字行與其人物、價目、字盤皆為虛構示意。</p>
+</section>
+</main>
+<footer><div class="fx">
+  <div><b style="color:#F7F1E2">快明打字行</b><br>台中市中區成功路八七號二樓<br>電話 04-2225-1873</div>
+  <div>站內<br><a href="index.html">打字台</a>・<a href="pan.html">排盤室</a>・<a href="fa.html">揀字之法</a>・<a href="tuo.html">委託打件</a></div>
+  <div style="max-width:330px">想親手驗證第二章的數字？打字台與排盤室的每一筆公分數都是當場算的。</div>
+</div></footer>
+<script>
+(function(){
+  var pages=[["index.html","打字台"],["pan.html","排盤室"],["fa.html","揀字之法"],["tuo.html","委託打件"]],cur=2;
+  var st=document.getElementById("stops"),cb=document.getElementById("carbox");if(!st)return;
+  var xs=[24,74,124,174],s="";
+  pages.forEach(function(p,i){
+    s+='<a href="'+p[0]+'"'+(i===cur?' aria-current="page"':'')+'><rect x="'+(xs[i]-22)+'" y="26" width="44" height="26" fill="transparent"/><rect x="'+(xs[i]-1.5)+'" y="26" width="3" height="11" fill="'+(i===cur?"#C0392B":"#5E749B")+'"/><text x="'+xs[i]+'" y="50" text-anchor="middle" font-size="10.5" fill="'+(i===cur?"#F7F1E2":"#C4D2E2")+'" font-family="Noto Serif TC,serif" font-weight="700">'+p[1]+'</text></a>';});
+  st.innerHTML=s;
+  cb.innerHTML='<g transform="translate('+xs[cur]+',0)"><rect x="-16" y="6" width="32" height="20" fill="#0F2A49"/><rect x="-11" y="2" width="22" height="10" fill="#F7F1E2"/><rect x="-11" y="8.5" width="22" height="1.6" fill="#1D4E89"/><rect x="-16" y="24" width="32" height="3" fill="#C0392B"/></g>';
+})();
+</script>
+</body>
+</html>

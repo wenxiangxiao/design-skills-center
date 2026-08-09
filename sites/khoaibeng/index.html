@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>打字台｜快明打字行</title>
+<meta name="description" content="快明打字行，台中市中區。字盤揀字、公文謄打，民國五十六年開業。手程一格一格算給你看。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F2EBDA'/%3E%3Cg stroke='%231D4E89' stroke-width='1.2'%3E%3Cpath d='M4 11h24M4 18h24M4 25h24M11 4v24M18 4v24M25 4v24'/%3E%3C/g%3E%3Crect x='18.5' y='11.5' width='6' height='6' fill='%231D4E89'/%3E%3Cpolyline points='7.5,7.5 21.5,14.5 14.5,21.5 28,28' fill='none' stroke='%23C0392B' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pap:#EDE5D0; --pap2:#F7F1E2; --pap3:#E4DABF;
+  --blue:#1D4E89; --blue2:#16385E; --blue3:#0F2A49; --blueL:#A9C3E4; --blueM:#2F66A8;
+  --red:#C0392B; --red2:#8E2A20;
+  --ink:#2A2620; --dim:#C4D2E2;
+}
+@property --mrx{syntax:"<length>";inherits:true;initial-value:1.4px}
+@property --mry{syntax:"<length>";inherits:true;initial-value:1.4px}
+@view-transition{navigation:auto}
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation-duration:.16s}
+  ::view-transition-new(root){animation-duration:.16s}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--pap);color:var(--ink);
+  font-family:"Noto Serif TC",serif;font-size:16px;line-height:1.85;
+  background-image:repeating-linear-gradient(0deg,rgba(42,38,32,.035) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.4) 0 1px,transparent 1px 5px);}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+a{color:var(--blue)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+.sign{background:var(--blue2);border-bottom:6px double var(--red)}
+.sign .wrap{display:flex;gap:13px;align-items:center;flex-wrap:wrap;padding:9px 18px}
+.sign b{font-weight:900;letter-spacing:.18em;font-size:17px;color:var(--pap2);
+  text-shadow:var(--mrx) var(--mry) 0 rgba(192,57,43,.75)}
+@media(prefers-reduced-motion:no-preference){
+  .sign b{animation:misreg 7s ease-in-out infinite alternate}
+}
+@keyframes misreg{from{--mrx:1px;--mry:1.6px}50%{--mrx:1.8px;--mry:.8px}to{--mrx:.7px;--mry:1.9px}}
+.sign span{font-size:11.5px;color:var(--dim);letter-spacing:.05em}
+.carr{position:fixed;top:10px;right:12px;width:196px;z-index:50}
+.carr svg{display:block;width:196px;height:64px;overflow:visible}
+.carr a{cursor:pointer}
+@media(max-width:900px){
+  .carr{display:none}
+  .carrow{display:flex;background:var(--blue2);border-bottom:2px solid var(--red)}
+  .carrow a{flex:1;text-align:center;padding:9px 2px;font-size:13.5px;font-weight:700;color:var(--pap2);text-decoration:none;border-right:1px solid rgba(247,241,226,.22);position:relative}
+  .carrow a:last-child{border-right:0}
+  .carrow a[aria-current]{background:var(--red);color:#FFF4EC}
+}
+@media(min-width:901px){.carrow{display:none}.sign .wrap{padding-right:216px}}
+.bar{background:var(--pap2);color:#5A5344;border-bottom:2px solid var(--blue);border-top:1px solid rgba(29,78,137,.35)}
+.bar .wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.bar b{color:var(--blue);font-weight:700}
+.btn{font-family:"Noto Serif TC",serif;font-size:13.5px;font-weight:700;letter-spacing:.06em;
+  background:var(--pap2);color:var(--blue);border:1.5px solid var(--blue);padding:6px 13px;cursor:pointer}
+.btn:hover{background:#FDF8EA}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.vio{background:var(--red);color:#FFF4EC;border-color:var(--red2)}
+.btn.vio:hover{background:#CE4A3B}
+.card{background:var(--pap2);color:var(--ink);padding:16px 18px;border:2px solid var(--blue);position:relative}
+.card::after{content:"";position:absolute;inset:4px;border:1px solid rgba(29,78,137,.5);pointer-events:none}
+.card h2{font-size:15px;margin:0 0 8px;color:var(--blue);letter-spacing:.22em;border-bottom:1px solid rgba(29,78,137,.5);padding-bottom:6px}
+.deck{display:grid;grid-template-columns:330px 1fr;gap:20px;margin:22px 0}
+@media(max-width:960px){.deck{grid-template-columns:1fr}}
+.ms{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 2px}
+.ms div{background:var(--blue2);color:var(--dim);padding:6px 12px;min-width:88px}
+.ms b{display:block;font-size:21px;color:var(--pap2);font-weight:500}
+.ms .lit b{color:#F3B7AD}
+.src{font-size:19px;line-height:2.15;letter-spacing:.08em;word-break:break-all;color:var(--blue)}
+.src span{padding:0 1px}
+.src .done{color:#96A8BE;text-decoration:line-through;text-decoration-thickness:1px}
+.src .cur{background:var(--red);color:#FFF4EC;outline:2px solid var(--red)}
+.src .pun{color:#AE9F7C}
+.trayk{background:var(--pap2);padding:14px;border:2px solid var(--blue);position:relative}
+.trayk::after{content:"";position:absolute;inset:4px;border:1px solid rgba(29,78,137,.5);pointer-events:none}
+.trayk h2{color:var(--blue);font-size:15px;letter-spacing:.14em;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.trayk h2 small{font-size:11.5px;color:#5A5344;font-weight:400;letter-spacing:.03em}
+#traysvg{display:block;width:100%;height:auto;background:var(--pap3);touch-action:manipulation;position:relative;z-index:1}
+#traysvg text{font-family:"Noto Serif TC",serif;font-size:15px;fill:var(--blue);pointer-events:none}
+#traysvg .gl{stroke:rgba(29,78,137,.45);stroke-width:1}
+#traysvg .cell{fill:transparent;cursor:pointer}
+#traysvg .cell:hover{fill:rgba(192,57,43,.22)}
+#traysvg .hit{fill:rgba(29,78,137,.3)}
+#traysvg .miss{fill:rgba(192,57,43,.6)}
+#traysvg .home{fill:none;stroke:var(--red);stroke-width:1.4;stroke-dasharray:3 3}
+#path{fill:none;stroke:var(--red);stroke-width:1.8;mix-blend-mode:multiply;opacity:.92}
+#pathdots circle{fill:var(--red)}
+.legend{font-size:12px;color:#5A5344;margin-top:8px;position:relative;z-index:1}
+.legend i{font-style:normal;color:var(--red)}
+.slug{position:absolute;right:16px;top:44px;width:64px;height:64px;background:var(--blue);color:var(--pap2);
+  display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;z-index:2;
+  box-shadow:2px 2px 0 var(--blue3);opacity:0;transform:scale(.92)}
+.slug.on{opacity:1;transform:scale(1)}
+@media(prefers-reduced-motion:no-preference){.slug{transition:opacity .08s,transform .08s}}
+@media(max-width:960px){.slug{display:none}}
+.slip{display:none;margin:0 0 22px}
+.slip.on{display:block}
+.slip .card{border-color:var(--red)}
+.slip .card::after{border-color:rgba(192,57,43,.5)}
+@media(prefers-reduced-motion:no-preference){
+  .slip.on .card{animation:feed .35s ease-out}
+  @keyframes feed{from{transform:translateY(-10px);clip-path:inset(0 0 100% 0)}to{transform:none;clip-path:inset(0 0 -8% 0)}}
+}
+.slip table{border-collapse:collapse;width:100%;font-size:14.5px}
+.slip td,.slip th{border:1px solid rgba(29,78,137,.55);padding:6px 10px;text-align:left}
+.slip th{background:var(--pap3);font-weight:700;width:9em;color:var(--blue)}
+.verdict{margin-top:10px;padding:10px 12px;background:var(--pap3);border-left:4px solid var(--red);font-size:14.5px}
+.prose{background:var(--blue2);color:var(--dim);padding:26px 0 30px;margin-top:26px;border-top:6px double var(--red)}
+.prose h2{color:var(--pap2);font-size:17px;letter-spacing:.16em;border-left:5px solid var(--red);padding-left:10px}
+.prose p{max-width:760px}
+.prose a{color:#EFC9C2}
+.price{border-collapse:collapse;width:100%;max-width:760px;font-size:14.5px;background:var(--pap2);color:var(--ink)}
+.price th,.price td{border:1px solid rgba(29,78,137,.55);padding:7px 11px;text-align:left}
+.price th{background:var(--pap3);letter-spacing:.08em;color:var(--blue)}
+.price td.mono{color:var(--red)}
+footer{background:var(--blue3);color:#8FA6C2;font-size:13px;padding:22px 0 28px}
+footer a{color:var(--dim)}
+footer .fx{display:flex;gap:26px;flex-wrap:wrap}
+@media(max-width:560px){.src{font-size:17px}.ms div{min-width:72px}#traysvg text{font-size:16px}}
+
+</style>
+</head>
+<body>
+<header class="sign">
+  <div class="wrap">
+    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#F2EBDA"/><g stroke="#1D4E89" stroke-width="1.2"><path d="M4 11h24M4 18h24M4 25h24M11 4v24M18 4v24M25 4v24"/></g><rect x="18.5" y="11.5" width="6" height="6" fill="#1D4E89"/><polyline points="7.5,7.5 21.5,14.5 14.5,21.5 28,28" fill="none" stroke="#C0392B" stroke-width="2"/></svg>
+    <b>快明打字行</b>
+    <span>KHOÀI-BÊNG TYPING CO.｜台中市中區成功路八七號二樓｜公文・論文・標單・菜單謄打</span>
+  </div>
+</header>
+<nav class="carr" aria-label="站內導覽">
+  <svg viewBox="0 0 196 64">
+    <rect x="0" y="30" width="196" height="3" fill="#0F2A49"/>
+    <g id="stops"></g>
+    <g id="carbox"></g>
+  </svg>
+</nav>
+<nav class="carrow" aria-label="站內導覽">
+  <a href="index.html" aria-current="page">打字台</a><a href="pan.html">排盤室</a><a href="fa.html">揀字之法</a><a href="tuo.html">委託打件</a>
+</nav>
+
+<div class="bar"><div class="wrap">
+  <span>委託單 <b class="mono">KM-0412</b>｜本行內部通告一則，計 <b class="mono">16</b> 字。原稿在左，字盤在右。點盤上的字，把它打出來。</span>
+  <button class="btn vio" id="startbtn">開始打件</button>
+  <select id="laysel" class="btn" aria-label="選擇字盤"><option value="lei">類聚盤（本行舊盤）</option><option value="freq">頻率盤（新排）</option><option value="mine" id="mineopt" disabled>我的盤（排盤室存的）</option></select>
+</div></div>
+
+<main class="wrap">
+  <section class="slip" id="slip" aria-live="polite"></section>
+  <div class="deck">
+    <div>
+      <div class="card">
+        <h2>原　稿</h2>
+        <p class="src" id="src"></p>
+        <div class="ms">
+          <div class="lit"><b class="mono" id="m-cm">0.0</b>手程（公分）</div>
+          <div><b class="mono" id="m-t">—</b>用時（秒）</div>
+          <div><b class="mono" id="m-x">0</b>誤揀（次）</div>
+        </div>
+        <p style="font-size:13px;color:#6E6650;margin:8px 0 0">手程照舒式打字機的道理算：<b>動的是字盤，不是紙</b>。游標每揀一字，就是把那一格拖到打字錘底下，格距 8mm，直線計。</p>
+      </div>
+      <noscript><div class="card" style="margin-top:14px"><h2>未開機</h2><p style="color:var(--ink);font-size:14.5px">這台打字台要 JavaScript 才會動。手程的定義、公式與三種字盤的實測數字，在〈<a href="fa.html">揀字之法</a>〉全部印成靜態表格，不開機也讀得完。</p></div></noscript>
+    </div>
+    <div class="trayk">
+      <h2>字　盤 <small id="trayname">類聚盤・主盤 456 字（24×19）｜備用盤三千餘字不上機</small></h2>
+      <div class="slug" id="slug" aria-hidden="true"></div><svg id="traysvg" viewBox="0 0 720 570" role="img" aria-label="中文打字機字盤，四五六格"></svg>
+      <p class="legend">虛線框＝<i>歸位格</i>（每件從這裡出發）｜藍底＝已揀｜紅線＝這一件到目前的手程路徑。找無的字莫烏白揀：誤揀記一次，字盤毋動。</p>
+    </div>
+  </div>
+</main>
+
+<div class="prose"><div class="wrap">
+  <h2>本行沿革</h2>
+  <p>快明打字行開業於民國五十六年，第一代賴金塗在台中火車站前替人打標單、打訴狀，一台舒式改良機、一面二千四百五十格的鉛字盤。現在店裡是第二代賴淑敏在顧，機器換過三台，字盤的道理沒變：<b style="color:#F7F1E2">中文打字員不背鍵盤，背的是一面盤</b>——字在哪一格，手就到哪一格；文章決定路徑，字盤決定距離，熟不熟決定時間。</p>
+  <p>這一頁把本行的打字台搬上網。你會發現慢的不是手，是眼睛——找字的時間十倍於移盤的時間。這正是本行招牌功夫的所在，也是〈<a href="pan.html" >排盤室</a>〉存在的理由：把常一起出現的字排作伙，距離就省下來；但排得太「聰明」，生手就找無字。兩頭如何取捨，請上排盤室親手試。</p>
+  <h2>服務價目</h2>
+  <table class="price">
+    <tr><th>公文・書函謄打</th><td class="mono">每頁 65 元</td><td>當日件加三成</td></tr>
+    <tr><th>論文・報告</th><td class="mono">每千字 220 元</td><td>含一次校對</td></tr>
+    <tr><th>標單・契約</th><td class="mono">每件 180 元起</td><td>數字逐格複核</td></tr>
+    <tr><th>喜宴菜單・訃聞</th><td class="mono">每件 120 元</td><td>急件電洽</td></tr>
+    <tr><th>罕用字鑄字代尋</th><td class="mono">每字 15 元</td><td>備用盤外字另計工</td></tr>
+  </table>
+  <p style="font-size:13px;color:#9DA1A8">本站為設計範例，人物、地址、價目皆為虛構示意。</p>
+</div></div>
+
+<footer><div class="wrap fx">
+  <div><b style="color:#F7F1E2">快明打字行</b><br>台中市中區成功路八七號二樓<br>電話 04-2225-1873<br>週一至週五 09:00–18:00｜週六 09:00–12:00</div>
+  <div>站內<br><a href="index.html">打字台</a>・<a href="pan.html">排盤室</a>・<a href="fa.html">揀字之法</a>・<a href="tuo.html">委託打件</a></div>
+  <div style="max-width:330px">手程照直線算是簡化；師傅實際是兩支手柄一橫一縱，走的是曼哈頓。差多少，〈揀字之法〉第二章有算。</div>
+</div></footer>
+
+<script>
+/* ====== 快明字盤引擎（本頁：打字台） ====== */
+var COLS=24,ROWS=19,CU=30,CM=0.8,HOME=9*24+12,OUTCM=22;
+var TRAY="一二三四五六七八九十百千萬零兩年月日時分季節期上下左右內外前後東西南北中間高低長短大小多少遠近人我你他她們自己者眾兄弟姊妹母父親兒女家夫妻孫祖生師傅主任員工同仁客戶先姐君民司公務老闆代理總言語說話請問答謝函文書信字詞句章讀寫記錄簿冊報告為改善謄效試排查照承接依重望縮另收費續辦核准予是有無不了在來去到出入起立行走見看聽做作用取給送心思想念願意情感愛好平安靜勿敬孝憂喜怒哀樂怕慢急手足口目耳頭身揀持拿放提抱抬舉搬移換撥按壓摺疊挑水火土木金石山川風雨雲天地海河溪田園林光影氣轉涼米飯麵菜肉魚蝦雞鴨豬牛羊蛋湯圓糕餅茶酒油鹽糖果料盤機器具盒箱櫃桌椅門窗紙筆墨燈鐘錶針線刀尺秤鎖版店舖廠房屋樓廳室堂館所處局部課股組科系院校社區錢財價值元角捌仟佰款帳單據支結算薪資全額利每程新舊快壞真假清明輕薄深廣精粗巧密疏齊亂穩妥當直的之也而且或並及與若如則因故此其仍更再已未曾即台彰化嘉義投竹桃基隆宜蘭花蓮雄峰淑敏賴阿膝添衣保寄領拼斬蒸貝燴佛跳牆芋神缺度功紅成肚櫻旨回體件頻冷以華底受鳳何打錯丸宴豆蟳漏球斑干本飲切國炸集率宗漸可白常含梨";
+var GID="000000000000000000000001111111111111111111111112222222222222222222222223333333333333333333333344444444444444444444444455555555555555555555555666666666666666666666666777777777777777777777777888888888888888888888888999999999999999999999999aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccdddddddddddddddddddddddeeeeeeeeeeeeeeeeeeeeeeefffffffffffffffffffffffggggggggggggggggggghhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh";
+var CORPALL="受文者本行全體同仁主旨為改善公文謄打效率自本月十五日起試行新排字盤請查照說明一本行承接之文件以公務書函為大宗常用字集中二新盤依用字頻率重排手程可望縮短三成三試行期間如有錯漏仍依舊盤重打不另收費行主賴淑敏中華民國五十九年四月十日阿母大人膝下兒在台中一切平安勿念打字行工作已上手師傅說我揀字漸快月底可領全薪天氣轉涼望母親添衣保重弟妹功課如何家中若缺用度兒下月寄回兒明峰敬上快明喜宴菜單冷盤拼盤紅蟳米糕白斬土雞清蒸石斑干貝燴白菜佛跳牆炸芋丸櫻花蝦油飯鳳梨蝦球豬肚四神湯紅豆湯圓四季水果每桌捌仟元含飲料";
+function pxy(i){return[i%COLS,(i/COLS)|0]}
+function dcell(a,b){var p=pxy(a),q=pxy(b);return Math.hypot(p[0]-q[0],p[1]-q[1])}
+function layLei(){return TRAY.split("")}
+function layFreq(){
+  var f={},i,c;for(i=0;i<CORPALL.length;i++){c=CORPALL[i];f[c]=(f[c]||0)+1}
+  var chars=TRAY.split(""), idx=chars.map(function(_,i){return i});
+  idx.sort(function(a,b){return (f[chars[b]]||0)-(f[chars[a]]||0)||a-b});
+  var cells=chars.map(function(_,i){return i});
+  cells.sort(function(a,b){return dcell(a,HOME)-dcell(b,HOME)||a-b});
+  var out=new Array(chars.length);
+  for(i=0;i<cells.length;i++)out[cells[i]]=chars[idx[i]];
+  return out;
+}
+function layMine(){try{var s=localStorage.getItem("km-tray");if(s&&s.length===TRAY.length)return s.split("")}catch(e){}return null}
+/* ====== 導覽：滑架定位 ====== */
+(function(){
+  var pages=[["index.html","打字台"],["pan.html","排盤室"],["fa.html","揀字之法"],["tuo.html","委託打件"]],cur=0;
+  var st=document.getElementById("stops"),cb=document.getElementById("carbox");if(!st)return;
+  var xs=[24,74,124,174],s="";
+  pages.forEach(function(p,i){
+    s+='<a href="'+p[0]+'"'+(i===cur?' aria-current="page"':'')+'><rect x="'+(xs[i]-22)+'" y="26" width="44" height="26" fill="transparent"/><rect x="'+(xs[i]-1.5)+'" y="26" width="3" height="11" fill="'+(i===cur?"#C0392B":"#5E749B")+'"/><text x="'+xs[i]+'" y="50" text-anchor="middle" font-size="10.5" fill="'+(i===cur?"#F7F1E2":"#C4D2E2")+'" font-family="Noto Serif TC,serif" font-weight="700">'+p[1]+'</text></a>';
+  });
+  st.innerHTML=s;
+  cb.innerHTML='<g transform="translate('+xs[cur]+',0)"><rect x="-16" y="6" width="32" height="20" fill="#0F2A49"/><rect x="-11" y="2" width="22" height="10" fill="#F7F1E2"/><rect x="-11" y="8.5" width="22" height="1.6" fill="#1D4E89"/><rect x="-16" y="24" width="32" height="3" fill="#C0392B"/></g>';
+})();
+/* ====== 打字台 ====== */
+var PASS="新盤依頻率重排，手程可望縮短三成。";
+var lay=layLei(),pmap={},state=null;
+function remap(){pmap={};for(var i=0;i<lay.length;i++)pmap[lay[i]]=i}
+function isCJK(c){return /[一-鿿]/.test(c)}
+function drawTray(){
+  var s="",i,x,y;
+  for(i=0;i<=COLS;i++)s+='<line class="gl" x1="'+(i*CU)+'" y1="0" x2="'+(i*CU)+'" y2="'+(ROWS*CU)+'"/>';
+  for(i=0;i<=ROWS;i++)s+='<line class="gl" x1="0" y1="'+(i*CU)+'" x2="'+(COLS*CU)+'" y2="'+(i*CU)+'"/>';
+  for(i=0;i<lay.length;i++){x=(i%COLS)*CU;y=((i/COLS)|0)*CU;
+    s+='<text x="'+(x+CU/2)+'" y="'+(y+CU/2+5.5)+'" text-anchor="middle">'+lay[i]+'</text>';
+    s+='<rect class="cell" data-i="'+i+'" x="'+x+'" y="'+y+'" width="'+CU+'" height="'+CU+'"/>';
+  }
+  var hp=pxy(HOME);
+  s+='<rect class="home" x="'+(hp[0]*CU+1.5)+'" y="'+(hp[1]*CU+1.5)+'" width="'+(CU-3)+'" height="'+(CU-3)+'"/>';
+  s+='<polyline id="path" points=""/><g id="pathdots"></g>';
+  document.getElementById("traysvg").innerHTML=s;
+}
+function drawSrc(){
+  var el=document.getElementById("src"),s="",i,c;
+  for(i=0;i<PASS.length;i++){c=PASS[i];
+    var cls=!isCJK(c)?"pun":(state&&i<state.at?"done":(state&&i===state.at?"cur":""));
+    s+='<span class="'+cls+'" data-p="'+i+'">'+c+'</span>';
+  }
+  el.innerHTML=s;
+}
+function nextCJK(from){var i=from;while(i<PASS.length&&!isCJK(PASS[i]))i++;return i}
+function start(){
+  state={at:nextCJK(0),cm:0,miss:0,t0:null,cur:HOME,pts:[],done:false};
+  drawTray();drawSrc();upd();
+  document.getElementById("slip").className="slip";
+  document.getElementById("startbtn").textContent="重新打件";
+}
+function upd(){
+  document.getElementById("m-cm").textContent=state?state.cm.toFixed(1):"0.0";
+  document.getElementById("m-x").textContent=state?state.miss:0;
+  document.getElementById("m-t").textContent=(state&&state.t0)?((Date.now()-state.t0)/1000).toFixed(1):"—";
+}
+setInterval(function(){if(state&&state.t0&&!state.done)upd()},250);
+function centerOf(i){var p=pxy(i);return[(p[0]+.5)*CU,(p[1]+.5)*CU]}
+document.getElementById("traysvg").addEventListener("mouseover",function(ev){
+  var t=ev.target;if(!t.classList||!t.classList.contains("cell"))return;
+  var s=document.getElementById("slug");s.textContent=lay[+t.getAttribute("data-i")];s.className="slug on";
+});
+document.getElementById("traysvg").addEventListener("mouseleave",function(){document.getElementById("slug").className="slug"});
+document.getElementById("traysvg").addEventListener("click",function(ev){
+  var t=ev.target;if(!t.classList||!t.classList.contains("cell")||!state||state.done)return;
+  var i=+t.getAttribute("data-i"),want=PASS[state.at];
+  if(!state.t0)state.t0=Date.now();
+  if(lay[i]===want){
+    t.setAttribute("class","cell hit");
+    state.cm+=dcell(state.cur,i)*CM;
+    var a=centerOf(state.cur),b=centerOf(i);
+    if(state.pts.length===0)state.pts.push(a);
+    state.pts.push(b);
+    document.getElementById("path").setAttribute("points",state.pts.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1)}).join(" "));
+    document.getElementById("pathdots").innerHTML=state.pts.map(function(p){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.1"/>'}).join("");
+    state.cur=i;
+    state.at=nextCJK(state.at+1);
+    if(state.at>=PASS.length)finish();
+    drawSrcKeep();
+  }else{
+    state.miss++;t.setAttribute("class","cell miss");
+    setTimeout(function(){if(t.getAttribute("class")==="cell miss")t.setAttribute("class","cell")},450);
+  }
+  upd();
+});
+function drawSrcKeep(){
+  var sp=document.getElementById("src").children,i;
+  for(i=0;i<sp.length;i++){var c=PASS[i];
+    sp[i].className=!isCJK(c)?"pun":(i<state.at?"done":(i===state.at?"cur":""));
+  }
+}
+function expertCm(){
+  var p=HOME,d=0,i,c;
+  for(i=0;i<PASS.length;i++){c=PASS[i];if(!isCJK(c))continue;
+    if(pmap[c]!==undefined){d+=dcell(p,pmap[c])*CM;p=pmap[c]}else d+=OUTCM;}
+  return d;
+}
+function finish(){
+  state.done=true;
+  var sec=(Date.now()-state.t0)/1000,exp=expertCm(),n=16;
+  var vs;
+  if(sec<=30&&state.miss<=1)vs="出師了。這速度可以坐本行第二台機。";
+  else if(sec<=60)vs="有底。字認得，就是眼睛還在滿盤找——類聚盤的列名背起來，速度自然來。";
+  else if(sec<=120)vs="生手正常成績。你的手程和師傅一樣長（路徑是文章決定的），輸的全是找字的時間。";
+  else vs="莫氣餒，第一代賴金塗學徒時期，一天也才三百字。";
+  var laynm=document.getElementById("laysel");laynm=laynm.options[laynm.selectedIndex].text;
+  document.getElementById("slip").innerHTML=
+   '<div class="card"><h2>打　件　單</h2><table>'+
+   '<tr><th>件號</th><td class="mono">KM-0412</td><th>字盤</th><td>'+laynm+'</td></tr>'+
+   '<tr><th>字數</th><td class="mono">'+n+' 字</td><th>誤揀</th><td class="mono">'+state.miss+' 次</td></tr>'+
+   '<tr><th>你的手程</th><td class="mono">'+state.cm.toFixed(1)+' cm</td><th>師傅手程</th><td class="mono">'+exp.toFixed(1)+' cm</td></tr>'+
+   '<tr><th>你的用時</th><td class="mono">'+sec.toFixed(1)+' 秒</td><th>每字均耗</th><td class="mono">'+(sec/n).toFixed(2)+' 秒</td></tr>'+
+   '</table><div class="verdict"><b>行主批：</b>'+vs+' 手程 '+state.cm.toFixed(1)+' cm 是這面盤替這篇文章定好的價——換句話說，<b>時間你可以練，距離只有換盤救得了</b>。去〈<a href="pan.html">排盤室</a>〉把盤重排，再回來打同一件，看省幾公分。</div></div>';
+  document.getElementById("slip").className="slip on";
+  document.getElementById("slip").scrollIntoView({behavior:"smooth",block:"start"});
+}
+document.getElementById("startbtn").addEventListener("click",start);
+document.getElementById("laysel").addEventListener("change",function(){
+  var v=this.value;
+  lay=v==="freq"?layFreq():(v==="mine"?(layMine()||layLei()):layLei());
+  document.getElementById("trayname").textContent=(v==="freq"?"頻率盤":v==="mine"?"我的盤":"類聚盤")+"・主盤 456 字（24×19）｜備用盤三千餘字不上機";
+  remap();start();
+});
+if(layMine())document.getElementById("mineopt").disabled=false;
+remap();drawTray();drawSrc();
+</script>
+</body>
+</html>

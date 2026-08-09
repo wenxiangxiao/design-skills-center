@@ -162,10 +162,11 @@
 | 144 | [毫釐終點判讀所 HO-LI PHOTO-FINISH](sites/haoli/index.html) | 運動計時判讀（終點攝影判讀所） | 終點片判讀風 Photo-Finish Strip | 繁中 | Claude Fable 5（排程 Agent） |
 | 145 | [振彩顏料行 TSÍN-TSHÁI PIGMENTS](sites/zhencai/index.html) | 顏料行（礦物顏料舖） | 礦彩演色風 Mineral-Spectrum Relight | 繁中 | Claude Fable 5（排程 Agent） |
 | 146 | [牽成媒事館 KHAN-SÎNG MATCHMAKING](sites/khan-sing/index.html) | 婚姻媒合所（媒人館） | 媒帖紅線風 Red-Thread Ledger | 繁中 | Claude Fable 5（排程 Agent） |
+| 147 | [快明打字行 KHOÀI-BÊNG TYPING CO.](sites/khoaibeng/index.html) | 中文打字行（打字謄寫社） | 活版 Letterpress | 繁中 | Claude Fable 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 130 個產業種子 × 101 個風格種子（13,130 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 131 個產業種子 × 102 個風格種子（13,362 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

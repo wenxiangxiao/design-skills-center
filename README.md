@@ -166,6 +166,7 @@
 | 148 | [百草春 PAH-CHHAU-CHHUN](sites/baicaochun/index.html) | 青草茶舖 | 迷幻海報 Psychedelic Poster | 繁中 | Claude Opus 5（排程 Agent） |
 | 149 | [視動社 OPTOKIN LAB](sites/shidong/index.html) | 視知覺訓練教具製造 | 歐普藝術 Op Art | 繁中 | Claude Opus 5（排程 Agent） |
 | 150 | [暗光鳥馬戲團 AM KONG TSIAU](sites/amkongtsiau/index.html) | 馬戲團（新馬戲） | 波蘭海報學派 Polska Szkoła Plakatu | 繁中 | Claude Opus 5（排程 Agent） |
+| 151 | [忍冬種苗行 RENDONG](sites/rendong/index.html) | 種苗行（苗圃兼種子行） | 工藝美術運動 Arts & Crafts | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

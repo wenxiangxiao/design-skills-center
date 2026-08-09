@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原理與沿革｜視動社 OPTOKIN LAB</title>
+<meta name="description" content="歐普藝術的五個不可省略構成規則、六種知覺機制（側抑制、邊界位移、同時對比、運動後效、馬赫帶、圖地組織）、製版條件與本所沿革。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F2F1EC'/%3E%3Crect x='0' y='0' width='4' height='32' fill='%23101014'/%3E%3Crect x='7' y='0' width='3' height='32' fill='%23101014'/%3E%3Crect x='13' y='0' width='2.4' height='32' fill='%23101014'/%3E%3Crect x='18' y='0' width='3' height='32' fill='%23101014'/%3E%3Crect x='24.5' y='0' width='4' height='32' fill='%23101014'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23F2F1EC'/%3E%3Ccircle cx='16' cy='16' r='3.4' fill='%23101014'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101014; --paper:#F2F1EC; --mark:#2233E0; --grey:#8C8C88;
+  --fg:var(--ink); --bg:var(--paper);
+  --cell:34px; --amp:0.42; --cx:0.5; --cy:0.5;
+  --t-front:90ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0!important}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{
+  font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:400;
+  color:var(--ink);background:var(--paper);line-height:1.62;
+  font-variant-numeric:tabular-nums;overflow-x:hidden;
+}
+/* ── 背景：兩層 repeating-linear-gradient 交疊＝真莫列干涉；上層角度由捲動驅動 ── */
+.moire{position:fixed;inset:-30vmax;z-index:0;pointer-events:none;opacity:.17}
+.moire i{position:absolute;inset:0;display:block;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 3px,transparent 3px 6px)}
+.moire i.b{transform:rotate(1.6deg)}
+/* ambient：下層以一個完整條紋週期（6px）無限位移，干涉帶因此持續緩慢爬行。
+   6px = 條紋週期，故循環完全無縫；純 transform，GPU 合成，零逐幀 JS。 */
+@keyframes moireCreep{from{transform:translateX(0)}to{transform:translateX(6px)}}
+.moire i.a{animation:moireCreep 26s linear infinite}
+@supports (animation-timeline: scroll()){
+  @keyframes moireTurn{from{transform:rotate(.35deg)}to{transform:rotate(3.6deg)}}
+  .moire i.b{animation:moireTurn linear both;animation-timeline:scroll(root block)}
+}
+main,header,footer{position:relative;z-index:1}
+/* ── 圖地反轉：全站唯一的狀態表達法（signature 反轉波前） ── */
+.rv{position:relative;display:inline-block;background:var(--bg);color:var(--fg);
+  text-decoration:none;isolation:isolate}
+.rv>span{position:relative;z-index:1;display:block}
+.rv::after{
+  content:"";position:absolute;inset:0;z-index:2;background:#fff;
+  mix-blend-mode:difference;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+          mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+  -webkit-mask-size:200% 100%;mask-size:200% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4);
+}
+.rv:hover::after,.rv:focus-visible::after,.rv[aria-current]::after,.rv.on::after{
+  -webkit-mask-position:0 0;mask-position:0 0}
+.rv:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+/* ── 導覽：reversal-cell 圖地反轉格 ── */
+.nav{position:fixed;top:18px;right:18px;z-index:40;display:grid;
+  grid-template-columns:repeat(4,46px);gap:0;border:3px solid var(--ink);background:var(--paper)}
+.nav a{position:relative;display:block;width:46px;height:46px;background:var(--paper);isolation:isolate;
+  border-left:3px solid var(--ink);text-decoration:none}
+.nav a:first-child{border-left:0}
+.nav a svg{display:block;width:100%;height:100%}
+.nav a .u-g{fill:var(--paper)}   /* 格底 */
+.nav a .u-f{fill:var(--ink)}     /* 形 */
+.nav a[aria-current="page"] .u-g{fill:var(--ink)}
+.nav a[aria-current="page"] .u-f{fill:var(--paper)}
+.nav a::after{content:"";position:absolute;inset:0;background:#fff;mix-blend-mode:difference;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+  -webkit-mask-size:200% 100%;mask-size:200% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4)}
+.nav a:hover::after,.nav a:focus-visible::after{-webkit-mask-position:0 0;mask-position:0 0}
+.nav .lab{position:absolute;left:-9999px}
+.navname{position:fixed;top:70px;right:18px;z-index:40;background:var(--ink);color:var(--paper);
+  font-size:11px;letter-spacing:.22em;padding:3px 7px;font-weight:800}
+/* ── 版面 ── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+.sect{background:var(--paper);padding:44px 0}
+.sect.blk{background:var(--ink)}
+.rule{height:0;border-top:3px solid var(--ink)}
+.blk{background:var(--ink);color:var(--paper)}
+.blk a{color:var(--paper)}
+h1,h2,h3{font-weight:900;line-height:1.02;letter-spacing:-.015em}
+h2{font-size:clamp(26px,4.2vw,46px);margin:0 0 14px}
+h3{font-size:19px;letter-spacing:.02em;margin:0 0 8px}
+.mono{font-family:"Archivo",monospace;font-weight:600;letter-spacing:.09em;
+  font-size:11.5px;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;background:var(--ink);color:var(--paper);font-weight:800;
+  font-size:11px;letter-spacing:.2em;padding:3px 8px}
+p{max-width:64ch}
+.lead{font-size:17.5px}
+.small{font-size:13.5px;color:#3a3a40}
+.mark{color:var(--mark)}
+/* ── 場容器 ── */
+.fieldbox{position:relative;overflow:hidden;background:var(--paper);border:3px solid var(--ink)}
+.fieldbox svg{display:block;width:100%;height:100%}
+.fieldbox .cnt{position:absolute;left:0;bottom:0;background:var(--ink);color:var(--paper);
+  font-size:10.5px;letter-spacing:.14em;padding:2px 6px;font-weight:700;z-index:3}
+.fieldbox .no{position:absolute;right:0;top:0;background:var(--ink);color:var(--paper);
+  font-size:10.5px;letter-spacing:.14em;padding:2px 6px;font-weight:700;z-index:3}
+/* ── 視動鼓（CSS 3D 圓柱） ── */
+.drumwrap{position:relative;height:min(52vh,380px);overflow:hidden;
+  border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);background:var(--paper)}
+.stage{position:absolute;inset:0;perspective:900px;perspective-origin:50% 50%}
+.drum{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;
+  animation:spin 20s linear infinite}
+@keyframes spin{to{transform:rotateY(-360deg)}}
+.drum b{position:absolute;display:block;background:var(--ink);
+  width:var(--sw);height:var(--sh);margin-left:calc(var(--sw)/-2);margin-top:calc(var(--sh)/-2);
+  backface-visibility:hidden}
+.drumwrap .cap{position:absolute;left:0;top:0;padding:8px 12px;z-index:3}
+.drumwrap .ctl{position:absolute;right:0;top:0;z-index:3;display:flex;border-left:3px solid var(--ink);
+  border-bottom:3px solid var(--ink);background:var(--paper)}
+.drumwrap .ctl button{font:inherit;font-weight:800;font-size:12px;letter-spacing:.1em;
+  padding:7px 11px;border:0;border-left:3px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
+.drumwrap .ctl button:first-child{border-left:0}
+.drumwrap .ctl button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.drumwrap .foot{position:absolute;left:0;right:0;bottom:0;z-index:3;background:var(--ink);color:var(--paper);
+  padding:7px 12px;font-size:13px}
+/* ── 表 ── */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:2px solid var(--ink);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--ink);color:var(--paper);font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+/* ── 按鈕（無圓角無陰影，狀態一律靠圖地反轉） ── */
+button.b,a.b{display:inline-block;font:inherit;font-weight:800;font-size:14px;letter-spacing:.06em;
+  border:3px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 16px;cursor:pointer;
+  text-decoration:none;position:relative;isolation:isolate}
+button.b::after,a.b::after{content:"";position:absolute;inset:0;background:#fff;mix-blend-mode:difference;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+  -webkit-mask-size:200% 100%;mask-size:200% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4)}
+button.b:hover::after,button.b:focus-visible::after,a.b:hover::after,a.b:focus-visible::after,
+button.b[aria-pressed="true"]::after{-webkit-mask-position:0 0;mask-position:0 0}
+button.b:disabled{color:var(--grey);border-color:var(--grey);cursor:default}
+button.b:disabled::after{display:none}
+/* ── 轉場：clip-path 對角推移（狀態切換） ── */
+@keyframes wipeIn{from{clip-path:polygon(0 0,0 0,-30% 100%,-30% 100%)}
+                  to{clip-path:polygon(0 0,130% 0,100% 100%,-30% 100%)}}
+.wipe{animation:wipeIn .30s steps(6) both}
+/* ── footer ── */
+footer{margin-top:70px;background:var(--ink);color:var(--paper);padding:34px 0 26px}
+footer a{color:var(--paper)}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+/* ── noscript / 無 JS 備援：CSS-only 條紋場 ── */
+.nofield{background:
+  repeating-linear-gradient(90deg,var(--ink) 0 9px,var(--paper) 9px 18px);height:150px}
+/* ── RWD ── */
+@media (max-width:900px){
+  .nav{top:auto;bottom:0;left:0;right:0;grid-template-columns:repeat(4,1fr);border:0;border-top:3px solid var(--ink)}
+  .nav a{width:auto;height:48px}
+  .navname{display:none}
+  body{padding-bottom:48px}
+  footer .cols{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .wrap{padding:0 15px}
+  .drumwrap{height:280px}
+  table{font-size:12.5px}
+  th,td{padding:5px 6px}
+  .drumwrap .ctl button{padding:6px 8px;font-size:11px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .drum{animation:none!important;transform:rotateY(-9deg)}
+  .moire i.a{animation:none!important;transform:none}
+  .moire i.b{animation:none!important;transform:rotate(1.6deg)}
+}
+/* ── mask-image 不支援時的退化：狀態仍是圖地反轉，只是沒有波前掃過的過程 ── */
+@supports not (mask-image: linear-gradient(#000,#000)){
+  .rv::after,.nav a::after,button.b::after,a.b::after,.opt::after,.pcard::after,
+  .fivecell::after,.filters button::after,.toc a::after{display:none}
+  .rv:hover,.rv[aria-current],a.b:hover,button.b:hover,button.b[aria-pressed="true"],
+  .opt[aria-pressed="true"],.filters button[aria-pressed="true"],.toc a:hover
+    {background:var(--ink);color:var(--paper)}
+}
+
+.toc{list-style:none;margin-top:20px;border:3px solid var(--ink);width:max-content;max-width:100%}
+.toc li{border-top:3px solid var(--ink)}
+.toc li:first-child{border-top:0}
+.toc a{position:relative;isolation:isolate;display:block;padding:9px 15px;text-decoration:none;color:var(--ink);
+  font-weight:800;font-size:14.5px;background:var(--paper)}
+.toc a::after{content:"";position:absolute;inset:0;background:#fff;mix-blend-mode:difference;
+ -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+ -webkit-mask-size:200% 100%;mask-size:200% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ -webkit-mask-position:100% 0;mask-position:100% 0;
+ transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4)}
+.toc a:hover::after,.toc a:focus-visible::after{-webkit-mask-position:0 0;mask-position:0 0}
+.hh{font-size:clamp(21px,3vw,31px);border-bottom:3px solid var(--ink);padding-bottom:8px}
+.five{margin:18px 0 0 0;padding:0;list-style:none;counter-reset:f}
+.five li{counter-increment:f;position:relative;padding:14px 0 14px 62px;border-top:3px solid var(--ink);max-width:74ch}
+.five li:last-child{border-bottom:3px solid var(--ink)}
+.five li::before{content:counter(f,decimal-leading-zero);position:absolute;left:0;top:14px;
+  background:var(--ink);color:var(--paper);font-weight:900;font-size:15px;padding:3px 9px;letter-spacing:.06em}
+.five b{display:block;font-size:16.5px;margin-bottom:5px}
+section[id]{scroll-margin-top:20px}
+@media(max-width:900px){.two{grid-template-columns:1fr!important}}
+
+</style>
+</head>
+<body>
+<div class="moire" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
+<nav class="nav" aria-label="主導覽"><a href="index.html"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><circle class="u-f" cx="23" cy="23" r="11"/></svg><span class="lab">本所</span></a><a href="shiban.html"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><path class="u-f" d="M23 10L36 23L23 36L10 23Z"/></svg><span class="lab">試板室</span></a><a href="tuban.html"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><rect class="u-f" x="9" y="9" width="12" height="12"/><rect class="u-f" x="25" y="25" width="12" height="12"/></svg><span class="lab">圖版誌</span></a><a href="yuanli.html" aria-current="page"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><path class="u-f" d="M23 9A14 14 0 0 1 23 37Z"/><rect class="u-f" x="9" y="21" width="14" height="4"/></svg><span class="lab">原理與沿革</span></a></nav><div class="navname">原理與沿革</div>
+
+<section class="sect" style="padding-bottom:18px">
+ <div class="wrap">
+  <div class="tag">原理與沿革</div>
+  <h2 style="margin-top:14px">為什麼一張<br>不會動的板會動</h2>
+  <p class="lead" style="margin-top:14px;max-width:58ch">
+   本頁不需要 JavaScript。六種機制的完整說明、五個構成規則、本所沿革與訂購條件全在下面。
+  </p>
+  <ul class="toc">
+   <li><a href="#s1">一、歐普藝術：1964 年被命名的東西</a></li>
+   <li><a href="#s2">二、五個不可省略的構成規則</a></li>
+   <li><a href="#s3">三、六種機制</a></li>
+   <li><a href="#s4">四、製版條件</a></li>
+   <li><a href="#s5">五、本所沿革</a></li>
+   <li><a href="#s6">六、訂購、保固與注意事項</a></li>
+  </ul>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect" id="s1">
+ <div class="wrap">
+  <h3 class="hh">一、歐普藝術：1964 年被命名的東西</h3>
+  <p style="margin-top:12px">
+   「Op Art」這個名字出自 1964 年《時代》雜誌一篇談新繪畫的短文，是記者造的詞，不是畫家自稱的。
+   隔年二月，紐約現代美術館開了「The Responsive Eye」（策展人 William C. Seitz），
+   把英國的 Bridget Riley、匈牙利裔法籍的 Victor Vasarely、美國的 Richard Anuszkiewicz、
+   委內瑞拉的 Jesús Rafael Soto 與 Carlos Cruz-Diez 放在同一個展場，這件事才變成一個運動。
+  </p>
+  <p style="margin-top:12px">
+   它的祖父輩很清楚：包浩斯的 Josef Albers 在 1963 年出版《Interaction of Color》，
+   證明同一塊顏色會因為旁邊放什麼而變成另一塊顏色；再往上是十九世紀染坊化學家 Chevreul 的同時對比定律。
+   Vasarely 1955 年寫〈黃色宣言〉，主張作品應該是一套可以無限重製的「單元造形」（unité plastique）系統——
+   一個正方格裡放一個幾何形，格與形兩色互換，換色與換形就生出全部變化。
+   這是為什麼歐普藝術從一開始就長得像工業產品而不像手工繪畫。
+  </p>
+  <p style="margin-top:12px">
+   Riley 1961 年的《Movement in Squares》是把一排等寬方格向中間某條線壓縮；
+   1964 年的《Current》被印成 The Responsive Eye 的目錄封面，
+   隔年美國時裝界大量翻印她的圖樣做成洋裝與包裝，她公開表達反對，卻因為當時的法律保護不到這類設計而無法可施。
+   歐普藝術被商業吃掉的速度，快得像它自己畫的那種漸變。
+  </p>
+  <div class="fieldbox" style="height:230px;margin-top:20px" data-field='{"field":"fold","unit":"bar","k":15,"a":0.38,"cell":17,"alt":"摺線壓縮直條場，Movement in Squares 的構成邏輯"}'>
+    <div class="fx"></div><div class="cnt"></div><div class="no">場：摺 FOLD</div>
+  </div>
+  <noscript><div class="nofield" style="margin-top:20px"></div></noscript>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect" id="s2">
+ <div class="wrap">
+  <h3 class="hh">二、五個不可省略的構成規則</h3>
+  <p style="margin-top:12px;max-width:64ch">拿掉任何一條，做出來的東西就不是歐普藝術了。本所所有產品與這個網站都照這五條做。</p>
+  <ol class="five">
+   <li>
+     <b>一個重複單元，被一個連續函數漸進變形。</b>
+     單元排在嚴格的整數格上，每一格的形變參數由 f(u,v) 決定，而且 f 必須是連續、單調可讀的——
+     隨機、雜訊、手繪抖動都會讓它退回裝飾圖樣。你要能指著畫面說「這裡變得比較快」。
+   </li>
+   <li>
+     <b>硬邊。零漸層、零陰影、零圓角、零材質。</b>
+     邊界必須是零寬度的躍變。柔邊會把側抑制的訊號抹掉，效果直接消失一半。
+     這也是為什麼歐普的原作是遮蔽膠帶加平塗，不是筆觸。
+   </li>
+   <li>
+     <b>沒有中心的全幅場，被畫布四邊切斷。</b>
+     不留白框、不置中、沒有焦點；圖案在邊緣被切斷，暗示它繼續長出去。
+     一旦加了外框留白，它就變成一張「掛在牆上的圖」，而不是一片會動的場。
+   </li>
+   <li>
+     <b>消色差為本體。</b>
+     黑與白就是全部。色彩若出現，只能當標記用，面積極小，而且不能用明暗建立階層。
+     本所整站只有一個彩色（群青 #2233E0），只出現在「量測工具」上：直尺、注視點、焦點框。
+   </li>
+   <li>
+     <b>單元造形（unité plastique）：格與形兩色互換。</b>
+     正方格內置一個幾何形，格色與形色永遠相反。
+     這條同時是本所的狀態語法：現用頁、選中、hover——全部用黑白對調表示，
+     永遠不加色、不加框、不加光暈、不加陰影。整個網站沒有一個「高亮」。
+   </li>
+  </ol>
+  <div class="fieldbox" style="height:250px;margin-top:20px" data-live data-field='{"field":"bulge","unit":"dia","k":4.2,"a":1.6,"unite":true,"cell":28,"alt":"單元造形場：方格與內嵌菱形兩色互換"}'>
+    <div class="fx"></div><div class="cnt"></div><div class="no">單元造形場</div>
+  </div>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect" id="s3">
+ <div class="wrap">
+  <h3 class="hh">三、六種機制</h3>
+  <p style="margin-top:12px;max-width:64ch">〈試板室〉的六塊板各測一種。以下是每一種的來歷與現況，包含哪些解釋還在爭論。</p>
+  <table style="margin-top:18px">
+   <thead><tr><th style="width:16%">機制</th><th style="width:12%">板</th><th>怎麼回事</th></tr></thead>
+   <tbody>
+    <tr><td>側抑制</td><td>OK-P-02<br>赫曼方格</td>
+      <td>黑方塊之間的白色街道，交叉點看起來有灰點。傳統以視網膜神經節細胞的環狀受納區（中心興奮、周邊抑制）解釋：
+      交叉點四面都是白，被抑制得比較多，所以顯得暗。近二十年這個解釋受到挑戰——把方塊邊緣改成波浪就抓不到灰點了，
+      這是環狀受納區模型預測不到的，因此也有人主張要用皮質的方向選擇性細胞來解釋。本所照實寫，不裝作定論。</td></tr>
+    <tr><td>邊界位移</td><td>OK-P-07<br>咖啡牆</td>
+      <td>黑白方磚逐列錯開，中間夾一條中灰的磚縫，整排磚縫看起來成楔形。1979 年 Richard Gregory 與 Priscilla Heard
+      在布里斯托一家咖啡館的外牆上注意到並命名，更早的版本 1897 年就被記述過。
+      關鍵是那條縫的明度必須落在黑白之間；縫太黑或太白，效果就沒了。</td></tr>
+    <tr><td>明度恆常</td><td>OK-P-14<br>同時對比</td>
+      <td>同一塊灰，放在墨底上顯得亮、放在紙底上顯得暗。Chevreul 1839 年在戈布蘭染坊寫下，
+      Albers 1963 年把它做成教材。視覺系統要的是物體的反射率而不是到達眼睛的光量，所以它會扣掉背景——扣過頭就成了錯覺。</td></tr>
+    <tr><td>方向選擇性適應</td><td>OK-P-19<br>漂移橫紋</td>
+      <td>運動後效，俗稱瀑布錯覺。1834 年 Robert Addams 在蘇格蘭 Foyers 瀑布邊觀察到：
+      盯著往下沖的水看一陣子，再看旁邊的岩石，岩石會往上爬。對某一方向敏感的神經元反應下降後，
+      對立方向的訊號就相對佔上風。適應十秒左右就足夠，效果數秒內衰退。</td></tr>
+    <tr><td>邊界對比</td><td>OK-P-22<br>明度階梯</td>
+      <td>馬赫帶。Ernst Mach 1865 年記述：一排均勻的灰階並排，每一階的交界兩側會浮出一亮一暗的細帶，
+      實際上並不存在。用白條把接縫遮住，帶子立刻消失——這是最容易當場自證的一個。</td></tr>
+    <tr><td>圖地組織</td><td>OK-P-24<br>單元造形場</td>
+      <td>Edgar Rubin 1915 年把「圖」與「地」分開討論。單元造形場刻意讓兩者面積相等、形狀互補，
+      視覺系統無法穩定地決定誰在前面，於是自己來回切換。這一題沒有正解，只有偏好。</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect" id="s4">
+ <div class="wrap">
+  <h3 class="hh">四、製版條件</h3>
+  <p style="margin-top:12px">
+   歐普原作是壓克力顏料或不透明水彩平塗在板上，用遮蔽膠帶與鴨嘴筆求硬邊；
+   Riley 的大幅作品由助手依她的準備稿（cartoon）上色，因為畫面上不能有任何一筆看得出是誰畫的——
+   只要有筆觸個性，觀者就會去讀那個人，而不是讓自己的眼睛去動。
+  </p>
+  <p style="margin-top:12px">本所的規格沿用這個要求：</p>
+  <table style="margin-top:14px">
+   <thead><tr><th>項目</th><th>規格</th><th>為什麼</th></tr></thead>
+   <tbody>
+    <tr><td>邊緣</td><td>切口誤差 ±0.2 mm 以內</td><td>邊糊 0.3 mm，側抑制的訊號就掉一半</td></tr>
+    <tr><td>表面</td><td>全消光，60° 光澤度 ≤ 6</td><td>反光會在板上加入不屬於場的第二個圖案</td></tr>
+    <tr><td>墨色</td><td>反射率 ≤ 5%</td><td>灰掉的黑會壓低對比，高頻板首當其衝</td></tr>
+    <tr><td>底色</td><td>反射率 82–86%</td><td>純白會刺眼，低於 80% 則高頻板讀不出來</td></tr>
+    <tr><td>格數</td><td>整數格，圖案必須被板邊切斷</td><td>留白外框會讓它變成一張畫</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect" id="s5">
+ <div class="wrap">
+  <h3 class="hh">五、本所沿革</h3>
+  <table style="margin-top:16px">
+   <tbody>
+    <tr><td style="width:15%"><b>1969</b></td><td>涂敬堯在太原路做光學材料，替臺北一家醫院的視能訓練室車了六只木鼓，貼上手裁的黑白紙條。OK-D 系列的起點。</td></tr>
+    <tr><td><b>1974</b></td><td>掛牌「視動社」。第一份目錄只有三只鼓、四張板。</td></tr>
+    <tr><td><b>1981</b></td><td>改用壓克力板取代裱貼紙板，開始能做 A2 尺寸與高頻圖樣。OK-P 編號自此年起連號。</td></tr>
+    <tr><td><b>1993</b></td><td>接下第一批大專院校知覺心理學實驗室的訂單，開始做指定參數的特製場。</td></tr>
+    <tr><td><b>1998</b></td><td>涂佩汶進廠。她把父親手上的「照著樣子畫」改寫成四個數字：場函數、單元造形、k、a。目錄從此可以用電話報號訂購。</td></tr>
+    <tr><td><b>2011</b></td><td>製版交給高定邦一人負責。遮蔽、平塗、修邊全手工，一天最多出四張 A2。</td></tr>
+    <tr><td><b>2026</b></td><td>現行目錄 24 塊板、2 款鼓。院所與學校月結，設計科系另有教學折扣。</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect" id="s6">
+ <div class="wrap">
+  <h3 class="hh">六、訂購、保固與注意事項</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:16px" class="two">
+   <div>
+    <p><b>訂購</b><br>電話 (02) 2556-0714，週一至週五 09:30–18:00、週六 09:30–13:00。
+    台北市大同區太原路 27 巷 6 號 2 樓，樓下是五金行，鐵門上有一枚黑白菱形。</p>
+    <p style="margin-top:12px"><b>交期與保固</b><br>目錄品 10 個工作天，特製場 14 天。
+    切口誤差超過 ±0.2 mm 或表面光澤度超標一律重做，不另計費。壓克力板保固兩年，鼓的馬達保固一年。</p>
+   </div>
+   <div>
+    <p><b>使用注意</b><br>高對比高頻條紋可能引起頭暈、噁心或不適。
+    有光敏性癲癇病史者請勿使用高頻板（OK-P-17、OK-P-11）與轉速 36°/s 以上的鼓。
+    兒童使用請有成人在旁。任何時候覺得不舒服就把視線移開——後效通常在數秒內自行消退。</p>
+    <p class="small" style="margin-top:12px"><b>本站聲明</b><br>
+    視動社為 Design Skills Center 的歐普藝術風格範例站，品牌、人名、地址、電話、價格、沿革均為虛構示意。
+    〈試板室〉的六塊板是知覺現象的展示，不是視力檢查、不是任何形式的醫療或診斷。
+    引用的作品、人名、年代與現象出處為真實的公開資料。</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <img src="assets/logo.svg" alt="視動社 OPTOKIN LAB" width="280" height="70" style="display:block;background:var(--paper);margin-bottom:14px">
+        <p class="small" style="color:#C9C9C4;margin-top:12px">視知覺訓練圖版與視動鼓製造。<br>
+        台北市大同區太原路 27 巷 6 號 2 樓<br>
+        (02) 2556-0714　週一至週五 09:30–18:00　週六 09:30–13:00<br>
+        負責人 涂佩汶　製版 高定邦</p>
+      </div>
+      <div>
+        <div class="mono" style="color:#8E8E8A">頁面</div>
+        <p class="small" style="margin-top:8px">
+        <a href="index.html">本所</a><br><a href="shiban.html">試板室</a><br>
+        <a href="tuban.html">圖版誌</a><br><a href="yuanli.html">原理與沿革</a></p>
+      </div>
+      <div>
+        <div class="mono" style="color:#8E8E8A">說明</div>
+        <p class="small" style="color:#C9C9C4;margin-top:8px">
+        本站為 Design Skills Center 的風格範例站，品牌、人名、價格、案例均為虛構示意。
+        試板室的六塊板是知覺現象的展示，不是任何形式的視力檢查或醫療診斷。
+        高對比條紋可能引起不適；任何時候都可按「靜止」停下。</p>
+        <p class="small" style="color:#8E8E8A;margin-top:10px">建置：Claude Opus 5 · 排程 Agent　2026-08-09<br>
+        <a href="SKILL.md">SKILL.md</a>　<a href="README.md">README.md</a></p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+/* ============================================================
+   視動社 · unit-modulation 單元調變場引擎
+   全站每一張圖像（logo/favicon/圖版/縮圖/結果單）都由這支引擎產生。
+   規則：一個重複單元 + 一個連續純量場 f(u,v) → 每格的形變參數。
+   沒有一張圖是在描物件的外形。
+   ============================================================ */
+(function(){
+'use strict';
+var TAU = Math.PI * 2;
+
+/* ── 五個場函數（每個都對應一件真實作品的構成邏輯） ── */
+var FIELDS = {
+  /* 摺：欄寬向一條看不見的摺線壓縮（Riley《Movement in Squares》1961） */
+  fold: function(u,v,p){ var s=u+p.a*Math.sin(Math.PI*u); return 0.5+0.5*Math.cos(TAU*s*p.k); },
+  /* 波：橫向相位被第二個正弦調變（Riley《Current》1964） */
+  wave: function(u,v,p){ return 0.5+0.5*Math.sin(TAU*(v*p.k + p.a*Math.sin(TAU*(u-p.cx)))); },
+  /* 脹：徑向膨脹，中心以外單調變密（Vasarely Vega 系列） */
+  bulge:function(u,v,p){ var dx=(u-p.cx)*1.6, dy=v-p.cy, r=Math.sqrt(dx*dx+dy*dy);
+                         return 0.5+0.5*Math.cos(TAU*p.k*r/(1+p.a*r*r)); },
+  /* 扭：雙線性剪切，四角旋向相反 */
+  torsion:function(u,v,p){ return 0.5+0.5*Math.sin(TAU*(u*p.k + p.a*8*(u-p.cx)*(v-p.cy))); },
+  /* 尖：以中軸鏡射的人字形（Riley《Fall》系的折返） */
+  chevron:function(u,v,p){ return 0.5+0.5*Math.sin(TAU*(Math.abs(u-p.cx)*p.k*2 + v*p.a*3)); },
+  /* 平：退化情形，整場常數——赫曼方格、咖啡牆這類等距圖版就是 k=0 的極限 */
+  flat:function(u,v,p){ return p.a; }
+};
+var FIELD_NAMES = {fold:'摺 FOLD',wave:'波 WAVE',bulge:'脹 BULGE',torsion:'扭 TORSION',chevron:'尖 CHEVRON',flat:'平 FLAT'};
+
+/* ── 四種單元造形（Vasarely unité plastique：格 + 內嵌形，兩色互換） ── */
+function unit(kind,x,y,cw,ch,t,ink,paper){
+  var s;
+  if(kind==='bar'){ var w=cw*t; if(w<0.4) return '';
+    return '<rect x="'+(x+(cw-w)/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+ch.toFixed(1)+'" fill="'+ink+'"/>'; }
+  if(kind==='disc'){ var r=Math.min(cw,ch)*0.5*t; if(r<0.3) return '';
+    return '<circle cx="'+(x+cw/2).toFixed(1)+'" cy="'+(y+ch/2).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+ink+'"/>'; }
+  if(kind==='sq'){ s=Math.min(cw,ch)*t; if(s<0.4) return '';
+    return '<rect x="'+(x+(cw-s)/2).toFixed(1)+'" y="'+(y+(ch-s)/2).toFixed(1)+'" width="'+s.toFixed(1)+'" height="'+s.toFixed(1)+'" fill="'+ink+'"/>'; }
+  if(kind==='dia'){ s=Math.min(cw,ch)*0.5*t; if(s<0.3) return '';
+    var mx=x+cw/2, my=y+ch/2;
+    return '<path d="M'+mx.toFixed(1)+' '+(my-s).toFixed(1)+'L'+(mx+s).toFixed(1)+' '+my.toFixed(1)+
+           'L'+mx.toFixed(1)+' '+(my+s).toFixed(1)+'L'+(mx-s).toFixed(1)+' '+my.toFixed(1)+'Z" fill="'+ink+'"/>'; }
+  if(kind==='row'){ var h=ch*t; if(h<0.4) return '';
+    return '<rect x="'+x.toFixed(1)+'" y="'+(y+(ch-h)/2).toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+ink+'"/>'; }
+  return '';
+}
+
+function mixHex(a,b,t){
+  function pc(h){return [parseInt(h.substr(1,2),16),parseInt(h.substr(3,2),16),parseInt(h.substr(5,2),16)];}
+  var A=pc(a),B=pc(b),o='#';
+  for(var i=0;i<3;i++){ var v=Math.round(A[i]+(B[i]-A[i])*t); o+=('0'+v.toString(16)).slice(-2); }
+  return o;
+}
+
+/* ── 生成一張場圖（回傳 SVG 字串） ── */
+function plate(o){
+  var W=o.w||800, H=o.h||520, cols=o.cols||32, rows=o.rows||20;
+  var f=FIELDS[o.field]||FIELDS.wave;
+  var p={k:o.k||6, a:(o.a===undefined?0.42:o.a), cx:(o.cx===undefined?0.5:o.cx), cy:(o.cy===undefined?0.5:o.cy)};
+  var ink=o.ink||'#101014', paper=o.paper||'#F2F1EC';
+  if(o.invert){ var tmp=ink; ink=paper; paper=tmp; }
+  var cw=W/cols, ch=H/rows, out=[];
+  out.push('<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="'+(o.pAR||(o.slice===false?'xMidYMid meet':'xMidYMid slice'))+
+           '" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="'+
+           (o.alt||'單元調變場圖版')+'">');
+  if(o.maskText){
+    out.push('<defs><mask id="'+o.maskId+'"><rect width="'+W+'" height="'+H+'" fill="#fff"/>'+
+      '<text x="'+(o.mtx||W/2)+'" y="'+(o.mty||H/2)+'" text-anchor="'+(o.mta||'middle')+'" dominant-baseline="middle" '+
+      'font-family="Archivo,Noto Sans TC,sans-serif" font-weight="900" font-size="'+(o.mts||120)+'" '+
+      'letter-spacing="'+(o.mtl||0)+'" fill="#000">'+o.maskText+'</text></mask></defs>');
+  }
+  out.push('<rect width="'+W+'" height="'+H+'" fill="'+paper+'"/>');
+  out.push('<g'+(o.maskText?' mask="url(#'+o.maskId+')"':'')+'>');
+  var shift=o.rowShift||0, par=o.parity||0, tone=o.tone||0;
+  for(var j=0;j<rows;j++){
+    var dx = shift ? (((j*shift)%1)+1)%1*cw : 0;
+    for(var i=-1;i<cols+1;i++){
+      var u=(i+0.5)/cols, v=(j+0.5)/rows;
+      var t=f(u,v,p);
+      if(par===1 && (i%2!==0)) continue;
+      if(par===2 && ((i+j)%2!==0)) continue;
+      var fill=ink;
+      if(tone){ var lv=Math.floor(((i%tone)+tone)%tone)/(tone-1); fill=mixHex(ink,paper,lv*0.72+0.14); }
+      if(o.unite){
+        /* Vasarely unité plastique：格 + 內嵌形，格色與形色互換 */
+        var dark=((i+j)%2===0);
+        out.push('<rect x="'+(i*cw+dx).toFixed(1)+'" y="'+(j*ch).toFixed(1)+'" width="'+(cw+0.5).toFixed(1)+
+                 '" height="'+(ch+0.5).toFixed(1)+'" fill="'+(dark?ink:paper)+'"/>');
+        out.push(unit(o.unit||'dia', i*cw+dx, j*ch, cw, ch, t, dark?paper:ink, dark?ink:paper));
+        continue;
+      }
+      out.push(unit(o.unit||'bar', i*cw+dx, j*ch, cw, ch, t, fill, paper));
+      if(shift===0 && par===0 && i>=cols) break;
+    }
+  }
+  if(o.mortar){
+    /* 磚縫必須畫在最上層，而且要看得見——咖啡牆錯覺的強度直接取決於這條中灰線 */
+    var mw=Math.max(3, ch*0.10);
+    for(var m=0;m<=rows;m++){
+      out.push('<rect x="0" y="'+(m*ch-mw/2).toFixed(1)+'" width="'+W+'" height="'+mw.toFixed(1)+
+               '" fill="'+(o.mortarColor||'#8C8C88')+'"/>');
+    }
+  }
+  out.push('</g>');
+  if(o.markCell){ var mi=o.markCell[0], mj=o.markCell[1];
+    out.push('<rect x="'+(mi*cw).toFixed(1)+'" y="'+(mj*ch).toFixed(1)+'" width="'+cw.toFixed(1)+
+             '" height="'+ch.toFixed(1)+'" fill="none" stroke="#2233E0" stroke-width="3"/>'); }
+  out.push('</svg>');
+  return out.join('');
+}
+
+/* prefers-reduced-motion 安全查詢（舊環境無 matchMedia 亦不拋錯） */
+function reduceMotion(){
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  catch(e){ return false; }
+}
+
+/* ── ResizeObserver：場永遠是整數格平鋪、且被畫布四邊切斷（特徵 3） ── */
+function mount(el){
+  if(el.__sdMounted) return;            /* 避免重複掛載（頁內腳本先掛、DOMContentLoaded 又掃到） */
+  el.__sdMounted = true;
+  var cfg = JSON.parse(el.getAttribute('data-field'));
+  var lastCols = -1, lastRows = -1, tries = 0;
+  function draw(){
+    var r = el.getBoundingClientRect();
+    /* 版面尚未成形（display:none、字型未載入、瀏覽器尚未 layout）時不畫 0×0 的空場 */
+    if((r.width < 40 || r.height < 24) && tries < 30){
+      tries++;
+      (window.requestAnimationFrame || function(f){ setTimeout(f,32); })(draw);
+      return;
+    }
+    if(r.width < 8 || r.height < 8) return;
+    var cellW = cfg.cell || 26;
+    var cols = Math.max(6, Math.round(r.width / cellW));
+    var rows = Math.max(4, Math.round(r.height / (cfg.cellH || cellW)));
+    if(cols===lastCols && rows===lastRows) return;
+    lastCols=cols; lastRows=rows;
+    var o = Object.assign({}, cfg, {w:Math.round(r.width), h:Math.round(r.height), cols:cols, rows:rows});
+    var host = el.querySelector('.fx') || el;
+    host.innerHTML = plate(o);
+    var c = el.querySelector('.cnt');
+    if(c) c.textContent = cols + '×' + rows + ' 格　' + (FIELD_NAMES[cfg.field]||'');
+  }
+  draw();
+  if(window.ResizeObserver){
+    var ro = new ResizeObserver(function(){ draw(); });
+    ro.observe(el);
+  } else {
+    window.addEventListener('resize', draw);   /* fallback */
+  }
+  return draw;
+}
+
+/* ── 輸入動效：游標即場的形變中心（<100ms，只寫 CSS 變數） ── */
+function pointerField(){
+  if(reduceMotion()) return;
+  var raf=0, px=0.5, py=0.5;
+  window.addEventListener('pointermove', function(e){
+    px = e.clientX / window.innerWidth; py = e.clientY / window.innerHeight;
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      document.documentElement.style.setProperty('--cx', px.toFixed(3));
+      document.documentElement.style.setProperty('--cy', py.toFixed(3));
+      var live = document.querySelectorAll('[data-live]');
+      for(var i=0;i<live.length;i++){
+        var el=live[i], cfg=JSON.parse(el.getAttribute('data-field'));
+        var r=el.getBoundingClientRect();
+        var cols=Math.max(6,Math.round(r.width/(cfg.cell||26)));
+        var rows=Math.max(4,Math.round(r.height/(cfg.cellH||cfg.cell||26)));
+        var lx=(e.clientX-r.left)/r.width, ly=(e.clientY-r.top)/r.height;
+        lx=Math.min(1.4,Math.max(-0.4,lx)); ly=Math.min(1.4,Math.max(-0.4,ly));
+        var o=Object.assign({},cfg,{w:Math.round(r.width),h:Math.round(r.height),cols:cols,rows:rows,cx:lx,cy:ly});
+        (el.querySelector('.fx')||el).innerHTML = plate(o);
+      }
+    });
+  }, {passive:true});
+}
+
+window.SD = {plate:plate, mount:mount, mixHex:mixHex, reduce:reduceMotion, FIELDS:FIELDS, FIELD_NAMES:FIELD_NAMES, pointerField:pointerField};
+
+document.addEventListener('DOMContentLoaded', function(){
+  var els = document.querySelectorAll('[data-field]');
+  for(var i=0;i<els.length;i++) mount(els[i]);
+  pointerField();
+});
+})();
+
+</script>
+</body>
+</html>

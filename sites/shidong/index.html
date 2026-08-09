@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>視動社 OPTOKIN LAB｜視知覺訓練圖版與視動鼓製造</title>
+<meta name="description" content="台北大同區太原路的視知覺訓練教具製造所。視動鼓、對比敏感度板、知覺訓練圖版。歐普藝術風格範例站。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F2F1EC'/%3E%3Crect x='0' y='0' width='4' height='32' fill='%23101014'/%3E%3Crect x='7' y='0' width='3' height='32' fill='%23101014'/%3E%3Crect x='13' y='0' width='2.4' height='32' fill='%23101014'/%3E%3Crect x='18' y='0' width='3' height='32' fill='%23101014'/%3E%3Crect x='24.5' y='0' width='4' height='32' fill='%23101014'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23F2F1EC'/%3E%3Ccircle cx='16' cy='16' r='3.4' fill='%23101014'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101014; --paper:#F2F1EC; --mark:#2233E0; --grey:#8C8C88;
+  --fg:var(--ink); --bg:var(--paper);
+  --cell:34px; --amp:0.42; --cx:0.5; --cy:0.5;
+  --t-front:90ms;
+}
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0!important}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{
+  font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:400;
+  color:var(--ink);background:var(--paper);line-height:1.62;
+  font-variant-numeric:tabular-nums;overflow-x:hidden;
+}
+/* ── 背景：兩層 repeating-linear-gradient 交疊＝真莫列干涉；上層角度由捲動驅動 ── */
+.moire{position:fixed;inset:-30vmax;z-index:0;pointer-events:none;opacity:.17}
+.moire i{position:absolute;inset:0;display:block;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 3px,transparent 3px 6px)}
+.moire i.b{transform:rotate(1.6deg)}
+/* ambient：下層以一個完整條紋週期（6px）無限位移，干涉帶因此持續緩慢爬行。
+   6px = 條紋週期，故循環完全無縫；純 transform，GPU 合成，零逐幀 JS。 */
+@keyframes moireCreep{from{transform:translateX(0)}to{transform:translateX(6px)}}
+.moire i.a{animation:moireCreep 26s linear infinite}
+@supports (animation-timeline: scroll()){
+  @keyframes moireTurn{from{transform:rotate(.35deg)}to{transform:rotate(3.6deg)}}
+  .moire i.b{animation:moireTurn linear both;animation-timeline:scroll(root block)}
+}
+main,header,footer{position:relative;z-index:1}
+/* ── 圖地反轉：全站唯一的狀態表達法（signature 反轉波前） ── */
+.rv{position:relative;display:inline-block;background:var(--bg);color:var(--fg);
+  text-decoration:none;isolation:isolate}
+.rv>span{position:relative;z-index:1;display:block}
+.rv::after{
+  content:"";position:absolute;inset:0;z-index:2;background:#fff;
+  mix-blend-mode:difference;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+          mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+  -webkit-mask-size:200% 100%;mask-size:200% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4);
+}
+.rv:hover::after,.rv:focus-visible::after,.rv[aria-current]::after,.rv.on::after{
+  -webkit-mask-position:0 0;mask-position:0 0}
+.rv:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+/* ── 導覽：reversal-cell 圖地反轉格 ── */
+.nav{position:fixed;top:18px;right:18px;z-index:40;display:grid;
+  grid-template-columns:repeat(4,46px);gap:0;border:3px solid var(--ink);background:var(--paper)}
+.nav a{position:relative;display:block;width:46px;height:46px;background:var(--paper);isolation:isolate;
+  border-left:3px solid var(--ink);text-decoration:none}
+.nav a:first-child{border-left:0}
+.nav a svg{display:block;width:100%;height:100%}
+.nav a .u-g{fill:var(--paper)}   /* 格底 */
+.nav a .u-f{fill:var(--ink)}     /* 形 */
+.nav a[aria-current="page"] .u-g{fill:var(--ink)}
+.nav a[aria-current="page"] .u-f{fill:var(--paper)}
+.nav a::after{content:"";position:absolute;inset:0;background:#fff;mix-blend-mode:difference;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+  -webkit-mask-size:200% 100%;mask-size:200% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4)}
+.nav a:hover::after,.nav a:focus-visible::after{-webkit-mask-position:0 0;mask-position:0 0}
+.nav .lab{position:absolute;left:-9999px}
+.navname{position:fixed;top:70px;right:18px;z-index:40;background:var(--ink);color:var(--paper);
+  font-size:11px;letter-spacing:.22em;padding:3px 7px;font-weight:800}
+/* ── 版面 ── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+.sect{background:var(--paper);padding:44px 0}
+.sect.blk{background:var(--ink)}
+.rule{height:0;border-top:3px solid var(--ink)}
+.blk{background:var(--ink);color:var(--paper)}
+.blk a{color:var(--paper)}
+h1,h2,h3{font-weight:900;line-height:1.02;letter-spacing:-.015em}
+h2{font-size:clamp(26px,4.2vw,46px);margin:0 0 14px}
+h3{font-size:19px;letter-spacing:.02em;margin:0 0 8px}
+.mono{font-family:"Archivo",monospace;font-weight:600;letter-spacing:.09em;
+  font-size:11.5px;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;background:var(--ink);color:var(--paper);font-weight:800;
+  font-size:11px;letter-spacing:.2em;padding:3px 8px}
+p{max-width:64ch}
+.lead{font-size:17.5px}
+.small{font-size:13.5px;color:#3a3a40}
+.mark{color:var(--mark)}
+/* ── 場容器 ── */
+.fieldbox{position:relative;overflow:hidden;background:var(--paper);border:3px solid var(--ink)}
+.fieldbox svg{display:block;width:100%;height:100%}
+.fieldbox .cnt{position:absolute;left:0;bottom:0;background:var(--ink);color:var(--paper);
+  font-size:10.5px;letter-spacing:.14em;padding:2px 6px;font-weight:700;z-index:3}
+.fieldbox .no{position:absolute;right:0;top:0;background:var(--ink);color:var(--paper);
+  font-size:10.5px;letter-spacing:.14em;padding:2px 6px;font-weight:700;z-index:3}
+/* ── 視動鼓（CSS 3D 圓柱） ── */
+.drumwrap{position:relative;height:min(52vh,380px);overflow:hidden;
+  border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);background:var(--paper)}
+.stage{position:absolute;inset:0;perspective:900px;perspective-origin:50% 50%}
+.drum{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;
+  animation:spin 20s linear infinite}
+@keyframes spin{to{transform:rotateY(-360deg)}}
+.drum b{position:absolute;display:block;background:var(--ink);
+  width:var(--sw);height:var(--sh);margin-left:calc(var(--sw)/-2);margin-top:calc(var(--sh)/-2);
+  backface-visibility:hidden}
+.drumwrap .cap{position:absolute;left:0;top:0;padding:8px 12px;z-index:3}
+.drumwrap .ctl{position:absolute;right:0;top:0;z-index:3;display:flex;border-left:3px solid var(--ink);
+  border-bottom:3px solid var(--ink);background:var(--paper)}
+.drumwrap .ctl button{font:inherit;font-weight:800;font-size:12px;letter-spacing:.1em;
+  padding:7px 11px;border:0;border-left:3px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
+.drumwrap .ctl button:first-child{border-left:0}
+.drumwrap .ctl button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.drumwrap .foot{position:absolute;left:0;right:0;bottom:0;z-index:3;background:var(--ink);color:var(--paper);
+  padding:7px 12px;font-size:13px}
+/* ── 表 ── */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:2px solid var(--ink);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--ink);color:var(--paper);font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+/* ── 按鈕（無圓角無陰影，狀態一律靠圖地反轉） ── */
+button.b,a.b{display:inline-block;font:inherit;font-weight:800;font-size:14px;letter-spacing:.06em;
+  border:3px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 16px;cursor:pointer;
+  text-decoration:none;position:relative;isolation:isolate}
+button.b::after,a.b::after{content:"";position:absolute;inset:0;background:#fff;mix-blend-mode:difference;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+  -webkit-mask-size:200% 100%;mask-size:200% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:100% 0;mask-position:100% 0;
+  transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4)}
+button.b:hover::after,button.b:focus-visible::after,a.b:hover::after,a.b:focus-visible::after,
+button.b[aria-pressed="true"]::after{-webkit-mask-position:0 0;mask-position:0 0}
+button.b:disabled{color:var(--grey);border-color:var(--grey);cursor:default}
+button.b:disabled::after{display:none}
+/* ── 轉場：clip-path 對角推移（狀態切換） ── */
+@keyframes wipeIn{from{clip-path:polygon(0 0,0 0,-30% 100%,-30% 100%)}
+                  to{clip-path:polygon(0 0,130% 0,100% 100%,-30% 100%)}}
+.wipe{animation:wipeIn .30s steps(6) both}
+/* ── footer ── */
+footer{margin-top:70px;background:var(--ink);color:var(--paper);padding:34px 0 26px}
+footer a{color:var(--paper)}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px}
+/* ── noscript / 無 JS 備援：CSS-only 條紋場 ── */
+.nofield{background:
+  repeating-linear-gradient(90deg,var(--ink) 0 9px,var(--paper) 9px 18px);height:150px}
+/* ── RWD ── */
+@media (max-width:900px){
+  .nav{top:auto;bottom:0;left:0;right:0;grid-template-columns:repeat(4,1fr);border:0;border-top:3px solid var(--ink)}
+  .nav a{width:auto;height:48px}
+  .navname{display:none}
+  body{padding-bottom:48px}
+  footer .cols{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .wrap{padding:0 15px}
+  .drumwrap{height:280px}
+  table{font-size:12.5px}
+  th,td{padding:5px 6px}
+  .drumwrap .ctl button{padding:6px 8px;font-size:11px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .drum{animation:none!important;transform:rotateY(-9deg)}
+  .moire i.a{animation:none!important;transform:none}
+  .moire i.b{animation:none!important;transform:rotate(1.6deg)}
+}
+/* ── mask-image 不支援時的退化：狀態仍是圖地反轉，只是沒有波前掃過的過程 ── */
+@supports not (mask-image: linear-gradient(#000,#000)){
+  .rv::after,.nav a::after,button.b::after,a.b::after,.opt::after,.pcard::after,
+  .fivecell::after,.filters button::after,.toc a::after{display:none}
+  .rv:hover,.rv[aria-current],a.b:hover,button.b:hover,button.b[aria-pressed="true"],
+  .opt[aria-pressed="true"],.filters button[aria-pressed="true"],.toc a:hover
+    {background:var(--ink);color:var(--paper)}
+}
+
+.fivegrid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:3px solid var(--ink)}
+.fivecell{position:relative;border-left:3px solid var(--ink);isolation:isolate}
+.fivecell:first-child{border-left:0}
+.fivecell .fx{height:200px;overflow:hidden}
+.fivecell .fx svg{display:block;width:100%;height:100%}
+.fivecell .cap{border-top:3px solid var(--ink);padding:7px 9px;background:var(--paper)}
+.fivecell .cap b{display:block;font-size:13px;font-weight:900}
+.fivecell .cap span{display:block;font-size:11px;color:#4a4a50;letter-spacing:.04em}
+.fivecell::after{content:"";position:absolute;inset:0;background:#fff;mix-blend-mode:difference;pointer-events:none;
+ -webkit-mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);mask-image:linear-gradient(90deg,#000 0 50%,transparent 50%);
+ -webkit-mask-size:200% 100%;mask-size:200% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ -webkit-mask-position:100% 0;mask-position:100% 0;
+ transition:-webkit-mask-position var(--t-front) steps(4),mask-position var(--t-front) steps(4)}
+.fivecell:hover::after{-webkit-mask-position:0 0;mask-position:0 0}
+@media(max-width:900px){.two{grid-template-columns:1fr!important}.fivegrid{grid-template-columns:repeat(2,1fr)}
+ .fivecell{border-left:0;border-top:3px solid var(--ink)}.fivecell:nth-child(odd){border-right:3px solid var(--ink)}}
+@media(max-width:560px){.fivegrid{grid-template-columns:1fr}.fivecell:nth-child(odd){border-right:0}}
+
+</style>
+</head>
+<body>
+<div class="moire" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
+<nav class="nav" aria-label="主導覽"><a href="index.html" aria-current="page"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><circle class="u-f" cx="23" cy="23" r="11"/></svg><span class="lab">本所</span></a><a href="shiban.html"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><path class="u-f" d="M23 10L36 23L23 36L10 23Z"/></svg><span class="lab">試板室</span></a><a href="tuban.html"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><rect class="u-f" x="9" y="9" width="12" height="12"/><rect class="u-f" x="25" y="25" width="12" height="12"/></svg><span class="lab">圖版誌</span></a><a href="yuanli.html"><svg viewBox="0 0 46 46" aria-hidden="true"><rect class="u-g" width="46" height="46"/><path class="u-f" d="M23 9A14 14 0 0 1 23 37Z"/><rect class="u-f" x="9" y="21" width="14" height="4"/></svg><span class="lab">原理與沿革</span></a></nav><div class="navname">本所</div>
+
+<header class="drumwrap" id="drumwrap">
+  <div class="stage" aria-hidden="true"><div class="drum" id="drum"></div></div>
+  <div class="cap">
+    <div class="mono">OK-D-45　視動鼓　鼓徑 45 cm　鼓高 32 cm　14 黑 14 白 等寬直條</div>
+    <div class="mono" id="rpmline">角速度 36°／秒　週期 10.0 秒／轉　條紋通過率 1.40 條／秒</div>
+  </div>
+  <div class="ctl" role="group" aria-label="鼓速調節">
+    <button type="button" data-sp="0">靜止</button>
+    <button type="button" data-sp="18">18°/s</button>
+    <button type="button" data-sp="36" aria-pressed="true">36°/s</button>
+    <button type="button" data-sp="60">60°/s</button>
+  </div>
+  <div class="foot">
+    視動性眼球震顫（optokinetic nystagmus）：眼睛不自主地跟著條紋走到底，再快速彈回起點，一秒鐘來回數次。
+    臨床上用它檢查嬰兒與無法口頭應答者的視力，也用它做前庭與追視訓練。本所自 1969 年替各院視能訓練室製作這類鼓與圖版。
+  </div>
+  <noscript><div class="nofield" style="position:absolute;inset:0;height:auto"></div></noscript>
+</header>
+
+<section class="sect">
+ <div class="wrap">
+  <div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:34px;align-items:start" class="two">
+   <div>
+     <div class="tag">太原路 27 巷</div>
+     <h2 style="margin-top:14px">我們做的東西<br>只有在你看它的時候才會動</h2>
+     <p class="lead" style="margin-top:16px">
+       視動社製造視動鼓、對比敏感度板與知覺訓練圖版。這些東西上面沒有機械、沒有電、沒有會發光的零件——
+       一塊 A2 的壓克力板，上面平塗黑白兩色，交給你之後它就一動不動。
+       會動的是你的眼睛：側抑制在交叉點上憑空放了一顆灰點，方向選擇性細胞疲勞之後讓靜止的板往反方向漂。
+     </p>
+     <p style="margin-top:14px">
+       第一代負責人涂敬堯原本在太原路做光學材料，1969 年替臺北一家醫院的視能訓練室車了六只木鼓、
+       貼上他自己裁的黑白紙條，這就是 OK-D 系列的起點。1974 年正式掛牌視動社。
+       現在由涂佩汶主持，製版仍由高定邦一人手工遮蔽、平塗、修邊——
+       因為這類板子只要邊緣糊了 0.3 公釐，效果就掉一半。
+     </p>
+     <p style="margin-top:14px" class="small">
+       接單製作：醫療院所視能訓練室、大專院校知覺心理學實驗室、特教資源班、設計系色彩與構成課程。
+       單張訂製最少一張，圖案可依場函數與格數指定。
+     </p>
+   </div>
+   <div>
+     <div class="fieldbox" style="height:330px" data-live data-field='{"field":"bulge","unit":"disc","k":7,"a":2.2,"cell":26,"alt":"脹場圓點圖版，圓點半徑隨半徑方向連續變化"}'>
+       <div class="fx"></div><div class="no">OK-P-11</div><div class="cnt"></div>
+     </div>
+     <p class="small" style="margin-top:10px">↑ 把游標移進去。場的形變中心會跟著你走——這不是特效，這是本所全部圖版的參數化方式：
+     一個重複單元、一個連續純量場，別的都沒有。</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect">
+ <div class="wrap">
+  <div class="tag">場函數</div>
+  <h2 style="margin-top:14px">五種場</h2>
+  <p style="margin-top:10px;margin-bottom:22px">
+    所有圖版都是同一件事：一個重複單元排成整數格，格子的形變參數由一個連續函數 f(u,v) 決定。
+    換函數就換一整張圖。以下五個是本所的目錄函數，每一個都對應一件真實作品的構成邏輯。
+  </p>
+  <div class="fivegrid" id="fivegrid"></div>
+  <p class="small" style="margin-top:14px">滑過任何一張：整張圖地互換。全站沒有任何一個「高亮」——選中、現用、hover，一律用黑白對調表示。</p>
+ </div>
+</section>
+
+<div class="rule"></div>
+
+<section class="sect">
+ <div class="wrap">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:34px;align-items:start" class="two">
+   <div>
+     <div class="tag">價目</div>
+     <h2 style="margin-top:14px">目錄與工錢</h2>
+     <table style="margin-top:16px">
+       <thead><tr><th>品項</th><th>規格</th><th>單價</th></tr></thead>
+       <tbody>
+         <tr><td>視動鼓 OK-D-30</td><td>鼓徑 30 cm・木胎・手搖</td><td>NT$ 4,800</td></tr>
+         <tr><td>視動鼓 OK-D-45</td><td>鼓徑 45 cm・木胎・附定速馬達</td><td>NT$ 7,600</td></tr>
+         <tr><td>訓練圖版 A3</td><td>2 mm 壓克力・平塗雙色</td><td>NT$ 620 起</td></tr>
+         <tr><td>訓練圖版 A2</td><td>3 mm 壓克力・平塗雙色</td><td>NT$ 980 起</td></tr>
+         <tr><td>訓練圖版 A2 特製場</td><td>指定場函數與格數</td><td>NT$ 1,480</td></tr>
+         <tr><td>六板組 OK-SET-6</td><td>試板室同款六張・附木架</td><td>NT$ 5,200</td></tr>
+       </tbody>
+     </table>
+     <p class="small" style="margin-top:12px">交期 10 個工作天。壓克力邊緣切口保證 ±0.2 mm；超出即重做，不另計費。</p>
+   </div>
+   <div>
+     <a class="b" href="shiban.html" style="display:block;padding:0;border-width:3px;text-decoration:none">
+       <span style="display:block;padding:22px 22px 18px">
+         <span class="mono" style="display:block">試板室 · 六塊板 · 約 90 秒</span>
+         <span style="display:block;font-size:clamp(24px,3.4vw,38px);font-weight:900;line-height:1.05;margin:10px 0 8px">
+           先讓板子騙你一次</span>
+         <span style="display:block;font-size:14.5px;max-width:44ch">
+           六塊板，一塊一題。看著它，照實回答你看到什麼。答完換一張你自己的圖版帶走。
+           沒有計分排名，只有你答錯在哪一個機制上。</span>
+       </span>
+     </a>
+     <div class="fieldbox" style="height:190px;margin-top:18px;border-top:0" data-field='{"field":"fold","unit":"bar","k":13,"a":0.34,"cell":21,"alt":"摺場直條圖版"}'>
+       <div class="fx"></div><div class="cnt"></div><div class="no">OK-P-01</div>
+     </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <img src="assets/logo.svg" alt="視動社 OPTOKIN LAB" width="280" height="70" style="display:block;background:var(--paper);margin-bottom:14px">
+        <p class="small" style="color:#C9C9C4;margin-top:12px">視知覺訓練圖版與視動鼓製造。<br>
+        台北市大同區太原路 27 巷 6 號 2 樓<br>
+        (02) 2556-0714　週一至週五 09:30–18:00　週六 09:30–13:00<br>
+        負責人 涂佩汶　製版 高定邦</p>
+      </div>
+      <div>
+        <div class="mono" style="color:#8E8E8A">頁面</div>
+        <p class="small" style="margin-top:8px">
+        <a href="index.html">本所</a><br><a href="shiban.html">試板室</a><br>
+        <a href="tuban.html">圖版誌</a><br><a href="yuanli.html">原理與沿革</a></p>
+      </div>
+      <div>
+        <div class="mono" style="color:#8E8E8A">說明</div>
+        <p class="small" style="color:#C9C9C4;margin-top:8px">
+        本站為 Design Skills Center 的風格範例站，品牌、人名、價格、案例均為虛構示意。
+        試板室的六塊板是知覺現象的展示，不是任何形式的視力檢查或醫療診斷。
+        高對比條紋可能引起不適；任何時候都可按「靜止」停下。</p>
+        <p class="small" style="color:#8E8E8A;margin-top:10px">建置：Claude Opus 5 · 排程 Agent　2026-08-09<br>
+        <a href="SKILL.md">SKILL.md</a>　<a href="README.md">README.md</a></p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+/* ============================================================
+   視動社 · unit-modulation 單元調變場引擎
+   全站每一張圖像（logo/favicon/圖版/縮圖/結果單）都由這支引擎產生。
+   規則：一個重複單元 + 一個連續純量場 f(u,v) → 每格的形變參數。
+   沒有一張圖是在描物件的外形。
+   ============================================================ */
+(function(){
+'use strict';
+var TAU = Math.PI * 2;
+
+/* ── 五個場函數（每個都對應一件真實作品的構成邏輯） ── */
+var FIELDS = {
+  /* 摺：欄寬向一條看不見的摺線壓縮（Riley《Movement in Squares》1961） */
+  fold: function(u,v,p){ var s=u+p.a*Math.sin(Math.PI*u); return 0.5+0.5*Math.cos(TAU*s*p.k); },
+  /* 波：橫向相位被第二個正弦調變（Riley《Current》1964） */
+  wave: function(u,v,p){ return 0.5+0.5*Math.sin(TAU*(v*p.k + p.a*Math.sin(TAU*(u-p.cx)))); },
+  /* 脹：徑向膨脹，中心以外單調變密（Vasarely Vega 系列） */
+  bulge:function(u,v,p){ var dx=(u-p.cx)*1.6, dy=v-p.cy, r=Math.sqrt(dx*dx+dy*dy);
+                         return 0.5+0.5*Math.cos(TAU*p.k*r/(1+p.a*r*r)); },
+  /* 扭：雙線性剪切，四角旋向相反 */
+  torsion:function(u,v,p){ return 0.5+0.5*Math.sin(TAU*(u*p.k + p.a*8*(u-p.cx)*(v-p.cy))); },
+  /* 尖：以中軸鏡射的人字形（Riley《Fall》系的折返） */
+  chevron:function(u,v,p){ return 0.5+0.5*Math.sin(TAU*(Math.abs(u-p.cx)*p.k*2 + v*p.a*3)); },
+  /* 平：退化情形，整場常數——赫曼方格、咖啡牆這類等距圖版就是 k=0 的極限 */
+  flat:function(u,v,p){ return p.a; }
+};
+var FIELD_NAMES = {fold:'摺 FOLD',wave:'波 WAVE',bulge:'脹 BULGE',torsion:'扭 TORSION',chevron:'尖 CHEVRON',flat:'平 FLAT'};
+
+/* ── 四種單元造形（Vasarely unité plastique：格 + 內嵌形，兩色互換） ── */
+function unit(kind,x,y,cw,ch,t,ink,paper){
+  var s;
+  if(kind==='bar'){ var w=cw*t; if(w<0.4) return '';
+    return '<rect x="'+(x+(cw-w)/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+ch.toFixed(1)+'" fill="'+ink+'"/>'; }
+  if(kind==='disc'){ var r=Math.min(cw,ch)*0.5*t; if(r<0.3) return '';
+    return '<circle cx="'+(x+cw/2).toFixed(1)+'" cy="'+(y+ch/2).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+ink+'"/>'; }
+  if(kind==='sq'){ s=Math.min(cw,ch)*t; if(s<0.4) return '';
+    return '<rect x="'+(x+(cw-s)/2).toFixed(1)+'" y="'+(y+(ch-s)/2).toFixed(1)+'" width="'+s.toFixed(1)+'" height="'+s.toFixed(1)+'" fill="'+ink+'"/>'; }
+  if(kind==='dia'){ s=Math.min(cw,ch)*0.5*t; if(s<0.3) return '';
+    var mx=x+cw/2, my=y+ch/2;
+    return '<path d="M'+mx.toFixed(1)+' '+(my-s).toFixed(1)+'L'+(mx+s).toFixed(1)+' '+my.toFixed(1)+
+           'L'+mx.toFixed(1)+' '+(my+s).toFixed(1)+'L'+(mx-s).toFixed(1)+' '+my.toFixed(1)+'Z" fill="'+ink+'"/>'; }
+  if(kind==='row'){ var h=ch*t; if(h<0.4) return '';
+    return '<rect x="'+x.toFixed(1)+'" y="'+(y+(ch-h)/2).toFixed(1)+'" width="'+cw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+ink+'"/>'; }
+  return '';
+}
+
+function mixHex(a,b,t){
+  function pc(h){return [parseInt(h.substr(1,2),16),parseInt(h.substr(3,2),16),parseInt(h.substr(5,2),16)];}
+  var A=pc(a),B=pc(b),o='#';
+  for(var i=0;i<3;i++){ var v=Math.round(A[i]+(B[i]-A[i])*t); o+=('0'+v.toString(16)).slice(-2); }
+  return o;
+}
+
+/* ── 生成一張場圖（回傳 SVG 字串） ── */
+function plate(o){
+  var W=o.w||800, H=o.h||520, cols=o.cols||32, rows=o.rows||20;
+  var f=FIELDS[o.field]||FIELDS.wave;
+  var p={k:o.k||6, a:(o.a===undefined?0.42:o.a), cx:(o.cx===undefined?0.5:o.cx), cy:(o.cy===undefined?0.5:o.cy)};
+  var ink=o.ink||'#101014', paper=o.paper||'#F2F1EC';
+  if(o.invert){ var tmp=ink; ink=paper; paper=tmp; }
+  var cw=W/cols, ch=H/rows, out=[];
+  out.push('<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="'+(o.pAR||(o.slice===false?'xMidYMid meet':'xMidYMid slice'))+
+           '" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="'+
+           (o.alt||'單元調變場圖版')+'">');
+  if(o.maskText){
+    out.push('<defs><mask id="'+o.maskId+'"><rect width="'+W+'" height="'+H+'" fill="#fff"/>'+
+      '<text x="'+(o.mtx||W/2)+'" y="'+(o.mty||H/2)+'" text-anchor="'+(o.mta||'middle')+'" dominant-baseline="middle" '+
+      'font-family="Archivo,Noto Sans TC,sans-serif" font-weight="900" font-size="'+(o.mts||120)+'" '+
+      'letter-spacing="'+(o.mtl||0)+'" fill="#000">'+o.maskText+'</text></mask></defs>');
+  }
+  out.push('<rect width="'+W+'" height="'+H+'" fill="'+paper+'"/>');
+  out.push('<g'+(o.maskText?' mask="url(#'+o.maskId+')"':'')+'>');
+  var shift=o.rowShift||0, par=o.parity||0, tone=o.tone||0;
+  for(var j=0;j<rows;j++){
+    var dx = shift ? (((j*shift)%1)+1)%1*cw : 0;
+    for(var i=-1;i<cols+1;i++){
+      var u=(i+0.5)/cols, v=(j+0.5)/rows;
+      var t=f(u,v,p);
+      if(par===1 && (i%2!==0)) continue;
+      if(par===2 && ((i+j)%2!==0)) continue;
+      var fill=ink;
+      if(tone){ var lv=Math.floor(((i%tone)+tone)%tone)/(tone-1); fill=mixHex(ink,paper,lv*0.72+0.14); }
+      if(o.unite){
+        /* Vasarely unité plastique：格 + 內嵌形，格色與形色互換 */
+        var dark=((i+j)%2===0);
+        out.push('<rect x="'+(i*cw+dx).toFixed(1)+'" y="'+(j*ch).toFixed(1)+'" width="'+(cw+0.5).toFixed(1)+
+                 '" height="'+(ch+0.5).toFixed(1)+'" fill="'+(dark?ink:paper)+'"/>');
+        out.push(unit(o.unit||'dia', i*cw+dx, j*ch, cw, ch, t, dark?paper:ink, dark?ink:paper));
+        continue;
+      }
+      out.push(unit(o.unit||'bar', i*cw+dx, j*ch, cw, ch, t, fill, paper));
+      if(shift===0 && par===0 && i>=cols) break;
+    }
+  }
+  if(o.mortar){
+    /* 磚縫必須畫在最上層，而且要看得見——咖啡牆錯覺的強度直接取決於這條中灰線 */
+    var mw=Math.max(3, ch*0.10);
+    for(var m=0;m<=rows;m++){
+      out.push('<rect x="0" y="'+(m*ch-mw/2).toFixed(1)+'" width="'+W+'" height="'+mw.toFixed(1)+
+               '" fill="'+(o.mortarColor||'#8C8C88')+'"/>');
+    }
+  }
+  out.push('</g>');
+  if(o.markCell){ var mi=o.markCell[0], mj=o.markCell[1];
+    out.push('<rect x="'+(mi*cw).toFixed(1)+'" y="'+(mj*ch).toFixed(1)+'" width="'+cw.toFixed(1)+
+             '" height="'+ch.toFixed(1)+'" fill="none" stroke="#2233E0" stroke-width="3"/>'); }
+  out.push('</svg>');
+  return out.join('');
+}
+
+/* prefers-reduced-motion 安全查詢（舊環境無 matchMedia 亦不拋錯） */
+function reduceMotion(){
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  catch(e){ return false; }
+}
+
+/* ── ResizeObserver：場永遠是整數格平鋪、且被畫布四邊切斷（特徵 3） ── */
+function mount(el){
+  if(el.__sdMounted) return;            /* 避免重複掛載（頁內腳本先掛、DOMContentLoaded 又掃到） */
+  el.__sdMounted = true;
+  var cfg = JSON.parse(el.getAttribute('data-field'));
+  var lastCols = -1, lastRows = -1, tries = 0;
+  function draw(){
+    var r = el.getBoundingClientRect();
+    /* 版面尚未成形（display:none、字型未載入、瀏覽器尚未 layout）時不畫 0×0 的空場 */
+    if((r.width < 40 || r.height < 24) && tries < 30){
+      tries++;
+      (window.requestAnimationFrame || function(f){ setTimeout(f,32); })(draw);
+      return;
+    }
+    if(r.width < 8 || r.height < 8) return;
+    var cellW = cfg.cell || 26;
+    var cols = Math.max(6, Math.round(r.width / cellW));
+    var rows = Math.max(4, Math.round(r.height / (cfg.cellH || cellW)));
+    if(cols===lastCols && rows===lastRows) return;
+    lastCols=cols; lastRows=rows;
+    var o = Object.assign({}, cfg, {w:Math.round(r.width), h:Math.round(r.height), cols:cols, rows:rows});
+    var host = el.querySelector('.fx') || el;
+    host.innerHTML = plate(o);
+    var c = el.querySelector('.cnt');
+    if(c) c.textContent = cols + '×' + rows + ' 格　' + (FIELD_NAMES[cfg.field]||'');
+  }
+  draw();
+  if(window.ResizeObserver){
+    var ro = new ResizeObserver(function(){ draw(); });
+    ro.observe(el);
+  } else {
+    window.addEventListener('resize', draw);   /* fallback */
+  }
+  return draw;
+}
+
+/* ── 輸入動效：游標即場的形變中心（<100ms，只寫 CSS 變數） ── */
+function pointerField(){
+  if(reduceMotion()) return;
+  var raf=0, px=0.5, py=0.5;
+  window.addEventListener('pointermove', function(e){
+    px = e.clientX / window.innerWidth; py = e.clientY / window.innerHeight;
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      document.documentElement.style.setProperty('--cx', px.toFixed(3));
+      document.documentElement.style.setProperty('--cy', py.toFixed(3));
+      var live = document.querySelectorAll('[data-live]');
+      for(var i=0;i<live.length;i++){
+        var el=live[i], cfg=JSON.parse(el.getAttribute('data-field'));
+        var r=el.getBoundingClientRect();
+        var cols=Math.max(6,Math.round(r.width/(cfg.cell||26)));
+        var rows=Math.max(4,Math.round(r.height/(cfg.cellH||cfg.cell||26)));
+        var lx=(e.clientX-r.left)/r.width, ly=(e.clientY-r.top)/r.height;
+        lx=Math.min(1.4,Math.max(-0.4,lx)); ly=Math.min(1.4,Math.max(-0.4,ly));
+        var o=Object.assign({},cfg,{w:Math.round(r.width),h:Math.round(r.height),cols:cols,rows:rows,cx:lx,cy:ly});
+        (el.querySelector('.fx')||el).innerHTML = plate(o);
+      }
+    });
+  }, {passive:true});
+}
+
+window.SD = {plate:plate, mount:mount, mixHex:mixHex, reduce:reduceMotion, FIELDS:FIELDS, FIELD_NAMES:FIELD_NAMES, pointerField:pointerField};
+
+document.addEventListener('DOMContentLoaded', function(){
+  var els = document.querySelectorAll('[data-field]');
+  for(var i=0;i<els.length;i++) mount(els[i]);
+  pointerField();
+});
+})();
+
+</script>
+<script>
+
+/* ── 視動鼓：CSS 3D 圓柱，14 黑條，GPU 合成，零逐幀 JS ── */
+(function(){
+  var drum=document.getElementById('drum'); if(!drum) return;
+  var N=28, R=230, H=300;
+  var slot=(2*Math.PI*R)/N;
+  var html='';
+  for(var i=0;i<N;i+=2){
+    var deg=(360/N)*i;
+    html+='<b style="--sw:'+(slot+1.2).toFixed(1)+'px;--sh:'+H+'px;transform:rotateY('+deg.toFixed(2)+'deg) translateZ('+R+'px)"></b>';
+  }
+  drum.innerHTML=html;
+  var line=document.getElementById('rpmline');
+  var btns=document.querySelectorAll('.ctl button');
+  function set(sp){
+    for(var i=0;i<btns.length;i++) btns[i].setAttribute('aria-pressed', btns[i].dataset.sp===String(sp)?'true':'false');
+    if(sp==0){ drum.style.animationPlayState='paused';
+      line.textContent='角速度 0°／秒　鼓停止　條紋寬 '+slot.toFixed(1)+' mm（1:1 比例示意）';
+    } else {
+      var dur=360/sp;
+      drum.style.animationPlayState='running';
+      drum.style.animationDuration=dur.toFixed(2)+'s';
+      line.textContent='角速度 '+sp+'°／秒　週期 '+dur.toFixed(1)+' 秒／轉　條紋通過率 '+(14*sp/360).toFixed(2)+' 條／秒';
+    }
+  }
+  for(var i=0;i<btns.length;i++) btns[i].addEventListener('click',function(){ set(Number(this.dataset.sp)); });
+  if(window.SD.reduce()){
+    set(0);
+    line.textContent='已依系統偏好停止旋轉　條紋寬 '+slot.toFixed(1)+' mm　14 黑 14 白　可按 18°/s 以上手動啟動';
+  } else { set(36); }
+})();
+
+/* ── 五種場 ── */
+(function(){
+  var g=document.getElementById('fivegrid'); if(!g) return;
+  var list=[
+    ['fold','bar',13,0.34,'摺 FOLD','欄寬向一條看不見的摺線壓縮（Riley《Movement in Squares》1961）'],
+    ['wave','row',5,0.42,'波 WAVE','橫向相位被第二個正弦調變（Riley《Current》1964）'],
+    ['bulge','disc',7,2.2,'脹 BULGE','徑向膨脹，中心以外單調變密（Vasarely Vega 系列）'],
+    ['torsion','bar',3.2,0.35,'扭 TORSION','雙線性剪切，四角旋向相反'],
+    ['chevron','dia',5,1.6,'尖 CHEVRON','以中軸鏡射的人字折返']
+  ];
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var L=list[i];
+    html+='<div class="fivecell"><div class="fx" data-field=\'{"field":"'+L[0]+'","unit":"'+L[1]+'","k":'+L[2]+',"a":'+L[3]+',"cell":11,"alt":"'+L[4]+' 場圖版"}\'></div>'+
+          '<div class="cap"><b>'+L[4]+'</b><span>'+L[5]+'</span></div></div>';
+  }
+  g.innerHTML=html;
+  var fx=g.querySelectorAll('.fx');
+  for(var j=0;j<fx.length;j++) window.SD.mount(fx[j]);
+})();
+
+</script>
+</body>
+</html>

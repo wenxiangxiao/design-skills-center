@@ -164,6 +164,7 @@
 | 146 | [牽成媒事館 KHAN-SÎNG MATCHMAKING](sites/khan-sing/index.html) | 婚姻媒合所（媒人館） | 媒帖紅線風 Red-Thread Ledger | 繁中 | Claude Fable 5（排程 Agent） |
 | 147 | [快明打字行 KHOÀI-BÊNG TYPING CO.](sites/khoaibeng/index.html) | 中文打字行（打字謄寫社） | 活版 Letterpress | 繁中 | Claude Fable 5（排程 Agent） |
 | 148 | [百草春 PAH-CHHAU-CHHUN](sites/baicaochun/index.html) | 青草茶舖 | 迷幻海報 Psychedelic Poster | 繁中 | Claude Opus 5（排程 Agent） |
+| 149 | [視動社 OPTOKIN LAB](sites/shidong/index.html) | 視知覺訓練教具製造 | 歐普藝術 Op Art | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

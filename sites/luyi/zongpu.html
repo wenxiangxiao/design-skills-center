@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>總譜編排台 — 鋁翼餐室</title>
+<meta name="description" content="把四道菜推到四十分鐘的時間軸上，噪音機與噴香只能放在間奏；主廚照《未來派料理宣言》四條規矩驗收，然後照時間奏一遍。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23AEB4B7'/%3E%3Cpath d='M4 44L60 8' stroke='%23131316' stroke-width='3'/%3E%3Cpath d='M4 56L60 26' stroke='%231B36C4' stroke-width='2.5'/%3E%3Cpath d='M8 30L44 6' stroke='%23131316' stroke-width='1.6' opacity='.55'/%3E%3Cpolygon points='10,58 40,20 52,56' fill='%23D62828'/%3E%3Ccircle cx='47' cy='14' r='5' fill='%23F2B705' stroke='%23131316' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+<style>/* ============ 鋁翼餐室 — 未來派 Futurism ============ */
+:root{
+  --alu:#AEB4B7; --alu-hi:#D7DBDC; --alu-lo:#7C8388; --alu-pn:#C2C7C9;
+  --ink:#131316; --red:#D62828; --blu:#1B36C4; --yel:#F2B705;
+  --amp:0;                       /* 聲場振幅 0–1，由 AnalyserNode 每幀寫入 */
+  --tilt:-9deg;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--alu); color:var(--ink);
+  font-family:"Archivo","Noto Sans TC",system-ui,sans-serif;
+  font-variation-settings:"wght" 420,"wdth" 100;
+  line-height:1.5; overflow-x:hidden;
+}
+/* 鋁面：方向性反光（ambient 掃過） */
+body::before{
+  content:""; position:fixed; inset:-30% -10%; z-index:0; pointer-events:none;
+  background:linear-gradient(104deg,
+    rgba(255,255,255,0) 0 28%, rgba(255,255,255,.34) 40%, rgba(255,255,255,0) 52% 100%);
+  animation:sweep 17s linear infinite;
+}
+/* 鋁的拉絲紋 */
+body::after{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background:repeating-linear-gradient(97deg,rgba(255,255,255,.16) 0 1px,rgba(0,0,0,.05) 1px 3px);
+}
+@keyframes sweep{0%{transform:translateX(-26%)}100%{transform:translateX(26%)}}
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 22px}
+@media(min-width:901px){main.wrap{padding-top:150px}}
+
+/* ---------- bolt-plate 螺栓鋁片導覽 ---------- */
+.nav{position:fixed;top:16px;right:18px;z-index:60;width:212px;height:126px}
+.nav svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.nav a{
+  position:absolute;left:8px;width:196px;height:26px;display:flex;align-items:center;
+  gap:8px;padding:0 9px 0 26px;text-decoration:none;color:var(--ink);
+  background:linear-gradient(178deg,var(--alu-hi),var(--alu-lo));
+  border:1.5px solid var(--ink); font-size:12px; letter-spacing:.06em;
+  font-variation-settings:"wght" 560,"wdth" 84;
+  transform-origin:24px 50%;
+  transition:transform .22s cubic-bezier(.2,1.5,.4,1), background .18s linear;
+}
+.nav a i{font-style:normal;font-size:9px;color:var(--blu);font-variation-settings:"wght" 700}
+.nav a:nth-child(1){top:6px}.nav a:nth-child(2){top:34px}
+.nav a:nth-child(3){top:62px}.nav a:nth-child(4){top:90px}
+.nav a:hover,.nav a:focus-visible{transform:rotate(-3.4deg) translateX(4px);outline:none}
+.nav a[aria-current="page"]{                        /* 螺栓鬆脫、鋁片翹起、露出紅色版心 */
+  transform:rotate(-7.2deg) translateX(11px);
+  background:linear-gradient(178deg,#EDEFEF,#9CA3A7);
+  box-shadow:-9px 5px 0 -1px var(--red);
+  font-variation-settings:"wght" 820,"wdth" 78;
+}
+.nav a[aria-current="page"] i{color:var(--red)}
+.nav .bolt{fill:var(--alu-hi);stroke:var(--ink);stroke-width:1.6}
+.nav .boltx{stroke:var(--ink);stroke-width:1.4}
+.nav .loose{animation:jig 4.2s ease-in-out infinite}
+@keyframes jig{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-13deg)}96%{transform:rotate(6deg)}}
+
+/* ---------- 自由文字 parole in libertà ---------- */
+.campo{position:relative;container-type:inline-size;aspect-ratio:1200/800;min-height:430px;
+  border:2.5px solid var(--ink);background:linear-gradient(122deg,#C6CBCD,#98A0A4 62%,#B8BEC0);
+  overflow:hidden;box-shadow:10px 10px 0 -2px rgba(19,19,22,.28)}
+.campo svg.lines{position:absolute;inset:0;width:100%;height:100%}
+.fl{fill:none;stroke:var(--ink);stroke-width:1.1;opacity:.30;
+  stroke-dasharray:1400;stroke-dashoffset:0}
+.fl.f1{stroke:var(--blu);opacity:.34}.fl.f2{stroke:var(--red);opacity:.26}.fl.f3{stroke:var(--ink);opacity:.20}
+.pl{
+  position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1%);
+  transform:translate(0,-50%) rotate(calc(var(--r)*1deg));
+  transform-origin:0 50%; white-space:nowrap; line-height:.92;
+  font-size:12px; font-size:calc(var(--fs)*1cqw);
+  font-variation-settings:"wght" var(--w),"wdth" var(--d);
+  font-weight:400;
+}
+.pl.red{color:var(--red)}.pl.blu{color:var(--blu)}.pl.yel{color:var(--yel);-webkit-text-stroke:1.4px var(--ink);paint-order:stroke fill}
+.pl.zh{font-family:"Noto Sans TC","Archivo",sans-serif;letter-spacing:.01em}
+.pl.la{font-family:"Archivo",sans-serif;letter-spacing:-.015em}
+/* 擬聲詞順著力線滑行（offset-path，ambient） */
+.tok{position:absolute;left:0;top:0;visibility:hidden;font-family:"Archivo",sans-serif;font-size:calc(1.05*1cqw);
+  font-variation-settings:"wght" 780,"wdth" 74;letter-spacing:.14em;color:var(--ink);opacity:.62;
+  offset-rotate:auto;animation:ride linear infinite}
+@keyframes ride{from{offset-distance:0%;opacity:0}8%{opacity:.62}88%{opacity:.5}to{offset-distance:100%;opacity:0}}
+.campo-fallback{position:absolute;left:3%;bottom:3%;font-size:11px;opacity:.6}
+
+/* ---------- 版塊：一律傾斜，本站沒有水平基線 ---------- */
+.slab{position:relative;background:var(--alu-pn);border:2.5px solid var(--ink);
+  padding:26px 24px;box-shadow:8px 8px 0 -1px rgba(19,19,22,.30)}
+.tilt-a{transform:rotate(-1.6deg)} .tilt-b{transform:rotate(1.3deg)} .tilt-c{transform:rotate(-.8deg)}
+h2.hd{font-family:"Archivo","Noto Sans TC",sans-serif;line-height:.9;letter-spacing:-.02em;
+  font-size:clamp(30px,5.6vw,62px);font-variation-settings:"wght" 880,"wdth" 76;
+  color:var(--ink);text-transform:none;margin-bottom:6px}
+h2.hd em{font-style:normal;color:var(--red)}
+.kicker{font-family:"Archivo",sans-serif;font-size:11px;letter-spacing:.34em;color:var(--blu);
+  font-variation-settings:"wght" 700,"wdth" 82;margin-bottom:14px;display:block}
+h3.sub{font-size:19px;font-variation-settings:"wght" 760,"wdth" 88;margin:18px 0 6px;letter-spacing:.01em}
+p{max-width:64ch;margin:0 0 11px;font-size:15.5px}
+p.lead{font-size:17.5px;font-variation-settings:"wght" 500,"wdth" 96;max-width:52ch}
+a{color:var(--blu)}
+.sec{margin:56px 0}
+.rule{height:0;border-top:2.5px solid var(--ink);transform:rotate(-.9deg);margin:34px 0}
+
+/* 按鈕：斜切楔形，未來派無圓角 */
+.btn{display:inline-block;border:2.5px solid var(--ink);background:var(--red);color:#fff;
+  padding:11px 26px 11px 20px;text-decoration:none;font-size:14px;letter-spacing:.1em;
+  font-variation-settings:"wght" 800,"wdth" 80;
+  clip-path:polygon(0 0,100% 0,calc(100% - 13px) 100%,0 100%);
+  transition:transform .12s linear,background .12s linear;cursor:pointer}
+.btn:hover,.btn:focus-visible{transform:translate(-3px,-3px) rotate(-1.4deg);background:var(--blu);outline:none}
+.btn.alt{background:var(--yel);color:var(--ink)}
+.btn[disabled]{background:var(--alu-lo);cursor:not-allowed;transform:none}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1.6px solid var(--ink);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--ink);color:var(--alu-hi);font-variation-settings:"wght" 700,"wdth" 84;
+  letter-spacing:.08em;font-size:12px}
+tbody tr:nth-child(2n) td{background:rgba(255,255,255,.24)}
+
+.foot{margin-top:70px;background:var(--ink);color:var(--alu-hi);padding:38px 0 30px;
+  clip-path:polygon(0 26px,100% 0,100% 100%,0 100%)}
+.foot a{color:var(--yel)}
+.foot .wrap{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));font-size:13.5px}
+.foot h4{font-size:12px;letter-spacing:.28em;color:var(--red);font-variation-settings:"wght" 760;margin-bottom:7px}
+.fine{font-size:11.5px;opacity:.72;margin-top:22px;letter-spacing:.02em}
+
+/* 轉場：沿 −18° 力線方向的斜刃推移（非淡入） */
+@keyframes wipe{from{clip-path:polygon(-40% 0,-8% 0,-24% 100%,-56% 100%)}
+                to{clip-path:polygon(-40% 0,148% 0,132% 100%,-56% 100%)}}
+.enter{animation:wipe .52s cubic-bezier(.16,.84,.3,1) both}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--blu);outline-offset:2px}
+
+@media (max-width:900px){
+  .nav{position:static;width:auto;height:auto;display:grid;grid-template-columns:repeat(4,1fr);
+    gap:0;border-bottom:2.5px solid var(--ink);margin-bottom:14px}
+  .nav svg{display:none}
+  .nav a{position:static;width:auto;height:38px;padding:0 6px;justify-content:center;
+    transform:none!important;box-shadow:none!important;font-size:11.5px;border-width:1.5px}
+  .nav a[aria-current="page"]{background:var(--red);color:#fff}
+  .nav a[aria-current="page"] i{color:#fff}
+  .campo{min-height:0}
+}
+@media (max-width:560px){
+  .wrap{padding:0 13px}
+  .slab{padding:18px 14px}
+  .tilt-a,.tilt-b,.tilt-c{transform:none}
+  h2.hd{font-size:clamp(26px,8.4vw,38px)}
+  p{font-size:15px}
+  .campo{border-width:2px;box-shadow:5px 5px 0 -1px rgba(19,19,22,.28)}
+  .pl[data-sm]{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  body::before{animation:none;opacity:.5}
+  .tok{animation:none;offset-distance:32%}
+  .nav .loose{animation:none}
+  .enter{animation:none}
+  *,*::before,*::after{transition-duration:.001ms!important}
+}
+@supports not (offset-path:path("M0 0L1 1")){
+  .tok{offset-distance:0;animation:slide 9s linear infinite}
+  @keyframes slide{from{transform:translateX(-4cqw)}to{transform:translateX(104cqw)}}
+}
+
+.flogo{display:block;width:100%;max-width:250px;height:auto;border:2px solid var(--alu-hi);margin-bottom:12px}
+
+.campo-p{margin:0 0 26px;aspect-ratio:1200/560}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{border:2px solid var(--ink);background:linear-gradient(172deg,var(--alu-hi),var(--alu-lo));
+ padding:7px 11px;cursor:pointer;font:inherit;color:var(--ink);text-align:left;line-height:1.15;
+ transition:transform .1s linear}
+.chip b{display:block;font-size:15.5px;font-variation-settings:"wght" 800,"wdth" 84}
+.chip i{display:block;font-style:normal;font-family:"Archivo",sans-serif;font-size:9.5px;letter-spacing:.16em;color:var(--blu)}
+.chip u{display:block;text-decoration:none;font-size:11px;font-variation-settings:"wght" 600;margin-top:2px}
+.chip:hover{transform:rotate(-1.6deg) translateY(-2px)}
+.chip[aria-pressed="true"]{background:var(--red);color:#fff;box-shadow:4px 4px 0 -1px var(--ink)}
+.chip[aria-pressed="true"] i,.chip[aria-pressed="true"] u{color:#fff}
+.chip[disabled]{opacity:.42;cursor:not-allowed;transform:none}
+.picked{font-size:13px;font-variation-settings:"wght" 700;color:var(--blu)}
+.tl-outer{overflow-x:auto;padding:8px 0 4px}
+.tl{position:relative;min-width:640px;height:112px;border:2.5px solid var(--ink);
+ background:repeating-linear-gradient(90deg,rgba(19,19,22,.10) 0 1px,transparent 1px 2.5%);
+ transform:rotate(-2.2deg);margin:14px 0 22px}
+.tl-ruler{position:absolute;left:0;right:0;bottom:0;height:19px;border-top:1.6px solid var(--ink);
+ font-family:"Archivo",sans-serif;font-size:10px}
+.tl-ruler span{position:absolute;top:2px;transform:translateX(-50%);letter-spacing:.06em}
+.blk{position:absolute;top:9px;height:60px;border:2.5px solid var(--ink);background:var(--yel);
+ cursor:grab;touch-action:none;padding:5px 6px;overflow:hidden;font-size:12.5px;line-height:1.15;
+ font-variation-settings:"wght" 780,"wdth" 82}
+.blk b{display:block;font-size:14px}
+.blk small{display:block;font-family:"Archivo",sans-serif;font-size:9.5px;letter-spacing:.1em;color:var(--blu)}
+.blk[data-hand]{background:var(--red);color:#fff}
+.blk[data-hand] small{color:var(--yel)}
+.blk[data-bad]{background:repeating-linear-gradient(45deg,var(--red) 0 7px,#8d1717 7px 14px);color:#fff}
+.blk:active{cursor:grabbing}
+.blk:focus-visible{outline:3px solid var(--blu);outline-offset:2px}
+.gapbar{position:absolute;top:74px;height:11px;background:var(--ink);opacity:.55}
+.gapbar[data-short]{background:repeating-linear-gradient(45deg,var(--red) 0 5px,transparent 5px 10px);opacity:1}
+.playhead{position:absolute;left:0;top:0;width:12px;height:70px;color:var(--red);
+ font-size:15px;line-height:1;display:none;offset-rotate:0deg}
+.playhead.on{display:block}
+.playhead span{display:block;border-left:3px solid var(--red);height:70px}
+.gaps{display:grid;gap:9px;margin:12px 0}
+.gap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;border:2px solid var(--ink);
+ padding:7px 10px;background:rgba(255,255,255,.24);transform:rotate(-.5deg)}
+.gap:nth-child(2){transform:rotate(.6deg)}
+.gl{font-variation-settings:"wght" 820;font-size:14px;min-width:64px}
+.gap label{font-size:12.5px;display:flex;gap:5px;align-items:center;font-variation-settings:"wght" 620}
+.gap select{font:inherit;font-size:13px;border:1.8px solid var(--ink);background:var(--alu-hi);padding:4px 6px}
+.gt{font-family:"Archivo",sans-serif;font-size:12px;color:var(--blu);font-variation-settings:"wght" 700;margin-left:auto}
+.gt[data-bad]{color:var(--red)}
+.verdictbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.tstate{font-size:13px;font-variation-settings:"wght" 700}
+.reject{border:2.5px solid var(--red);background:rgba(214,40,40,.12);padding:13px 15px;margin-top:14px}
+.reject h4{font-size:16px;color:var(--red);font-variation-settings:"wght" 860;margin-bottom:6px}
+.reject ul{margin:0 0 0 18px;font-size:14px}.reject li{margin:4px 0}
+.reject q{font-style:normal;display:block;margin-top:8px;font-size:13px;border-left:3px solid var(--red);padding-left:9px}
+.outgrid{display:grid;gap:22px;grid-template-columns:1.6fr 1fr;align-items:start;margin-top:12px}
+.seat{border:2.5px solid var(--ink);background:rgba(255,255,255,.28);padding:14px;text-align:center}
+.seat svg{width:132px;height:132px;display:block;margin:0 auto}
+.seatno{font-family:"Archivo",sans-serif;font-size:19px;letter-spacing:.16em;
+ font-variation-settings:"wght" 860,"wdth" 78;margin:8px 0 6px}
+.sharelab{font-size:12px;display:block;font-variation-settings:"wght" 700}
+.sharelab input{display:block;width:100%;font:inherit;font-size:12.5px;border:1.8px solid var(--ink);
+ background:var(--alu-hi);padding:5px 7px;margin-top:4px}
+#scoretab td:last-child{text-align:right;font-family:"Archivo",sans-serif;font-variation-settings:"wght" 760}
+@media(max-width:700px){.outgrid{grid-template-columns:1fr}}
+@media(max-width:560px){.tl{transform:none}.gap{transform:none!important}.campo-p{aspect-ratio:1200/700}}
+@media (prefers-reduced-motion:reduce){.tl{transform:none}}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="主導覽"><svg viewBox="0 0 212 126" aria-hidden="true">
+<g class="loose" style="transform-origin:12px 14px"><circle class="bolt" cx="12" cy="14" r="6.4"/><path class="boltx" d="M8 14h8M12 10v8"/></g>
+<g><circle class="bolt" cx="12" cy="112" r="6.4"/><path class="boltx" d="M8 112h8M12 108v8"/></g>
+<path d="M12 14L12 112" stroke="#131316" stroke-width="2.2"/></svg><a href="index.html">鋁翼餐室<i>CAMPO</i></a><a href="xuanyan.html">廚房裡的宣言<i>MANIFESTO</i></a><a href="zongpu.html" aria-current="page">總譜編排台<i>PARTITURA</i></a><a href="dingxi.html">訂席<i>PRENOTA</i></a></nav>
+<main class="wrap">
+
+<section class="sec">
+<div class="slab tilt-a">
+<span class="kicker">PARTITURA — 總譜編排台</span>
+<h2 class="hd">一、揀四道。<br>二、把它們<em>推到時間軸上</em>。<br>三、開席。</h2>
+<p class="lead">一輪四十分鐘。菜與菜之間留下來的空隙就是間奏，噪音機與噴香只能放在那裡——按《未來派料理宣言》第七條，聲音和香氣不准壓在嘴巴上。排完按開席，主廚照四條規矩驗，然後這份總譜會照它自己的時間實際奏一遍（壓縮成三十六秒）。</p>
+</div>
+</section>
+
+<section class="campo campo-p" id="pcampo" aria-label="這份總譜的自由文字節目單">
+<svg class="lines" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true"><path d="M228 240L276 236L319 223L351 199L367 169L370 137L366 105L357 74L345 43L331 12L316 -18L299 -48L282 -78L274 -93" class="fl f0" style="--i:0"/>
+<path d="M212 262L237 289L249 320L241 351L214 378L178 399L138 416L95 431L51 444L7 456L-38 467L-84 478L-129 488L-129 488" class="fl f0" style="--i:1"/>
+<path d="M177 267L155 296L123 319L83 337L40 351L-6 361L-52 369L-99 376L-123 379" class="fl f0" style="--i:2"/>
+<path d="M148 252L102 262L55 267L7 269L-41 269L-89 267L-137 265L-137 265" class="fl f0" style="--i:3"/>
+<path d="M148 228L105 214L62 200L18 186L-25 173L-68 159L-112 145L-133 138" class="fl f0" style="--i:4"/>
+<path d="M177 213L159 183L136 155L108 129L78 104L46 80L13 57L-21 34L-55 12L-90 -10L-125 -32L-143 -43" class="fl f0" style="--i:5"/>
+<path d="M212 218L233 189L240 158L236 126L225 95L209 65L190 35L168 7L145 -21L121 -49L96 -76L83 -90" class="fl f0" style="--i:6"/>
+<path d="M884 175L930 184L978 188L1026 187L1074 183L1120 176L1166 167L1212 156L1257 145L1301 133L1323 126" class="fl f1" style="--i:7"/>
+<path d="M857 191L874 221L900 248L935 270L976 286L1022 296L1069 301L1117 302L1165 301L1213 297L1260 293L1308 288L1331 285" class="fl f1" style="--i:8"/>
+<path d="M821 186L792 212L762 237L733 262L703 287L674 313L645 339L621 366L621 397L661 415L700 433L739 451L777 471L811 493L838 520L848 551L847 583L847 615L849 647L855 679L863 710L872 742L883 773L895 804L908 835L921 866L928 881" class="fl f1" style="--i:9"/>
+<path d="M804 165L756 161L711 152L670 135L635 113L608 87L587 58L570 28L555 -3L543 -33L532 -65L522 -96L522 -96" class="fl f1" style="--i:10"/>
+<path d="M819 143L793 116L774 86L761 56L752 24L748 -8L746 -40L746 -72L746 -88" class="fl f1" style="--i:11"/>
+<path d="M854 137L866 105L880 75L895 45L912 15L930 -15L949 -45L968 -74L977 -89" class="fl f1" style="--i:12"/>
+<path d="M883 151L925 135L964 117L1003 98L1040 78L1077 57L1113 36L1148 14L1183 -8L1218 -29L1253 -52L1288 -74L1305 -85" class="fl f1" style="--i:13"/>
+<path d="M478 617L504 644L522 673L533 705L540 736L543 768L544 800L544 832L542 864L540 880" class="fl f2" style="--i:14"/>
+<path d="M443 624L433 655L421 686L407 717L393 747L377 777L361 808L345 838L328 868L320 883" class="fl f2" style="--i:15"/>
+<path d="M413 610L374 628L337 648L302 670L269 694L237 718L206 742L176 767L145 791L116 816L86 842L56 867L27 892L27 892" class="fl f2" style="--i:16"/>
+<path d="M411 585L364 579L316 580L270 587L225 599L182 613L140 629L100 646L60 664L21 683L-18 701L-57 720L-95 740L-133 759L-133 759" class="fl f2" style="--i:17"/>
+<path d="M438 569L418 540L387 516L346 499L299 493L252 494L205 501L159 511L114 523L70 535L26 548L-17 562L-61 575L-104 589L-126 596" class="fl f2" style="--i:18"/>
+<path d="M474 573L504 548L537 525L575 505L620 494L668 495L712 506L750 525L780 550L800 579L812 610L820 642L829 673L838 705L848 736L858 767L870 798L881 830L894 860L906 891L906 891" class="fl f2" style="--i:19"/>
+<path d="M492 594L539 599L583 611L621 631L650 657L672 685L688 715L701 746L711 777L720 809L727 840L734 872L738 888" class="fl f2" style="--i:20"/>
+<path d="M1075 599L1096 627L1121 654L1150 680L1180 705L1212 729L1244 753L1277 776L1310 800L1343 823L1343 823" class="fl f3" style="--i:21"/>
+<path d="M1039 595L1025 626L1025 658L1034 689L1050 719L1068 749L1089 778L1111 806L1135 834L1159 862L1183 889L1183 889" class="fl f3" style="--i:22"/>
+<path d="M1020 574L975 586L943 609L929 639L926 671L931 703L940 734L952 765L966 796L982 826L998 856L1015 886L1015 886" class="fl f3" style="--i:23"/>
+<path d="M1033 552L1003 527L986 497L1001 467L1038 447L1081 433L1126 422L1173 415L1220 410L1268 406L1316 403L1340 401" class="fl f3" style="--i:24"/>
+<path d="M1068 544L1089 516L1125 495L1169 482L1216 475L1264 472L1312 471L1336 471" class="fl f3" style="--i:25"/>
+<path d="M1098 558L1144 548L1192 546L1240 547L1287 552L1334 558L1334 558" class="fl f3" style="--i:26"/>
+<path d="M1101 582L1145 595L1188 609L1230 624L1272 640L1314 656L1335 664" class="fl f3" style="--i:27"/></svg>
+<div id="pwords"><b class="pl red zh" style="--x:8.00;--y:16.00;--fs:4.6;--r:27.0;--w:900;--d:70">電光沙拉</b>
+<b class="pl blu la" style="--x:8.00;--y:9.00;--fs:1.5;--r:27.0;--w:817;--d:76">0'</b>
+<b class="pl ink zh" style="--x:27.80;--y:35.00;--fs:4.25;--r:9.1;--w:531;--d:97">鋁盤鰻</b>
+<b class="pl blu la" style="--x:27.80;--y:28.00;--fs:1.5;--r:-27.0;--w:676;--d:87">11'</b>
+<b class="pl ink zh" style="--x:51.20;--y:54.00;--fs:3.9;--r:-4.2;--w:350;--d:111">汽笛湯</b>
+<b class="pl blu la" style="--x:51.20;--y:47.00;--fs:1.5;--r:-27.0;--w:200;--d:122">24'</b>
+<b class="pl red zh" style="--x:72.80;--y:73.00;--fs:3.55;--r:-27.0;--w:597;--d:92">爆裂糖</b>
+<b class="pl blu la" style="--x:72.80;--y:66.00;--fs:1.5;--r:-27.0;--w:416;--d:106">36'</b>
+<b class="pl yel la" style="--x:44.00;--y:29.00;--fs:1.9;--r:27.0;--w:502;--d:100">CREPITATORE</b>
+<b class="pl blu zh" style="--x:44.00;--y:35.00;--fs:1.4;--r:23.0;--w:398;--d:107">佛手柑</b>
+<b class="pl yel la" style="--x:59.00;--y:49.00;--fs:1.9;--r:27.0;--w:401;--d:107">ULULATORE</b>
+<b class="pl blu zh" style="--x:59.00;--y:55.00;--fs:1.4;--r:21.4;--w:423;--d:105">松脂</b>
+<b class="pl yel la" style="--x:74.00;--y:69.00;--fs:1.9;--r:-27.0;--w:502;--d:100">RONZATORE</b>
+<b class="pl blu zh" style="--x:74.00;--y:75.00;--fs:1.4;--r:-27.0;--w:649;--d:89">橙花</b></div>
+<span class="campo-fallback" aria-hidden="true">PARTITURA IN LIBERTÀ</span>
+</section>
+
+<noscript><div class="slab tilt-a sec"><p><b>目前沒有 JavaScript。</b>上面那張自由文字版面是在建置階段就把力場算完、把每個字的角度與字重寫死在 HTML 裡的，所以它是完整的——只是不會再隨視窗重排，噪音機不會響，總譜編排台無法拖動。本站四頁的全部文字資訊皆為可選取的一般 HTML，不受影響。</p></div></noscript>
+
+<section class="sec">
+<div class="slab tilt-b">
+<h3 class="sub">揀四道（順序即上菜順序）</h3>
+<div class="chips"><button type="button" class="chip" data-d="carneplastico" aria-pressed="false">
+<b>空中肉塑</b><i>Carneplastico</i><u>13′</u></button><button type="button" class="chip" data-d="tattile" aria-pressed="false">
+<b>觸覺鵝卵</b><i>Uovo Tattile</i><u>6′・手食</u></button><button type="button" class="chip" data-d="elettrico" aria-pressed="false">
+<b>電光沙拉</b><i>Insalata Elettrica</i><u>5′・手食</u></button><button type="button" class="chip" data-d="anguilla" aria-pressed="false">
+<b>鋁盤鰻</b><i>Anguilla d'Alluminio</i><u>7′</u></button><button type="button" class="chip" data-d="sirena" aria-pressed="false">
+<b>汽笛湯</b><i>Zuppa a Sirena</i><u>6′</u></button><button type="button" class="chip" data-d="aeropranzo" aria-pressed="false">
+<b>空中米</b><i>Riso Aereo</i><u>7′</u></button><button type="button" class="chip" data-d="scoppio" aria-pressed="false">
+<b>爆裂糖</b><i>Zucchero a Scoppio</i><u>4′・手食</u></button><button type="button" class="chip" data-d="pastasciutta" aria-pressed="false">
+<b>番茄煮麵</b><i>Pastasciutta</i><u>9′</u></button><button type="button" class="chip" data-d="lunare" aria-pressed="false">
+<b>月光糕</b><i>Dolce Lunare</i><u>6′</u></button></div>
+<p class="picked" id="picked">已揀 0／4</p>
+
+<h3 class="sub">推到時間軸上</h3>
+<p class="nt">拖曳菜塊或用鍵盤（Tab 選中後按 ← →）移動，以分鐘為單位。灰色是間奏。</p>
+<div class="tl-outer"><div class="tl" id="tl" role="group" aria-label="四十分鐘時間軸">
+  <div class="tl-ruler" id="ruler" aria-hidden="true"></div>
+  <div class="tl-blocks" id="blocks"></div>
+  <div class="playhead" id="ph" aria-hidden="true"><span>▮</span></div>
+</div></div>
+
+<h3 class="sub">三段間奏</h3>
+<div class="gaps"><div class="gap" data-g="0">
+<span class="gl">間奏 一</span>
+<label>噪音機<select class="gm" data-g="0"><option value="ululatore">嚎鳴機 Ululatore</option><option value="crepitatore">爆裂機 Crepitatore</option><option value="stropicciatore">摩擦機 Stropicciatore</option><option value="scoppiatore">爆炸機 Scoppiatore</option><option value="ronzatore">嗡鳴機 Ronzatore</option><option value="gorgogliatore">汩汩機 Gorgogliatore</option></select></label>
+<label>噴香<select class="gs" data-g="0"><option value="佛手柑">佛手柑</option><option value="松脂">松脂</option><option value="茴香">茴香</option><option value="橙花">橙花</option><option value="苦艾">苦艾</option><option value="硝石">硝石</option></select></label>
+<span class="gt" data-g="0">—</span></div><div class="gap" data-g="1">
+<span class="gl">間奏 二</span>
+<label>噪音機<select class="gm" data-g="1"><option value="ululatore">嚎鳴機 Ululatore</option><option value="crepitatore">爆裂機 Crepitatore</option><option value="stropicciatore">摩擦機 Stropicciatore</option><option value="scoppiatore">爆炸機 Scoppiatore</option><option value="ronzatore">嗡鳴機 Ronzatore</option><option value="gorgogliatore">汩汩機 Gorgogliatore</option></select></label>
+<label>噴香<select class="gs" data-g="1"><option value="佛手柑">佛手柑</option><option value="松脂">松脂</option><option value="茴香">茴香</option><option value="橙花">橙花</option><option value="苦艾">苦艾</option><option value="硝石">硝石</option></select></label>
+<span class="gt" data-g="1">—</span></div><div class="gap" data-g="2">
+<span class="gl">間奏 三</span>
+<label>噪音機<select class="gm" data-g="2"><option value="ululatore">嚎鳴機 Ululatore</option><option value="crepitatore">爆裂機 Crepitatore</option><option value="stropicciatore">摩擦機 Stropicciatore</option><option value="scoppiatore">爆炸機 Scoppiatore</option><option value="ronzatore">嗡鳴機 Ronzatore</option><option value="gorgogliatore">汩汩機 Gorgogliatore</option></select></label>
+<label>噴香<select class="gs" data-g="2"><option value="佛手柑">佛手柑</option><option value="松脂">松脂</option><option value="茴香">茴香</option><option value="橙花">橙花</option><option value="苦艾">苦艾</option><option value="硝石">硝石</option></select></label>
+<span class="gt" data-g="2">—</span></div></div>
+
+<p class="verdictbar"><button class="btn" id="go" type="button">開席 ▸</button>
+<button class="btn alt" id="skip" type="button" hidden>跳到結果</button>
+<span id="tstate" class="tstate">尚未開席</span></p>
+<div id="reject" class="reject" hidden></div>
+</div>
+</section>
+
+<section class="sec" id="out" hidden>
+<div class="slab tilt-c">
+<span class="kicker">ESITO — 主廚的判詞</span>
+<h2 class="hd" id="verdict">—</h2>
+<div class="outgrid">
+  <div><table><tbody id="scoretab"></tbody></table>
+  <p class="nt" id="detail"></p>
+  <p><label class="sharelab">分享碼<input id="share" readonly></label></p></div>
+  <div class="seat"><div id="stampbox"></div><p class="seatno" id="seatno">—</p><p class="nt">憑此牌號來電訂席，廚房會照這份總譜備料。</p></div>
+</div>
+</div>
+</section>
+
+<section class="sec">
+<div class="slab tilt-a">
+<h3 class="sub">四條規矩（主廚會照這個驗）</h3>
+<table><thead><tr><th>條</th><th>規矩</th><th>出處</th></tr></thead><tbody>
+<tr><td>一</td><td>正好四道。番茄煮麵不算一道——放進去會被主廚當場撤掉。</td><td>《未來派料理宣言》廢除麵食條</td></tr>
+<tr><td>二</td><td>菜不得相撞，最後一道要在四十分鐘之內收掉。</td><td>本店營業條件</td></tr>
+<tr><td>三</td><td>每兩道之間至少留三分鐘做間奏，三段間奏不得用同一具噪音機。</td><td>宣言第七條・Russolo 器械表</td></tr>
+<tr><td>四</td><td>四道之中至少要有一道是用手吃的。</td><td>觸覺晚宴條（Marinetti 觸覺主義）</td></tr>
+</tbody></table>
+<p class="nt" style="margin-top:12px">另有一條不擋人、只計分的：<b>間奏要一段比一段短</b>。未來派的飯是往前推的，不是往後拖的；三段間奏嚴格遞減得滿分（25），三段一樣長只有 8 分，忽長忽短 0 分。滿分一百一十分不只一種排法（窮舉七十種四道組合、各種間奏長度後共三十一組），但每一組都得同時做到：三道用手吃、三具機器不重複、間奏嚴格遞減、最後一道正好收在第四十分鐘。</p>
+</div>
+</section>
+
+</main>
+<footer class="foot"><div class="wrap">
+<div><img class="flogo" src="assets/logo.svg" alt="鋁翼餐室 ALA D'ALLUMINIO 標誌" width="420" height="150"><h4>鋁翼餐室</h4>台北市大同區塔城街四十一號三樓<br>(02) 2558-7431<br>ala@luyi-taipei.example</div>
+<div><h4>開席</h4>週三至週日<br>第一輪 18:30／第二輪 21:00<br>一輪限二十二席，週一週二整修噪音機</div>
+<div><h4>價目</h4>四道總譜 NT$1,480／人<br>觸覺加席 NT$260<br>噪音機外燴租用 NT$3,600 起（三具）</div>
+<div><h4>人</h4>主廚 賀允中<br>噪音技師 蔡明道<br>侍香 林幼薇<br>外場 郭品彣</div>
+<div style="grid-column:1/-1"><p class="fine">本站所有店名、人名、菜名、價格、電話與地址均為虛構示意，僅供設計風格展示之用。《未來派料理宣言》（Marinetti，1930）與 Russolo《噪音的藝術》（1913）為真實史料，本站的規矩由該史料改寫。<br>本站由 <b>Claude Opus 5 · 排程 Agent</b> 設計與建置（2026-08-10）｜<a href="../../index.html">回 Design Skills Center</a>　<a href="SKILL.md">下載 SKILL.md</a></p></div>
+</div></footer>
+<script>
+/* ===== 鋁翼餐室 共用引擎：力場 / 力線 / 聲場排版 ===== */
+var RM = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/* --- 1. 力場 --- */
+var CENTRES = [{x:.155,y:.30,s:.0115},{x:.705,y:.205,s:.0150},{x:.375,y:.745,s:.0120},{x:.885,y:.715,s:.0090}];
+function fieldAt(px,py,cs){
+  var vx=0,vy=0;
+  for(var i=0;i<cs.length;i++){
+    var c=cs[i],dx=px-c.x,dy=py-c.y,d2=dx*dx+dy*dy;
+    if(d2<0.0009)d2=0.0009;
+    var k=c.s/d2; vx+=dx*k; vy+=dy*k;
+  }
+  return {vx:vx,vy:vy,m:Math.sqrt(vx*vx+vy*vy)};
+}
+function streamline(sx,sy,cs,n,h){
+  var p=[[sx,sy]],x=sx,y=sy;
+  for(var i=0;i<n;i++){
+    var f=fieldAt(x,y,cs);
+    if(!isFinite(f.m)||f.m<1e-9)break;
+    x+=f.vx/f.m*h; y+=f.vy/f.m*h;
+    if(x<-.12||x>1.12||y<-.12||y>1.12)break;
+    p.push([x,y]);
+  }
+  return p;
+}
+function pathD(p,W,H,step){
+  var s='',st=step||2;
+  for(var i=0;i<p.length;i+=st){s+=(i?'L':'M')+(p[i][0]*W).toFixed(0)+' '+(p[i][1]*H).toFixed(0);}
+  var l=p[p.length-1]; s+='L'+(l[0]*W).toFixed(0)+' '+(l[1]*H).toFixed(0);
+  return s;
+}
+function clampDeg(deg){
+  while(deg>90)deg-=180; while(deg<-90)deg+=180;
+  return Math.max(-27,Math.min(27,deg*0.62));
+}
+
+/* --- 2. 版面：字受力場統治 --- */
+function relayoutField(root,skipLines){
+  var words=root.querySelectorAll('.pl'); if(!words.length)return;
+  var mags=[],i,f;
+  for(i=0;i<words.length;i++){
+    var w=words[i];
+    f=fieldAt(parseFloat(w.style.getPropertyValue('--x'))/100,
+              parseFloat(w.style.getPropertyValue('--y'))/100,CENTRES);
+    mags.push(f.m); w._f=f;
+  }
+  var mn=Math.min.apply(null,mags),mx=Math.max.apply(null,mags);
+  for(i=0;i<words.length;i++){
+    var el=words[i]; f=el._f;
+    var t=Math.pow((mags[i]-mn)/((mx-mn)||1),.55);
+    el.style.setProperty('--r',clampDeg(Math.atan2(f.vy,f.vx)*180/Math.PI).toFixed(1));
+    el._w0=Math.round(200+700*t);
+    el._wd=Math.round(70+52*(1-t));
+    el.style.setProperty('--w',el._w0);
+    el.style.setProperty('--d',el._wd);
+  }
+  /* 力線重畫 */
+  if(skipLines)return;
+  var svg=root.querySelector('svg.lines'); if(!svg)return;
+  var ps=svg.querySelectorAll('path.fl'),k=0;
+  for(var ci=0;ci<CENTRES.length;ci++){
+    for(var j=0;j<7;j++){
+      if(k>=ps.length)break;
+      var a=(j/7)*Math.PI*2+ci*.42,c=CENTRES[ci];
+      ps[k].setAttribute('d',pathD(streamline(c.x+Math.cos(a)*.035,c.y+Math.sin(a)*.035,CENTRES,120,.020),1200,800));
+      k++;
+    }
+  }
+  ridePaths(root);
+}
+/* 擬聲詞順著力線滑行 */
+function ridePaths(root){
+  var toks=root.querySelectorAll('.tok'); if(!toks.length)return;
+  var box=root.querySelector('.campo'); if(!box)return;
+  var W=box.clientWidth,H=box.clientHeight||W*800/1200;
+  for(var i=0;i<toks.length;i++){
+    var ci=i%CENTRES.length,c=CENTRES[ci],a=(i*1.9)%(Math.PI*2);
+    var d=pathD(streamline(c.x+Math.cos(a)*.05,c.y+Math.sin(a)*.05,CENTRES,120,.020),W,H,3);
+    toks[i].style.offsetPath='path("'+d+'")';
+    toks[i].style.animationDuration=(11+i*1.7)+'s';
+    toks[i].style.animationDelay=(-i*2.3)+'s';
+    toks[i].style.visibility='visible';
+  }
+}
+
+/* --- 3. 噪音機（Russolo intonarumori）＋ 聲場排版 --- */
+var AUD={ctx:null,an:null,master:null,buf:null,live:0,raf:0,words:null};
+var MACHINES={
+  ululatore   :{zh:'嚎鳴機',type:'glide',f0:110,f1:520,q:7,  g:.30,dur:2.6},
+  crepitatore :{zh:'爆裂機',type:'grain',f0:1400,f1:2600,q:9,g:.26,dur:2.2},
+  stropicciatore:{zh:'摩擦機',type:'sweep',f0:320,f1:2100,q:12,g:.24,dur:3.0},
+  scoppiatore :{zh:'爆炸機',type:'burst',f0:90,f1:60,q:1.4, g:.36,dur:1.6},
+  ronzatore   :{zh:'嗡鳴機',type:'buzz', f0:82, f1:123,q:3,  g:.24,dur:3.2},
+  gorgogliatore:{zh:'汩汩機',type:'step',f0:220,f1:660,q:8,  g:.22,dur:2.4}
+};
+function audioReady(){
+  if(AUD.ctx)return true;
+  var AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return false;
+  AUD.ctx=new AC();
+  AUD.master=AUD.ctx.createGain(); AUD.master.gain.value=.55;
+  AUD.an=AUD.ctx.createAnalyser(); AUD.an.fftSize=512;
+  AUD.master.connect(AUD.an); AUD.an.connect(AUD.ctx.destination);
+  var sr=AUD.ctx.sampleRate,len=sr*3,b=AUD.ctx.createBuffer(1,len,sr),ch=b.getChannelData(0);
+  var last=0;
+  for(var i=0;i<len;i++){var wnoise=Math.random()*2-1;last=(last+.036*wnoise)/1.036;ch[i]=last*3.2;}
+  AUD.buf=b;
+  AUD.data=new Uint8Array(AUD.an.frequencyBinCount);
+  return true;
+}
+function playMachine(name,when,dur){
+  if(!audioReady())return 0;
+  var M=MACHINES[name]||MACHINES.ronzatore,c=AUD.ctx;
+  var t=(when===undefined? c.currentTime+.02 : when), D=dur||M.dur;
+  var g=c.createGain(); g.connect(AUD.master);
+  var bp=c.createBiquadFilter(); bp.type=(M.type==='burst'?'lowpass':'bandpass');
+  bp.Q.value=M.q; bp.connect(g);
+  var src;
+  if(M.type==='buzz'||M.type==='glide'){
+    src=c.createOscillator(); src.type=(M.type==='buzz'?'square':'sawtooth');
+    src.frequency.setValueAtTime(M.f0,t);
+    src.frequency.linearRampToValueAtTime(M.f1,t+D);
+    bp.frequency.setValueAtTime(M.f0*3,t); bp.frequency.linearRampToValueAtTime(M.f1*2.2,t+D);
+  }else{
+    src=c.createBufferSource(); src.buffer=AUD.buf; src.loop=true;
+    bp.frequency.setValueAtTime(M.f0,t);
+    if(M.type==='sweep'){bp.frequency.exponentialRampToValueAtTime(Math.max(60,M.f1),t+D);}
+    else if(M.type==='step'){for(var k=0;k<10;k++)bp.frequency.setValueAtTime(M.f0+Math.random()*(M.f1-M.f0),t+D*k/10);}
+    else{bp.frequency.setValueAtTime(M.f0,t);}
+  }
+  src.connect(bp);
+  g.gain.setValueAtTime(.0001,t);
+  if(M.type==='grain'){
+    for(var j=0;j<Math.round(D*13);j++){
+      var tt=t+j*D/(D*13);
+      g.gain.setValueAtTime(.0001,tt);
+      g.gain.linearRampToValueAtTime(M.g*(.4+Math.random()*.6),tt+.008);
+      g.gain.exponentialRampToValueAtTime(.0001,tt+.052);
+    }
+  }else if(M.type==='burst'){
+    g.gain.linearRampToValueAtTime(M.g,t+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t+D);
+  }else{
+    g.gain.linearRampToValueAtTime(M.g,t+.14);
+    g.gain.setValueAtTime(M.g,t+D-.22);
+    g.gain.exponentialRampToValueAtTime(.0001,t+D);
+  }
+  src.start(t); src.stop(t+D+.06);
+  AUD.live++;
+  src.onended=function(){AUD.live--;};
+  startAmp();
+  return D;
+}
+/* 聲場排版：即時響度 → 全頁字重／字寬／力線 */
+function startAmp(){
+  if(AUD.raf)return;
+  AUD.words=document.querySelectorAll('.pl');
+  var root=document.documentElement;
+  function tick(){
+    if(!AUD.ctx){AUD.raf=0;return;}
+    AUD.an.getByteTimeDomainData(AUD.data);
+    var s=0;
+    for(var i=0;i<AUD.data.length;i+=4){var v=(AUD.data[i]-128)/128;s+=v*v;}
+    var amp=Math.min(1,Math.sqrt(s/(AUD.data.length/4))*4.6);
+    root.style.setProperty('--amp',amp.toFixed(3));
+    if(!RM.matches){
+      for(var j=0;j<AUD.words.length;j++){
+        var el=AUD.words[j],w0=el._w0||420,wd=el._wd||100;
+        el.style.setProperty('--w',Math.round(w0+(900-w0)*amp));
+        el.style.setProperty('--d',Math.round(wd-(wd-62)*amp*.7));
+      }
+    }
+    if(AUD.live>0||amp>.006){AUD.raf=requestAnimationFrame(tick);}
+    else{
+      AUD.raf=0; root.style.setProperty('--amp',0);
+      for(var q=0;q<AUD.words.length;q++){
+        AUD.words[q].style.setProperty('--w',AUD.words[q]._w0||420);
+        AUD.words[q].style.setProperty('--d',AUD.words[q]._wd||100);
+      }
+    }
+  }
+  AUD.raf=requestAnimationFrame(tick);
+}
+function resumeAudio(){ if(audioReady()&&AUD.ctx.state==='suspended')AUD.ctx.resume(); }
+
+/* --- 4. 決定性偽亂數（回執印記 / 分享碼） --- */
+function fnv1a(str){var h=0x811c9dc5;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* --- 5. 啟動 --- */
+function boot(){
+  var root=document;
+  relayoutField(root);
+  var to=null;
+  window.addEventListener('resize',function(){clearTimeout(to);to=setTimeout(function(){relayoutField(root);},140);});
+  var main=document.querySelector('main');
+  if(main&&!RM.matches)main.classList.add('enter');
+}
+
+
+boot();
+(function(){
+var DISHES=[{"id":"carneplastico","zh":"空中肉塑","it":"Carneplastico","min":13,"hand":false,"tact":"—","scent":"迷迭香","price":380,"note":"圓筒狀小牛肉，裡面填十一種當令蔬菜，立在三顆金黃肉丸上。上桌不切，客人得先繞著看完一圈——這道菜是一件雕塑，刀叉是後來的事。"},{"id":"tattile","zh":"觸覺鵝卵","it":"Uovo Tattile","min":6,"hand":true,"tact":"海綿・砂紙・天鵝絨","scent":"佛手柑","price":260,"note":"左手先在三塊材質上各按三秒，右手直接取食。本店這一道不發餐具；侍者會在你手邊放一盆溫水，那才是你的刀叉。"},{"id":"elettrico","zh":"電光沙拉","it":"Insalata Elettrica","min":5,"hand":true,"tact":"冰鋁片","scent":"檸檬","price":220,"note":"盤子先冰到攝氏三度，菜葉貼著鋁面端上來。指尖先冷、舌頭後冷，兩個冷差三秒，這三秒就是這道菜。"},{"id":"anguilla","zh":"鋁盤鰻","it":"Anguilla d'Alluminio","min":7,"hand":false,"tact":"—","scent":"松脂","price":420,"note":"鰻魚以松枝燻過，鋪在打磨過的鋁盤上。鋁把燻味往上頂，吃到第四口才會出現。"},{"id":"sirena","zh":"汽笛湯","it":"Zuppa a Sirena","min":6,"hand":false,"tact":"—","scent":"禁香","price":240,"note":"端上桌前廚房鳴一次汽笛。這一道明令禁香——湯的氣味必須自己站得住，聞得到別的東西就是失敗。"},{"id":"aeropranzo","zh":"空中米","it":"Riso Aereo","min":7,"hand":false,"tact":"—","scent":"香水噴霧","price":300,"note":"米飯壓成薄片架在細鋼絲上，離盤面兩公分。吃的時候整片會塌下去——這道菜的重點是它塌下去的那一下。"},{"id":"scoppio","zh":"爆裂糖","it":"Zucchero a Scoppio","min":4,"hand":true,"tact":"粗鹽紙","scent":"茴香","price":180,"note":"糖殼裡封著碳酸，用手指壓破。壓破的聲音由客人自己製造，這是本店唯一一道不需要噪音機的菜。"},{"id":"pastasciutta","zh":"番茄煮麵","it":"Pastasciutta","min":9,"hand":false,"tact":"—","scent":"羅勒","price":160,"note":"廚房備著，但主廚不會讓它上桌。放進總譜看看會發生什麼事。"},{"id":"lunare","zh":"月光糕","it":"Dolce Lunare","min":6,"hand":false,"tact":"—","scent":"橙花","price":200,"note":"蛋白糖霜在暗處泛青。侍者會把餐室的燈調到只剩藍色那一盞，甜點自己會發光。"}];
+var MACHL=[{"id":"ululatore","zh":"嚎鳴機","it":"Ululatore","desc":"一根拉緊的腸線由搖柄摩擦，音高在兩個八度間連續滑行。放在肉之前。"},{"id":"crepitatore","zh":"爆裂機","it":"Crepitatore","desc":"齒輪敲打鐵皮膜，每秒十三下不規則。開胃用，超過四十秒會讓人放下叉子。"},{"id":"stropicciatore","zh":"摩擦機","it":"Stropicciatore","desc":"兩塊粗砂布互相摩擦，帶通頻率由低往高掃。配冷盤。"},{"id":"scoppiatore","zh":"爆炸機","it":"Scoppiatore","desc":"一次性低頻爆震，一點三秒。全場只能用一次，用兩次就變成裝飾。"},{"id":"ronzatore","zh":"嗡鳴機","it":"Ronzatore","desc":"兩支失諧的簧片，差頻約每秒四拍。適合放在甜點前把味覺歸零。"},{"id":"gorgogliatore","zh":"汩汩機","it":"Gorgogliatore","desc":"水柱穿過打孔管，音高隨機跳階。配湯，但不能跟湯同時。"}];
+var byId={};DISHES.forEach(function(d){byId[d.id]=d;});
+var TOT=40, PLAYMS=36000;
+var picked=[], starts=[], gaps=[{m:'crepitatore',s:'佛手柑'},{m:'ululatore',s:'松脂'},{m:'ronzatore',s:'橙花'}];
+var tl=document.getElementById('tl'), blocks=document.getElementById('blocks'),
+    ruler=document.getElementById('ruler'), ph=document.getElementById('ph'),
+    pw=document.getElementById('pwords'), out=document.getElementById('out'),
+    rej=document.getElementById('reject'), tstate=document.getElementById('tstate');
+
+for(var t=0;t<=40;t+=5){var s=document.createElement('span');s.textContent=t+"'";s.style.left=(t/TOT*100)+'%';ruler.appendChild(s);}
+
+function layoutDefault(){
+  starts=[]; var sum=0,i;
+  for(i=0;i<picked.length;i++)sum+=byId[picked[i]].min;
+  var g=Math.max(3,Math.min(8,Math.floor((TOT-sum)/Math.max(1,picked.length-1))));
+  var c=0;
+  for(i=0;i<picked.length;i++){starts.push(c); c+=byId[picked[i]].min+g;}
+}
+function chipsSync(){
+  document.querySelectorAll('.chip').forEach(function(b){
+    var on=picked.indexOf(b.dataset.d)>=0;
+    b.setAttribute('aria-pressed',on?'true':'false');
+    if(!on&&picked.length>=4)b.setAttribute('disabled','');else b.removeAttribute('disabled');
+  });
+  document.getElementById('picked').textContent='已揀 '+picked.length+'／4';
+}
+function render(fast){
+  blocks.innerHTML='';
+  var order=picked.map(function(id,i){return {id:id,i:i};}).sort(function(a,b){return starts[a.i]-starts[b.i];});
+  picked.forEach(function(id,i){
+    var d=byId[id],el=document.createElement('div');
+    el.className='blk'; el.tabIndex=0; el.dataset.i=i;
+    if(d.hand)el.dataset.hand='1';
+    if(d.id==='pastasciutta')el.dataset.bad='1';
+    el.style.left=(starts[i]/TOT*100)+'%'; el.style.width=(d.min/TOT*100)+'%';
+    el.innerHTML='<b>'+d.zh+'</b><small>'+d.min+"' "+(d.hand?'MANO':'')+'</small>';
+    el.setAttribute('role','slider'); el.setAttribute('aria-label',d.zh+' 起始分鐘');
+    el.setAttribute('aria-valuemin','0');el.setAttribute('aria-valuemax',String(TOT-d.min));
+    el.setAttribute('aria-valuenow',String(starts[i]));
+    blocks.appendChild(el);
+  });
+  for(var g=0;g<order.length-1;g++){
+    var a=order[g],b=order[g+1];
+    var s0=starts[a.i]+byId[a.id].min, s1=starts[b.i], len=s1-s0;
+    var bar=document.createElement('div'); bar.className='gapbar';
+    bar.style.left=(Math.min(s0,s1)/TOT*100)+'%';
+    bar.style.width=(Math.max(0,len)/TOT*100)+'%';
+    if(len<3)bar.dataset.short='1';
+    blocks.appendChild(bar);
+    var gt=document.querySelector('.gt[data-g="'+g+'"]');
+    if(gt){gt.textContent=len.toFixed(0)+" min"; if(len<3)gt.dataset.bad='1'; else gt.removeAttribute('data-bad');}
+  }
+  for(var q=order.length-1;q<3;q++){var gq=document.querySelector('.gt[data-g="'+q+'"]');if(gq){gq.textContent='—';gq.removeAttribute('data-bad');}}
+  layPlayhead();
+  PAINT_FAST=!!fast; paint(); PAINT_FAST=false;
+}
+/* 演出軌：playhead 沿一條力線走（CSS Motion Path），offset-rotate:auto 讓標記自己轉向 */
+var PHPATH='';
+function layPlayhead(){
+  var W=tl.clientWidth||640,H=tl.clientHeight||112;
+  var pts=streamline(0.02,0.30,CENTRES,150,0.014),d='';
+  var xs=pts.map(function(p){return p[0];}),x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs);
+  for(var i=0;i<pts.length;i+=3){
+    var nx=(pts[i][0]-x0)/((x1-x0)||1), ny=0.10+ (pts[i][1]-0.2)*0.55;
+    d+=(i?'L':'M')+(nx*W).toFixed(0)+' '+(Math.max(0,Math.min(.72,ny))*H).toFixed(0);
+  }
+  PHPATH=d;
+  if(typeof CSS!=='undefined'&&CSS.supports&&CSS.supports('offset-path','path("M0 0L1 1")')){
+    ph.style.offsetPath='path("'+d+'")'; ph.style.offsetRotate='auto'; ph.dataset.mp='1';
+  }
+}
+function movePlayhead(e){
+  if(ph.dataset.mp){ph.style.offsetDistance=(e*100).toFixed(2)+'%';}
+  else{ph.style.left=(e*100)+'%';}
+}
+/* 節目單：把總譜寫成自由文字，字重與角度由力場決定 */
+var PAINT_FAST=false;
+function paint(){
+  pw.innerHTML='';
+  var order=picked.map(function(id,i){return {id:id,i:i};}).sort(function(a,b){return starts[a.i]-starts[b.i];});
+  var items=[];
+  order.forEach(function(o,k){
+    var d=byId[o.id];
+    items.push({t:d.zh,x:8+ (starts[o.i]/TOT)*72, y:16+k*19, fs:4.6-k*.35, c:d.hand?'red':'ink',lang:'zh'});
+    items.push({t:String(starts[o.i])+"'", x:8+(starts[o.i]/TOT)*72, y:9+k*19, fs:1.5, c:'blu',lang:'la'});
+  });
+  for(var g=0;g<Math.max(0,order.length-1);g++){
+    var mm=MACHL.filter(function(m){return m.id===gaps[g].m;})[0]||MACHL[0];
+    items.push({t:mm.it.toUpperCase(),x:44+g*15,y:29+g*20,fs:1.9,c:'yel',lang:'la'});
+    items.push({t:gaps[g].s,x:44+g*15,y:35+g*20,fs:1.4,c:'blu',lang:'zh'});
+  }
+  if(!items.length)items.push({t:'尚未揀菜',x:8,y:46,fs:5.2,c:'ink',lang:'zh'});
+  items.forEach(function(it){
+    var b=document.createElement('b');
+    b.className='pl '+it.c+' '+it.lang;
+    b.style.setProperty('--x',it.x.toFixed(2));b.style.setProperty('--y',it.y.toFixed(2));
+    b.style.setProperty('--fs',it.fs);b.style.setProperty('--r',0);
+    b.style.setProperty('--w',500);b.style.setProperty('--d',100);
+    b.textContent=it.t; pw.appendChild(b);
+  });
+  relayoutField(document,PAINT_FAST);
+}
+/* 揀菜 */
+document.querySelectorAll('.chip').forEach(function(b){
+  b.addEventListener('click',function(){
+    var id=b.dataset.d,k=picked.indexOf(id);
+    if(k>=0)picked.splice(k,1); else if(picked.length<4)picked.push(id);
+    layoutDefault(); chipsSync(); render();
+  });
+});
+/* 拖曳 */
+var drag=null;
+blocks.addEventListener('pointerdown',function(e){
+  var el=e.target.closest('.blk'); if(!el)return;
+  drag={el:el,i:+el.dataset.i,x0:e.clientX,s0:starts[+el.dataset.i]};
+  el.setPointerCapture(e.pointerId);
+});
+var dragRaf=0;
+blocks.addEventListener('pointermove',function(e){
+  if(!drag)return;
+  var w=tl.clientWidth, dm=(e.clientX-drag.x0)/w*TOT;
+  var d=byId[picked[drag.i]];
+  var ns=Math.max(0,Math.min(TOT-d.min,Math.round(drag.s0+dm)));
+  if(ns===starts[drag.i])return;
+  starts[drag.i]=ns;
+  if(dragRaf)return;
+  dragRaf=requestAnimationFrame(function(){dragRaf=0;render(true);});
+});
+function endDrag(){drag=null;}
+blocks.addEventListener('pointerup',endDrag);blocks.addEventListener('pointercancel',endDrag);
+blocks.addEventListener('keydown',function(e){
+  var el=e.target.closest('.blk'); if(!el)return;
+  var i=+el.dataset.i,d=byId[picked[i]],step=(e.shiftKey?5:1),moved=false;
+  if(e.key==='ArrowLeft'){starts[i]=Math.max(0,starts[i]-step);moved=true;}
+  if(e.key==='ArrowRight'){starts[i]=Math.min(TOT-d.min,starts[i]+step);moved=true;}
+  if(moved){e.preventDefault();render();var n=blocks.querySelector('.blk[data-i="'+i+'"]');if(n)n.focus();}
+});
+/* 間奏 */
+document.querySelectorAll('.gm').forEach(function(s){s.addEventListener('change',function(){gaps[+s.dataset.g].m=s.value;paint();});});
+document.querySelectorAll('.gs').forEach(function(s){s.addEventListener('change',function(){gaps[+s.dataset.g].s=s.value;paint();});});
+/* 驗收 */
+function check(){
+  var errs=[],quote='';
+  if(picked.indexOf('pastasciutta')>=0){
+    errs.push('主廚把〈番茄煮麵〉從總譜上撤掉了，於是你只剩三道。');
+    quote='「義大利麵是一種荒謬的義大利宗教。它使人沉重、遲鈍、悲觀、懷舊。」——《未來派料理宣言》，一九三〇';
+  }
+  var eff=picked.filter(function(id){return id!=='pastasciutta';});
+  if(eff.length!==4)errs.push('必須正好四道，現在是 '+eff.length+' 道。');
+  var order=picked.map(function(id,i){return {id:id,i:i};}).sort(function(a,b){return starts[a.i]-starts[b.i];});
+  for(var g=0;g<order.length-1;g++){
+    var a=order[g],b=order[g+1],len=starts[b.i]-(starts[a.i]+byId[a.id].min);
+    if(len<0)errs.push('〈'+byId[a.id].zh+'〉和〈'+byId[b.id].zh+'〉撞在一起了。');
+    else if(len<3)errs.push('〈'+byId[a.id].zh+'〉到〈'+byId[b.id].zh+'〉之間只有 '+len+' 分鐘，間奏至少要三分鐘。');
+  }
+  var end=0; picked.forEach(function(id,i){end=Math.max(end,starts[i]+byId[id].min);});
+  if(end>TOT)errs.push('最後一道收在第 '+end+' 分鐘，超過四十分鐘。');
+  if(!eff.some(function(id){return byId[id].hand;}))errs.push('四道裡沒有一道是用手吃的——觸覺條沒有過。');
+  var ms=gaps.slice(0,Math.max(0,order.length-1)).map(function(g){return g.m;});
+  if(new Set(ms).size<ms.length)errs.push('兩段間奏用了同一具噪音機。');
+  return {errs:errs,quote:quote,end:end,order:order};
+}
+function score(r){
+  var hands=picked.filter(function(id){return byId[id].hand;}).length;
+  var tact=Math.min(45,hands*15);
+  var uniq=new Set(gaps.slice(0,3).map(function(g){return g.m;})).size;
+  var noise=uniq*10;
+  var gl=[];
+  for(var g=0;g<r.order.length-1;g++){var a=r.order[g],b=r.order[g+1];gl.push(starts[b.i]-(starts[a.i]+byId[a.id].min));}
+  var strict=gl.length>1,nonInc=gl.length>1,allEq=gl.length>0;
+  for(var q=1;q<gl.length;q++){
+    if(!(gl[q]<gl[q-1]))strict=false;
+    if(gl[q]>gl[q-1])nonInc=false;
+    if(gl[q]!==gl[q-1])allEq=false;
+  }
+  var rhythm=strict?25:(allEq?8:(nonInc?16:0));
+  var fit=Math.max(0,10-Math.abs(TOT-r.end));
+  return {tact:tact,noise:noise,rhythm:rhythm,fit:Math.round(fit),
+          total:Math.round(tact+noise+rhythm+fit),gl:gl,hands:hands,uniq:uniq,strict:strict};
+}
+function shareCode(){
+  return picked.map(function(id,i){return id+':'+starts[i];}).join(',')+'|'+gaps.map(function(g){return g.m+':'+g.s;}).join(',');
+}
+function drawStamp(seed){
+  var rr=mulberry32(fnv1a(seed)),S=132,c=S/2,n=8+Math.floor(rr()*7),s='';
+  s+='<circle cx="'+c+'" cy="'+c+'" r="'+(S*.44)+'" fill="none" stroke="var(--red)" stroke-width="2.6"/>';
+  s+='<circle cx="'+c+'" cy="'+c+'" r="'+(S*.36)+'" fill="none" stroke="var(--red)" stroke-width="1"/>';
+  for(var i=0;i<n;i++){var a=i/n*Math.PI*2+rr()*.3,l=S*(.14+rr()*.20);
+    s+='<line x1="'+(c+Math.cos(a)*S*.09).toFixed(1)+'" y1="'+(c+Math.sin(a)*S*.09).toFixed(1)+'" x2="'+(c+Math.cos(a)*(S*.09+l)).toFixed(1)+'" y2="'+(c+Math.sin(a)*(S*.09+l)).toFixed(1)+'" stroke="var(--red)" stroke-width="'+(1+rr()*2.4).toFixed(1)+'"/>';}
+  var k=3+Math.floor(rr()*3);
+  for(var j=0;j<k;j++){var a2=rr()*Math.PI*2,R=S*.20,p=[0,1,2].map(function(q){var b=a2+q*2.094;return (c+Math.cos(b)*R).toFixed(1)+','+(c+Math.sin(b)*R).toFixed(1);}).join(' ');
+    s+='<polygon points="'+p+'" fill="var(--red)" opacity="'+(.14+j*.08).toFixed(2)+'"/>';}
+  return '<svg viewBox="0 0 '+S+' '+S+'" role="img" aria-label="席次力線印記">'+s+'</svg>';
+}
+/* 開席 */
+var timer=null,raf=0,t0=0,fired=[];
+function finish(r,sc){
+  clearTimeout(timer);cancelAnimationFrame(raf);raf=0;
+  ph.classList.remove('on'); document.getElementById('skip').hidden=true;
+  document.getElementById('go').removeAttribute('disabled');
+  tstate.textContent='奏畢';
+  var g=sc.total>=85?'一場真正的未來派晚宴':sc.total>=65?'勉強算未來派':sc.total>=45?'這是一頓有配樂的晚餐':'這是一頓晚餐';
+  document.getElementById('verdict').textContent='〈'+g+'〉';
+  document.getElementById('scoretab').innerHTML=
+   '<tr><td>觸覺（用手吃 '+sc.hands+' 道 × 15）</td><td>'+sc.tact+' / 45</td></tr>'+
+   '<tr><td>噪音多樣（'+sc.uniq+' 具不重複 × 10）</td><td>'+sc.noise+' / 30</td></tr>'+
+   '<tr><td>間奏節奏（一段比一段短＝滿分）</td><td>'+sc.rhythm+' / 25</td></tr>'+
+   '<tr><td>貼合四十分鐘（收在第 '+r.end+' 分）</td><td>'+sc.fit+' / 10</td></tr>'+
+   '<tr><td><b>合計</b></td><td><b>'+sc.total+' / 110</b></td></tr>';
+  document.getElementById('detail').textContent='三段間奏各長 '+sc.gl.join('、')+' 分鐘。'+
+   (sc.strict?'一段比一段短，這頓飯往前推。':'間奏沒有越來越短——飯被往後拖了；試著把後面的菜往前擠。')+
+   (sc.hands===0?'':'用手吃的那 '+sc.hands+' 道決定了這頓飯的觸感。')+
+   (sc.uniq<3?'有間奏用了同一具機器，主廚說那叫配樂不叫間奏。':'三具機器各響一次，誰也沒重複。');
+  var code=shareCode();
+  document.getElementById('share').value=location.origin+location.pathname+'?p='+encodeURIComponent(code);
+  document.getElementById('stampbox').innerHTML=drawStamp(code);
+  document.getElementById('seatno').textContent='AL-'+(fnv1a(code)%100000).toString(36).toUpperCase().padStart(4,'0');
+  out.hidden=false;
+  if(!RM.matches){out.classList.remove('enter');void out.offsetWidth;out.classList.add('enter');}
+  out.scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'});
+}
+document.getElementById('go').addEventListener('click',function(){
+  var r=check();
+  if(r.errs.length){
+    rej.hidden=false;
+    rej.innerHTML='<h4>主廚退回這份總譜</h4><ul>'+r.errs.map(function(e){return '<li>'+e+'</li>';}).join('')+'</ul>'+(r.quote?'<q>'+r.quote+'</q>':'');
+    tstate.textContent='退回';
+    rej.scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'nearest'});
+    return;
+  }
+  rej.hidden=true; out.hidden=true;
+  var sc=score(r);
+  resumeAudio();
+  this.setAttribute('disabled','');
+  document.getElementById('skip').hidden=false;
+  tstate.textContent='開席 — 三十六秒奏完四十分鐘';
+  ph.classList.add('on');
+  fired=[false,false,false];
+  t0=performance.now();
+  var pathd='M0 0';
+  function tick(now){
+    var e=(now-t0)/PLAYMS;
+    if(e>=1){finish(r,sc);return;}
+    movePlayhead(e);
+    var mins=e*TOT;
+    for(var g=0;g<r.order.length-1;g++){
+      var a=r.order[g],gs=starts[a.i]+byId[a.id].min;
+      if(!fired[g]&&mins>=gs){fired[g]=true;playMachine(gaps[g].m,undefined,2.4);}
+    }
+    raf=requestAnimationFrame(tick);
+  }
+  raf=requestAnimationFrame(tick);
+});
+document.getElementById('skip').addEventListener('click',function(){var r=check();finish(r,score(r));});
+/* ?p= 還原 */
+(function(){
+  var q=new URLSearchParams(location.search).get('p');
+  if(q){
+    try{
+      var pr=q.split('|');
+      var cs=pr[0].split(',');
+      picked=[];starts=[];
+      cs.forEach(function(c){var kv=c.split(':');if(byId[kv[0]]){picked.push(kv[0]);starts.push(+kv[1]||0);}});
+      if(pr[1])pr[1].split(',').forEach(function(c,i){var kv=c.split(':');if(gaps[i]){gaps[i].m=kv[0];gaps[i].s=kv[1];}});
+      document.querySelectorAll('.gm').forEach(function(s,i){s.value=gaps[i].m;});
+      document.querySelectorAll('.gs').forEach(function(s,i){s.value=gaps[i].s;});
+    }catch(err){picked=[];starts=[];}
+  }
+  if(!picked.length){picked=['elettrico','anguilla','sirena','scoppio'];layoutDefault();}
+  chipsSync();render();
+})();
+})();
+
+</script>
+</body>
+</html>

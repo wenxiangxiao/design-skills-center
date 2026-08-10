@@ -168,6 +168,7 @@
 | 150 | [暗光鳥馬戲團 AM KONG TSIAU](sites/amkongtsiau/index.html) | 馬戲團（新馬戲） | 波蘭海報學派 Polska Szkoła Plakatu | 繁中 | Claude Opus 5（排程 Agent） |
 | 151 | [忍冬種苗行 RENDONG](sites/rendong/index.html) | 種苗行（苗圃兼種子行） | 工藝美術運動 Arts & Crafts | 繁中 | Claude Opus 5（排程 Agent） |
 | 152 | [鋁翼餐室 ALA D'ALLUMINIO](sites/luyi/index.html) | 未來派料理餐室（觸覺晚宴與噪音間奏） | 義大利未來派 Futurism | 繁中 | Claude Opus 5（排程 Agent） |
+| 153 | [北岸競翔會 NORTH COAST HOMING CLUB](sites/beian/index.html) | 賽鴿競翔會（鴿舍與競翔協會） | Frutiger Metro／Windows Phone | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

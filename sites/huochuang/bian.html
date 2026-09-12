@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>編窗房｜火窗・城北消防分隊</title>
+<meta name="description" content="編窗房：揀一則通報、用字塊拼一句七字下句把韻押上，型版工驗過三條就替你刷成一扇八格火窗。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%236F6A58'/%3E%3Crect x='6' y='6' width='52' height='52' fill='%23E0D7BE'/%3E%3Cpolygon points='32,12 39,26 46,19 44,37 54,33 47,52 17,52 10,33 20,37 18,19 25,26' fill='%23CE2A1A'/%3E%3Crect x='8' y='28' width='48' height='4' fill='%23E0D7BE'/%3E%3Crect x='8' y='42' width='48' height='4' fill='%23E0D7BE'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;900&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ── 火窗 HUOCHUANG ── 型版・ROSTA 窗 ── 共用樣式（建置時 inline 進每一頁） ── */
+:root{
+  --card:#6F6A58;      /* 油浸型版卡：全站最大面積，霧面、無反光、無拉絲 */
+  --cut:#4A4638;       /* 刀口／型版暗部 */
+  --paper:#E0D7BE;     /* 粗紙：只出現在「已經印出來的東西」上 */
+  --paper2:#D2C8AC;    /* 紙的背面／壓痕 */
+  --k:#16130D;         /* 黑版 */
+  --r:#CE2A1A;         /* 赤紅版 */
+  --o:#D2952A;         /* 赭黃版 */
+  --b:#2D4A8E;         /* 群青版（第四塊，只給水與夜） */
+  --misK:0px; --misR:0px; --misO:0px; --misB:0px; /* 套版錯位漂移（ambient） */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--card);
+  color:var(--paper);
+  font-family:"Noto Sans TC","PingFang TC","Heiti TC",sans-serif;
+  font-size:16px;line-height:1.75;
+  /* 型版卡上的刀口壓痕：純實色，零漸層 */
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3Crect width='46' height='46' fill='%236F6A58'/%3E%3Crect x='0' y='0' width='14' height='1' fill='%23655F4E'/%3E%3Crect x='30' y='23' width='11' height='1' fill='%23655F4E'/%3E%3Crect x='22' y='9' width='1' height='9' fill='%23787158'/%3E%3Crect x='6' y='34' width='1' height='7' fill='%23787158'/%3E%3C/svg%3E");
+}
+
+/* ── 字體：標題用粗黑（刻字的重量），數字與編號用等寬 ── */
+h1,h2,h3,.cut,.plate-label{font-family:"Noto Sans TC","PingFang TC",sans-serif;font-weight:900;letter-spacing:.04em}
+.num,.mono{font-family:"Roboto Mono","DejaVu Sans Mono",monospace;font-weight:500;letter-spacing:.02em}
+
+a{color:var(--r);text-decoration:none;border-bottom:2px solid var(--r)}
+a:hover,a:focus-visible{background:var(--r);color:var(--paper);border-bottom-color:var(--k)}
+:focus-visible{outline:3px solid var(--o);outline-offset:2px}
+
+/* ══ 型版鏤空導覽 stencil-cut nav ══
+   四頁＝型版卡上的四個鏤空字窗。未上墨的三格是「洞」（看得見底下的紙白）；
+   現用頁那一格是「油墨已經透過洞落到紙上」——紅色的字＋滲出的墨暈＋兩條白橋。 */
+.masthead{display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px;
+  padding:20px clamp(14px,4vw,52px) 0;max-width:1180px;margin:0 auto}
+.wordmark{display:flex;align-items:center;gap:12px;margin-right:auto}
+.wordmark svg{display:block}
+.wordmark b{display:block;font-size:20px;font-weight:900;letter-spacing:.16em;color:var(--paper)}
+.wordmark span{display:block;font-size:10.5px;letter-spacing:.3em;color:#A9A28A;font-family:"Roboto Mono",monospace}
+
+.stencil-nav{display:flex;gap:0;border:3px solid var(--cut);background:var(--cut)}
+.stencil-nav a{
+  position:relative;display:block;width:86px;padding:9px 0 10px;text-align:center;
+  border:0;border-right:3px solid var(--cut);
+  background:var(--paper);color:var(--card);
+  font-weight:900;font-size:15px;letter-spacing:.1em;
+  /* 「洞」：字是卡片被切掉的地方，看到的是底下的紙 */
+  box-shadow:inset 0 0 0 3px var(--card);
+}
+.stencil-nav a:last-child{border-right:0}
+.stencil-nav a .no{display:block;font-family:"Roboto Mono",monospace;font-size:9.5px;
+  letter-spacing:.24em;color:#8C8672;font-weight:500}
+.stencil-nav a:hover,.stencil-nav a:focus-visible{background:var(--paper);color:var(--k)}
+.stencil-nav a[aria-current="page"]{
+  background:var(--r);color:var(--paper);
+  box-shadow:inset 0 0 0 3px var(--card), 0 0 0 0 transparent;
+  filter:url(#inkspread);
+}
+/* 白橋：現用格上兩條橫貫的紙色橋，型版的內島靠它連著 */
+.stencil-nav a[aria-current="page"]::before,
+.stencil-nav a[aria-current="page"]::after{
+  content:"";position:absolute;left:0;right:0;height:4px;background:var(--paper);z-index:2}
+.stencil-nav a[aria-current="page"]::before{top:34%}
+.stencil-nav a[aria-current="page"]::after{top:66%}
+
+/* ══ 版面 ══ */
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,4vw,52px) 96px}
+.rule{height:3px;background:var(--cut);margin:22px 0}
+.rule.red{background:var(--r);height:5px}
+
+/* 紙：所有長文一律在紙上，不在型版卡上 */
+.paper{
+  background:var(--paper);color:var(--k);
+  padding:clamp(16px,3vw,30px);
+  box-shadow:5px 5px 0 var(--cut);      /* 實心位移，零模糊 */
+  border:0;
+}
+.paper h2{font-size:clamp(19px,2.4vw,26px);color:var(--k);margin-bottom:.5em}
+.paper h3{font-size:15px;letter-spacing:.14em;color:var(--r);margin:1.4em 0 .4em}
+.paper p{margin:0 0 .9em;max-width:64ch}
+.paper .num{color:var(--cut)}
+
+/* 標籤條（型版工的批註） */
+.tag{display:inline-block;background:var(--k);color:var(--paper);
+  font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:.18em;
+  padding:3px 9px;margin:0 6px 6px 0}
+.tag.r{background:var(--r)}
+.tag.o{background:var(--o);color:var(--k)}
+.tag.b{background:var(--b)}
+
+/* ══ 火窗本體 ══ */
+.window{
+  background:var(--paper);
+  padding:12px;box-shadow:7px 7px 0 var(--cut);
+  border:5px solid var(--k);
+}
+.window-head{display:flex;justify-content:space-between;align-items:baseline;
+  gap:10px;flex-wrap:wrap;padding:2px 4px 10px;border-bottom:4px solid var(--k);margin-bottom:10px}
+.window-head b{font-size:clamp(17px,2vw,22px);color:var(--k);font-weight:900;letter-spacing:.06em}
+.window-head .num{font-size:12px;color:var(--cut)}
+
+.grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--k);padding:4px}
+.cell{position:relative;background:var(--paper);overflow:hidden}
+.cell .art{display:block;width:100%;aspect-ratio:1/1}
+.cell .cap{
+  display:block;background:var(--k);color:var(--paper);
+  font-weight:900;font-size:clamp(15px,2.3vw,21px);letter-spacing:.22em;
+  text-align:center;padding:5px 2px 6px;line-height:1.2;
+}
+.cell .idx{position:absolute;top:3px;left:5px;font-family:"Roboto Mono",monospace;
+  font-size:10px;color:var(--cut);z-index:3}
+
+/* 逐版壓印：每一塊色版在它被刷過之前不存在（硬切，非淡入）
+   注意：預設是「已經刷好」——沒有 JavaScript 時整扇窗完整可見。
+   只有 JS 替 .grid8 加上 .stage 之後，色版才會先消失、再逐塊被刷出來。 */
+.grid8.stage .cell .pl{opacity:0}
+.grid8.stage .cell.pressed .pl{animation:pressplate .001s steps(1,jump-end) forwards}
+.cell.pressed .pl-k{animation-delay:calc(var(--d,0s) + .00s)}
+.cell.pressed .pl-o{animation-delay:calc(var(--d,0s) + .34s)}
+.cell.pressed .pl-b{animation-delay:calc(var(--d,0s) + .60s)}
+.cell.pressed .pl-r{animation-delay:calc(var(--d,0s) + .86s)}
+@keyframes pressplate{from{opacity:0}to{opacity:1}}
+
+/* 壓版時整張紙的一次震動（刮刀壓過） */
+.grid8.stage .cell.pressed .art{animation:shove 1.05s steps(4,jump-none) 1}
+@keyframes shove{0%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}
+  50%{transform:translate(-1px,1px)}75%{transform:translate(1px,0)}100%{transform:translate(0,0)}}
+
+/* ambient：套版錯位極慢漂移——四塊版各自週期，畫面永遠差那麼一點（手刷本來就對不準） */
+.cell .pl-k{transform:translate(var(--misK,0px),0)}
+.cell .pl-o{transform:translate(calc(-1.1px + var(--misK,0px)),-0.8px)}
+.cell .pl-b{transform:translate(calc(0.7px - var(--misR,0px)),-1.3px)}
+.cell .pl-r{transform:translate(calc(1.4px + var(--misR,0px)),1px)}
+
+/* 輸入動效：hover／focus 一格 → 四塊色版散開（分版檢視），<100ms */
+.cell .pl{transition:transform .06s steps(2,jump-none)}
+.cell:hover .pl-r,.cell:focus-within .pl-r{transform:translate(7px,5px)}
+.cell:hover .pl-o,.cell:focus-within .pl-o{transform:translate(-6px,-4px)}
+.cell:hover .pl-b,.cell:focus-within .pl-b{transform:translate(4px,-7px)}
+.cell:hover .pl-k,.cell:focus-within .pl-k{transform:translate(-2px,2px)}
+.cell:hover .idx,.cell:focus-within .idx{color:var(--r)}
+
+/* 窗庫縮圖也吃同一套分版：ambient 錯位漂移在這裡照樣跑，hover 一扇就看見它是四塊版疊的 */
+.dexitem .mini .pl{transition:transform .06s steps(2,jump-none)}
+.dexitem .mini .pl-k{transform:translate(var(--misK,0px),0)}
+.dexitem .mini .pl-o{transform:translate(calc(-1.1px + var(--misK,0px)),-0.8px)}
+.dexitem .mini .pl-b{transform:translate(calc(0.7px - var(--misR,0px)),-1.3px)}
+.dexitem .mini .pl-r{transform:translate(calc(1.4px + var(--misR,0px)),1px)}
+.dexitem:hover .mini .pl-r,.dexitem:focus-within .mini .pl-r{transform:translate(6px,4px)}
+.dexitem:hover .mini .pl-o,.dexitem:focus-within .mini .pl-o{transform:translate(-5px,-3px)}
+.dexitem:hover .mini .pl-b,.dexitem:focus-within .mini .pl-b{transform:translate(3px,-6px)}
+
+/* ── 版面骨架（用類別而非 inline style，才過得了 ≤900px） ── */
+.split-a{display:grid;gap:20px;grid-template-columns:minmax(0,300px) minmax(0,1fr)}
+.split-b{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(0,330px)}
+.split-c{display:grid;gap:20px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.split-d{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.stack{display:grid;gap:15px;align-content:start}
+.cols{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(268px,1fr))}
+@media (max-width:900px){
+  .split-a,.split-b,.split-c,.split-d{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ambient：補墨——型版工每 6.5 秒回頭把某一格的紅版重壓一次 */
+.cell.reink .pl-r{animation:reink .5s steps(2,jump-none) 1}
+@keyframes reink{0%{filter:none}50%{filter:saturate(2.4) brightness(.82)}100%{filter:none}}
+
+/* transition：進場刷版擦除（刮刀一次刮過，八段硬切） */
+.wipe{animation:wipe .44s steps(8,jump-none) both}
+@keyframes wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* ══ 電報條 ══ */
+.tele{background:var(--k);color:var(--paper);padding:12px 14px;box-shadow:5px 5px 0 var(--cut)}
+.tele .num{color:var(--o);font-size:11.5px;letter-spacing:.2em;display:block;margin-bottom:4px}
+.tele p{font-size:14px;line-height:1.7;margin:0}
+
+/* ══ 表格：帳冊感，零圓角 ══ */
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--paper);color:var(--k)}
+caption{text-align:left;font-size:12px;letter-spacing:.16em;color:var(--paper);padding-bottom:6px;font-family:"Roboto Mono",monospace}
+th,td{border:2px solid var(--k);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--k);color:var(--paper);font-weight:900;font-size:12.5px;letter-spacing:.1em}
+tbody tr:nth-child(even) td{background:var(--paper2)}
+td .num{font-family:"Roboto Mono",monospace}
+
+/* ══ 按鈕：切出來的牌子 ══ */
+.btn{
+  display:inline-block;background:var(--r);color:var(--paper);
+  font-weight:900;font-size:15px;letter-spacing:.14em;
+  padding:11px 22px;border:3px solid var(--k);box-shadow:4px 4px 0 var(--k);
+  cursor:pointer;font-family:inherit;
+}
+.btn:hover,.btn:focus-visible{background:var(--k);color:var(--paper);border-color:var(--r)}
+.btn[disabled]{background:var(--cut);color:#9A9480;cursor:not-allowed;box-shadow:4px 4px 0 var(--k)}
+.btn.ghost{background:var(--paper);color:var(--k)}
+.btn.ghost:hover{background:var(--o);color:var(--k)}
+
+/* ══ 字塊盤 ══ */
+.tray{border:3px solid var(--cut);background:#615C4B;padding:10px}
+.tray h4{font-size:12px;letter-spacing:.2em;color:#BDB69C;font-family:"Roboto Mono",monospace;
+  font-weight:500;margin-bottom:8px}
+.blocks{display:flex;flex-wrap:wrap;gap:6px}
+.blk{
+  background:var(--paper);color:var(--k);border:3px solid var(--k);
+  font-weight:900;font-size:15px;letter-spacing:.08em;padding:7px 10px 8px;
+  cursor:pointer;font-family:inherit;position:relative;
+  box-shadow:3px 3px 0 var(--cut);
+}
+.blk .zhe{display:block;font-family:"Roboto Mono",monospace;font-weight:500;
+  font-size:9.5px;letter-spacing:.12em;color:var(--r);margin-top:2px}
+.blk .len{position:absolute;top:-3px;right:-3px;background:var(--cut);color:var(--paper);
+  font-family:"Roboto Mono",monospace;font-size:9px;padding:0 3px;line-height:14px}
+.blk:hover{background:var(--o)}
+.blk[aria-pressed="true"]{background:var(--r);color:var(--paper);box-shadow:3px 3px 0 var(--k)}
+.blk[aria-pressed="true"] .zhe{color:var(--paper)}
+
+/* 七字盤 */
+.seven{display:flex;gap:5px;flex-wrap:wrap}
+.seven i{
+  display:grid;place-items:center;width:44px;height:52px;
+  background:var(--paper);color:var(--k);border:3px solid var(--k);
+  font-style:normal;font-weight:900;font-size:24px;
+}
+.seven i.empty{background:transparent;color:transparent;border-style:dashed;border-color:#8C8672}
+.seven i.over{background:var(--k);color:var(--r)}
+
+/* 師傅的三條驗收 */
+.check{list-style:none;display:grid;gap:5px}
+.check li{display:flex;gap:9px;align-items:flex-start;background:var(--paper);color:var(--k);
+  padding:7px 10px;border-left:7px solid var(--cut);font-size:14px}
+.check li.ok{border-left-color:var(--r)}
+.check li.no{border-left-color:var(--k);background:var(--paper2)}
+.check li b{font-family:"Roboto Mono",monospace;font-size:12px;letter-spacing:.1em;flex:0 0 auto;padding-top:2px}
+
+/* ══ 圖鑑格 ══ */
+.dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:14px}
+.dexitem{background:var(--paper);box-shadow:4px 4px 0 var(--cut);padding:8px}
+.dexitem .mini{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--k);padding:2px}
+.dexitem .mini svg{display:block;width:100%;aspect-ratio:1/1;background:var(--paper)}
+.dexitem .meta{color:var(--k);padding:7px 3px 2px}
+.dexitem .meta b{display:block;font-size:14.5px;font-weight:900;letter-spacing:.06em}
+.dexitem .meta span{display:block;font-family:"Roboto Mono",monospace;font-size:10.5px;color:var(--cut);letter-spacing:.1em}
+.dexitem .meta em{display:block;font-style:normal;font-size:13px;color:var(--r);font-weight:900;margin-top:4px}
+
+/* ══ footer ══ */
+footer{background:var(--k);color:#9A9480;margin-top:64px;padding:34px clamp(14px,4vw,52px) 40px}
+footer .fw{max-width:1180px;margin:0 auto;display:grid;gap:22px;
+  grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+footer h5{color:var(--paper);font-size:12px;letter-spacing:.22em;margin-bottom:8px;font-weight:900}
+footer p,footer li{font-size:13px;line-height:1.8}
+footer ul{list-style:none}
+footer a{color:var(--o);border-bottom-color:var(--o)}
+footer a:hover{background:var(--o);color:var(--k)}
+footer .fine{grid-column:1/-1;border-top:2px solid #2F2B21;padding-top:14px;font-size:11.5px;color:#7A7462}
+
+/* ══ 響應式 ══ */
+@media (max-width:900px){
+  .masthead{gap:12px}
+  .stencil-nav a{width:74px;font-size:14px}
+}
+@media (max-width:560px){
+  body{font-size:15px}
+  .masthead{padding-top:14px}
+  .wordmark b{font-size:17px}
+  .wordmark span span{display:none}
+  .stencil-nav{width:100%}
+  .stencil-nav a{flex:1;width:auto;padding:8px 0 9px;font-size:13px;letter-spacing:.04em}
+  .grid8{grid-template-columns:repeat(2,1fr)}
+  .cell .cap{font-size:17px;letter-spacing:.14em}
+  .seven i{width:38px;height:45px;font-size:20px}
+  .window{padding:8px;border-width:4px}
+  table{font-size:12.5px}
+  th,td{padding:5px 6px}
+  .window-head .num{font-size:11px}
+  .dex{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ══ prefers-reduced-motion：四種動效全部降級，資訊零損失 ══ */
+@media (prefers-reduced-motion:reduce){
+  .grid8.stage .cell .pl,.cell .pl{opacity:1 !important;animation:none !important;transition:none !important}
+  .cell .pl-k{transform:translate(0,0) !important}
+  .cell .pl-o{transform:translate(-1.1px,-0.8px) !important}
+  .cell .pl-b{transform:translate(0.7px,-1.3px) !important}
+  .cell .pl-r{transform:translate(1.4px,1px) !important}
+  .dexitem .mini .pl{transition:none !important}
+  .dexitem .mini .pl-k{transform:translate(0,0) !important}
+  .dexitem .mini .pl-o{transform:translate(-1.1px,-0.8px) !important}
+  .dexitem .mini .pl-b{transform:translate(0.7px,-1.3px) !important}
+  .dexitem .mini .pl-r{transform:translate(1.4px,1px) !important}
+  .grid8.stage .cell.pressed .art{animation:none !important}
+  .cell.reink .pl-r{animation:none !important}
+  .wipe{animation:none !important;clip-path:none !important}
+  .plateshift-k,.plateshift-r{transform:none !important}
+  /* hover 分版散開改為在格角標出四塊版的代號，資訊不損失 */
+  .cell:hover .idx::after,.cell:focus-within .idx::after{content:" 黑赭青紅";color:var(--r)}
+  *{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+
+</style>
+</head>
+<body>
+<a href="#main" class="btn" style="position:absolute;left:-9999px" onfocus="this.style.left='8px';this.style.top='8px';this.style.position='fixed';this.style.zIndex=99" onblur="this.style.left='-9999px'">跳到主要內容</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="inkspread" x="-15%" y="-15%" width="130%" height="130%"><feMorphology operator="dilate" radius="0.55" in="SourceGraphic" result="spread"/><feMorphology operator="erode" radius="0.28" in="spread"/></filter></svg>
+<header class="masthead">
+<a class="wordmark" href="index.html" style="border:0"><svg width="42" height="42" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#4A4638"/><rect x="5" y="5" width="54" height="54" fill="#E0D7BE"/><polygon points="32,11 39,26 46,18 44,37 55,32 47,53 17,53 9,32 20,37 18,18 25,26" fill="#CE2A1A"/><polygon points="32,30 37,42 41,38 40,53 24,53 23,38 27,42" fill="#D2952A"/><rect x="7" y="27" width="50" height="4" fill="#E0D7BE"/><rect x="7" y="43" width="50" height="4" fill="#E0D7BE"/></svg><span><b>火　窗</b><span>CHENGPEI FIRE BRIGADE ／ STENCIL BULLETIN</span></span></a>
+<nav class="stencil-nav" aria-label="主導覽"><a href="index.html"><span class="no">一</span>今日窗</a><a href="chuang.html"><span class="no">二</span>窗庫</a><a href="dui.html"><span class="no">三</span>分隊</a><a href="bian.html" aria-current="page"><span class="no">四</span>編窗房</a></nav>
+</header>
+<main id="main" class="wrap wipe">
+<section class="stack" style="margin-top:22px;gap:20px"><div class="split-b"><div class="paper"><h2>編窗房</h2><p style="font-size:16px"><b>一、</b>揀一則今天進來的通報，上句已經刻好了。<b>二、</b>用底下的字塊拼一句七字下句，把韻押上。<b>三、</b>型版工驗過三條，就替你刷成一扇八格窗。</p><p style="font-size:14px;color:var(--cut);margin-bottom:0">秀珍每一則都已經對過一次，但她那句不是唯一解——每一則至少有五種對得上的說法。盤上灰掉的塊不是壞掉，是這一則用不上它，或者這樣東西不能那樣處理；理由印在塊旁邊。</p></div><div class="tele"><span class="num">十三轍</span><p>押韻不看聲調，看韻母歸到哪一道「轍」。快板、順口溜、相聲都用這一套，傳統上分十三道：發花、梭波、乜斜、一七、姑蘇、懷來、灰堆、遙條、由求、言前、人辰、江陽、中東。本站用得到的六道印在每一塊結果字塊底下。</p></div></div><div class="rule red"></div><div class="split-d"><div class="stack"><div class="tray"><h4>今天進來的通報　／　揀一則</h4><div class="blocks" id="tray-t"><button class="blk" type="button" data-t="t" data-i="0" aria-pressed="true" style="text-align:left">一四〇　廚房油鍋<span class="zhe">灰堆轍</span></button><button class="blk" type="button" data-t="t" data-i="1" aria-pressed="false" style="text-align:left">一四一　電暖器貼衣被<span class="zhe">一七轍</span></button><button class="blk" type="button" data-t="t" data-i="2" aria-pressed="false" style="text-align:left">一四二　香爐與燭火<span class="zhe">遙條轍</span></button><button class="blk" type="button" data-t="t" data-i="3" aria-pressed="false" style="text-align:left">一四三　樓梯間充電<span class="zhe">言前轍</span></button><button class="blk" type="button" data-t="t" data-i="4" aria-pressed="false" style="text-align:left">一四四　金爐旁堆紙箱<span class="zhe">江陽轍</span></button><button class="blk" type="button" data-t="t" data-i="5" aria-pressed="false" style="text-align:left">一四五　逃生門上鎖<span class="zhe">梭波轍</span></button></div><p id="uptext" style="color:var(--paper);font-size:15px;margin-top:10px;line-height:1.6"></p></div><div class="tray"><h4>一　東西</h4><div class="blocks" id="tray-s"><button class="blk" type="button" data-t="s" data-w="鍋蓋" aria-pressed="false">鍋蓋<span class="len">2</span></button><button class="blk" type="button" data-t="s" data-w="濕抹布" aria-pressed="false">濕抹布<span class="len">3</span></button><button class="blk" type="button" data-t="s" data-w="插頭" aria-pressed="false">插頭<span class="len">2</span></button><button class="blk" type="button" data-t="s" data-w="延長線" aria-pressed="false">延長線<span class="len">3</span></button><button class="blk" type="button" data-t="s" data-w="香灰" aria-pressed="false">香灰<span class="len">2</span></button><button class="blk" type="button" data-t="s" data-w="紙箱" aria-pressed="false">紙箱<span class="len">2</span></button><button class="blk" type="button" data-t="s" data-w="鐵鍊" aria-pressed="false">鐵鍊<span class="len">2</span></button><button class="blk" type="button" data-t="s" data-w="滅火器" aria-pressed="false">滅火器<span class="len">3</span></button><button class="blk" type="button" data-t="s" data-w="電池車" aria-pressed="false">電池車<span class="len">3</span></button></div></div><div class="tray"><h4>二　動作</h4><div class="blocks" id="tray-a"><button class="blk" type="button" data-t="a" data-w="蓋上去" aria-pressed="false">蓋上去<span class="len">3</span></button><button class="blk" type="button" data-t="a" data-w="拔掉它" aria-pressed="false">拔掉它<span class="len">3</span></button><button class="blk" type="button" data-t="a" data-w="搬出來" aria-pressed="false">搬出來<span class="len">3</span></button><button class="blk" type="button" data-t="a" data-w="剪開" aria-pressed="false">剪開<span class="len">2</span></button><button class="blk" type="button" data-t="a" data-w="收好" aria-pressed="false">收好<span class="len">2</span></button><button class="blk" type="button" data-t="a" data-w="拿來" aria-pressed="false">拿來<span class="len">2</span></button><button class="blk" type="button" data-t="a" data-w="推開" aria-pressed="false">推開<span class="len">2</span></button><button class="blk" type="button" data-t="a" data-w="燒得快" aria-pressed="false">燒得快<span class="len">3</span></button><button class="blk" type="button" data-t="a" data-w="熱烘烘" aria-pressed="false">熱烘烘<span class="len">3</span></button><button class="blk" type="button" data-t="a" data-w="冒煙" aria-pressed="false">冒煙<span class="len">2</span></button><button class="blk" type="button" data-t="a" data-w="悶著" aria-pressed="false">悶著<span class="len">2</span></button><button class="blk" type="button" data-t="a" data-w="燙手" aria-pressed="false">燙手<span class="len">2</span></button></div><p style="color:#BDB69C;font-size:12.5px;margin-top:8px">紅底的五塊（燒得快、熱烘烘、冒煙、悶著、燙手）不會被停用——它們是合法的中文，但過不了師傅的第三條。試試看他會怎麼說。</p></div><div class="tray"><h4>三　結果　／　底下那兩個字是它的轍</h4><div class="blocks" id="tray-r"><button class="blk" type="button" data-t="r" data-w="火就退" aria-pressed="false">火就退<span class="zhe">灰堆</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="免得悔" aria-pressed="false">免得悔<span class="zhe">灰堆</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="才對" aria-pressed="false">才對<span class="zhe">灰堆</span><span class="len">2</span></button><button class="blk" type="button" data-t="r" data-w="不出事" aria-pressed="false">不出事<span class="zhe">一七</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="省力氣" aria-pressed="false">省力氣<span class="zhe">一七</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="省事" aria-pressed="false">省事<span class="zhe">一七</span><span class="len">2</span></button><button class="blk" type="button" data-t="r" data-w="命才保" aria-pressed="false">命才保<span class="zhe">遙條</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="省得糟" aria-pressed="false">省得糟<span class="zhe">遙條</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="就好" aria-pressed="false">就好<span class="zhe">遙條</span><span class="len">2</span></button><button class="blk" type="button" data-t="r" data-w="才平安" aria-pressed="false">才平安<span class="zhe">言前</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="路才寬" aria-pressed="false">路才寬<span class="zhe">言前</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="不難" aria-pressed="false">不難<span class="zhe">言前</span><span class="len">2</span></button><button class="blk" type="button" data-t="r" data-w="不遭殃" aria-pressed="false">不遭殃<span class="zhe">江陽</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="保住牆" aria-pressed="false">保住牆<span class="zhe">江陽</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="無恙" aria-pressed="false">無恙<span class="zhe">江陽</span><span class="len">2</span></button><button class="blk" type="button" data-t="r" data-w="不闖禍" aria-pressed="false">不闖禍<span class="zhe">梭波</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="才好過" aria-pressed="false">才好過<span class="zhe">梭波</span><span class="len">3</span></button><button class="blk" type="button" data-t="r" data-w="才妥" aria-pressed="false">才妥<span class="zhe">梭波</span><span class="len">2</span></button></div></div></div><div class="stack"><div class="paper"><h3 style="margin-top:0">七字盤</h3><div class="seven" id="seven"></div><h3>師傅驗三條</h3><ul class="check" id="check"><li><b>一</b><span>七個字，不多不少。</span></li><li><b>二</b><span>末字要押上句的轍。</span></li><li><b>三</b><span>要叫人動手，不是在講事情。</span></li></ul><p id="verdict" style="margin:12px 0 0;font-size:14.5px;color:var(--cut)"></p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" id="press" type="button" disabled>刷　版</button><button class="btn ghost" id="clear" type="button">全部退回</button></div></div><div id="result" hidden><div class="window"><div class="window-head"><b id="rtitle">你的窗</b><span class="num" id="rmeta"></span></div><div class="grid8" id="rgrid"></div><p style="color:var(--k);font-size:14px;margin:10px 4px 2px"><b id="rcouplet" style="font-size:17px;letter-spacing:.1em"></b></p></div><div class="paper" style="margin-top:12px"><h3 style="margin-top:0">回執</h3><p id="receipt" style="font-size:14.5px;margin-bottom:8px"></p><p style="font-size:13px;color:var(--cut);margin-bottom:0">網址列現在帶著這扇窗的碼，同一個碼永遠刷出同一扇窗。想留一份就把網址存下來——本站不會替你保存，就像玻璃上的窗隔天也會被換下來。</p></div></div><noscript><div class="paper"><h3 style="margin-top:0">沒有 JavaScript 的話</h3><p>字塊盤與刷版需要 JavaScript。全部的字塊、六則通報的上句與轍口、三條驗收規矩都印在這一頁上，拿紙筆一樣對得出來；對好的句子可以直接念給櫃檯的人聽。二十四扇存檔的窗在<a href="chuang.html">窗庫</a>，不需要 JavaScript。</p></div></noscript></div></div></section>
+</main>
+<footer>
+<div class="fw">
+<div><h5>城北消防分隊</h5><p>基隆市中正區正砂路 118 號<br>(02) 2469-3117（非報案專線）<br>報案一律撥 119</p><p style="margin-top:8px">營舍開放參觀：週三、週六 09:00–11:00、14:00–16:00，不需預約。</p></div>
+<div><h5>火窗編輯室</h5><p>每日 06:40 交接班後貼出一扇，隔日 06:40 換下。<br>刻版：吳阿泉<br>韻文：林秀珍<br>存檔：分隊三樓資料室，可翻閱。</p></div>
+<div><h5>頁面</h5><ul><li><a href="index.html">一　今日窗</a></li><li><a href="chuang.html">二　窗庫</a></li><li><a href="dui.html">三　分隊</a></li><li><a href="bian.html">四　編窗房</a></li></ul></div>
+<div><h5>這是什麼</h5><p>火窗是本分隊自民國六十二年起的手工型版公告。<br>網站的視覺語言取自<b style="color:#E0D7BE">蘇聯 ROSTA 窗</b>（Окна РОСТА, 1919–1921）——一種以刻版分格敘事、逐色壓印的公共布告形式。<a href="dui.html#rosta">看它的來歷</a></p></div>
+<p class="fine">本站為網頁設計風格範例站。分隊、人員、車號、電話、地址、火窗編號與韻文皆為虛構示意，不代表任何真實消防機關；防火知識僅供閱讀，實際請以各地消防局公告為準。緊急狀況請撥 119。<br>Design Skills Center 館藏｜風格：蘇聯 ROSTA 窗 Okna ROSTA｜<a href="../../index.html">回藝廊</a>　<a href="SKILL.md">下載 SKILL.md</a></p>
+</div>
+</footer>
+<script>
+/* ══ 火窗 HUOCHUANG ── 型版引擎 stencil-plate ══
+   全站每一張圖都由這支引擎輸出：八格火窗、24 扇窗庫縮圖、logo、favicon、回執印記。
+   原語只有四種：(1) 硬邊剪影多邊形（刀切的，沒有一條貝茲曲線）
+                 (2) 白橋（被完全包圍的內島必以紙色橫條連回外框，否則型版會掉）
+                 (3) 分版錯位（四塊色版各帶固定位移，紅版永遠往右下）
+                 (4) 象形身份物（一個物件定身份，人不畫臉）
+   判準：拿掉全部顏色，仍讀得出「這一塊是切掉的，還是留下來的」。 */
+
+var PLATE = {k:'#16130D', o:'#D2952A', b:'#2D4A8E', r:'#CE2A1A'};
+var PORDER = ['k','o','b','r'];                       /* 刷版順序：黑→赭→青→紅 */
+var POFF = {k:[0,0], o:[-1.1,-0.8], b:[0.7,-1.3], r:[1.4,1.0]};  /* 套版錯位（固定方向） */
+
+/* 決定性偽亂數：同窗號恆得同窗 */
+function fnv1a(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ── 象形字典：座標皆在 0–100 方格上，每筆 = [色版, 多邊形點列, 是否為需要白橋的內島] ── */
+/* p:實心多邊形  h:內島（會被打上白橋）  l:粗線段（以四點多邊形表示） */
+var GL = {
+  /* 火 —— 全站出現最多的形，三舌，永遠是紅版 */
+  fire:[['r','p','50,8 60,30 70,20 68,46 82,40 76,64 88,62 76,84 24,84 12,62 24,64 18,40 32,46 30,20 40,30'],
+        ['kn','p','50,30 59,54 65,47 63,90 37,90 35,47 41,54']],
+  /* 油鍋 */
+  pot:[['k','p','12,44 88,44 82,80 18,80'],
+       ['k','p','88,46 98,46 98,56 88,56'],
+       ['o','p','18,50 82,50 78,66 22,66']],
+  /* 鍋蓋 */
+  lid:[['k','p','10,58 90,58 90,66 10,66'],
+       ['k','p','22,40 78,40 84,58 16,58'],
+       ['r','p','44,22 56,22 56,42 44,42']],
+  /* 水（潑出去的水，群青版） */
+  water:[['b','p','14,26 34,16 30,38 50,30 44,52 66,46 58,66 82,64 66,84 20,84'],
+         ['b','p','76,18 88,14 84,30 72,32']],
+  /* 濕抹布 */
+  cloth:[['b','p','16,22 84,22 78,74 22,74'],
+         ['k','p','16,22 84,22 84,30 16,30'],
+         ['b','p','30,74 40,90 26,90'],['b','p','58,74 70,90 54,90']],
+  /* 插頭 */
+  plug:[['k','p','30,30 70,30 70,74 30,74'],
+        ['k','p','38,10 46,10 46,30 38,30'],['k','p','54,10 62,10 62,30 54,30'],
+        ['k','p','46,74 54,74 54,94 46,94']],
+  /* 延長線 */
+  cord:[['k','p','8,20 46,20 46,52 8,52'],
+        ['o','h','16,28 38,28 38,44 16,44'],
+        ['k','l','46,36 62,36 96,68 96,80 62,48 46,48']],
+  /* 電暖器 */
+  heater:[['k','p','18,30 82,30 82,82 18,82'],
+          ['r','p','26,40 34,40 34,72 26,72'],['r','p','46,40 54,40 54,72 46,72'],['r','p','66,40 74,40 74,72 66,72'],
+          ['k','p','12,82 88,82 88,90 12,90']],
+  /* 衣被 */
+  quilt:[['o','p','10,34 90,34 90,86 10,86'],
+         ['k','p','10,34 90,34 90,44 10,44'],
+         ['b','h','26,54 46,54 46,72 26,72'],['b','h','58,54 78,54 78,72 58,72']],
+  /* 香爐 */
+  censer:[['k','p','20,52 80,52 72,84 28,84'],
+          ['k','p','14,46 86,46 86,54 14,54'],
+          ['o','p','34,84 40,94 32,94'],['o','p','60,84 68,94 60,94'],
+          ['r','p','46,14 52,14 52,46 46,46']],
+  /* 香灰 */
+  ash:[['o','p','16,66 84,66 76,86 24,86'],
+       ['k','p','30,50 36,50 36,66 30,66'],['k','p','48,42 54,42 54,66 48,66'],['k','p','66,54 72,54 72,66 66,66']],
+  /* 燭 */
+  candle:[['o','p','38,34 62,34 62,88 38,88'],
+          ['k','p','30,88 70,88 70,94 30,94'],
+          ['r','p','50,8 58,24 50,34 42,24']],
+  /* 紙箱 */
+  box:[['o','p','14,32 86,32 86,84 14,84'],
+       ['k','p','14,32 86,32 86,40 14,40'],
+       ['k','l','44,40 56,40 56,84 44,84']],
+  /* 金爐 */
+  furnace:[['k','p','22,34 78,34 82,86 18,86'],
+           ['r','h','36,50 64,50 64,74 36,74'],
+           ['k','p','30,18 70,18 70,28 30,28'],
+           ['o','p','44,28 56,28 56,34 44,34']],
+  /* 機車 */
+  moto:[['k','h','8,54 34,54 34,80 8,80'],['k','h','66,54 92,54 92,80 66,80'],
+        ['k','l','21,66 44,44 66,44 79,66'],
+        ['o','p','36,40 70,40 70,50 36,50'],
+        ['r','p','56,20 66,20 66,42 56,42']],
+  /* 樓梯 */
+  stair:[['k','p','10,86 30,86 30,70 50,70 50,54 70,54 70,38 90,38 90,94 10,94'],
+         ['o','p','10,86 30,86 30,94 10,94']],
+  /* 鐵鍊 */
+  chain:[['k','h','6,32 30,32 30,70 6,70'],
+         ['k','h','28,32 52,32 52,70 28,70'],
+         ['k','h','50,32 74,32 74,70 50,70'],
+         ['k','h','72,32 96,32 96,70 72,70']],
+  /* 門（逃生門） */
+  door:[['k','p','18,12 82,12 82,92 18,92'],
+        ['o','p','26,20 74,20 74,84 26,84'],
+        ['r','p','60,48 70,48 70,58 60,58'],
+        ['b','p','30,24 46,24 46,40 30,40']],
+  /* 滅火器 */
+  ext:[['r','p','32,30 68,30 68,90 32,90'],
+       ['k','p','42,14 58,14 58,30 42,30'],
+       ['k','l','58,20 84,20 84,34 76,34 76,28 58,28'],
+       ['o','h','40,46 60,46 60,66 40,66']],
+  /* 人（不畫臉，用鋼盔定身份＝隊員；無盔＝居民） */
+  person:[['k','p','40,12 60,12 60,30 40,30'],
+          ['k','p','32,38 68,38 72,70 28,70'],
+          ['k','p','34,70 44,70 42,94 32,94'],['k','p','56,70 66,70 68,94 58,94']],
+  helmet:[['r','p','26,30 74,30 78,40 22,40'],
+          ['r','p','34,16 66,16 72,30 28,30'],
+          ['k','p','36,42 64,42 66,58 34,58'],
+          ['k','p','30,60 70,60 74,92 26,92']],
+  /* 手（叫人動手的動作，一律配這隻手） */
+  hand:[['k','p','30,44 42,44 42,16 52,16 52,44 62,44 62,24 72,24 72,52 78,52 78,80 34,80 24,62 30,54 38,62 38,50'],
+        ['r','p','34,80 78,80 78,94 34,94']],
+  /* 煙 */
+  smoke:[['k','p','24,74 76,74 70,54 78,38 62,30 68,14 46,20 50,6 30,18 38,34 22,40 30,56'],
+         ['k','h','40,40 60,40 60,58 40,58']],
+  /* 火退（小火苗被斜槓劃掉） */
+  out:[['k','p','44,52 56,44 62,58 54,74 46,74 40,62'],
+       ['r','l','14,16 26,10 88,86 78,92'],
+       ['r','l','86,14 96,24 24,90 14,80']],
+  /* 警鈴 */
+  bell:[['r','p','26,64 74,64 74,72 26,72'],
+        ['r','p','32,26 68,26 74,64 26,64'],
+        ['k','p','44,12 56,12 56,26 44,26'],
+        ['k','p','42,72 58,72 58,88 42,88']],
+  /* 時鐘 */
+  clock:[['k','p','16,16 84,16 84,84 16,84'],
+         ['o','h','26,26 74,26 74,74 26,74'],
+         ['r','l','50,32 56,32 56,54 50,54'],['r','l','50,48 50,54 74,54 74,48']],
+  /* 窗（火窗自己） */
+  win:[['k','p','8,14 92,14 92,88 8,88'],
+       ['paper','p','14,20 86,20 86,82 14,82'],
+       ['r','p','18,24 48,24 48,50 18,50'],['o','p','52,24 82,24 82,50 52,50'],
+       ['b','p','18,54 48,54 48,78 18,78'],['k','p','52,54 82,54 82,78 52,78']],
+  /* 水帶 */
+  hose:[['b','l','8,84 8,70 40,70 62,44 92,44 92,58 68,58 48,84'],
+        ['k','p','86,38 100,38 100,64 86,64']],
+  /* 消防栓 */
+  hydrant:[['r','p','34,28 66,28 66,86 34,86'],
+           ['r','p','24,40 34,40 34,54 24,54'],['r','p','66,40 76,40 76,54 66,54'],
+           ['k','p','40,14 60,14 60,28 40,28'],
+           ['k','p','22,86 78,86 78,94 22,94']],
+  /* 剪（剪斷） */
+  scis:[['k','l','16,86 24,92 74,22 66,16'],
+        ['k','l','84,86 76,92 26,22 34,16'],
+        ['r','h','14,58 34,58 34,78 14,78'],['r','h','66,58 86,58 86,78 66,78']],
+  /* 搬（箱子被抬起來，配兩隻手） */
+  carry:[['o','p','24,26 76,26 76,66 24,66'],
+         ['k','p','24,26 76,26 76,34 24,34'],
+         ['k','p','10,66 32,66 32,78 10,78'],['k','p','68,66 90,66 90,78 68,78'],
+         ['r','p','44,72 56,72 56,94 44,94']],
+  /* 空格（無圖，只有紙） */
+  none:[]
+};
+
+/* ── 把一枚象形字畫成 SVG 內容（分四塊色版，各自帶錯位；內島打白橋） ── */
+function polyPts(pts){var a=pts.split(' '),P=[];for(var i=0;i<a.length;i++){var c=a[i].split(',');P.push([+c[0],+c[1]]);}return P;}
+function inset(pts,f){
+  /* 把外形往形心縮成內島（counter）——型版上這一塊是沒有被切掉的紙 */
+  var P=polyPts(pts),cx=0,cy=0;
+  for(var i=0;i<P.length;i++){cx+=P[i][0];cy+=P[i][1];}
+  cx/=P.length; cy/=P.length;
+  return P.map(function(p){return (cx+(p[0]-cx)*f).toFixed(1)+','+(cy+(p[1]-cy)*f).toFixed(1);}).join(' ');
+}
+function bridgeBars(pts){
+  /* 白橋：內島四周都被切開就會掉下來，所以留兩條紙色的窄橋橫過去把它連回外框。
+     刷完，那兩條橋就是紙的顏色——看到橋，就知道這是刻出來的。 */
+  var P=polyPts(pts),xs=[],ys=[];
+  for(var i=0;i<P.length;i++){xs.push(P[i][0]);ys.push(P[i][1]);}
+  var x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs);
+  var y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys),h=y1-y0,w=4.6;
+  return '<rect x="'+(x0-3)+'" y="'+(y0+h*0.30).toFixed(1)+'" width="'+(x1-x0+6)+'" height="'+w+'" fill="#E0D7BE"/>'+
+         '<rect x="'+(x0-3)+'" y="'+(y0+h*0.68).toFixed(1)+'" width="'+(x1-x0+6)+'" height="'+w+'" fill="#E0D7BE"/>';
+}
+function thickLine(pts,w){
+  /* 粗線段：以折線兩側法向外推成封閉多邊形——刀切的線也是面 */
+  var a=pts.split(' '),P=[];
+  for(var i=0;i<a.length;i++){var c=a[i].split(',');P.push([+c[0],+c[1]]);}
+  var L=[],R=[];
+  for(var i=0;i<P.length;i++){
+    var p=P[i],q=P[Math.min(i+1,P.length-1)],o=P[Math.max(i-1,0)];
+    var dx=q[0]-o[0],dy=q[1]-o[1],m=Math.hypot(dx,dy)||1;
+    var nx=-dy/m*w/2, ny=dx/m*w/2;
+    L.push((p[0]+nx).toFixed(1)+','+(p[1]+ny).toFixed(1));
+    R.unshift((p[0]-nx).toFixed(1)+','+(p[1]-ny).toFixed(1));
+  }
+  return L.concat(R).join(' ');
+}
+function glyphPlates(key){
+  /* 回傳 {k,o,b,r} 四塊獨立色版；外層才好分版錯位與逐版壓印 */
+  var g=GL[key]||[], out={k:'',o:'',b:'',r:''};
+  for(var i=0;i<g.length;i++){
+    var pl=g[i][0], kind=g[i][1], pts=g[i][2];
+    var target = (pl==='paper') ? 'k' : (pl==='kn' ? 'r' : pl);
+    var fill = (pl==='paper'||pl==='kn') ? '#E0D7BE' : PLATE[pl];
+    if(kind==='l') pts = thickLine(pts, 9);
+    out[target] += '<polygon points="'+pts+'" fill="'+fill+'"/>';
+    if(kind==='h'){
+      out[target] += '<polygon points="'+inset(g[i][2],0.58)+'" fill="#E0D7BE"/>';
+      out[target] += bridgeBars(g[i][2]);
+    }
+  }
+  return out;
+}
+function glyphSVG(key,opt){
+  opt=opt||{};
+  var P=glyphPlates(key), s='';
+  for(var i=0;i<PORDER.length;i++){
+    var p=PORDER[i]; if(!P[p]) continue;
+    s+='<g class="pl pl-'+p+'" transform="translate('+POFF[p][0]+','+POFF[p][1]+')" '+
+       (opt.filter?'filter="url(#inkspread)"':'')+'>'+P[p]+'</g>';
+  }
+  return s;
+}
+
+/* ── 十三轍（傳統曲藝押韻十三道轍口）── 只收本站字塊用得到的字 ── */
+var ZHE = {
+  '水':'灰堆','退':'灰堆','悔':'灰堆','對':'灰堆','回':'灰堆','毀':'灰堆','黑':'灰堆',
+  '衣':'一七','氣':'一七','事':'一七','急':'一七','息':'一七','實':'一七',
+  '牢':'遙條','保':'遙條','糟':'遙條','好':'遙條','燒':'遙條','早':'遙條',
+  '間':'言前','安':'言前','寬':'言前','難':'言前','錢':'言前','煙':'言前',
+  '箱':'江陽','殃':'江陽','牆':'江陽','恙':'江陽','光':'江陽','當':'江陽',
+  '鎖':'梭波','禍':'梭波','過':'梭波','妥':'梭波','錯':'梭波','火':'梭波'
+};
+function zheOf(ch){ return ZHE[ch] || null; }
+
+/* ── 六則今天進來的通報（上句已經刻好了）──
+   subj：這一則用得上的東西（用不上的塊在盤上是停用的，理由印在塊底下） ── */
+var TELE = [
+  {no:'一四〇', t:'廚房油鍋', up:'油鍋起火莫潑水',
+   why:'油溫已過燃點，潑水會瞬間汽化把火星帶起來，整個灶台會爆燃。',
+   cells:['pot','fire','water','out'], subj:['鍋蓋','濕抹布','滅火器']},
+  {no:'一四一', t:'電暖器貼衣被', up:'電暖器旁莫堆衣',
+   why:'鹵素管表面可達六百度，衣物一貼上去先悶燒兩三個鐘頭才竄火，多半在半夜。',
+   cells:['heater','quilt','smoke','fire'], subj:['插頭','延長線','滅火器']},
+  {no:'一四二', t:'香爐與燭火', up:'香爐燭火要看牢',
+   why:'香灰堆高會把未燃盡的香腳撐倒，倒向桌巾就從神明桌燒起。',
+   cells:['censer','ash','candle','fire'], subj:['香灰','濕抹布','滅火器']},
+  {no:'一四三', t:'樓梯間充電', up:'機車不停樓梯間',
+   why:'電池起火三分鐘就填滿整個梯間，而那是全棟唯一一條逃生路徑。',
+   cells:['moto','stair','smoke','door'], subj:['電池車','插頭','紙箱']},
+  {no:'一四四', t:'金爐旁堆紙箱', up:'金爐邊上莫放箱',
+   why:'金爐口飛出的紙灰仍有火星，落在瓦楞紙上會先陰燃再起明火。',
+   cells:['furnace','box','fire','ext'], subj:['紙箱','濕抹布','滅火器']},
+  {no:'一四五', t:'逃生門上鎖', up:'逃生門上莫加鎖',
+   why:'鎖上的逃生門在濃煙裡找得到卻推不開，那是我們最常在門後找到人的地方。',
+   cells:['door','chain','smoke','person'], subj:['鐵鍊','紙箱','滅火器']}
+];
+
+/* ── 字塊盤 ── */
+/* 主語塊：act 欄是「這樣東西你能對它做的事」，盤上其餘祈使塊停用並印出理由 */
+var SUBJ = [
+  {w:'鍋蓋',  g:'lid',   act:['蓋上去','收好','拿來'],   no:'鍋蓋只能蓋、收、拿'},
+  {w:'濕抹布',g:'cloth', act:['蓋上去','收好','拿來'],   no:'抹布只能蓋、收、拿'},
+  {w:'插頭',  g:'plug',  act:['拔掉它','收好'],          no:'插頭只能拔、收'},
+  {w:'延長線',g:'cord',  act:['拔掉它','收好'],          no:'延長線只能拔、收（剪帶電的線會出人命）'},
+  {w:'香灰',  g:'ash',   act:['收好','搬出來'],          no:'香灰只能收、端出去'},
+  {w:'紙箱',  g:'box',   act:['搬出來','收好','拿來','推開'], no:'紙箱只能搬、收、拿、推'},
+  {w:'鐵鍊',  g:'chain', act:['剪開'],                   no:'鐵鍊只有剪'},
+  {w:'滅火器',g:'ext',   act:['搬出來','拿來'],          no:'滅火器只能搬、拿（收起來就等於沒有）'},
+  {w:'電池車',g:'moto',  act:['搬出來','拔掉它','推開'], no:'電池車只能搬、拔、推'}
+];
+/* 動作塊：imp=1 是叫人動手的；imp=0 是在講事情——師傅的第三條就是拿來擋這五塊的 */
+var ACT = [
+  {w:'蓋上去',g:'hand', g2:'out',     imp:1}, {w:'拔掉它',g:'hand', g2:'out',   imp:1},
+  {w:'搬出來',g:'carry',g2:'door',    imp:1}, {w:'剪開',  g:'scis', g2:'door',  imp:1},
+  {w:'收好',  g:'hand', g2:'stair',   imp:1}, {w:'拿來',  g:'hand', g2:'hydrant',imp:1},
+  {w:'推開',  g:'hand', g2:'stair',   imp:1},
+  {w:'燒得快',g:'fire', g2:'smoke',   imp:0}, {w:'熱烘烘',g:'heater',g2:'smoke',imp:0},
+  {w:'冒煙',  g:'smoke',g2:'fire',    imp:0}, {w:'悶著',  g:'smoke',g2:'fire',  imp:0},
+  {w:'燙手',  g:'fire', g2:'hand',    imp:0}
+];
+var RES = [
+  {w:'火就退',g:'out'},   {w:'免得悔',g:'bell'},   {w:'才對',g:'out'},
+  {w:'不出事',g:'clock'}, {w:'省力氣',g:'hose'},   {w:'省事',g:'clock'},
+  {w:'命才保',g:'person'},{w:'省得糟',g:'out'},    {w:'就好',g:'person'},
+  {w:'才平安',g:'win'},   {w:'路才寬',g:'stair'},  {w:'不難',g:'door'},
+  {w:'不遭殃',g:'hydrant'},{w:'保住牆',g:'win'},   {w:'無恙',g:'helmet'},
+  {w:'不闖禍',g:'bell'},  {w:'才好過',g:'person'}, {w:'才妥',g:'lid'}
+];
+function findBlk(arr,w){ for(var i=0;i<arr.length;i++) if(arr[i].w===w) return arr[i]; return null; }
+
+/* ── 八格的圖版：前四格是通報刻好的，後四格由你揀的三塊字塊決定 ──
+   一扇窗不准有兩格連著長一樣（規矩第二條「八格要能只看圖讀完」的最低要求），
+   撞到就從備位象形裡換一枚，換法是決定性的，同一組字塊恆得同一扇窗。 */
+var SPARE = ['helmet','win','hydrant','bell','clock','person','hose','censer'];
+function windowCells(t, s, a, r){
+  var c = t.cells.concat([s.g, a.g, a.g2, r.g]);
+  for(var i=1;i<c.length;i++){
+    if(c[i] !== c[i-1]) continue;
+    for(var k=0;k<SPARE.length;k++){
+      var v = SPARE[k];
+      if(v !== c[i-1] && v !== (c[i+1]||'')){ c[i] = v; break; }
+    }
+  }
+  return c;
+}
+
+/* ── 師傅的三條驗收 ── */
+function inspect(up, s, a, r){
+  var down = (s?s.w:'') + (a?a.w:'') + (r?r.w:'');
+  var n = down.length;
+  var upZ = zheOf(up.slice(-1));
+  var dnZ = n ? zheOf(down.slice(-1)) : null;
+  return {
+    down: down, n: n, upZhe: upZ, downZhe: dnZ,
+    c1: n === 7,
+    c2: !!dnZ && dnZ === upZ,
+    c3: !!a && a.imp === 1,
+    pass: n === 7 && !!dnZ && dnZ === upZ && !!a && a.imp === 1
+  };
+}
+
+/* ── 把一句七字切成四格的字條：2 / 2 / 2 / 1 ── */
+function chunk7(line){ return [line.slice(0,2), line.slice(2,4), line.slice(4,6), line.slice(6,7)]; }
+
+/* ── 逐版壓印：捲到哪一格才刷哪一格的版（讀序即壓版順序）──
+   沒有 IntersectionObserver、或使用者要求減少動態時，整扇窗直接是刷好的。 */
+function pressOnRead(root){
+  var cells = root.querySelectorAll('.cell');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(reduce || !('IntersectionObserver' in window)){
+    for(var i=0;i<cells.length;i++) cells[i].classList.add('pressed');
+    return null;
+  }
+  var grid = root.classList && root.classList.contains('grid8') ? root : root.querySelector('.grid8');
+  if(grid) grid.classList.add('stage');   /* 先把色版收回去，才有得刷 */
+  var io = new IntersectionObserver(function(es){
+    for(var i=0;i<es.length;i++){
+      if(!es[i].isIntersecting) continue;
+      var el = es[i].target;
+      el.style.setProperty('--d', (+(el.dataset.i||0) * 0.09).toFixed(2)+'s');
+      el.classList.add('pressed');
+      io.unobserve(el);
+    }
+  }, {threshold:0.35});
+  for(var j=0;j<cells.length;j++) io.observe(cells[j]);
+  return io;
+}
+
+/* ── ambient 一：套版錯位極慢漂移（四塊版各自週期，畫面永遠差那麼一點）
+   ── ambient 二：補墨——型版工每 6.5 秒回頭把某一格的紅版重壓一次 ── */
+function ambient(root){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(reduce) return;
+  var t0 = performance.now();
+  (function drift(t){
+    var s = (t - t0) / 1000;
+    document.documentElement.style.setProperty('--misK', (Math.sin(s/7.1)*0.5).toFixed(2)+'px');
+    document.documentElement.style.setProperty('--misR', (Math.sin(s/4.3+1.1)*0.6).toFixed(2)+'px');
+    requestAnimationFrame(drift);
+  })(t0);
+  setInterval(function(){
+    var cells = root.querySelectorAll('.cell.pressed');
+    if(!cells.length) return;
+    var el = cells[Math.floor(Math.random()*cells.length)];
+    el.classList.add('reink');
+    setTimeout(function(){ el.classList.remove('reink'); }, 520);
+  }, 6500);
+}
+
+/* ── 共用：inline SVG 濾鏡（油墨脹出／刀口內縮）與 favicon ── */
+var INKFILTER =
+'<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">'+
+'<filter id="inkspread" x="-15%" y="-15%" width="130%" height="130%">'+
+'<feMorphology operator="dilate" radius="0.55" in="SourceGraphic" result="spread"/>'+
+'<feMorphology operator="erode" radius="0.28" in="spread"/>'+
+'</filter></svg>';
+
+
+(function(){
+  var st={t:0,s:null,a:null,r:null};
+  var $=function(id){return document.getElementById(id);};
+  function blks(t){return document.querySelectorAll('[data-t="'+t+'"]');}
+
+  function renderTray(){
+    var t=TELE[st.t];
+    $('uptext').innerHTML='上句　<b style="font-size:19px;letter-spacing:.12em;color:#E0D7BE">'+t.up+
+      '</b>　<span style="color:#D2952A">押 '+zheOf(t.up.slice(-1))+' 轍</span><br><span style="font-size:13px;color:#BDB69C">'+t.why+'</span>';
+    blks('t').forEach(function(b,i){b.setAttribute('aria-pressed', i===st.t?'true':'false');});
+    /* 主語塊：這一則用不上的停用 */
+    blks('s').forEach(function(b){
+      var w=b.dataset.w, on=t.subj.indexOf(w)>=0;
+      b.disabled=!on; b.style.opacity=on?'1':'.34';
+      b.title=on?'':'這一則用不上「'+w+'」';
+      if(!on&&st.s===w){st.s=null;}
+      b.setAttribute('aria-pressed', st.s===w?'true':'false');
+    });
+    /* 動作塊：祈使塊受主語相容表約束；描述塊永遠可選（由第三條擋） */
+    var s=st.s?findBlk(SUBJ,st.s):null;
+    blks('a').forEach(function(b){
+      var A=findBlk(ACT,b.dataset.w), on=true, why='';
+      if(A.imp===1){ if(!s){on=false;why='先揀一樣東西';} else if(s.act.indexOf(A.w)<0){on=false;why=s.no;} }
+      b.disabled=!on; b.style.opacity=on?'1':'.34'; b.title=why;
+      if(!on&&st.a===A.w){st.a=null;}
+      b.setAttribute('aria-pressed', st.a===A.w?'true':'false');
+    });
+    blks('r').forEach(function(b){b.setAttribute('aria-pressed', st.r===b.dataset.w?'true':'false');});
+  }
+
+  function renderCheck(){
+    var t=TELE[st.t];
+    var s=st.s?findBlk(SUBJ,st.s):null, a=st.a?findBlk(ACT,st.a):null, r=st.r?findBlk(RES,st.r):null;
+    var v=inspect(t.up,s,a,r);
+    var sv=$('seven'), h='';
+    for(var i=0;i<Math.max(7,v.n);i++){
+      var ch=v.down[i]||'';
+      h+='<i class="'+(i>=7?'over':(ch?'':'empty'))+'">'+(ch||'　')+'</i>';
+    }
+    sv.innerHTML=h;
+    var L=$('check').children;
+    function set(li,ok,txt){ li.className=(st.s||st.a||st.r)?(ok?'ok':'no'):''; li.lastElementChild.textContent=txt; }
+    set(L[0], v.c1, v.n===7?'七個字，剛好。':(v.n<7?'還差 '+(7-v.n)+' 個字。':'多了 '+(v.n-7)+' 個字，字帶塞不下。'));
+    set(L[1], v.c2, !v.downZhe?'末字要押上句的「'+v.upZhe+'」轍。'
+        :(v.c2?'末字「'+v.down.slice(-1)+'」是 '+v.downZhe+' 轍，押上了。'
+              :'末字「'+v.down.slice(-1)+'」是 '+v.downZhe+' 轍，上句是 '+v.upZhe+' 轍，差一道。'));
+    set(L[2], v.c3, !a?'要叫人動手，不是在講事情。'
+        :(v.c3?'「'+a.w+'」是叫人動手的，可以。':'「'+a.w+'」是在講事情。講事情的窗貼了等於沒貼。'));
+    $('press').disabled=!v.pass;
+    $('verdict').textContent = v.pass ? '吳阿泉：「行，我去開版。」'
+      : (v.n===0 ? '' : '林秀珍：「先別急，還過不了。」');
+    return v;
+  }
+
+  function pick(t,w){
+    if(t==='s') st.s = (st.s===w?null:w);
+    if(t==='a') st.a = (st.a===w?null:w);
+    if(t==='r') st.r = (st.r===w?null:w);
+    renderTray(); renderCheck();
+  }
+
+  document.querySelectorAll('.blk').forEach(function(b){
+    b.addEventListener('click', function(){
+      if(b.dataset.t==='t'){ st.t=+b.dataset.i; st.s=null; st.a=null; st.r=null; $('result').hidden=true; renderTray(); renderCheck(); return; }
+      if(b.disabled) return;
+      pick(b.dataset.t, b.dataset.w);
+    });
+  });
+  $('clear').addEventListener('click', function(){ st.s=null;st.a=null;st.r=null; $('result').hidden=true; renderTray(); renderCheck(); });
+
+  function cell(i,glyph,cap){
+    return '<div class="cell" data-i="'+i+'" tabindex="0"><span class="idx">'+(i+1)+'</span>'+
+      '<svg class="art" viewBox="-4 -4 108 108" role="img" aria-label="第 '+(i+1)+' 格：'+cap+'">'+
+      '<rect x="-4" y="-4" width="108" height="108" fill="#E0D7BE"/>'+glyphSVG(glyph,{filter:true})+'</svg>'+
+      '<span class="cap">'+cap+'</span></div>';
+  }
+
+  function press(){
+    var t=TELE[st.t], s=findBlk(SUBJ,st.s), a=findBlk(ACT,st.a), r=findBlk(RES,st.r);
+    var v=inspect(t.up,s,a,r); if(!v.pass) return;
+    var caps=chunk7(t.up).concat(chunk7(v.down)), cells=windowCells(t,s,a,r), h='';
+    for(var i=0;i<8;i++) h+=cell(i,cells[i],caps[i]);
+    var g=$('rgrid'); g.innerHTML=h;
+    /* 決定性窗號與回執：同一組字塊恆得同一扇窗 */
+    var code=st.t+'-'+st.s+'-'+st.a+'-'+st.r;
+    var rng=mulberry32(fnv1a(code));
+    var serial=146+Math.floor(rng()*854);
+    $('rtitle').textContent='窗　'+serial+'　'+t.t;
+    $('rmeta').textContent='八格／四版／'+v.upZhe+'轍　刻版 吳阿泉・韻文 你';
+    $('rcouplet').textContent=t.up+'／'+v.down;
+    $('receipt').innerHTML='窗號 <b class="num">'+serial+'</b>　'+
+      '刻四塊版共 <b class="num">'+(160)+'</b> 分鐘，刷八格四遍共 <b class="num">'+(28+Math.floor(rng()*9))+'</b> 分鐘。'+
+      '明早 06:40 貼出，隔日換下、收進三樓。<br>'+
+      '這一則另外還有 <b class="num">'+countSolutions(st.t)+'</b> 種對得上的說法，秀珍那句只是其中之一。';
+    $('result').hidden=false;
+    /* transition：刷版擦除 */
+    var win=$('result').firstElementChild;
+    win.classList.remove('wipe'); void win.offsetWidth; win.classList.add('wipe');
+    pressOnRead(g);
+    try{ history.replaceState(null,'','?w='+encodeURIComponent(code)); }catch(e){}
+    try{ $('result').scrollIntoView({block:'nearest'}); }catch(e){}
+  }
+  function countSolutions(ti){
+    var t=TELE[ti], n=0;
+    t.subj.forEach(function(sw){ var s=findBlk(SUBJ,sw);
+      ACT.forEach(function(a){ if(a.imp===1 && s.act.indexOf(a.w)<0) return;
+        RES.forEach(function(r){ if(inspect(t.up,s,a,r).pass) n++; }); }); });
+    return n-1;
+  }
+  $('press').addEventListener('click', press);
+
+  /* ?w= 還原 */
+  var q=new URLSearchParams(location.search).get('w');
+  if(q){ var p=q.split('-'); if(p.length===4){ st.t=+p[0]||0; st.s=p[1]; st.a=p[2]; st.r=p[3]; } }
+  renderTray(); renderCheck();
+  if(q && !$('press').disabled) press();
+  ambient(document.body);
+})();
+</script>
+</body>
+</html>

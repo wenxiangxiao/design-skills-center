@@ -171,10 +171,11 @@
 | 153 | [北岸競翔會 NORTH COAST HOMING CLUB](sites/beian/index.html) | 賽鴿競翔會（鴿舍與競翔協會） | Frutiger Metro／Windows Phone | 繁中 | Claude Opus 5（排程 Agent） |
 | 154 | [新月貨運行 NAYA CHAND](sites/nayachand/index.html) | 長途貨運行（跨省夜線託運） | 印度卡車藝術 Truck Art | 繁中 | Claude Opus 5（排程 Agent） |
 | 155 | [火窗 HUOCHUANG](sites/huochuang/index.html) | 消防分隊（義消編組與防火宣導窗報） | 蘇聯 ROSTA 窗 Okna ROSTA | 繁中 | Claude Opus 5（排程 Agent） |
+| 156 | [五一倉 WAREHOUSE FIFTY-ONE](sites/wuyi-cang/index.html) | 自助倉儲（迷你倉，紡織廠改建） | 後龐克 Factory Records／Peter Saville | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 141 個產業種子 × 112 個風格種子（15,792 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 143 個產業種子 × 114 個風格種子（16,302 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>切冰台｜晶合製冰廠</title>
+<meta name="description" content="照出冰單把一塊一百公分乘五十公分的磚冰切出來。每一刀貫穿整塊，切壞的進碎冰桶。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M0 0L32 0L13.7 10.6Z' fill='%23E8EEEF' stroke='%231B2429' stroke-width='1.6'/%3E%3Cpath d='M32 0L32 32L13.8 17.4L13.7 17L13.7 10.6Z' fill='%238FA0A5' stroke='%231B2429' stroke-width='1.6'/%3E%3Cpath d='M32 32L0 32L13.8 17.4Z' fill='%238FA0A5' stroke='%231B2429' stroke-width='1.6'/%3E%3Cpath d='M0 0L13.7 10.6L13.7 17L0 32Z' fill='%23E8EEEF' stroke='%231B2429' stroke-width='1.6'/%3E%3Cpath d='M0 32L13.7 17L13.8 17.4Z' fill='%23C9D1D3' stroke='%231B2429' stroke-width='1.6'/%3E%3Cpath d='M4 27L28 8' stroke='%23B4472A' stroke-width='2.4' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --lit:#E8EEEF; --ice:#C9D1D3; --dim:#8FA0A5;
+  --deep:#5E7178; --ink:#1B2429; --kerf:#B4472A; --iron:#2F5F55; --paper:#F6F9F9;
+  --line:2px; --tk:.10em;
+}
+html{background:var(--deep);-webkit-text-size-adjust:100%}
+body{background:var(--ice);color:var(--ink);
+  font:400 16px/1.75 "Noto Sans TC","Archivo",system-ui,sans-serif;
+  letter-spacing:.01em;overflow-x:hidden}
+::selection{background:var(--kerf);color:var(--lit)}
+a{color:var(--iron);text-underline-offset:.22em;text-decoration-thickness:2px}
+a:hover{color:var(--kerf)}
+:focus-visible{outline:3px solid var(--kerf);outline-offset:3px}
+h1,h2,h3,h4{font-weight:900;line-height:1.06;letter-spacing:-.005em}
+.en{font-family:"Archivo Black","Archivo",sans-serif;letter-spacing:.06em;text-transform:uppercase;font-weight:400}
+.lbl{font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.skip{position:absolute;left:-9999px;top:0;background:var(--kerf);color:var(--lit);padding:10px 16px;z-index:99}
+.skip:focus{left:0}
+.js .js-off{display:none}
+/* ── 削角：全站沒有一個圓角，也沒有一個完整的直角 ── */
+.oct{clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)}
+.oct4{clip-path:polygon(13px 0,calc(100% - 13px) 0,100% 13px,100% calc(100% - 13px),calc(100% - 13px) 100%,13px 100%,0 calc(100% - 13px),0 13px)}
+/* ── 稜柱面板：背景不是顏色，是一組解出來的面 ── */
+.pan{position:relative;isolation:isolate;background:var(--ice)}
+.pf{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block}
+.pf .f{stroke:var(--ink);stroke-width:1.6;stroke-linejoin:miter;vector-effect:non-scaling-stroke;
+  transition:fill .09s steps(1,end)}
+.pf .s0{fill:var(--lit)} .pf .s1{fill:var(--ice)} .pf .s2{fill:var(--dim)}
+.pf .lift.s1{fill:var(--lit)} .pf .lift.s2{fill:var(--ice)} .pf .lift.s0{fill:var(--paper)}
+/* ── 鋸齒稜帶：所有邊界都是連續等腰三角，不是直線 ── */
+.zig{height:16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpath d='M0 16L16 0L32 16Z' fill='%231B2429'/%3E%3C/svg%3E") repeat-x 0 0/32px 16px}
+.zig.k{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpath d='M0 16L16 0L32 16Z' fill='%23B4472A'/%3E%3C/svg%3E") repeat-x 0 0/32px 16px}
+.zig.f{transform:scaleY(-1)}
+/* ── 紙板：長文一律在紙板上，不在稜面上 ── */
+.plate{background:var(--paper);border:var(--line) solid var(--ink);padding:22px 24px}
+.plate.d{background:var(--lit)}
+/* ── 版面 ── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+.sec{padding:52px 0}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+/* ── 導覽：鋸口 ── */
+.kerf{position:absolute;top:22px;right:26px;width:212px;z-index:9}
+.kerfbar{display:block;width:212px;height:54px}
+.kerf ul{display:grid;grid-template-columns:repeat(4,1fr);list-style:none;margin-top:4px}
+.kerf a{display:block;text-align:center;font:700 11px/1.5 "Noto Sans TC",sans-serif;letter-spacing:.08em;
+  color:var(--ink);text-decoration:none;padding:2px 0}
+.kerf a:hover{color:var(--kerf)}
+.kerf a[aria-current]{color:var(--kerf)}
+.navflat{display:none}
+/* ── 頁首 ── */
+.mast{position:relative;border-bottom:var(--line) solid var(--ink)}
+.mark{display:flex;align-items:center;gap:12px;padding:22px 0 18px}
+.mark .lgm{flex:none;width:46px;height:46px}
+.mark svg{width:46px;height:46px;display:block}
+.mark b{font-size:19px;font-weight:900;letter-spacing:.06em}
+.mark span{font-size:10.5px;letter-spacing:.2em}
+/* ── 按鈕：削角、實心位移影、無圓角無模糊 ── */
+.btn{display:inline-block;border:var(--line) solid var(--ink);background:var(--lit);color:var(--ink);
+  font:700 13px/1 "Noto Sans TC",sans-serif;letter-spacing:.1em;padding:13px 20px;cursor:pointer;
+  clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px);
+  transition:background .09s steps(1,end),color .09s steps(1,end)}
+.btn:hover{background:var(--kerf);color:var(--lit)}
+.btn[aria-pressed=true],.btn.on{background:var(--kerf);color:var(--lit)}
+.btn:disabled{background:var(--dim);color:#4A5A60;cursor:not-allowed}
+.btn.big{font-size:16px;padding:18px 26px}
+/* ── 表格：橫線是鋸齒不是直線 ── */
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:10px 12px;vertical-align:top}
+thead th{border-bottom:var(--line) solid var(--ink);font:700 11px/1.4 "Noto Sans TC",sans-serif;letter-spacing:.16em;text-transform:uppercase}
+tbody tr{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpath d='M0 16L16 0L32 16Z' fill='%231B2429'/%3E%3C/svg%3E");background-repeat:repeat-x;background-position:0 100%;background-size:24px 8px}
+tbody tr:last-child{background-image:none}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+/* ── 受力方向盤 ── */
+.dial{position:relative;width:186px;height:186px;margin:6px auto}
+.dial .hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:96px;height:96px;
+  background:var(--paper);border:var(--line) solid var(--ink);display:grid;place-content:center;text-align:center;
+  clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)}
+.dial .hub b{display:block;font:900 22px/1 "Archivo Black",sans-serif}
+.dial .hub i{display:block;font-style:normal;font-size:10px;letter-spacing:.16em}
+.dial button{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;
+  border:var(--line) solid var(--ink);background:var(--lit);cursor:pointer;padding:0;
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);transition:background .09s steps(1,end)}
+.dial button:hover{background:var(--ice)}
+.dial button[aria-pressed=true]{background:var(--kerf)}
+.dial button span{position:absolute;left:-9999px}
+/* ── 承水槽 ── */
+.trough{position:relative;height:126px;border:var(--line) solid var(--ink);background:var(--lit);overflow:hidden}
+.trough .drop{position:absolute;left:50%;top:-14px;width:12px;height:16px;margin-left:-6px;background:var(--iron);
+  clip-path:polygon(50% 0,100% 62%,50% 100%,0 62%)}
+.trough .lvl{position:absolute;left:0;right:0;bottom:0;background:var(--iron);height:0}
+.trough .cap{position:absolute;left:10px;top:8px;font-size:11px;letter-spacing:.14em;font-weight:700}
+@media (prefers-reduced-motion:no-preference){
+  .trough .drop{animation:fall 4.6s steps(6,end) infinite}
+  @keyframes fall{0%{top:-16px;opacity:1}70%{top:96px;opacity:1}71%{opacity:0}100%{top:96px;opacity:0}}
+}
+/* ── 鋸口推移（轉場） ── */
+.wipe{animation:wipe .32s steps(5,end) both}
+@keyframes wipe{from{clip-path:polygon(100% 0,100% 0,140% 100%,140% 100%)}to{clip-path:polygon(-40% 0,100% 0,100% 100%,-80% 100%)}}
+/* ── 頁尾 ── */
+footer{background:var(--deep);color:var(--lit)}
+footer a{color:var(--lit)}
+footer .wrap{padding-top:34px;padding-bottom:40px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px;font-size:13.5px;line-height:1.85}
+footer h4{font-size:11px;letter-spacing:.2em;margin-bottom:8px;font-weight:700}
+.fine{font-size:12px;color:#C3CDD1;margin-top:22px;line-height:1.7}
+@media(max-width:900px){
+  .kerf{position:static;width:auto;padding:0 0 0}
+  .kerfbar{display:none}
+  .kerf ul{margin:0;border-top:var(--line) solid var(--ink);border-bottom:var(--line) solid var(--ink)}
+  .kerf li+li a{border-left:var(--line) solid var(--ink)}
+  .kerf a{padding:11px 0;font-size:12.5px}
+  .kerf a[aria-current]{background:var(--kerf);color:var(--lit);
+    box-shadow:inset 6px 0 0 var(--ink)}
+  footer .cols{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  body{font-size:15.5px}
+  .wrap{padding:0 16px}
+  .sec{padding:34px 0}
+  .grid{gap:10px}
+  footer .cols{grid-template-columns:1fr}
+  .dial{width:158px;height:158px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+<script>document.documentElement.className+=' js';</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a><header class="mast"><div class="wrap">
+<nav class="kerf" aria-label="主導覽">
+<svg class="kerfbar pf-in" viewBox="0 0 212 54" aria-hidden="true" focusable="false">
+<style>.kerfbar .f{stroke:#1B2429;stroke-width:1.6;stroke-linejoin:miter}.kerfbar .s0{fill:#E8EEEF}.kerfbar .s1{fill:#C9D1D3}.kerfbar .s2{fill:#8FA0A5}</style>
+<path d="M0 54 L0 12 L20 12 L34 17 L48 12 L68 12 L82 17 L96 12 L116 12 L130 38 L144 12 L164 12 L178 17 L192 12 L212 12 L212 54 Z" fill="#C9D1D3" stroke="#1B2429" stroke-width="2" stroke-linejoin="miter"/>
+<path class="f s1" d="M20 12L34 17L34 54L20 54Z"/><path class="f s1" d="M34 17L48 12L48 54L34 54Z"/><path class="f s1" d="M68 12L82 17L82 54L68 54Z"/><path class="f s1" d="M82 17L96 12L96 54L82 54Z"/><path class="f s0" d="M116 12L130 38L130 54L116 54Z"/><path class="f s2" d="M130 38L144 12L144 54L130 54Z"/><path class="f s1" d="M164 12L178 17L178 54L164 54Z"/><path class="f s1" d="M178 17L192 12L192 54L178 54Z"/>
+<path d="M130 38 L130 54" stroke="#B4472A" stroke-width="3" fill="none"/>
+</svg>
+<ul><li><a href="index.html">斷面</a></li><li><a href="ice.html">冰品</a></li><li><a href="saw.html" aria-current="page">切冰台</a></li><li><a href="order.html">叫冰</a></li></ul>
+</nav>
+<div class="mark">
+<span class="lgm"><svg viewBox="0 0 46 46" role="img" aria-label="晶合製冰廠">
+<title>晶合製冰廠</title><path fill="#E8EEEF" stroke="#1B2429" stroke-width="2" stroke-linejoin="miter" d="M0 0L46 0L19.6 15.3Z"/><path fill="#8FA0A5" stroke="#1B2429" stroke-width="2" stroke-linejoin="miter" d="M46 0L46 46L19.8 25L19.6 24.4L19.6 15.3Z"/><path fill="#8FA0A5" stroke="#1B2429" stroke-width="2" stroke-linejoin="miter" d="M46 46L0 46L19.8 25Z"/><path fill="#E8EEEF" stroke="#1B2429" stroke-width="2" stroke-linejoin="miter" d="M0 0L19.6 15.3L19.6 24.4L0 46Z"/><path fill="#C9D1D3" stroke="#1B2429" stroke-width="2" stroke-linejoin="miter" d="M0 46L19.6 24.4L19.8 25Z"/><path d="M5.52 39.56L40.48 11.04" stroke="#B4472A" stroke-width="3.4" fill="none"/></svg></span>
+<span><b>晶合製冰廠</b><br><span class="en" style="font-size:10.5px;letter-spacing:.2em">TSING-HAP ICE WORKS · KEELUNG 1965</span></span>
+</div>
+</div></header><style>
+.saw{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+.board{border:var(--line) solid var(--ink);background:var(--ice);padding:12px}
+.board svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.leaf .f{stroke:var(--ink);stroke-width:1.6;stroke-linejoin:miter;vector-effect:non-scaling-stroke;transition:fill .09s steps(1,end)}
+.leaf .s0{fill:var(--lit)}.leaf .s1{fill:var(--ice)}.leaf .s2{fill:var(--dim)}
+.leaf.cl .s0{fill:#EFDED6}.leaf.cl .s1{fill:#D6AE9D}.leaf.cl .s2{fill:#B4785F}
+.leaf .mk{stroke:var(--kerf);stroke-width:4.5;fill:none;stroke-linecap:butt}
+.leaf.sel .f{stroke-width:3.4}
+#pre{stroke:var(--kerf);stroke-width:4;fill:none;stroke-linecap:butt}
+#selbox{fill:none;stroke:var(--kerf);stroke-width:3;stroke-dasharray:9 6}
+.ordr{list-style:none}
+.ordr li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;padding:9px 0;
+ background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpath d='M0 16L16 0L32 16Z' fill='%231B2429'/%3E%3C/svg%3E") repeat-x 0 100%/24px 8px}
+.ordr li:last-child{background:none}
+.ordr .q{font:400 17px/1 "Archivo Black",sans-serif;font-variant-numeric:tabular-nums}
+.ordr li.done{color:var(--kerf)}
+.mtr{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.mtr div{border:var(--line) solid var(--ink);background:var(--lit);padding:8px 10px;
+ clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
+.mtr b{display:block;font:400 21px/1.1 "Archivo Black",sans-serif;font-variant-numeric:tabular-nums}
+.mtr span{font-size:10.5px;letter-spacing:.14em;font-weight:700}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.rules{counter-reset:r;list-style:none;font-size:14px}
+.rules li{counter-increment:r;padding:6px 0 6px 30px;position:relative}
+.rules li::before{content:counter(r);position:absolute;left:0;top:6px;width:20px;height:20px;background:var(--kerf);color:var(--lit);
+ font:700 12px/20px "Archivo",sans-serif;text-align:center;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+#slip{display:none;margin-top:16px}
+#slip.on{display:block}
+.slipgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.verdict{font-size:16px;line-height:1.85;border-left:6px solid var(--kerf);padding-left:14px}
+.share{width:100%;font:400 12.5px/1.5 "Archivo",monospace;border:var(--line) solid var(--ink);padding:8px;background:var(--lit)}
+.hint{font-size:12.5px;line-height:1.7}
+@media(max-width:900px){.saw{grid-template-columns:1fr}.slipgrid{grid-template-columns:1fr}}
+</style>
+<main id="main"><section class="sec"><div class="wrap">
+
+<div class="kick" style="font-size:12px;letter-spacing:.22em;font-weight:700;color:var(--kerf)">捲門口・鋸台</div>
+<h1 style="font-size:clamp(26px,4vw,44px);margin-bottom:8px">切冰台</h1>
+<p style="max-width:62ch;font-size:15px">台上是今天第 <b id="brickno">1</b> 塊磚，一百公分乘五十公分，一格五公分。切出出冰單上的規格就自動認領，其餘全部進碎冰桶。<b>每一刀不能收回。</b></p>
+
+<div class="pan sawfield" data-cham="0.75" data-skew="0.3" data-amp="1.25" data-field="3" ><svg class="pf" viewBox="0 0 1180 880" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><path class="f s0" data-s="0" d="M0 0L1180 0L769.5 259.1L567.8 259.1Z"/><path class="f s2" data-s="2" d="M1180 0L1097.8 440L769.5 259.1Z"/><path class="f s2" data-s="2" d="M1097.8 440L118.5 440L567.8 259.1L769.5 259.1Z"/><path class="f s1" data-s="1" d="M0 0L567.8 259.1L118.5 440Z"/><path class="f s2" data-s="2" d="M1180 0L1180 880L1097.8 440Z"/><path class="f s2" data-s="2" d="M1180 880L0 880L510.1 699.1L655.5 699.1Z"/><path class="f s0" data-s="0" d="M0 880L118.5 440L510.1 699.1Z"/><path class="f s0" data-s="0" d="M118.5 440L1097.8 440L655.5 699.1L510.1 699.1Z"/><path class="f s2" data-s="2" d="M1180 880L655.5 699.1L1097.8 440Z"/><path class="f s2" data-s="2" d="M0 0L118.5 440L64 481.3Z"/><path class="f s2" data-s="2" d="M118.5 440L0 880L64 481.3Z"/><path class="f s0" data-s="0" d="M0 0L64 481.3L0 880Z"/></svg>
+<div class="saw" style="margin:22px 0 0;padding:22px">
+
+<div>
+<div class="plate">
+<div class="lbl" style="margin-bottom:8px">出冰單　08:40・和平島漁市</div>
+<ul class="ordr" id="ordr">
+<li data-k="hb"><span>半磚　50×50</span><span class="q">0</span><span>／1</span></li>
+<li data-k="jb"><span>角冰　25×25</span><span class="q">0</span><span>／2</span></li>
+<li data-k="tb"><span>條冰　50×10</span><span class="q">0</span><span>／2</span></li>
+</ul></div>
+
+<div class="mtr">
+<div><span>刀數</span><b id="m-cut">0</b></div>
+<div><span>碎冰 公斤</span><b id="m-w">0.0</b></div>
+<div><span>損耗</span><b id="m-l">0%</b></div>
+<div><span>結帳 元</span><b id="m-v">—</b></div>
+</div>
+
+<div class="tools">
+<button class="btn on" id="b-v" type="button" aria-pressed="true">直切</button>
+<button class="btn" id="b-h" type="button" aria-pressed="false">橫切</button>
+<button class="btn" id="b-ship" type="button">出貨</button>
+<button class="btn" id="b-new" type="button">重開一塊磚</button>
+</div>
+
+<div class="plate d oct" style="margin-top:4px">
+<div class="lbl" style="margin-bottom:8px">三句話</div>
+<ol class="rules">
+<li>台上一塊二十格乘十格的磚（一格五公分）。</li>
+<li>每一刀必須把你點的那一塊整塊貫穿，直切或橫切。</li>
+<li>切出單上的規格就自動認領，其餘進碎冰桶。</li>
+</ol>
+<p class="hint" style="margin-top:10px">鍵盤：<b>Tab</b> 到冰面 → <b>←→</b> 換塊、<b>↑↓</b> 移鋸位、<b>V／H</b> 換方向、<b>Enter</b> 下刀。</p>
+</div>
+</div>
+
+<div>
+<div class="board">
+<svg id="blk" viewBox="0 0 680 340" tabindex="0" role="application"
+ aria-label="磚冰切割台，二十格乘十格。使用方向鍵選塊與移動鋸位，Enter 下刀。">
+<g id="leaves"><g transform="translate(1,1)" data-leaf="0" class="leaf cl"><path class="f s0" data-s="0" d="M0 0L338 0L270.2 169L94.3 169Z"/><path class="f s2" data-s="2" d="M338 0L338 338L270.2 169Z"/><path class="f s2" data-s="2" d="M338 338L0 338L94.3 169L270.2 169Z"/><path class="f s0" data-s="0" d="M0 0L94.3 169L0 338Z"/><rect class="hit" x="0" y="0" width="338" height="338" fill="transparent"/><path class="mk" d="M8 330L164.4 173.6" /></g><g transform="translate(341,1)" data-leaf="1" class="leaf cl"><path class="f s0" data-s="0" d="M0 0L168 0L134.3 84L46.9 84Z"/><path class="f s2" data-s="2" d="M168 0L168 168L134.3 84Z"/><path class="f s2" data-s="2" d="M168 168L0 168L46.9 84L134.3 84Z"/><path class="f s0" data-s="0" d="M0 0L46.9 84L0 168Z"/><rect class="hit" x="0" y="0" width="168" height="168" fill="transparent"/><path class="mk" d="M8 160L86.2 81.8" /></g><g transform="translate(511,1)" data-leaf="2" class="leaf cl"><path class="f s0" data-s="0" d="M0 0L168 0L134.3 84L46.9 84Z"/><path class="f s2" data-s="2" d="M168 0L168 168L134.3 84Z"/><path class="f s2" data-s="2" d="M168 168L0 168L46.9 84L134.3 84Z"/><path class="f s0" data-s="0" d="M0 0L46.9 84L0 168Z"/><rect class="hit" x="0" y="0" width="168" height="168" fill="transparent"/><path class="mk" d="M8 160L86.2 81.8" /></g><g transform="translate(341,171)" data-leaf="3" class="leaf cl"><path class="f s0" data-s="0" d="M0 0L338 0L324.8 33L18.4 33Z"/><path class="f s2" data-s="2" d="M338 0L338 66L324.8 33Z"/><path class="f s2" data-s="2" d="M338 66L0 66L18.4 33L324.8 33Z"/><path class="f s0" data-s="0" d="M0 0L18.4 33L0 66Z"/><rect class="hit" x="0" y="0" width="338" height="66" fill="transparent"/><path class="mk" d="M8 58L39.28 26.72" /></g><g transform="translate(341,239)" data-leaf="4" class="leaf cl"><path class="f s0" data-s="0" d="M0 0L338 0L324.8 33L18.4 33Z"/><path class="f s2" data-s="2" d="M338 0L338 66L324.8 33Z"/><path class="f s2" data-s="2" d="M338 66L0 66L18.4 33L324.8 33Z"/><path class="f s0" data-s="0" d="M0 0L18.4 33L0 66Z"/><rect class="hit" x="0" y="0" width="338" height="66" fill="transparent"/><path class="mk" d="M8 58L39.28 26.72" /></g><g transform="translate(341,307)" data-leaf="5" class="leaf"><path class="f s0" data-s="0" d="M0 0L338 0L331.6 16L8.9 16Z"/><path class="f s2" data-s="2" d="M338 0L338 32L331.6 16Z"/><path class="f s2" data-s="2" d="M338 32L0 32L8.9 16L331.6 16Z"/><path class="f s0" data-s="0" d="M0 0L8.9 16L0 32Z"/><rect class="hit" x="0" y="0" width="338" height="32" fill="transparent"/></g></g>
+<rect id="selbox" x="0" y="0" width="0" height="0" style="display:none"/>
+<path id="pre" d="" style="display:none"/>
+</svg>
+</div>
+<p class="hint" style="margin-top:10px">碎冰一公斤三元，磚冰整支九十元，切冰工錢一刀八元。<br>
+照單切到底最少五刀——結帳比整支賣掉多八塊二，剛好是一刀的工錢。也就是說，多下一刀，這塊磚你就白切了。</p>
+
+<noscript><div class="plate" style="margin-top:14px">
+<div class="lbl" style="margin-bottom:6px">沒有 JavaScript 時</div>
+<p style="font-size:14px">上面那張圖就是師傅的五刀示範：直切第十格 → 右半橫切第五格 → 上半直切第五格 → 下半橫切第二格 → 再橫切第二格。半磚一塊、角冰兩塊、條冰兩塊全出，碎冰十格五點七三公斤，損耗百分之五。價目、規格與規則在本頁與<a href="ice.html">冰品頁</a>皆為完整文字。</p>
+</div></noscript>
+
+<div id="slip">
+<div class="pan " data-cham="1.1" data-skew="0.12" ><svg class="pf" viewBox="0 0 700 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><path class="f s0" data-s="0" d="M0 0L700 0L677.9 70L30.7 70Z"/><path class="f s2" data-s="2" d="M700 0L700 140L677.9 70Z"/><path class="f s2" data-s="2" d="M700 140L0 140L30.7 70L677.9 70Z"/><path class="f s0" data-s="0" d="M0 0L30.7 70L0 140Z"/></svg><div class="plate" style="margin:0">
+<div class="lbl" style="margin-bottom:10px">出冰單　晶合製冰廠</div>
+<div class="slipgrid">
+<div><table><tbody id="slip-t"></tbody></table>
+<p style="font-size:13px;margin-top:10px" id="slip-sum"></p></div>
+<div><p class="verdict" id="slip-v"></p>
+<p style="font-size:12px;margin-top:12px" class="lbl">刀序碼（可貼回網址列還原）</p>
+<input class="share" id="slip-c" readonly value="">
+<p style="margin-top:10px"><button class="btn" id="b-log" type="button">記進今日出冰紀錄</button></p>
+</div></div></div></div>
+</div>
+</div>
+</div></div>
+</div></section></main>
+<div class="zig" style="margin-top:56px"></div>
+<footer><div class="wrap"><div class="cols">
+<div><h4 class="lbl">晶合製冰廠</h4>
+基隆市中正區平一路 66 號（和平島漁市對面）<br>
+(02) 2462-7315／叫冰專線 0937-114-206<br>
+全年無休 03:00–19:00（漁市班 03:00 起吊）<br>
+廠長 蔡宜蓁</div>
+<div><h4 class="lbl">頁面</h4>
+<a href="index.html">斷面</a><br><a href="ice.html">冰品</a><br><a href="saw.html">切冰台</a><br><a href="order.html">叫冰</a></div>
+<div><h4 class="lbl">今日</h4>
+鹽水槽 −10.2°C<br>結晶第 41 小時<br>日產 320 支<br>切冰工錢 每刀 8 元</div>
+</div>
+<p class="fine">本站為設計風格示範站，晶合製冰廠、其人員、電話、地址、價目與所有紀錄皆為虛構，請勿據以聯絡或交易。<br>
+設計風格：捷克立體主義 Czech Cubism（1911–1914，布拉格）。建置模型：Claude Opus 5 · 排程 Agent。</p>
+</div></footer>
+<script>/* 晶合製冰廠 — 平面下包絡稜柱引擎 (plane lower-envelope prism engine)
+   一塊冰的斷面 = 一組由邊界與受力方向決定斜率的平面，取下包絡。
+   面的分割與每一面的法線都是解出來的，不是畫出來的。 */
+var JH=(function(){
+function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+function rng(seed){var a=seed>>>0;return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function clipHalf(poly,a,b,c){var out=[],i,P,Q,fp,fq,t;
+  for(i=0;i<poly.length;i++){P=poly[i];Q=poly[(i+1)%poly.length];
+    fp=a*P[0]+b*P[1]+c;fq=a*Q[0]+b*Q[1]+c;
+    if(fp<=1e-9)out.push(P);
+    if((fp<-1e-9&&fq>1e-9)||(fp>1e-9&&fq<-1e-9)){t=fp/(fp-fq);out.push([P[0]+(Q[0]-P[0])*t,P[1]+(Q[1]-P[1])*t]);}}
+  return out;}
+function area(p){var s=0,i,a,b;for(i=0;i<p.length;i++){a=p[i];b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+/* theta 受力方向(弧度)。與受力方向夾角小的邊，斜率大 —— 冰沿受力的斜面裂開。 */
+function prism(x,y,w,h,theta,o){
+  o=o||{};var base=o.base==null?0.30:o.base, amp=o.amp==null?0.85:o.amp,
+      cham=o.chamfer==null?1.0:o.chamfer, minA=o.minA==null?0.0022:o.minA, sk=o.skew==null?0:o.skew;
+  var S=Math.min(w,h),pl=[],i,j;
+  function slope(phi){return base+amp*(0.62*(0.5+0.5*Math.cos(2*(phi-theta)))+0.38*(0.5+0.5*Math.cos(phi-theta)));}
+  function add(nx,ny,px,py,s){pl.push({a:s*nx,b:s*ny,c:-s*(px*nx+py*ny)});}
+  var E=[[0,1,x,y],[-1,0,x+w,y],[0,-1,x,y+h],[1,0,x,y]];
+  for(i=0;i<4;i++){var e=E[i];add(e[0],e[1],e[2],e[3],slope(Math.atan2(e[1],e[0]))*(1+sk*(i%2?1:-1)));}
+  if(cham>0){var r=Math.SQRT1_2,C=[[1,1,x,y],[-1,1,x+w,y],[-1,-1,x+w,y+h],[1,-1,x,y+h]];
+    for(i=0;i<4;i++){var c=C[i],nx=c[0]*r,ny=c[1]*r;add(nx,ny,c[2],c[3],slope(Math.atan2(ny,nx))*cham);}}
+  var rect=[[x,y],[x+w,y],[x+w,y+h],[x,y+h]],faces=[];
+  for(i=0;i<pl.length;i++){var poly=rect,P=pl[i];
+    for(j=0;j<pl.length&&poly.length>2;j++){if(j===i)continue;var Q=pl[j];
+      poly=clipHalf(poly,P.a-Q.a,P.b-Q.b,P.c-Q.c);}
+    if(poly.length>2&&area(poly)>S*S*minA){
+      var N=[-P.a,-P.b,1],L=Math.hypot(N[0],N[1],N[2]);
+      faces.push({p:poly,n:[N[0]/L,N[1]/L,N[2]/L]});}}
+  return faces;}
+/* 三階明度：0 迎光 1 中 2 背光。法線與光向的內積量化成三格，永遠沒有第四個值。 */
+var LIGHT=(function(){var v=[-0.50,-0.64,0.58],m=Math.hypot(v[0],v[1],v[2]);return [v[0]/m,v[1]/m,v[2]/m];})();
+function step(n){var d=n[0]*LIGHT[0]+n[1]*LIGHT[1]+n[2]*LIGHT[2];return d>0.74?0:(d>0.46?1:2);}
+function d(poly){var s='M',i;for(i=0;i<poly.length;i++){s+=(i?'L':'')+(Math.round(poly[i][0]*10)/10)+' '+(Math.round(poly[i][1]*10)/10);}return s+'Z';}
+/* 一塊稜柱的 svg 內容（不含 <svg> 外框） */
+function paths(w,h,theta,o){
+  var f=prism(0,0,w,h,theta,o),s='',i;
+  for(i=0;i<f.length;i++){var k=step(f[i].n);s+='<path class="f s'+k+'" data-s="'+k+'" d="'+d(f[i].p)+'"/>';}
+  return s;}
+function svg(w,h,theta,o){
+  return '<svg class="pf" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">'+paths(w,h,theta,o)+'</svg>';}
+
+/* 任意凸多邊形的下包絡：把一個面再裂一次。層級化的稜柱正是立體主義立面的作法。 */
+function prismPoly(poly,theta,o){
+  o=o||{};var base=o.base==null?0.34:o.base, amp=o.amp==null?0.9:o.amp, minA=o.minA==null?0.010:o.minA;
+  var n=poly.length,i,j,cx=0,cy=0;
+  for(i=0;i<n;i++){cx+=poly[i][0];cy+=poly[i][1];}
+  cx/=n;cy/=n;
+  var A0=area(poly),pl=[];
+  for(i=0;i<n;i++){
+    var P=poly[i],Q=poly[(i+1)%n],ex=Q[0]-P[0],ey=Q[1]-P[1],L=Math.hypot(ex,ey);
+    if(L<1e-6)continue;ex/=L;ey/=L;
+    var nx=ey,ny=-ex;
+    if((cx-P[0])*nx+(cy-P[1])*ny<0){nx=-nx;ny=-ny;}
+    var phi=Math.atan2(ny,nx),s=base+amp*(0.62*(0.5+0.5*Math.cos(2*(phi-theta)))+0.38*(0.5+0.5*Math.cos(phi-theta)));
+    pl.push({a:s*nx,b:s*ny,c:-s*(P[0]*nx+P[1]*ny)});
+  }
+  var faces=[];
+  for(i=0;i<pl.length;i++){var q=poly,Pp=pl[i];
+    for(j=0;j<pl.length&&q.length>2;j++){if(j===i)continue;var Qq=pl[j];
+      q=clipHalf(q,Pp.a-Qq.a,Pp.b-Qq.b,Pp.c-Qq.c);}
+    if(q.length>2&&area(q)>A0*minA){
+      var N=[-Pp.a,-Pp.b,1],M=Math.hypot(N[0],N[1],N[2]);
+      faces.push({p:q,n:[N[0]/M,N[1]/M,N[2]/M]});}}
+  return faces.length?faces:[{p:poly,n:[0,0,1]}];
+}
+/* 大面積用：解一次，再把最大的幾個面各自裂一次 */
+function field(w,h,theta,o){
+  o=o||{};
+  var f=prism(0,0,w,h,theta,o),k=o.sub==null?3:o.sub;
+  if(k<=0)return f;
+  var idx=f.map(function(x,i){return [area(x.p),i];}).sort(function(a,b){return b[0]-a[0];}).slice(0,k)
+           .map(function(x){return x[1];});
+  var out=[];
+  f.forEach(function(x,i){
+    if(idx.indexOf(i)<0){out.push(x);return;}
+    var sub=prismPoly(x.p,theta+(o.turn==null?0.9:o.turn),{base:0.5,amp:(o.subamp==null?1.5:o.subamp),minA:0.035});
+    if(sub.length<2){out.push(x);return;}
+    sub.forEach(function(y){out.push(y);});
+  });
+  return out;
+}
+function fieldPaths(w,h,theta,o){
+  var f=field(w,h,theta,o),s='',i;
+  for(i=0;i<f.length;i++){var k=step(f[i].n);s+='<path class="f s'+k+'" data-s="'+k+'" d="'+d(f[i].p)+'"/>';}
+  return s;}
+
+return {fnv:fnv,rng:rng,prism:prism,prismPoly:prismPoly,field:field,fieldPaths:fieldPaths,area:area,step:step,d:d,paths:paths,svg:svg,LIGHT:LIGHT};
+})();
+</script>
+<script>/* 晶合製冰廠 — 切冰：二元切割樹（guillotine tree）。一格＝5 公分。 */
+var JHC=(function(){
+var GW=20,GH=10,KG=0.573,PRICE_BRICK=90,PRICE_CHIP=3,FEE=8;
+var SPEC=[
+ {k:'hb',n:'半磚',w:10,h:10,need:1,price:55},
+ {k:'jb',n:'角冰',w:5,h:5,need:2,price:18},
+ {k:'tb',n:'條冰',w:10,h:2,need:2,price:15}
+];
+function fresh(){return [{x:0,y:0,w:GW,h:GH,c:null}];}
+function cut(leaves,i,axis,pos){
+  var L=leaves[i];if(!L)return null;
+  if(axis==='v'){if(pos<=0||pos>=L.w)return null;
+    var a={x:L.x,y:L.y,w:pos,h:L.h,c:null},b={x:L.x+pos,y:L.y,w:L.w-pos,h:L.h,c:null};}
+  else{if(pos<=0||pos>=L.h)return null;
+    var a={x:L.x,y:L.y,w:L.w,h:pos,c:null},b={x:L.x,y:L.y+pos,w:L.w,h:L.h-pos,c:null};}
+  var out=leaves.slice();out.splice(i,1,a,b);return out;
+}
+function claim(leaves){
+  var need={},i,j;SPEC.forEach(function(s){need[s.k]=s.need;});
+  leaves.forEach(function(L){L.c=null;});
+  for(i=0;i<leaves.length;i++){var L=leaves[i];
+    for(j=0;j<SPEC.length;j++){var s=SPEC[j];
+      if(need[s.k]>0&&((L.w===s.w&&L.h===s.h)||(L.w===s.h&&L.h===s.w))){L.c=s.k;need[s.k]--;break;}}}
+  return need;
+}
+function tally(leaves,ncuts){
+  var need=claim(leaves),filled=0,val=0,wasteCells=0;
+  leaves.forEach(function(L){
+    if(L.c){var s=SPEC.filter(function(x){return x.k===L.c;})[0];filled++;val+=s.price;}
+    else wasteCells+=L.w*L.h;});
+  var wkg=wasteCells*KG;
+  val+=wkg*PRICE_CHIP;val-=ncuts*FEE;
+  var total=0;SPEC.forEach(function(s){total+=s.need;});
+  return {need:need,filled:filled,total:total,wasteCells:wasteCells,wasteKg:wkg,
+          value:val,cuts:ncuts,lossPct:wasteCells/(GW*GH)*100};
+}
+var B36='0123456789abcdefghijklmnopqrstuvwxyz';
+function enc(list){return list.map(function(c){return B36[c[0]]+(c[1]==='v'?'v':'h')+B36[c[2]];}).join('');}
+function dec(code){var out=[],i;if(!code)return out;
+  for(i=0;i+2<code.length+1;i+=3){var a=B36.indexOf(code[i]),ax=code[i+1],p=B36.indexOf(code[i+2]);
+    if(a<0||p<0||(ax!=='v'&&ax!=='h'))return out;out.push([a,ax,p]);}
+  return out;}
+function replay(code){var L=fresh(),list=dec(code),i;
+  for(i=0;i<list.length;i++){var n=cut(L,list[i][0],list[i][1],list[i][2]);if(!n)break;L=n;}
+  claim(L);return {leaves:L,n:i};}
+/* 把切割圖畫成一張稜柱構成：每一塊冰都由同一支下包絡引擎渲染 */
+function planSvg(leaves,theta,cell,pad){
+  cell=cell||34;pad=pad||0;
+  var W=GW*cell,H=GH*cell,s='',i;
+  for(i=0;i<leaves.length;i++){var L=leaves[i];
+    var x=L.x*cell,y=L.y*cell,w=L.w*cell,h=L.h*cell;
+    var f=JH.prism(0,0,w-2,h-2,theta,{chamfer:1.05});
+    s+='<g transform="translate('+(x+1)+','+(y+1)+')" data-leaf="'+i+'" class="leaf'+(L.c?' cl':'')+'">';
+    for(var j=0;j<f.length;j++){var k=JH.step(f[j].n);
+      s+='<path class="f s'+k+'" data-s="'+k+'" d="'+JH.d(f[j].p)+'"/>';}
+    s+='<rect class="hit" x="0" y="0" width="'+(w-2)+'" height="'+(h-2)+'" fill="transparent"/>';
+    if(L.c){var ml=Math.min(w,h)*0.46;s+='<path class="mk" d="M8 '+(h-10)+'L'+(8+ml)+' '+(h-10-ml)+'" />';}
+    s+='</g>';}
+  return {svg:s,W:W,H:H};
+}
+return {GW:GW,GH:GH,KG:KG,FEE:FEE,PRICE_BRICK:PRICE_BRICK,PRICE_CHIP:PRICE_CHIP,SPEC:SPEC,
+        fresh:fresh,cut:cut,claim:claim,tally:tally,enc:enc,dec:dec,replay:replay,planSvg:planSvg};
+})();
+</script>
+<script>/* 晶合製冰廠 — 共用行為。受力方向為全站狀態。 */
+(function(){
+var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)');
+function reduced(){return RM&&RM.matches;}
+var DETENT=8, THETA0=2;                 /* 八檔位，預設第 2 檔＝90° */
+function idx(){var v=null;try{v=localStorage.getItem('jh.t');}catch(e){}
+  v=parseInt(v,10);return (isNaN(v)||v<0||v>=DETENT)?THETA0:v;}
+function save(i){try{localStorage.setItem('jh.t',i);}catch(e){}}
+function rad(i){return i*Math.PI*2/DETENT;}
+var pans=[],cur=idx();
+function collect(){pans=[].slice.call(document.querySelectorAll('.pan'));}
+function solve(th){
+  if(!pans.length)return;
+  var sizes=pans.map(function(p){var r=p.getBoundingClientRect();
+    return [Math.max(48,Math.round(r.width)),Math.max(40,Math.round(r.height))];});
+  pans.forEach(function(p,i){
+    var s=p.querySelector('svg.pf');if(!s)return;
+    var w=sizes[i][0],h=sizes[i][1];
+    var o={chamfer:parseFloat(p.getAttribute('data-cham')||'1'),
+           skew:parseFloat(p.getAttribute('data-skew')||'0'),
+           amp:parseFloat(p.getAttribute('data-amp')||'0.85')};
+    var fld=p.getAttribute('data-field');
+    s.setAttribute('viewBox','0 0 '+w+' '+h);
+    if(fld!=null){o.sub=parseInt(fld,10)||3;s.innerHTML=JH.fieldPaths(w,h,th,o);}
+    else s.innerHTML=JH.paths(w,h,th,o);
+  });
+}
+/* ── 簽名動效：受力重裂。逐格四次，畫面上沒有一個中間色也沒有一個中間形。 ── */
+var busy=false;
+function setTheta(i,quiet){
+  i=((i%DETENT)+DETENT)%DETENT;
+  var from=rad(cur),to=rad(i),d=to-from;
+  while(d>Math.PI)d-=Math.PI*2; while(d<-Math.PI)d+=Math.PI*2;
+  cur=i;save(i);paintDial();
+  if(quiet||reduced()){solve(to);return;}
+  if(busy)return;busy=true;
+  var k=1;
+  (function tick(){
+    solve(from+d*k/4);
+    if(k++<4)setTimeout(tick,84);else busy=false;
+  })();
+}
+function paintDial(){
+  [].forEach.call(document.querySelectorAll('.dial button'),function(b,i){
+    b.setAttribute('aria-pressed',i===cur?'true':'false');});
+  [].forEach.call(document.querySelectorAll('[data-deg]'),function(e){
+    e.textContent=(cur*45)+'°';});
+}
+function buildDial(){
+  var host=document.querySelector('.dial');if(!host)return;
+  var r=72,html='';
+  for(var i=0;i<DETENT;i++){
+    var a=rad(i)-Math.PI/2,x=Math.cos(a)*r,y=Math.sin(a)*r;
+    html+='<button type="button" data-i="'+i+'" style="transform:translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px)"><span>受力 '+(i*45)+' 度</span></button>';
+  }
+  html+='<div class="hub"><b data-deg>'+(cur*45)+'°</b><i>受力方向</i></div>';
+  host.innerHTML=html;
+  host.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-i]');if(!b)return;setTheta(+b.getAttribute('data-i'));});
+  host.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'){setTheta(cur+1);e.preventDefault();}
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){setTheta(cur-1);e.preventDefault();}});
+  paintDial();
+}
+/* ── 輸入動效：面燈。游標所在的面升一階，同一朝向的面一起升。 ── */
+var lifted=null;
+function lift(sv,s){
+  if(lifted&&lifted.sv===sv&&lifted.s===s)return;
+  clear();
+  [].forEach.call(sv.querySelectorAll('path[data-s="'+s+'"]'),function(p){p.classList.add('lift');});
+  lifted={sv:sv,s:s};
+}
+function clear(){if(!lifted)return;
+  [].forEach.call(lifted.sv.querySelectorAll('path.lift'),function(p){p.classList.remove('lift');});
+  lifted=null;}
+document.addEventListener('pointerover',function(e){
+  var p=e.target;
+  if(p&&p.tagName==='path'&&p.parentNode&&p.parentNode.classList&&p.parentNode.classList.contains('pf'))
+    lift(p.parentNode,p.getAttribute('data-s'));
+  else clear();
+});
+document.addEventListener('pointerleave',clear);
+/* ── 環境動效：承水槽。時間驅動，不需輸入。 ── */
+function trough(){
+  var t=document.querySelector('.trough');if(!t)return;
+  var lvl=t.querySelector('.lvl'),cap=t.querySelector('.cap b'),n=0;
+  function bump(){n=(n+1)%13;lvl.style.height=(n*8)+'px';if(cap)cap.textContent=n;}
+  bump();
+  if(!reduced())setInterval(bump,4600);
+  else{n=7;lvl.style.height='56px';if(cap)cap.textContent='7';}
+}
+/* ── 轉場：鋸口推移 ── */
+function wipe(el){if(!el||reduced())return;el.classList.remove('wipe');void el.offsetWidth;el.classList.add('wipe');}
+var rt;
+function boot(){
+  collect();buildDial();solve(rad(cur));trough();
+  window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){solve(rad(cur));},180);});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+window.JHRT={solve:solve,setTheta:setTheta,theta:function(){return rad(cur);},wipe:wipe,reduced:reduced,collect:collect};
+})();
+</script>
+<script>
+(function(){
+var svg=document.getElementById('blk'),gl=document.getElementById('leaves'),
+    pre=document.getElementById('pre'),sel=document.getElementById('selbox');
+var CELL=34, W=JHC.GW*CELL, H=JHC.GH*CELL;
+var leaves=JHC.fresh(),cuts=[],axis='v',si=0,pos=null,brick=1,shipped=false;
+function theta(){return window.JHRT?JHRT.theta():Math.PI;}
+function draw(){
+  var r=JHC.planSvg(leaves,theta(),CELL);
+  gl.innerHTML=r.svg;
+  if(window.JHRT)JHRT.collect();
+  paint();
+}
+function paint(){
+  var t=JHC.tally(leaves,cuts.length);
+  [].forEach.call(document.querySelectorAll('#ordr li'),function(li){
+    var k=li.getAttribute('data-k'),s=JHC.SPEC.filter(function(x){return x.k===k;})[0];
+    var got=s.need-t.need[k];
+    li.querySelector('.q').textContent=got;
+    li.classList.toggle('done',got>=s.need);});
+  document.getElementById('m-cut').textContent=cuts.length;
+  document.getElementById('m-w').textContent=t.wasteKg.toFixed(1);
+  document.getElementById('m-l').textContent=Math.round(t.lossPct)+'%';
+  document.getElementById('m-v').textContent=shipped?Math.round(t.value*10)/10:'—';
+  [].forEach.call(gl.querySelectorAll('.leaf'),function(g,i){g.classList.toggle('sel',i===si);});
+  var L=leaves[si];
+  if(L){sel.style.display='';sel.setAttribute('x',L.x*CELL+1);sel.setAttribute('y',L.y*CELL+1);
+        sel.setAttribute('width',L.w*CELL-2);sel.setAttribute('height',L.h*CELL-2);}
+  drawPre();
+}
+function clampPos(){
+  var L=leaves[si];if(!L)return null;
+  var lim=(axis==='v')?L.w:L.h;
+  if(lim<2)return null;
+  if(pos==null||pos<1||pos>lim-1)pos=Math.round(lim/2);
+  return pos;
+}
+function drawPre(){
+  var L=leaves[si],p=clampPos();
+  if(!L||p==null){pre.style.display='none';return;}
+  pre.style.display='';
+  if(axis==='v')pre.setAttribute('d','M'+((L.x+p)*CELL)+' '+(L.y*CELL)+'V'+((L.y+L.h)*CELL));
+  else pre.setAttribute('d','M'+(L.x*CELL)+' '+((L.y+p)*CELL)+'H'+((L.x+L.w)*CELL));
+}
+function pt(e){
+  var r=svg.getBoundingClientRect();
+  return [(e.clientX-r.left)/r.width*W/CELL,(e.clientY-r.top)/r.height*H/CELL];
+}
+function findLeaf(gx,gy){
+  for(var i=0;i<leaves.length;i++){var L=leaves[i];
+    if(gx>=L.x&&gx<=L.x+L.w&&gy>=L.y&&gy<=L.y+L.h)return i;}
+  return -1;}
+svg.addEventListener('pointermove',function(e){
+  if(shipped)return;
+  var g=pt(e),i=findLeaf(g[0],g[1]);if(i<0)return;
+  if(i!==si){si=i;pos=null;}
+  var L=leaves[si],lim=(axis==='v')?L.w:L.h;
+  var v=Math.round((axis==='v')?(g[0]-L.x):(g[1]-L.y));
+  pos=Math.max(1,Math.min(lim-1,v));
+  paint();
+});
+svg.addEventListener('click',function(e){if(!shipped)doCut();});
+svg.addEventListener('keydown',function(e){
+  if(shipped)return;
+  var k=e.key;
+  if(k==='ArrowRight'){si=(si+1)%leaves.length;pos=null;paint();e.preventDefault();}
+  else if(k==='ArrowLeft'){si=(si-1+leaves.length)%leaves.length;pos=null;paint();e.preventDefault();}
+  else if(k==='ArrowDown'){pos=(clampPos()||1)+1;paint();e.preventDefault();}
+  else if(k==='ArrowUp'){pos=(clampPos()||2)-1;paint();e.preventDefault();}
+  else if(k==='v'||k==='V'){setAxis('v');e.preventDefault();}
+  else if(k==='h'||k==='H'){setAxis('h');e.preventDefault();}
+  else if(k==='Enter'||k===' '){doCut();e.preventDefault();}
+});
+function setAxis(a){axis=a;pos=null;
+  document.getElementById('b-v').setAttribute('aria-pressed',a==='v');
+  document.getElementById('b-v').classList.toggle('on',a==='v');
+  document.getElementById('b-h').setAttribute('aria-pressed',a==='h');
+  document.getElementById('b-h').classList.toggle('on',a==='h');
+  paint();}
+function doCut(){
+  var p=clampPos();if(p==null)return;
+  var n=JHC.cut(leaves,si,axis,p);if(!n)return;
+  cuts.push([si,axis,p]);leaves=n;pos=null;
+  draw();
+  if(window.JHRT)JHRT.wipe(document.querySelector('.board'));
+}
+document.getElementById('b-v').onclick=function(){setAxis('v');};
+document.getElementById('b-h').onclick=function(){setAxis('h');};
+document.getElementById('b-new').onclick=function(){
+  brick++;document.getElementById('brickno').textContent=brick;
+  leaves=JHC.fresh();cuts=[];si=0;pos=null;shipped=false;
+  document.getElementById('slip').classList.remove('on');draw();};
+document.getElementById('b-ship').onclick=function(){ship();};
+function feasible(spec,ls){
+  for(var i=0;i<ls.length;i++){var L=ls[i];
+    if((L.w>=spec.w&&L.h>=spec.h)||(L.w>=spec.h&&L.h>=spec.w))return true;}
+  return false;}
+function lostAt(spec){
+  var L=JHC.fresh(),i;
+  for(i=0;i<cuts.length;i++){var n=JHC.cut(L,cuts[i][0],cuts[i][1],cuts[i][2]);if(!n)break;L=n;
+    if(!feasible(spec,L))return i+1;}
+  return 0;}
+function ship(){
+  shipped=true;
+  var t=JHC.tally(leaves,cuts.length);
+  var rows='',all=true;
+  JHC.SPEC.forEach(function(s){
+    var got=s.need-t.need[s.k];if(got<s.need)all=false;
+    rows+='<tr><td>'+s.n+'　'+(s.w*5)+'×'+(s.h*5)+' 公分</td><td class="n">'+got+' ／ '+s.need+'</td><td class="n">'+
+      (got>=s.need?'出':'未出')+'</td></tr>';});
+  rows+='<tr><td>碎冰</td><td class="n">'+t.wasteKg.toFixed(2)+' 公斤</td><td class="n">'+Math.round(t.lossPct)+'%</td></tr>';
+  document.getElementById('slip-t').innerHTML=rows;
+  var v=Math.round(t.value*10)/10, diff=Math.round((t.value-JHC.PRICE_BRICK)*10)/10;
+  document.getElementById('slip-sum').innerHTML=
+    '刀數 '+cuts.length+' 刀，工錢 '+(cuts.length*JHC.FEE)+' 元。<br>結帳 <b>'+v+' 元</b>；整支不切賣 '+JHC.PRICE_BRICK+' 元，'+
+    (diff>=0?'多 '+diff:'少 '+Math.abs(diff))+' 元。';
+  var msg;
+  if(all&&cuts.length===5)msg='五刀。這塊磚沒有一刀是白下的——比整支賣掉多八塊二，剛好是一刀的工錢。蔡師傅只說了一句：下次再快一點。';
+  else if(all)msg='單子出清了，'+cuts.length+' 刀。多下的那 '+(cuts.length-5)+' 刀，一刀八塊——'+
+    (diff>=0?'帳面上還是比整支賣掉多 '+diff+' 元，但那是碎冰替你補的。':'帳面上比整支賣掉少了 '+Math.abs(diff)+' 元。');
+  else{
+    var miss=JHC.SPEC.filter(function(s){return t.need[s.k]>0;});
+    var s0=miss[0],k=lostAt(s0);
+    if(k>0)msg=s0.n+'還差 '+t.need[s0.k]+' 塊，而且已經切不出來了：第 '+k+' 刀之後，台上再也沒有一塊裝得下 '+(s0.w*5)+'×'+(s0.h*5)+' 公分。';
+    else msg=s0.n+'還差 '+t.need[s0.k]+' 塊，台上還有裝得下的塊——你只是先出貨了。冰不等人，這是廠裡最常見的一種虧。';
+  }
+  if(t.wasteCells>=40)msg+=' 碎冰 '+t.wasteKg.toFixed(1)+' 公斤，一公斤三塊；這一支磚有一大半是用碎冰的價錢賣掉的。';
+  document.getElementById('slip-v').textContent=msg;
+  var code=JHC.enc(cuts);
+  document.getElementById('slip-c').value=location.origin+location.pathname+'?c='+code;
+  document.getElementById('slip').classList.add('on');
+  if(window.JHRT)JHRT.wipe(document.getElementById('slip'));
+  var _s=document.getElementById('slip');if(_s.scrollIntoView)_s.scrollIntoView({behavior:(window.JHRT&&JHRT.reduced())?'auto':'smooth',block:'nearest'});
+  paint();
+}
+document.getElementById('b-log').onclick=function(){
+  var t=JHC.tally(leaves,cuts.length),log=[];
+  try{log=JSON.parse(localStorage.getItem('jh.log')||'[]');}catch(e){}
+  log.unshift({c:JHC.enc(cuts),f:t.filled,w:Math.round(t.wasteKg*10)/10,
+               v:Math.round(t.value*10)/10,n:cuts.length,d:Date.now()});
+  log=log.slice(0,12);
+  try{localStorage.setItem('jh.log',JSON.stringify(log));}catch(e){}
+  this.textContent='已記進紀錄 ▸ 冰品頁可看';this.disabled=true;};
+/* ?c= 還原 */
+(function(){
+ var m=/[?&]c=([0-9a-z]*)/.exec(location.search);
+ if(m&&m[1]){var r=JHC.replay(m[1]);leaves=r.leaves;cuts=JHC.dec(m[1]).slice(0,r.n);si=0;}
+})();
+setAxis('v');draw();
+window.addEventListener('resize',function(){setTimeout(draw,200);});
+})();
+</script>
+</body></html>

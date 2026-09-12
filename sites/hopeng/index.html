@@ -1,0 +1,500 @@
+<!DOCTYPE html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>公告板｜和平新村管理委員會</title>
+<meta name="description" content="和平新村公寓大廈管理委員會第七屆公告板：十二張公告、管理費、公積金餘額與區分所有權人會議開會通知。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FF4B8C'/%3E%3Cpath d='M4 5L15 4L28 6L27 17L28 28L14 27L5 28L3 16Z' fill='%230B0B0B'/%3E%3Cpath d='M12 9h9v3h-3v12h-3V12h-3z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+:root{
+  --paper:#FF4B8C; --toner:#0B0B0B; --sheet:#FFFFFF; --warn:#E8FF3A; --tape:#B9B4AC;
+  --edge:8px;
+}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper); color:var(--toner);
+  font-family:"Noto Sans TC",system-ui,sans-serif; font-weight:400;
+  font-size:16px; line-height:1.72; overflow-x:hidden;
+}
+/* 螢光紙的紙纖：一層極細的靜態橫紋，不是漸層 */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:repeating-linear-gradient(0deg,rgba(11,11,11,.055) 0 1px,transparent 1px 4px);
+  mix-blend-mode:multiply}
+/* ambient：影印機的掃描光棒，steps() 逐格掃過整張紙 */
+body::after{content:"";position:fixed;left:0;right:0;top:0;height:22px;z-index:2;pointer-events:none;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 3px 0 rgba(11,11,11,.16);
+  animation:scanbar 9s steps(46,end) infinite}
+@keyframes scanbar{0%{transform:translateY(-8vh)}88%{transform:translateY(112vh)}88.01%,100%{transform:translateY(-8vh)}}
+
+.fx{position:absolute;width:0;height:0;overflow:hidden}
+a{color:inherit}
+::selection{background:var(--toner);color:var(--warn)}
+:focus-visible{outline:4px solid var(--toner);outline-offset:2px}
+
+/* ── 字面：贖金字用的三種面 ── */
+.f-a{font-family:"Noto Sans TC",sans-serif;font-weight:900}
+.f-b{font-family:"Noto Serif TC",serif;font-weight:900}
+.f-c{font-family:"Noto Sans TC",sans-serif;font-weight:400}
+.rs{display:inline-block;background:var(--sheet);color:var(--toner);line-height:1;
+  transform:rotate(var(--rot)) scaleX(var(--sc)) translateY(var(--dy));
+  margin:0 -1px}
+.rs.inv{background:var(--toner);color:var(--sheet)}
+.rs-sp{display:inline-block;width:.5em}
+.ransom{font-size:clamp(38px,8.4vw,86px);letter-spacing:0;word-break:break-all;
+  filter:url(#xg1)}   /* 標題本來就是從已經影印過的報紙上剪下來的：邊緣一律 1-bit，沒有抗鋸齒 */
+.ransom.sm{font-size:clamp(24px,4.6vw,40px)}
+.ransom.xs{font-size:clamp(19px,3vw,26px)}
+
+/* ── 紙 ── */
+.sheetbox{background:var(--sheet);color:var(--toner);position:relative;
+  box-shadow:7px 7px 0 var(--toner)}
+.sheetbox.warn{background:var(--warn)}
+.pad{padding:26px 26px 30px}
+@media(max-width:560px){.pad{padding:18px 15px 22px}}
+
+/* ── 影印世代（signature：generation-wear） ── */
+[data-gen="1"]{filter:url(#xg1)}
+[data-gen="2"]{filter:url(#xg2);transform:rotate(-.9deg)}
+[data-gen="3"]{filter:url(#xg3);transform:rotate(1.7deg)}
+[data-gen="2"]>.edgeband,[data-gen="3"]>.edgeband{opacity:1}
+.edgeband{position:absolute;left:0;top:0;bottom:0;width:9px;background:var(--toner);opacity:0;pointer-events:none}
+[data-gen="3"]>.edgeband{width:16px}
+.genmark{position:absolute;right:8px;top:6px;font-family:"Courier Prime",monospace;font-size:11px;
+  letter-spacing:.06em;background:var(--toner);color:var(--sheet);padding:1px 5px}
+/* input-driven：hover／focus 預覽「再影印一次會變成什麼」（只套在小面積元件上，避免大區塊重繪） */
+.pcard.wear:hover,.pcard.wear:focus-visible{filter:url(#xgh)}
+.sheetd.wear:not([open]):hover>summary{filter:url(#xgh)}
+.sheetbox.wear:hover{filter:url(#xgh)}
+.wear{transition:none}
+
+/* ── 膠帶 ── */
+.tapebit{position:absolute;background:var(--tape);opacity:.85;
+  box-shadow:inset 0 0 0 1px rgba(11,11,11,.35)}
+
+/* ── nav：tape-corner 膠帶貼角導覽 ── */
+nav.tapenav{position:fixed;right:16px;top:16px;z-index:40;width:180px;display:block}
+nav.tapenav .tp{display:block;position:relative;background:var(--sheet);color:var(--toner);
+  text-decoration:none;padding:9px 11px 9px 14px;margin-bottom:11px;
+  font-weight:900;font-size:14px;letter-spacing:.02em;
+  box-shadow:4px 4px 0 var(--toner);transform:rotate(var(--tr,-1.2deg))}
+nav.tapenav .tp .en{display:block;font-family:"Courier Prime",monospace;font-weight:400;font-size:10px;letter-spacing:.14em;opacity:.7}
+/* 舊膠帶：發黃、翹角、其中一條只剩半條 */
+nav.tapenav .tp::before{content:"";position:absolute;left:-13px;top:-9px;width:52px;height:17px;
+  background:#C9BE9A;opacity:.72;transform:rotate(-32deg);
+  box-shadow:inset 0 0 0 1px rgba(11,11,11,.3)}
+nav.tapenav .tp::after{content:"";position:absolute;left:-8px;top:-11px;width:16px;height:15px;
+  background:#DCD3B4;opacity:.9;transform:rotate(-32deg) skewX(-14deg);
+  box-shadow:inset 0 0 0 1px rgba(11,11,11,.35)}
+nav.tapenav .tp:nth-child(2){--tr:1.6deg}
+nav.tapenav .tp:nth-child(3){--tr:-2.1deg}
+nav.tapenav .tp:nth-child(4){--tr:.9deg}
+nav.tapenav .tp:nth-child(3)::before{width:26px}       /* 這條只剩半條 */
+nav.tapenav .tp:nth-child(4)::after{display:none}      /* 這條的翹角已經掉了 */
+/* 現用頁：膠帶是剛貼上去的——不透明、壓平、沒有翹角、紙也擺正 */
+nav.tapenav .tp[aria-current="page"]{transform:rotate(0deg);box-shadow:6px 6px 0 var(--toner)}
+nav.tapenav .tp[aria-current="page"]::before{background:var(--tape);opacity:1;width:58px;height:19px;transform:rotate(-30deg)}
+nav.tapenav .tp[aria-current="page"]::after{display:none}
+nav.tapenav .tp:hover::after{transform:rotate(-32deg) skewX(-30deg) translate(-3px,-3px);width:22px}
+@media(prefers-reduced-motion:reduce){nav.tapenav .tp:hover::after{transform:rotate(-32deg) skewX(-14deg)}}
+@media(max-width:900px){
+  nav.tapenav{position:sticky;top:0;right:auto;width:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--toner);padding:0}
+  nav.tapenav .tp{margin:0;transform:none!important;box-shadow:none;border-right:2px solid var(--toner);
+    font-size:12px;padding:8px 6px;text-align:center}
+  nav.tapenav .tp::before,nav.tapenav .tp::after{display:none}
+  nav.tapenav .tp[aria-current="page"]{background:var(--warn)}
+}
+
+/* ── 版面 ── */
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 90px;position:relative;z-index:3}
+@media(min-width:901px){.wrap{padding-right:216px;max-width:1180px}}
+header.mast{padding:26px 0 14px;position:relative}
+.stamp{display:inline-block;font-family:"Courier Prime",monospace;font-size:12px;letter-spacing:.2em;
+  background:var(--toner);color:var(--paper);padding:3px 9px;transform:rotate(-1.4deg)}
+h2.sec{font-weight:900;font-size:clamp(21px,3.4vw,30px);line-height:1.25;margin:44px 0 14px;
+  background:var(--toner);color:var(--paper);display:inline-block;padding:4px 12px;transform:rotate(-.7deg)}
+h3{font-weight:900;font-size:18px;margin:20px 0 8px}
+p{margin:0 0 12px}
+.mono{font-family:"Courier Prime",monospace}
+.tw{font-family:"Courier Prime",monospace;font-size:14.5px;line-height:1.9;letter-spacing:.01em}
+.hr{height:5px;background:var(--toner);margin:26px 0}
+.hr.d{height:0;border-top:4px dashed var(--toner)}
+.note{font-size:13px;line-height:1.7}
+.marker{display:inline-block;background:var(--warn);padding:0 3px;box-shadow:0 0 0 2px var(--warn)}
+.pen{color:var(--toner);font-family:"Noto Serif TC",serif;font-weight:700;
+  text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px}
+.strike{text-decoration:line-through;text-decoration-thickness:4px}
+
+/* 出紙疊 */
+.stack{margin-top:6px}
+.sheetd{background:var(--sheet);position:relative;margin-bottom:5px;box-shadow:6px 6px 0 var(--toner)}
+.sheetd>summary{list-style:none;cursor:pointer;padding:9px 14px;display:flex;gap:12px;align-items:baseline;
+  font-family:"Courier Prime",monospace;font-size:13px;border-bottom:3px solid var(--toner)}
+.sheetd>summary::-webkit-details-marker{display:none}
+.sheetd>summary b{font-family:"Noto Sans TC",sans-serif;font-weight:900;font-size:15px}
+.sheetd[open]>summary{background:var(--toner);color:var(--sheet)}
+.sheetd>summary .no{opacity:.7}
+.pull{animation:pull .42s steps(6,end) both}
+@keyframes pull{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){.pull{animation:none}
+  body::after{display:none}
+  .pcard.wear:hover,.sheetbox.wear:hover,.sheetd.wear:not([open]):hover>summary{filter:none}}
+
+/* 表格 */
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--sheet)}
+th,td{border:2px solid var(--toner);padding:4px 7px;text-align:left;vertical-align:top}
+th{background:var(--toner);color:var(--sheet);font-weight:900;font-size:12.5px}
+td.n{font-family:"Courier Prime",monospace;text-align:right;white-space:nowrap}
+.scroller{overflow-x:auto;box-shadow:6px 6px 0 var(--toner)}
+.st1{font-weight:900}
+.st0{opacity:.42}
+.stm{background:var(--toner);color:var(--sheet);display:inline-block;width:1.35em;text-align:center}
+
+/* 按鈕 */
+button,.btn{font-family:"Noto Sans TC",sans-serif;font-weight:900;font-size:15px;
+  background:var(--toner);color:var(--warn);border:0;padding:11px 20px;cursor:pointer;
+  box-shadow:5px 5px 0 var(--sheet);text-decoration:none;display:inline-block}
+button:hover,.btn:hover{background:var(--warn);color:var(--toner);box-shadow:5px 5px 0 var(--toner)}
+button[disabled]{opacity:.4;cursor:not-allowed}
+button.ghost{background:var(--sheet);color:var(--toner);box-shadow:5px 5px 0 var(--toner)}
+
+/* 提案卡 */
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:820px){.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.g3,.g2{grid-template-columns:1fr}}
+.pcard{background:var(--sheet);position:relative;padding:13px 13px 12px;box-shadow:5px 5px 0 var(--toner);
+  cursor:pointer;text-align:left;width:100%;font-weight:400;color:var(--toner);font-size:14px;line-height:1.6}
+.pcard:hover{background:var(--sheet);box-shadow:5px 5px 0 var(--toner)}
+.pcard .hd{display:flex;justify-content:space-between;font-family:"Courier Prime",monospace;font-size:12px;margin-bottom:5px}
+.pcard .tt{font-weight:900;font-size:16px;line-height:1.3;margin-bottom:6px}
+.pcard[aria-pressed="true"]{background:var(--toner);color:var(--sheet);box-shadow:5px 5px 0 var(--warn)}
+.pcard[aria-pressed="true"] .lvl{background:var(--warn);color:var(--toner)}
+.pcard[disabled]{opacity:.45;cursor:not-allowed}
+.lvl{display:inline-block;background:var(--toner);color:var(--sheet);padding:0 6px;font-size:11px;font-weight:900;font-family:"Courier Prime",monospace}
+.cut{width:100%;height:auto;display:block}
+.cut.k{width:62px}
+.cut.kk{width:100%;max-width:150px}
+
+/* 結果 */
+.rec{margin-top:22px}
+.rowres{border:3px solid var(--toner);padding:10px 12px;margin-bottom:9px;background:var(--sheet)}
+.rowres.no{background:var(--warn)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;font-family:"Courier Prime",monospace;font-size:13px}
+.err{background:var(--toner);color:var(--warn);padding:10px 13px;font-weight:900;margin:12px 0}
+footer{margin-top:60px;background:var(--toner);color:var(--paper);padding:26px 20px 34px;position:relative;z-index:3}
+footer a{color:var(--warn)}
+footer .in{max-width:1000px;margin:0 auto;font-size:13.5px;line-height:1.85}
+.skiplink{position:absolute;left:-9999px}
+.skiplink:focus{left:8px;top:8px;z-index:99;background:var(--toner);color:var(--warn);padding:8px}
+</style></head><body>
+<svg class="fx" aria-hidden="true" focusable="false"><defs>
+<filter id="xg1" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="0.4"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/></feComponentTransfer></filter>
+<filter id="xg2" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="0.8"/><feMorphology operator="erode" radius="0.5"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/>
+    <feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/>
+    <feFuncB type="discrete" tableValues="0 1"/></feComponentTransfer></filter>
+<filter id="xg3" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="1.35"/><feMorphology operator="erode" radius="1.15"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 0 1 1"/>
+    <feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/>
+    <feFuncB type="discrete" tableValues="0 1"/></feComponentTransfer></filter>
+<filter id="xgh" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="0.65"/><feMorphology operator="erode" radius="0.35"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/></feComponentTransfer></filter>
+</defs></svg>
+<a class="skiplink" href="#main">跳至主要內容</a>
+<nav class="tapenav" aria-label="主導覽"><a class="tp" href="index.html" aria-current="page"><span class="en">01 / NOTICE BOARD</span>公告板</a><a class="tp" href="an.html"><span class="en">02 / OWNERS MEETING</span>區權會</a><a class="tp" href="mingce.html"><span class="en">03 / ROLL & MOTIONS</span>住戶名冊</a><a class="tp" href="guiyue.html"><span class="en">04 / BYLAWS</span>規約與沿革</a></nav>
+<div class="wrap"><main id="main">
+<header class="mast">
+<div class="stamp">和平新村管理委員會　第七屆　出紙盤　十二張</div>
+<div class="tw" style="margin-top:8px;max-width:620px">
+影印機出紙盤裡現在放著十二張。點紙邊把那一張抽到面前——<b>抽過的紙會被多影印一代</b>。
+</div>
+</header>
+<div class="stack"><details class="sheetd wear" open data-wear="n0">
+<summary><span class="no">和管字第1150801號</span><span class="no">115.08.14</span><b>一一五年下半年區分所有權人會議開會通知</b></summary>
+<div class="pad">
+<div class="ransom" style="margin:-4px 0 16px"><span class="rs f-c" style="--rot:3.08deg;--sc:0.902;--dy:-3.9px;padding:1px 5px;clip-path:polygon(6% 3%, 50% 4%, 94% 2%, 94% 50%, 98% 98%, 50% 97%, 0% 95%, 7% 50%)">住</span><span class="rs f-b" style="--rot:-1.17deg;--sc:1.173;--dy:-4.9px;padding:4px 7px;clip-path:polygon(7% 5%, 50% 5%, 99% 2%, 97% 50%, 95% 99%, 50% 93%, 2% 95%, 2% 50%)">戶</span><span class="rs f-b" style="--rot:-4.48deg;--sc:1.005;--dy:2.0px;padding:5px 9px;clip-path:polygon(1% 1%, 50% 6%, 94% 5%, 94% 50%, 95% 97%, 50% 100%, 2% 99%, 3% 50%)">請</span><span class="rs f-b" style="--rot:1.42deg;--sc:0.974;--dy:2.6px;padding:4px 5px;clip-path:polygon(5% 1%, 50% 4%, 98% 1%, 95% 50%, 99% 96%, 50% 98%, 4% 96%, 1% 50%)">注</span><span class="rs f-b" style="--rot:2.25deg;--sc:0.998;--dy:-0.1px;padding:3px 5px;clip-path:polygon(1% 7%, 50% 3%, 96% 6%, 99% 50%, 97% 95%, 50% 95%, 1% 99%, 1% 50%)">意</span></div>
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>本會定於<b>八月三十日（星期日）晚間七時三十分</b>於 A 棟中庭（雨天改地下室機車坡道口平台）召開一一五年下半年區分所有權人會議。全區四十一戶，開會額數依規約第七條為出席二十八戶以上且區分所有權比例合計六六六・七以上。</p>
+<p><b>議程尚未定案。</b>本屆共收到住戶提案十二件（全文見〈住戶名冊〉頁），依規約第八條，一次會議至多列入三案。哪三案由本會排定，排定的結果就是這次會議會發生什麼事。</p>
+<p class="note">※ 不克出席者請於八月二十八日前將出具之出席委託書送交管理室。委託書空白表格置於 A 棟一樓佈告欄下方壓克力盒內。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M15.0 15.9L52.0 18.4L83.6 16.9L85.7 39.8L83.9 63.4L84.3 82.5L50.9 85.4L15.9 84.5L16.9 51.7Z" transform="translate(4.5 4.9)" fill="#0B0B0B" opacity=".999"/><path d="M15.0 15.9L52.0 18.4L83.6 16.9L85.7 39.8L83.9 63.4L84.3 82.5L50.9 85.4L15.9 84.5L16.9 51.7Z" fill="#0B0B0B"/><rect x="24" y="30" width="52" height="3" fill="#fff"/><rect x="24" y="42" width="40" height="3" fill="#fff"/><rect x="24" y="54" width="46" height="3" fill="#fff"/><rect x="24" y="66" width="30" height="3" fill="#fff"/><rect x="24.4" y="49.6" width="25.1" height="2.0" fill="#fff"/><rect x="26.8" y="66.6" width="15.0" height="1.1" fill="#fff"/></svg></div>
+</div>
+<div style="margin-top:16px"><a class="btn" href="an.html">去排這次的議程 →</a></div>
+</div></details><details class="sheetd wear" data-wear="n1">
+<summary><span class="no">和管字第1150703號</span><span class="no">115.07.22</span><b>水塔清洗暨全區停水通知</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>委由「協興水塔清洗行」於<b>七月二十九日（星期二）上午八時至下午二時</b>辦理年度水塔清洗，作業期間全區停水六小時。請住戶預先儲水，並於前一日晚間關閉電熱水器電源。</p>
+<p>本次為一一五年度唯一一次清洗。去年十一月自主送驗結果：總菌落數每毫升八十二 CFU（標準值一百以下），大腸桿菌群未檢出。第十二號提案主張改為每半年一次，清洗費由每年二萬四千元增為四萬八千元。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M22.7 26.7L42.1 24.5L58.2 23.9L77.7 25.6L79.1 47.1L76.6 66.9L78.5 87.2L75.2 88.1L70.5 91.4L50.9 92.6L29.0 92.1L29.0 90.9L22.8 88.8L22.9 85.4L21.5 57.7Z" transform="translate(4.3 2.8)" fill="#0B0B0B" opacity=".999"/><path d="M22.7 26.7L42.1 24.5L58.2 23.9L77.7 25.6L79.1 47.1L76.6 66.9L78.5 87.2L75.2 88.1L70.5 91.4L50.9 92.6L29.0 92.1L29.0 90.9L22.8 88.8L22.9 85.4L21.5 57.7Z" fill="#0B0B0B"/><rect x="26" y="36" width="48" height="3" fill="#fff"/><rect x="26" y="52" width="48" height="3" fill="#fff"/><rect x="21.9" y="60.5" width="15.9" height="1.0" fill="#fff"/><rect x="44.5" y="62.5" width="35.7" height="1.3" fill="#fff"/><rect x="19.2" y="54.6" width="22.1" height="1.7" fill="#fff"/><rect x="36.8" y="71.8" width="34.8" height="2.1" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n2">
+<summary><span class="no">和管字第1150701號</span><span class="no">115.07.04</span><b>資源回收室異味與翻找情形之處理</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>近月接獲二樓住戶反映回收室異味上傳，另有非本社區人士於夜間翻找回收物。管理室已改為每日下午四時加噴一次除臭劑，並將回收室鐵門於二十二時後上鎖。</p>
+<p>加裝抽風機一台與攝影機二支之經費七萬四千元，屬第六號提案，須經區分所有權人會議普通決議通過後始得動支。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M24.5 28.8L49.4 25.7L76.9 27.2L73.4 59.3L71.3 88.2L50.8 89.2L28.8 87.5L24.9 59.4Z" transform="translate(4.6 3.5)" fill="#0B0B0B" opacity=".999"/><path d="M24.5 28.8L49.4 25.7L76.9 27.2L73.4 59.3L71.3 88.2L50.8 89.2L28.8 87.5L24.9 59.4Z" fill="#0B0B0B"/><rect x="32" y="40" width="36" height="4" fill="#fff"/><rect x="25.7" y="47.3" width="27.9" height="1.4" fill="#fff"/><rect x="29.6" y="40.1" width="15.5" height="1.1" fill="#fff"/><rect x="43.5" y="48.5" width="19.1" height="1.9" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n3">
+<summary><span class="no">和管字第1150604號</span><span class="no">115.06.19</span><b>B 棟電梯故障停用三日之說明</b></summary>
+<div class="pad warn" style="background:var(--warn)">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>B 棟電梯於六月十六日十時許因控制盤繼電器故障停止運轉，至六月十八日十九時修復，停用共計五十七小時。期間本會於一至十二樓梯間各張貼公告，並協助三戶行動不便住戶採買。</p>
+<p>維修商「昇進電梯」表示：本梯民國九十三年出廠，原廠控制盤已停產，本次係以拆機零件替換。<b>下次同一部位故障不保證仍有零件。</b>更新轎廂與控制盤估價三十二萬元，屬第二號提案，為重大決議事項。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M18.7 9.1L50.8 7.5L82.3 6.5L84.3 51.6L82.9 93.4L62.7 90.8L39.6 92.2L16.5 90.7L17.9 49.2Z" transform="translate(4.8 3.3)" fill="#0B0B0B" opacity=".999"/><path d="M18.7 9.1L50.8 7.5L82.3 6.5L84.3 51.6L82.9 93.4L62.7 90.8L39.6 92.2L16.5 90.7L17.9 49.2Z" fill="#0B0B0B"/><rect x="49" y="10" width="2" height="80" fill="#fff"/><rect x="17.6" y="81.4" width="27.5" height="1.1" fill="#fff"/><rect x="41.0" y="24.3" width="37.9" height="1.8" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n4">
+<summary><span class="no">和管字第1150602號</span><span class="no">115.06.05</span><b>地下室停車位月租費調整</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>自一一五年七月一日起，地下室機車位月租由三百元調整為三百五十元，汽車位維持二千六百元。本次調整前已於五月十七日委員會議通過，並於公告後屆滿七日生效。</p>
+<p>現有機車位四十二格、汽車位十八格，機車位候補名單九人。第三號提案主張重新劃設：機車格加十二格、汽車格減兩格（減掉的兩格現由 B1F-1 與 C4-2 承租）。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M8.8 63.7L12.9 65.0L17.0 61.7L25.1 62.5L24.6 57.6L31.0 48.9L32.9 44.2L49.2 41.7L67.4 42.8L68.3 51.2L71.9 56.5L77.6 64.3L86.2 64.1L90.6 63.4L92.3 68.7L93.4 76.8L93.3 78.8L49.7 81.3L7.2 80.7L8.4 73.0L6.9 68.4Z" transform="translate(3.8 3.2)" fill="#0B0B0B" opacity=".999"/><path d="M8.8 63.7L12.9 65.0L17.0 61.7L25.1 62.5L24.6 57.6L31.0 48.9L32.9 44.2L49.2 41.7L67.4 42.8L68.3 51.2L71.9 56.5L77.6 64.3L86.2 64.1L90.6 63.4L92.3 68.7L93.4 76.8L93.3 78.8L49.7 81.3L7.2 80.7L8.4 73.0L6.9 68.4Z" fill="#0B0B0B"/><rect x="20" y="68" width="12" height="6" fill="#fff"/><rect x="68" y="68" width="12" height="6" fill="#fff"/><rect x="22.4" y="28.6" width="18.8" height="1.2" fill="#fff"/><rect x="18.5" y="22.3" width="38.8" height="1.0" fill="#fff"/><rect x="40.7" y="69.1" width="28.5" height="1.0" fill="#fff"/><rect x="39.4" y="50.5" width="18.4" height="1.9" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n5">
+<summary><span class="no">和管字第1150502號</span><span class="no">115.05.28</span><b>A 棟頂樓漏水補漆完成報告</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>五月二十至二十二日委由「立成防水」於 A 棟頂樓進行局部補漆，處理面積約十八平方公尺，費用一萬四千元由公積金支應。</p>
+<p>廠商書面意見：<b>「表面補漆僅能延緩，PU 防水層已達使用年限，建議刨除舊層全面重做。」</b>全面重做估價十六萬八千元，屬第一號提案。這是一一四年七月以來第二次補漆。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M17.2 89.3L15.0 64.3L17.9 40.8L15.4 20.7L24.9 15.9L32.9 11.2L39.4 10.6L40.2 11.9L39.5 17.5L40.3 19.5L56.2 20.3L68.5 19.5L82.7 18.4L85.8 55.5L85.0 88.4L48.9 88.2Z" transform="translate(4.1 4.5)" fill="#0B0B0B" opacity=".999"/><path d="M17.2 89.3L15.0 64.3L17.9 40.8L15.4 20.7L24.9 15.9L32.9 11.2L39.4 10.6L40.2 11.9L39.5 17.5L40.3 19.5L56.2 20.3L68.5 19.5L82.7 18.4L85.8 55.5L85.0 88.4L48.9 88.2Z" fill="#0B0B0B"/><rect x="24" y="34" width="14" height="10" fill="#fff"/><rect x="46" y="34" width="14" height="10" fill="#fff"/><rect x="24" y="54" width="14" height="10" fill="#fff"/><rect x="46" y="54" width="14" height="10" fill="#fff"/><rect x="24" y="74" width="14" height="10" fill="#fff"/><rect x="31.0" y="80.1" width="38.1" height="1.3" fill="#fff"/><rect x="25.9" y="46.0" width="43.1" height="1.0" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n6">
+<summary><span class="no">和管字第1150501號</span><span class="no">115.05.09</span><b>消防安全設備檢修申報缺失改善通知</b></summary>
+<div class="pad warn" style="background:var(--warn)">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>一一五年上半年消防安全設備檢修申報結果，本社區列缺失兩項：</p>
+<p class="tw">一、一樓騎樓及 A 棟後門通道堆置機車，妨礙避難逃生。<br>二、地下室二處緊急照明燈電池老化，照度不足。</p>
+<p>第二項已於五月七日更換完成（支出四千六百元）。第一項須以劃線與立牌方式辦理，經費八千元，屬第五號提案。<b>缺失未改善者，主管機關得依消防法處管理權人罰鍰。</b></p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M45.8 10.1L48.9 12.0L51.3 7.9L52.5 8.4L52.2 21.6L52.0 30.9L53.3 43.4L62.6 42.8L71.2 45.4L78.8 44.8L75.7 54.8L70.6 66.0L55.2 65.6L42.6 68.4L31.2 67.2L26.4 59.5L22.7 53.5L23.6 45.6L32.2 45.2L36.8 42.1L45.1 45.4L48.2 28.9Z" transform="translate(3.1 4.8)" fill="#0B0B0B" opacity=".999"/><path d="M45.8 10.1L48.9 12.0L51.3 7.9L52.5 8.4L52.2 21.6L52.0 30.9L53.3 43.4L62.6 42.8L71.2 45.4L78.8 44.8L75.7 54.8L70.6 66.0L55.2 65.6L42.6 68.4L31.2 67.2L26.4 59.5L22.7 53.5L23.6 45.6L32.2 45.2L36.8 42.1L45.1 45.4L48.2 28.9Z" fill="#0B0B0B"/><rect x="42" y="20" width="16" height="3" fill="#fff"/><rect x="23.5" y="40.5" width="42.3" height="1.6" fill="#fff"/><rect x="38.5" y="37.3" width="17.2" height="1.1" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n7">
+<summary><span class="no">和管字第1150402號</span><span class="no">115.04.24</span><b>一樓騎樓停放機車勸導</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>本月共計勸導十九人次，其中十一人次為同一戶。管理室已於騎樓地面張貼臨時標示，惟無強制力。</p>
+<p>另接獲 A1F-1（洗衣店）與 B1F-1（自助餐）反映，機車停放已影響營業出入及送貨。第五號提案即針對此事。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M9.2 66.2L17.3 67.9L24.4 66.9L29.0 62.0L30.8 55.1L33.3 48.8L48.0 47.6L57.6 48.4L59.1 52.6L63.5 58.6L72.1 58.0L80.4 57.7L85.7 61.4L87.9 64.6L87.7 68.7L92.5 72.5L94.0 76.2L92.0 83.0L65.8 81.1L35.4 83.5L10.9 82.5L10.8 76.4L11.6 69.5Z" transform="translate(4.6 4.8)" fill="#0B0B0B" opacity=".999"/><path d="M9.2 66.2L17.3 67.9L24.4 66.9L29.0 62.0L30.8 55.1L33.3 48.8L48.0 47.6L57.6 48.4L59.1 52.6L63.5 58.6L72.1 58.0L80.4 57.7L85.7 61.4L87.9 64.6L87.7 68.7L92.5 72.5L94.0 76.2L92.0 83.0L65.8 81.1L35.4 83.5L10.9 82.5L10.8 76.4L11.6 69.5Z" fill="#0B0B0B"/><rect x="18" y="70" width="10" height="10" fill="#fff"/><rect x="74" y="70" width="10" height="10" fill="#fff"/><rect x="31.4" y="44.9" width="12.5" height="1.1" fill="#fff"/><rect x="38.4" y="57.5" width="37.6" height="1.3" fill="#fff"/><rect x="26.0" y="58.0" width="47.8" height="1.6" fill="#fff"/><rect x="37.6" y="28.8" width="39.5" height="0.9" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n8">
+<summary><span class="no">和管字第1150401號</span><span class="no">115.04.03</span><b>管理費催繳（截至三月三十一日）</b></summary>
+<div class="pad warn" style="background:var(--warn)">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>截至三月三十一日，尚有<b>十一戶</b>未繳一一五年第一季管理費，合計新臺幣八萬七千四百元。管理費為每坪四十元，依區分所有權比例分擔公共支出，非服務費，欠繳將影響全區公共設施維護。</p>
+<p>請於四月三十日前繳清。逾期未繳者，依規約第十四條加計滯納金，並得依公寓大廈管理條例第二十一條訴請法院命其給付。<b>本會不公布欠繳戶號。</b></p>
+<p class="note">公積金餘額：六十二萬元整（一一五年七月三十一日結算）。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M16.7 15.4L40.3 13.9L63.6 14.0L84.2 16.2L82.3 39.0L83.2 62.5L84.4 85.3L60.0 83.9L36.5 82.8L15.4 83.5L13.8 49.1Z" transform="translate(2.6 3.6)" fill="#0B0B0B" opacity=".999"/><path d="M16.7 15.4L40.3 13.9L63.6 14.0L84.2 16.2L82.3 39.0L83.2 62.5L84.4 85.3L60.0 83.9L36.5 82.8L15.4 83.5L13.8 49.1Z" fill="#0B0B0B"/><rect x="24" y="30" width="52" height="3" fill="#fff"/><rect x="24" y="42" width="40" height="3" fill="#fff"/><rect x="24" y="54" width="46" height="3" fill="#fff"/><rect x="24" y="66" width="30" height="3" fill="#fff"/><rect x="39.9" y="66.1" width="23.2" height="2.0" fill="#fff"/><rect x="23.7" y="34.3" width="16.6" height="0.9" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n9">
+<summary><span class="no">和管字第1150301號</span><span class="no">115.03.14</span><b>外牆磁磚敲擊檢測結果</b></summary>
+<div class="pad warn" style="background:var(--warn)">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>委由「衡宇工程技術顧問」於二月下旬以敲擊法檢測三棟外牆，抽測面積約六百四十平方公尺。結果：空鼓率 A 棟百分之六・二、B 棟百分之四・八、<b>C 棟百分之十一・三</b>。</p>
+<p>顧問意見：C 棟南向七至十一樓應優先處理，其餘可觀察。全面檢修與剝落防護估價四十一萬元，屬第八號提案，為重大決議事項，且施工期間須搭設施工架。</p>
+<p class="note">※ 一一二年三月 C 棟外牆曾掉落一塊磁磚於興隆路人行道，未造成人員受傷。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M12.7 19.4L39.4 16.8L64.8 19.0L87.8 18.5L90.3 40.0L88.0 65.3L75.5 65.0L67.7 65.8L55.3 64.0L52.8 68.4L48.7 78.4L46.4 84.1L43.2 76.4L38.8 62.6L26.1 65.5L11.8 63.9L13.1 39.5Z" transform="translate(4.7 4.3)" fill="#0B0B0B" opacity=".999"/><path d="M12.7 19.4L39.4 16.8L64.8 19.0L87.8 18.5L90.3 40.0L88.0 65.3L75.5 65.0L67.7 65.8L55.3 64.0L52.8 68.4L48.7 78.4L46.4 84.1L43.2 76.4L38.8 62.6L26.1 65.5L11.8 63.9L13.1 39.5Z" fill="#0B0B0B"/><rect x="16.2" y="61.0" width="12.6" height="0.8" fill="#fff"/><rect x="39.8" y="21.1" width="38.0" height="1.5" fill="#fff"/><rect x="30.9" y="43.3" width="27.8" height="1.1" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n10">
+<summary><span class="no">和管字第1150201號</span><span class="no">115.02.06</span><b>春節期間垃圾清運與管理室值班</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>春節期間（二月十四日至二月二十日）清潔隊停收，本社區暫存區設於地下室機車坡道口左側。廚餘請瀝乾密封，勿置於暫存區。</p>
+<p>管理室值班：除夕至初二僅上午八時至十二時，初三起恢復正常。夜間緊急請撥值班室手機 0937-118-402。</p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M22.6 26.8L41.0 29.9L56.5 28.9L74.7 27.9L74.0 59.1L68.8 88.0L48.5 86.0L30.7 87.9L27.3 65.6L27.7 46.3Z" transform="translate(5.0 2.5)" fill="#0B0B0B" opacity=".999"/><path d="M22.6 26.8L41.0 29.9L56.5 28.9L74.7 27.9L74.0 59.1L68.8 88.0L48.5 86.0L30.7 87.9L27.3 65.6L27.7 46.3Z" fill="#0B0B0B"/><rect x="32" y="40" width="36" height="4" fill="#fff"/><rect x="17.2" y="35.9" width="29.5" height="1.4" fill="#fff"/><rect x="42.9" y="51.7" width="19.3" height="1.6" fill="#fff"/><rect x="18.2" y="78.0" width="23.2" height="1.4" fill="#fff"/><rect x="41.1" y="27.7" width="26.1" height="2.2" fill="#fff"/></svg></div>
+</div>
+
+</div></details><details class="sheetd wear" data-wear="n11">
+<summary><span class="no">和管字第1150101號</span><span class="no">115.01.11</span><b>第七屆管理委員會就任暨分工</b></summary>
+<div class="pad">
+
+<div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+<div style="flex:1;min-width:250px"><p>第七屆管理委員會於一一五年一月十日就任，任期二年。分工如下：</p>
+<p class="tw">主任委員　何秀鑾（B7-1）<br>副主任委員　鄭文彬（A6-1）<br>財務委員　蔡明順（C5-2）<br>監察委員　林淑貞（A11-2）<br>環境委員　周美足（B3-2）<br>總幹事（聘任）　吳定國</p>
+<p>第六屆移交公積金七十四萬元。本屆已支用：頂樓補漆一萬四千元、緊急照明四千六百元、電梯維修十萬三千四百元、其餘為經常性支出。<b>現餘六十二萬元。</b></p></div>
+<div style="width:110px;flex:none"><svg class="cut kk" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M20.6 15.1L49.6 14.5L79.7 14.2L78.5 39.3L81.2 60.6L81.2 86.1L60.1 86.0L40.9 86.4L19.4 84.9L22.2 48.6Z" transform="translate(4.4 3.0)" fill="#0B0B0B" opacity=".999"/><path d="M20.6 15.1L49.6 14.5L79.7 14.2L78.5 39.3L81.2 60.6L81.2 86.1L60.1 86.0L40.9 86.4L19.4 84.9L22.2 48.6Z" fill="#0B0B0B"/><rect x="46" y="44" width="8" height="8" fill="#fff"/><rect x="43.0" y="39.6" width="14.9" height="2.0" fill="#fff"/><rect x="27.6" y="29.0" width="35.0" height="2.0" fill="#fff"/></svg></div>
+</div>
+
+</div></details></div>
+
+<h2 class="sec">這一疊的用法</h2>
+<div class="grid g3">
+<div class="sheetbox pad wear" data-wear="u1"><div class="tt" style="font-weight:900;font-size:17px;margin-bottom:6px">一、公告只有一份</div>
+<div class="note">管理室不留備份。每一張都是從同一份原稿影印出來的，印一次就髒一次。你在螢幕上看到的髒，就是你自己印的。</div></div>
+<div class="sheetbox pad wear" data-wear="u2"><div class="tt" style="font-weight:900;font-size:17px;margin-bottom:6px">二、提案不是本會的</div>
+<div class="note">十二件提案全部來自住戶，全文與四十一戶的立場都印在〈住戶名冊〉頁上。本會只負責排哪三件上議程。</div></div>
+<div class="sheetbox pad wear" data-wear="u3"><div class="tt" style="font-weight:900;font-size:17px;margin-bottom:6px">三、排議程就是做決定</div>
+<div class="note">你排的三件會決定誰願意來開會，來的人決定分母，分母決定門檻。去〈區權會〉排一次就知道了。</div></div>
+</div>
+
+<h2 class="sec">本期數字</h2>
+<div class="scroller"><table>
+<tr><th>項目</th><th>數字</th><th>備註</th></tr>
+<tr><td>區分所有權人</td><td class="n">41 戶</td><td>A 棟 15、B 棟 14、C 棟 12</td></tr>
+<tr><td>登記總坪數</td><td class="n">1,306 坪</td><td>權利比例合計 1000‰</td></tr>
+<tr><td>單戶權利比例</td><td class="n">18.4 – 36.0‰</td><td>最小 A9-1（24 坪）／最大 A1F-1（47 坪，洗衣店）</td></tr>
+<tr><td>管理費</td><td class="n">每坪 40 元／月</td><td>第九號提案主張調為 50 元</td></tr>
+<tr><td>公積金餘額</td><td class="n">620,000 元</td><td>一一五年七月三十一日結算</td></tr>
+<tr><td>待決提案</td><td class="n">12 件</td><td>一次會議至多列 3 件</td></tr>
+<tr><td>開會額數</td><td class="n">28 戶 / 666.7‰</td><td>公寓大廈管理條例第三十一條</td></tr>
+</table></div>
+<p class="note" style="margin-top:12px">※ 以上人名、戶號、坪數、金額與紀錄皆為虛構示意。</p>
+<script>
+/* ── 影印世代（signature: generation-wear） ─────────────────────────
+   本站沒有 hover 底色、沒有現用色塊、沒有 focus 光暈。
+   你讀過的每一張紙，就是被多影印了一代：黑更胖、細線掉、紙歪掉、
+   左緣多一條沒蓋好的黑邊。累積、跨頁、不可逆（除非到規約頁拿新原稿）。 */
+(function(){
+  var KEY='hopeng.gen.v1';
+  var G={};try{G=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){G={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(G));}catch(e){}}
+  function apply(el){var k=el.getAttribute('data-wear');if(!k)return;
+    var g=Math.min(3,G[k]||0);
+    if(g>0){el.setAttribute('data-gen',String(g));
+      if(!el.querySelector(':scope>.edgeband')){var b=document.createElement('span');b.className='edgeband';el.appendChild(b);}
+      var m=el.querySelector(':scope>.genmark');
+      if(!m){m=document.createElement('span');m.className='genmark';el.appendChild(m);}
+      m.textContent='第 '+(g+1)+' 代';
+    } else {el.removeAttribute('data-gen');}
+  }
+  window.HOPENG_WEAR={
+    all:function(){[].forEach.call(document.querySelectorAll('[data-wear]'),apply);},
+    bump:function(k,el){G[k]=Math.min(3,(G[k]||0)+1);save();if(el)apply(el);},
+    reset:function(){G={};save();
+      [].forEach.call(document.querySelectorAll('[data-wear]'),function(el){
+        el.removeAttribute('data-gen');
+        var b=el.querySelector(':scope>.edgeband');if(b)b.remove();
+        var m=el.querySelector(':scope>.genmark');if(m)m.remove();});},
+    count:function(){var n=0;for(var k in G)if(G[k]>0)n++;return n;}
+  };
+  document.addEventListener('DOMContentLoaded',window.HOPENG_WEAR.all);
+})();
+function fnv(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function rngOf(seed){let a=fnv(String(seed));return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+var FACES=['f-a','f-b','f-c'];
+function ransomHTML(text,key){
+  const r=rngOf(key+'|'+text);
+  let out='';
+  for(const ch of String(text)){
+    if(ch===' '){out+='<span class="rs-sp"></span>';continue;}
+    if(ch==='\n'){out+='<br>';continue;}
+    const face=FACES[Math.floor(r()*3)];
+    const inv=r()<0.34;
+    const rot=(r()*2-1)*5.4;
+    const sc=0.88+r()*0.30;
+    const dy=(r()*2-1)*6;
+    const px=3+Math.round(r()*7), py=1+Math.round(r()*5);
+    // 剪紙邊：八點多邊形，四邊各自被剪歪
+    const j=()=>Math.round(r()*7);
+    const cp=`polygon(${j()}% ${j()}%, ${50}% ${j()}%, ${100-j()}% ${j()}%, ${100-j()}% 50%, ${100-j()}% ${100-j()}%, 50% ${100-j()}%, ${j()}% ${100-j()}%, ${j()}% 50%)`;
+    const st=`--rot:${rot.toFixed(2)}deg;--sc:${sc.toFixed(3)};--dy:${dy.toFixed(1)}px;padding:${py}px ${px}px;clip-path:${cp}`;
+    out+=`<span class="rs ${face}${inv?' inv':''}" style="${st}">${ch}</span>`;
+  }
+  return out;
+}
+var PN=["1 頂樓防水層全面重做","2 電梯轎廂與控制盤更新","3 地下室機車格重新劃設","4 中庭與後巷夜間照明加設","5 一樓騎樓全面禁停機車","6 資源回收室除臭與監視器","7 頂樓平台改設共用曬衣區","8 外牆磁磚全面檢修與剝落防護","9 管理費調漲每坪十元","10 大門門禁改感應卡","11 寵物使用公共空間規範修訂","12 水塔清洗改為每半年一次"];
+/* 你在區權會貼出來的那張決議，會被放到這一疊的最上面 */
+function showPosted(){
+  var raw=null;try{raw=localStorage.getItem('hopeng.posted');}catch(e){}
+  if(!raw)return;
+  var d=null;try{d=JSON.parse(raw);}catch(e){return;}
+  if(!d||!d.ids)return;
+  var st=document.querySelector('.stack');if(!st)return;
+  var el=document.createElement('details');
+  el.className='sheetd wear';el.setAttribute('open','');el.setAttribute('data-wear','posted');
+  el.innerHTML='<summary><span class="no">'+d.code+'</span><span class="no">115.08.30</span>'
+   +'<b>一一五年下半年區分所有權人會議紀錄（已張貼）</b></summary>'
+   +'<div class="pad"><div class="ransom" style="margin:-4px 0 16px">'+ransomHTML('決議已張貼','po')+'</div>'
+   +'<p>本張由你在〈區權會〉排定並張貼於三部電梯轎廂。實到 <b>'+d.att+' 戶（'+d.share.toFixed(1)+'‰）</b>，'
+   +'議程三案通過 <b>'+d.pass+'</b> 件。</p>'
+   +'<p class="tw">'+d.ids.map(function(i){return PN[i-1];}).join('<br>')+'</p>'
+   +'<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">'
+   +'<a class="btn" href="an.html?an='+d.ids.join('-')+'">回去看完整紀錄</a>'
+   +'<button id="unpost" class="ghost" type="button">撕下來</button></div></div>';
+  var first=st.firstElementChild;
+  if(first)first.removeAttribute('open');
+  st.insertBefore(el,first);
+  el.querySelector('#unpost').addEventListener('click',function(){
+    try{localStorage.removeItem('hopeng.posted');}catch(e){}
+    el.remove();if(first)first.setAttribute('open','');
+  });
+}
+/* transition：抽紙。展開一張紙時以 steps(6) 從上緣往下吐出來，像出紙口。 */
+document.addEventListener('DOMContentLoaded',function(){
+  showPosted();
+  window.HOPENG_WEAR.all();
+  var ds=[].slice.call(document.querySelectorAll('details.sheetd'));
+  ds.forEach(function(d){
+    d.addEventListener('toggle',function(){
+      if(!d.open)return;
+      ds.forEach(function(o){if(o!==d)o.open=false;});
+      var p=d.querySelector('.pad');
+      if(p&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        p.classList.remove('pull');void p.offsetWidth;p.classList.add('pull');}
+      window.HOPENG_WEAR.bump(d.getAttribute('data-wear'),d);
+      var st=document.getElementById('wearcount');
+      if(st)st.textContent=window.HOPENG_WEAR.count();
+    });
+  });
+});</script></main></div>
+<footer><div class="in">
+<div style="margin-bottom:10px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 96" width="200" height="80" role="img" aria-label="和平新村管理委員會" style="display:block">
+<title>和平新村管理委員會</title>
+<rect width="240" height="96" fill="#FF4B8C"/>
+<path d="M8.4 14.9L121.5 8.4L234.2 13.4L228.2 48.3L232.5 83.4L117.1 86.7L7.4 84.6L13.7 49.8Z" fill="#0B0B0B"/>
+<g fill="#FFFFFF">
+<rect x="18" y="26" width="44" height="44" transform="rotate(-3 40 48)"/>
+<rect x="70" y="24" width="44" height="44" transform="rotate(2.4 92 46)"/>
+<rect x="124" y="27" width="44" height="44" transform="rotate(-1.6 146 49)"/>
+<rect x="176" y="25" width="44" height="44" transform="rotate(3.1 198 47)"/>
+</g>
+<g fill="#0B0B0B" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="30" text-anchor="middle">
+<text x="40" y="59" transform="rotate(-3 40 48)">和</text>
+<text x="92" y="57" transform="rotate(2.4 92 46)">平</text>
+<text x="146" y="60" transform="rotate(-1.6 146 49)">新</text>
+<text x="198" y="58" transform="rotate(3.1 198 47)">村</text>
+</g>
+<rect x="-6" y="4" width="62" height="17" fill="#B9B4AC" opacity=".85" transform="rotate(-28 25 12)"/>
+<rect x="190" y="76" width="58" height="16" fill="#B9B4AC" opacity=".85" transform="rotate(-24 219 84)"/>
+<g fill="#FFFFFF"><rect x="30" y="40" width="18" height="1.6"/><rect x="150" y="36" width="14" height="1.4"/></g>
+<text x="120" y="93" fill="#0B0B0B" font-family="'Courier Prime',monospace" font-size="9" letter-spacing="3" text-anchor="middle">HOPENG BLOCK COMMITTEE / 7TH</text>
+</svg></div>
+<div style="font-weight:900;font-size:17px;margin-bottom:6px">和平新村公寓大廈管理委員會（第七屆）</div>
+<div class="tw">管理室｜臺北市文山區興隆路三段 182 巷 7 號 1 樓（A 棟入口右手邊）<br>
+電話 02-2938-4471　傳真 02-2938-4472　夜間緊急 0937-118-402（值班室手機）<br>
+管理室開放 平日 07:00–12:00、14:00–21:00｜例假日 08:00–17:00｜週三下午公休<br>
+主任委員 何秀鑾（B7-1）　總幹事 吳定國　財務委員 蔡明順（C5-2）　監察委員 林淑貞（A11-2）<br>
+公告張貼點：三部電梯轎廂、A 棟一樓佈告欄、地下室機車坡道口</div>
+<div class="hr" style="background:#FF4B8C;height:3px"></div>
+<div class="tw" style="opacity:.85">本站所有住戶姓名、戶號、坪數、金額、電話與決議紀錄皆為虛構示意，不對應任何真實社區或個人。<br>
+本站設計風格為<b>龐克剪貼 Punk Xerox</b>（一九七六—七九，Jamie Reid／Sniffin' Glue／影印機自出版）。
+規格書：<a href="SKILL.md">SKILL.md</a>　·　<a href="../../index.html">回 Design Skills Center</a></div>
+</div></footer>
+</body></html>

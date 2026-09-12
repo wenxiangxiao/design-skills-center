@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>裁冰台｜稜記製冰</title>
+<meta name="description" content="在一支 26.4 公斤的角冰上下刀，把合格的塊挑進出貨箱：三張單子、八刀上限、鋸耗與融耗都算進出冰率。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23161f27%22%2F%3E%3Cpolygon%20points%3D%223%2C12%2013%2C5%2029%2C10%2019%2C18%22%20fill%3D%22%23e8eded%22%2F%3E%3Cpolygon%20points%3D%223%2C12%2019%2C18%2019%2C28%203%2C22%22%20fill%3D%22%23849aa9%22%2F%3E%3Cpolygon%20points%3D%2219%2C18%2029%2C10%2029%2C20%2019%2C28%22%20fill%3D%22%234f6472%22%2F%3E%3Cpath%20d%3D%22M11%206.5%20L27%2018%22%20stroke%3D%22%23ebb133%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brick:#a94a2d; --brick-d:#5d2919; --brick-l:#c4633f;
+  --coal:#161f27; --coal-d:#11171d; --coal-l:#1f2c37;
+  --ice:#e8eded; --ice-m:#d3dcde; --ice-d:#b6c5c8;
+  --steel:#647e90; --steel-l:#849aa9; --steel-d:#4f6472;
+  --cad:#ebb133; --cad-d:#b07e11;
+  --lam:-135;                      /* 光的方位角（度）：左上 */
+  --amp:15;                        /* 明度擺幅 */
+  --edge:rgba(17,23,29,.85);
+  --chamf:18px;
+}
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100% }
+body{
+  margin:0; background:var(--coal); color:var(--ice);
+  font-family:"Noto Sans TC","Jost",system-ui,sans-serif; font-size:16px; line-height:1.78;
+  overflow-x:hidden;
+}
+/* 特徵 5：雙地色斜分割——沒有單一背景色 */
+.ground{position:fixed;inset:0;z-index:-2;background:var(--coal)}
+.ground i{position:absolute;inset:0;background:var(--brick);
+  clip-path:polygon(0 100%,100% 100%,100% 26%,0 74%)}
+.ground b{position:absolute;inset:0;background:var(--coal-d);
+  clip-path:polygon(0 100%,100% 100%,100% 62%,0 96%)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 26px 90px;position:relative}
+a{color:var(--cad);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:#fff}
+h1,h2,h3{font-weight:900;line-height:1.06;letter-spacing:.01em;margin:0}
+.mono{font-family:"Jost",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+
+/* 特徵 4：稜角化標題——四角 45° 切除＋暗一階的實心位移層 */
+.fx{position:relative;display:inline-block}
+.fx>span{display:block;clip-path:polygon(.42em 0,100% 0,100% calc(100% - .30em),calc(100% - .42em) 100%,0 100%,0 .30em)}
+.fx::before{content:attr(data-t);position:absolute;left:6px;top:5px;color:var(--coal-d);z-index:-1;
+  clip-path:polygon(.42em 0,100% 0,100% calc(100% - .30em),calc(100% - .42em) 100%,0 100%,0 .30em);white-space:pre}
+
+/* 特徵 2：斜切角——版面上沒有直角 */
+.pane{background:var(--ice);color:var(--coal);padding:26px 28px;
+  clip-path:polygon(var(--chamf) 0,100% 0,100% calc(100% - var(--chamf)),calc(100% - var(--chamf)) 100%,0 100%,0 var(--chamf));
+  margin:0 0 22px}
+.pane.dk{background:var(--coal-l);color:var(--ice)}
+.pane.br{background:var(--brick);color:#fff}
+.pane h2{font-size:clamp(20px,2.5vw,27px);margin:0 0 12px}
+.pane p{margin:0 0 12px}
+.lead{font-size:17px}
+.sm{font-size:13.5px;line-height:1.7;color:var(--steel-d)}
+.pane.dk .sm{color:var(--ice-d)}
+.pane.br .sm{color:#f7e6de}
+
+/* 特徵 3：鋸齒稜帶 */
+.zigb{display:block;width:100%;height:16px;fill:none;stroke:var(--cad);stroke-width:2.2;stroke-linejoin:miter;margin:6px 0 20px}
+.zigfill{display:block;width:100%;height:22px;margin:0}
+.corn{display:block;width:100%;height:40px;margin:0 0 -1px}
+.corn .f{stroke-width:1.4}
+
+/* 特徵 1：稜面明度由法線算出（無 cos() 時退為平面中間調） */
+.f{stroke:var(--edge);stroke-width:1;stroke-linejoin:miter;vector-effect:non-scaling-stroke;
+   fill:hsl(var(--h,190) var(--s,14%) calc(var(--l0,74) * 1%))}
+.f.tp{--n:var(--lam)}
+@supports (width:calc(cos(45deg) * 1px)){
+  .f{--k:cos((var(--n,0) - var(--lam)) * 1deg);
+     fill:hsl(var(--h,190) var(--s,14%) calc((var(--l0,74) + var(--amp) * var(--k)) * 1%))}
+}
+@supports (width:calc(round(1.5px,1px))){
+  .f{--k:round(cos((var(--n,0) - var(--lam)) * 1deg),1)}   /* 三階：+1 / 0 / -1 */
+}
+.f.brickf{--h:14;--s:58%;--l0:34;--amp:11}
+.f.cadf{--h:41;--s:82%;--l0:47;--amp:9}
+.f.steelf{--h:205;--s:18%;--l0:48;--amp:11}
+
+/* 導覽：kerf-notch 鋸口 */
+.top{position:relative;z-index:5;padding:22px 0 8px;display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ice)}
+.brand svg{width:46px;height:46px;display:block}
+.brand .bn{font-weight:900;font-size:21px;letter-spacing:.06em;line-height:1}
+.brand .be{font-size:10.5px;letter-spacing:.24em;color:var(--steel-l);text-transform:uppercase}
+.kerf{margin-left:auto;display:flex;align-items:stretch;gap:0;height:52px}
+.kerf a{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  min-width:104px;padding:0 12px;text-decoration:none;color:var(--coal);background:var(--ice-m);
+  clip-path:polygon(0 0,100% 0,100% 100%,10px 100%);border-left:1px solid var(--coal)}
+.kerf a .n{font-size:10px;letter-spacing:.2em;color:#2b3a45}
+.kerf a .t{font-weight:700;font-size:15px}
+.kerf a:hover{background:#fff}
+/* 現用頁：材料被切走了——只剩兩個切面 */
+.kerf a[aria-current="page"]{background:transparent;color:var(--cad);
+  clip-path:polygon(0 0,100% 0,100% 100%,10px 100%);
+  box-shadow:inset 2px 0 0 var(--cad),inset -2px 0 0 var(--cad)}
+.kerf a[aria-current="page"] .n{color:var(--cad-d)}
+.kerf a[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:9px;
+  background:repeating-linear-gradient(90deg,var(--cad) 0 3px,transparent 3px 7px)}
+
+footer{margin-top:44px;background:var(--coal-d);color:var(--ice-d);
+  clip-path:polygon(0 22px,100% 0,100% 100%,0 100%);padding:40px 28px 30px}
+footer .fl{display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between;font-size:13.5px}
+footer a{color:var(--ice)}
+footer .fnav a{margin-right:14px;white-space:nowrap}
+.note{font-size:12.5px;color:var(--steel-l);margin-top:18px;border-top:1px solid var(--steel-d);padding-top:12px}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:18px}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid rgba(22,31,39,.22)}
+th{font-weight:700;background:var(--ice-d)}
+.pane.dk th{background:var(--steel-d)}
+.pane.dk th,.pane.dk td{border-bottom-color:rgba(232,237,237,.18)}
+.btn{display:inline-block;border:0;cursor:pointer;background:var(--cad);color:var(--coal);
+  font:700 15px/1 "Noto Sans TC",sans-serif;padding:13px 22px;font-family:inherit;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.btn:hover{background:#fff}
+.btn[disabled]{background:var(--steel);color:var(--ice-d);cursor:not-allowed}
+.btn.gh{background:transparent;color:var(--cad);box-shadow:inset 0 0 0 2px var(--cad)}
+.btn.gh:hover{background:var(--cad);color:var(--coal)}
+input,select,textarea{font:inherit;font-size:15px;background:var(--ice);color:var(--coal);border:2px solid var(--coal);
+  padding:9px 11px;width:100%;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+label{display:block;font-size:13px;font-weight:700;letter-spacing:.06em;margin:0 0 5px}
+
+/* 動效 1 ambient：窖霜結晶 */
+@keyframes frost{0%,100%{opacity:0;transform:scale(.55)}18%{opacity:.85;transform:scale(1)}55%{opacity:.5;transform:scale(1.04)}72%{opacity:0;transform:scale(1.1)}}
+.frost polygon{transform-box:fill-box;transform-origin:center;animation:frost 22s ease-in-out infinite;opacity:0}
+/* 動效 3 transition：折頁 fold-turn */
+@keyframes foldin{from{transform:perspective(1400px) rotate3d(1,.42,0,-13deg);opacity:.2}
+ to{transform:none;opacity:1}}
+.fold{animation:foldin .56s cubic-bezier(.22,.92,.28,1) both;transform-origin:14% 0}
+/* 動效 2 input：開面（真的把面折出來，preserve-3d） */
+.pz{transform-box:fill-box;transform-origin:center;transition:transform 90ms linear}
+.solid{transform-style:preserve-3d}
+.opn:hover .pz,.opn:focus-visible .pz{transform:rotate3d(.3,1,0,8deg)}
+@media (prefers-reduced-motion:reduce){
+  .frost polygon{animation:none;opacity:.55}
+  .fold{animation:none}
+  .pz{transition:none}
+  .opn:hover .pz,.opn:focus-visible .pz{transform:none}
+  *{scroll-behavior:auto!important}
+}
+@media (max-width:900px){
+  .kerf{margin-left:0;width:100%;height:auto;flex-wrap:wrap}
+  .kerf a{flex:1 1 46%;min-width:0;padding:9px 8px;border-left:1px solid var(--coal);border-top:1px solid var(--coal)}
+  .top{gap:14px}
+}
+@media (max-width:560px){
+  body{font-size:15.5px}
+  .wrap{padding:0 15px 70px}
+  .pane{padding:20px 17px;--chamf:13px}
+  .kerf a .t{font-size:14px}
+  table{font-size:13px}
+  th,td{padding:6px 6px}
+}
+
+.lay{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;align-items:start}
+@media(max-width:900px){.lay{grid-template-columns:1fr}}
+.stage{background:var(--coal-l);padding:14px;
+ clip-path:polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)}
+#cv{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair}
+.pc{cursor:pointer}
+.pc .f{transition:opacity 90ms linear}
+.pc.sel .f{stroke:var(--cad);stroke-width:2.4}
+.pc.shp .f.tp{stroke:#fff;stroke-width:2.4}
+.pc.new{transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+@media (prefers-reduced-motion:reduce){.pc.new{transition:none}}
+.kerfline{stroke:var(--cad);stroke-width:2.6;opacity:0}
+.kerfline.flash{animation:kf .42s linear 1}
+@keyframes kf{0%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.kerfline.flash{animation:none;opacity:0}}
+.prev{stroke:var(--cad);stroke-width:1.8;stroke-dasharray:7 5;opacity:.95}
+.meter{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:2px;margin:12px 0 0}
+.meter div{background:var(--coal-d);padding:9px 10px}
+.meter .l{font-size:11px;letter-spacing:.14em;color:var(--steel-l)}
+.meter .v{font-size:19px;font-weight:700;font-family:"Jost",sans-serif}
+.ords{display:grid;gap:8px;margin:0 0 14px}
+.ord{display:block;width:100%;text-align:left;border:0;font:inherit;cursor:pointer;background:var(--ice-m);color:var(--coal);
+ padding:12px 14px;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.ord[aria-pressed="true"]{background:var(--cad)}
+.ord b{display:block;font-size:15px}
+.ord span{font-size:12.7px;color:#3d4f5c;line-height:1.55}
+.ord[aria-pressed="true"] span{color:var(--brick-d)}
+.lbl{display:block;font-size:13px;font-weight:700;letter-spacing:.06em;margin:0 0 5px}
+.angs{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 10px}
+.angs button,.offb{border:0;font:inherit;cursor:pointer;background:var(--steel-d);color:var(--ice);padding:8px 11px;font-size:14px;
+ clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.angs button[aria-pressed="true"]{background:var(--cad);color:var(--coal)}
+.plist{margin:0;padding:0;list-style:none;font-size:13.6px}
+.plist li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-bottom:1px solid rgba(22,31,39,.2)}
+.plist li.on{background:var(--cad)}
+.plist .nm{flex:1}
+.plist .why{font-size:12px;color:var(--brick-d)}
+.plist button{border:0;font:inherit;font-size:12.5px;cursor:pointer;background:var(--coal);color:var(--ice);padding:5px 9px;
+ clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.plist button[disabled]{background:var(--ice-d);color:var(--steel-d);cursor:not-allowed}
+#slip{display:none}
+#slip.on{display:block}
+.slipgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.stamp{width:112px;height:112px}
+.disp2{font-size:clamp(19px,2.6vw,30px)}
+.say{border-left:5px solid var(--cad);padding-left:14px;font-size:16px;margin:14px 0 0}
+</style>
+</head>
+<body>
+<div class="ground" aria-hidden="true"><i></i><b></b></div>
+<div class="wrap"><div class="top"><a class="brand" href="index.html"><svg class="lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="稜記製冰">
+<polygon points="10,44 46,20 110,38 74,66" fill="#e8eded" stroke="#161f27" stroke-width="3" stroke-linejoin="miter"/>
+<polygon points="10,44 74,66 74,100 10,80" fill="#849aa9" stroke="#161f27" stroke-width="3" stroke-linejoin="miter"/>
+<polygon points="74,66 110,38 110,74 74,100" fill="#4f6472" stroke="#161f27" stroke-width="3" stroke-linejoin="miter"/>
+<path d="M40 27 L104 70" stroke="#ebb133" stroke-width="5" fill="none"/>
+<polygon points="40,27 46,20 110,38 104,44" fill="#ebb133" stroke="#161f27" stroke-width="2" stroke-linejoin="miter"/>
+</svg>
+<span><span class="bn">稜記製冰</span><br><span class="be">Leng-ki Ice Works</span></span></a>
+<nav class="kerf" aria-label="主導覽"><a href="index.html"><span class="n mono">01</span><span class="t">今日的冰</span></a><a href="cai.html" aria-current="page"><span class="n mono">02</span><span class="t">裁冰台</span></a><a href="chang.html"><span class="n mono">03</span><span class="t">廠與面</span></a><a href="dan.html"><span class="n mono">04</span><span class="t">訂冰單</span></a></nav></div>
+<svg class="corn" viewBox="0 0 900 40" preserveAspectRatio="none" aria-hidden="true"><polygon class="f steelf" style="--n:-152" points="0.0,38 30.0,0 30.0,21.3"/><polygon class="f steelf" style="--n:-28" points="30.0,0 60.0,38 30.0,21.3"/><polygon class="f steelf" style="--n:94" points="0.0,38 30.0,21.3 60.0,38"/><polygon class="f steelf" style="--n:-152" points="60.0,38 90.0,0 90.0,21.3"/><polygon class="f steelf" style="--n:-28" points="90.0,0 120.0,38 90.0,21.3"/><polygon class="f steelf" style="--n:94" points="60.0,38 90.0,21.3 120.0,38"/><polygon class="f steelf" style="--n:-152" points="120.0,38 150.0,0 150.0,21.3"/><polygon class="f steelf" style="--n:-28" points="150.0,0 180.0,38 150.0,21.3"/><polygon class="f steelf" style="--n:94" points="120.0,38 150.0,21.3 180.0,38"/><polygon class="f steelf" style="--n:-152" points="180.0,38 210.0,0 210.0,21.3"/><polygon class="f steelf" style="--n:-28" points="210.0,0 240.0,38 210.0,21.3"/><polygon class="f steelf" style="--n:94" points="180.0,38 210.0,21.3 240.0,38"/><polygon class="f steelf" style="--n:-152" points="240.0,38 270.0,0 270.0,21.3"/><polygon class="f steelf" style="--n:-28" points="270.0,0 300.0,38 270.0,21.3"/><polygon class="f steelf" style="--n:94" points="240.0,38 270.0,21.3 300.0,38"/><polygon class="f steelf" style="--n:-152" points="300.0,38 330.0,0 330.0,21.3"/><polygon class="f steelf" style="--n:-28" points="330.0,0 360.0,38 330.0,21.3"/><polygon class="f steelf" style="--n:94" points="300.0,38 330.0,21.3 360.0,38"/><polygon class="f steelf" style="--n:-152" points="360.0,38 390.0,0 390.0,21.3"/><polygon class="f steelf" style="--n:-28" points="390.0,0 420.0,38 390.0,21.3"/><polygon class="f steelf" style="--n:94" points="360.0,38 390.0,21.3 420.0,38"/><polygon class="f steelf" style="--n:-152" points="420.0,38 450.0,0 450.0,21.3"/><polygon class="f steelf" style="--n:-28" points="450.0,0 480.0,38 450.0,21.3"/><polygon class="f steelf" style="--n:94" points="420.0,38 450.0,21.3 480.0,38"/><polygon class="f steelf" style="--n:-152" points="480.0,38 510.0,0 510.0,21.3"/><polygon class="f steelf" style="--n:-28" points="510.0,0 540.0,38 510.0,21.3"/><polygon class="f steelf" style="--n:94" points="480.0,38 510.0,21.3 540.0,38"/><polygon class="f steelf" style="--n:-152" points="540.0,38 570.0,0 570.0,21.3"/><polygon class="f steelf" style="--n:-28" points="570.0,0 600.0,38 570.0,21.3"/><polygon class="f steelf" style="--n:94" points="540.0,38 570.0,21.3 600.0,38"/><polygon class="f steelf" style="--n:-152" points="600.0,38 630.0,0 630.0,21.3"/><polygon class="f steelf" style="--n:-28" points="630.0,0 660.0,38 630.0,21.3"/><polygon class="f steelf" style="--n:94" points="600.0,38 630.0,21.3 660.0,38"/><polygon class="f steelf" style="--n:-152" points="660.0,38 690.0,0 690.0,21.3"/><polygon class="f steelf" style="--n:-28" points="690.0,0 720.0,38 690.0,21.3"/><polygon class="f steelf" style="--n:94" points="660.0,38 690.0,21.3 720.0,38"/><polygon class="f steelf" style="--n:-152" points="720.0,38 750.0,0 750.0,21.3"/><polygon class="f steelf" style="--n:-28" points="750.0,0 780.0,38 750.0,21.3"/><polygon class="f steelf" style="--n:94" points="720.0,38 750.0,21.3 780.0,38"/><polygon class="f steelf" style="--n:-152" points="780.0,38 810.0,0 810.0,21.3"/><polygon class="f steelf" style="--n:-28" points="810.0,0 840.0,38 810.0,21.3"/><polygon class="f steelf" style="--n:94" points="780.0,38 810.0,21.3 840.0,38"/><polygon class="f steelf" style="--n:-152" points="840.0,38 870.0,0 870.0,21.3"/><polygon class="f steelf" style="--n:-28" points="870.0,0 900.0,38 870.0,21.3"/><polygon class="f steelf" style="--n:94" points="840.0,38 870.0,21.3 900.0,38"/><g class="frost"><polygon points="92,20 101,13 109,22 100,29" fill="#ffffff" style="animation-delay:0.0s"/><polygon points="318,13 327,6 335,15 326,22" fill="#ffffff" style="animation-delay:4.7s"/><polygon points="544,24 553,17 561,26 552,33" fill="#ffffff" style="animation-delay:9.4s"/><polygon points="770,16 779,9 787,18 778,25" fill="#ffffff" style="animation-delay:14.1s"/></g></svg>
+<main class="fold">
+<h1 class="fx disp2" data-t="裁冰台" style="margin:8px 0 2px"><span>裁冰台</span></h1>
+<svg class="zigb" viewBox="0 0 900 16" preserveAspectRatio="none" aria-hidden="true"><path d="M0.0 13.0 L15.5 0.0 L31.0 13.0 L46.6 0.0 L62.1 13.0 L77.6 0.0 L93.1 13.0 L108.6 0.0 L124.1 13.0 L139.7 0.0 L155.2 13.0 L170.7 0.0 L186.2 13.0 L201.7 0.0 L217.2 13.0 L232.8 0.0 L248.3 13.0 L263.8 0.0 L279.3 13.0 L294.8 0.0 L310.3 13.0 L325.9 0.0 L341.4 13.0 L356.9 0.0 L372.4 13.0 L387.9 0.0 L403.4 13.0 L419.0 0.0 L434.5 13.0 L450.0 0.0 L465.5 13.0 L481.0 0.0 L496.6 13.0 L512.1 0.0 L527.6 13.0 L543.1 0.0 L558.6 13.0 L574.1 0.0 L589.7 13.0 L605.2 0.0 L620.7 13.0 L636.2 0.0 L651.7 13.0 L667.2 0.0 L682.8 13.0 L698.3 0.0 L713.8 13.0 L729.3 0.0 L744.8 13.0 L760.3 0.0 L775.9 13.0 L791.4 0.0 L806.9 13.0 L822.4 0.0 L837.9 13.0 L853.4 0.0 L869.0 13.0 L884.5 0.0 L900.0 13.0"/></svg>
+<p class="lead" style="max-width:64ch;margin:0 0 18px">
+一、挑一張今天的單子。二、在冰上下刀，每一刀把一塊冰分成兩塊，最多八刀。三、把合格的塊挑進出貨箱，剩下的算損耗。
+</p>
+
+<noscript><div class="pane br"><b>裁冰台需要 JavaScript。</b>
+<p style="margin:8px 0 0">關掉 JavaScript 的話這一台切不了。下面是師傅照三張單子各切一次的結果，數字與台上算的是同一套：
+漁市單 4 刀、5 塊各 5.28 公斤、出冰率 95.9%、貨款 317 元；
+酒吧單 3 刀、3 塊 1.01–1.21 公斤（最小角 45°）、出冰率 12.2%、貨款 780 元；
+辦桌單 3 刀、13.36 與 7.16 公斤（整塊無直角）、出冰率 74.5%、貨款 1,900 元。
+原冰 26.41 公斤，鋸縫 0.5 公分，每刀 45 秒、檯上每分鐘融 0.25%。</p></div></noscript>
+<div class="lay">
+  <div>
+    <div class="stage">
+      <svg id="cv" viewBox="0 0 660 470" role="application"
+        aria-label="裁冰台：一支 60×40 公分的角冰，可選塊、選角度、下刀。">
+        <g id="gp"></g>
+        <line id="pv" class="prev" x1="0" y1="0" x2="0" y2="0" style="display:none"/>
+        <line id="kl" class="kerfline" x1="0" y1="0" x2="0" y2="0"/>
+      </svg>
+      <div class="meter mono">
+        <div><div class="l">刀數</div><div class="v" id="m-cut">0／8</div></div>
+        <div><div class="l">鋸耗</div><div class="v" id="m-kerf">0.00</div></div>
+        <div><div class="l">融耗</div><div class="v" id="m-melt">0.00</div></div>
+        <div><div class="l">出冰率</div><div class="v" id="m-yield">0.0%</div></div>
+        <div><div class="l">貨款</div><div class="v" id="m-pay">0</div></div>
+      </div>
+      <p class="sm" id="hint" style="color:var(--ice-d);margin:10px 2px 0">
+        點一塊冰選它，再選刀的角度與位置，按「下刀」。在冰上直接拖曳也可以定刀路。</p>
+    </div>
+
+    <div class="pane" style="margin-top:18px">
+      <h2>這一刀新露出的面</h2>
+      <p id="newface" class="mono sm" style="color:var(--coal)">還沒下刀。每下一刀會露出兩個新的斷面。</p>
+      <p class="sm">斷面的顏色不是我們指定的。程式只寫下那個面的法線角度，深淺是瀏覽器用
+      <code class="mono">cos()</code> 當場算出來的——所以你隨手斜的一刀，馬上就有它自己的明度。</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="pane">
+      <h2>今天的單子</h2>
+      <div class="ords" id="ords"></div>
+      <p class="sm" id="ordrule" style="margin:0"></p>
+    </div>
+
+    <div class="pane dk" id="cutbox">
+      <h2>下刀</h2>
+      <p class="sm" id="selinfo" style="margin:0 0 10px">先在左邊點一塊冰。</p>
+      <span class="lbl">刀的角度</span>
+      <div class="angs" id="angs" role="group" aria-label="刀的角度"></div>
+      <span class="lbl">刀的位置</span>
+      <p style="margin:0 0 12px;display:flex;gap:6px;align-items:center">
+        <button class="offb" id="off-mm" type="button" aria-label="刀往回移 6 公分">≪</button>
+        <button class="offb" id="off-m" type="button" aria-label="刀往回移 1.5 公分">−</button>
+        <span class="mono" id="offv" style="min-width:82px;display:inline-block;text-align:center">0.0 cm</span>
+        <button class="offb" id="off-p" type="button" aria-label="刀往前移 1.5 公分">＋</button>
+        <button class="offb" id="off-pp" type="button" aria-label="刀往前移 6 公分">≫</button>
+      </p>
+      <p style="margin:0;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="do-cut" type="button" disabled>下刀</button>
+        <button class="btn gh" id="do-reset" type="button">換一支重來</button>
+      </p>
+    </div>
+
+    <div class="pane">
+      <h2>出貨箱</h2>
+      <ul class="plist" id="plist"></ul>
+      <p style="margin:14px 0 0"><button class="btn" id="do-slip" type="button" disabled>開單過磅</button></p>
+    </div>
+  </div>
+</div>
+
+<div class="pane" id="slip" style="margin-top:22px">
+  <h2 id="slip-h">過磅單</h2>
+  <div class="slipgrid">
+    <div style="grid-column:1/-1"><table id="slip-t"></table></div>
+  </div>
+  <div class="slipgrid" style="margin-top:16px">
+    <div><div class="sm">出冰率</div><div class="mono" style="font-size:26px;font-weight:700" id="s-yield"></div></div>
+    <div><div class="sm">貨款</div><div class="mono" style="font-size:26px;font-weight:700" id="s-pay"></div></div>
+    <div><div class="sm">刀數／鋸耗／融耗</div><div class="mono" style="font-size:17px" id="s-loss"></div></div>
+    <div><div class="sm">冰號</div><div class="mono" style="font-size:17px" id="s-no"></div></div>
+    <div><svg class="stamp" id="s-stamp" viewBox="0 0 120 120" aria-hidden="true"></svg></div>
+  </div>
+  <p class="say" id="s-say"></p>
+  <p class="sm" style="margin-top:14px">這張單子可以還原：<span class="mono" id="s-url" style="word-break:break-all"></span></p>
+</div>
+
+<div class="pane br" style="margin-top:22px">
+  <h2>出冰率高的那張單子，最不值錢</h2>
+  <p>照師傅的切法：漁市單四刀直落，五塊各 5.28 公斤，出冰率 95.9%，貨款 317 元；
+  酒吧單三刀切三個角，1.01 到 1.21 公斤，出冰率 12.2%，貨款 780 元；
+  辦桌單三刀斜走，13.36 與 7.16 公斤、整塊找不到一個直角，出冰率 74.5%，貨款 1,900 元。
+  整支冰幾乎全賣掉的那一張，錢最少。</p>
+  <p class="sm">切得多不等於賺得多——每一刀先扣鋸縫 0.5 公分的冰，再扣 45 秒的融耗。
+  隨手亂切八刀（五千局實測）：漁市單 0.0%、酒吧單 2.8%、辦桌單 0.2% 過得了關。這台不是亂切切得完的。</p>
+</div>
+</main>
+<footer><div class="fl">
+<div><strong style="color:var(--ice);font-size:15px">稜記製冰廠</strong><br>
+基隆市仁愛區成功一路 88 巷 12 號<br>(02) 2427-3319｜lengki.ice@example.tw<br>
+出窖 04:30–06:00（漁市車）／14:00–17:00（市內配送）｜週三停爐清槽</div>
+<div class="fnav"><a href="index.html">01　今日的冰</a><br><a href="cai.html">02　裁冰台</a><br><a href="chang.html">03　廠與面</a><br><a href="dan.html">04　訂冰單</a></div>
+<div>廠長　邱敬川<br>裁冰師　阮文海<br>機房　呂昭雄<br>結凍槽 4 座・日產 96 支</div>
+</div>
+<p class="note">本站為 Design Skills Center 館藏範例站，商號、人名、電話、地址與價目皆為虛構示意，非真實營業資訊。
+風格規格書：<a href="SKILL.md">SKILL.md</a>　·　<a href="../../index.html">回藝廊</a></p></footer>
+</div>
+<script>
+
+/* ====== 稜記裁冰引擎：半平面裁剪（Sutherland–Hodgman）====== */
+var T=12, RHO=0.917e-3, KERF=0.5, MELT=0.0025, SEC=45, MAXCUT=8;
+var DEPX=0.34*T, DEPY=0.20*T, SCALE=9.6, PADX=44, PADY=40, H0=40;
+function area(p){var s=0;for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return Math.abs(s)/2;}
+function sarea(p){var s=0;for(var i=0;i<p.length;i++){var a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1];}return s/2;}
+function mass(p){return area(p)*T*RHO;}
+function dedupe(p){var o=[];for(var i=0;i<p.length;i++){var q=p[i];
+  if(!o.length||Math.hypot(q[0]-o[o.length-1][0],q[1]-o[o.length-1][1])>1e-6)o.push(q);}
+  if(o.length>1&&Math.hypot(o[0][0]-o[o.length-1][0],o[0][1]-o[o.length-1][1])<1e-6)o.pop();return o;}
+function clip(poly,A,Bp,left){
+  var side=function(p){return ((Bp[0]-A[0])*(p[1]-A[1])-(Bp[1]-A[1])*(p[0]-A[0]))*(left?1:-1);};
+  var out=[];
+  for(var i=0;i<poly.length;i++){
+    var c=poly[i],n=poly[(i+1)%poly.length],sc=side(c),sn=side(n);
+    if(sc>=-1e-9)out.push(c);
+    if((sc>1e-9&&sn<-1e-9)||(sc<-1e-9&&sn>1e-9)){var t=sc/(sc-sn);out.push([c[0]+(n[0]-c[0])*t,c[1]+(n[1]-c[1])*t]);}
+  }
+  return dedupe(out);
+}
+function angs(p){var n=p.length,r=[];for(var i=0;i<n;i++){var a=p[(i-1+n)%n],b=p[i],c=p[(i+1)%n];
+  var v1=[a[0]-b[0],a[1]-b[1]],v2=[c[0]-b[0],c[1]-b[1]];
+  var d=(v1[0]*v2[0]+v1[1]*v2[1])/(Math.hypot(v1[0],v1[1])*Math.hypot(v2[0],v2[1]));
+  r.push(Math.acos(Math.max(-1,Math.min(1,d)))*180/Math.PI);}return r;}
+function centroid(p){var x=0,y=0,a=0;for(var i=0;i<p.length;i++){var q=p[i],r=p[(i+1)%p.length];
+  var f=q[0]*r[1]-r[0]*q[1];a+=f;x+=(q[0]+r[0])*f;y+=(q[1]+r[1])*f;}a*=3;
+  if(Math.abs(a)<1e-9){var sx=0,sy=0;for(var j=0;j<p.length;j++){sx+=p[j][0];sy+=p[j][1];}return [sx/p.length,sy/p.length];}
+  return [x/a,y/a];}
+function chordLen(poly,A,Bp){var L=clip(poly,A,Bp,true),on=[];
+  for(var i=0;i<L.length;i++){var p=L[i];var s=(Bp[0]-A[0])*(p[1]-A[1])-(Bp[1]-A[1])*(p[0]-A[0]);if(Math.abs(s)<1e-6)on.push(p);}
+  var m=0;for(var a=0;a<on.length;a++)for(var b=a+1;b<on.length;b++)m=Math.max(m,Math.hypot(on[a][0]-on[b][0],on[a][1]-on[b][1]));
+  return m;}
+/* 螢幕座標：y 翻轉 */
+function sx(x){return PADX+x*SCALE;}
+function sy(y){return PADY+(H0-y)*SCALE;}
+function toScr(p){var o=[];for(var i=0;i<p.length;i++)o.push([sx(p[i][0]),sy(p[i][1])]);return o;}
+/* 稜面：每個側面只寫 --n，顏色由 CSS 的 cos() 算 */
+function facesOf(ps){
+  var sg=Math.sign(sarea(ps)),n=ps.length,out=[],dx=DEPX*SCALE,dy=DEPY*SCALE;
+  for(var i=0;i<n;i++){
+    var a=ps[i],b=ps[(i+1)%n],nx=b[1]-a[1],ny=-(b[0]-a[0]);
+    if(sg>0){nx=-nx;ny=-ny;}
+    var L=Math.hypot(nx,ny)||1;nx/=L;ny/=L;
+    if(nx*dx+ny*dy>0.02)
+      out.push({q:[a,b,[b[0]+dx,b[1]+dy],[a[0]+dx,a[1]+dy]],az:Math.round(Math.atan2(ny,nx)*180/Math.PI)});
+  }
+  return out;}
+function ptsOf(p){var s=[];for(var i=0;i<p.length;i++)s.push(p[i][0].toFixed(1)+','+p[i][1].toFixed(1));return s.join(' ');}
+function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+
+
+var ORD={
+ A:{k:'A',name:'崁仔頂漁市單',who:'基隆‧崁仔頂　阿源魚行',need:5,
+    rule:'5 塊，每塊 4.0–6.5 公斤。形狀不拘，但要裝得進魚箱。',
+    pay:function(p){return mass(p)*12;},payTxt:'每公斤 12 元',
+    ok:function(p){var m=mass(p);return m>=4.0&&m<=6.5;},
+    why:function(p){var m=mass(p);return m<4.0?'太輕（'+m.toFixed(2)+' 公斤）':(m>6.5?'魚箱裝不下（'+m.toFixed(2)+' 公斤）':'');}},
+ B:{k:'B',name:'大稻埕酒吧單',who:'台北‧大稻埕　「稜」吧檯',need:3,
+    rule:'3 塊稜冰，每塊 0.9–1.6 公斤，而且至少有一個 70 度以下的銳角。',
+    pay:function(){return 260;},payTxt:'每塊 260 元',
+    ok:function(p){var m=mass(p);return m>=0.9&&m<=1.6&&Math.min.apply(null,angs(p))<=70;},
+    why:function(p){var m=mass(p);if(m<0.9)return '太小（'+m.toFixed(2)+' 公斤）';
+      if(m>1.6)return '杯子放不下（'+m.toFixed(2)+' 公斤）';
+      return '沒有銳角（最小 '+Math.round(Math.min.apply(null,angs(p)))+'°）';}},
+ C:{k:'C',name:'辦桌冰雕座單',who:'瑞芳‧福記外燴　冰雕檯座',need:2,
+    rule:'2 塊，每塊 6.0 公斤以上，而且整塊不能有任何一個直角。',
+    pay:function(){return 950;},payTxt:'每塊 950 元',
+    ok:function(p){if(mass(p)<6.0)return false;var a=angs(p);for(var i=0;i<a.length;i++)if(Math.abs(a[i]-90)<=3)return false;return true;},
+    why:function(p){if(mass(p)<6.0)return '不夠重（'+mass(p).toFixed(2)+' 公斤）';
+      var a=angs(p),c=0;for(var i=0;i<a.length;i++)if(Math.abs(a[i]-90)<=3)c++;return '還有 '+c+' 個直角';}}
+};
+var SAY={
+ A:['重量切得準，邊料也少，這一支算漂亮。','夠了，魚行不看形狀。','再省一刀，工錢就是你的。'],
+ B:['角度出得來，酒吧那邊會回頭找你。','三塊都有稜，可以。','小塊難切，你多花的刀都在這裡。'],
+ C:['一個直角都沒有，這才叫座。','立得住，辦桌那桌會好看。','斜刀走得深，損耗自然高，值得。']
+};
+
+(function(){
+var BLOCK=[[0,0],[60,0],[60,40],[0,40]], M0=mass(BLOCK);
+var st, ANGLES=[0,8,26,45,64,90,116,135,154];
+function fresh(){return {ord:'A',pieces:[{id:1,poly:BLOCK.slice()}],nextId:2,cuts:[],kerf:0,sel:1,ang:26,off:0,ship:{},log:''};}
+st=fresh();
+var $=function(i){return document.getElementById(i);};
+var gp=$('gp'),cv=$('cv'),pv=$('pv'),kl=$('kl');
+
+function meltKg(){return (M0-st.kerf)*(1-Math.pow(1-MELT*(SEC/60),st.cuts.length));}
+function lossRate(){return (st.kerf+meltKg())/M0;}
+function pieceById(id){for(var i=0;i<st.pieces.length;i++)if(st.pieces[i].id===id)return st.pieces[i];return null;}
+function shipped(){var o=[];for(var i=0;i<st.pieces.length;i++)if(st.ship[st.pieces[i].id])o.push(st.pieces[i]);return o;}
+
+function clampOff(o){
+  var p=pieceById(st.sel); if(!p)return o;
+  var c=centroid(p.poly),r=st.ang*Math.PI/180,n=[-Math.sin(r),Math.cos(r)],lo=1e9,hi=-1e9;
+  for(var i=0;i<p.poly.length;i++){var v=(p.poly[i][0]-c[0])*n[0]+(p.poly[i][1]-c[1])*n[1];
+    if(v<lo)lo=v; if(v>hi)hi=v;}
+  return Math.max(lo+0.6,Math.min(hi-0.6,o));
+}
+function cutLine(p,angDeg,off){
+  var c=centroid(p.poly),r=angDeg*Math.PI/180;
+  var d=[Math.cos(r),Math.sin(r)], n=[-d[1],d[0]];
+  var o=[c[0]+n[0]*off,c[1]+n[1]*off];
+  return [[o[0]-d[0]*90,o[1]-d[1]*90],[o[0]+d[0]*90,o[1]+d[1]*90]];
+}
+function render(anim){
+  var s='';
+  for(var i=0;i<st.pieces.length;i++){
+    var p=st.pieces[i],scr=toScr(p.poly),fs=facesOf(scr),cls='pc'+(p.id===st.sel?' sel':'')+(st.ship[p.id]?' shp':'');
+    var tr='';
+    if(anim&&anim.ids.indexOf(p.id)>=0){var k=anim.ids[0]===p.id?1:-1;
+      tr=' style="transform:translate('+(anim.nx*7*k).toFixed(1)+'px,'+(anim.ny*7*k).toFixed(1)+'px)"';cls+=' new';}
+    s+='<g class="'+cls+'"'+tr+' data-id="'+p.id+'" tabindex="0" role="button" aria-label="第 '+p.id+' 塊，'+mass(p.poly).toFixed(2)+' 公斤">';
+    for(var j=0;j<fs.length;j++) s+='<polygon class="f sd" style="--n:'+fs[j].az+'" points="'+ptsOf(fs[j].q)+'"/>';
+    s+='<polygon class="f tp" points="'+ptsOf(scr)+'"/>';
+    var c=centroid(scr);
+    s+='<text x="'+c[0].toFixed(0)+'" y="'+c[1].toFixed(0)+'" text-anchor="middle" font-size="13" font-family="Jost,sans-serif" fill="#161f27" pointer-events="none">'+mass(p.poly).toFixed(2)+'</text>';
+    s+='</g>';
+  }
+  gp.innerHTML=s;
+  if(anim){
+    var gs=gp.querySelectorAll('.new');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      for(var i=0;i<gs.length;i++)gs[i].style.transform='';});});
+  }
+  meters();plist();preview();
+}
+function meters(){
+  $('m-cut').textContent=st.cuts.length+'／'+MAXCUT;
+  $('m-kerf').textContent=st.kerf.toFixed(2);
+  $('m-melt').textContent=meltKg().toFixed(2);
+  var sh=shipped(),tot=0,pay=0,o=ORD[st.ord];
+  for(var i=0;i<sh.length;i++){tot+=mass(sh[i].poly);pay+=o.pay(sh[i].poly);}
+  $('m-yield').textContent=(tot*(1-lossRate())/M0*100).toFixed(1)+'%';
+  $('m-pay').textContent=Math.round(pay);
+  $('do-slip').disabled=sh.length<o.need;
+  $('do-cut').disabled=(st.cuts.length>=MAXCUT)||!pieceById(st.sel);
+}
+function plist(){
+  var o=ORD[st.ord],ul=$('plist'),s='';
+  for(var i=0;i<st.pieces.length;i++){
+    var p=st.pieces[i],ok=o.ok(p.poly),on=!!st.ship[p.id],a=angs(p.poly);
+    s+='<li class="'+(on?'on':'')+'"><span class="nm"><b class="mono">#'+p.id+'</b> '+mass(p.poly).toFixed(2)+' kg・'
+      +p.poly.length+' 邊・最小角 '+Math.round(Math.min.apply(null,a))+'°'
+      +(ok?'':'<br><span class="why">'+o.why(p.poly)+'</span>')+'</span>'
+      +'<button data-ship="'+p.id+'"'+(ok?'':' disabled')+'>'+(on?'退出':'出貨')+'</button></li>';
+  }
+  ul.innerHTML=s;
+}
+function preview(){
+  var p=pieceById(st.sel);
+  if(!p||st.cuts.length>=MAXCUT){pv.style.display='none';return;}
+  var L=cutLine(p,st.ang,st.off),A=[sx(L[0][0]),sy(L[0][1])],Bp=[sx(L[1][0]),sy(L[1][1])];
+  pv.setAttribute('x1',A[0]);pv.setAttribute('y1',A[1]);pv.setAttribute('x2',Bp[0]);pv.setAttribute('y2',Bp[1]);
+  pv.style.display='';
+  $('offv').textContent=st.off.toFixed(1)+' cm';
+  $('selinfo').innerHTML='選中 <b class="mono">#'+p.id+'</b>：'+mass(p.poly).toFixed(2)+' 公斤、'+p.poly.length+' 邊。刀角 '+st.ang+'°。';
+}
+function doCut(){
+  var p=pieceById(st.sel); if(!p||st.cuts.length>=MAXCUT)return;
+  var L=cutLine(p,st.ang,st.off),A=L[0],Bp=L[1];
+  var Lp=clip(p.poly,A,Bp,true),Rp=clip(p.poly,A,Bp,false);
+  if(Lp.length<3||Rp.length<3||area(Lp)<1.2||area(Rp)<1.2){
+    $('hint').textContent='這一刀沒有真的切開它——刀路要穿過這塊冰，而且兩邊都要留得下東西。';return;}
+  var ch=chordLen(p.poly,A,Bp);
+  st.kerf+=KERF*ch*T*RHO;
+  st.cuts.push([st.sel,st.ang,+st.off.toFixed(1)]);
+  var i=st.pieces.indexOf(p),a={id:st.nextId++,poly:Lp},b={id:st.nextId++,poly:Rp};
+  st.pieces.splice(i,1,a,b);
+  delete st.ship[p.id];
+  st.sel=a.id;
+  var r=st.ang*Math.PI/180,nx=-Math.sin(r),ny=Math.cos(r);
+  /* 簽名動效：落刀生面 */
+  render({ids:[a.id,b.id],nx:nx*SCALE/9.6,ny:-ny*SCALE/9.6});
+  var kA=[sx(A[0]),sy(A[1])],kB=[sx(Bp[0]),sy(Bp[1])];
+  kl.setAttribute('x1',kA[0]);kl.setAttribute('y1',kA[1]);kl.setAttribute('x2',kB[0]);kl.setAttribute('y2',kB[1]);
+  kl.classList.remove('flash');void kl.offsetWidth;kl.classList.add('flash');
+  var fa=facesOf(toScr(Lp)),fb=facesOf(toScr(Rp)),az=[];
+  for(var k=0;k<fa.length;k++)az.push(fa[k].az);
+  $('newface').textContent='第 '+st.cuts.length+' 刀：刀路長 '+ch.toFixed(1)+' 公分，鋸縫吃掉 '
+    +(KERF*ch*T*RHO).toFixed(3)+' 公斤。新斷面的法線 '+Math.round(st.ang-90)+'° 與 '+Math.round(st.ang+90)+'°。';
+  $('hint').textContent='切開了。要再切就再選一塊。';
+}
+/* 事件 */
+cv.addEventListener('click',function(e){
+  var g=e.target.closest('.pc'); if(!g)return;
+  st.sel=+g.getAttribute('data-id'); st.off=0; st.off=clampOff(0); render(); });
+cv.addEventListener('keydown',function(e){
+  var g=e.target.closest('.pc'); if(!g)return;
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();st.sel=+g.getAttribute('data-id');st.off=0;render();}});
+var drag=null;
+cv.addEventListener('pointerdown',function(e){
+  var g=e.target.closest('.pc'); if(!g)return;
+  st.sel=+g.getAttribute('data-id'); drag=cvPt(e); cv.setPointerCapture(e.pointerId); render();});
+cv.addEventListener('pointermove',function(e){
+  if(!drag)return; var q=cvPt(e),dx=q[0]-drag[0],dy=q[1]-drag[1];
+  if(Math.hypot(dx,dy)<1.2)return;
+  st.ang=Math.round(Math.atan2(dy,dx)*180/Math.PI);
+  var p=pieceById(st.sel); if(p){var c=centroid(p.poly),r=st.ang*Math.PI/180,n=[-Math.sin(r),Math.cos(r)];
+    st.off=clampOff(+(((q[0]-c[0])*n[0]+(q[1]-c[1])*n[1])).toFixed(1));}
+  syncAng();preview();});
+cv.addEventListener('pointerup',function(){drag=null;});
+cv.addEventListener('pointercancel',function(){drag=null;});
+function cvPt(e){var r=cv.getBoundingClientRect(),k=660/r.width;
+  return [((e.clientX-r.left)*k-PADX)/SCALE, H0-((e.clientY-r.top)*k-PADY)/SCALE];}
+function syncAng(){var bs=$('angs').children;
+  for(var i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',(+bs[i].dataset.a===st.ang)?'true':'false');}
+$('angs').innerHTML=ANGLES.map(function(a){return '<button type="button" data-a="'+a+'" aria-pressed="'+(a===26)+'">'+a+'°</button>';}).join('');
+$('angs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+  st.ang=+b.dataset.a;st.off=clampOff(st.off);syncAng();preview();});
+function bump(d){st.off=clampOff(+(st.off+d).toFixed(1));preview();}
+$('off-mm').addEventListener('click',function(){bump(-6);});
+$('off-m').addEventListener('click',function(){bump(-1.5);});
+$('off-p').addEventListener('click',function(){bump(1.5);});
+$('off-pp').addEventListener('click',function(){bump(6);});
+$('do-cut').addEventListener('click',doCut);
+$('do-reset').addEventListener('click',function(){st=fresh();$('slip').classList.remove('on');
+  $('newface').textContent='還沒下刀。每下一刀會露出兩個新的斷面。';setOrd(st.ord);render();});
+$('plist').addEventListener('click',function(e){var b=e.target.closest('button[data-ship]');if(!b)return;
+  var id=+b.dataset.ship;
+  if(st.ship[id])delete st.ship[id];
+  else{var o=ORD[st.ord];if(shipped().length>=o.need){$('hint').textContent='出貨箱滿了（'+o.need+' 塊），先退出一塊。';return;}st.ship[id]=1;}
+  render();});
+function setOrd(k){
+  st.ord=k;st.ship={};
+  var s='';for(var i in ORD){var o=ORD[i];
+    s+='<button class="ord" type="button" data-k="'+i+'" aria-pressed="'+(i===k)+'"><b>'+o.name+'</b><span>'+o.rule+'　'+o.payTxt+'</span></button>';}
+  $('ords').innerHTML=s;
+  $('ordrule').textContent=ORD[k].who+'。需要 '+ORD[k].need+' 塊。'+ORD[k].payTxt+'。';
+}
+$('ords').addEventListener('click',function(e){var b=e.target.closest('.ord');if(!b)return;setOrd(b.dataset.k);render();});
+/* 過磅單 */
+$('do-slip').addEventListener('click',function(){
+  var o=ORD[st.ord],sh=shipped(),tot=0,pay=0,rows='<tr><th>塊</th><th>重量</th><th>邊</th><th>最小角</th><th>最大角</th><th>貨款</th></tr>';
+  for(var i=0;i<sh.length;i++){var p=sh[i],a=angs(p.poly),m=mass(p.poly);tot+=m;pay+=o.pay(p.poly);
+    rows+='<tr><td class="mono">#'+p.id+'</td><td class="mono">'+m.toFixed(2)+' kg</td><td class="mono">'+p.poly.length+'</td><td class="mono">'
+      +Math.round(Math.min.apply(null,a))+'°</td><td class="mono">'+Math.round(Math.max.apply(null,a))+'°</td><td class="mono">'+Math.round(o.pay(p.poly))+'</td></tr>';}
+  $('slip-t').innerHTML=rows;
+  var y=tot*(1-lossRate())/M0;
+  $('s-yield').textContent=(y*100).toFixed(1)+'%';
+  $('s-pay').textContent=Math.round(pay)+' 元';
+  $('s-loss').textContent=st.cuts.length+' 刀／'+st.kerf.toFixed(2)+' kg／'+meltKg().toFixed(2)+' kg';
+  var code=st.ord+'~'+st.cuts.map(function(c){return c.join(',');}).join('~');
+  var h=fnv(code);
+  $('s-no').textContent='LK-'+st.ord+('0000'+(h%99991)).slice(-5);
+  var say=SAY[st.ord][st.cuts.length<=3?0:(st.cuts.length<=5?1:2)];
+  $('s-say').textContent='阮師傅：「'+say+'」';
+  var u=location.origin+location.pathname+'?p='+encodeURIComponent(code);
+  $('s-url').textContent=u;
+  stamp(h);
+  $('slip').classList.add('on');
+  $('slip').scrollIntoView({behavior:(matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'),block:'start'});
+});
+function stamp(h){
+  var n=5+h%4,r=46,s='',cx=60,cy=60,seed=h;
+  function rnd(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;}
+  var pts=[];for(var i=0;i<n;i++){var a=i/n*Math.PI*2-1.2,rr=r*(0.66+rnd()*0.34);pts.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr]);}
+  s+='<polygon points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" fill="none" stroke="#a94a2d" stroke-width="3" stroke-linejoin="miter"/>';
+  for(var j=0;j<n;j++)s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+pts[j][0].toFixed(1)+'" y2="'+pts[j][1].toFixed(1)+'" stroke="#a94a2d" stroke-width="1.4"/>';
+  s+='<text x="60" y="66" text-anchor="middle" font-size="22" font-weight="700" fill="#161f27" font-family="Noto Sans TC,sans-serif">稜</text>';
+  $('s-stamp').innerHTML=s;
+}
+/* ?p= 還原 */
+(function(){
+  var m=/[?&]p=([^&]+)/.exec(location.search); if(!m)return;
+  var parts=decodeURIComponent(m[1]).split('~'),k=parts[0];
+  if(!ORD[k])return; setOrd(k);
+  for(var i=1;i<parts.length;i++){var c=parts[i].split(',');
+    if(c.length!==3)continue; st.sel=+c[0]; st.ang=+c[1]; st.off=+c[2];
+    if(!pieceById(st.sel))continue; doCutSilent();}
+  render();
+  function doCutSilent(){var p=pieceById(st.sel);if(!p)return;
+    var L=cutLine(p,st.ang,st.off),Lp=clip(p.poly,L[0],L[1],true),Rp=clip(p.poly,L[0],L[1],false);
+    if(Lp.length<3||Rp.length<3)return;
+    st.kerf+=KERF*chordLen(p.poly,L[0],L[1])*T*RHO;
+    st.cuts.push([st.sel,st.ang,st.off]);
+    var i2=st.pieces.indexOf(p);st.pieces.splice(i2,1,{id:st.nextId++,poly:Lp},{id:st.nextId++,poly:Rp});}
+})();
+if(!st.cuts.length)setOrd('A');
+render();
+})();
+</script>
+</body></html>

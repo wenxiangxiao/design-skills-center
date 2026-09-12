@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>隊形｜零地平跳傘學校 ZERO HORIZON</title>
+<meta name="description" content="零地平跳傘學校的 24 個五人隊形教學代號、幾何跨距與接手路徑，以及攤平、接手、分離的規則。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F7F5F0'/%3E%3Crect x='-6' y='29' width='76' height='5' fill='%23D6301C' transform='rotate(-24 32 32)'/%3E%3Crect x='16' y='14' width='30' height='22' fill='%23101010' transform='rotate(-24 31 25)'/%3E%3Ccircle cx='45' cy='47' r='7' fill='%2324409A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap">
+<style>
+:root{
+  --w1:#F7F5F0; --w2:#E9ECEE; --w3:#DCE3E9;
+  --ink:#101010; --red:#D6301C; --blue:#24409A; --grey:#A8A9A6;
+  --a1:-24deg; --a2:-66deg; --a3:12deg; --a4:24deg; --a5:66deg;
+  --bank:0deg; --px:0; --py:0;
+}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+html{background:var(--w1)}
+body{
+  background:var(--w1); color:var(--ink);
+  font-family:"Noto Sans TC","Archivo",system-ui,sans-serif; font-weight:500;
+  line-height:1.85; -webkit-text-size-adjust:100%;
+  font-variant-numeric:tabular-nums; overflow-x:hidden;
+}
+h1,h2,h3,.lat,.num,.tag{font-family:"Archivo","Noto Sans TC",sans-serif}
+.lat{font-weight:900;letter-spacing:.09em;text-transform:uppercase}
+.tag{font-weight:700;letter-spacing:.24em;text-transform:uppercase;font-size:11px;line-height:1.4}
+.num{font-weight:900;letter-spacing:-.02em}
+a{color:inherit;text-decoration:none}
+p a,li a,.tx a{box-shadow:inset 0 -2px 0 var(--red)}
+p a:hover,li a:hover,.tx a:hover{background:var(--red);color:var(--w1);box-shadow:none}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{position:static;display:inline-block;background:var(--red);color:var(--w1);padding:8px 14px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px;position:relative}
+hr{border:0;height:3px;background:var(--ink);margin:34px 0}
+
+/* ── 質量 mass：唯一的圖像原語 ── */
+.m{position:absolute;display:block}
+.m>i{display:block;width:100%;height:100%;transform:rotate(var(--r,0deg));transform-origin:50% 50%;
+     background:var(--c,var(--ink));transition:transform 90ms linear}
+.m.dot>i{border-radius:50%}
+@media (prefers-reduced-motion:reduce){ .m>i{transition:none} }
+
+/* ── 導覽：axis-align 對軸 ── */
+.axis{position:absolute;top:26px;right:22px;z-index:40;display:block;width:210px}
+.axis ol{list-style:none}
+.axis li{display:flex;align-items:center;gap:12px;justify-content:flex-end;height:34px}
+.axis a{display:flex;align-items:center;gap:12px;padding:2px 0}
+.axis .n{font:700 10px/1 "Archivo",sans-serif;letter-spacing:.22em;color:var(--grey);text-transform:uppercase}
+.axis .b{display:block;height:4px;width:46px;background:var(--grey);
+  transform:rotate(var(--k));transform-origin:100% 50%;transition:width 140ms linear,transform 140ms linear}
+.axis li:nth-child(1) .b{--k:41deg} .axis li:nth-child(2) .b{--k:-58deg}
+.axis li:nth-child(3) .b{--k:73deg} .axis li:nth-child(4) .b{--k:-9deg}
+.axis a:hover .b{background:var(--ink)} .axis a:hover .n{color:var(--ink)}
+.axis li.on .b{width:96px;background:var(--ink);--k:var(--a1)}
+.axis li.on .n{color:var(--ink)}
+.axis .cap{font:700 10px/1.5 "Archivo",sans-serif;letter-spacing:.16em;color:var(--grey);
+  text-align:right;margin-bottom:12px;text-transform:uppercase}
+@media (max-width:900px){
+  .axis{position:static;width:auto;padding:14px 22px 0}
+  .axis .cap{display:none}
+  .axis ol{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .axis li{height:auto;display:block}
+  .axis a{display:block;padding:8px 0}
+  .axis .b{width:100%;transform:none;margin-top:7px}
+  .axis li.on .b{width:100%;transform:none;height:6px}
+}
+
+/* ── 文字區塊 ── */
+.tx{max-width:58ch}
+.tx p+p{margin-top:1.1em}
+.h1{font-size:clamp(40px,7.4vw,88px);font-weight:900;letter-spacing:-.035em;line-height:.95}
+.h2{font-size:clamp(24px,3.4vw,38px);font-weight:900;letter-spacing:-.02em;line-height:1.08;margin-bottom:16px}
+.h3{font-size:19px;font-weight:900;letter-spacing:-.01em;margin-bottom:8px}
+.lead{font-size:clamp(16px,1.7vw,19px);line-height:1.8}
+.sm{font-size:13.5px;line-height:1.75}
+.xs{font-size:12px;line-height:1.6;color:#4a4a4a}
+.red{color:var(--red)} .blu{color:var(--blue)} .gy{color:var(--grey)}
+.sec{padding:64px 0;position:relative}
+.off1{margin-left:0} .off2{margin-left:8%} .off3{margin-left:18%}
+@media (max-width:760px){.off2,.off3{margin-left:0}}
+
+/* 表：無框線，用質量分隔 */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font:700 10.5px/1.4 "Archivo",sans-serif;letter-spacing:.2em;
+   text-transform:uppercase;color:var(--grey);padding:0 12px 8px 0;vertical-align:bottom}
+td{padding:10px 12px 10px 0;vertical-align:top;border-top:2px solid var(--ink)}
+tr:hover td{background:var(--w2)}
+td.n{font-family:"Archivo",sans-serif;font-weight:900;white-space:nowrap}
+
+/* 按鈕＝一塊有字的質量 */
+.btn{display:inline-block;background:var(--ink);color:var(--w1);padding:13px 24px;
+  font:900 13px/1 "Archivo","Noto Sans TC",sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  border:0;cursor:pointer;transition:background 90ms linear}
+.btn:hover,.btn:focus-visible{background:var(--red)}
+.btn.r{background:var(--red)} .btn.r:hover{background:var(--ink)}
+.btn[disabled]{background:var(--grey);cursor:not-allowed}
+.btn.gh{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 3px var(--ink)}
+.btn.gh:hover{background:var(--ink);color:var(--w1)}
+
+/* 頁尾：一塊黑質量 */
+footer{background:var(--ink);color:var(--w1);margin-top:80px;position:relative;overflow:hidden}
+footer .wrap{padding-top:52px;padding-bottom:52px}
+footer a{color:var(--w1)}
+footer a:hover{color:var(--red)}
+footer .fbar{position:absolute;top:0;left:0;width:100%;height:9px;background:var(--red)}
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}
+@media (max-width:760px){.fgrid{grid-template-columns:1fr}}
+
+/* 標籤釘在質量的邊上（CSS anchor positioning，附退場） */
+.lab{font:700 10.5px/1.35 "Archivo","Noto Sans TC",sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.pin{position:absolute}
+@supports (anchor-name:--x){ .pin{position:absolute;position-anchor:var(--an)} }
+.noanchor .pin{position:absolute}
+
+@media (max-width:560px){
+  .axis .n{font-size:9px;letter-spacing:.1em}
+  .axis ol{gap:5px}
+  .wrap{padding:0 15px}
+  .h1{font-size:clamp(32px,10vw,46px)}
+  .sec{padding:44px 0}
+  table{font-size:13px}
+  th{letter-spacing:.12em;font-size:9.5px}
+  .fgrid{gap:22px}
+  .btn{padding:12px 17px;font-size:12px;letter-spacing:.1em}
+}
+
+/* 動效 1 ambient：空層漂移（沿主軸） */
+@keyframes drift{ from{transform:translate(0,0)} to{transform:translate(46px,-20px)} }
+.layer{animation:drift 34s linear infinite alternate}
+.layer.s2{animation-duration:52s;animation-direction:alternate-reverse}
+.layer.s3{animation-duration:76s}
+@media (prefers-reduced-motion:reduce){ .layer{animation:none} }
+
+/* 動效 4 signature：no-up 無上下 */
+.noup{transform:rotate(var(--th,0deg));transform-origin:50% 50%;will-change:transform}
+@media (prefers-reduced-motion:reduce){ .noup{transform:none !important} }
+
+/* 動效 3 transition：同文件 View Transitions */
+::view-transition-old(root),::view-transition-new(root){animation-duration:220ms}
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
+
+.big{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:start}
+@media (max-width:760px){.big{grid-template-columns:1fr}}
+#bigplate{view-transition-name:bigplate}
+.filt{display:flex;flex-wrap:wrap;gap:2px;margin:20px 0 4px}
+.filt button{background:var(--w2);border:0;cursor:pointer;padding:9px 14px;
+  font:700 12px/1 "Archivo","Noto Sans TC",sans-serif;letter-spacing:.1em}
+.filt button[aria-pressed="true"]{background:var(--ink);color:var(--w1)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:2px;margin-top:2px}
+.cell{background:var(--w2);padding:0;cursor:pointer;border:0;display:block;width:100%;text-align:left;font:inherit}
+.cell svg{width:100%;height:auto}
+.cell .cap{padding:10px 12px 13px}
+.cell:hover{outline:3px solid var(--red);outline-offset:-3px}
+.cell[aria-current="true"]{background:var(--ink);color:var(--w1)}
+.cell.hide{display:none}
+.mtable td{font-size:13.5px}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:16px;max-width:420px}
+.stat div{background:var(--w2);padding:10px 12px}
+.stat .v{font:900 26px/1 "Archivo",sans-serif;letter-spacing:-.03em;margin-top:4px}
+.two{columns:2;column-gap:38px}
+@media (max-width:760px){.two{columns:1}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到內容</a>
+<nav class="axis" aria-label="主導覽">
+<div class="cap">零地平 / 對軸</div>
+<ol><li class=""><a href="index.html"><span class="n">空場 VOID</span><span class="b" aria-hidden="true"></span></a></li><li class=""><a href="fall.html"><span class="n">六十二秒 62 SEC</span><span class="b" aria-hidden="true"></span></a></li><li class="on"><a href="zhentu.html" aria-current="page"><span class="n">隊形 FORMS</span><span class="b" aria-hidden="true"></span></a></li><li class=""><a href="bao.html"><span class="n">報名 ENROL</span><span class="b" aria-hidden="true"></span></a></li></ol>
+</nav>
+<main id="main">
+<section class="sec wrap" style="padding-bottom:20px">
+ <div class="tag" style="color:var(--grey)">教學代號 / SCHOOL CODES</div>
+ <h1 class="h1" style="margin-top:8px">二十四個隊形</h1>
+ <p class="lead tx" style="margin-top:16px">八個基形，各三種變體：<strong>正</strong>（不轉、間距 11 公尺）、<strong>斜</strong>（轉 40°、13 公尺）、<strong>開</strong>（轉 80°、15 公尺）。
+ 每個隊形都是五個人、五個接手位、一個固定的順序。編號是本校自己的教學代號，不是競賽隨機隊形代號。</p>
+</section>
+
+<section class="wrap">
+<div class="big">
+ <div>
+  <div id="bigplate"><svg viewBox="0 0 300 300" width="300" height="300" role="img" aria-label="正星隊形圖 UPRIGHT STAR" style="display:block"><rect width="300" height="300" fill="#E9ECEE"/><rect x="-90.0" y="133.8" width="480.0" height="4.2" fill="#101010" transform="rotate(-24 150 150)"/><rect x="116.7" y="24.7" width="66.6" height="44.4" fill="#101010" transform="rotate(-24 150.0 46.9)"/><rect x="225.0" y="102.5" width="46.2" height="31.4" fill="#D6301C" transform="rotate(24 248.1 118.1)"/><rect x="156.6" y="227.7" width="108.0" height="11.5" fill="#101010" transform="rotate(-66 210.6 233.4)"/><circle cx="89.4" cy="233.4" r="16.5" fill="#24409A"/><rect x="36.0" y="107.4" width="31.7" height="21.5" fill="#A8A9A6" transform="rotate(12 51.9 118.1)"/></svg></div>
+  <div class="stat">
+   <div><span class="tag">跨距 M</span><span class="v" id="sSpan">20.9</span></div>
+   <div><span class="tag">最長段 M</span><span class="v" id="sGap">12.9</span></div>
+   <div><span class="tag">路徑 M</span><span class="v" id="sPath">62.7</span></div>
+  </div>
+ </div>
+ <div>
+  <h2 class="h2" id="bName">正星</h2>
+  <div class="lat gy" style="font-size:13px" id="bEn">UPRIGHT STAR</div>
+  <p class="lead" style="margin-top:16px;max-width:44ch" id="bDesc">五個人面朝內，手抓兩邊的人。最老的隊形，也是最不容錯的——只要有一個人比別人低，整個圈會開始轉。</p>
+  <p class="sm" style="margin-top:14px;max-width:44ch" id="bNote">路徑 62.7 公尺是從出艙點依序走完五位的最短距離。以最高橫向速度 6.7 公尺／秒計，光是移動就要 9.4 秒，再加五次各 1.4 秒的停穩。</p>
+  <p style="margin-top:20px"><a class="btn r" id="bGo" href="fall.html?f=0">拿這個隊形去跳</a></p>
+ </div>
+</div>
+
+<div class="filt" role="group" aria-label="依基形篩選">
+ <button data-f="all" aria-pressed="true">全部 24</button>
+ <button data-f="star" aria-pressed="false">星 STAR</button><button data-f="ring" aria-pressed="false">環 RING</button><button data-f="worm" aria-pressed="false">蟲 WORM</button><button data-f="wedge" aria-pressed="false">楔 WEDGE</button><button data-f="stair" aria-pressed="false">階 STAIR</button><button data-f="bow" aria-pressed="false">弓 BOW</button><button data-f="cross" aria-pressed="false">十 CROSS</button><button data-f="split" aria-pressed="false">裂 SPLIT</button>
+</div>
+<div class="filt" role="group" aria-label="依變體篩選">
+ <button data-v="all" aria-pressed="true">正斜開</button>
+ <button data-v="正" aria-pressed="false">正 UPRIGHT</button>
+ <button data-v="斜" aria-pressed="false">斜 CANTED</button>
+ <button data-v="開" aria-pressed="false">開 OPEN</button>
+</div>
+<p class="xs" id="count">24 個隊形</p>
+<div class="grid" id="grid">
+<button class="cell" data-i="0" data-k="star" data-v="正" aria-current="true">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正星隊形圖 UPRIGHT STAR" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="70.4" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="61.5" y="13.0" width="35.1" height="23.4" fill="#101010" transform="rotate(-24 79.0 24.7)"/><rect x="118.5" y="54.0" width="24.3" height="16.5" fill="#D6301C" transform="rotate(24 130.7 62.2)"/><rect x="82.5" y="119.9" width="56.9" height="6.1" fill="#101010" transform="rotate(-66 110.9 122.9)"/><circle cx="47.1" cy="122.9" r="8.7" fill="#24409A"/><rect x="19.0" y="56.5" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(12 27.3 62.2)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正星</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT STAR</span></span></button><button class="cell" data-i="1" data-k="ring" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正環隊形圖 UPRIGHT RING" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="77.6" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="61.5" y="13.0" width="35.1" height="23.4" fill="#101010" transform="rotate(-66 79.0 24.7)"/><rect x="98.8" y="114.7" width="24.3" height="16.5" fill="#D6301C" transform="rotate(66 110.9 122.9)"/><rect x="-1.1" y="59.2" width="56.9" height="6.1" fill="#101010" transform="rotate(12 27.3 62.2)"/><circle cx="130.7" cy="62.2" r="8.7" fill="#24409A"/><rect x="38.7" y="117.3" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(24 47.1 122.9)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正環</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT RING</span></span></button><button class="cell" data-i="2" data-k="worm" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正蟲隊形圖 UPRIGHT WORM" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="88.6" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="7.1" y="52.1" width="35.1" height="23.4" fill="#101010" transform="rotate(12 24.7 63.8)"/><rect x="39.7" y="86.0" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-24 51.8 94.2)"/><rect x="50.6" y="60.8" width="56.9" height="6.1" fill="#101010" transform="rotate(24 79.0 63.8)"/><circle cx="106.2" cy="94.2" r="8.7" fill="#24409A"/><rect x="125.0" y="58.1" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(66 133.3 63.8)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正蟲</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT WORM</span></span></button><button class="cell" data-i="3" data-k="wedge" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正楔隊形圖 UPRIGHT WEDGE" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="65.4" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="61.5" y="13.0" width="35.1" height="23.4" fill="#101010" transform="rotate(24 79.0 24.7)"/><rect x="33.2" y="65.3" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-66 45.3 73.6)"/><rect x="84.2" y="70.5" width="56.9" height="6.1" fill="#101010" transform="rotate(66 112.7 73.6)"/><circle cx="24.7" cy="125.2" r="8.7" fill="#24409A"/><rect x="125.0" y="119.5" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-24 133.3 125.2)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正楔</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT WEDGE</span></span></button><button class="cell" data-i="4" data-k="stair" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正階隊形圖 UPRIGHT STAIR" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="93.0" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="7.1" y="13.0" width="35.1" height="23.4" fill="#101010" transform="rotate(66 24.7 24.7)"/><rect x="39.7" y="43.6" width="24.3" height="16.5" fill="#D6301C" transform="rotate(12 51.8 51.8)"/><rect x="50.6" y="76.0" width="56.9" height="6.1" fill="#101010" transform="rotate(-24 79.0 79.0)"/><circle cx="106.2" cy="106.2" r="8.7" fill="#24409A"/><rect x="125.0" y="127.6" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-66 133.3 133.3)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正階</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT STAIR</span></span></button><button class="cell" data-i="5" data-k="bow" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正弓隊形圖 UPRIGHT BOW" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="97.9" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="12.1" y="66.0" width="35.1" height="23.4" fill="#101010" transform="rotate(-24 29.6 77.6)"/><rect x="66.8" y="40.9" width="24.3" height="16.5" fill="#D6301C" transform="rotate(24 79.0 49.1)"/><rect x="99.9" y="74.6" width="56.9" height="6.1" fill="#101010" transform="rotate(-66 128.4 77.6)"/><circle cx="128.4" cy="134.7" r="8.7" fill="#24409A"/><rect x="70.6" y="157.5" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(12 79.0 163.2)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正弓</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT BOW</span></span></button><button class="cell" data-i="6" data-k="cross" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正十隊形圖 UPRIGHT CROSS" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="98.3" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="61.5" y="67.3" width="35.1" height="23.4" fill="#101010" transform="rotate(-66 79.0 79.0)"/><rect x="66.8" y="16.4" width="24.3" height="16.5" fill="#D6301C" transform="rotate(66 79.0 24.7)"/><rect x="104.9" y="76.0" width="56.9" height="6.1" fill="#101010" transform="rotate(12 133.3 79.0)"/><circle cx="79.0" cy="133.3" r="8.7" fill="#24409A"/><rect x="16.3" y="73.3" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(24 24.7 79.0)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正十</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT CROSS</span></span></button><button class="cell" data-i="7" data-k="split" data-v="正" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="正裂隊形圖 UPRIGHT SPLIT" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="85.5" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="9.9" y="37.4" width="35.1" height="23.4" fill="#101010" transform="rotate(12 27.4 49.1)"/><rect x="47.8" y="21.9" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-24 60.0 30.1)"/><rect x="72.3" y="84.1" width="56.9" height="6.1" fill="#101010" transform="rotate(24 100.7 87.1)"/><circle cx="133.3" cy="108.9" r="8.7" fill="#24409A"/><rect x="84.2" y="124.9" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(66 92.6 130.6)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">正裂</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">UPRIGHT SPLIT</span></span></button><button class="cell" data-i="8" data-k="star" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜星隊形圖 CANTED STAR" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="65.6" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="102.7" y="18.1" width="35.1" height="23.4" fill="#101010" transform="rotate(24 120.3 29.8)"/><rect x="126.3" y="94.8" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-66 138.5 103.0)"/><rect x="46.1" y="140.0" width="56.9" height="6.1" fill="#101010" transform="rotate(66 74.5 143.0)"/><circle cx="16.7" cy="94.5" r="8.7" fill="#24409A"/><rect x="36.6" y="18.9" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-24 45.0 24.6)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜星</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED STAR</span></span></button><button class="cell" data-i="9" data-k="ring" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜環隊形圖 CANTED RING" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="64.9" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="102.7" y="18.1" width="35.1" height="23.4" fill="#101010" transform="rotate(66 120.3 29.8)"/><rect x="62.3" y="134.8" width="24.3" height="16.5" fill="#D6301C" transform="rotate(12 74.5 143.0)"/><rect x="16.5" y="21.5" width="56.9" height="6.1" fill="#101010" transform="rotate(-24 45.0 24.6)"/><circle cx="138.5" cy="103.0" r="8.7" fill="#24409A"/><rect x="8.4" y="88.9" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-66 16.7 94.5)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜環</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED RING</span></span></button><button class="cell" data-i="10" data-k="worm" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜蟲隊形圖 CANTED WORM" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="52.9" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="23.8" y="12.3" width="35.1" height="23.4" fill="#101010" transform="rotate(-24 41.4 24.0)"/><rect x="30.7" y="63.9" width="24.3" height="16.5" fill="#D6301C" transform="rotate(24 42.9 72.1)"/><rect x="62.1" y="62.2" width="56.9" height="6.1" fill="#101010" transform="rotate(-66 90.6 65.2)"/><circle cx="92.0" cy="113.4" r="8.7" fill="#24409A"/><rect x="131.4" y="100.8" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(12 139.7 106.5)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜蟲</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED WORM</span></span></button><button class="cell" data-i="11" data-k="wedge" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜楔隊形圖 CANTED WEDGE" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="98.9" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="102.7" y="18.1" width="35.1" height="23.4" fill="#101010" transform="rotate(-66 120.3 29.8)"/><rect x="40.5" y="40.2" width="24.3" height="16.5" fill="#D6301C" transform="rotate(66 52.6 48.5)"/><rect x="85.2" y="96.6" width="56.9" height="6.1" fill="#101010" transform="rotate(12 113.6 99.7)"/><circle cx="-5.2" cy="79.5" r="8.7" fill="#24409A"/><rect x="84.7" y="156.4" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(24 93.1 162.1)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜楔</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED WEDGE</span></span></button><button class="cell" data-i="12" data-k="stair" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜階隊形圖 CANTED STAIR" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="78.4" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="53.5" y="-23.1" width="35.1" height="23.4" fill="#101010" transform="rotate(12 71.1 -11.4)"/><rect x="62.9" y="25.5" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-24 75.0 33.8)"/><rect x="50.6" y="76.0" width="56.9" height="6.1" fill="#101010" transform="rotate(24 79.0 79.0)"/><circle cx="83.0" cy="124.2" r="8.7" fill="#24409A"/><rect x="78.6" y="163.8" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(66 86.9 169.4)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜階</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED STAIR</span></span></button><button class="cell" data-i="13" data-k="bow" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜弓隊形圖 CANTED BOW" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="102.3" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="17.8" y="28.6" width="35.1" height="23.4" fill="#101010" transform="rotate(24 35.3 40.3)"/><rect x="89.5" y="43.7" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-66 101.7 52.0)"/><rect x="96.3" y="112.3" width="56.9" height="6.1" fill="#101010" transform="rotate(66 124.7 115.3)"/><circle cx="81.4" cy="166.9" r="8.7" fill="#24409A"/><rect x="6.7" y="149.5" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-24 15.0 155.2)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜弓</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED BOW</span></span></button><button class="cell" data-i="14" data-k="cross" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜十隊形圖 CANTED CROSS" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="100.7" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="61.5" y="67.3" width="35.1" height="23.4" fill="#101010" transform="rotate(66 79.0 79.0)"/><rect x="108.1" y="21.6" width="24.3" height="16.5" fill="#D6301C" transform="rotate(12 120.3 29.8)"/><rect x="99.7" y="117.2" width="56.9" height="6.1" fill="#101010" transform="rotate(-24 128.2 120.3)"/><circle cx="37.7" cy="128.2" r="8.7" fill="#24409A"/><rect x="21.5" y="32.1" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-66 29.8 37.7)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜十</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED CROSS</span></span></button><button class="cell" data-i="15" data-k="split" data-v="斜" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="斜裂隊形圖 CANTED SPLIT" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="102.2" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="37.4" y="1.1" width="35.1" height="23.4" fill="#101010" transform="rotate(-24 55.0 12.8)"/><rect x="86.7" y="12.0" width="24.3" height="16.5" fill="#D6301C" transform="rotate(24 98.9 20.3)"/><rect x="64.0" y="99.8" width="56.9" height="6.1" fill="#101010" transform="rotate(-66 92.5 102.9)"/><circle cx="105.5" cy="147.3" r="8.7" fill="#24409A"/><rect x="43.7" y="130.4" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(12 52.1 136.0)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">斜裂</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">CANTED SPLIT</span></span></button><button class="cell" data-i="16" data-k="star" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開星隊形圖 OPEN STAR" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="95.8" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="134.4" y="54.5" width="35.1" height="23.4" fill="#101010" transform="rotate(-66 151.9 66.1)"/><rect x="101.6" y="136.1" width="24.3" height="16.5" fill="#D6301C" transform="rotate(66 113.8 144.4)"/><rect x="-0.9" y="129.2" width="56.9" height="6.1" fill="#101010" transform="rotate(12 27.5 132.3)"/><circle cx="12.4" cy="46.5" r="8.7" fill="#24409A"/><rect x="81.0" y="-0.0" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(24 89.3 5.7)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開星</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN STAR</span></span></button><button class="cell" data-i="17" data-k="ring" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開環隊形圖 OPEN RING" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="101.5" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="134.4" y="54.5" width="35.1" height="23.4" fill="#101010" transform="rotate(12 151.9 66.1)"/><rect x="15.4" y="124.0" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-24 27.5 132.3)"/><rect x="60.9" y="2.6" width="56.9" height="6.1" fill="#101010" transform="rotate(24 89.3 5.7)"/><circle cx="113.8" cy="144.4" r="8.7" fill="#24409A"/><rect x="4.1" y="40.9" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(66 12.4 46.5)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開環</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN RING</span></span></button><button class="cell" data-i="18" data-k="worm" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開蟲隊形圖 OPEN WORM" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="94.4" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="69.0" y="-9.2" width="35.1" height="23.4" fill="#101010" transform="rotate(24 86.6 2.5)"/><rect x="40.0" y="37.9" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-66 52.1 46.1)"/><rect x="71.0" y="72.4" width="56.9" height="6.1" fill="#101010" transform="rotate(66 99.4 75.4)"/><circle cx="65.0" cy="119.1" r="8.7" fill="#24409A"/><rect x="103.9" y="142.7" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-24 112.3 148.3)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開蟲</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN WORM</span></span></button><button class="cell" data-i="19" data-k="wedge" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開楔隊形圖 OPEN WEDGE" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="69.0" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="134.4" y="54.5" width="35.1" height="23.4" fill="#101010" transform="rotate(66 151.9 66.1)"/><rect x="66.1" y="24.2" width="24.3" height="16.5" fill="#D6301C" transform="rotate(12 78.3 32.5)"/><rect x="65.8" y="119.9" width="56.9" height="6.1" fill="#101010" transform="rotate(-24 94.3 122.9)"/><circle cx="4.1" cy="17.0" r="8.7" fill="#24409A"/><rect x="21.5" y="157.2" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-66 29.9 162.9)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開楔</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN WEDGE</span></span></button><button class="cell" data-i="20" data-k="stair" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開階隊形圖 OPEN STAIR" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="71.6" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="121.5" y="-18.5" width="35.1" height="23.4" fill="#101010" transform="rotate(-24 139.1 -6.8)"/><rect x="96.9" y="27.8" width="24.3" height="16.5" fill="#D6301C" transform="rotate(24 109.0 36.1)"/><rect x="50.6" y="76.0" width="56.9" height="6.1" fill="#101010" transform="rotate(-66 79.0 79.0)"/><circle cx="49.0" cy="121.9" r="8.7" fill="#24409A"/><rect x="10.6" y="159.1" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(12 18.9 164.8)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開階</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN STAIR</span></span></button><button class="cell" data-i="21" data-k="bow" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開弓隊形圖 OPEN BOW" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="78.1" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="51.6" y="0.7" width="35.1" height="23.4" fill="#101010" transform="rotate(-66 69.1 12.4)"/><rect x="106.9" y="63.7" width="24.3" height="16.5" fill="#D6301C" transform="rotate(66 119.1 71.9)"/><rect x="64.1" y="142.0" width="56.9" height="6.1" fill="#101010" transform="rotate(12 92.5 145.0)"/><circle cx="15.9" cy="158.5" r="8.7" fill="#24409A"/><rect x="-42.4" y="93.3" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(24 -34.1 98.9)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開弓</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN BOW</span></span></button><button class="cell" data-i="22" data-k="cross" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開十隊形圖 OPEN CROSS" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="95.3" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="61.5" y="67.3" width="35.1" height="23.4" fill="#101010" transform="rotate(12 79.0 79.0)"/><rect x="139.8" y="57.9" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-24 151.9 66.1)"/><rect x="63.4" y="148.9" width="56.9" height="6.1" fill="#101010" transform="rotate(24 91.9 151.9)"/><circle cx="6.1" cy="91.9" r="8.7" fill="#24409A"/><rect x="57.8" y="0.4" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(66 66.1 6.1)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開十</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN CROSS</span></span></button><button class="cell" data-i="23" data-k="split" data-v="開" aria-current="false">
+<svg viewBox="0 0 158 158" width="158" height="158" role="img" aria-label="開裂隊形圖 OPEN SPLIT" style="display:block"><rect width="158" height="158" fill="#E9ECEE"/><rect x="-47.4" y="85.9" width="252.8" height="2.2" fill="#101010" transform="rotate(-24 79 79)"/><rect x="89.4" y="-9.1" width="35.1" height="23.4" fill="#101010" transform="rotate(24 106.9 2.6)"/><rect x="128.0" y="33.6" width="24.3" height="16.5" fill="#D6301C" transform="rotate(-66 140.1 41.9)"/><rect x="44.8" y="107.1" width="56.9" height="6.1" fill="#101010" transform="rotate(66 73.2 110.1)"/><circle cx="51.7" cy="159.0" r="8.7" fill="#24409A"/><rect x="4.6" y="103.8" width="16.7" height="11.3" fill="#A8A9A6" transform="rotate(-24 12.9 109.5)"/></svg>
+<span class="cap"><span class="lat" style="font-size:15px;display:block">開裂</span>
+<span class="tag" style="color:var(--grey);display:block;margin-top:3px">OPEN SPLIT</span></span></button>
+</div>
+</section>
+
+<section class="sec wrap">
+ <div class="tag" style="color:var(--grey)">手冊 / MANUAL</div>
+ <h2 class="h2" style="margin-top:8px">攤平的四個角</h2>
+ <div class="tx off1">
+  <p>自由落體不是「掉下去」，是躺在一股每小時一百八十六公里的氣流上面。你不會覺得自己在墜落，你會覺得有人從下面用力頂著你的肚子。
+  這時候身體是一張桌子：<strong>兩隻手肘、兩個膝蓋，四個角要一樣重</strong>。哪一個角比較輕，你就往哪邊轉。</p>
+  <p>新手最常犯的兩件事：一是低頭看高度表——頭一低，肩膀跟著沉，整個人開始往前衝；
+  二是手伸太直——手臂打直等於把翼面加大，你會往後退，而且退得很慢，慢到你以為自己沒在動。</p>
+  <p>把手肘收到九十度、膝蓋張到與肩同寬、下巴抬起來看著地平線——雖然在這個高度你其實看不到地平線，
+  那條線是你自己想像出來的。<strong>本校的名字就是這麼來的。</strong></p>
+ </div>
+</section>
+
+<section class="sec wrap">
+ <h2 class="h2">接手的三個條件</h2>
+ <div class="two tx" style="max-width:none;margin-top:14px">
+  <p><strong>一、距離。</strong>兩個人的中心距離要進到 2.6 公尺以內。看起來很寬，但在空中你唯一的參考物就是對方，
+  而你們兩個都在動——沒有牆、沒有地板，沒有東西可以告訴你「你們現在距離多少」。這是這項運動最違反直覺的一件事。</p>
+  <p><strong>二、速度。</strong>相對速度要低於每秒 2.6 公尺。撞上去不算接手，撞上去叫做「打散」：兩個人都會被彈開，
+  而且被彈開的人往往會翻過去，翻過去就要花七、八秒才能翻回來。<strong>在只有六十二秒的地方，七秒是很長的時間。</strong></p>
+  <p><strong>三、時間。</strong>要在那個位置穩住一秒四。一秒四聽起來很短，但你必須同時對抗相對風——
+  一股每秒 0.85 公尺、方向緩慢改變的橫向流。你停住的那一秒四，其實是一直在修正的一秒四。</p>
+  <p><strong>順序不能換。</strong>五個接手位依序點名，第三位沒接上就不會點第四位。這不是規矩問題，是安全問題：
+  同時有兩個人往同一個空間移動，就是撞在一起的最短路徑。</p>
+ </div>
+</section>
+
+<section class="sec wrap">
+ <h2 class="h2">分離、開傘、以及那件不會發生的事</h2>
+ <div class="tx off2">
+  <p>7,500 呎所有人放手，各自轉 180 度往外飛滿五秒。這五秒不是形式——五個人如果原地開傘，傘會開在彼此的頭上。
+  往外飛的時候不要抬頭找人，抬頭等於減速。</p>
+  <p>5,000 呎抬頭確認上方淨空，揮手兩次（告訴上面的人你要開了），4,000 呎拉。
+  設定 3,500 呎是因為留了 500 呎的緩衝。自動開傘器設在 750 呎，那是最後一道，它啟動的時候你已經做錯很多事了。</p>
+  <p class="sm"><strong>場規：</strong>地面風速超過 25 節不起飛。雲底低於 5,000 呎不起飛。
+  能見度低於 5 公里不起飛。體重上限 100 公斤（裝備重 12 公斤，主傘的認證上限是 114 公斤）。
+  未滿 18 歲須法定代理人到場簽署。跳前 12 小時內飲酒者一律不得登機——這一條沒有例外，也不退費。</p>
+ </div>
+</section>
+
+<script>
+(function(){
+  var rm = window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var nodes = [].slice.call(document.querySelectorAll('.noup'));
+  if(!nodes.length) return;
+  var bankT = 0, bank = 0, t0 = performance.now();
+  function onMove(e){
+    var w = innerWidth || 1, h = innerHeight || 1;
+    bankT = ((e.clientX / w) - 0.5) * 2 * 4.2;          // 左右＝側傾 ±4.2°
+    var ty = ((e.clientY / h) - 0.5) * 2 * -1.6;
+    nodes.forEach(function(n){ n.style.setProperty('--tilt', ty.toFixed(2)+'px'); });
+  }
+  if(!rm) addEventListener('pointermove', onMove, {passive:true});
+  function frame(now){
+    var t = (now - t0) / 1000;
+    bank += (bankT - bank) * 0.09;                        // 平滑，回饋延遲 < 100ms
+    var amb = rm ? 0 : Math.sin(t/17) * 2.1 + Math.sin(t/6.3) * 0.5;
+    var th = rm ? 0 : (amb + bank);
+    nodes.forEach(function(n){ n.style.setProperty('--th', th.toFixed(3)+'deg'); });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+var ANG=[-24,-66,12,24,66];
+var COL={ink:'#101010',red:'#D6301C',blue:'#24409A',grey:'#A8A9A6',w2:'#E9ECEE'};
+var BASE={
+ star:function(i){var a=(-90+i*72)*Math.PI/180;return[Math.cos(a),Math.sin(a)]},
+ ring:function(i){var o=[0,2,4,1,3][i],a=(-90+o*72)*Math.PI/180;return[Math.cos(a),Math.sin(a)]},
+ worm:function(i){return[-1+i*0.5,(i%2?0.28:-0.28)]},
+ wedge:function(i){return[[0,-1],[-0.62,-0.1],[0.62,-0.1],[-1,0.85],[1,0.85]][i]},
+ stair:function(i){return[-1+i*0.5,-1+i*0.5]},
+ bow:function(i){var a=(-150+i*60)*Math.PI/180;return[Math.cos(a)*1.05,Math.sin(a)*1.05+0.5]},
+ cross:function(i){return[[0,0],[0,-1],[1,0],[0,1],[-1,0]][i]},
+ split:function(i){return[[-0.95,-0.55],[-0.35,-0.9],[0.4,0.15],[1,0.55],[0.25,0.95]][i]}
+};
+var KEYS=['star','ring','worm','wedge','stair','bow','cross','split'];
+var CNAME={star:'星',ring:'環',worm:'蟲',wedge:'楔',stair:'階',bow:'弓',cross:'十',split:'裂'};
+var ENAME={star:'STAR',ring:'RING',worm:'WORM',wedge:'WEDGE',stair:'STAIR',bow:'BOW',cross:'CROSS',split:'SPLIT'};
+var VAR=[['正','UPRIGHT',0,11],['斜','CANTED',40,13],['開','OPEN',80,15]];
+function FNV(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h>>>0}
+function MUL(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function FORM(idx){
+ var k=KEYS[idx%8],v=Math.floor(idx/8),V=VAR[v],rot=V[2]*Math.PI/180,sc=V[3];
+ var pts=[0,1,2,3,4].map(function(i){var p=BASE[k](i);
+  return[(p[0]*Math.cos(rot)-p[1]*Math.sin(rot))*sc,(p[0]*Math.sin(rot)+p[1]*Math.cos(rot))*sc]});
+ var span=0,gap=0,path=Math.hypot(pts[0][0],pts[0][1]);
+ for(var i=0;i<5;i++)for(var j=i+1;j<5;j++)span=Math.max(span,Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1]));
+ for(var i=1;i<5;i++){var d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);gap=Math.max(gap,d);path+=d}
+ return{idx:idx,key:k,code:V[0]+CNAME[k],en:V[1]+' '+ENAME[k],pts:pts,
+  span:Math.round(span*10)/10,gap:Math.round(gap*10)/10,path:Math.round(path*10)/10};
+}
+function PLATE(idx,S0,bg){
+ var f=FORM(idx),R=MUL(FNV('plate'+idx)),cx=S0/2,cy=S0/2,k=S0/32;
+ var order=[COL.ink,COL.red,COL.ink,COL.blue,COL.grey];
+ var o='<svg viewBox="0 0 '+S0+' '+S0+'" width="'+S0+'" height="'+S0+'" role="img" aria-label="'+f.code+'隊形圖 '+f.en+'" style="display:block">';
+ o+='<rect width="'+S0+'" height="'+S0+'" fill="'+(bg||COL.w2)+'"/>';
+ var L=S0*1.6,bw=Math.max(2,S0*0.014);
+ o+='<rect x="'+(cx-L/2).toFixed(1)+'" y="'+(cy-bw/2+S0*(R()-0.5)*0.34).toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+bw.toFixed(1)+'" fill="'+COL.ink+'" transform="rotate(-24 '+cx+' '+cy+')"/>';
+ f.pts.forEach(function(p,i){
+  var x=cx+p[0]*k,y=cy+p[1]*k,s=S0*(0.148-0.014*i),a=ANG[(idx+i*3)%5],fill=order[i];
+  if(i===3){o+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(s*0.52).toFixed(1)+'" fill="'+fill+'"/>'}
+  else if(i===2){o+='<rect x="'+(x-s*1.5).toFixed(1)+'" y="'+(y-s*0.16).toFixed(1)+'" width="'+(s*3).toFixed(1)+'" height="'+(s*0.32).toFixed(1)+'" fill="'+fill+'" transform="rotate('+a+' '+x.toFixed(1)+' '+y.toFixed(1)+')"/>'}
+  else{var w=s*(i===0?1.5:1.15),h=s*(i===0?1.0:0.78);
+   o+='<rect x="'+(x-w/2).toFixed(1)+'" y="'+(y-h/2).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+fill+'" transform="rotate('+a+' '+x.toFixed(1)+' '+y.toFixed(1)+')"/>'}
+ });
+ return o+'</svg>';
+}
+
+(function(){
+ var rm=!!(window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches);
+ var DESC={"star":"五個人面朝內，手抓兩邊的人。最老的隊形，也是最不容錯的——只要有一個人比別人低，整個圈會開始轉。","worm":"一個接一個，前面的人抓後面的人的小腿。看起來簡單，但排在最後的人幾乎看不到目標。","ring":"跟星一樣的五個位置，但接手順序跳著走。每接一次就要橫越整個隊形，這是耗時間的隊形。","wedge":"兩層的箭頭。第一位在最前面，其餘四人分兩排跟上，是從飛機門口出來後最快能成形的隊形。","stair":"五個人排成一條斜線，每個人比前一個低半個身位。斜線的角度就是全隊的下墜率差。","bow":"一段弧。位置之間的距離相等，但方向一直在變，你必須一路修正朝向。","cross":"一個人在正中央，其餘四人各據一方。中央位不能動，四個角要自己把距離收乾淨。","split":"兩堆人，中間空的。這個隊形的難處不在接手，在於你要橫越那一段空的地方兩次。"};
+ var cells=[].slice.call(document.querySelectorAll('.cell'));
+ var big=document.getElementById('bigplate'), cnt=document.getElementById('count');
+ var fk='all', fv='all', cur=0;
+ function select(i){
+  cur=i; var f=FORM(i);
+  var upd=function(){
+   big.innerHTML=PLATE(i,300);
+   document.getElementById('bName').textContent=f.code;
+   document.getElementById('bEn').textContent=f.en;
+   document.getElementById('bDesc').textContent=DESC[f.key];
+   document.getElementById('sSpan').textContent=f.span;
+   document.getElementById('sGap').textContent=f.gap;
+   document.getElementById('sPath').textContent=f.path;
+   document.getElementById('bNote').textContent='路徑 '+f.path+' 公尺是從出艙點依序走完五位的最短距離。以最高橫向速度 6.7 公尺／秒計，光是移動就要 '+(f.path/6.7).toFixed(1)+' 秒，再加五次各 1.4 秒的停穩。';
+   document.getElementById('bGo').href='fall.html?f='+i;
+   cells.forEach(function(c){c.setAttribute('aria-current', c.dataset.i==i)});
+  };
+  if(document.startViewTransition && !rm) document.startViewTransition(upd); else upd();
+ }
+ cells.forEach(function(c){ c.addEventListener('click',function(){select(+c.dataset.i)}) });
+ function refilter(){
+  var n=0;
+  cells.forEach(function(c){
+   var ok=(fk==='all'||c.dataset.k===fk)&&(fv==='all'||c.dataset.v===fv);
+   c.classList.toggle('hide',!ok); if(ok)n++;
+  });
+  cnt.textContent=n+' 個隊形'+(fk==='all'&&fv==='all'?'':'（已篩選）');
+ }
+ [].slice.call(document.querySelectorAll('.filt')).forEach(function(g,gi){
+  var bs=[].slice.call(g.querySelectorAll('button'));
+  bs.forEach(function(b){ b.addEventListener('click',function(){
+   bs.forEach(function(x){x.setAttribute('aria-pressed','false')});
+   b.setAttribute('aria-pressed','true');
+   if(gi===0) fk=b.dataset.f; else fv=b.dataset.v;
+   refilter();
+  })});
+ });
+ var q=new URLSearchParams(location.search);
+ if(q.has('f')){var i=parseInt(q.get('f'),10); if(i>=0&&i<24) select(i);}
+})();
+</script></main>
+<footer>
+<div class="fbar"></div>
+<div class="wrap">
+<div class="fgrid">
+<div>
+<div class="lat" style="font-size:26px;line-height:1">零地平跳傘學校</div>
+<div class="tag" style="color:var(--grey);margin-top:6px">ZERO HORIZON SKYDIVING SCHOOL</div>
+<p class="sm" style="margin-top:16px">屏東縣潮州鎮潮北路 271 號・潮州跳傘場第二跑道<br>電話 08-788 4402<br>週三至週日 06:40–17:30（週一、二休場）</p>
+</div>
+<div>
+<div class="tag" style="color:var(--grey)">頁 / PAGES</div>
+<ul class="sm" style="list-style:none;margin-top:10px">
+<li style="padding:3px 0"><a href="index.html">空場　VOID</a></li><li style="padding:3px 0"><a href="fall.html">六十二秒　62 SEC</a></li><li style="padding:3px 0"><a href="zhentu.html">隊形　FORMS</a></li><li style="padding:3px 0"><a href="bao.html">報名　ENROL</a></li>
+</ul>
+</div>
+<div>
+<div class="tag" style="color:var(--grey)">場務 / FIELD</div>
+<p class="sm" style="margin-top:10px">起跳與否由當日雲底高度與地面風速決定，場務於 06:40 於本場公告，不另行電話通知。<br>
+未滿 18 歲須法定代理人到場簽署。體重上限 100 公斤。</p>
+</div>
+</div>
+<p class="xs" style="color:#8d8d8d;margin-top:30px;max-width:70ch">
+本站為網頁設計風格示範站。校名、人物、地址、電話、價目、課表、隊形代號與所有數字皆為虛構教學示意，不可作為跳傘訓練、裝備或飛行依據。
+自由落體的操控模型是為了讓一段互動可玩而寫的簡化近似，不是空氣動力學計算。
+風格規格書：<a href="SKILL.md">SKILL.md</a>　·　<a href="../../index.html">Design Skills Center</a>
+</p>
+</div>
+</footer>
+</body>
+</html>

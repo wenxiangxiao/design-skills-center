@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>幕｜零十劇場 ZERO-TEN THEATRE</title>
+<meta name="description" content="零十劇場・96 席黑盒子。本季第七號製作《戰勝太陽》。票價由你那個位子看見的幕決定。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A//www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFFFFF'/%3E%3Cpolygon points='4,4 4,28 28,28' fill='%23131313'/%3E%3Ccircle cx='23' cy='9' r='4.6' fill='%23F5C400'/%3E%3Crect x='4' y='4' width='24' height='24' fill='none' stroke='%23131313' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+:root{
+ --void:#FFFFFF;--ink:#131313;--red:#D9241C;--ultra:#1633A8;--grn:#17823F;--sun:#F5C400;
+ --field:#FFFFFF;
+ --t1:clamp(30px,5vw,62px);--t2:clamp(19px,2.4vw,28px);--t3:16px;--t4:13px;--t5:11px;
+}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{
+ background:var(--field);color:var(--ink);
+ font-family:'Noto Sans TC','Archivo',sans-serif;font-weight:400;font-size:var(--t3);line-height:1.75;
+ font-variant-numeric:tabular-nums;overflow-x:hidden;
+ transition:background-color .9s linear;
+}
+body.st-house{--field:#EDECE9}
+
+body.st-live{--field:#131313;--ultra:#5C79E8;--grn:#39B36B;--red:#F04A3A;color:#FFFFFF}
+body.st-live .plane-ink{background:#FFFFFF}
+body.st-live .btn{background:#FFFFFF;color:#131313}
+body.st-live .btn:hover,body.st-live .btn:focus-visible{background:var(--red);color:#fff}
+body.st-live .onred{color:#131313}
+img,svg{display:block}
+a{color:inherit;text-decoration:none}
+p a,.lk{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2px;text-decoration-color:var(--red)}
+::selection{background:var(--red);color:#fff}
+:focus-visible{outline:3px solid var(--ultra);outline-offset:3px}
+.wrap{width:min(1240px,92vw);margin:0 auto}
+.en{font-family:'Archivo',sans-serif;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
+.num{font-family:'Archivo',sans-serif;font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- 對角掃幕（載入揭幕 / 狀態切換） ---- */
+.wipe{position:fixed;left:50%;top:50%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;
+ background:var(--ink);z-index:90;opacity:0;pointer-events:none;will-change:transform;
+ transform:rotate(-45deg);animation:unveil .5s cubic-bezier(.2,.85,.25,1) both}
+@keyframes unveil{
+ 0%{opacity:1;transform:rotate(-45deg) translateY(0)}
+ 99%{opacity:1;transform:rotate(-45deg) translateY(-245vmax)}
+ 100%{opacity:0;transform:rotate(-45deg) translateY(-245vmax)}
+}
+
+/* ---- 頁首 ---- */
+.hd{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+ padding:26px 0 10px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .bmark{width:34px;height:34px;flex:0 0 34px}
+.brand b{font-weight:900;font-size:19px;letter-spacing:.04em;line-height:1.1;display:block}
+.brand span{display:block;font-family:'Archivo',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.24em}
+.hdr{display:flex;align-items:flex-start;gap:26px}
+
+/* ---- 正交靜止導覽 orthogonal-rest ---- */
+.nav{display:flex;gap:20px;align-items:flex-start;padding-top:2px}
+.nav a{display:block;text-align:center;width:56px}
+.nav i{display:block;width:26px;height:26px;margin:0 auto 7px;background:var(--ink);
+ transform:rotate(var(--tilt));transition:transform .22s cubic-bezier(.2,.8,.3,1)}
+.nav a:hover i,.nav a:focus-visible i{transform:rotate(calc(var(--tilt) + 5deg))}
+.nav em{display:block;font-style:normal;font-size:var(--t5);font-weight:700;letter-spacing:.06em;
+ transform:rotate(var(--tilt));transition:transform .22s cubic-bezier(.2,.8,.3,1);white-space:nowrap}
+.nav a[aria-current=page] i{--tilt:0deg}
+.nav a[aria-current=page] em{--tilt:0deg}
+.nav a[aria-current=page] i{background:var(--ink)}
+body.st-live .nav i{background:#fff}
+
+/* ---- 太陽（signature：日落 sun-strike） ---- */
+.sunbox{position:relative;width:52px;height:52px;flex:0 0 52px;overflow:hidden}
+.sunbox .disc{position:absolute;left:9px;top:9px;width:34px;height:34px;background:var(--sun);border-radius:50%}
+.sunbox .eclipse{position:absolute;left:0;top:0;width:52px;height:52px;background:var(--ink);
+ transform:translate(-120px,-120px) rotate(45deg)}
+.sunbox.down .eclipse{transform:translate(0,0) rotate(45deg);
+ transition:transform .55s cubic-bezier(.3,.9,.2,1)}
+body.st-live .sunbox .eclipse{background:#FFFFFF}
+.sunlab{font-size:var(--t5);font-weight:700;letter-spacing:.1em;text-align:right;margin-top:3px}
+
+/* ---- 版面：形體 ---- */
+.plane{display:block}
+.plane-ink{background:var(--ink)}
+.plane-red{background:var(--red)}
+.plane-ultra{background:var(--ultra)}
+.plane-grn{background:var(--grn)}
+.tilt-a{transform:rotate(-11.25deg)}
+.tilt-b{transform:rotate(-22.5deg)}
+.tilt-c{transform:rotate(11.25deg)}
+.tilt-d{transform:rotate(-33.75deg)}
+
+/* ---- 大字（區段標題，斜置） ---- */
+h1,h2,h3{font-weight:900;line-height:.94;letter-spacing:-.01em}
+.sect{padding:78px 0 8px}
+.sect>.lab{font-family:'Archivo',sans-serif;font-weight:900;font-size:var(--t5);letter-spacing:.3em;
+ display:inline-block;transform:rotate(-11.25deg);transform-origin:left bottom;margin-bottom:26px}
+.sect h2{font-size:var(--t1);display:inline-block;transform:rotate(-3.5deg);transform-origin:left bottom}
+.lead{max-width:62ch;margin-top:22px;font-size:17px}
+
+/* ---- 首屏（桌機） ---- */
+.hero-lg{position:relative;width:100%;aspect-ratio:1240/720;margin-top:6px}
+.hero-lg>svg{position:absolute;inset:0;width:100%;height:100%}
+.p{position:absolute;left:var(--x);top:var(--y);width:var(--w,auto);
+ transform:translate(-50%,-50%) rotate(var(--r,0deg));}
+.p.tl{transform:translate(0,-50%) rotate(var(--r,0deg))}
+.hero-sm{display:none}
+.tag{font-size:var(--t5);font-weight:700;letter-spacing:.14em;line-height:1.55}
+.onred{background:var(--red);color:#fff;padding:11px 16px 13px;font-weight:700;font-size:var(--t4);line-height:1.5}
+.bigname{font-size:clamp(26px,3.1vw,42px);font-weight:900;line-height:.96;letter-spacing:-.01em}
+.bigname span{display:block;font-family:'Archivo',sans-serif;font-size:.3em;letter-spacing:.28em;font-weight:900;margin-top:9px}
+
+/* ---- 表格：無框線，只有色塊行首 ---- */
+table{border-collapse:collapse;width:100%;font-size:var(--t4)}
+th,td{text-align:left;padding:11px 14px 11px 0;vertical-align:top}
+thead th{font-weight:900;font-size:var(--t5);letter-spacing:.16em;padding-bottom:6px}
+tbody tr{border-top:2px solid var(--ink)}
+body.st-live tbody tr{border-top-color:#fff}
+
+/* ---- 按鈕：實心平塗、無圓角無陰影 ---- */
+.btn{display:inline-block;background:var(--ink);color:#fff;font-weight:900;font-size:15px;
+ letter-spacing:.06em;padding:15px 30px;border:0;cursor:pointer;font-family:inherit;
+ transform:rotate(-3.5deg);transition:transform .16s linear,background-color .16s linear}
+.btn:hover,.btn:focus-visible{transform:rotate(0deg);background:var(--red)}
+.btn[disabled]{background:#B9B9B4;cursor:not-allowed;transform:rotate(0)}
+.btn.red{background:var(--red)}.btn.red:hover{background:var(--ink)}
+
+/* ---- 頁尾 ---- */
+.ft{margin-top:110px;padding:46px 0 70px;border-top:3px solid var(--ink)}
+body.st-live .ft{border-top-color:#fff}
+.ftgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px;font-size:var(--t4);line-height:1.9}
+.ft h4{font-size:var(--t5);letter-spacing:.24em;font-weight:900;margin-bottom:10px}
+.ft nav a{display:block}
+.fine{margin-top:34px;font-size:var(--t5);line-height:1.9;opacity:.72;max-width:78ch}
+
+/* ---- RWD ---- */
+@media (max-width:900px){
+ .hd{flex-wrap:wrap;padding-top:18px}
+ .hdr{width:100%;justify-content:space-between;gap:12px}
+ .nav{gap:10px;flex:1}
+ .nav a{width:auto;flex:1}
+ .nav i{width:22px;height:22px}
+ .hero-lg{display:none}
+ .hero-sm{display:block;margin-top:14px}
+ .ftgrid{grid-template-columns:1fr;gap:22px}
+}
+@media (max-width:560px){
+ :root{--t3:15px}
+ .brand b{font-size:16px}
+ .nav em{font-size:10px;letter-spacing:.02em}
+ .sect{padding:52px 0 6px}
+ th,td{padding:9px 8px 9px 0}
+}
+@media (prefers-reduced-motion:reduce){
+ .wipe{display:none}
+ *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+  transition-duration:.001ms!important;scroll-behavior:auto!important}
+ .sunbox.down .eclipse{animation:none;left:0;top:0}
+}
+
+/* ---- 區塊 ---- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;margin-top:44px}
+.poster{width:100%;height:auto}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:42px;font-size:var(--t4);line-height:1.7}
+.tiers b{font-size:17px}
+.chip{display:block;width:34px;height:34px;margin-bottom:12px;transform:rotate(-11.25deg)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:44px}
+.wcard b{display:block;margin-top:14px;font-size:14px;font-weight:900}
+.wcard span{display:block;font-size:var(--t5);letter-spacing:.05em;margin-top:4px}
+.th{transition:transform .2s linear}
+.wcard:hover .th,.wcard:focus-visible .th{transform:rotate(-3.5deg)}
+.rulelist{margin-top:26px;list-style:none;font-size:15px;line-height:1.95}
+.rulelist li{padding-left:26px;position:relative}
+.rulelist li::before{content:"";position:absolute;left:0;top:.66em;width:12px;height:12px;
+ background:var(--ink);transform:rotate(-11.25deg)}
+body.st-live .rulelist li::before{background:#fff}
+.rules{list-style:none;counter-reset:r;margin-top:36px;display:grid;gap:32px}
+.rules li{counter-increment:r;position:relative;padding-left:66px}
+.rules li::before{content:counter(r);position:absolute;left:0;top:-8px;font-family:'Archivo',sans-serif;
+ font-weight:900;font-size:38px;line-height:1;transform:rotate(-11.25deg)}
+.rules b{display:block;font-size:19px;font-weight:900;margin-bottom:8px}
+.rules span{display:block;font-size:15px;max-width:64ch}
+.tablewrap{overflow-x:auto;margin-top:24px}
+details{margin-top:18px}
+summary{font-size:var(--t4);font-weight:900;cursor:pointer;padding:10px 0;letter-spacing:.06em}
+
+/* ---- 劇目 ---- */
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:54px 40px;margin-top:52px}
+.wcno{font-family:'Archivo',sans-serif;font-size:var(--t5);letter-spacing:.24em;font-weight:900;margin-top:16px}
+.wc h3{font-size:23px;margin-top:6px}
+.wcmeta{font-size:var(--t5);letter-spacing:.06em;margin-top:8px}
+.wcnote{font-size:13px;margin-top:11px;max-width:36ch;line-height:1.85}
+
+/* ---- 選位 ---- */
+:root{--sq:26px;--sgap:14px}
+.showpick{margin-top:40px}
+.lab2{font-family:'Archivo',sans-serif;font-size:var(--t5);letter-spacing:.3em;font-weight:900;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:12px 14px}
+.chipbtn{background:none;border:0;border-bottom:3px solid var(--ink);color:inherit;font:inherit;
+ font-size:12px;font-weight:700;line-height:1.35;padding:6px 8px;cursor:pointer;
+ transform:rotate(-3.5deg);transform-origin:left bottom;transition:transform .15s linear}
+.chipbtn b{display:block;font-weight:400;font-size:11px}
+.chipbtn:hover{transform:rotate(0deg)}
+.chipbtn[aria-pressed=true]{background:var(--red);color:#fff;border-bottom-color:var(--red);transform:rotate(0deg)}
+body.st-live .chipbtn{border-bottom-color:#fff}
+.seatgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;margin-top:34px;align-items:start}
+.plan{padding:42px 0;overflow:visible}
+.planrot{transform:rotate(-11.25deg);transform-origin:50% 50%}
+.stagebar{height:12px;background:var(--ink);margin:0 0 10px 26px}
+body.st-live .stagebar{background:#fff}
+.stagelab{font-size:var(--t5);letter-spacing:.2em;margin:0 0 24px 26px}
+.prow{display:flex;gap:var(--sgap);align-items:center;margin-bottom:var(--sgap)}
+.rl{width:14px;flex:0 0 14px;font-size:10px;font-weight:900;letter-spacing:0}
+.sq{width:var(--sq);height:var(--sq);flex:0 0 var(--sq);background:var(--ink);border:0;padding:0;
+ cursor:pointer;position:relative;transition:transform .14s linear,background-color .14s linear}
+body.st-live .sq{background:#fff}
+.sq:hover{background:var(--ultra);transform:rotate(-11.25deg)}
+.sq.on{background:var(--red);transform:scale(1.35) rotate(11.25deg);z-index:2}
+.sq.sold,.sq[disabled]{background:none;cursor:not-allowed;transform:none}
+.sq .dot{display:none}
+.sq.sold .dot{display:block;position:absolute;left:50%;top:50%;width:5px;height:5px;
+ margin:-2.5px 0 0 -2.5px;background:var(--ink)}
+body.st-live .sq.sold .dot{background:#fff}
+.legend{margin-top:30px;font-size:var(--t5);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.k{display:inline-block;width:14px;height:14px;flex:0 0 14px}
+.dotk{position:relative}
+.dotk::after{content:"";position:absolute;left:4.5px;top:4.5px;width:5px;height:5px;background:var(--ink)}
+body.st-live .dotk::after{background:#fff}
+.scrwrap{position:relative;width:100%;aspect-ratio:8/5;overflow:hidden}
+.scr{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;
+ border:2px solid var(--ink);background:#FFFFFF}
+.js .scr{width:640px;height:360px}
+.caps{font-size:var(--t5);line-height:1.75;margin-top:14px;max-width:54ch}
+.hint{font-size:14px;max-width:46ch;margin-top:24px;line-height:1.85}
+.seatid{margin-top:26px;display:flex;align-items:baseline;gap:14px}
+.seatid b{font-size:46px;font-weight:900;line-height:1;font-family:'Archivo',sans-serif}
+.seatid span{background:var(--red);color:#fff;font-size:12px;font-weight:900;padding:5px 10px;
+ transform:rotate(-11.25deg);display:inline-block}
+.read{margin-top:14px}
+.read .big{font-size:22px;font-weight:900}
+.fine2{font-size:var(--t5);line-height:1.7;opacity:.85}
+.stub{margin-top:32px;background:var(--ink);color:#FFFFFF;padding:26px}
+body.st-live .stub{background:#FFFFFF;color:#131313}
+.stubinner{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.stubbig{font-size:30px;font-weight:900;line-height:1;margin:8px 0}
+.stubline{font-size:12px;line-height:1.85}
+
+
+/* ---- ambient 環境動效：失重漂移（形體在真空裡沒有靜止的理由） ---- */
+.dr{animation-name:drift;animation-timing-function:ease-in-out;
+ animation-iteration-count:infinite;animation-direction:alternate;will-change:transform}
+.d1{animation-duration:58s;--dxa:9px;--dya:-7px;--dra:.35deg}
+.d2{animation-duration:74s;--dxa:-6px;--dya:8px;--dra:-.28deg}
+.d3{animation-duration:91s;--dxa:11px;--dya:5px;--dra:.4deg}
+.d4{animation-duration:66s;--dxa:-10px;--dya:-6px;--dra:-.34deg}
+.d5{animation-duration:83s;--dxa:7px;--dya:9px;--dra:.3deg}
+.d6{animation-duration:49s;--dxa:-8px;--dya:-9px;--dra:-.4deg}
+@keyframes drift{
+ from{transform:translate(0,0) rotate(0deg)}
+ to{transform:translate(var(--dxa),var(--dya)) rotate(var(--dra))}
+}
+
+@media (max-width:900px){
+ .two{grid-template-columns:1fr;gap:34px}
+ .tiers{grid-template-columns:1fr 1fr}
+ .grid4{grid-template-columns:1fr 1fr;gap:24px}
+ .wgrid{grid-template-columns:1fr 1fr;gap:42px 26px}
+ .seatgrid{grid-template-columns:1fr;gap:46px}
+}
+@media (max-width:560px){
+ .grid4,.wgrid{grid-template-columns:1fr}
+ :root{--sq:19px;--sgap:8px}
+ .planrot{transform:rotate(-8deg)}
+ .seatid b{font-size:34px}
+ .rules li{padding-left:0}
+ .rules li::before{position:static;display:block;margin-bottom:6px}
+}
+@media (max-width:400px){:root{--sq:15px;--sgap:6px}}
+</style>
+</head>
+<body>
+<div class="wipe" aria-hidden="true"></div><header class="hd wrap">
+<a class="brand" href="index.html"><svg class="bmark" width="34" height="34" viewBox="0 0 32 32" role="img" aria-label="零十劇場標記">
+<rect width="32" height="32" fill="#FFFFFF"/><polygon points="4,4 4,28 28,28" fill="#131313"/>
+<circle cx="23" cy="9" r="4.6" fill="#F5C400"/><rect x="4" y="4" width="24" height="24" fill="none" stroke="#131313" stroke-width="2"/></svg><span class="sr">回首頁</span>
+<b>零十劇場<span>Zero-Ten Theatre</span></b></a>
+<div class="hdr">
+<nav class="nav" aria-label="主導覽"><a href="index.html" aria-current="page" style="--tilt:0deg"><i></i><em>幕<br>CURTAIN</em></a><a href="seats.html" style="--tilt:12deg"><i></i><em>選位<br>SEATS</em></a><a href="works.html" style="--tilt:-27deg"><i></i><em>劇目<br>WORKS</em></a><a href="house.html" style="--tilt:34deg"><i></i><em>劇場<br>HOUSE</em></a></nav>
+<div>
+<div class="sunbox" id="sunbox" aria-hidden="true"><div class="disc"></div><div class="eclipse"></div></div>
+<div class="sunlab" id="sunlab">日在</div>
+</div>
+</div>
+</header><main>
+<div class="wrap">
+
+<section class="hero-lg" aria-label="幕">
+<svg viewBox="0 0 1240 720" role="img" aria-label="首屏構成：一枚被對角線分成黑白兩半的方形幕，左上一枚黃色圓形太陽正被黑色三角吃掉，周圍散著紅、群青、綠與黑色的傾斜平面">
+<circle cx="505" cy="142" r="56" fill="#F5C400"/>
+<polygon points="520,110 520,530 940,530" fill="#131313"/>
+<rect x="520" y="110" width="420" height="420" fill="none" stroke="#131313" stroke-width="3"/>
+<g class="dr d1"><rect x="980" y="232" width="214" height="22" fill="#D9241C" transform="rotate(-33.75 1087 243)"/></g>
+<g class="dr d2"><rect x="58" y="300" width="118" height="42" fill="#1633A8" transform="rotate(11.25 117 321)"/></g>
+<g class="dr d3"><rect x="214" y="452" width="48" height="48" fill="#17823F" transform="rotate(-22.5 238 476)"/></g>
+<g class="dr d4"><rect x="1024" y="520" width="176" height="10" fill="#131313" transform="rotate(-45 1112 525)"/></g>
+<g class="dr d5"><rect x="1176" y="104" width="20" height="20" fill="#131313"/></g>
+<g class="dr d6"><rect x="452" y="636" width="28" height="28" fill="#131313" transform="rotate(22.5 466 650)"/></g>
+</svg>
+<div class="p tl" style="--x:9%;--y:19%;--r:-11.25deg;--w:330px"><div class="bigname">零十劇場<span>Zero-Ten Theatre</span></div>
+ <p class="tag" style="margin-top:12px">第七號製作　戰勝太陽　Победа над Солнцем</p></div>
+<div class="p tl onred" style="--x:8%;--y:77%;--r:-22.5deg;--w:400px">本季 2026/09/18 – 10/04・共 16 場<br>週四·五 19:30／週六 14:30·19:30／週日 14:30<br>全長 110 分・無中場・建議 12 歲以上</div>
+<p class="p tl tag" style="--x:76%;--y:86%;--r:11.25deg;--w:290px">台北市大同區鄭州路 41 號 B1<br>02-2558-1013（售票分機 10）<br>售票 週二–週日 13:00–20:00</p>
+<p class="p tl tag" style="--x:44%;--y:90%;--r:0deg;--w:340px">96 席・A 至 H 排 × 1 至 12 號。<br>本劇場沒有統一票價：票價由你那個位子看見的幕決定。</p>
+</section>
+<section class="hero-sm" aria-label="幕">
+<svg viewBox="0 0 400 330" width="100%" role="img" aria-label="一枚被對角線分成黑白兩半的方形幕，左上一枚黃色圓形太陽正被黑色三角吃掉">
+<circle cx="118" cy="70" r="34" fill="#F5C400"/>
+<polygon points="126,44 126,296 378,296" fill="#131313"/>
+<rect x="126" y="44" width="252" height="252" fill="none" stroke="#131313" stroke-width="3"/>
+<g class="dr d1"><rect x="8" y="150" width="86" height="20" fill="#D9241C" transform="rotate(-22.5 51 160)"/></g>
+<g class="dr d3"><rect x="22" y="238" width="34" height="34" fill="#17823F" transform="rotate(-22.5 39 255)"/></g>
+<g class="dr d5"><rect x="60" y="304" width="18" height="18" fill="#1633A8" transform="rotate(11.25 69 313)"/></g>
+</svg>
+<div style="margin-top:26px;transform:rotate(-6deg);transform-origin:left center"><div class="bigname">零十劇場<span>Zero-Ten Theatre</span></div></div>
+<p class="tag" style="margin-top:14px">第七號製作　戰勝太陽　Победа над Солнцем</p>
+<div class="onred" style="margin-top:20px;transform:rotate(-4deg);transform-origin:left center">本季 2026/09/18 – 10/04・共 16 場<br>週四·五 19:30／週六 14:30·19:30／週日 14:30<br>全長 110 分・無中場・建議 12 歲以上</div>
+<p class="tag" style="margin-top:22px">96 席・A 至 H 排 × 1 至 12 號。<br>本劇場沒有統一票價：票價由你那個位子看見的幕決定。</p>
+<p class="tag" style="margin-top:16px">台北市大同區鄭州路 41 號 B1<br>02-2558-1013（售票分機 10）<br>售票 週二–週日 13:00–20:00</p>
+</section>
+
+<section class="sect" id="season">
+ <span class="lab">SEASON VII</span>
+ <h2>戰勝太陽</h2>
+ <p class="lead">一九一三年十二月，聖彼得堡 Luna Park。一齣沒有人聽得懂的歌劇在台上進行到第二幕，一群人把太陽抓下來裝進水泥箱裡。那天夜裡幕上掛的不是太陽——是一個被對角線切成黑白兩半的方形。三年後，畫這面幕的人把那個方形單獨拿出來掛在牆角，說它不代表任何東西。</p>
+ <p class="lead">零十劇場的第七號製作把這齣歌劇搬回黑盒子裡。十三名演員、五幕、一百一十分鐘、零布景——舞台上只有一面 9 公尺寬、5.4 公尺高的幕，和畫在上面的七塊形體。</p>
+ <p class="lead" id="statenote">目前為非演出時段，全席開放選位。</p>
+ <noscript><p class="lead">（本站在沒有 JavaScript 的情況下仍完整可讀：所有構成皆為靜態 SVG，選位頁附有全部 96 席的視角資料表。）</p></noscript>
+
+ <div class="two">
+  <div><svg class="poster" viewBox="0 0 620 380" width="100%" role="img" aria-label="第24號製作《戰勝太陽》的構成：5幕、110分鐘、13名演員"><rect x="192.6" y="130.9" width="316.2" height="145.2" fill="#131313" transform="rotate(-45 350.7 203.5)"/><rect x="62.0" y="266.0" width="248.0" height="9.9" fill="#131313" transform="rotate(-45 186.0 270.9)"/><rect x="96.1" y="237.5" width="248.0" height="9.9" fill="#131313" transform="rotate(-45 220.1 242.4)"/><rect x="130.2" y="209.0" width="248.0" height="9.9" fill="#131313" transform="rotate(-45 254.2 213.9)"/><rect x="164.3" y="180.5" width="248.0" height="9.9" fill="#131313" transform="rotate(-45 288.3 185.4)"/><rect x="198.4" y="152.0" width="248.0" height="9.9" fill="#D9241C" transform="rotate(-45 322.4 156.9)"/><rect x="317.7" y="298.1" width="8.8" height="8.8" fill="#1633A8" transform="rotate(-33.75 322.0 302.5)"/><rect x="302.9" y="210.5" width="15.1" height="15.1" fill="#131313" transform="rotate(-67.5 310.5 218.0)"/><rect x="356.6" y="45.0" width="14.1" height="14.1" fill="#131313" transform="rotate(-11.25 363.7 52.1)"/><rect x="275.2" y="97.1" width="9.5" height="9.5" fill="#17823F" transform="rotate(0 279.9 101.8)"/><rect x="540.4" y="297.8" width="12.2" height="12.2" fill="#131313" transform="rotate(-22.5 546.5 303.9)"/><rect x="417.1" y="108.2" width="13.7" height="13.7" fill="#1633A8" transform="rotate(-11.25 424.0 115.1)"/><rect x="343.3" y="43.6" width="13.3" height="13.3" fill="#131313" transform="rotate(0 349.9 50.2)"/><rect x="563.5" y="124.9" width="12.8" height="12.8" fill="#131313" transform="rotate(-11.25 569.9 131.3)"/><rect x="471.5" y="54.0" width="16.7" height="16.7" fill="#131313" transform="rotate(0 479.8 62.3)"/><rect x="215.0" y="99.3" width="8.5" height="8.5" fill="#131313" transform="rotate(-22.5 219.3 103.6)"/><rect x="445.7" y="147.7" width="10.6" height="10.6" fill="#1633A8" transform="rotate(-11.25 451.0 153.0)"/><rect x="114.8" y="229.9" width="13.8" height="13.8" fill="#131313" transform="rotate(-45 121.6 236.8)"/><rect x="347.20000000000005" y="53.2" width="37.199999999999996" height="167.2" fill="#1633A8" transform="rotate(-22.5 365.80000000000007 136.8)"/><rect x="434" y="235.6" width="41.8" height="41.8" fill="#17823F" transform="rotate(-45 454.9 256.5)"/></svg></div>
+  <div>
+   <table>
+    <caption class="sr">《戰勝太陽》演出資訊</caption>
+    <tbody>
+     <tr><th scope="row">演出期間</th><td>2026/09/18（四）– 10/04（日）</td></tr>
+     <tr><th scope="row">場次</th><td>週四·五 19:30／週六 14:30 · 19:30／週日 14:30，共 16 場</td></tr>
+     <tr><th scope="row">全長</th><td>110 分鐘・五幕・無中場休息</td></tr>
+     <tr><th scope="row">語言</th><td>俄語 zaum 音節與台語、華語交錯・中文字幕投於幕面</td></tr>
+     <tr><th scope="row">導演</th><td>連方廷</td></tr>
+     <tr><th scope="row">音樂</th><td>何士驥（四分之一音鋼琴・預置弦）</td></tr>
+     <tr><th scope="row">舞台</th><td>邱苡瑄</td></tr>
+     <tr><th scope="row">燈光</th><td>翁若梅</td></tr>
+     <tr><th scope="row">演員</th><td>13 名：柯敏行、賴亭妤、涂大器、江玦、蕭以萱、吳承澤、韓靜文、鄭家駒、簡懋、白瑄、洪叡、廖文瀚、方勵</td></tr>
+     <tr><th scope="row">票價</th><td>甲席 1200／乙席 950／丙席 750／丁席 480（見下）</td></tr>
+    </tbody>
+   </table>
+   <p style="margin-top:26px"><a class="btn" href="seats.html">挑一個位子，看那面幕</a></p>
+  </div>
+ </div>
+</section>
+
+<section class="sect" id="why">
+ <span class="lab">WHY THE PRICES DIFFER</span>
+ <h2>票價不是我們訂的</h2>
+ <p class="lead">至上主義說形體漂浮在沒有透視、沒有地平線的空間裡。劇場不同意：它把九十六個人分配到九十六個不同的視點，每個人看到的那面幕都是一塊不一樣的四邊形。</p>
+ <p class="lead">所以我們不訂統一票價。每一席的票價由兩個量算出來——<b>幕面在你眼中占的面積</b>，以及<b>它被壓歪的程度</b>（左右兩邊長度的失衡）。分數高的是甲席，低的是丁席。A 排最邊上的 1 號與 12 號看到的幕會被壓成一塊誇張的斜四邊形；那不是壞位子，那是這齣戲最至上主義的位子，也是最便宜的位子。</p>
+ <div class="tiers">
+  <div><span class="chip plane-ink"></span><b>甲席 1200</b><br>10 席・分數 ≥ 1.30</div>
+  <div><span class="chip plane-red"></span><b>乙席 950</b><br>18 席・分數 ≥ 0.75</div>
+  <div><span class="chip plane-ultra"></span><b>丙席 750</b><br>44 席・分數 ≥ 0.45</div>
+  <div><span class="chip plane-grn"></span><b>丁席 480</b><br>24 席・分數 &lt; 0.45</div>
+ </div>
+</section>
+
+<section class="sect" id="past">
+ <span class="lab">BEFORE THIS ONE</span>
+ <h2>這一季之前</h2>
+ <p class="lead">每一檔製作有一張自己的構成。它不是海報設計——形體的數目與大小是那檔戲的資料算出來的：支配形體的面積是演出長度，細長條的數目是幕數，散開的小方是演員人數，整體的傾角是首演的月份。</p>
+ <div class="grid4">
+  <a class="wcard" href="works.html#w20"><svg class="th" viewBox="0 0 300 200" width="100%" role="img" aria-label="第20號製作《第五個方向》的構成：2幕、68分鐘、4名演員"><rect x="93.5" y="61.5" width="115.2" height="54.6" fill="#131313" transform="rotate(-11.25 151.1 88.7)"/><rect x="30.0" y="140.0" width="120.0" height="5.2" fill="#131313" transform="rotate(-11.25 90.0 142.6)"/><rect x="46.5" y="125.0" width="120.0" height="5.2" fill="#D9241C" transform="rotate(-11.25 106.5 127.6)"/><rect x="164.0" y="143.2" width="6.5" height="6.5" fill="#131313" transform="rotate(-22.5 167.3 146.5)"/><rect x="100.0" y="77.4" width="4.3" height="4.3" fill="#131313" transform="rotate(-33.75 102.1 79.6)"/><rect x="165.5" y="88.3" width="4.7" height="4.7" fill="#131313" transform="rotate(-56.25 167.8 90.6)"/><rect x="235.7" y="178.7" width="6.3" height="6.3" fill="#131313" transform="rotate(-22.5 238.9 181.8)"/></svg><b>第 20 號　第五個方向</b><span>2025年04月・2 幕・68 分・4 人</span></a><a class="wcard" href="works.html#w21"><svg class="th" viewBox="0 0 300 200" width="100%" role="img" aria-label="第21號製作《夜間裝台》的構成：1幕、58分鐘、3名演員"><rect x="48.7" y="60.9" width="106.2" height="49.4" fill="#131313" transform="rotate(-11.25 101.8 85.6)"/><rect x="30.0" y="140.0" width="120.0" height="5.2" fill="#D9241C" transform="rotate(-11.25 90.0 142.6)"/><rect x="199.8" y="137.7" width="8.3" height="8.3" fill="#131313" transform="rotate(-33.75 204.0 141.9)"/><rect x="86.8" y="150.4" width="8.3" height="8.3" fill="#131313" transform="rotate(-45 90.9 154.5)"/><rect x="42.4" y="116.3" width="8.2" height="8.2" fill="#131313" transform="rotate(-33.75 46.5 120.4)"/></svg><b>第 21 號　夜間裝台</b><span>2025年08月・1 幕・58 分・3 人</span></a><a class="wcard" href="works.html#w22"><svg class="th" viewBox="0 0 300 200" width="100%" role="img" aria-label="第22號製作《傾斜的合唱團》的構成：4幕、131分鐘、14名演員"><rect x="82.9" y="60.4" width="171.9" height="87.3" fill="#131313" transform="rotate(-45 168.9 104.0)"/><rect x="30.0" y="140.0" width="120.0" height="5.2" fill="#131313" transform="rotate(-45 90.0 142.6)"/><rect x="46.5" y="125.0" width="120.0" height="5.2" fill="#131313" transform="rotate(-45 106.5 127.6)"/><rect x="63.0" y="110.0" width="120.0" height="5.2" fill="#131313" transform="rotate(-45 123.0 112.6)"/><rect x="79.5" y="95.0" width="120.0" height="5.2" fill="#D9241C" transform="rotate(-45 139.5 97.6)"/><rect x="177.7" y="130.5" width="9.3" height="9.3" fill="#1633A8" transform="rotate(-45 182.3 135.1)"/><rect x="187.3" y="94.3" width="6.2" height="6.2" fill="#131313" transform="rotate(-45 190.4 97.4)"/><rect x="184.0" y="134.1" width="5.6" height="5.6" fill="#131313" transform="rotate(-33.75 186.8 136.9)"/><rect x="120.9" y="105.3" width="8.0" height="8.0" fill="#17823F" transform="rotate(-45 124.9 109.3)"/><rect x="194.2" y="147.1" width="8.9" height="8.9" fill="#131313" transform="rotate(-11.25 198.6 151.5)"/><rect x="232.8" y="56.0" width="4.6" height="4.6" fill="#1633A8" transform="rotate(-11.25 235.1 58.3)"/><rect x="243.0" y="67.9" width="5.6" height="5.6" fill="#131313" transform="rotate(-45 245.8 70.7)"/><rect x="25.0" y="157.5" width="5.8" height="5.8" fill="#131313" transform="rotate(-56.25 27.9 160.4)"/><rect x="195.5" y="78.9" width="6.1" height="6.1" fill="#131313" transform="rotate(-56.25 198.6 81.9)"/><rect x="53.1" y="43.6" width="4.5" height="4.5" fill="#131313" transform="rotate(-56.25 55.4 45.8)"/><rect x="153.3" y="121.5" width="9.3" height="9.3" fill="#1633A8" transform="rotate(-45 158.0 126.2)"/><rect x="164.1" y="111.8" width="6.2" height="6.2" fill="#131313" transform="rotate(-33.75 167.2 114.8)"/><rect x="168.00000000000003" y="28.000000000000004" width="18" height="88" fill="#1633A8" transform="rotate(-22.5 177.00000000000003 72)"/><rect x="210" y="124" width="22" height="22" fill="#17823F" transform="rotate(-45 221 135)"/></svg><b>第 22 號　傾斜的合唱團</b><span>2025年11月・4 幕・131 分・14 人</span></a><a class="wcard" href="works.html#w23"><svg class="th" viewBox="0 0 300 200" width="100%" role="img" aria-label="第23號製作《無重力食堂》的構成：2幕、80分鐘、6名演員"><rect x="49.4" y="49.8" width="126.0" height="60.8" fill="#131313" transform="rotate(-45 112.4 80.2)"/><rect x="30.0" y="140.0" width="120.0" height="5.2" fill="#131313" transform="rotate(-45 90.0 142.6)"/><rect x="46.5" y="125.0" width="120.0" height="5.2" fill="#D9241C" transform="rotate(-45 106.5 127.6)"/><rect x="227.0" y="84.0" width="8.6" height="8.6" fill="#131313" transform="rotate(0 231.3 88.3)"/><rect x="248.1" y="60.2" width="8.4" height="8.4" fill="#131313" transform="rotate(0 252.3 64.4)"/><rect x="58.6" y="49.4" width="6.7" height="6.7" fill="#131313" transform="rotate(-11.25 61.9 52.8)"/><rect x="216.1" y="115.4" width="5.3" height="5.3" fill="#131313" transform="rotate(-33.75 218.7 118.0)"/><rect x="119.6" y="66.5" width="5.5" height="5.5" fill="#131313" transform="rotate(-67.5 122.4 69.2)"/><rect x="146.5" y="78.0" width="5.2" height="5.2" fill="#131313" transform="rotate(-22.5 149.1 80.6)"/></svg><b>第 23 號　無重力食堂</b><span>2026年03月・2 幕・80 分・6 人</span></a>
+ </div>
+ <p style="margin-top:34px"><a class="btn" href="works.html">全部二十四檔</a></p>
+</section>
+</div>
+</main><footer class="ft"><div class="wrap">
+<div class="ftgrid">
+<div>
+<h4>ZERO-TEN THEATRE</h4>
+零十劇場・96 席黑盒子<br>
+台北市大同區鄭州路 41 號 B1<br>
+02-2558-1013（售票分機 10）<br>
+售票時間 週二–週日 13:00–20:00
+</div>
+<div>
+<h4>本季</h4>
+第七號製作《戰勝太陽》<br>
+2026/09/18 – 10/04・共 16 場<br>
+週四·五 19:30／週六 14:30·19:30／週日 14:30<br>
+演出全長 110 分・無中場
+</div>
+<div>
+<h4>頁面</h4>
+<nav aria-label="頁尾導覽">
+<a href="index.html">幕 CURTAIN</a>
+<a href="seats.html">選位 SEATS</a>
+<a href="works.html">劇目 WORKS</a>
+<a href="house.html">劇場 HOUSE</a>
+<a class="lk" href="SKILL.md">SKILL.md 風格規格書</a>
+</nav>
+<p style="margin-top:14px"><a class="lk" href="#" id="restore">復日（還原被覆蓋的太陽）</a></p>
+</div>
+</div>
+<p class="fine">本站為「Design Skills Center」風格範例站。零十劇場、其製作、人員、票價、場次與座位售出狀況皆為虛構示意，非真實販售；請勿依本頁資訊前往或匯款。<br>
+《Победа над Солнцем／戰勝太陽》為 1913 年 12 月首演於聖彼得堡 Luna Park 的俄國未來主義歌劇（腳本 Aleksei Kruchenykh、音樂 Mikhail Matyushin、舞台與服裝 Kazimir Malevich），為公有領域史實；本站借其史實作為虛構劇團的本季製作。</p>
+</div></footer><script>
+(function(){
+ var b=document.body, box=document.getElementById('sunbox'), lab=document.getElementById('sunlab');
+ // ---- 真實時刻驅動的場燈狀態機（B 層）----
+ function tpe(){
+  try{
+   var p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Taipei',hour12:false,
+     weekday:'short',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date());
+   var o={}; p.forEach(function(x){o[x.type]=x.value;});
+   return {w:o.weekday,m:parseInt(o.hour,10)*60+parseInt(o.minute,10)};
+  }catch(e){ var d=new Date();
+   return {w:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],m:d.getHours()*60+d.getMinutes()}; }
+ }
+ var SHOWS={Thu:[1170],Fri:[1170],Sat:[870,1170],Sun:[870]}; // 19:30 / 14:30
+ function state(){
+  var t=tpe(), list=SHOWS[t.w]||[], s='day';
+  for(var i=0;i<list.length;i++){
+   var st=list[i];
+   if(t.m>=st-30 && t.m<st) s='call';
+   else if(t.m>=st && t.m<st+110) s='live';
+   else if(t.m>=st+110 && t.m<st+140 && s==='day') s='out';
+  }
+  return s;
+ }
+ function paint(){
+  var s=state();
+  b.classList.remove('st-house','st-live');
+  if(s==='call'||s==='out') b.classList.add('st-house');
+  if(s==='live') b.classList.add('st-live');
+  var down = (s==='live') || localStorage_get()==='down';
+  if(box) box.classList.toggle('down',down);
+  if(lab) lab.textContent = s==='live' ? '演出中' : (s==='call' ? '進場中' : (down?'日已落':'日在'));
+  var st=document.getElementById('statenote');
+  if(st) st.textContent = {day:'目前為非演出時段，全席開放選位。',
+    call:'開演前 30 分鐘・觀眾進場中，場燈已降。',
+    live:'演出進行中，本場不再售票；幕已闔上。',
+    out:'本場演出結束・散場中。'}[s];
+ }
+ function localStorage_get(){ try{return localStorage.getItem('lingshi.sun');}catch(e){return null;} }
+ window.lingshiSunDown=function(){ try{localStorage.setItem('lingshi.sun','down');}catch(e){} paint(); };
+ var r=document.getElementById('restore');
+ if(r) r.addEventListener('click',function(e){e.preventDefault();
+   try{localStorage.removeItem('lingshi.sun');}catch(err){} paint();});
+ paint();
+ setInterval(paint,30000);
+})();
+</script>
+</body>
+</html>

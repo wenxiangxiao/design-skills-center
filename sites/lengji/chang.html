@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>廠與面｜稜記製冰</title>
+<meta name="description" content="稜記製冰的五段工序、十二面轉冰盤，以及廠裡為什麼只認三階明度。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23161f27%22%2F%3E%3Cpolygon%20points%3D%223%2C12%2013%2C5%2029%2C10%2019%2C18%22%20fill%3D%22%23e8eded%22%2F%3E%3Cpolygon%20points%3D%223%2C12%2019%2C18%2019%2C28%203%2C22%22%20fill%3D%22%23849aa9%22%2F%3E%3Cpolygon%20points%3D%2219%2C18%2029%2C10%2029%2C20%2019%2C28%22%20fill%3D%22%234f6472%22%2F%3E%3Cpath%20d%3D%22M11%206.5%20L27%2018%22%20stroke%3D%22%23ebb133%22%20stroke-width%3D%222.4%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brick:#a94a2d; --brick-d:#5d2919; --brick-l:#c4633f;
+  --coal:#161f27; --coal-d:#11171d; --coal-l:#1f2c37;
+  --ice:#e8eded; --ice-m:#d3dcde; --ice-d:#b6c5c8;
+  --steel:#647e90; --steel-l:#849aa9; --steel-d:#4f6472;
+  --cad:#ebb133; --cad-d:#b07e11;
+  --lam:-135;                      /* 光的方位角（度）：左上 */
+  --amp:15;                        /* 明度擺幅 */
+  --edge:rgba(17,23,29,.85);
+  --chamf:18px;
+}
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100% }
+body{
+  margin:0; background:var(--coal); color:var(--ice);
+  font-family:"Noto Sans TC","Jost",system-ui,sans-serif; font-size:16px; line-height:1.78;
+  overflow-x:hidden;
+}
+/* 特徵 5：雙地色斜分割——沒有單一背景色 */
+.ground{position:fixed;inset:0;z-index:-2;background:var(--coal)}
+.ground i{position:absolute;inset:0;background:var(--brick);
+  clip-path:polygon(0 100%,100% 100%,100% 26%,0 74%)}
+.ground b{position:absolute;inset:0;background:var(--coal-d);
+  clip-path:polygon(0 100%,100% 100%,100% 62%,0 96%)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 26px 90px;position:relative}
+a{color:var(--cad);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:#fff}
+h1,h2,h3{font-weight:900;line-height:1.06;letter-spacing:.01em;margin:0}
+.mono{font-family:"Jost",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+
+/* 特徵 4：稜角化標題——四角 45° 切除＋暗一階的實心位移層 */
+.fx{position:relative;display:inline-block}
+.fx>span{display:block;clip-path:polygon(.42em 0,100% 0,100% calc(100% - .30em),calc(100% - .42em) 100%,0 100%,0 .30em)}
+.fx::before{content:attr(data-t);position:absolute;left:6px;top:5px;color:var(--coal-d);z-index:-1;
+  clip-path:polygon(.42em 0,100% 0,100% calc(100% - .30em),calc(100% - .42em) 100%,0 100%,0 .30em);white-space:pre}
+
+/* 特徵 2：斜切角——版面上沒有直角 */
+.pane{background:var(--ice);color:var(--coal);padding:26px 28px;
+  clip-path:polygon(var(--chamf) 0,100% 0,100% calc(100% - var(--chamf)),calc(100% - var(--chamf)) 100%,0 100%,0 var(--chamf));
+  margin:0 0 22px}
+.pane.dk{background:var(--coal-l);color:var(--ice)}
+.pane.br{background:var(--brick);color:#fff}
+.pane h2{font-size:clamp(20px,2.5vw,27px);margin:0 0 12px}
+.pane p{margin:0 0 12px}
+.lead{font-size:17px}
+.sm{font-size:13.5px;line-height:1.7;color:var(--steel-d)}
+.pane.dk .sm{color:var(--ice-d)}
+.pane.br .sm{color:#f7e6de}
+
+/* 特徵 3：鋸齒稜帶 */
+.zigb{display:block;width:100%;height:16px;fill:none;stroke:var(--cad);stroke-width:2.2;stroke-linejoin:miter;margin:6px 0 20px}
+.zigfill{display:block;width:100%;height:22px;margin:0}
+.corn{display:block;width:100%;height:40px;margin:0 0 -1px}
+.corn .f{stroke-width:1.4}
+
+/* 特徵 1：稜面明度由法線算出（無 cos() 時退為平面中間調） */
+.f{stroke:var(--edge);stroke-width:1;stroke-linejoin:miter;vector-effect:non-scaling-stroke;
+   fill:hsl(var(--h,190) var(--s,14%) calc(var(--l0,74) * 1%))}
+.f.tp{--n:var(--lam)}
+@supports (width:calc(cos(45deg) * 1px)){
+  .f{--k:cos((var(--n,0) - var(--lam)) * 1deg);
+     fill:hsl(var(--h,190) var(--s,14%) calc((var(--l0,74) + var(--amp) * var(--k)) * 1%))}
+}
+@supports (width:calc(round(1.5px,1px))){
+  .f{--k:round(cos((var(--n,0) - var(--lam)) * 1deg),1)}   /* 三階：+1 / 0 / -1 */
+}
+.f.brickf{--h:14;--s:58%;--l0:34;--amp:11}
+.f.cadf{--h:41;--s:82%;--l0:47;--amp:9}
+.f.steelf{--h:205;--s:18%;--l0:48;--amp:11}
+
+/* 導覽：kerf-notch 鋸口 */
+.top{position:relative;z-index:5;padding:22px 0 8px;display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ice)}
+.brand svg{width:46px;height:46px;display:block}
+.brand .bn{font-weight:900;font-size:21px;letter-spacing:.06em;line-height:1}
+.brand .be{font-size:10.5px;letter-spacing:.24em;color:var(--steel-l);text-transform:uppercase}
+.kerf{margin-left:auto;display:flex;align-items:stretch;gap:0;height:52px}
+.kerf a{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  min-width:104px;padding:0 12px;text-decoration:none;color:var(--coal);background:var(--ice-m);
+  clip-path:polygon(0 0,100% 0,100% 100%,10px 100%);border-left:1px solid var(--coal)}
+.kerf a .n{font-size:10px;letter-spacing:.2em;color:#2b3a45}
+.kerf a .t{font-weight:700;font-size:15px}
+.kerf a:hover{background:#fff}
+/* 現用頁：材料被切走了——只剩兩個切面 */
+.kerf a[aria-current="page"]{background:transparent;color:var(--cad);
+  clip-path:polygon(0 0,100% 0,100% 100%,10px 100%);
+  box-shadow:inset 2px 0 0 var(--cad),inset -2px 0 0 var(--cad)}
+.kerf a[aria-current="page"] .n{color:var(--cad-d)}
+.kerf a[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:9px;
+  background:repeating-linear-gradient(90deg,var(--cad) 0 3px,transparent 3px 7px)}
+
+footer{margin-top:44px;background:var(--coal-d);color:var(--ice-d);
+  clip-path:polygon(0 22px,100% 0,100% 100%,0 100%);padding:40px 28px 30px}
+footer .fl{display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between;font-size:13.5px}
+footer a{color:var(--ice)}
+footer .fnav a{margin-right:14px;white-space:nowrap}
+.note{font-size:12.5px;color:var(--steel-l);margin-top:18px;border-top:1px solid var(--steel-d);padding-top:12px}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:18px}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid rgba(22,31,39,.22)}
+th{font-weight:700;background:var(--ice-d)}
+.pane.dk th{background:var(--steel-d)}
+.pane.dk th,.pane.dk td{border-bottom-color:rgba(232,237,237,.18)}
+.btn{display:inline-block;border:0;cursor:pointer;background:var(--cad);color:var(--coal);
+  font:700 15px/1 "Noto Sans TC",sans-serif;padding:13px 22px;font-family:inherit;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.btn:hover{background:#fff}
+.btn[disabled]{background:var(--steel);color:var(--ice-d);cursor:not-allowed}
+.btn.gh{background:transparent;color:var(--cad);box-shadow:inset 0 0 0 2px var(--cad)}
+.btn.gh:hover{background:var(--cad);color:var(--coal)}
+input,select,textarea{font:inherit;font-size:15px;background:var(--ice);color:var(--coal);border:2px solid var(--coal);
+  padding:9px 11px;width:100%;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+label{display:block;font-size:13px;font-weight:700;letter-spacing:.06em;margin:0 0 5px}
+
+/* 動效 1 ambient：窖霜結晶 */
+@keyframes frost{0%,100%{opacity:0;transform:scale(.55)}18%{opacity:.85;transform:scale(1)}55%{opacity:.5;transform:scale(1.04)}72%{opacity:0;transform:scale(1.1)}}
+.frost polygon{transform-box:fill-box;transform-origin:center;animation:frost 22s ease-in-out infinite;opacity:0}
+/* 動效 3 transition：折頁 fold-turn */
+@keyframes foldin{from{transform:perspective(1400px) rotate3d(1,.42,0,-13deg);opacity:.2}
+ to{transform:none;opacity:1}}
+.fold{animation:foldin .56s cubic-bezier(.22,.92,.28,1) both;transform-origin:14% 0}
+/* 動效 2 input：開面（真的把面折出來，preserve-3d） */
+.pz{transform-box:fill-box;transform-origin:center;transition:transform 90ms linear}
+.solid{transform-style:preserve-3d}
+.opn:hover .pz,.opn:focus-visible .pz{transform:rotate3d(.3,1,0,8deg)}
+@media (prefers-reduced-motion:reduce){
+  .frost polygon{animation:none;opacity:.55}
+  .fold{animation:none}
+  .pz{transition:none}
+  .opn:hover .pz,.opn:focus-visible .pz{transform:none}
+  *{scroll-behavior:auto!important}
+}
+@media (max-width:900px){
+  .kerf{margin-left:0;width:100%;height:auto;flex-wrap:wrap}
+  .kerf a{flex:1 1 46%;min-width:0;padding:9px 8px;border-left:1px solid var(--coal);border-top:1px solid var(--coal)}
+  .top{gap:14px}
+}
+@media (max-width:560px){
+  body{font-size:15.5px}
+  .wrap{padding:0 15px 70px}
+  .pane{padding:20px 17px;--chamf:13px}
+  .kerf a .t{font-size:14px}
+  table{font-size:13px}
+  th,td{padding:6px 6px}
+}
+
+.sicon{width:100%;height:auto;max-width:150px}
+.stepno{font-size:12px;letter-spacing:.2em;color:var(--brick);font-weight:700}
+.disp2{font-size:clamp(19px,2.6vw,30px)}
+.dial{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+@media(max-width:700px){.dial{grid-template-columns:1fr}}
+#dialsvg{width:100%;height:auto;max-width:330px}
+.tier{display:flex;gap:6px;margin:10px 0 0;flex-wrap:wrap}
+.tier span{font-size:12.5px;padding:5px 9px;color:var(--coal);
+ clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+</style>
+</head>
+<body>
+<div class="ground" aria-hidden="true"><i></i><b></b></div>
+<div class="wrap"><div class="top"><a class="brand" href="index.html"><svg class="lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="稜記製冰">
+<polygon points="10,44 46,20 110,38 74,66" fill="#e8eded" stroke="#161f27" stroke-width="3" stroke-linejoin="miter"/>
+<polygon points="10,44 74,66 74,100 10,80" fill="#849aa9" stroke="#161f27" stroke-width="3" stroke-linejoin="miter"/>
+<polygon points="74,66 110,38 110,74 74,100" fill="#4f6472" stroke="#161f27" stroke-width="3" stroke-linejoin="miter"/>
+<path d="M40 27 L104 70" stroke="#ebb133" stroke-width="5" fill="none"/>
+<polygon points="40,27 46,20 110,38 104,44" fill="#ebb133" stroke="#161f27" stroke-width="2" stroke-linejoin="miter"/>
+</svg>
+<span><span class="bn">稜記製冰</span><br><span class="be">Leng-ki Ice Works</span></span></a>
+<nav class="kerf" aria-label="主導覽"><a href="index.html"><span class="n mono">01</span><span class="t">今日的冰</span></a><a href="cai.html"><span class="n mono">02</span><span class="t">裁冰台</span></a><a href="chang.html" aria-current="page"><span class="n mono">03</span><span class="t">廠與面</span></a><a href="dan.html"><span class="n mono">04</span><span class="t">訂冰單</span></a></nav></div>
+<svg class="corn" viewBox="0 0 900 40" preserveAspectRatio="none" aria-hidden="true"><polygon class="f brickf" style="--n:-152" points="0.0,38 30.0,0 30.0,21.3"/><polygon class="f brickf" style="--n:-28" points="30.0,0 60.0,38 30.0,21.3"/><polygon class="f brickf" style="--n:94" points="0.0,38 30.0,21.3 60.0,38"/><polygon class="f brickf" style="--n:-152" points="60.0,38 90.0,0 90.0,21.3"/><polygon class="f brickf" style="--n:-28" points="90.0,0 120.0,38 90.0,21.3"/><polygon class="f brickf" style="--n:94" points="60.0,38 90.0,21.3 120.0,38"/><polygon class="f brickf" style="--n:-152" points="120.0,38 150.0,0 150.0,21.3"/><polygon class="f brickf" style="--n:-28" points="150.0,0 180.0,38 150.0,21.3"/><polygon class="f brickf" style="--n:94" points="120.0,38 150.0,21.3 180.0,38"/><polygon class="f brickf" style="--n:-152" points="180.0,38 210.0,0 210.0,21.3"/><polygon class="f brickf" style="--n:-28" points="210.0,0 240.0,38 210.0,21.3"/><polygon class="f brickf" style="--n:94" points="180.0,38 210.0,21.3 240.0,38"/><polygon class="f brickf" style="--n:-152" points="240.0,38 270.0,0 270.0,21.3"/><polygon class="f brickf" style="--n:-28" points="270.0,0 300.0,38 270.0,21.3"/><polygon class="f brickf" style="--n:94" points="240.0,38 270.0,21.3 300.0,38"/><polygon class="f brickf" style="--n:-152" points="300.0,38 330.0,0 330.0,21.3"/><polygon class="f brickf" style="--n:-28" points="330.0,0 360.0,38 330.0,21.3"/><polygon class="f brickf" style="--n:94" points="300.0,38 330.0,21.3 360.0,38"/><polygon class="f brickf" style="--n:-152" points="360.0,38 390.0,0 390.0,21.3"/><polygon class="f brickf" style="--n:-28" points="390.0,0 420.0,38 390.0,21.3"/><polygon class="f brickf" style="--n:94" points="360.0,38 390.0,21.3 420.0,38"/><polygon class="f brickf" style="--n:-152" points="420.0,38 450.0,0 450.0,21.3"/><polygon class="f brickf" style="--n:-28" points="450.0,0 480.0,38 450.0,21.3"/><polygon class="f brickf" style="--n:94" points="420.0,38 450.0,21.3 480.0,38"/><polygon class="f brickf" style="--n:-152" points="480.0,38 510.0,0 510.0,21.3"/><polygon class="f brickf" style="--n:-28" points="510.0,0 540.0,38 510.0,21.3"/><polygon class="f brickf" style="--n:94" points="480.0,38 510.0,21.3 540.0,38"/><polygon class="f brickf" style="--n:-152" points="540.0,38 570.0,0 570.0,21.3"/><polygon class="f brickf" style="--n:-28" points="570.0,0 600.0,38 570.0,21.3"/><polygon class="f brickf" style="--n:94" points="540.0,38 570.0,21.3 600.0,38"/><polygon class="f brickf" style="--n:-152" points="600.0,38 630.0,0 630.0,21.3"/><polygon class="f brickf" style="--n:-28" points="630.0,0 660.0,38 630.0,21.3"/><polygon class="f brickf" style="--n:94" points="600.0,38 630.0,21.3 660.0,38"/><polygon class="f brickf" style="--n:-152" points="660.0,38 690.0,0 690.0,21.3"/><polygon class="f brickf" style="--n:-28" points="690.0,0 720.0,38 690.0,21.3"/><polygon class="f brickf" style="--n:94" points="660.0,38 690.0,21.3 720.0,38"/><polygon class="f brickf" style="--n:-152" points="720.0,38 750.0,0 750.0,21.3"/><polygon class="f brickf" style="--n:-28" points="750.0,0 780.0,38 750.0,21.3"/><polygon class="f brickf" style="--n:94" points="720.0,38 750.0,21.3 780.0,38"/><polygon class="f brickf" style="--n:-152" points="780.0,38 810.0,0 810.0,21.3"/><polygon class="f brickf" style="--n:-28" points="810.0,0 840.0,38 810.0,21.3"/><polygon class="f brickf" style="--n:94" points="780.0,38 810.0,21.3 840.0,38"/><polygon class="f brickf" style="--n:-152" points="840.0,38 870.0,0 870.0,21.3"/><polygon class="f brickf" style="--n:-28" points="870.0,0 900.0,38 870.0,21.3"/><polygon class="f brickf" style="--n:94" points="840.0,38 870.0,21.3 900.0,38"/><g class="frost"><polygon points="92,20 101,13 109,22 100,29" fill="#ffffff" style="animation-delay:0.0s"/><polygon points="318,13 327,6 335,15 326,22" fill="#ffffff" style="animation-delay:4.7s"/><polygon points="544,24 553,17 561,26 552,33" fill="#ffffff" style="animation-delay:9.4s"/><polygon points="770,16 779,9 787,18 778,25" fill="#ffffff" style="animation-delay:14.1s"/></g></svg>
+<main class="fold">
+<h1 class="fx disp2" data-t="廠與面" style="margin:8px 0 2px"><span>廠與面</span></h1>
+<svg class="zigb" viewBox="0 0 900 16" preserveAspectRatio="none" aria-hidden="true"><path d="M0.0 13.0 L15.5 0.0 L31.0 13.0 L46.6 0.0 L62.1 13.0 L77.6 0.0 L93.1 13.0 L108.6 0.0 L124.1 13.0 L139.7 0.0 L155.2 13.0 L170.7 0.0 L186.2 13.0 L201.7 0.0 L217.2 13.0 L232.8 0.0 L248.3 13.0 L263.8 0.0 L279.3 13.0 L294.8 0.0 L310.3 13.0 L325.9 0.0 L341.4 13.0 L356.9 0.0 L372.4 13.0 L387.9 0.0 L403.4 13.0 L419.0 0.0 L434.5 13.0 L450.0 0.0 L465.5 13.0 L481.0 0.0 L496.6 13.0 L512.1 0.0 L527.6 13.0 L543.1 0.0 L558.6 13.0 L574.1 0.0 L589.7 13.0 L605.2 0.0 L620.7 13.0 L636.2 0.0 L651.7 13.0 L667.2 0.0 L682.8 13.0 L698.3 0.0 L713.8 13.0 L729.3 0.0 L744.8 13.0 L760.3 0.0 L775.9 13.0 L791.4 0.0 L806.9 13.0 L822.4 0.0 L837.9 13.0 L853.4 0.0 L869.0 13.0 L884.5 0.0 L900.0 13.0"/></svg>
+
+<div class="pane br">
+  <h2>一支冰是怎麼站起來的</h2>
+  <p>從水到冰要 26 小時，從冰到貨要一把鋸子。中間這五段沒有一段可以趕，趕出來的冰是白的、是毛的、是化得快的。</p>
+</div>
+
+<div class="cols3"><div class="pane"><div class="stepno mono">01</div>
+  <svg viewBox="0 0 150 92" class="sicon" aria-hidden="true"><g transform="translate(12,12) scale(3.1)"><g class="pz k"><polygon class="f sd" style="--n:90" points="26.00,0.00 0.00,0.00 4.08,2.40 30.08,2.40"/><polygon class="f sd" style="--n:0" points="0.00,0.00 0.00,18.00 4.08,20.40 4.08,2.40"/><polygon class="f tp" points="0.00,18.00 26.00,18.00 26.00,0.00 0.00,0.00"/></g></g></svg>
+  <h2>注水</h2><p>自來水過三道砂濾與活性碳，注入 60×40×12 的鍍鋅冰模，每模 26.9 公斤。水要放到隔夜，讓溶氣跑掉——氣泡多的冰是白的，白的冰不透光也不耐放。</p></div><div class="pane"><div class="stepno mono">02</div>
+  <svg viewBox="0 0 150 92" class="sicon" aria-hidden="true"><g transform="translate(12,12) scale(3.1)"><g class="pz k"><polygon class="f sd" style="--n:99.5" points="28.00,4.00 4.00,0.00 8.08,2.40 32.08,6.40"/><polygon class="f sd" style="--n:12.5" points="4.00,0.00 0.00,18.00 4.08,20.40 8.08,2.40"/><polygon class="f tp" points="0.00,18.00 24.00,20.00 28.00,4.00 4.00,0.00"/></g></g></svg>
+  <h2>入槽</h2><p>冰模掛進鹽水槽。槽液是氯化鈣水溶液，維持 −11 °C；比純水低這麼多，才拉得動冰模裡那 26.9 公斤的水。</p></div><div class="pane"><div class="stepno mono">03</div>
+  <svg viewBox="0 0 150 92" class="sicon" aria-hidden="true"><g transform="translate(12,12) scale(3.1)"><g class="pz k"><polygon class="f sd" style="--n:77.2" points="22.00,0.00 0.00,5.00 4.08,7.40 26.08,2.40"/><polygon class="f sd" style="--n:-7.6" points="0.00,5.00 2.00,20.00 6.08,22.40 4.08,7.40"/><polygon class="f tp" points="2.00,20.00 26.00,16.00 22.00,0.00 0.00,5.00"/></g></g></svg>
+  <h2>結凍</h2><p>從四面往中間凍，26 小時。最後凍住的是正中央那一條，師傅叫它「心」。心愈細，這一支愈耐放。</p></div><div class="pane"><div class="stepno mono">04</div>
+  <svg viewBox="0 0 150 92" class="sicon" aria-hidden="true"><g transform="translate(12,12) scale(3.1)"><g class="pz k"><polygon class="f sd" style="--n:98.1" points="27.00,3.00 6.00,0.00 10.08,2.40 31.08,5.40"/><polygon class="f sd" style="--n:16.7" points="6.00,0.00 0.00,20.00 4.08,22.40 10.08,2.40"/><polygon class="f tp" points="0.00,20.00 22.00,17.00 27.00,3.00 6.00,0.00"/></g></g></svg>
+  <h2>脫模</h2><p>整排冰模吊出來，淋 18 °C 的水三十秒，冰自己滑出來。這一步慢了會回凍，冰面就毛。</p></div><div class="pane"><div class="stepno mono">05</div>
+  <svg viewBox="0 0 150 92" class="sicon" aria-hidden="true"><g transform="translate(12,12) scale(3.1)"><g class="pz k"><polygon class="f sd" style="--n:85.9" points="28.00,0.00 0.00,2.00 4.08,4.40 32.08,2.40"/><polygon class="f sd" style="--n:-9.5" points="0.00,2.00 3.00,20.00 7.08,22.40 4.08,4.40"/><polygon class="f tp" points="3.00,20.00 25.00,20.00 28.00,0.00 0.00,2.00"/></g></g></svg>
+  <h2>入窖</h2><p>−9 °C 的窖，立著放。冰立著只有兩個面吃熱，躺著有四個——這是廠裡最舊的一條規矩。</p></div></div>
+
+<h2 class="fx disp2" data-t="面的道理" style="margin:30px 0 2px"><span>面的道理</span></h2>
+<svg class="zigb" viewBox="0 0 900 16" preserveAspectRatio="none" aria-hidden="true"><path d="M0.0 13.0 L15.5 0.0 L31.0 13.0 L46.6 0.0 L62.1 13.0 L77.6 0.0 L93.1 13.0 L108.6 0.0 L124.1 13.0 L139.7 0.0 L155.2 13.0 L170.7 0.0 L186.2 13.0 L201.7 0.0 L217.2 13.0 L232.8 0.0 L248.3 13.0 L263.8 0.0 L279.3 13.0 L294.8 0.0 L310.3 13.0 L325.9 0.0 L341.4 13.0 L356.9 0.0 L372.4 13.0 L387.9 0.0 L403.4 13.0 L419.0 0.0 L434.5 13.0 L450.0 0.0 L465.5 13.0 L481.0 0.0 L496.6 13.0 L512.1 0.0 L527.6 13.0 L543.1 0.0 L558.6 13.0 L574.1 0.0 L589.7 13.0 L605.2 0.0 L620.7 13.0 L636.2 0.0 L651.7 13.0 L667.2 0.0 L682.8 13.0 L698.3 0.0 L713.8 13.0 L729.3 0.0 L744.8 13.0 L760.3 0.0 L775.9 13.0 L791.4 0.0 L806.9 13.0 L822.4 0.0 L837.9 13.0 L853.4 0.0 L869.0 13.0 L884.5 0.0 L900.0 13.0"/></svg>
+
+<div class="pane">
+  <div class="dial">
+    <div>
+      <svg id="dialsvg" viewBox="0 0 320 320" role="img"
+       aria-label="十二面轉冰盤：每一面依它的法線方向落在三階明度之一。">
+        <polygon class="f wg" data-a="-75" style="--n:-75" points="160.0,160.0 160.0,48.0 216.0,63.0"/><polygon class="f wg" data-a="-45" style="--n:-45" points="160.0,160.0 216.0,63.0 257.0,104.0"/><polygon class="f wg" data-a="-15" style="--n:-15" points="160.0,160.0 257.0,104.0 272.0,160.0"/><polygon class="f wg" data-a="15" style="--n:15" points="160.0,160.0 272.0,160.0 257.0,216.0"/><polygon class="f wg" data-a="45" style="--n:45" points="160.0,160.0 257.0,216.0 216.0,257.0"/><polygon class="f wg" data-a="75" style="--n:75" points="160.0,160.0 216.0,257.0 160.0,272.0"/><polygon class="f wg" data-a="105" style="--n:105" points="160.0,160.0 160.0,272.0 104.0,257.0"/><polygon class="f wg" data-a="135" style="--n:135" points="160.0,160.0 104.0,257.0 63.0,216.0"/><polygon class="f wg" data-a="165" style="--n:165" points="160.0,160.0 63.0,216.0 48.0,160.0"/><polygon class="f wg" data-a="195" style="--n:195" points="160.0,160.0 48.0,160.0 63.0,104.0"/><polygon class="f wg" data-a="225" style="--n:225" points="160.0,160.0 63.0,104.0 104.0,63.0"/><polygon class="f wg" data-a="255" style="--n:255" points="160.0,160.0 104.0,63.0 160.0,48.0"/>
+        <circle cx="160" cy="160" r="6" fill="#161f27"/>
+      </svg>
+      <p style="margin:12px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn gh" id="rot-l" type="button">⟲ 轉 15°</button>
+        <button class="btn gh" id="rot-r" type="button">⟳ 轉 15°</button>
+        <span class="mono sm" id="rotv">0°</span>
+      </p>
+      <div class="tier">
+        <span style="background:#f0f4f4">受光面</span>
+        <span style="background:#c6d1d4">側面</span>
+        <span style="background:#9fb0b5">背光面</span>
+      </div>
+    </div>
+    <div>
+      <h2>轉的是冰，不是燈</h2>
+      <p>燈在左上角，一整天都不動。轉的是這塊冰——每轉一次，每一個面對燈的角度就變了，
+      深淺跟著變。所以冰的顏色從來不是誰選的，是它的面自己朝哪裡決定的。</p>
+      <p>廠裡只認三階：對著燈的、側著的、背著的。中間那些過渡的階不算數，因為在鋸台上你根本分不出來。
+      師傅看一眼就知道這塊冰有幾個面朝上——朝上的面愈多，化得愈快。</p>
+      <p class="sm">技術註：這一盤的每一片，網頁只寫了它的法線角度一個數字。
+      深淺是瀏覽器用 <code class="mono">cos()</code> 算出來、再用 <code class="mono">round()</code> 壓成三階的。
+      舊瀏覽器算不出來的時候，十二片會一起退成同一階的中間色——形狀與角度標示都還在。</p>
+    </div>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="pane dk">
+    <h2>這面牆上的圖，跟布拉格有關</h2>
+    <p>民國五十一年開爐時，廠長的父親從一本舊建築雜誌上撕了幾頁貼在辦公室——一九一一年前後布拉格那批人蓋的房子，
+    門楣、窗框、連陽台欄杆都不是平的，全是斜著折出來的面。他們的說法是：平面是死的，物質受了力才會沿斜面裂開，
+    像結晶一樣。</p>
+    <p>對做冰的人來說這句話不必解釋。水結冰的時候本來就是這樣長的。</p>
+    <p class="sm">那幾頁後來釘成了一本，現在還在辦公室抽屜裡。廠裡的招牌、價目板、單據的框，都照那個折法做。</p>
+  </div>
+  <div class="pane">
+    <h2>一天</h2>
+    <table><tbody>
+      <tr><td class="mono">02:30</td><td>機房開壓縮機，槽溫拉到 −11 °C</td></tr>
+      <tr><td class="mono">04:10</td><td>脫模，第一批 40 支入窖</td></tr>
+      <tr><td class="mono">04:40</td><td>漁市車出廠（崁仔頂、正濱、八斗子）</td></tr>
+      <tr><td class="mono">08:00</td><td>洗槽、補水、掛第二批冰模</td></tr>
+      <tr><td class="mono">13:30</td><td>裁冰台開工，酒吧與辦桌的單子</td></tr>
+      <tr><td class="mono">17:00</td><td>市內配送收班</td></tr>
+      <tr><td class="mono">21:00</td><td>夜班注水，隔日 06:40 起凍</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<div class="pane" style="margin-top:22px">
+  <h2>機具</h2>
+  <table><thead><tr><th>機具</th><th>數量</th><th>備註</th></tr></thead><tbody>
+  <tr><td>結凍槽</td><td class="mono">4 座・每座 24 模</td><td class="sm">國豐 CI-24／民國 67、73、88、101 年裝</td></tr><tr><td>冷凍機組</td><td class="mono">氨壓縮式 2 台</td><td class="sm">日產 96 支・尖峰 112 支</td></tr><tr><td>脫模淋水機</td><td class="mono">1 台</td><td class="sm">18 °C 循環水・單模 30 秒</td></tr><tr><td>圓盤鋸</td><td class="mono">2 台</td><td class="sm">鋸片 φ600・鋸縫 0.5 公分</td></tr><tr><td>碎冰機</td><td class="mono">1 台</td><td class="sm">出料過 12 公釐篩</td></tr><tr><td>冷藏車</td><td class="mono">2 輛</td><td class="sm">−5 °C・單趟 40 支</td></tr>
+  </tbody></table>
+  <p class="sm" style="margin-top:12px">週三停爐清槽：鹽水槽刮鹽垢、冰模除鏽、鋸片送磨。這天不出貨，也不接急件。</p>
+</div>
+</main>
+<footer><div class="fl">
+<div><strong style="color:var(--ice);font-size:15px">稜記製冰廠</strong><br>
+基隆市仁愛區成功一路 88 巷 12 號<br>(02) 2427-3319｜lengki.ice@example.tw<br>
+出窖 04:30–06:00（漁市車）／14:00–17:00（市內配送）｜週三停爐清槽</div>
+<div class="fnav"><a href="index.html">01　今日的冰</a><br><a href="cai.html">02　裁冰台</a><br><a href="chang.html">03　廠與面</a><br><a href="dan.html">04　訂冰單</a></div>
+<div>廠長　邱敬川<br>裁冰師　阮文海<br>機房　呂昭雄<br>結凍槽 4 座・日產 96 支</div>
+</div>
+<p class="note">本站為 Design Skills Center 館藏範例站，商號、人名、電話、地址與價目皆為虛構示意，非真實營業資訊。
+風格規格書：<a href="SKILL.md">SKILL.md</a>　·　<a href="../../index.html">回藝廊</a></p></footer>
+</div>
+<script>
+(function(){
+  var rot=0,ws=document.querySelectorAll('.wg'),v=document.getElementById('rotv');
+  function apply(){for(var i=0;i<ws.length;i++){
+      var a=(+ws[i].getAttribute('data-a')+rot);ws[i].style.setProperty('--n',a);}
+    v.textContent=((rot%360)+360)%360+'°';}
+  document.getElementById('rot-l').addEventListener('click',function(){rot-=15;apply();});
+  document.getElementById('rot-r').addEventListener('click',function(){rot+=15;apply();});
+  apply();
+})();
+</script>
+</body></html>

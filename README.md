@@ -172,6 +172,91 @@
 | 154 | [新月貨運行 NAYA CHAND](sites/nayachand/index.html) | 長途貨運行（跨省夜線託運） | 印度卡車藝術 Truck Art | 繁中 | Claude Opus 5（排程 Agent） |
 | 155 | [火窗 HUOCHUANG](sites/huochuang/index.html) | 消防分隊（義消編組與防火宣導窗報） | 蘇聯 ROSTA 窗 Okna ROSTA | 繁中 | Claude Opus 5（排程 Agent） |
 | 156 | [五一倉 WAREHOUSE FIFTY-ONE](sites/wuyi-cang/index.html) | 自助倉儲（迷你倉，紡織廠改建） | 後龐克 Factory Records／Peter Saville | 繁中 | Claude Opus 5（排程 Agent） |
+| 157 | [ku-sann](sites/ku-sann/index.html) | — | — | 繁中 | Claude Opus 5（排程 Agent） |
+| 158 | [無地平 跳傘訓練所](sites/wudiping/index.html) | 跳傘學校（四人隊形跳傘訓練） | 至上主義 Suprematism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 159 | [原璧拾得所](sites/yuanbi/index.html) | 失物招領所（轉運站拾得物代管） | 木刻活字 Wood Type | zh-Hant | Claude Opus 5（排程 Agent） |
+| 160 | [明合木器玩具廠](sites/mingho/index.html) | 木製玩具工廠 | 中世紀現代 Mid-Century Modern | zh | Claude Opus 5（排程 Agent） |
+| 161 | [三稜製冰廠 SANLENG](sites/sanleng/index.html) | 製冰廠（漁港冰行） | 捷克立體主義 Czech Cubism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 162 | [拆線古著 CHAI-SIAN](sites/chaixian/index.html) | 古著店（二手衣，單件孤品） | 解構編輯排版 Grunge／Ray Gun | zh-Hant | Claude Opus 5（排程 Agent） |
+| 163 | [拍鐵仔摔角團](sites/phahthih/index.html) | 獨立摔角團（小場地巡演） | 龐克剪貼 Punk Xerox | zh-Hant | Claude Opus 5（排程 Agent） |
+| 164 | [合安瓦斯行](sites/hapan/index.html) | 桶裝瓦斯行（液化石油氣配送與安全宣導） | 蘇聯 ROSTA 窗 \u041e\u043a\u043d\u0430 \u0420\u041e\u0421\u0422\u0410 | zh-Hant | Claude Opus 5（排程 Agent） |
+| 165 | [祖克窪蜂場 ZOOK HOLLOW](sites/zook-hollow/index.html) | 蜂蜜農場（阿米希家族蜂場） | 阿米希拼布 Amish Quilt | zh-Hant | Claude Opus 5（排程 Agent） |
+| 166 | [金樽七號削板房 KIMTSUN No.7](sites/kimtsun/index.html) | 手工衝浪板削板房（兼二手板寄賣） | Grunge／Ray Gun 解構排版 | zh-Hant | Claude Opus 5（排程 Agent） |
+| 167 | [和平新村管理委員會 HOPENG](sites/hopeng/index.html) | 公寓大廈管理委員會 | 龐克剪貼 Punk Xerox | zh-Hant | Claude Opus 5（排程 Agent） |
+| 168 | [火窗 HOE-THANG](sites/hoethang/index.html) | 義勇消防分隊（防火宣導・宣導股） | 蘇聯 ROSTA 窗 Okna ROSTA | zh-Hant | Claude Opus 5（排程 Agent） |
+| 169 | [共榮消費合作社 第七分社](sites/kiongeng/index.html) | 社區消費合作社（共同購買與店頭零售） | 蘇聯 ROSTA 窗 Окна РОСТА | zh-Hant | Claude Opus 5（排程 Agent） |
+| 170 | [南山溪蝶園](sites/lamsuankhe/index.html) | 蝴蝶生態園（復育、導覽與牌房） | 中世紀現代 Mid-Century Modern | zh-Hant | Claude Opus 5（排程 Agent） |
+| 171 | [歹銅舊錫修理攤](sites/kusiah/index.html) | 社區修理攤（Repair Café 維修志工站） | 龐克剪貼 Punk Xerox | zh-Hant | Claude Opus 5（排程 Agent） |
+| 172 | [零地平跳傘學校 ZERO HORIZON](sites/lingdiping/index.html) | 跳傘學校（定點跳傘與五人編隊訓練） | 至上主義 Suprematism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 173 | [白橡岔義勇消防隊 WHITE OAK CROSSING](sites/whiteoak-crossing/index.html) | 志願消防隊（義消隊與春季泥濘拍賣會） | 素色拼布 Amish Solid Quilt | zh-Hant | Claude Opus 5（排程 Agent） |
+| 174 | [貝寄堂 KAIYOSEDŌ](sites/kaiyosedo/index.html) | 貝合調製所（婚禮嫁妝：貝桶・屏風・蒔繪） | 琳派 Rinpa | 中日混 | Claude Opus 5（排程 Agent） |
+| 175 | [扇處 玉水 TAMAMIZU](sites/tamamizu/index.html) | 京扇子工房（地紙・箔押し・絵付け・摺り） | 琳派 Rinpa | 中日混 | Claude Opus 5（排程 Agent） |
+| 176 | [拾遺窗 SIP-UI THANG](sites/shiyi-chuang/index.html) | 客運總站失物招領室 | 蘇聯 ROSTA 窗 ROSTA Windows | zh-Hant | Claude Opus 5（排程 Agent） |
+| 177 | [大湳保溫被廠 DANAN](sites/danan/index.html) | 保溫被工程行（可拆式管閥保溫被） | 拼布 Quilt（阿米希素色） | zh-Hant | Claude Opus 5（排程 Agent） |
+| 178 | [暗班編輯室 AM-PAN](sites/ampan/index.html) | 學生自辦刊物編輯室（校刊社兼影印代工） | Grunge／Ray Gun | zh-Hant | Claude Opus 5（排程 Agent） |
+| 179 | [角林甲蟲](sites/jiaolin-beetle/index.html) | 甲蟲專賣店（鍬形蟲飼育與標本） | Web 1.0 GeoCities | zh-Hant | Claude Opus 5（排程 Agent） |
+| 180 | [城西窗報隊 CHENGXI WINDOW BULLETIN](sites/chuangbao/index.html) | 義勇消防隊宣導組（防火宣導窗報） | 蘇聯 РОСТА 窗 ROSTA Windows | zh-Hant | Claude Opus 5（排程 Agent） |
+| 181 | [稜記製冰 LENG-KI](sites/lengji/index.html) | 製冰廠／冰塊行（角冰・稜冰・碎冰） | 捷克立體主義 Czech Cubism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 182 | [失物課 LOST PROPERTY](sites/shiwuke/index.html) | 客運總站失物招領所 | 後龐克 Factory Records | zh-Hant | Claude Opus 5（排程 Agent） |
+| 183 | [不買了工具圖書館](sites/bumaile/index.html) | 社區工具圖書館（工具借用與修理日） | 龐克剪貼 Punk Xerox | zh-Hant | Claude Opus 5（排程 Agent） |
+| 184 | [街角窗 KE-KAK WINDOW](sites/kekak/index.html) | 義勇消防分隊（街角公告窗） | 蘇聯 ROSTA 窗 Окна РОСТА | zh-Hant | Claude Opus 5（排程 Agent） |
+| 185 | [厝頂被 HOUSETOP QUILT](sites/chhuteng/index.html) | 鐵皮屋頂修繕（防水抓漏工程行） | 拼布 Pieced Quilt | zh-Hant | Claude Opus 5（排程 Agent） |
+| 186 | [明志立體停車場 MCP](sites/mingchih-deck/index.html) | 立體停車場（市營月租車位標售） | 後龐克 Factory Records／Peter Saville | zh-Hant | Claude Opus 5（排程 Agent） |
+| 187 | [火防窗 IÂM-TIÂNN](sites/iamtiann/index.html) | 義勇消防分隊（街頭防火宣導窗） | ROSTA 窗 Окна РОСТА | zh-Hant | Claude Opus 5（排程 Agent） |
+| 188 | [方寸釦廠 FANG-TSUN](sites/fangtsun/index.html) | 鈕釦廠（扣卡設計與四種料） | 維也納分離派 Secession | zh-Hant | Claude Opus 5（排程 Agent） |
+| 189 | [少塊自然讀本社](sites/fewest/index.html) | 兒童教育（自然讀本俱樂部） | 中世紀現代 Mid-Century Modern | zh-Hant | Claude Opus 5（排程 Agent） |
+| 190 | [翻拷通販社 HUAN-KHAU](sites/huankao/index.html) | 地下卡帶郵購社（自製卡帶與小誌通販） | 龐克剪貼 Punk Xerox | zh-Hant | Claude Opus 5（排程 Agent） |
+| 191 | [相對・編隊跳傘會](sites/xiangdui/index.html) | 編隊跳傘俱樂部（四人編隊 4-way FS） | 至上主義 Suprematism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 192 | [合貝堂](sites/awasegai/index.html) | 婚嫁調度工坊（貝合道具與貝桶） | 琳派 Rinpa | 中日混 | Claude Opus 5（排程 Agent） |
+| 193 | [西岸公共泳池 SAIGAN POOL](sites/saigan/index.html) | 市立游泳池（室內溫水池・救生與泳訓） | 後龐克 Factory Records／Peter Saville | zh-Hant | Claude Opus 5（排程 Agent） |
+| 194 | [甲號倉儲 KAH-HŌ STORAGE](sites/kahho/index.html) | 自助倉儲行（四十一格倉位） | 後龐克 Factory Records／Peter Saville | zh-Hant | Claude Opus 5（排程 Agent） |
+| 195 | [零・十歌劇團](sites/zeroten/index.html) | 前衛歌劇團（無鏡框倉庫劇場） | 至上主義 Suprematism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 196 | [九拼互助社 NINE PATCH AID](sites/ninepatch/index.html) | 社區互助保險社（無保單的教會互助） | 阿米什拼布 Amish Quilt | zh-Hant | Claude Opus 5（排程 Agent） |
+| 197 | [形數室 HÊNG-SÒO-SEK](sites/xingshu/index.html) | 動物園解說設計室 | 中世紀現代 Mid-Century Modern | 繁中 | Claude Opus 5（排程 Agent） |
+| 198 | [長風氣送工程行](sites/changfeng/index.html) | 氣送管系統工程行（醫院子母管） | 太空時代 Space Age | zh-Hant | Claude Opus 5（排程 Agent） |
+| 199 | [斤布行 KIN-PÒ͘](sites/kinpou/index.html) | 舊衫回收分類場（零碼布論斤賣） | 拼布 Quilt（Gee's Bend 即興拼布） | zh-Hant | Claude Opus 5（排程 Agent） |
+| 200 | [數翼蜂場](sites/shuyi/index.html) | 蜂蜜農場（十七箱定點蜂場） | 中世紀現代 Mid-Century Modern | zh-Hant | Claude Opus 5（排程 Agent） |
+| 201 | [zhengfang](sites/zhengfang/index.html) | — | — | 繁中 | Claude Opus 5（排程 Agent） |
+| 202 | [白場編隊跳傘隊 BAICHANG](sites/baichang/index.html) | 編隊跳傘隊／跳傘場 | 至上主義 Suprematism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 203 | [掃孑病媒防治工程行](sites/saojie/index.html) | 病媒防治工程行（孳生源查核與宣導窗） | 蘇聯 ROSTA 窗 \u041e\u043a\u043d\u0430 \u0420\u041e\u0421\u0422\u0410 | zh-Hant | Claude Opus 5（排程 Agent） |
+| 204 | [安和棉被店 AN-HO](sites/anhe/index.html) | 棉被店（手工彈製被胎與拼布被面） | 拼布 Quilt | zh-Hant | Claude Opus 5（排程 Agent） |
+| 205 | [照葉扇舖 TERIHA — 京扇子絵付け工房 × 琳派 Rinpa](sites/teriha/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 206 | [稜柱製冰廠 LEDÁRNA HRANOL](sites/hranol/index.html) | 製冰廠／冰庫 | 捷克立體主義 \u010cesk\u00fd kubismus | zh-Hant | Claude Opus 5（排程 Agent） |
+| 207 | [百衲共同購買班 BAINA](sites/baina/index.html) | 共同購買班（產地直送・農村消費互助） | 拼布 Quilt | zh-Hant | Claude Opus 5（排程 Agent） |
+| 208 | [輪班 SHIFT](sites/lunpan/index.html) | 單車快遞合作社（信差合作社） | 龐克剪貼 Punk Xerox | zh-Hant | Claude Opus 5（排程 Agent） |
+| 209 | [星結磚作](sites/xingjie/index.html) | 幾何釉磚修復工坊 | 伊斯蘭幾何 Girih | zh-Hant | Claude Opus 5（排程 Agent） |
+| 210 | [南堤板房 NOISE SWELL](sites/noise-swell/index.html) | 衝浪板削板工房 | Grunge／Ray Gun 解構排版 | 繁中 | Claude Opus 5（排程 Agent） |
+| 211 | [HRANA 稜面灰泥工坊](sites/hrana/index.html) | 灰泥線腳翻模工坊（建築立面稜面裝飾） | 捷克立體主義 Český kubismus | zh-Hant | Claude Opus 5（排程 Agent） |
+| 212 | [合縫被行 HÉ-FÈNG](sites/hefeng/index.html) | 手工棉被行（訂製與舊被修補） | 拼布 Quilt（阿米什 Amish） | zh-Hant | Claude Opus 5（排程 Agent） |
+| 213 | [永固新城公告窗](sites/yonggu/index.html) | 公寓大廈管理委員會 | 蘇聯 ROSTA 窗 Okna ROSTA | zh-Hant | Claude Opus 5（排程 Agent） |
+| 214 | [日新瓦斯行 JI\u02BCT-SIN GAS](sites/jitsin/index.html) | 桶裝瓦斯行（液化石油氣分裝配送） | 蘇聯 ROSTA 窗 \u041E\u043A\u043D\u0430 \u0420\u041E\u0421\u0422\u0410 | zh-Hant | Claude Opus 5（排程 Agent） |
+| 215 | [零十劇場 ZERO-TEN THEATRE](sites/lingshi/index.html) | 前衛劇團（實驗歌劇院） | 至上主義 Suprematism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 216 | [日窗回收社](sites/jitthang/index.html) | 資源回收行（廢紙與廢金屬收購） | 蘇聯電報社窗 ROSTA Windows | zh-Hant | Claude Opus 5（排程 Agent） |
+| 217 | [新寶鳥站 SINPO BIRD STATION](sites/sinpo/index.html) | 候鳥觀測站（濱海濕地驛站與繫放站） | 中世紀現代 Mid-Century Modern | zh-Hant | Claude Opus 5（排程 Agent） |
+| 218 | [克里赫方糖廠 KRYCHLE](sites/krychle/index.html) | 方糖廠（甜菜製糖與方糖壓模） | 捷克立體主義 Czech Cubism | zh-Hant | Claude Opus 5（排程 Agent） |
+| 219 | [麗登美耐板廠 LIDENG LAMINATES](sites/site-lideng/index.html) | 美耐板貼面工廠 | 中世紀現代 Mid-Century  | 繁中 | Claude Opus 5（排程 Agent） |
+| 220 | [溪墘窗 KHE-KINN WINDOW](sites/khekinn/index.html) | 市鎮清潔隊／資源回收站 | ROSTA 窗 Okna ROSTA | zh-Hant | Claude Opus 5（排程 Agent） |
+| 221 | [結作行 GIREH-BANDĪ](sites/girehbandi/index.html) | 鑲嵌磚作行（切磚鑲嵌與古蹟磚作修繕） | 伊斯蘭幾何 Girih | zh-Hant | Claude Opus 5（排程 Agent） |
+| 222 | [清潭市民泳池 CHINGTAN POOL](sites/qingtan/index.html) | 市民游泳池（市營長池與教學池） | 瑞士新浪潮 Swiss New Wave | zh-Hant | Claude Opus 5（排程 Agent） |
+| 223 | [底噪聽力所 NOISE FLOOR](sites/dizao/index.html) | 聽力所／助聽器驗配 | Grunge／Ray Gun | zh-Hant | Claude Opus 5（排程 Agent） |
+| 224 | [藍莖草自然中心・圖版室 BLUESTEM NATURE CENTER — PLATE ROOM](sites/bluestem/index.html) | 自然中心解說出版部 | 中世紀現代 Mid-Century  | 繁中 | Claude Opus 5（排程 Agent） |
+| 225 | [衝組摔角同盟 CCW](sites/chhiong-cho/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 226 | [窗口夜校](sites/chuangkou/index.html) | 成人夜間識字班 | 蘇聯 ROSTA 窗 Окна са | 繁中 | Claude Opus 5（排程 Agent） |
+| 227 | [四翅蜂場 FOUR WINGS APIARY](sites/four-wings/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 228 | [晶合製冰廠 Tsing-hap Ice Works](sites/jinghe/index.html) | 製冰廠 | 捷克立體主義 Czech Cubis | 繁中 | Claude Opus 5（排程 Agent） |
+| 229 | [貝繋堂 KAITSUGI-DŌ](sites/kaitsugi/index.html) | 婚禮調度の貝合わせ工房 | 琳派 Rinpa | 繁中 | Claude Opus 5（排程 Agent） |
+| 230 | [翎渡潮埔鳥類調查站 — 中世紀現代 Mid-Century Modern](sites/lingdu/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 231 | [墨落堂　MOLOH — 假面工坊](sites/moloh/index.html) | 劇場面具工坊 | 比亞茲萊黑白裝飾 Beardsley | 繁中 | Claude Opus 5（排程 Agent） |
+| 232 | [八色鳥出版社 PITTA PRESS](sites/pitta-press/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 233 | [榕蔭堂中醫 · 本草曆](sites/rongyintang/index.html) | 中醫診所 | 自然有機風 | 繁中 | Claude Opus 5（排程 Agent） |
+| 234 | [三合棉被行 SAM-HA̍P QUILT HOUSE](sites/samhap/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 235 | [洲濱堂 SUHAMA-DŌ ／ 上生菓子司 × 琳派 Rinpa](sites/suhamado/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 236 | [曼真照相館　MAN CHAN PHOTO STUDIO](sites/tso-hinn/index.html) | 人像照相館 | 上海月份牌 Shanghai Cal | 繁中 | Claude Opus 5（排程 Agent） |
+| 237 | [歪把手單車廚房 CROOKED BARS BIKE KITCHEN](sites/waibashou/index.html) | 自助修車工坊／單車廚房 | 龐克剪貼 Punk Xerox | 繁中 | Claude Opus 5（排程 Agent） |
+| 238 | [晚鳥假期 WANNIAO HOLIDAYS · 圖文電視訂位中心](sites/wanniao/index.html) | 晚鳥包套旅行社 | 廣播圖文電視 Broadcast T | 繁中 | Claude Opus 5（排程 Agent） |
+| 239 | [三燭社 藏書票工房 SANZHU EX LIBRIS](sites/whitehorse-run/index.html) | 藏書票工房 | 比亞茲萊黑白裝飾 Beardsley | 繁中 | Claude Opus 5（排程 Agent） |
+| 240 | [白橡助產所 White Oak Birth House](sites/whiteoak-frame/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 241 | [雲破窯 Yunpo Kiln](sites/yunpo/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

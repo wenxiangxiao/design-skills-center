@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>暗班編輯室 AM-PAN｜私立建昌高工進修部 學生刊物《暗班》第 27 期</title>
+<meta name="description" content="夜間部學生自辦刊物《暗班》的編輯室。母本一份，其餘都是影印的影印。你來領一本，得自己決定哪幾篇印得清楚。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffffff'/%3E%3Cpath d='M3 3h19l7 7v19H3z' fill='%23ffffff' stroke='%2316130F' stroke-width='2.6'/%3E%3Cpath d='M22 3v7h7z' fill='%23B9B4AC'/%3E%3Cpath d='M22 10 22 3 29 10z' fill='none' stroke='%2316130F' stroke-width='2'/%3E%3Crect x='7' y='13' width='15' height='3' fill='%2316130F'/%3E%3Crect x='7' y='20' width='11' height='3' fill='%2316130F'/%3E%3Cpath d='M4 19c-1-6 8-9 15-8 6 1 9 4 8 7-1 4-8 6-15 5-4-1-7-2-7-4' fill='none' stroke='%23FF3B00' stroke-width='2.6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Special+Elite&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --toner:#16130F; --spot:#FF3B00; --edge:#B9B4AC; --mark:#E8FF00;
+  --row:12px; --gut:26px;
+  --disp:"Anton","Noto Sans TC",sans-serif;
+  --tw:"Special Elite","Noto Serif TC",serif;
+  --mono:"Space Mono",ui-monospace,monospace;
+  --sans:"Noto Sans TC",system-ui,sans-serif;
+  --serif:"Noto Serif TC",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--edge); color:var(--toner);
+  font-family:var(--sans); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+::selection{background:var(--mark); color:var(--toner)}
+a{color:var(--toner)}
+.skip{position:absolute;left:-9999px;top:0;background:var(--spot);color:#fff;padding:8px 14px;z-index:99}
+.skip:focus{left:8px;top:8px}
+
+/* ── 機邊：影印機壓不到的那一圈 ───────────────────────── */
+.machine{position:relative;padding:34px 22px 26px;max-width:1240px;margin:0 auto}
+.machine::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(22,19,15,.16),rgba(22,19,15,0) 42px),
+    linear-gradient(180deg,rgba(22,19,15,.13),rgba(22,19,15,0) 34px);
+}
+.mach-mark{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  display:flex;flex-wrap:wrap;gap:0 18px;color:#4a453d;margin:0 0 8px;text-transform:uppercase
+}
+.trim{position:absolute;width:26px;height:26px;pointer-events:none}
+.trim i{position:absolute;background:var(--toner)}
+.trim i:first-child{left:0;top:12px;width:26px;height:1.6px}
+.trim i:last-child{left:12px;top:0;width:1.6px;height:26px}
+.trim.tl{left:6px;top:26px}.trim.tr{right:6px;top:26px}
+.trim.bl{left:6px;bottom:8px}.trim.br{right:6px;bottom:8px}
+
+/* ── 紙 ───────────────────────────────────────────── */
+.sheet{
+  position:relative;background:var(--paper);
+  padding:30px 26px 34px;overflow:hidden;
+  box-shadow:3px 3px 0 rgba(22,19,15,.34);
+}
+/* 壓版掃描（ambient）：只動 transform，合成器層 */
+.platen{
+  position:absolute;left:0;right:0;top:0;height:120px;pointer-events:none;z-index:6;
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.9) 46%,rgba(255,255,255,0) 52%,rgba(22,19,15,.07) 56%,rgba(22,19,15,0) 100%);
+  mix-blend-mode:normal;opacity:.5;
+  animation:sweep 8.4s linear infinite;will-change:transform;
+}
+@keyframes sweep{from{transform:translate3d(0,-124px,0)}to{transform:translate3d(0,calc(100% + 100vh),0)}}
+
+/* ── 12 欄基線網格 + subgrid ───────────────────────── */
+.spread{
+  display:grid;grid-template-columns:repeat(12,1fr);
+  grid-auto-rows:minmax(var(--row),auto);column-gap:14px;position:relative;
+}
+.blk{display:grid;grid-template-rows:subgrid;position:relative}
+@supports not (grid-template-rows:subgrid){
+  .blk{grid-template-rows:none;grid-auto-rows:minmax(var(--row),auto)}
+}
+/* 欄線：網格是存在的，而且看得見 */
+.rules{
+  position:absolute;inset:-30px -26px -34px;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(90deg,rgba(22,19,15,.16) 0 1px,transparent 1px calc(100%/12));
+  background-position:26px 0;background-size:calc(100% - 52px) 100%;background-repeat:no-repeat;
+  opacity:.5;
+}
+/* 裝訂溝 */
+.gutter{
+  position:absolute;left:calc(50% - var(--gut)/2);top:-30px;bottom:-34px;width:var(--gut);
+  background:linear-gradient(90deg,rgba(22,19,15,.20),rgba(22,19,15,.05) 40%,rgba(22,19,15,.05) 60%,rgba(22,19,15,.20));
+  z-index:5;pointer-events:none;
+}
+.gutter i{position:absolute;left:9px;width:8px;height:8px;background:var(--edge);box-shadow:inset 1px 1px 0 rgba(22,19,15,.5)}
+
+/* ── 影印世代：光學模糊 + 硬門檻 ─────────────────────── */
+.g0{filter:none}
+.g1{filter:blur(.28px) contrast(7)}
+.g2{filter:blur(.42px) brightness(.985) contrast(10)}
+.g3{filter:blur(.58px) brightness(1.02) contrast(13)}
+.g4{filter:blur(.76px) brightness(.97) contrast(16)}
+.g5{filter:blur(.98px) brightness(1.045) contrast(20)}
+.gen{background:var(--paper);transition:filter 360ms steps(3)}
+.gen:not(.g0):hover,.gen:not(.g0):focus-within{filter:blur(.2px) contrast(6);transition-duration:70ms}
+
+/* ── 巨字裁切 ────────────────────────────────────── */
+.mass{
+  position:absolute;font-family:var(--serif);font-weight:900;color:var(--toner);
+  line-height:.72;letter-spacing:-.06em;z-index:1;user-select:none;
+}
+.mass.m1{font-size:min(30vw,300px);left:-4.5vw;top:-26px}
+.mass.m2{font-size:min(17vw,168px);right:-3.4vw;bottom:-46px;color:var(--edge)}
+
+/* ── 標題：同一句話裡字體不斷換 ─────────────────────── */
+.head{position:relative;z-index:3;margin:0}
+.head .a{font-family:var(--serif);font-weight:900;font-size:clamp(42px,8.4vw,104px);line-height:.86;display:inline-block;vertical-align:-6px}
+.head .b{font-family:var(--tw);font-size:clamp(15px,2.2vw,26px);display:inline-block;transform:translateY(-1.6em) rotate(-4deg);letter-spacing:.02em}
+.head .c{font-family:var(--disp);font-size:clamp(34px,7vw,86px);line-height:.9;display:inline-block;transform:rotate(-6.4deg) translateY(.06em);letter-spacing:.01em}
+.head .d{font-family:var(--mono);font-weight:700;font-size:clamp(13px,1.8vw,19px);display:inline-block;transform:translateY(-2.4em)}
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;margin:0 0 4px}
+
+/* 內文 */
+.lede{font-family:var(--serif);font-size:clamp(17px,1.6vw,20px);line-height:1.72;margin:12px 0 0}
+p{margin:0 0 .82em}
+.col p{margin-bottom:.7em}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#4a453d}
+
+/* 欄目名被壓住只露一半 */
+.rubric{
+  position:absolute;left:-2px;top:calc(var(--row)*7);z-index:0;
+  font-family:var(--disp);font-size:clamp(40px,6vw,72px);color:var(--toner);
+  writing-mode:vertical-rl;letter-spacing:.06em;
+}
+.rubric span{display:block;clip-path:inset(0 0 0 46%)}
+
+/* 馬克筆圈記（前一位讀者留下的） */
+.ring{position:absolute;pointer-events:none;z-index:4}
+.ring svg{display:block;overflow:visible}
+/* 螢光筆 */
+.hl{background:linear-gradient(var(--mark),var(--mark));background-size:100% .78em;background-position:0 .62em;background-repeat:no-repeat;padding:0 .06em}
+
+/* 頁碼：不在它該在的地方 */
+.folio{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.1em}
+.folio-mid{position:absolute;left:50%;transform:translateX(-50%) rotate(2.6deg);z-index:7;font-family:var(--tw);font-size:26px}
+
+/* ── 目錄 ─────────────────────────────────────────── */
+.toc{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:0}
+.toc li{border-top:1.6px solid var(--toner);padding:9px 10px 11px;position:relative;min-height:104px}
+.toc li:nth-child(even){background:rgba(22,19,15,.045)}
+.toc .n{font-family:var(--mono);font-size:11px;letter-spacing:.12em}
+.toc .t{font-family:var(--serif);font-weight:900;font-size:19px;line-height:1.22;margin:2px 0 4px;display:block}
+.toc .m{font-family:var(--mono);font-size:11px;color:#4a453d}
+.toc .st{position:absolute;right:8px;top:8px;font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 5px;border:1.4px solid var(--toner)}
+.toc .st.on{background:var(--spot);color:#fff;border-color:var(--spot)}
+.toc .st.off{color:#4a453d;border-color:var(--edge)}
+
+/* ── 摺角導覽 ─────────────────────────────────────── */
+.dogs{max-width:1240px;margin:16px auto 0;padding:0 28px;display:flex;gap:12px;justify-content:flex-end}
+.dog{
+  position:relative;width:62px;height:62px;background:var(--paper);color:var(--toner);
+  text-decoration:none;border:1.8px solid var(--toner);display:block;flex:none;
+}
+.dog .fol{position:absolute;left:6px;bottom:4px;font-family:var(--mono);font-weight:700;font-size:15px}
+.dog .nm{position:absolute;left:6px;top:5px;font-size:12px;font-family:var(--sans);font-weight:700;letter-spacing:.04em}
+.dog.seen::after{
+  content:"";position:absolute;right:0;top:0;width:20px;height:20px;
+  background:linear-gradient(225deg,transparent 49%,rgba(22,19,15,.34) 49% 51%,transparent 51%);
+}
+.dog.cur{border-color:var(--toner)}
+.dog.cur::before{
+  content:"";position:absolute;right:0;top:0;width:26px;height:26px;
+  background:var(--edge);
+  clip-path:polygon(100% 0,0 0,100% 100%);
+  box-shadow:-1px 1px 0 rgba(22,19,15,.5);
+}
+.dog.cur::after{
+  content:"";position:absolute;right:0;top:0;width:26px;height:26px;
+  background:linear-gradient(225deg,transparent 49%,var(--toner) 49% 52%,transparent 52%);
+}
+.dog.cur .fol{color:var(--spot)}
+
+/* ── footer ───────────────────────────────────────── */
+.logo svg{display:block;width:240px;height:72px;margin-bottom:8px}
+@media (max-width:560px){.logo svg{width:196px;height:59px}}
+footer{max-width:1240px;margin:0 auto;padding:26px 28px 60px;color:var(--toner)}
+.fbox{background:var(--toner);color:var(--paper);padding:20px 20px 22px}
+.fbox a{color:var(--paper)}
+.fbox h2{font-family:var(--disp);font-size:26px;margin:0 0 10px;letter-spacing:.02em}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px 22px;font-family:var(--mono);font-size:12.5px;line-height:1.7}
+.fgrid b{font-family:var(--sans);font-weight:900;display:block;font-size:13px;letter-spacing:.06em;border-bottom:1.4px solid var(--spot);margin-bottom:4px;padding-bottom:2px}
+.flinks{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:16px;font-family:var(--mono);font-size:13px}
+
+/* CTA */
+.cta{
+  display:inline-block;background:var(--spot);color:#fff;text-decoration:none;
+  font-family:var(--disp);font-size:clamp(22px,3.4vw,34px);padding:10px 20px 12px;
+  border:0;letter-spacing:.03em;transform:rotate(-1.4deg);
+}
+.cta:hover,.cta:focus{background:var(--toner);color:var(--spot);outline:none}
+.cta .sm{font-family:var(--mono);font-size:12px;display:block;letter-spacing:.1em;font-weight:700}
+
+h2.sec{font-family:var(--disp);font-size:clamp(28px,5vw,54px);margin:0;letter-spacing:.02em;line-height:1}
+h2.sec em{font-family:var(--tw);font-style:normal;font-size:.42em;display:inline-block;transform:translateY(-.9em) rotate(-3deg)}
+
+.note{font-family:var(--mono);font-size:12px;color:#4a453d;line-height:1.75}
+.rev{background:var(--toner);color:var(--paper);padding:1px 6px 2px;display:inline-block}
+
+/* 斑點場容器 */
+.specks{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.8}
+
+@media (max-width:900px){
+  .machine{padding:22px 10px 18px}
+  .sheet{padding:22px 16px 26px}
+  .gutter,.rules{display:none}
+  .dogs{justify-content:flex-start;padding:0 14px;flex-wrap:wrap}
+  .rubric{display:none}
+}
+@media (max-width:560px){
+  .edbox{transform:none;margin-left:0}
+  .col{margin-left:0 !important}
+  body{font-size:16px}
+  .spread{display:block}
+  .blk{display:block;margin-bottom:18px}
+  .mass.m1{font-size:44vw;left:-6vw;top:-10px}
+  .mass.m2{display:none}
+  .head .c,.head .b,.head .d{transform:none}
+  .cta{transform:none;display:block;text-align:center}
+  .trim{display:none}
+  footer{padding:20px 14px 48px}
+}
+@media (prefers-reduced-motion:reduce){
+  .platen{animation:none;transform:translate3d(0,12vh,0)}
+  .gen{transition:none}
+  *{scroll-behavior:auto}
+}
+</style>
+</head>
+<body data-k="index">
+<a class="skip" href="#main">跳到內容</a>
+
+<div class="machine">
+  <div class="trim tl"><i></i><i></i></div><div class="trim tr"><i></i><i></i></div>
+  <div class="trim bl"><i></i><i></i></div><div class="trim br"><i></i><i></i></div>
+
+  <p class="mach-mark">
+    <span>AM-PAN NO.27</span><span>SHEET p.08&ndash;09</span><span>PLATE / 母本</span>
+    <span>SK-4830</span><span id="mm-copies">RUN 000120</span><span>民國八十六年十一月</span>
+  </p>
+
+  <main id="main" class="sheet">
+    <div class="platen" aria-hidden="true"></div>
+    <div class="rules" aria-hidden="true"></div>
+    <div class="gutter" aria-hidden="true"><i style="top:16%"></i><i style="top:50%"></i><i style="top:84%"></i></div>
+
+    <div class="spread">
+      <div class="mass m1" aria-hidden="true">四</div>
+      <div class="rubric" aria-hidden="true"><span>專題</span></div>
+
+      <!-- 左頁：標題區 -->
+      <div class="blk" style="grid-column:1/8;grid-row:1/span 16">
+        <div style="grid-row:1/span 3;position:relative;z-index:3">
+          <p class="kick">建昌高工 進修部&thinsp;/&thinsp;學生刊物《暗班》第 27 期&thinsp;/&thinsp;專題</p>
+        </div>
+        <h1 class="head" style="grid-row:4/span 9">
+          <span class="a">四點半</span><span class="b">到</span><span class="c">七點十分</span><span class="d">［五個人的下班路線］</span>
+        </h1>
+        <div style="grid-row:13/span 4;position:relative;z-index:3">
+          <p class="lede">下午四點半，大甲的鐵工廠關掉沖床。從那裡到建昌的側門，騎車三十八分鐘。<span class="hl">這中間有二十二分鐘沒有人知道他們在做什麼</span>，我們就是想問這個。</p>
+        </div>
+      </div>
+
+      <!-- 右頁：兩欄內文，刻意壓到左頁上 -->
+      <div class="blk" style="grid-column:7/13;grid-row:3/span 21;z-index:3">
+        <div class="gen g0 col" style="grid-row:1/span 21;padding:12px 14px 8px;border-left:2.4px solid var(--toner);position:relative;margin-left:-34px">
+          <p class="tag">採訪／林信良　攝影／沒有攝影，我們沒有相機</p>
+          <p>阿彬四點半打卡，走到停車棚要六分鐘，因為要先去洗手。他說手上的黑不是髒，是鐵粉，洗不掉，只能洗到不會沾到便當。</p>
+          <p>五點零二分他到北屯的自助餐，三十五塊。他每天都拿一樣的：白飯、滷蛋、高麗菜、豆干。老闆娘會多給他一塊豆干，他說這是因為他每天都同一時間出現。</p>
+          <p>五點四十分他在三十七號公車上。他說這段是他一天裡唯一可以什麼都不做的時間，所以他從來不在車上睡覺——睡著了就等於沒有了。</p>
+          <p>六點十五分他到校門口，太早，教室還鎖著。他在側門那排機車旁邊站著，看隔壁補校的人陸續進來。他認得其中十一個人的機車，但不知道其中任何一個人的名字。</p>
+          <p>七點十分打鐘。他說鐘一響，白天那一段就結束了，「不是想不起來，是不會再想。」</p>
+          <p class="tag" style="margin-top:10px">（本篇共四張，全文在〈這一期〉）</p>
+        </div>
+      </div>
+
+      <!-- 出血被裁掉的編輯室資訊塊 -->
+      <div class="blk" style="grid-column:1/7;grid-row:18/span 9;z-index:4">
+        <div class="edbox" style="grid-row:1/span 9;background:var(--toner);color:var(--paper);padding:10px 12px;transform:rotate(-1.8deg);margin-left:-40px;font-family:var(--mono);font-size:12.5px;line-height:1.72">
+          <b style="font-family:var(--disp);font-size:19px;letter-spacing:.04em;display:block;margin-bottom:4px">編輯室</b>
+          臺中市西屯區工學路 188 號 舊教具室（三樓）<br>
+          04-2317-6620（週二、週四 19:10 後才有人接）<br>
+          開放 週二・週四 19:10&ndash;21:40／週六 09:00&ndash;12:00 印刷日<br>
+          工本費 每本 25 元・代印 A4 單面 1.2 元
+        </div>
+      </div>
+
+      <div class="blk" style="grid-column:8/13;grid-row:25/span 5;z-index:4">
+        <div style="grid-row:1/span 5">
+          <p class="folio" style="margin:0">08&ensp;<span style="font-family:var(--tw);font-weight:400">暗班 第廿七期</span></p>
+          <p class="note" style="margin:2px 0 0">母本存編輯室，不外借。你手上這份是影印的影印。</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="folio-mid" aria-hidden="true" style="bottom:14px">09</span>
+
+    <!-- 前一位讀者的圈記 -->
+    <div class="ring" style="left:6%;top:47%;width:220px" aria-hidden="true">
+      <svg viewBox="0 0 220 74" width="100%">
+        <path fill="none" stroke="#FF3B00" stroke-width="4.6" stroke-linecap="butt"
+          d="M12 40 C6 22, 62 10, 130 14 C186 18, 210 30, 202 44 C193 60, 116 68, 52 62 C24 59, 10 51, 14 42"/>
+      </svg>
+    </div>
+  </main>
+</div>
+
+<nav class="dogs" aria-label="頁面">
+  <a class="dog cur" href="index.html" data-k="index"><span class="nm">校樣</span><span class="fol">08</span></a>
+  <a class="dog" href="copy.html" data-k="copy"><span class="nm">配本</span><span class="fol">31</span></a>
+  <a class="dog" href="read.html" data-k="read"><span class="nm">這期</span><span class="fol">14</span></a>
+  <a class="dog" href="room.html" data-k="room"><span class="nm">編輯室</span><span class="fol">02</span></a>
+</nav>
+
+<div class="machine" style="padding-top:18px">
+  <section class="sheet" style="padding-bottom:26px">
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:14px">
+      <h2 class="sec">本期十二篇<em>共四十一張</em></h2>
+      <p class="note" style="margin:0;max-width:34ch">母本一份。其餘都是影印的影印。影印機一次跑不完四十一張——所以你領到的那本，是你自己配的。</p>
+    </div>
+    <ul class="toc" id="toc"></ul>
+    <noscript><ul class="toc"><li class="n1"><span class="n">01</span><a class="t" href="read.html#a1">四點半到七點十分</a><span class="m">五個人的下班路線　4 張</span></li><li class="n2"><span class="n">02</span><a class="t" href="read.html#a2">本期物價</a><span class="m">鹹酥雞漲五塊，代印新價目　2 張</span></li><li class="n3"><span class="n">03</span><a class="t" href="read.html#a3">我把手指頭放進去過（上）</a><span class="m">訪機三甲 蔡文彬談沖床　6 張</span></li><li class="n4"><span class="n">04</span><a class="t" href="read.html#a4">勘誤</a><span class="m">上期第 6 頁整段重複　1 張</span></li><li class="n5"><span class="n">05</span><a class="t" href="read.html#a5">不要再叫我們夜校仔</a><span class="m">投書．三封　3 張</span></li><li class="n6"><span class="n">06</span><a class="t" href="read.html#a6">我把手指頭放進去過（下）</a><span class="m">訪談續　5 張</span></li><li class="n7"><span class="n">07</span><a class="t" href="read.html#a7">社團公告與下期徵稿</a><span class="m">2 張</span></li><li class="n8"><span class="n">08</span><a class="t" href="read.html#a8">一台影印機的一生</a><span class="m">SK-4830 為什麼會糊　4 張</span></li><li class="n9"><span class="n">09</span><a class="t" href="read.html#a9">編輯室手記</a><span class="m">1 張</span></li><li class="n10"><span class="n">10</span><a class="t" href="read.html#a10">十一點的公車路線圖</a><span class="m">末班車與走路回家的距離　3 張</span></li><li class="n11"><span class="n">11</span><a class="t" href="read.html#a11">小說連載：暗班（三）</a><span class="m">6 張</span></li><li class="n12"><span class="n">12</span><a class="t" href="read.html#a12">為什麼你們印出來的東西沒有人看</a><span class="m">黃素貞老師專欄　4 張</span></li></ul><p class="note">（沒有 JavaScript 時，這份目錄是靜態的，十二篇全文在〈這一期〉，全部是母本。）</p></noscript>
+        <p style="margin:20px 0 0"><a class="cta" href="copy.html">去配一本<span class="sm">COMPOSE YOUR COPY &rarr;</span></a></p>
+    <p class="note" id="have" style="margin:10px 0 0"></p>
+  </section>
+</div>
+
+<footer>
+  <div class="fbox">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 240 72" width="240" height="72">
+      <defs><filter id="tonerL" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+        <feMorphology operator="dilate" radius="0.7"/><feMorphology operator="erode" radius="0.5"/>
+        <feComponentTransfer><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer></filter></defs>
+      <path fill="#FFFFFF" stroke="#16130F" stroke-width="2" filter="url(#tonerL)" d="M6 6 H150 V13 H154 V20 H150 V31 H155 V44 H151 V56 H146 V62 H92 V58 H60 V63 H24 V57 H10 V44 H6 Z"/>
+      <path fill="#B9B4AC" d="M150 6 L150 26 L128 6 Z"/><path fill="none" stroke="#16130F" stroke-width="2.4" d="M150 26 L128 6"/>
+      <rect x="20" y="22" width="86" height="7" fill="#16130F"/><rect x="20" y="35" width="104" height="7" fill="#16130F"/><rect x="20" y="48" width="62" height="7" fill="#16130F"/>
+      <path fill="none" stroke="#FF3B00" stroke-width="5" stroke-linecap="butt" d="M14 40 C10 27, 44 17, 88 20 C126 23, 138 33, 132 42 C126 51, 84 58, 44 55 C24 53, 15 48, 17 42"/>
+      <path fill="none" stroke="#FFFFFF" stroke-width="2" d="M170 8 H196 M182 2 V26"/><path fill="none" stroke="#FFFFFF" stroke-width="2" d="M170 64 H196 M182 46 V70"/>
+      <rect x="204" y="18" width="30" height="30" fill="#FFFFFF"/><rect x="211" y="25" width="16" height="16" fill="#FF3B00"/>
+    </svg></div>
+    <h2>暗班編輯室 AM-PAN</h2>
+    <div class="fgrid">
+      <div><b>地址</b>臺中市西屯區工學路 188 號<br>私立建昌高級工業職業學校<br>進修部 舊教具室（三樓）</div>
+      <div><b>電話</b>04-2317-6620<br>週二・週四 19:10 後才有人接<br>週六印刷日 09:00&ndash;12:00</div>
+      <div><b>開放時間</b>週二 19:10&ndash;21:40<br>週四 19:10&ndash;21:40<br>週六 09:00&ndash;12:00</div>
+      <div><b>工本費</b>刊物每本 25 元<br>代印 A4 單面 1.2 元／雙面 2 元<br>螢光紙加 3 元（社團經費）</div>
+      <div><b>編輯</b>總編 蔡文彬（機三甲）<br>美編 高韻如（電二乙）<br>採訪 林信良／發行 陳品叡<br>指導老師 黃素貞</div>
+      <div><b>機器</b>新光 SK-4830 靜電複印機<br>民國八十二年校友會捐贈<br>滾筒換過兩次，第三次沒錢換</div>
+    </div>
+    <p class="flinks">
+      <a href="index.html">校樣 08</a><a href="copy.html">配本台 31</a><a href="read.html">這一期 14</a><a href="room.html">編輯室 02</a>
+      <a href="SKILL.md">SKILL.md</a><a href="README.md">README</a><a href="../../index.html">回藝廊</a>
+    </p>
+    <p class="note" style="color:#B9B4AC;margin:14px 0 0">本站為設計風格示範用之虛構刊物，校名、人名、電話、地址、機型皆為虛構。</p>
+  </div>
+</footer>
+
+<noscript>
+<div class="machine"><div class="sheet"><p class="note">你關掉了 JavaScript。這一頁的全部文字都在上面，一個字都沒有少，而且是母本（沒有影印過）。配本台需要 JavaScript 才能操作，但〈這一期〉的十二篇全文不需要。</p></div></div>
+</noscript>
+
+<script>
+(function(){
+  "use strict";
+  var KEY="ampan.copy.v1", SEEN="ampan.seen.v1", READ="ampan.read.v1";
+  var ART=[
+    {id:1,t:"四點半到七點十分",s:"五個人的下班路線",p:4},
+    {id:2,t:"本期物價",s:"鹹酥雞漲五塊，代印新價目",p:2},
+    {id:3,t:"我把手指頭放進去過（上）",s:"訪機三甲 蔡文彬談沖床",p:6},
+    {id:4,t:"勘誤",s:"上期第 6 頁整段重複",p:1},
+    {id:5,t:"不要再叫我們夜校仔",s:"投書．三封",p:3},
+    {id:6,t:"我把手指頭放進去過（下）",s:"訪談續",p:5},
+    {id:7,t:"社團公告與下期徵稿",s:"",p:2},
+    {id:8,t:"一台影印機的一生",s:"SK-4830 為什麼會糊",p:4},
+    {id:9,t:"編輯室手記",s:"",p:1},
+    {id:10,t:"十一點的公車路線圖",s:"末班車與走路回家的距離",p:3},
+    {id:11,t:"小說連載：暗班（三）",s:"",p:6},
+    {id:12,t:"為什麼你們印出來的東西沒有人看",s:"黃素貞老師專欄",p:4}
+  ];
+  function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  var copy=load(KEY,null), seen=load(SEEN,{}), read=load(READ,{});
+  // 摺角：去過的頁留下已攤平的舊摺痕
+  seen[document.body.getAttribute("data-k")||"index"]=1;
+  try{localStorage.setItem(SEEN,JSON.stringify(seen));}catch(e){}
+  Array.prototype.forEach.call(document.querySelectorAll(".dog"),function(a){
+    var k=a.getAttribute("data-k");
+    if(seen[k]&&!a.classList.contains("cur")) a.classList.add("seen");
+  });
+
+  // 目錄
+  var ul=document.getElementById("toc");
+  var picked={}; if(copy&&copy.items){copy.items.forEach(function(o){picked[o.id]=o;});}
+  ART.forEach(function(a){
+    var li=document.createElement("li");
+    var st=picked[a.id]?('<span class="st on">第 '+picked[a.id].g+' 代</span>')
+      :(copy?'<span class="st off">空白頁</span>':'<span class="st off">'+a.p+' 張</span>');
+    li.innerHTML=st+
+      '<span class="n">'+String(a.id).padStart(2,"0")+'</span>'+
+      '<a class="t" href="read.html#a'+a.id+'">'+a.t+'</a>'+
+      '<span class="m">'+(a.s?a.s+"　":"")+a.p+' 張'+(read[a.id]?'　・已讀':'')+'</span>';
+    ul.appendChild(li);
+  });
+  var have=document.getElementById("have");
+  if(copy){
+    have.innerHTML='你已經領過一本了：收錄 '+copy.items.length+' 篇、'+copy.used+' 張，最後一篇印到第 '+copy.items[copy.items.length-1].g+' 代。本號 '+copy.no+'。'+
+      '〈這一期〉會照這本的代數印給你。要換一本就再去配本台跑一次。';
+  }else{
+    have.textContent="你還沒領過。沒領之前，〈這一期〉給你看的是母本（完全清楚的那一份）。";
+  }
+  var mm=document.getElementById("mm-copies");
+  if(copy) mm.textContent="RUN 0001"+String(20+copy.items.length).padStart(2,"0");
+
+  // 決定性斑點場（碳粉斑）
+  function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+  function specks(host,seed,n){
+    var r=rng(fnv(seed)),d="";
+    for(var i=0;i<n;i++){
+      var x=(r()*100).toFixed(2),y=(r()*100).toFixed(2),s=(0.4+r()*1.4).toFixed(2);
+      d+='<rect x="'+x+'%" y="'+y+'%" width="'+s+'" height="'+(s*(0.6+r()*0.9)).toFixed(2)+'" fill="#16130F" opacity="'+(0.28+r()*0.5).toFixed(2)+'"/>';
+    }
+    var w=document.createElement("div");
+    w.className="specks"; w.setAttribute("aria-hidden","true");
+    w.innerHTML='<svg width="100%" height="100%" preserveAspectRatio="none">'+d+'</svg>';
+    host.appendChild(w);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".sheet"),function(s,i){specks(s,"ampan-27-"+i,i===0?150:70);});
+
+  // 轉場：重新曝光（進頁時由第 5 代倒回本頁代數）
+  var rm=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  if(!rm){
+    var m=document.getElementById("main");
+    m.style.transition="none"; m.style.filter="blur(.98px) brightness(1.045) contrast(20)";
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        m.style.transition="filter 420ms steps(4)";
+        m.style.filter="none";
+        setTimeout(function(){m.style.transition="";m.style.filter="";},520);
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

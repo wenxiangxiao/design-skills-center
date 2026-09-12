@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>判形之法｜無地平 跳傘訓練所</title>
+<meta name="description" content="怎麼判定四個人擺出來的是不是那個形：相對方位、Procrustes 對齊、4! 身分指派枚舉、容忍度實測與三十五秒工作時間。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%23F2F2EF'/%3E%3Crect%20x='7'%20y='5'%20width='13'%20height='13'%20fill='%230E0E10'/%3E%3Crect%20x='3'%20y='22'%20width='26'%20height='5'%20fill='%23E5301C'%20transform='rotate(-33%2016%2024)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ══ 至上主義紀律：無邊框・無圓角・無陰影・無漸層・無材質・無網格線 ══ */
+*{margin:0;padding:0;box-sizing:border-box;border:0;border-radius:0;box-shadow:none;background-image:none}
+:root{--void:#F2F2EF;--ink:#0E0E10;--red:#E5301C;--green:#0B7A4B;--tilt:-33deg}
+html,body{background:var(--void)}
+body{color:var(--ink);font-family:"Noto Sans TC","Archivo",system-ui,sans-serif;font-weight:400;line-height:1.72;
+ -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:16px}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit;background:transparent;outline-offset:3px}
+::selection{background:var(--red);color:#fff}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.n{font-family:"Archivo",sans-serif;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.hd{font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:800;letter-spacing:-.01em;line-height:1.04}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* ── 形 ─────────────────────────────────────── */
+.f{position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1%);width:calc(var(--w)*1%);height:calc(var(--h)*1%);
+ transform:translate(var(--bx,0px),var(--by,0px)) rotate(var(--r,0deg));transform-origin:50% 50%}
+.blk{background:var(--ink)}.rd{background:var(--red)}.gr{background:var(--green)}
+.disc{border-radius:50%}
+.lbl{position:absolute;font-size:11px;letter-spacing:.14em;line-height:1.5;white-space:nowrap}
+.lbl.n{font-weight:600}
+.lbl-w{color:#F2F2EF}
+.vert{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.32em;font-size:11px;font-weight:600}
+.tilt{display:inline-block;transform:rotate(-33deg);transform-origin:0 50%}
+/* ── 導覽：黑方定位（全站唯一未旋轉的形＝現用頁）───── */
+.nav{position:fixed;top:22px;right:24px;width:206px;height:132px;z-index:70}
+.nav a{position:absolute;display:block;text-align:right}
+.nav a i{position:absolute;right:0;top:0;display:block;width:46px;height:9px;background:var(--red);
+ transform:rotate(var(--tilt));transform-origin:100% 50%;transition:transform .16s steps(3)}
+.nav a b{position:absolute;right:56px;top:-4px;font-size:11px;font-weight:500;letter-spacing:.2em;white-space:nowrap;color:var(--ink)}
+.nav a:hover i{transform:rotate(-52deg)}
+.nav a[aria-current="page"] i{width:22px;height:22px;background:var(--ink);transform:rotate(0deg);top:-7px}
+.nav a[aria-current="page"] b{font-weight:900;right:34px}
+.nav a:nth-child(1){right:0;top:2px}
+.nav a:nth-child(2){right:26px;top:36px}
+.nav a:nth-child(3){right:52px;top:70px}
+.nav a:nth-child(4){right:78px;top:104px}
+.brand{position:fixed;top:24px;left:26px;z-index:70;display:block}
+.brand svg{display:block;width:132px;height:auto}
+/* ── 解散鈕（簽名動效）──────────────────────── */
+.bo{position:fixed;left:26px;top:96px;z-index:70;width:34px;height:34px;background:var(--red);border-radius:50%;cursor:pointer;
+ color:var(--ink);font-size:10px;letter-spacing:.06em;font-weight:700;line-height:34px;text-align:center;font-family:"Noto Sans TC",sans-serif}
+.bo:hover{background:var(--ink);color:#F2F2EF}
+html:not(.js) .jsonly{display:none!important}
+body.scattered .f{transition:transform .9s steps(6)}
+body.scattered .void .f{--bx:var(--sx);--by:var(--sy)}
+/* ── 版面 ──────────────────────────────────── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 30px}
+.void{position:relative;height:clamp(560px,84vh,800px);margin:0 auto;max-width:1180px}
+.void .f{transition:transform .9s steps(6)}
+section{padding:0 0 96px}
+h2.hd{font-size:clamp(26px,3.4vw,44px);margin:0 0 6px}
+h3{font-size:17px;font-weight:700;letter-spacing:.02em;margin:0 0 4px}
+p{max-width:34em}
+.tag{font-size:11px;letter-spacing:.26em;font-weight:600;color:var(--ink)}
+.bar{height:9px;background:var(--red);width:170px;margin:0 0 22px}
+.bar.k{background:var(--ink)}
+.stack{display:flow-root}
+.row{display:flex;flex-wrap:wrap;gap:38px 54px;align-items:flex-start}
+.col{flex:1 1 250px;min-width:240px}
+.lead{font-size:19px;line-height:1.78;max-width:31em}
+.sm{font-size:13.5px;line-height:1.7}
+.mut{color:#4A4A4C}
+table{border-collapse:collapse;width:100%;max-width:620px}
+th,td{text-align:left;padding:9px 16px 9px 0;font-size:14px;vertical-align:top}
+th{font-weight:700;font-size:11.5px;letter-spacing:.2em}
+tbody tr td:first-child{font-weight:700}
+.klist{list-style:none}
+.klist li{padding-left:26px;position:relative;margin-bottom:9px;font-size:14.5px;max-width:33em}
+.klist li::before{content:"";position:absolute;left:0;top:.62em;width:13px;height:13px;background:var(--ink);transform:rotate(-33deg)}
+.klist li.r::before{background:var(--red)}
+/* ── 表單／按鈕（無邊框，靠色塊）─────────────── */
+.btn{display:inline-block;background:var(--ink);color:#F2F2EF;padding:13px 26px;font-size:13px;font-weight:700;
+ letter-spacing:.18em;cursor:pointer;transition:background .01s}
+.btn:hover{background:var(--red);color:var(--ink)}
+.btn[disabled]{background:#9C9C99;cursor:not-allowed}
+.btn.gh{background:var(--red);color:var(--ink)}
+.btn.gh:hover{background:var(--ink);color:#F2F2EF}
+.fld{margin:0 0 20px;max-width:420px}
+.fld label{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin:0 0 6px}
+.fld input,.fld select,.fld textarea{width:100%;background:#fff;padding:12px 14px;font-size:15px}
+.fld input:focus,.fld select:focus{background:#fff;outline:3px solid var(--red)}
+.err{color:var(--red);font-size:13px;font-weight:700;margin-top:7px;max-width:32em}
+footer{background:var(--ink);color:#F2F2EF;padding:56px 0 44px;margin-top:40px}
+footer a:hover{color:#FFFFFF;text-decoration:underline}
+footer .row{gap:30px 56px}
+/* ── 逐格降落（ambient）───────────────────── */
+@keyframes fall{0%{transform:translateY(-14vh) rotate(0deg)}100%{transform:translateY(112vh) rotate(198deg)}}
+.faller{position:fixed;width:13px;height:13px;background:var(--ink);z-index:1;pointer-events:none;
+ animation:fall 26s steps(16,end) infinite}
+.faller.b{width:8px;height:26px;background:var(--red);animation-duration:41s;animation-timing-function:steps(11,end)}
+/* ── 斜線推移（transition）─────────────────── */
+@keyframes wipe{from{clip-path:polygon(0 0,0 0,-38% 100%,-38% 100%)}to{clip-path:polygon(0 0,142% 0,100% 100%,-38% 100%)}}
+.wipe{animation:wipe .19s cubic-bezier(.2,0,0,1) both}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important}
+ .faller{display:none}
+}
+/* ── RWD ────────────────────────────────────── */
+@media (max-width:900px){
+ body{padding-top:74px;font-size:15.5px}
+ .brand{top:16px;left:18px}.brand svg{width:104px}
+ .bo{top:20px;left:auto;right:18px;width:30px;height:30px;line-height:30px;font-size:9px}
+ .nav{position:fixed;top:56px;left:0;right:0;width:100%;height:36px;background:var(--void);padding:0 14px;display:flex;gap:0}
+ .nav a{position:static;flex:1;text-align:center;padding-top:4px}
+ .nav a i{position:static;display:block;width:100%;height:7px;margin:0 auto 5px;transform:none}
+ .nav a[aria-current="page"] i{width:14px;height:14px;margin-bottom:1px;transform:none}
+ .nav a b{position:static;display:block;font-size:10px;letter-spacing:.1em}
+ .nav a:hover i{transform:none}
+ .void{height:auto;min-height:0;padding-bottom:12px}
+ .wrap{padding:0 18px}
+ p,.klist li,.lead{max-width:none}
+}
+@media (max-width:560px){
+ .lead{font-size:17px}
+ .row{gap:26px}
+ th,td{font-size:13px;padding:7px 10px 7px 0}
+}
+
+.ch{padding:0 0 58px;max-width:none}
+.ch .no{font-family:"Archivo",sans-serif;font-weight:800;font-size:13px;letter-spacing:.28em;color:var(--red)}
+.ch h2{font-size:clamp(23px,3vw,36px);font-weight:900;margin:4px 0 16px;letter-spacing:-.01em}
+.ch p{margin:0 0 15px;font-size:15.5px}
+.ch .fm{background:#fff;padding:18px 20px;max-width:38em;font-family:"Archivo",monospace;font-size:14px;line-height:2;letter-spacing:.02em;margin:0 0 16px}
+.ch .fm b{font-weight:800}
+.side8{position:sticky;top:0}
+.figb{display:flex;gap:20px;align-items:flex-start;margin:0 0 26px;max-width:44em}
+.figb .fig2{width:140px;height:140px;flex:0 0 140px;background:var(--void)}
+.figb figcaption{font-size:14px;line-height:1.66}
+.figb figcaption b{font-size:16px}
+.figb .n{font-size:11px;letter-spacing:.2em;color:#4A4A4C}
+.figb .cap2{font-size:13.5px;color:#4A4A4C}
+.dirs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.dirs span{background:var(--ink);color:#F2F2EF;font-size:12px;font-weight:700;letter-spacing:.14em;padding:6px 12px}
+.dirs span:nth-child(odd){background:var(--red)}
+@media (max-width:560px){.figb{gap:14px}.figb .fig2{width:96px;height:96px;flex:0 0 96px}}
+.void.strip{height:150px;margin:10px 0 4px;position:relative}
+@media (max-width:900px){.void.strip{height:98px}}
+.void.strip .vert{position:absolute;right:1%;top:8%;height:84%;color:var(--ink)}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">跳到主要內容</a>
+<a class="brand" href="index.html" aria-label="無地平 跳傘訓練所 首頁">
+<svg viewBox="0 0 240 120" aria-hidden="true"><rect width="240" height="120" fill="#F2F2EF"/><g transform="rotate(-33 60 60)"><rect x="6" y="52" width="108" height="9" fill="#E5301C"/><rect x="30" y="20" width="30" height="30" fill="#0E0E10"/><rect x="72" y="66" width="14" height="14" fill="#0E0E10"/><circle cx="20" cy="30" r="7" fill="#0E0E10"/></g><text x="126" y="56" font-family="Archivo,Helvetica,sans-serif" font-size="26" font-weight="800" letter-spacing="1.5" fill="#0E0E10">NO</text><text x="126" y="82" font-family="Archivo,Helvetica,sans-serif" font-size="26" font-weight="800" letter-spacing="1.5" fill="#0E0E10">HORIZON</text><rect x="126" y="88" width="52" height="5" fill="#E5301C"/></svg>
+</a>
+<button class="bo jsonly" id="bo" type="button" aria-pressed="false">解散</button>
+<nav class="nav" aria-label="主導覽">
+<a href="index.html"><i aria-hidden="true"></i><b>虛空</b></a>
+<a href="pool.html"><i aria-hidden="true"></i><b>籤簿</b></a>
+<a href="fa.html" aria-current="page"><i aria-hidden="true"></i><b>判形之法</b></a>
+<a href="wei.html"><i aria-hidden="true"></i><b>報名・包機</b></a>
+</nav>
+<div class="faller" aria-hidden="true" style="left:94%"></div>
+<div class="faller b" aria-hidden="true" style="left:6%"></div>
+
+<main id="main" class="wrap">
+<div style="padding:26px 0 8px">
+  <p class="tag">講義</p>
+  <h1 class="hd" style="font-size:clamp(30px,5vw,60px);margin:6px 0 0">判形之法</h1>
+  <div class="bar" style="margin-top:16px"></div>
+  <p class="lead" style="margin-top:18px">這一頁講的是本社怎麼認定「你擺出來的就是那個形」。全部的算法都寫在這裡，你可以拿去驗算籤簿給你的每一個數字。</p>
+</div>
+
+<div class="void strip">
+  <div class="f blk" style="--x:2;--y:24;--w:30;--h:8;--r:-33deg" aria-hidden="true"></div>
+  <div class="f rd" style="--x:44;--y:10;--w:8;--h:58;--r:-33deg" aria-hidden="true"></div>
+  <div class="f blk" style="--x:62;--y:38;--w:6;--h:28;--r:0deg" aria-hidden="true"></div>
+  <div class="f blk disc" style="--x:77;--y:20;--w:4.5;--h:32;--r:0deg" aria-hidden="true"></div>
+  <div class="f rd" style="--x:88;--y:60;--w:4;--h:13;--r:-33deg" aria-hidden="true"></div>
+  <p class="vert">相對位置</p>
+</div>
+
+<article class="ch">
+  <p class="no">一</p><h2>沒有地平線</h2>
+  <p>離開機門以後的六十秒，四個人以每秒約 53 公尺往下掉。這段時間裡，地面在三公里外，沒有牆、沒有天花板、沒有一條線可以定義「上面」。你唯一能確定的事情是：另外三個人在你的哪一邊、離你幾個身長、他們的正面朝著哪裡。</p>
+  <p>所以四人隊的形，從來不是「站在某個座標上」。<b>形只是一組人與人之間的相對關係</b>。整組人一起繞著中心慢慢自轉——這在自由落體裡幾乎不可避免——形沒有變。整組人稍微散開一點、靠緊一點，形也沒有變。這件事情不是我們寬容，而是天上根本沒有可以量絕對位置的東西。</p>
+  <p>這也是本站的樣子為什麼長成這樣：整站沒有一條格線、沒有一個框、沒有一條對齊基準。所有東西都只是浮在白裡，靠彼此的距離與角度說話。</p>
+</article>
+
+<article class="ch">
+  <p class="no">二</p><h2>方位只有相對的</h2>
+  <p>要講「丙在哪裡」，必須先講「相對於誰」。本社的講法一律是：<b>以被參照的那個人的正面為零度，順時針八等分</b>。</p>
+  <div class="dirs"><span>前</span><span>右前</span><span>右</span><span>右後</span><span>後</span><span>左後</span><span>左</span><span>左前</span></div>
+  <p>所以「丙在乙的左後方兩個身長」是一句完整的話，而「丙在西南方」不是——天上沒有西南方。籤簿判錯的時候，指出來的也是這種話：<i>「丁 應該在 甲 的右後方，你把他擺在左後方。」</i></p>
+  <p>距離的單位是<b>身長</b>（一個張開四肢的跳傘員，約 1.7 公尺）。籤簿裡拖動任何一個人的時候，會即時拉出一條紅線標出他跟最近的人差幾個身長。</p>
+</article>
+
+<article class="ch">
+  <p class="no">三</p><h2>判一個形是不是那個形</h2>
+  <p>把你擺的四個人記成四個點 <b>u₁…u₄</b>（各帶一個朝向角），把圖籍上的目標形記成 <b>t₁…t₄</b>。判定分三步：</p>
+  <div class="fm">
+    <b>第一步・身分指派。</b>你沒有被規定誰站哪個位置，所以四個人對到四個角色有 4! = <b>24</b> 種可能，全部試過一遍。<br>
+    <b>第二步・對齊。</b>對每一種指派，求一個「平移＋旋轉＋等比縮放」把 u 疊到 t 上最省力的擺法（二維 Procrustes，閉式解）：<br>
+    　　θ = atan2( Σ(uᵢ×tᵢ) , Σ(uᵢ·tᵢ) )　　s = |Σ(uᵢ·tᵢ), Σ(uᵢ×tᵢ)| ⁄ Σ|uᵢ|²<br>
+    <b>第三步・算差。</b>形差 = √( Σ|s·R(θ)uᵢ − tᵢ|² ⁄ Σ|tᵢ|² )，是一個無單位的比例。<br>
+    24 種指派裡最小的那個就是你的成績。
+  </div>
+  <p>因為第二步把平移、旋轉、縮放全部吸收掉了，<b>整組轉幾度、擺在畫面哪一角、擺多大，形差都完全一樣</b>。這不是寬容，這是這個判準的定義。</p>
+  <p>另外還要判朝向：把你每個人的朝向角加上第二步求出的 θ，再跟目標的朝向比。位置對而朝向不對，形就不成立——第五章有一個非講不可的例子。</p>
+  <p class="sm mut">成形條件：形差 ≤ 18%，且四個人的朝向誤差都 ≤ 32 度。</p>
+</article>
+
+<article class="ch">
+  <p class="no">四</p><h2>十八趴是怎麼定出來的</h2>
+  <p>本社拿八個形各跑了大量隨機測試，決定容忍門檻。以下是實測數字（每格 600 次，位置加均勻噪聲、朝向另加 ±22 度噪聲）：</p>
+  <table>
+    <thead><tr><th>加給每個人的位置誤差</th><th>判為成形的比例</th></tr></thead>
+    <tbody>
+      <tr><td>±0.05 身長</td><td class="n">100.0%</td></tr>
+      <tr><td>±0.10 身長</td><td class="n">100.0%</td></tr>
+      <tr><td>±0.15 身長</td><td class="n">100.0%</td></tr>
+      <tr><td>±0.20 身長</td><td class="n">99.2%</td></tr>
+      <tr><td>±0.30 身長</td><td class="n">73.7%</td></tr>
+      <tr><td>±0.45 身長</td><td class="n">29.5%</td></tr>
+      <tr><td>完全亂擺（3,000 次）</td><td class="n">0.00%</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:16px">另外把八個形兩兩互判（56 組），<b>沒有任何一組被誤判成另一個形</b>；每個形對自己的形差是 0.0000。判一次要 5 微秒（20,000 次判定共 100 毫秒），所以籤簿可以在你放手的當下就算完。</p>
+  <p>白話講：一個人偏掉五分之一個身長還算你成形；偏掉將近半個身長就不算了。這個尺度剛好對應教練在錄影帶上肉眼判形的界線。</p>
+</article>
+
+<article class="ch">
+  <p class="no">五</p><h2>「輪」與「甜圈」：位置一樣，形不一樣</h2>
+  <div class="figb">
+    <div class="fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="輪 Star 隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,25.00) rotate(90)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(75.00,50.00) rotate(180)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g><g transform="translate(50.00,75.00) rotate(270)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(25.00,50.00) rotate(0)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g></svg></div>
+    <div class="fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="甜圈 Donut 隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,25.00) rotate(180)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(75.00,50.00) rotate(270)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g><g transform="translate(50.00,75.00) rotate(0)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(25.00,50.00) rotate(90)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g></svg></div>
+    <figcaption><b>一・輪</b>（Star）與 <b>二・甜圈</b>（Donut）的四個人站的位置<b>完全相同</b>——都在一個圓上的四個對稱點。它們的差別只有一件事：輪的每個人面向圓心，甜圈的每個人整整轉了九十度改成側身相接。<br><span class="cap2">如果只判位置，這兩個形的形差是 0.0000，會被判成同一個形。所以朝向必須另外判，而且容許值（32 度）必須明顯小於這個差（90 度）。這一對是本社決定判準時的試金石。</span></figcaption>
+  </div>
+</article>
+
+<article class="ch">
+  <p class="no">六</p><h2>三十五秒</h2>
+  <p>國際四人隊競賽把出艙後可以計分的時間定為 35 秒，一趟之內盡量把抽到的一串形依序做完，每完成一個形算一分。籤簿沿用這個數字：每個形給你 35 秒，時間到就算沒完成，直接進下一個。</p>
+  <p>真正在天上，35 秒之後還有一段更重要的事情：<b>解散</b>。全隊在約 1,500 公尺各自轉身、往自己的方向平飛拉開，拉到足夠的水平距離才開傘。籤簿頁面左上角那顆紅色圓鈕就是這個動作——按下去，畫面上所有的形會沿著各自的方位飛出去，只剩下白的。白從頭到尾都在，會離開的是形。</p>
+  <p class="sm mut">籤簿可勾選「不計時練習」；地面課的前兩堂本來就不計時。</p>
+</article>
+
+<article class="ch">
+  <p class="no">七</p><h2>圖籍・八個形</h2>
+  <p style="margin-bottom:26px">以下為本社籤簿收的八個形，依國際四人隊 randoms 的通用名稱重繪為示意圖（非官方握點圖）。每個人的紅色小方是他的正面。</p>
+  <figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="輪（Star）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,25.00) rotate(90)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(75.00,50.00) rotate(180)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g><g transform="translate(50.00,75.00) rotate(270)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(25.00,50.00) rotate(0)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g></svg></div><figcaption><b>一・輪</b> <span class="n">Star</span><br><span class="cap2">四人繞成一圈，每個人都面向圓心。最基本的形，也是每一趟的第一個形。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="甜圈（Donut）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,25.00) rotate(180)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(75.00,50.00) rotate(270)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g><g transform="translate(50.00,75.00) rotate(0)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(25.00,50.00) rotate(90)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g></svg></div><figcaption><b>二・甜圈</b> <span class="n">Donut</span><br><span class="cap2">位置與「輪」完全一樣，四個人卻全部轉了九十度改為側身相接。判形要看的就是這個差別。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="開扇（Open Accordion）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(21.32,50.00) rotate(0)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#0E0E10"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#E5301C"/></g><g transform="translate(40.14,50.00) rotate(270)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#E5301C"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#0E0E10"/></g><g transform="translate(59.86,50.00) rotate(270)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#0E0E10"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#E5301C"/></g><g transform="translate(78.68,50.00) rotate(180)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#E5301C"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#0E0E10"/></g></svg></div><figcaption><b>三・開扇</b> <span class="n">Open Accordion</span><br><span class="cap2">一列四人，中間兩人並肩同向，兩端各自向內。橫向最長的形，出艙後最花時間拉開。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="側身（Sidebody）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(23.83,37.49) rotate(90)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(48.86,37.49) rotate(180)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g><g transform="translate(48.86,62.51) rotate(0)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(76.17,62.51) rotate(270)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g></svg></div><figcaption><b>四・側身</b> <span class="n">Sidebody</span><br><span class="cap2">兩兩相對、整體錯開半個身長。新手最常把錯開的方向做反。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="貓（Cat）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,23.83) rotate(90)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(50.00,48.86) rotate(90)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g><g transform="translate(26.11,69.34) rotate(45)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(73.89,69.34) rotate(135)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g></svg></div><figcaption><b>五・貓</b> <span class="n">Cat</span><br><span class="cap2">兩人前後同向，另兩人各斜四十五度在後方張開，像一隻趴著的貓。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="雙極（Bipole）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(34.99,24.59) rotate(90)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#0E0E10"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#E5301C"/></g><g transform="translate(65.01,24.59) rotate(90)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#E5301C"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#0E0E10"/></g><g transform="translate(34.99,75.41) rotate(270)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#0E0E10"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#E5301C"/></g><g transform="translate(65.01,75.41) rotate(270)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#E5301C"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#0E0E10"/></g></svg></div><figcaption><b>六・雙極</b> <span class="n">Bipole</span><br><span class="cap2">上下兩組並肩，彼此背對。兩組之間的距離是唯一的線索。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="之字（Zig Zag）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(22.03,38.04) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#0E0E10"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#E5301C"/></g><g transform="translate(40.74,57.33) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#E5301C"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#0E0E10"/></g><g transform="translate(59.26,38.04) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#0E0E10"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#E5301C"/></g><g transform="translate(77.97,57.33) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#E5301C"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#0E0E10"/></g></svg></div><figcaption><b>七・之字</b> <span class="n">Zig Zag</span><br><span class="cap2">四人全部同向，位置上下交錯。全隊朝向一致，錯一個人就整組垮掉。</span></figcaption></figure><figure class="figb"><div class="fig fig2"><svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="方陣（Phalanx）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(27.94,27.94) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#0E0E10"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#E5301C"/></g><g transform="translate(72.06,27.94) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#E5301C"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#0E0E10"/></g><g transform="translate(27.94,72.06) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#0E0E10"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#E5301C"/></g><g transform="translate(72.06,72.06) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#E5301C"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#0E0E10"/></g></svg></div><figcaption><b>八・方陣</b> <span class="n">Phalanx</span><br><span class="cap2">四人排成方形、全部同向。看似最簡單，卻最難維持——沒有人可以當參考點。</span></figcaption></figure>
+</article>
+
+<article class="ch">
+  <p class="no">八</p><h2>名詞與安全</h2>
+  <table>
+    <tbody>
+      <tr><td>身長</td><td>約 1.7 公尺，本社所有距離的單位。</td></tr>
+      <tr><td>形差</td><td>對齊之後剩下的殘差比例，0% 為完全一致，本社以 18% 為界。</td></tr>
+      <tr><td>工作時間</td><td>出艙到停止計分之間可以做形的時間，四人隊為 35 秒。</td></tr>
+      <tr><td>解散</td><td>做完形之後全隊向外平飛拉開距離的動作，約在 1,500 公尺。</td></tr>
+      <tr><td>開傘高度</td><td>本社規定學員 1,500 公尺、教練 1,200 公尺，不得低於此。</td></tr>
+      <tr><td>停跳</td><td>風速 &gt; 13 m/s、雲底 &lt; 1,200 m、能見度 &lt; 5 km 之任一即停跳。</td></tr>
+    </tbody>
+  </table>
+  <p class="sm mut" style="margin-top:18px">本頁所有數字為本站示範用之虛構訓練資料；實際跳傘訓練請依民航主管機關與所屬跳傘場之規定辦理。</p>
+  <p style="margin-top:24px"><a class="btn" href="pool.html">去籤簿擺一次</a></p>
+</article>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div class="col" style="flex:1 1 300px">
+        <p class="hd" style="font-size:22px;margin-bottom:10px">無地平 跳傘訓練所</p>
+        <p class="sm" style="color:#DEDEDA">屏東縣潮州鎮四林路 71-3 號<br>08-788-4152｜週三–週日 06:30–17:30</p>
+      </div>
+      <div class="col">
+        <p class="tag" style="color:#9C9C99">頁面</p>
+        <p class="sm"><a href="index.html">虛空（首頁）</a><br><a href="pool.html">籤簿・擺形</a><br><a href="fa.html">判形之法</a><br><a href="wei.html">報名與包機</a></p>
+      </div>
+      <div class="col">
+        <p class="tag" style="color:#9C9C99">館藏</p>
+        <p class="sm"><a href="SKILL.md">SKILL.md 風格規格書</a><br><a href="README.md">README</a><br><a href="../../index.html">回 Design Skills Center</a></p>
+      </div>
+    </div>
+    <p class="sm" style="color:#8B8B88;margin-top:34px">本站為 Design Skills Center 的風格示範站，品牌、人名、價目、電話與地址皆為虛構。至上主義 Suprematism｜Kazimir Malevich, 1915。</p>
+  </div>
+</footer>
+<script>
+/* ══ 無地平 跳傘訓練所・共用引擎 ══════════════════════
+   1) POOL 八形（畫面座標，y 向下；face 為順時針自畫面右方起算的度數）
+   2) 旋轉／平移／縮放不變的判形（2D Procrustes + 4! 身分指派枚舉）
+   3) 形的繪製（全站唯一圖像原語）
+   4) 解散／集合（簽名動效）
+   ════════════════════════════════════════════════ */
+var WD=(function(){
+"use strict";
+try{document.documentElement.classList.add("js");}catch(e){}
+var POOL={
+ '輪':   {code:'一',en:'Star',pts:[{x:0,y:-1,face:90},{x:1,y:0,face:180},{x:0,y:1,face:270},{x:-1,y:0,face:0}],note:'四人繞成一圈，每個人都面向圓心。最基本的形，也是每一趟的第一個形。'},
+ '甜圈': {code:'二',en:'Donut',pts:[{x:0,y:-1,face:180},{x:1,y:0,face:270},{x:0,y:1,face:0},{x:-1,y:0,face:90}],note:'位置與「輪」完全一樣，四個人卻全部轉了九十度改為側身相接。判形要看的就是這個差別。'},
+ '開扇': {code:'三',en:'Open Accordion',pts:[{x:-1.6,y:0,face:0},{x:-0.55,y:0,face:270},{x:0.55,y:0,face:270},{x:1.6,y:0,face:180}],note:'一列四人，中間兩人並肩同向，兩端各自向內。橫向最長的形，出艙後最花時間拉開。'},
+ '側身': {code:'四',en:'Sidebody',pts:[{x:-1.15,y:-0.55,face:90},{x:-0.05,y:-0.55,face:180},{x:-0.05,y:0.55,face:0},{x:1.15,y:0.55,face:270}],note:'兩兩相對、整體錯開半個身長。新手最常把錯開的方向做反。'},
+ '貓':   {code:'五',en:'Cat',pts:[{x:0,y:-1.15,face:90},{x:0,y:-0.05,face:90},{x:-1.05,y:0.85,face:45},{x:1.05,y:0.85,face:135}],note:'兩人前後同向，另兩人各斜四十五度在後方張開，像一隻趴著的貓。'},
+ '雙極': {code:'六',en:'Bipole',pts:[{x:-0.62,y:-1.05,face:90},{x:0.62,y:-1.05,face:90},{x:-0.62,y:1.05,face:270},{x:0.62,y:1.05,face:270}],note:'上下兩組並肩，彼此背對。兩組之間的距離是唯一的線索。'},
+ '之字': {code:'七',en:'Zig Zag',pts:[{x:-1.45,y:-0.62,face:0},{x:-0.48,y:0.38,face:0},{x:0.48,y:-0.62,face:0},{x:1.45,y:0.38,face:0}],note:'四人全部同向，位置上下交錯。全隊朝向一致，錯一個人就整組垮掉。'},
+ '方陣': {code:'八',en:'Phalanx',pts:[{x:-0.72,y:-0.72,face:90},{x:0.72,y:-0.72,face:90},{x:-0.72,y:0.72,face:90},{x:0.72,y:0.72,face:90}],note:'四人排成方形、全部同向。看似最簡單，卻最難維持——沒有人可以當參考點。'}
+};
+var NAMES=Object.keys(POOL);
+/* ── 決定性偽亂數 ── */
+function fnv1a(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* ── 判形 ── */
+var PERM4=(function(){var r=[];function go(cur,rest){if(!rest.length){r.push(cur.slice());return;}for(var i=0;i<rest.length;i++){go(cur.concat(rest[i]),rest.filter(function(_,j){return j!==i;}));}}go([],[0,1,2,3]);return r;})();
+function centroid(P){var x=0,y=0;for(var i=0;i<P.length;i++){x+=P[i].x;y+=P[i].y;}return{x:x/P.length,y:y/P.length};}
+function fit(U,T){
+ var cu=centroid(U),ct=centroid(T),a=0,b=0,su=0,st=0,i,ux,uy,tx,ty;
+ for(i=0;i<U.length;i++){ux=U[i].x-cu.x;uy=U[i].y-cu.y;tx=T[i].x-ct.x;ty=T[i].y-ct.y;
+  a+=ux*tx+uy*ty; b+=ux*ty-uy*tx; su+=ux*ux+uy*uy; st+=tx*tx+ty*ty;}
+ var th=Math.atan2(b,a), s=su>1e-9?Math.sqrt(a*a+b*b)/su:0, res=0, co=Math.cos(th), si=Math.sin(th);
+ for(i=0;i<U.length;i++){ux=U[i].x-cu.x;uy=U[i].y-cu.y;tx=T[i].x-ct.x;ty=T[i].y-ct.y;
+  var X=s*(ux*co-uy*si), Y=s*(ux*si+uy*co); res+=(X-tx)*(X-tx)+(Y-ty)*(Y-ty);}
+ return {theta:th,scale:s,rms:st>1e-9?Math.sqrt(res/st):9};
+}
+function angDiff(a,b){var d=(a-b)%360;if(d>180)d-=360;if(d<-180)d+=360;return d;}
+var BEARING=['右','右後','後','左後','左','左前','前','右前'];
+function bearingWord(dx,dy,ref){ /* ref：被參照者的朝向 */
+ var ang=Math.atan2(dy,dx)*180/Math.PI-ref, k=Math.round(((ang%360)+360)%360/45)%8;
+ return BEARING[k];
+}
+function judge(user,target){
+ var best=null;
+ for(var p=0;p<PERM4.length;p++){
+  var pm=PERM4[p], U=[pm[0],pm[1],pm[2],pm[3]].map(function(i){return user[i];});
+  var f=fit(U,target), thDeg=f.theta*180/Math.PI, maxFace=0, faces=[];
+  for(var i=0;i<4;i++){var d=angDiff(U[i].face+thDeg,target[i].face);faces.push(d);if(Math.abs(d)>maxFace)maxFace=Math.abs(d);}
+  var score=f.rms+Math.max(0,maxFace-18)/180;
+  if(!best||score<best.score)best={score:score,perm:pm,rms:f.rms,theta:thDeg,scale:f.scale,maxFace:maxFace,faces:faces};
+ }
+ best.pass=best.rms<=0.18&&best.maxFace<=32;
+ return best;
+}
+/* 錯在哪：找出殘差最大的那個人，並用相對方位講出來 */
+function diagnose(user,target,res){
+ var pm=res.perm, U=pm.map(function(i){return user[i];});
+ var cu=centroid(U),ct=centroid(target),co=Math.cos(res.theta),si=Math.sin(res.theta),s=res.scale;
+ var worst=-1,wi=0,i;
+ for(i=0;i<4;i++){var ux=U[i].x-cu.x,uy=U[i].y-cu.y;
+  var X=s*(ux*co-uy*si),Y=s*(ux*si+uy*co),d=Math.hypot(X-(target[i].x-ct.x),Y-(target[i].y-ct.y));
+  if(d>worst){worst=d;wi=i;}}
+ var ref=(wi+1)%4;
+ var ux=U[wi].x-cu.x,uy=U[wi].y-cu.y,rx=U[ref].x-cu.x,ry=U[ref].y-cu.y;
+ var uX=s*(ux*co-uy*si),uY=s*(ux*si+uy*co),rX=s*(rx*co-ry*si),rY=s*(rx*si+ry*co);
+ var got=bearingWord(uX-rX,uY-rY,target[ref].face);
+ var want=bearingWord(target[wi].x-target[ref].x,target[wi].y-target[ref].y,target[ref].face);
+ var faceErr=Math.round(res.faces[wi]);
+ return {who:wi,ref:ref,got:got,want:want,faceErr:faceErr,dist:worst};
+}
+/* ── 形的繪製（全站唯一圖像原語）── */
+function formSVG(pts,size,opt){
+ opt=opt||{};
+ var m=0,i;for(i=0;i<pts.length;i++){m=Math.max(m,Math.abs(pts[i].x),Math.abs(pts[i].y));}
+ var s=opt.scale!=null?opt.scale:38/(m+0.52);
+ var out='<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'" role="img" aria-label="'+(opt.label||'隊形示意')+'">';
+ if(opt.bg!==false)out+='<rect width="100" height="100" fill="'+(opt.bg||'#F2F2EF')+'"/>';
+ for(i=0;i<pts.length;i++){
+  var p=pts[i],x=50+p.x*s,y=50+p.y*s;
+  var col=(opt.colors&&opt.colors[i])||(i%2?'#E5301C':'#0E0E10');
+  var nub=col==='#E5301C'?'#0E0E10':'#E5301C';
+  out+='<g transform="translate('+x.toFixed(2)+','+y.toFixed(2)+') rotate('+p.face+')">'
+    +'<rect x="'+(-s*0.40).toFixed(2)+'" y="'+(-s*0.17).toFixed(2)+'" width="'+(s*0.80).toFixed(2)+'" height="'+(s*0.34).toFixed(2)+'" fill="'+col+'"/>'
+    +'<rect x="'+(s*0.42).toFixed(2)+'" y="'+(-s*0.12).toFixed(2)+'" width="'+(s*0.24).toFixed(2)+'" height="'+(s*0.24).toFixed(2)+'" fill="'+nub+'"/></g>';
+ }
+ return out+'</svg>';
+}
+/* ── 今日籤（依日期決定性抽三形）── */
+function drawOfDay(d){
+ d=d||new Date();
+ var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+ var r=mulberry32(fnv1a('wudiping/'+key)),pick=[],pool=NAMES.slice();
+ for(var i=0;i<3;i++){pick.push(pool.splice(Math.floor(r()*pool.length),1)[0]);}
+ return {key:key,names:pick};
+}
+/* ── 解散／集合（簽名動效）── */
+function initBreakoff(){
+ var btn=document.getElementById('bo');if(!btn)return;
+ btn.addEventListener('click',function(){
+  var on=!document.body.classList.contains('scattered');
+  if(on){
+   var boxes=document.querySelectorAll('.void');
+   for(var b=0;b<boxes.length;b++){
+    var rc=boxes[b].getBoundingClientRect(),cx=rc.width/2,cy=rc.height/2;
+    var reach=Math.max(rc.width,rc.height)*1.35+240;
+    var fs=boxes[b].querySelectorAll('.f');
+    for(var i=0;i<fs.length;i++){
+     var r2=fs[i].getBoundingClientRect();
+     var dx=(r2.left-rc.left+r2.width/2)-cx, dy=(r2.top-rc.top+r2.height/2)-cy;
+     var len=Math.hypot(dx,dy)||1;
+     fs[i].style.setProperty('--sx',(dx/len*reach).toFixed(0)+'px');
+     fs[i].style.setProperty('--sy',(dy/len*reach).toFixed(0)+'px');
+    }
+   }
+  }
+  document.body.classList.toggle('scattered',on);
+  btn.setAttribute('aria-pressed',on?'true':'false');
+  btn.textContent=on?'集合':'解散';
+ });
+}
+function ready(fn){if(document.readyState!=='loading')fn();else document.addEventListener('DOMContentLoaded',fn);}
+return {POOL:POOL,NAMES:NAMES,judge:judge,diagnose:diagnose,formSVG:formSVG,fnv1a:fnv1a,mulberry32:mulberry32,
+        drawOfDay:drawOfDay,initBreakoff:initBreakoff,ready:ready,bearingWord:bearingWord};
+})();
+
+WD.ready(function(){WD.initBreakoff();});
+
+</script>
+</body>
+</html>

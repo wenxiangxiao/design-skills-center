@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>選位｜零十劇場 ZERO-TEN THEATRE</title>
+<meta name="description" content="在 96 席的席位圖上挑一個位子，立刻看見你從那裡看見的那面幕，並拿到只屬於那個座位的票根。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A//www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FFFFFF'/%3E%3Cpolygon points='4,4 4,28 28,28' fill='%23131313'/%3E%3Ccircle cx='23' cy='9' r='4.6' fill='%23F5C400'/%3E%3Crect x='4' y='4' width='24' height='24' fill='none' stroke='%23131313' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+:root{
+ --void:#FFFFFF;--ink:#131313;--red:#D9241C;--ultra:#1633A8;--grn:#17823F;--sun:#F5C400;
+ --field:#FFFFFF;
+ --t1:clamp(30px,5vw,62px);--t2:clamp(19px,2.4vw,28px);--t3:16px;--t4:13px;--t5:11px;
+}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{
+ background:var(--field);color:var(--ink);
+ font-family:'Noto Sans TC','Archivo',sans-serif;font-weight:400;font-size:var(--t3);line-height:1.75;
+ font-variant-numeric:tabular-nums;overflow-x:hidden;
+ transition:background-color .9s linear;
+}
+body.st-house{--field:#EDECE9}
+
+body.st-live{--field:#131313;--ultra:#5C79E8;--grn:#39B36B;--red:#F04A3A;color:#FFFFFF}
+body.st-live .plane-ink{background:#FFFFFF}
+body.st-live .btn{background:#FFFFFF;color:#131313}
+body.st-live .btn:hover,body.st-live .btn:focus-visible{background:var(--red);color:#fff}
+body.st-live .onred{color:#131313}
+img,svg{display:block}
+a{color:inherit;text-decoration:none}
+p a,.lk{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2px;text-decoration-color:var(--red)}
+::selection{background:var(--red);color:#fff}
+:focus-visible{outline:3px solid var(--ultra);outline-offset:3px}
+.wrap{width:min(1240px,92vw);margin:0 auto}
+.en{font-family:'Archivo',sans-serif;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
+.num{font-family:'Archivo',sans-serif;font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- 對角掃幕（載入揭幕 / 狀態切換） ---- */
+.wipe{position:fixed;left:50%;top:50%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;
+ background:var(--ink);z-index:90;opacity:0;pointer-events:none;will-change:transform;
+ transform:rotate(-45deg);animation:unveil .5s cubic-bezier(.2,.85,.25,1) both}
+@keyframes unveil{
+ 0%{opacity:1;transform:rotate(-45deg) translateY(0)}
+ 99%{opacity:1;transform:rotate(-45deg) translateY(-245vmax)}
+ 100%{opacity:0;transform:rotate(-45deg) translateY(-245vmax)}
+}
+
+/* ---- 頁首 ---- */
+.hd{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+ padding:26px 0 10px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .bmark{width:34px;height:34px;flex:0 0 34px}
+.brand b{font-weight:900;font-size:19px;letter-spacing:.04em;line-height:1.1;display:block}
+.brand span{display:block;font-family:'Archivo',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.24em}
+.hdr{display:flex;align-items:flex-start;gap:26px}
+
+/* ---- 正交靜止導覽 orthogonal-rest ---- */
+.nav{display:flex;gap:20px;align-items:flex-start;padding-top:2px}
+.nav a{display:block;text-align:center;width:56px}
+.nav i{display:block;width:26px;height:26px;margin:0 auto 7px;background:var(--ink);
+ transform:rotate(var(--tilt));transition:transform .22s cubic-bezier(.2,.8,.3,1)}
+.nav a:hover i,.nav a:focus-visible i{transform:rotate(calc(var(--tilt) + 5deg))}
+.nav em{display:block;font-style:normal;font-size:var(--t5);font-weight:700;letter-spacing:.06em;
+ transform:rotate(var(--tilt));transition:transform .22s cubic-bezier(.2,.8,.3,1);white-space:nowrap}
+.nav a[aria-current=page] i{--tilt:0deg}
+.nav a[aria-current=page] em{--tilt:0deg}
+.nav a[aria-current=page] i{background:var(--ink)}
+body.st-live .nav i{background:#fff}
+
+/* ---- 太陽（signature：日落 sun-strike） ---- */
+.sunbox{position:relative;width:52px;height:52px;flex:0 0 52px;overflow:hidden}
+.sunbox .disc{position:absolute;left:9px;top:9px;width:34px;height:34px;background:var(--sun);border-radius:50%}
+.sunbox .eclipse{position:absolute;left:0;top:0;width:52px;height:52px;background:var(--ink);
+ transform:translate(-120px,-120px) rotate(45deg)}
+.sunbox.down .eclipse{transform:translate(0,0) rotate(45deg);
+ transition:transform .55s cubic-bezier(.3,.9,.2,1)}
+body.st-live .sunbox .eclipse{background:#FFFFFF}
+.sunlab{font-size:var(--t5);font-weight:700;letter-spacing:.1em;text-align:right;margin-top:3px}
+
+/* ---- 版面：形體 ---- */
+.plane{display:block}
+.plane-ink{background:var(--ink)}
+.plane-red{background:var(--red)}
+.plane-ultra{background:var(--ultra)}
+.plane-grn{background:var(--grn)}
+.tilt-a{transform:rotate(-11.25deg)}
+.tilt-b{transform:rotate(-22.5deg)}
+.tilt-c{transform:rotate(11.25deg)}
+.tilt-d{transform:rotate(-33.75deg)}
+
+/* ---- 大字（區段標題，斜置） ---- */
+h1,h2,h3{font-weight:900;line-height:.94;letter-spacing:-.01em}
+.sect{padding:78px 0 8px}
+.sect>.lab{font-family:'Archivo',sans-serif;font-weight:900;font-size:var(--t5);letter-spacing:.3em;
+ display:inline-block;transform:rotate(-11.25deg);transform-origin:left bottom;margin-bottom:26px}
+.sect h2{font-size:var(--t1);display:inline-block;transform:rotate(-3.5deg);transform-origin:left bottom}
+.lead{max-width:62ch;margin-top:22px;font-size:17px}
+
+/* ---- 首屏（桌機） ---- */
+.hero-lg{position:relative;width:100%;aspect-ratio:1240/720;margin-top:6px}
+.hero-lg>svg{position:absolute;inset:0;width:100%;height:100%}
+.p{position:absolute;left:var(--x);top:var(--y);width:var(--w,auto);
+ transform:translate(-50%,-50%) rotate(var(--r,0deg));}
+.p.tl{transform:translate(0,-50%) rotate(var(--r,0deg))}
+.hero-sm{display:none}
+.tag{font-size:var(--t5);font-weight:700;letter-spacing:.14em;line-height:1.55}
+.onred{background:var(--red);color:#fff;padding:11px 16px 13px;font-weight:700;font-size:var(--t4);line-height:1.5}
+.bigname{font-size:clamp(26px,3.1vw,42px);font-weight:900;line-height:.96;letter-spacing:-.01em}
+.bigname span{display:block;font-family:'Archivo',sans-serif;font-size:.3em;letter-spacing:.28em;font-weight:900;margin-top:9px}
+
+/* ---- 表格：無框線，只有色塊行首 ---- */
+table{border-collapse:collapse;width:100%;font-size:var(--t4)}
+th,td{text-align:left;padding:11px 14px 11px 0;vertical-align:top}
+thead th{font-weight:900;font-size:var(--t5);letter-spacing:.16em;padding-bottom:6px}
+tbody tr{border-top:2px solid var(--ink)}
+body.st-live tbody tr{border-top-color:#fff}
+
+/* ---- 按鈕：實心平塗、無圓角無陰影 ---- */
+.btn{display:inline-block;background:var(--ink);color:#fff;font-weight:900;font-size:15px;
+ letter-spacing:.06em;padding:15px 30px;border:0;cursor:pointer;font-family:inherit;
+ transform:rotate(-3.5deg);transition:transform .16s linear,background-color .16s linear}
+.btn:hover,.btn:focus-visible{transform:rotate(0deg);background:var(--red)}
+.btn[disabled]{background:#B9B9B4;cursor:not-allowed;transform:rotate(0)}
+.btn.red{background:var(--red)}.btn.red:hover{background:var(--ink)}
+
+/* ---- 頁尾 ---- */
+.ft{margin-top:110px;padding:46px 0 70px;border-top:3px solid var(--ink)}
+body.st-live .ft{border-top-color:#fff}
+.ftgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px;font-size:var(--t4);line-height:1.9}
+.ft h4{font-size:var(--t5);letter-spacing:.24em;font-weight:900;margin-bottom:10px}
+.ft nav a{display:block}
+.fine{margin-top:34px;font-size:var(--t5);line-height:1.9;opacity:.72;max-width:78ch}
+
+/* ---- RWD ---- */
+@media (max-width:900px){
+ .hd{flex-wrap:wrap;padding-top:18px}
+ .hdr{width:100%;justify-content:space-between;gap:12px}
+ .nav{gap:10px;flex:1}
+ .nav a{width:auto;flex:1}
+ .nav i{width:22px;height:22px}
+ .hero-lg{display:none}
+ .hero-sm{display:block;margin-top:14px}
+ .ftgrid{grid-template-columns:1fr;gap:22px}
+}
+@media (max-width:560px){
+ :root{--t3:15px}
+ .brand b{font-size:16px}
+ .nav em{font-size:10px;letter-spacing:.02em}
+ .sect{padding:52px 0 6px}
+ th,td{padding:9px 8px 9px 0}
+}
+@media (prefers-reduced-motion:reduce){
+ .wipe{display:none}
+ *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+  transition-duration:.001ms!important;scroll-behavior:auto!important}
+ .sunbox.down .eclipse{animation:none;left:0;top:0}
+}
+
+/* ---- 區塊 ---- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;margin-top:44px}
+.poster{width:100%;height:auto}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:42px;font-size:var(--t4);line-height:1.7}
+.tiers b{font-size:17px}
+.chip{display:block;width:34px;height:34px;margin-bottom:12px;transform:rotate(-11.25deg)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:44px}
+.wcard b{display:block;margin-top:14px;font-size:14px;font-weight:900}
+.wcard span{display:block;font-size:var(--t5);letter-spacing:.05em;margin-top:4px}
+.th{transition:transform .2s linear}
+.wcard:hover .th,.wcard:focus-visible .th{transform:rotate(-3.5deg)}
+.rulelist{margin-top:26px;list-style:none;font-size:15px;line-height:1.95}
+.rulelist li{padding-left:26px;position:relative}
+.rulelist li::before{content:"";position:absolute;left:0;top:.66em;width:12px;height:12px;
+ background:var(--ink);transform:rotate(-11.25deg)}
+body.st-live .rulelist li::before{background:#fff}
+.rules{list-style:none;counter-reset:r;margin-top:36px;display:grid;gap:32px}
+.rules li{counter-increment:r;position:relative;padding-left:66px}
+.rules li::before{content:counter(r);position:absolute;left:0;top:-8px;font-family:'Archivo',sans-serif;
+ font-weight:900;font-size:38px;line-height:1;transform:rotate(-11.25deg)}
+.rules b{display:block;font-size:19px;font-weight:900;margin-bottom:8px}
+.rules span{display:block;font-size:15px;max-width:64ch}
+.tablewrap{overflow-x:auto;margin-top:24px}
+details{margin-top:18px}
+summary{font-size:var(--t4);font-weight:900;cursor:pointer;padding:10px 0;letter-spacing:.06em}
+
+/* ---- 劇目 ---- */
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:54px 40px;margin-top:52px}
+.wcno{font-family:'Archivo',sans-serif;font-size:var(--t5);letter-spacing:.24em;font-weight:900;margin-top:16px}
+.wc h3{font-size:23px;margin-top:6px}
+.wcmeta{font-size:var(--t5);letter-spacing:.06em;margin-top:8px}
+.wcnote{font-size:13px;margin-top:11px;max-width:36ch;line-height:1.85}
+
+/* ---- 選位 ---- */
+:root{--sq:26px;--sgap:14px}
+.showpick{margin-top:40px}
+.lab2{font-family:'Archivo',sans-serif;font-size:var(--t5);letter-spacing:.3em;font-weight:900;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:12px 14px}
+.chipbtn{background:none;border:0;border-bottom:3px solid var(--ink);color:inherit;font:inherit;
+ font-size:12px;font-weight:700;line-height:1.35;padding:6px 8px;cursor:pointer;
+ transform:rotate(-3.5deg);transform-origin:left bottom;transition:transform .15s linear}
+.chipbtn b{display:block;font-weight:400;font-size:11px}
+.chipbtn:hover{transform:rotate(0deg)}
+.chipbtn[aria-pressed=true]{background:var(--red);color:#fff;border-bottom-color:var(--red);transform:rotate(0deg)}
+body.st-live .chipbtn{border-bottom-color:#fff}
+.seatgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;margin-top:34px;align-items:start}
+.plan{padding:42px 0;overflow:visible}
+.planrot{transform:rotate(-11.25deg);transform-origin:50% 50%}
+.stagebar{height:12px;background:var(--ink);margin:0 0 10px 26px}
+body.st-live .stagebar{background:#fff}
+.stagelab{font-size:var(--t5);letter-spacing:.2em;margin:0 0 24px 26px}
+.prow{display:flex;gap:var(--sgap);align-items:center;margin-bottom:var(--sgap)}
+.rl{width:14px;flex:0 0 14px;font-size:10px;font-weight:900;letter-spacing:0}
+.sq{width:var(--sq);height:var(--sq);flex:0 0 var(--sq);background:var(--ink);border:0;padding:0;
+ cursor:pointer;position:relative;transition:transform .14s linear,background-color .14s linear}
+body.st-live .sq{background:#fff}
+.sq:hover{background:var(--ultra);transform:rotate(-11.25deg)}
+.sq.on{background:var(--red);transform:scale(1.35) rotate(11.25deg);z-index:2}
+.sq.sold,.sq[disabled]{background:none;cursor:not-allowed;transform:none}
+.sq .dot{display:none}
+.sq.sold .dot{display:block;position:absolute;left:50%;top:50%;width:5px;height:5px;
+ margin:-2.5px 0 0 -2.5px;background:var(--ink)}
+body.st-live .sq.sold .dot{background:#fff}
+.legend{margin-top:30px;font-size:var(--t5);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.k{display:inline-block;width:14px;height:14px;flex:0 0 14px}
+.dotk{position:relative}
+.dotk::after{content:"";position:absolute;left:4.5px;top:4.5px;width:5px;height:5px;background:var(--ink)}
+body.st-live .dotk::after{background:#fff}
+.scrwrap{position:relative;width:100%;aspect-ratio:8/5;overflow:hidden}
+.scr{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;
+ border:2px solid var(--ink);background:#FFFFFF}
+.js .scr{width:640px;height:360px}
+.caps{font-size:var(--t5);line-height:1.75;margin-top:14px;max-width:54ch}
+.hint{font-size:14px;max-width:46ch;margin-top:24px;line-height:1.85}
+.seatid{margin-top:26px;display:flex;align-items:baseline;gap:14px}
+.seatid b{font-size:46px;font-weight:900;line-height:1;font-family:'Archivo',sans-serif}
+.seatid span{background:var(--red);color:#fff;font-size:12px;font-weight:900;padding:5px 10px;
+ transform:rotate(-11.25deg);display:inline-block}
+.read{margin-top:14px}
+.read .big{font-size:22px;font-weight:900}
+.fine2{font-size:var(--t5);line-height:1.7;opacity:.85}
+.stub{margin-top:32px;background:var(--ink);color:#FFFFFF;padding:26px}
+body.st-live .stub{background:#FFFFFF;color:#131313}
+.stubinner{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.stubbig{font-size:30px;font-weight:900;line-height:1;margin:8px 0}
+.stubline{font-size:12px;line-height:1.85}
+
+
+/* ---- ambient 環境動效：失重漂移（形體在真空裡沒有靜止的理由） ---- */
+.dr{animation-name:drift;animation-timing-function:ease-in-out;
+ animation-iteration-count:infinite;animation-direction:alternate;will-change:transform}
+.d1{animation-duration:58s;--dxa:9px;--dya:-7px;--dra:.35deg}
+.d2{animation-duration:74s;--dxa:-6px;--dya:8px;--dra:-.28deg}
+.d3{animation-duration:91s;--dxa:11px;--dya:5px;--dra:.4deg}
+.d4{animation-duration:66s;--dxa:-10px;--dya:-6px;--dra:-.34deg}
+.d5{animation-duration:83s;--dxa:7px;--dya:9px;--dra:.3deg}
+.d6{animation-duration:49s;--dxa:-8px;--dya:-9px;--dra:-.4deg}
+@keyframes drift{
+ from{transform:translate(0,0) rotate(0deg)}
+ to{transform:translate(var(--dxa),var(--dya)) rotate(var(--dra))}
+}
+
+@media (max-width:900px){
+ .two{grid-template-columns:1fr;gap:34px}
+ .tiers{grid-template-columns:1fr 1fr}
+ .grid4{grid-template-columns:1fr 1fr;gap:24px}
+ .wgrid{grid-template-columns:1fr 1fr;gap:42px 26px}
+ .seatgrid{grid-template-columns:1fr;gap:46px}
+}
+@media (max-width:560px){
+ .grid4,.wgrid{grid-template-columns:1fr}
+ :root{--sq:19px;--sgap:8px}
+ .planrot{transform:rotate(-8deg)}
+ .seatid b{font-size:34px}
+ .rules li{padding-left:0}
+ .rules li::before{position:static;display:block;margin-bottom:6px}
+}
+@media (max-width:400px){:root{--sq:15px;--sgap:6px}}
+</style>
+</head>
+<body>
+<div class="wipe" aria-hidden="true"></div><header class="hd wrap">
+<a class="brand" href="index.html"><svg class="bmark" width="34" height="34" viewBox="0 0 32 32" role="img" aria-label="零十劇場標記">
+<rect width="32" height="32" fill="#FFFFFF"/><polygon points="4,4 4,28 28,28" fill="#131313"/>
+<circle cx="23" cy="9" r="4.6" fill="#F5C400"/><rect x="4" y="4" width="24" height="24" fill="none" stroke="#131313" stroke-width="2"/></svg><span class="sr">回首頁</span>
+<b>零十劇場<span>Zero-Ten Theatre</span></b></a>
+<div class="hdr">
+<nav class="nav" aria-label="主導覽"><a href="index.html" style="--tilt:-19deg"><i></i><em>幕<br>CURTAIN</em></a><a href="seats.html" aria-current="page" style="--tilt:0deg"><i></i><em>選位<br>SEATS</em></a><a href="works.html" style="--tilt:-27deg"><i></i><em>劇目<br>WORKS</em></a><a href="house.html" style="--tilt:34deg"><i></i><em>劇場<br>HOUSE</em></a></nav>
+<div>
+<div class="sunbox" id="sunbox" aria-hidden="true"><div class="disc"></div><div class="eclipse"></div></div>
+<div class="sunlab" id="sunlab">日在</div>
+</div>
+</div>
+</header><main><div class="wrap">
+<section class="sect" style="padding-top:44px">
+ <span class="lab">SEATS · 96</span>
+ <h2>挑一個位子</h2>
+ <p class="lead">三句話：<b>在左邊的席位圖上點一個黑方塊</b>；<b>右邊那面幕會立刻變成你從那個位子看出去的形狀</b>；<b>可以就按訂位，拿走你那張票根。</b>票價是算出來的，不是訂出來的。</p>
+ <p class="lead" id="statenote">目前為非演出時段，全席開放選位。</p>
+</section>
+
+<section class="showpick" aria-label="場次">
+ <p class="lab2">場次　16 場</p>
+ <div class="chips"><button type="button" class="chipbtn" data-show="0" aria-pressed="true">09/18<b>（四）19:30</b></button><button type="button" class="chipbtn" data-show="1" aria-pressed="false">09/19<b>（五）19:30</b></button><button type="button" class="chipbtn" data-show="2" aria-pressed="false">09/20<b>（六）14:30</b></button><button type="button" class="chipbtn" data-show="3" aria-pressed="false">09/20<b>（六）19:30</b></button><button type="button" class="chipbtn" data-show="4" aria-pressed="false">09/21<b>（日）14:30</b></button><button type="button" class="chipbtn" data-show="5" aria-pressed="false">09/24<b>（四）19:30</b></button><button type="button" class="chipbtn" data-show="6" aria-pressed="false">09/25<b>（五）19:30</b></button><button type="button" class="chipbtn" data-show="7" aria-pressed="false">09/26<b>（六）14:30</b></button><button type="button" class="chipbtn" data-show="8" aria-pressed="false">09/26<b>（六）19:30</b></button><button type="button" class="chipbtn" data-show="9" aria-pressed="false">09/27<b>（日）14:30</b></button><button type="button" class="chipbtn" data-show="10" aria-pressed="false">10/01<b>（四）19:30</b></button><button type="button" class="chipbtn" data-show="11" aria-pressed="false">10/02<b>（五）19:30</b></button><button type="button" class="chipbtn" data-show="12" aria-pressed="false">10/03<b>（六）14:30</b></button><button type="button" class="chipbtn" data-show="13" aria-pressed="false">10/03<b>（六）19:30</b></button><button type="button" class="chipbtn" data-show="14" aria-pressed="false">10/04<b>（日）14:30</b></button></div>
+</section>
+
+<noscript><p class="onred" style="display:inline-block;margin-top:26px;transform:rotate(-3.5deg)">你的瀏覽器沒有執行 JavaScript：席位圖的即時重投影無法運作，但本頁最下方的「全部九十六席」資料表列出每一席的可見面積、左右失衡、分數、等級與票價，內容完全相同，可直接比較後來電 02-2558-1013 訂位。</p></noscript>
+
+<div class="seatgrid">
+ <div>
+  <div class="plan"><div class="planrot">
+<div class="stagebar" aria-hidden="true"></div>
+<p class="stagelab" aria-hidden="true">幕　9.0 × 5.4 m</p>
+<div class="prow"><span class="rl" aria-hidden="true">A</span><button type="button" class="sq" data-r="0" data-c="0" data-id="A1" aria-label="A1 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="1" data-id="A2" aria-label="A2 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="2" data-id="A3" aria-label="A3 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="3" data-id="A4" aria-label="A4 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="4" data-id="A5" aria-label="A5 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="5" data-id="A6" aria-label="A6 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="6" data-id="A7" aria-label="A7 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="7" data-id="A8" aria-label="A8 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="8" data-id="A9" aria-label="A9 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="9" data-id="A10" aria-label="A10 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="10" data-id="A11" aria-label="A11 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="0" data-c="11" data-id="A12" aria-label="A12 席・丙席 750 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">B</span><button type="button" class="sq" data-r="1" data-c="0" data-id="B1" aria-label="B1 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="1" data-id="B2" aria-label="B2 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="2" data-id="B3" aria-label="B3 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="3" data-id="B4" aria-label="B4 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="4" data-id="B5" aria-label="B5 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="5" data-id="B6" aria-label="B6 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="6" data-id="B7" aria-label="B7 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="7" data-id="B8" aria-label="B8 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="8" data-id="B9" aria-label="B9 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="9" data-id="B10" aria-label="B10 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="10" data-id="B11" aria-label="B11 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="1" data-c="11" data-id="B12" aria-label="B12 席・丙席 750 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">C</span><button type="button" class="sq" data-r="2" data-c="0" data-id="C1" aria-label="C1 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="1" data-id="C2" aria-label="C2 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="2" data-id="C3" aria-label="C3 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="3" data-id="C4" aria-label="C4 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="4" data-id="C5" aria-label="C5 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="5" data-id="C6" aria-label="C6 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="6" data-id="C7" aria-label="C7 席・甲席 1200 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="7" data-id="C8" aria-label="C8 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="8" data-id="C9" aria-label="C9 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="9" data-id="C10" aria-label="C10 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="10" data-id="C11" aria-label="C11 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="2" data-c="11" data-id="C12" aria-label="C12 席・丙席 750 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">D</span><button type="button" class="sq" data-r="3" data-c="0" data-id="D1" aria-label="D1 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="1" data-id="D2" aria-label="D2 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="2" data-id="D3" aria-label="D3 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="3" data-id="D4" aria-label="D4 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="4" data-id="D5" aria-label="D5 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="5" data-id="D6" aria-label="D6 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="6" data-id="D7" aria-label="D7 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="7" data-id="D8" aria-label="D8 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="8" data-id="D9" aria-label="D9 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="9" data-id="D10" aria-label="D10 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="10" data-id="D11" aria-label="D11 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="3" data-c="11" data-id="D12" aria-label="D12 席・丁席 480 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">E</span><button type="button" class="sq" data-r="4" data-c="0" data-id="E1" aria-label="E1 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="1" data-id="E2" aria-label="E2 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="2" data-id="E3" aria-label="E3 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="3" data-id="E4" aria-label="E4 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="4" data-id="E5" aria-label="E5 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="5" data-id="E6" aria-label="E6 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="6" data-id="E7" aria-label="E7 席・乙席 950 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="7" data-id="E8" aria-label="E8 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="8" data-id="E9" aria-label="E9 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="9" data-id="E10" aria-label="E10 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="10" data-id="E11" aria-label="E11 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="4" data-c="11" data-id="E12" aria-label="E12 席・丁席 480 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">F</span><button type="button" class="sq" data-r="5" data-c="0" data-id="F1" aria-label="F1 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="1" data-id="F2" aria-label="F2 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="2" data-id="F3" aria-label="F3 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="3" data-id="F4" aria-label="F4 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="4" data-id="F5" aria-label="F5 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="5" data-id="F6" aria-label="F6 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="6" data-id="F7" aria-label="F7 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="7" data-id="F8" aria-label="F8 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="8" data-id="F9" aria-label="F9 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="9" data-id="F10" aria-label="F10 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="10" data-id="F11" aria-label="F11 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="5" data-c="11" data-id="F12" aria-label="F12 席・丁席 480 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">G</span><button type="button" class="sq" data-r="6" data-c="0" data-id="G1" aria-label="G1 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="1" data-id="G2" aria-label="G2 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="2" data-id="G3" aria-label="G3 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="3" data-id="G4" aria-label="G4 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="4" data-id="G5" aria-label="G5 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="5" data-id="G6" aria-label="G6 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="6" data-id="G7" aria-label="G7 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="7" data-id="G8" aria-label="G8 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="8" data-id="G9" aria-label="G9 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="9" data-id="G10" aria-label="G10 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="10" data-id="G11" aria-label="G11 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="6" data-c="11" data-id="G12" aria-label="G12 席・丁席 480 元"><span class="dot"></span></button></div><div class="prow"><span class="rl" aria-hidden="true">H</span><button type="button" class="sq" data-r="7" data-c="0" data-id="H1" aria-label="H1 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="1" data-id="H2" aria-label="H2 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="2" data-id="H3" aria-label="H3 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="3" data-id="H4" aria-label="H4 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="4" data-id="H5" aria-label="H5 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="5" data-id="H6" aria-label="H6 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="6" data-id="H7" aria-label="H7 席・丙席 750 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="7" data-id="H8" aria-label="H8 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="8" data-id="H9" aria-label="H9 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="9" data-id="H10" aria-label="H10 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="10" data-id="H11" aria-label="H11 席・丁席 480 元"><span class="dot"></span></button><button type="button" class="sq" data-r="7" data-c="11" data-id="H12" aria-label="H12 席・丁席 480 元"><span class="dot"></span></button></div>
+</div></div>
+  <p class="legend"><span class="k plane-ink"></span>可選　<span class="k dotk"></span>已售出　<span class="k plane-red"></span>你選的位子</p>
+ </div>
+ <div>
+  <div class="scrwrap" id="scrwrap">
+   <div class="scr" id="scr">
+    <svg viewBox="0 0 640 360" width="100%" height="100%" preserveAspectRatio="none" role="img" aria-label="《戰勝太陽》畫在幕上的構成"><rect x="198.8" y="124.0" width="326.4" height="137.5" fill="#131313" transform="rotate(-45 362.0 192.8)"/><rect x="64.0" y="252.0" width="256.0" height="9.4" fill="#131313" transform="rotate(-45 192.0 256.7)"/><rect x="99.2" y="225.0" width="256.0" height="9.4" fill="#131313" transform="rotate(-45 227.2 229.7)"/><rect x="134.4" y="198.0" width="256.0" height="9.4" fill="#131313" transform="rotate(-45 262.4 202.7)"/><rect x="169.6" y="171.0" width="256.0" height="9.4" fill="#131313" transform="rotate(-45 297.6 175.7)"/><rect x="204.8" y="144.0" width="256.0" height="9.4" fill="#D9241C" transform="rotate(-45 332.8 148.7)"/><rect x="327.9" y="282.4" width="8.3" height="8.3" fill="#1633A8" transform="rotate(-33.75 332.0 286.6)"/><rect x="312.7" y="199.4" width="14.3" height="14.3" fill="#131313" transform="rotate(-67.5 319.8 206.5)"/><rect x="368.1" y="42.6" width="13.4" height="13.4" fill="#131313" transform="rotate(-11.25 374.8 49.3)"/><rect x="284.1" y="92.0" width="9.0" height="9.0" fill="#17823F" transform="rotate(0 288.6 96.5)"/><rect x="557.8" y="282.2" width="11.5" height="11.5" fill="#131313" transform="rotate(-22.5 563.6 287.9)"/><rect x="430.6" y="102.5" width="13.0" height="13.0" fill="#1633A8" transform="rotate(-11.25 437.1 109.0)"/><rect x="354.4" y="41.3" width="12.6" height="12.6" fill="#131313" transform="rotate(0 360.7 47.6)"/><rect x="581.7" y="118.3" width="12.2" height="12.2" fill="#131313" transform="rotate(-11.25 587.8 124.4)"/><rect x="486.7" y="51.1" width="15.8" height="15.8" fill="#131313" transform="rotate(0 494.6 59.0)"/><rect x="221.9" y="94.1" width="8.1" height="8.1" fill="#131313" transform="rotate(-22.5 226.0 98.1)"/><rect x="460.1" y="139.9" width="10.1" height="10.1" fill="#1633A8" transform="rotate(-11.25 465.1 144.9)"/><rect x="118.5" y="217.8" width="13.0" height="13.0" fill="#131313" transform="rotate(-45 125.0 224.3)"/><rect x="358.40000000000003" y="50.400000000000006" width="38.4" height="158.4" fill="#1633A8" transform="rotate(-22.5 377.6 129.60000000000002)"/><rect x="448" y="223.2" width="39.6" height="39.6" fill="#17823F" transform="rotate(-45 467.8 243)"/></svg>
+   </div>
+  </div>
+  <p class="caps">幕面 9.0 × 5.4 m・上面畫的是《戰勝太陽》的構成。你看到的四邊形就是它從你那個位子投影過來的樣子。</p>
+  <div id="out"><p class="hint">還沒有選位。左邊的席位圖上，每一個黑方塊是一個位子；點它，右邊那面幕就會變成你從那裡看見的形狀。</p></div>
+  <p style="margin-top:24px"><button class="btn red" id="book" type="button" disabled>先挑一個位子</button></p>
+  <div id="stub" class="stub" hidden></div>
+ </div>
+</div>
+
+<section class="sect">
+ <span class="lab">ALL 96</span>
+ <h2>全部九十六席</h2>
+ <p class="lead">下表為每一席的視角資料與票價，與上面的席位圖同一套算式；關閉 JavaScript 時本表仍可完整閱讀與比較。</p>
+ <details open><summary>展開全部 96 席</summary><div class="tablewrap"><table><caption class="sr">全部 96 席的視角資料與票價</caption>
+<thead><tr><th>席位</th><th>可見面積</th><th>左右失衡</th><th>分數</th><th>等級</th><th>票價</th></tr></thead>
+<tbody><tr><td>A1</td><td>74.6%</td><td>3.55</td><td>0.57</td><td>丙</td><td>750</td></tr><tr><td>A2</td><td>92.8%</td><td>3.82</td><td>0.67</td><td>丙</td><td>750</td></tr><tr><td>A3</td><td>100.0%</td><td>3.40</td><td>0.79</td><td>乙</td><td>950</td></tr><tr><td>A4</td><td>93.5%</td><td>2.32</td><td>1.01</td><td>乙</td><td>950</td></tr><tr><td>A5</td><td>82.3%</td><td>1.16</td><td>1.47</td><td>甲</td><td>1200</td></tr><tr><td>A6</td><td>75.0%</td><td>0.30</td><td>2.58</td><td>甲</td><td>1200</td></tr><tr><td>A7</td><td>75.0%</td><td>0.30</td><td>2.58</td><td>甲</td><td>1200</td></tr><tr><td>A8</td><td>82.3%</td><td>1.16</td><td>1.47</td><td>甲</td><td>1200</td></tr><tr><td>A9</td><td>93.5%</td><td>2.32</td><td>1.01</td><td>乙</td><td>950</td></tr><tr><td>A10</td><td>100.0%</td><td>3.40</td><td>0.79</td><td>乙</td><td>950</td></tr><tr><td>A11</td><td>92.8%</td><td>3.82</td><td>0.67</td><td>丙</td><td>750</td></tr><tr><td>A12</td><td>74.6%</td><td>3.55</td><td>0.57</td><td>丙</td><td>750</td></tr><tr><td>B1</td><td>40.2%</td><td>1.79</td><td>0.53</td><td>丙</td><td>750</td></tr><tr><td>B2</td><td>45.1%</td><td>1.62</td><td>0.64</td><td>丙</td><td>750</td></tr><tr><td>B3</td><td>47.8%</td><td>1.32</td><td>0.78</td><td>乙</td><td>950</td></tr><tr><td>B4</td><td>48.4%</td><td>0.93</td><td>0.99</td><td>乙</td><td>950</td></tr><tr><td>B5</td><td>47.7%</td><td>0.52</td><td>1.32</td><td>甲</td><td>1200</td></tr><tr><td>B6</td><td>46.9%</td><td>0.16</td><td>1.92</td><td>甲</td><td>1200</td></tr><tr><td>B7</td><td>46.9%</td><td>0.16</td><td>1.92</td><td>甲</td><td>1200</td></tr><tr><td>B8</td><td>47.7%</td><td>0.52</td><td>1.32</td><td>甲</td><td>1200</td></tr><tr><td>B9</td><td>48.4%</td><td>0.93</td><td>0.99</td><td>乙</td><td>950</td></tr><tr><td>B10</td><td>47.8%</td><td>1.32</td><td>0.78</td><td>乙</td><td>950</td></tr><tr><td>B11</td><td>45.1%</td><td>1.62</td><td>0.64</td><td>丙</td><td>750</td></tr><tr><td>B12</td><td>40.2%</td><td>1.79</td><td>0.53</td><td>丙</td><td>750</td></tr><tr><td>C1</td><td>27.2%</td><td>1.17</td><td>0.48</td><td>丙</td><td>750</td></tr><tr><td>C2</td><td>29.6%</td><td>1.00</td><td>0.58</td><td>丙</td><td>750</td></tr><tr><td>C3</td><td>31.3%</td><td>0.79</td><td>0.70</td><td>丙</td><td>750</td></tr><tr><td>C4</td><td>32.3%</td><td>0.56</td><td>0.87</td><td>乙</td><td>950</td></tr><tr><td>C5</td><td>32.7%</td><td>0.32</td><td>1.10</td><td>乙</td><td>950</td></tr><tr><td>C6</td><td>32.8%</td><td>0.10</td><td>1.45</td><td>甲</td><td>1200</td></tr><tr><td>C7</td><td>32.8%</td><td>0.10</td><td>1.45</td><td>甲</td><td>1200</td></tr><tr><td>C8</td><td>32.7%</td><td>0.32</td><td>1.10</td><td>乙</td><td>950</td></tr><tr><td>C9</td><td>32.3%</td><td>0.56</td><td>0.87</td><td>乙</td><td>950</td></tr><tr><td>C10</td><td>31.3%</td><td>0.79</td><td>0.70</td><td>丙</td><td>750</td></tr><tr><td>C11</td><td>29.6%</td><td>1.00</td><td>0.58</td><td>丙</td><td>750</td></tr><tr><td>C12</td><td>27.2%</td><td>1.17</td><td>0.48</td><td>丙</td><td>750</td></tr><tr><td>D1</td><td>20.2%</td><td>0.83</td><td>0.44</td><td>丁</td><td>480</td></tr><tr><td>D2</td><td>21.6%</td><td>0.70</td><td>0.52</td><td>丙</td><td>750</td></tr><tr><td>D3</td><td>22.8%</td><td>0.55</td><td>0.62</td><td>丙</td><td>750</td></tr><tr><td>D4</td><td>23.6%</td><td>0.39</td><td>0.74</td><td>丙</td><td>750</td></tr><tr><td>D5</td><td>24.1%</td><td>0.23</td><td>0.90</td><td>乙</td><td>950</td></tr><tr><td>D6</td><td>24.3%</td><td>0.07</td><td>1.11</td><td>乙</td><td>950</td></tr><tr><td>D7</td><td>24.3%</td><td>0.07</td><td>1.11</td><td>乙</td><td>950</td></tr><tr><td>D8</td><td>24.1%</td><td>0.23</td><td>0.90</td><td>乙</td><td>950</td></tr><tr><td>D9</td><td>23.6%</td><td>0.39</td><td>0.74</td><td>丙</td><td>750</td></tr><tr><td>D10</td><td>22.8%</td><td>0.55</td><td>0.62</td><td>丙</td><td>750</td></tr><tr><td>D11</td><td>21.6%</td><td>0.70</td><td>0.52</td><td>丙</td><td>750</td></tr><tr><td>D12</td><td>20.2%</td><td>0.83</td><td>0.44</td><td>丁</td><td>480</td></tr><tr><td>E1</td><td>15.7%</td><td>0.63</td><td>0.40</td><td>丁</td><td>480</td></tr><tr><td>E2</td><td>16.7%</td><td>0.52</td><td>0.46</td><td>丙</td><td>750</td></tr><tr><td>E3</td><td>17.5%</td><td>0.41</td><td>0.54</td><td>丙</td><td>750</td></tr><tr><td>E4</td><td>18.1%</td><td>0.29</td><td>0.63</td><td>丙</td><td>750</td></tr><tr><td>E5</td><td>18.5%</td><td>0.17</td><td>0.74</td><td>丙</td><td>750</td></tr><tr><td>E6</td><td>18.7%</td><td>0.05</td><td>0.88</td><td>乙</td><td>950</td></tr><tr><td>E7</td><td>18.7%</td><td>0.05</td><td>0.88</td><td>乙</td><td>950</td></tr><tr><td>E8</td><td>18.5%</td><td>0.17</td><td>0.74</td><td>丙</td><td>750</td></tr><tr><td>E9</td><td>18.1%</td><td>0.29</td><td>0.63</td><td>丙</td><td>750</td></tr><tr><td>E10</td><td>17.5%</td><td>0.41</td><td>0.54</td><td>丙</td><td>750</td></tr><tr><td>E11</td><td>16.7%</td><td>0.52</td><td>0.46</td><td>丙</td><td>750</td></tr><tr><td>E12</td><td>15.7%</td><td>0.63</td><td>0.40</td><td>丁</td><td>480</td></tr><tr><td>F1</td><td>12.6%</td><td>0.49</td><td>0.36</td><td>丁</td><td>480</td></tr><tr><td>F2</td><td>13.3%</td><td>0.40</td><td>0.41</td><td>丁</td><td>480</td></tr><tr><td>F3</td><td>13.9%</td><td>0.32</td><td>0.47</td><td>丙</td><td>750</td></tr><tr><td>F4</td><td>14.3%</td><td>0.22</td><td>0.54</td><td>丙</td><td>750</td></tr><tr><td>F5</td><td>14.6%</td><td>0.13</td><td>0.61</td><td>丙</td><td>750</td></tr><tr><td>F6</td><td>14.7%</td><td>0.04</td><td>0.70</td><td>丙</td><td>750</td></tr><tr><td>F7</td><td>14.7%</td><td>0.04</td><td>0.70</td><td>丙</td><td>750</td></tr><tr><td>F8</td><td>14.6%</td><td>0.13</td><td>0.61</td><td>丙</td><td>750</td></tr><tr><td>F9</td><td>14.3%</td><td>0.22</td><td>0.54</td><td>丙</td><td>750</td></tr><tr><td>F10</td><td>13.9%</td><td>0.32</td><td>0.47</td><td>丙</td><td>750</td></tr><tr><td>F11</td><td>13.3%</td><td>0.40</td><td>0.41</td><td>丁</td><td>480</td></tr><tr><td>F12</td><td>12.6%</td><td>0.49</td><td>0.36</td><td>丁</td><td>480</td></tr><tr><td>G1</td><td>10.4%</td><td>0.39</td><td>0.33</td><td>丁</td><td>480</td></tr><tr><td>G2</td><td>10.8%</td><td>0.32</td><td>0.37</td><td>丁</td><td>480</td></tr><tr><td>G3</td><td>11.2%</td><td>0.25</td><td>0.41</td><td>丁</td><td>480</td></tr><tr><td>G4</td><td>11.6%</td><td>0.18</td><td>0.46</td><td>丙</td><td>750</td></tr><tr><td>G5</td><td>11.8%</td><td>0.11</td><td>0.51</td><td>丙</td><td>750</td></tr><tr><td>G6</td><td>11.9%</td><td>0.03</td><td>0.57</td><td>丙</td><td>750</td></tr><tr><td>G7</td><td>11.9%</td><td>0.03</td><td>0.57</td><td>丙</td><td>750</td></tr><tr><td>G8</td><td>11.8%</td><td>0.11</td><td>0.51</td><td>丙</td><td>750</td></tr><tr><td>G9</td><td>11.6%</td><td>0.18</td><td>0.46</td><td>丙</td><td>750</td></tr><tr><td>G10</td><td>11.2%</td><td>0.25</td><td>0.41</td><td>丁</td><td>480</td></tr><tr><td>G11</td><td>10.8%</td><td>0.32</td><td>0.37</td><td>丁</td><td>480</td></tr><tr><td>G12</td><td>10.4%</td><td>0.39</td><td>0.33</td><td>丁</td><td>480</td></tr><tr><td>H1</td><td>8.6%</td><td>0.32</td><td>0.29</td><td>丁</td><td>480</td></tr><tr><td>H2</td><td>9.0%</td><td>0.26</td><td>0.32</td><td>丁</td><td>480</td></tr><tr><td>H3</td><td>9.3%</td><td>0.20</td><td>0.36</td><td>丁</td><td>480</td></tr><tr><td>H4</td><td>9.5%</td><td>0.14</td><td>0.39</td><td>丁</td><td>480</td></tr><tr><td>H5</td><td>9.7%</td><td>0.09</td><td>0.43</td><td>丁</td><td>480</td></tr><tr><td>H6</td><td>9.8%</td><td>0.03</td><td>0.48</td><td>丙</td><td>750</td></tr><tr><td>H7</td><td>9.8%</td><td>0.03</td><td>0.48</td><td>丙</td><td>750</td></tr><tr><td>H8</td><td>9.7%</td><td>0.09</td><td>0.43</td><td>丁</td><td>480</td></tr><tr><td>H9</td><td>9.5%</td><td>0.14</td><td>0.39</td><td>丁</td><td>480</td></tr><tr><td>H10</td><td>9.3%</td><td>0.20</td><td>0.36</td><td>丁</td><td>480</td></tr><tr><td>H11</td><td>9.0%</td><td>0.26</td><td>0.32</td><td>丁</td><td>480</td></tr><tr><td>H12</td><td>8.6%</td><td>0.32</td><td>0.29</td><td>丁</td><td>480</td></tr></tbody></table></div></details>
+</section>
+</div></main><footer class="ft"><div class="wrap">
+<div class="ftgrid">
+<div>
+<h4>ZERO-TEN THEATRE</h4>
+零十劇場・96 席黑盒子<br>
+台北市大同區鄭州路 41 號 B1<br>
+02-2558-1013（售票分機 10）<br>
+售票時間 週二–週日 13:00–20:00
+</div>
+<div>
+<h4>本季</h4>
+第七號製作《戰勝太陽》<br>
+2026/09/18 – 10/04・共 16 場<br>
+週四·五 19:30／週六 14:30·19:30／週日 14:30<br>
+演出全長 110 分・無中場
+</div>
+<div>
+<h4>頁面</h4>
+<nav aria-label="頁尾導覽">
+<a href="index.html">幕 CURTAIN</a>
+<a href="seats.html">選位 SEATS</a>
+<a href="works.html">劇目 WORKS</a>
+<a href="house.html">劇場 HOUSE</a>
+<a class="lk" href="SKILL.md">SKILL.md 風格規格書</a>
+</nav>
+<p style="margin-top:14px"><a class="lk" href="#" id="restore">復日（還原被覆蓋的太陽）</a></p>
+</div>
+</div>
+<p class="fine">本站為「Design Skills Center」風格範例站。零十劇場、其製作、人員、票價、場次與座位售出狀況皆為虛構示意，非真實販售；請勿依本頁資訊前往或匯款。<br>
+《Победа над Солнцем／戰勝太陽》為 1913 年 12 月首演於聖彼得堡 Luna Park 的俄國未來主義歌劇（腳本 Aleksei Kruchenykh、音樂 Mikhail Matyushin、舞台與服裝 Kazimir Malevich），為公有領域史實；本站借其史實作為虛構劇團的本季製作。</p>
+</div></footer><script>
+(function(){
+ var b=document.body, box=document.getElementById('sunbox'), lab=document.getElementById('sunlab');
+ // ---- 真實時刻驅動的場燈狀態機（B 層）----
+ function tpe(){
+  try{
+   var p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Taipei',hour12:false,
+     weekday:'short',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date());
+   var o={}; p.forEach(function(x){o[x.type]=x.value;});
+   return {w:o.weekday,m:parseInt(o.hour,10)*60+parseInt(o.minute,10)};
+  }catch(e){ var d=new Date();
+   return {w:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],m:d.getHours()*60+d.getMinutes()}; }
+ }
+ var SHOWS={Thu:[1170],Fri:[1170],Sat:[870,1170],Sun:[870]}; // 19:30 / 14:30
+ function state(){
+  var t=tpe(), list=SHOWS[t.w]||[], s='day';
+  for(var i=0;i<list.length;i++){
+   var st=list[i];
+   if(t.m>=st-30 && t.m<st) s='call';
+   else if(t.m>=st && t.m<st+110) s='live';
+   else if(t.m>=st+110 && t.m<st+140 && s==='day') s='out';
+  }
+  return s;
+ }
+ function paint(){
+  var s=state();
+  b.classList.remove('st-house','st-live');
+  if(s==='call'||s==='out') b.classList.add('st-house');
+  if(s==='live') b.classList.add('st-live');
+  var down = (s==='live') || localStorage_get()==='down';
+  if(box) box.classList.toggle('down',down);
+  if(lab) lab.textContent = s==='live' ? '演出中' : (s==='call' ? '進場中' : (down?'日已落':'日在'));
+  var st=document.getElementById('statenote');
+  if(st) st.textContent = {day:'目前為非演出時段，全席開放選位。',
+    call:'開演前 30 分鐘・觀眾進場中，場燈已降。',
+    live:'演出進行中，本場不再售票；幕已闔上。',
+    out:'本場演出結束・散場中。'}[s];
+ }
+ function localStorage_get(){ try{return localStorage.getItem('lingshi.sun');}catch(e){return null;} }
+ window.lingshiSunDown=function(){ try{localStorage.setItem('lingshi.sun','down');}catch(e){} paint(); };
+ var r=document.getElementById('restore');
+ if(r) r.addEventListener('click',function(e){e.preventDefault();
+   try{localStorage.removeItem('lingshi.sun');}catch(err){} paint();});
+ paint();
+ setInterval(paint,30000);
+})();
+</script>
+<script>
+var ROWS='ABCDEFGH', NCOL=12;
+var STAGE={hw:4.5,y0:0.60,y1:6.00}, SEATG={z0:3.2,dz:0.95,dx:0.60,eye0:1.15,rake:0.22};
+function seatPos(r,c){return {x:(c-(NCOL-1)/2)*SEATG.dx, y:SEATG.eye0+SEATG.rake*r, z:SEATG.z0+SEATG.dz*r};}
+function project(P){
+ var Cy=(STAGE.y0+STAGE.y1)/2;
+ var fx=0-P.x, fy=Cy-P.y, fz=0-P.z, fl=Math.sqrt(fx*fx+fy*fy+fz*fz);
+ fx/=fl; fy/=fl; fz/=fl;
+ var rx=-fz, ry=0, rz=fx, rl=Math.sqrt(rx*rx+rz*rz); rx/=rl; rz/=rl;
+ var ux=ry*fz-rz*fy, uy=rz*fx-rx*fz, uz=rx*fy-ry*fx;
+ var cn=[[-STAGE.hw,STAGE.y1],[STAGE.hw,STAGE.y1],[STAGE.hw,STAGE.y0],[-STAGE.hw,STAGE.y0]], out=[];
+ for(var i=0;i<4;i++){
+  var dx=cn[i][0]-P.x, dy=cn[i][1]-P.y, dz=0-P.z;
+  var cz=dx*fx+dy*fy+dz*fz, cx=dx*rx+dy*ry+dz*rz, cy=dx*ux+dy*uy+dz*uz;
+  out.push([cx/cz, -cy/cz]);
+ }
+ return out;
+}
+function quadArea(q){var a=0;for(var i=0;i<4;i++){var j=(i+1)%4;a+=q[i][0]*q[j][1]-q[j][0]*q[i][1];}return Math.abs(a)/2;}
+function quadSkew(q){
+ var l=Math.sqrt(Math.pow(q[3][0]-q[0][0],2)+Math.pow(q[3][1]-q[0][1],2));
+ var r=Math.sqrt(Math.pow(q[2][0]-q[1][0],2)+Math.pow(q[2][1]-q[1][1],2));
+ return Math.max(l/r,r/l)-1;
+}
+var BEST=2.5791;
+function seatMetrics(r,c){
+ var q=project(seatPos(r,c)), A=quadArea(q), sk=quadSkew(q), sc=A/(1+1.6*sk);
+ var tier = sc>=1.30?0 : sc>=0.75?1 : sc>=0.45?2 : 3;
+ return {q:q,A:A,skew:sk,score:sc,tier:tier,price:[1200,950,750,480][tier],
+   grade:['甲','乙','丙','丁'][tier], vis:A/5.1045};
+}
+function solveH(src,dst){
+ var A=[],b=[],i;
+ for(i=0;i<4;i++){
+  var x=src[i][0],y=src[i][1],u=dst[i][0],v=dst[i][1];
+  A.push([x,y,1,0,0,0,-u*x,-u*y]); b.push(u);
+  A.push([0,0,0,x,y,1,-v*x,-v*y]); b.push(v);
+ }
+ var n=8,M=[],r,c,k;
+ for(i=0;i<n;i++) M.push(A[i].concat([b[i]]));
+ for(c=0;c<n;c++){
+  var p=c; for(r=c+1;r<n;r++) if(Math.abs(M[r][c])>Math.abs(M[p][c])) p=r;
+  if(Math.abs(M[p][c])<1e-12) return null;
+  var tmp=M[c]; M[c]=M[p]; M[p]=tmp;
+  var pv=M[c][c];
+  for(k=c;k<=n;k++) M[c][k]/=pv;
+  for(r=0;r<n;r++){ if(r===c) continue; var f=M[r][c]; if(!f) continue;
+   for(k=c;k<=n;k++) M[r][k]-=f*M[c][k]; }
+ }
+ var h=[]; for(i=0;i<n;i++) h.push(M[i][n]); h.push(1);
+ return h;
+}
+function toMatrix3d(h){
+ return [h[0],h[3],0,h[6], h[1],h[4],0,h[7], 0,0,1,0, h[2],h[5],0,1];
+}
+function fitQuad(q,W,H,globalUnit){
+ var xs=[q[0][0],q[1][0],q[2][0],q[3][0]], ys=[q[0][1],q[1][1],q[2][1],q[3][1]];
+ var x0=Math.min.apply(null,xs), x1=Math.max.apply(null,xs);
+ var y0=Math.min.apply(null,ys), y1=Math.max.apply(null,ys);
+ var bw=x1-x0, bh=y1-y0;
+ var s=Math.min(globalUnit*W, (W*0.94)/bw, (H*0.94)/bh);
+ var cx=(x0+x1)/2, cy=(y0+y1)/2, out=[];
+ for(var i=0;i<4;i++) out.push([W/2+(q[i][0]-cx)*s, H/2+(q[i][1]-cy)*s]);
+ return out;
+}
+
+(function(){
+ document.documentElement.className+=' js';
+ var SHOWS=[{"d":"09/18","w":"四","t":"19:30","id":"0918-1930"},{"d":"09/19","w":"五","t":"19:30","id":"0919-1930"},{"d":"09/20","w":"六","t":"14:30","id":"0920-1430"},{"d":"09/20","w":"六","t":"19:30","id":"0920-1930"},{"d":"09/21","w":"日","t":"14:30","id":"0921-1430"},{"d":"09/24","w":"四","t":"19:30","id":"0924-1930"},{"d":"09/25","w":"五","t":"19:30","id":"0925-1930"},{"d":"09/26","w":"六","t":"14:30","id":"0926-1430"},{"d":"09/26","w":"六","t":"19:30","id":"0926-1930"},{"d":"09/27","w":"日","t":"14:30","id":"0927-1430"},{"d":"10/01","w":"四","t":"19:30","id":"1001-1930"},{"d":"10/02","w":"五","t":"19:30","id":"1002-1930"},{"d":"10/03","w":"六","t":"14:30","id":"1003-1430"},{"d":"10/03","w":"六","t":"19:30","id":"1003-1930"},{"d":"10/04","w":"日","t":"14:30","id":"1004-1430"}];
+ var plan=document.querySelector('.plan'), scr=document.getElementById('scr'),
+     wrap=document.getElementById('scrwrap'), out=document.getElementById('out'),
+     book=document.getElementById('book'), stub=document.getElementById('stub');
+ var cur={show:0, r:null, c:null, booked:false}, retry=0;
+ function h32(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+ function sold(showId,id){ return (h32(showId+'|'+id)%100) < 27; }
+ var btns=[].slice.call(plan.querySelectorAll('.sq'));
+ function markSold(){
+  var sid=SHOWS[cur.show].id;
+  btns.forEach(function(b){
+   var s=sold(sid,b.dataset.id);
+   b.disabled=s; b.classList.toggle('sold',s);
+   if(s) b.setAttribute('aria-label', b.dataset.id+' 席・已售出');
+  });
+ }
+ function fmt(n,d){return n.toFixed(d);}
+ function render(){
+  btns.forEach(function(b){b.classList.toggle('on', +b.dataset.r===cur.r && +b.dataset.c===cur.c);});
+  if(cur.r===null){ out.innerHTML='<p class="hint">還沒有選位。左邊的席位圖上，每一個黑方塊是一個位子；點它，右邊那面幕就會變成你從那裡看見的形狀。</p>'; 
+   scr.style.transform=''; book.disabled=true; return; }
+  var m=seatMetrics(cur.r,cur.c), id='ABCDEFGH'[cur.r]+(cur.c+1);
+  var W=wrap.clientWidth, H=wrap.clientHeight;
+  if((W<40||H<40) && retry<30){ retry++; if(window.requestAnimationFrame) requestAnimationFrame(render); }
+  var dst=fitQuad(m.q,W,H,0.42);
+  var hh=solveH([[0,0],[640,0],[640,360],[0,360]],dst);
+  var mat=null;
+  if(hh){ mat=toMatrix3d(hh); scr.style.transform='matrix3d('+mat.map(function(v){return v.toFixed(6);}).join(',')+')'; }
+  else { scr.style.transform=''; }
+  out.innerHTML =
+   '<p class="seatid"><b>'+id+'</b><span>'+m.grade+'席</span></p>'+
+   '<table class="read"><tbody>'+
+   '<tr><th scope="row">票價</th><td class="big">NT$ '+m.price+'</td></tr>'+
+   '<tr><th scope="row">幕面可見面積</th><td>'+fmt(m.vis*100,1)+'%（以全場最大者為 100%）</td></tr>'+
+   '<tr><th scope="row">左右失衡</th><td>'+fmt(m.skew,2)+'（0 為正對，越大越斜）</td></tr>'+
+   '<tr><th scope="row">分數</th><td>'+fmt(m.score,2)+'　＝ 面積 ÷（1 ＋ 1.6 × 失衡）</td></tr>'+
+   '<tr><th scope="row">投影係數</th><td class="fine2">'+(mat?mat.slice(0,8).map(function(v){return fmt(v,4);}).join('　'):'（本裝置不支援投影變換，右方以正視顯示）')+'</td></tr>'+
+   '</tbody></table>';
+  book.disabled=false;
+  book.textContent='訂 '+id+'　'+SHOWS[cur.show].d+' '+SHOWS[cur.show].t+'　NT$'+m.price;
+  syncURL();
+ }
+ function syncURL(){
+  if(cur.r===null||!history.replaceState) return;
+  var id='ABCDEFGH'[cur.r]+(cur.c+1);
+  var q='?show='+SHOWS[cur.show].id+'&seat='+id+(cur.booked?'&t=1':'');
+  history.replaceState(null,'',q);
+ }
+ function pick(r,c){
+  if(sold(SHOWS[cur.show].id,'ABCDEFGH'[r]+(c+1))) return;
+  cur.r=r; cur.c=c; cur.booked=false; stub.hidden=true; render();
+ }
+ plan.addEventListener('click',function(e){
+  var b=e.target.closest('.sq'); if(!b||b.disabled) return; pick(+b.dataset.r,+b.dataset.c);
+ });
+ plan.addEventListener('keydown',function(e){
+  var b=e.target.closest('.sq'); if(!b) return;
+  var r=+b.dataset.r, c=+b.dataset.c, dr=0, dc=0;
+  if(e.key==='ArrowLeft')dc=-1; else if(e.key==='ArrowRight')dc=1;
+  else if(e.key==='ArrowUp')dr=-1; else if(e.key==='ArrowDown')dr=1; else return;
+  e.preventDefault();
+  var nr=Math.max(0,Math.min(7,r+dr)), nc=Math.max(0,Math.min(11,c+dc));
+  var nb=plan.querySelector('.sq[data-r="'+nr+'"][data-c="'+nc+'"]');
+  if(nb){ nb.focus(); if(!nb.disabled) pick(nr,nc); }
+ });
+ document.querySelectorAll('.chipbtn').forEach(function(b){
+  b.addEventListener('click',function(){
+   document.querySelectorAll('.chipbtn').forEach(function(x){x.setAttribute('aria-pressed','false');});
+   b.setAttribute('aria-pressed','true');
+   cur.show=+b.dataset.show; cur.booked=false; stub.hidden=true; markSold();
+   if(cur.r!==null && sold(SHOWS[cur.show].id,'ABCDEFGH'[cur.r]+(cur.c+1))){cur.r=null;cur.c=null;}
+   render();
+  });
+ });
+ book.addEventListener('click',function(){
+  if(cur.r===null) return;
+  var m=seatMetrics(cur.r,cur.c), id='ABCDEFGH'[cur.r]+(cur.c+1), s=SHOWS[cur.show];
+  cur.booked=true; syncURL();
+  var q=fitQuad(m.q,240,150,0.42);
+  stub.hidden=false;
+  stub.innerHTML='<div class="stubinner">'+
+   '<svg viewBox="0 0 240 150" width="240" height="150" aria-hidden="true"><polygon points="'+
+     q.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+
+     '" fill="none" stroke="currentColor" stroke-width="3"/></svg>'+
+   '<div><p class="stubline en">ZERO-TEN THEATRE · SEASON VII</p>'+
+   '<p class="stubbig">'+id+'　'+m.grade+'席</p>'+
+   '<p class="stubline">戰勝太陽　2026/'+s.d+'（'+s.w+'）'+s.t+'</p>'+
+   '<p class="stubline">NT$ '+m.price+'　全長 110 分・無中場</p>'+
+   '<p class="stubline">你的幕：可見 '+(m.vis*100).toFixed(1)+'%　失衡 '+m.skew.toFixed(2)+'</p>'+
+   '<p class="stubline fine2">此票根的網址即為憑證，可複製分享；重新開啟會還原你這個座位的幕。虛構示意，不具實際效力。</p></div></div>';
+  if(window.lingshiSunDown) window.lingshiSunDown();
+  stub.scrollIntoView({block:'nearest'});
+ });
+ window.addEventListener('resize',function(){ if(cur.r!==null) render(); });
+ // 由網址還原
+ (function(){
+  var p=new URLSearchParams(location.search), sid=p.get('show'), sq=p.get('seat');
+  if(sid){ for(var i=0;i<SHOWS.length;i++) if(SHOWS[i].id===sid){
+    cur.show=i;
+    document.querySelectorAll('.chipbtn').forEach(function(x){x.setAttribute('aria-pressed', +x.dataset.show===i?'true':'false');});
+    break;} }
+  markSold();
+  if(sq && /^[A-H](1[0-2]|[1-9])$/.test(sq)){
+   var r='ABCDEFGH'.indexOf(sq[0]), c=parseInt(sq.slice(1),10)-1;
+   if(!sold(SHOWS[cur.show].id,sq)){ cur.r=r; cur.c=c; }
+  }
+  render();
+ })();
+})();
+</script>
+</body></html>

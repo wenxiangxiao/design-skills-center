@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>意匠帳 — 合貝堂</title>
+<meta name="description" content="当家が扱う八題の意匠と歌、岩絵具の配合、そして琳派の五つの外せない特徴。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23CDA43B'/%3E%3Cpath d='M32 10c17 1 29 10 29 22s-13 22-29 22S3 44 3 32 15 11 32 10z' fill='none' stroke='%231C180F' stroke-width='3'/%3E%3Cline x1='32' y1='10' x2='32' y2='54' stroke='%231C180F' stroke-width='2.4'/%3E%3Cg%3E%3Ccircle cx='32' cy='32' r='6.6' fill='%23F1EBDA'/%3E%3Ccircle cx='23' cy='27' r='5.4' fill='%23F1EBDA'/%3E%3Ccircle cx='41' cy='27' r='5.4' fill='%23F1EBDA'/%3E%3Ccircle cx='25' cy='40' r='5.4' fill='%23F1EBDA'/%3E%3Ccircle cx='39' cy='40' r='5.4' fill='%23F1EBDA'/%3E%3Ccircle cx='32' cy='32' r='2.7' fill='%239E3524'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>/* ==== 合貝堂 — 琳派（金地・たらしこみ・岩絵具） ==== */
+:root{
+  --kin:#CDA43B; --kin-hi:#F0DB93; --kin-lo:#A57C22; --seam:#B8912E;
+  --go:#F1EBDA; --go-2:#E6DCC2;
+  --ai:#2A4A93; --ai-lo:#1B3163; --ai-hi:#5B7BC0;
+  --roku:#4C7A5B; --roku-lo:#31543D; --roku-hi:#7CA789;
+  --sumi:#1C180F; --enji:#9E3524; --kindei:#8A6819;
+  --haku:109px;                 /* 箔足＝金箔一枚の一辺（10.9cm を 109px に写す） */
+  --mincho:'Shippori Mincho B1','Noto Serif TC','Songti TC',serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--sumi); color:var(--sumi);
+  font-family:var(--mincho); font-weight:400; line-height:1.9;
+  -webkit-text-size-adjust:100%;
+}
+/* ---- 特徵 1：金地。平坦な金＋必ず見える箔足の方眼＋一方向の照り ---- */
+.kinji{
+  position:relative; isolation:isolate;
+  background-color:var(--kin);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(120,88,16,.30) 0 1px, transparent 1px var(--haku)),
+    repeating-linear-gradient(0deg,  rgba(120,88,16,.30) 0 1px, transparent 1px var(--haku)),
+    repeating-linear-gradient(90deg, rgba(255,240,190,.22) 1px 2px, transparent 2px var(--haku)),
+    repeating-linear-gradient(0deg,  rgba(255,240,190,.22) 1px 2px, transparent 2px var(--haku));
+  background-size:var(--haku) var(--haku);
+}
+.kinji>.teri{                    /* 照り＝一方向の光。JS が opacity と位置だけ書く（合成のみ） */
+  position:absolute; inset:-20%; z-index:0; pointer-events:none; opacity:.5;
+  background:radial-gradient(58% 78% at var(--lx,50%) var(--ly,22%),
+     rgba(255,246,214,.92) 0%, rgba(246,225,150,.42) 34%, rgba(150,110,26,.16) 70%, rgba(96,68,10,.30) 100%);
+  mix-blend-mode:soft-light; will-change:transform;
+}
+.kinji>.haku-grain{              /* 箔の粒＝SVG feSpecularLighting（fePointLight 追従） */
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  opacity:.42; mix-blend-mode:screen;
+}
+.kinji>*{position:relative; z-index:1}
+
+/* ---- 特徵 4 の器：色紙形。長文は金地に直接置かず、必ず胡粉の紙の上に ---- */
+.shikishi{
+  background:var(--go);
+  box-shadow:0 0 0 1px rgba(28,24,15,.55), 3px 4px 0 rgba(74,54,12,.30);
+  padding:20px 22px;
+}
+.shikishi.tate{writing-mode:vertical-rl; text-orientation:mixed}
+.tate{writing-mode:vertical-rl; text-orientation:mixed}
+.tcy{text-combine-upright:all}   /* 縦中横（digits 値は全ブラウザ未実装のため all を明示指定） */
+
+h1,h2,h3{font-weight:700; line-height:1.35; margin:0}
+h1{font-size:clamp(30px,4.6vw,58px); letter-spacing:.16em}
+h2{font-size:clamp(21px,2.5vw,30px); letter-spacing:.22em}
+h3{font-size:17px; letter-spacing:.16em}
+p{margin:0 0 1em}
+a{color:var(--ai-lo); text-underline-offset:4px; text-decoration-thickness:1px}
+a:hover{color:var(--enji)}
+:focus-visible{outline:2px solid var(--enji); outline-offset:3px}
+
+/* ---- 導覽：pair-half 合貝（現用頁＝二枚が合って絵が継がる） ---- */
+.nav{display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap}
+.nav a{
+  display:block; text-decoration:none; color:var(--sumi);
+  position:relative; width:124px; height:74px;
+}
+.nav a svg{display:block; width:124px; height:74px; overflow:visible}
+.nav a .lbl{
+  display:block; text-align:center; font-size:12.5px; letter-spacing:.22em;
+  margin-top:5px; color:#3A2F14;
+}
+.nav a .half-l{transform:translateX(-13px); opacity:0; transition:transform .32s cubic-bezier(.2,.8,.25,1), opacity .32s}
+.nav a:hover .half-l{transform:translateX(-5px); opacity:.55}
+.nav a[aria-current="page"] .half-l{transform:translateX(0); opacity:1}
+.nav a[aria-current="page"] .lbl{color:var(--enji); font-weight:700}
+
+/* ---- 見出し帯 ---- */
+.mast{display:flex; gap:26px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap}
+.brand{display:flex; gap:14px; align-items:center; text-decoration:none; color:var(--sumi)}
+.brand svg{width:52px; height:52px; flex:none}
+.brand b{display:block; font-size:23px; letter-spacing:.3em; font-weight:700}
+.brand span{display:block; font-size:11px; letter-spacing:.34em; color:#4A3A16}
+
+.wrap{max-width:1180px; margin:0 auto; padding:0 22px}
+.sec{padding:60px 0}
+.rule{height:0; border-top:1px solid rgba(28,24,15,.34); margin:26px 0}
+
+table{border-collapse:collapse; width:100%; font-size:14.5px}
+th,td{border:1px solid rgba(28,24,15,.30); padding:9px 11px; text-align:left; vertical-align:top}
+th{background:var(--go-2); font-weight:700; letter-spacing:.1em; white-space:nowrap}
+caption{caption-side:top; text-align:left; font-size:12.5px; letter-spacing:.18em; padding-bottom:7px; color:#4A3A16}
+
+.btn{
+  display:inline-block; font-family:var(--mincho); font-size:15px; letter-spacing:.2em; font-weight:700;
+  padding:11px 24px; border:1px solid var(--sumi); background:var(--go); color:var(--sumi);
+  cursor:pointer; box-shadow:3px 3px 0 rgba(28,24,15,.55); text-decoration:none;
+}
+.btn:hover{background:var(--kin-hi)}
+.btn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 rgba(28,24,15,.55)}
+.btn[disabled]{opacity:.42; cursor:not-allowed; box-shadow:none}
+.btn.ai{background:var(--ai); color:#F1EBDA; border-color:var(--ai-lo)}
+.btn.ai:hover{background:var(--ai-lo)}
+
+/* ---- 岩絵具の平塗り。中間調・影・立体感を持たない ---- */
+.ha{fill:var(--go)} .hb{fill:var(--go)} .hc{fill:var(--enji)}
+.sumi-l{fill:none; stroke:var(--sumi); stroke-width:2.2}
+
+footer.ft{background:var(--sumi); color:#CDBE99; padding:42px 0 54px; font-size:13.5px; line-height:2.1}
+footer.ft a{color:var(--kin-hi)}
+footer.ft .cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:26px}
+footer.ft b{letter-spacing:.24em; color:var(--kin)}
+
+.small{font-size:12.5px; letter-spacing:.1em; color:#4A3A16}
+.note{font-size:12.5px; color:#4A3A16; line-height:1.85}
+.kin-txt{color:var(--kindei)}
+.hid{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+@media (max-width:900px){
+  .haku-grain{display:none}
+  .shikishi.tate{writing-mode:horizontal-tb}
+  .nav a,.nav a svg{width:96px; height:58px}
+}
+@media (max-width:560px){
+  .wrap{padding:0 14px}
+  .sec{padding:38px 0}
+  .nav{gap:9px}
+  .nav a,.nav a svg{width:70px; height:44px}
+  .nav a .lbl{font-size:11px; letter-spacing:.14em}
+  h1{letter-spacing:.1em}
+  table{font-size:13px}
+  th,td{padding:7px 8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+}
+
+.p-go{fill:var(--go)} .p-enji{fill:var(--enji)} .p-sumi-d{fill:var(--sumi)}
+.p-shibe{stroke:var(--kindei);stroke-width:.9}
+.p-eda{fill:none;stroke:var(--sumi);stroke-width:2.6;stroke-linecap:round}
+.p-eda2{fill:none;stroke:var(--sumi);stroke-width:1.5}
+.p-tsuru{fill:none;stroke:var(--sumi);stroke-width:1.9}
+.p-miki{fill:none;stroke:var(--sumi);stroke-width:5}
+.p-roku{fill:url(#taraRoku)} .p-roku2{fill:var(--roku-hi)}
+.p-tara-ai{fill:url(#taraAi)} .p-tara-ai2{fill:url(#taraAi2)}
+.p-tara-roku{fill:url(#taraRoku)} .p-tara-enji{fill:url(#taraEnji)}
+.p-tara-sumi{fill:url(#taraSumi)} .p-tara-sakura{fill:url(#taraSakura)}
+.p-mizu{fill:none;stroke:var(--ai);stroke-width:2.3}
+.p-uzu{fill:none;stroke:var(--go);stroke-width:2.1;stroke-linejoin:round}
+.p-shibuki{fill:var(--go)} .p-kindei{fill:var(--kindei)}
+.p-tsuki{fill:var(--go)} .p-kuki{fill:none;stroke:var(--roku-lo);stroke-width:1.5}
+.p-ho{stroke:var(--kindei);stroke-width:.85}
+.p-fusa{fill:url(#taraRoku)} .p-hari{stroke:var(--roku-lo);stroke-width:.8}
+.p-hira{fill:var(--go);opacity:.92}
+.shell-out{fill:none;stroke:var(--sumi);stroke-width:1.5}
+.shell-back{fill:#E3D9BF} .shell-line{fill:none;stroke:#B9A57C;stroke-width:.9}
+
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+<defs>
+<radialGradient id="taraAi" cx="41%" cy="34%" r="74%">
+<stop offset="0" stop-color="#6E8CCB"/><stop offset=".5" stop-color="#2F4F98"/>
+<stop offset=".84" stop-color="#1B3163"/><stop offset="1" stop-color="#122246"/></radialGradient>
+<radialGradient id="taraAi2" cx="41%" cy="34%" r="74%">
+<stop offset="0" stop-color="#8AA2D6"/><stop offset=".5" stop-color="#3C5CA6"/>
+<stop offset=".84" stop-color="#22386E"/><stop offset="1" stop-color="#182B52"/></radialGradient>
+<radialGradient id="taraRoku" cx="41%" cy="34%" r="74%">
+<stop offset="0" stop-color="#8FB79A"/><stop offset=".5" stop-color="#4E7C5D"/>
+<stop offset=".84" stop-color="#31543D"/><stop offset="1" stop-color="#22402D"/></radialGradient>
+<radialGradient id="taraEnji" cx="41%" cy="34%" r="74%">
+<stop offset="0" stop-color="#C87A5E"/><stop offset=".5" stop-color="#A63C28"/>
+<stop offset=".84" stop-color="#7C2517"/><stop offset="1" stop-color="#5C180F"/></radialGradient>
+<radialGradient id="taraSumi" cx="41%" cy="34%" r="74%">
+<stop offset="0" stop-color="#6B6355"/><stop offset=".5" stop-color="#3A342A"/>
+<stop offset=".84" stop-color="#221E16"/><stop offset="1" stop-color="#14110B"/></radialGradient>
+<radialGradient id="taraSakura" cx="41%" cy="34%" r="74%">
+<stop offset="0" stop-color="#FBF6EA"/><stop offset=".5" stop-color="#F1E3DA"/>
+<stop offset=".84" stop-color="#DCB8AE"/><stop offset="1" stop-color="#B87E72"/></radialGradient>
+<clipPath id="shR"><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z"/></clipPath>
+<clipPath id="shL"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z"/></clipPath>
+<clipPath id="shAll"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z"/><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z"/></clipPath>
+
+<filter id="hakuF" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.9 0.62" numOctaves="1" seed="17" result="n"/>
+  <feSpecularLighting in="n" surfaceScale="2.4" specularConstant="1.02" specularExponent="26" lighting-color="#FFF3C8" result="sp">
+    <fePointLight id="hakuLight" x="160" y="44" z="58"/>
+  </feSpecularLighting>
+  <feComposite in="sp" in2="SourceAlpha" operator="in"/>
+</filter>
+</defs></svg>
+.hdr{padding:20px 0 26px}
+.hdr-in{display:flex;gap:26px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.brand svg{width:74px;height:44px}
+.body{background:var(--go)}
+.gosoku{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:0;border:1px solid rgba(28,24,15,.34);margin-top:18px}
+.gosoku>div{border-right:1px solid rgba(28,24,15,.22);padding:16px 16px 18px}
+.gosoku>div:last-child{border-right:0}
+.gosoku h3{color:var(--enji);letter-spacing:.2em;margin-bottom:.5em}
+.gosoku p{font-size:13px;line-height:1.9;margin:0 0 .8em}
+.demo{position:relative;height:104px;border:1px solid rgba(28,24,15,.3);overflow:hidden;margin-bottom:10px}
+.demo svg{display:block;width:100%;height:100%}
+.demo.kin{background-color:var(--kin);
+  background-image:repeating-linear-gradient(90deg,rgba(120,88,16,.34) 0 1px,transparent 1px 54px),
+                   repeating-linear-gradient(0deg,rgba(120,88,16,.34) 0 1px,transparent 1px 54px)}
+.demo.kin>.teri{position:absolute;inset:-40%;pointer-events:none;
+  background:radial-gradient(52% 74% at 50% 50%,rgba(255,247,218,.95),rgba(246,225,150,.35) 40%,rgba(96,68,10,.3));
+  mix-blend-mode:soft-light;will-change:transform}
+.chips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.chips i{display:block;height:40px;border:1px solid rgba(28,24,15,.4)}
+.chips span{display:block;font-size:10.5px;letter-spacing:.06em;text-align:center;margin-top:4px}
+.mons{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;margin-top:22px}
+.mon{border:1px solid rgba(28,24,15,.32);background:#EFE8D4}
+.mon .pic{background:var(--kin);position:relative;overflow:hidden;border-bottom:1px solid rgba(28,24,15,.32)}
+.mon .pic svg{display:block;width:100%;height:auto}
+.mon .txt{padding:14px 16px 16px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.mon h3{letter-spacing:.28em}
+.mon .kana{font-size:11.5px;letter-spacing:.2em;color:#5B4A22}
+.mon .uta{writing-mode:vertical-rl;text-orientation:mixed;max-height:150px;font-size:13.5px;line-height:2.2;letter-spacing:.06em}
+.mon .meta{font-size:12.5px;line-height:1.95;flex:1 1 190px}
+.hen{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:16px}
+.hen figure{margin:0;border:1px solid rgba(28,24,15,.28);background:var(--kin)}
+.hen svg{display:block;width:100%;height:auto}
+.hen figcaption{background:var(--go);border-top:1px solid rgba(28,24,15,.28);font-size:10.5px;padding:3px 5px;letter-spacing:.06em}
+@media (max-width:900px){.mons{grid-template-columns:1fr}.hen{grid-template-columns:repeat(4,1fr)}.mon .uta{writing-mode:horizontal-tb;max-height:none}}
+@media (max-width:560px){.hen{grid-template-columns:repeat(3,1fr)}.chips{grid-template-columns:repeat(3,1fr)}}
+</style><header class="kinji hdr"><i class="teri" aria-hidden="true"></i><svg class="haku-grain" viewBox="0 0 320 200" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="320" height="200" fill="#000" filter="url(#hakuF)"/></svg>
+<div class="wrap hdr-in">
+  <a class="brand" href="index.html"><svg viewBox="0 0 124 74" role="img" aria-label="合貝堂" class=""><g class="half-l"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shL)"><path d="M4,64 Q56,44.6 120,18" class="p-eda"/><circle cx="59.87" cy="45.77" r="7" class="p-go"/><circle cx="52.05" cy="37" r="7" class="p-go"/><circle cx="57.98" cy="26.84" r="7" class="p-go"/><circle cx="69.46" cy="29.34" r="7" class="p-go"/><circle cx="70.64" cy="41.04" r="7" class="p-go"/><circle cx="62" cy="36" r="4" class="p-enji"/><line x1="62" y1="36" x2="55.63" y2="41.78" class="p-shibe"/><line x1="62" y1="36" x2="54.54" y2="31.73" class="p-shibe"/><line x1="62" y1="36" x2="63.76" y2="27.58" class="p-shibe"/><line x1="62" y1="36" x2="70.55" y2="35.07" class="p-shibe"/><line x1="62" y1="36" x2="65.53" y2="43.84" class="p-shibe"/><circle cx="34.68" cy="47.92" r="4.9" class="p-go"/><circle cx="32.04" cy="55.72" r="4.9" class="p-go"/><circle cx="23.81" cy="55.61" r="4.9" class="p-go"/><circle cx="21.37" cy="47.75" r="4.9" class="p-go"/><circle cx="28.09" cy="43" r="4.9" class="p-go"/><circle cx="28" cy="50" r="2.8" class="p-enji"/><line x1="28" y1="50" x2="33.72" y2="51.89" class="p-shibe"/><line x1="28" y1="50" x2="27.97" y2="56.02" class="p-shibe"/><line x1="28" y1="50" x2="22.27" y2="51.83" class="p-shibe"/><line x1="28" y1="50" x2="24.48" y2="45.11" class="p-shibe"/><line x1="28" y1="50" x2="31.56" y2="45.15" class="p-shibe"/><circle cx="98.25" cy="20.11" r="4.9" class="p-go"/><circle cx="103.94" cy="26.06" r="4.9" class="p-go"/><circle cx="100.04" cy="33.31" r="4.9" class="p-go"/><circle cx="91.94" cy="31.84" r="4.9" class="p-go"/><circle cx="90.83" cy="23.69" r="4.9" class="p-go"/><circle cx="97" cy="27" r="2.8" class="p-enji"/><line x1="97" y1="27" x2="101.31" y2="22.8" class="p-shibe"/><line x1="97" y1="27" x2="102.33" y2="29.81" class="p-shibe"/><line x1="97" y1="27" x2="95.98" y2="32.93" class="p-shibe"/><line x1="97" y1="27" x2="91.04" y2="27.86" class="p-shibe"/><line x1="97" y1="27" x2="94.34" y2="21.6" class="p-shibe"/></g><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" class="shell-out"/></g><g class="half-r"><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shR)"><path d="M4,64 Q56,44.6 120,18" class="p-eda"/><circle cx="59.87" cy="45.77" r="7" class="p-go"/><circle cx="52.05" cy="37" r="7" class="p-go"/><circle cx="57.98" cy="26.84" r="7" class="p-go"/><circle cx="69.46" cy="29.34" r="7" class="p-go"/><circle cx="70.64" cy="41.04" r="7" class="p-go"/><circle cx="62" cy="36" r="4" class="p-enji"/><line x1="62" y1="36" x2="55.63" y2="41.78" class="p-shibe"/><line x1="62" y1="36" x2="54.54" y2="31.73" class="p-shibe"/><line x1="62" y1="36" x2="63.76" y2="27.58" class="p-shibe"/><line x1="62" y1="36" x2="70.55" y2="35.07" class="p-shibe"/><line x1="62" y1="36" x2="65.53" y2="43.84" class="p-shibe"/><circle cx="34.68" cy="47.92" r="4.9" class="p-go"/><circle cx="32.04" cy="55.72" r="4.9" class="p-go"/><circle cx="23.81" cy="55.61" r="4.9" class="p-go"/><circle cx="21.37" cy="47.75" r="4.9" class="p-go"/><circle cx="28.09" cy="43" r="4.9" class="p-go"/><circle cx="28" cy="50" r="2.8" class="p-enji"/><line x1="28" y1="50" x2="33.72" y2="51.89" class="p-shibe"/><line x1="28" y1="50" x2="27.97" y2="56.02" class="p-shibe"/><line x1="28" y1="50" x2="22.27" y2="51.83" class="p-shibe"/><line x1="28" y1="50" x2="24.48" y2="45.11" class="p-shibe"/><line x1="28" y1="50" x2="31.56" y2="45.15" class="p-shibe"/><circle cx="98.25" cy="20.11" r="4.9" class="p-go"/><circle cx="103.94" cy="26.06" r="4.9" class="p-go"/><circle cx="100.04" cy="33.31" r="4.9" class="p-go"/><circle cx="91.94" cy="31.84" r="4.9" class="p-go"/><circle cx="90.83" cy="23.69" r="4.9" class="p-go"/><circle cx="97" cy="27" r="2.8" class="p-enji"/><line x1="97" y1="27" x2="101.31" y2="22.8" class="p-shibe"/><line x1="97" y1="27" x2="102.33" y2="29.81" class="p-shibe"/><line x1="97" y1="27" x2="95.98" y2="32.93" class="p-shibe"/><line x1="97" y1="27" x2="91.04" y2="27.86" class="p-shibe"/><line x1="97" y1="27" x2="94.34" y2="21.6" class="p-shibe"/></g><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" class="shell-out"/></g></svg><span><b>合貝堂</b><span>AWASEGAI-DŌ ／ 京都・室町 婚礼調度</span></span></a>
+  <nav class="nav" aria-label="頁面"><a href="index.html"><svg viewBox="0 0 124 74" role="img" aria-label="屏風" class=""><g class="half-l"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shL)"><path d="M4,64 Q56,44.6 120,18" class="p-eda"/><circle cx="59.87" cy="45.77" r="7" class="p-go"/><circle cx="52.05" cy="37" r="7" class="p-go"/><circle cx="57.98" cy="26.84" r="7" class="p-go"/><circle cx="69.46" cy="29.34" r="7" class="p-go"/><circle cx="70.64" cy="41.04" r="7" class="p-go"/><circle cx="62" cy="36" r="4" class="p-enji"/><line x1="62" y1="36" x2="55.63" y2="41.78" class="p-shibe"/><line x1="62" y1="36" x2="54.54" y2="31.73" class="p-shibe"/><line x1="62" y1="36" x2="63.76" y2="27.58" class="p-shibe"/><line x1="62" y1="36" x2="70.55" y2="35.07" class="p-shibe"/><line x1="62" y1="36" x2="65.53" y2="43.84" class="p-shibe"/><circle cx="34.68" cy="47.92" r="4.9" class="p-go"/><circle cx="32.04" cy="55.72" r="4.9" class="p-go"/><circle cx="23.81" cy="55.61" r="4.9" class="p-go"/><circle cx="21.37" cy="47.75" r="4.9" class="p-go"/><circle cx="28.09" cy="43" r="4.9" class="p-go"/><circle cx="28" cy="50" r="2.8" class="p-enji"/><line x1="28" y1="50" x2="33.72" y2="51.89" class="p-shibe"/><line x1="28" y1="50" x2="27.97" y2="56.02" class="p-shibe"/><line x1="28" y1="50" x2="22.27" y2="51.83" class="p-shibe"/><line x1="28" y1="50" x2="24.48" y2="45.11" class="p-shibe"/><line x1="28" y1="50" x2="31.56" y2="45.15" class="p-shibe"/><circle cx="98.25" cy="20.11" r="4.9" class="p-go"/><circle cx="103.94" cy="26.06" r="4.9" class="p-go"/><circle cx="100.04" cy="33.31" r="4.9" class="p-go"/><circle cx="91.94" cy="31.84" r="4.9" class="p-go"/><circle cx="90.83" cy="23.69" r="4.9" class="p-go"/><circle cx="97" cy="27" r="2.8" class="p-enji"/><line x1="97" y1="27" x2="101.31" y2="22.8" class="p-shibe"/><line x1="97" y1="27" x2="102.33" y2="29.81" class="p-shibe"/><line x1="97" y1="27" x2="95.98" y2="32.93" class="p-shibe"/><line x1="97" y1="27" x2="91.04" y2="27.86" class="p-shibe"/><line x1="97" y1="27" x2="94.34" y2="21.6" class="p-shibe"/></g><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" class="shell-out"/></g><g class="half-r"><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shR)"><path d="M4,64 Q56,44.6 120,18" class="p-eda"/><circle cx="59.87" cy="45.77" r="7" class="p-go"/><circle cx="52.05" cy="37" r="7" class="p-go"/><circle cx="57.98" cy="26.84" r="7" class="p-go"/><circle cx="69.46" cy="29.34" r="7" class="p-go"/><circle cx="70.64" cy="41.04" r="7" class="p-go"/><circle cx="62" cy="36" r="4" class="p-enji"/><line x1="62" y1="36" x2="55.63" y2="41.78" class="p-shibe"/><line x1="62" y1="36" x2="54.54" y2="31.73" class="p-shibe"/><line x1="62" y1="36" x2="63.76" y2="27.58" class="p-shibe"/><line x1="62" y1="36" x2="70.55" y2="35.07" class="p-shibe"/><line x1="62" y1="36" x2="65.53" y2="43.84" class="p-shibe"/><circle cx="34.68" cy="47.92" r="4.9" class="p-go"/><circle cx="32.04" cy="55.72" r="4.9" class="p-go"/><circle cx="23.81" cy="55.61" r="4.9" class="p-go"/><circle cx="21.37" cy="47.75" r="4.9" class="p-go"/><circle cx="28.09" cy="43" r="4.9" class="p-go"/><circle cx="28" cy="50" r="2.8" class="p-enji"/><line x1="28" y1="50" x2="33.72" y2="51.89" class="p-shibe"/><line x1="28" y1="50" x2="27.97" y2="56.02" class="p-shibe"/><line x1="28" y1="50" x2="22.27" y2="51.83" class="p-shibe"/><line x1="28" y1="50" x2="24.48" y2="45.11" class="p-shibe"/><line x1="28" y1="50" x2="31.56" y2="45.15" class="p-shibe"/><circle cx="98.25" cy="20.11" r="4.9" class="p-go"/><circle cx="103.94" cy="26.06" r="4.9" class="p-go"/><circle cx="100.04" cy="33.31" r="4.9" class="p-go"/><circle cx="91.94" cy="31.84" r="4.9" class="p-go"/><circle cx="90.83" cy="23.69" r="4.9" class="p-go"/><circle cx="97" cy="27" r="2.8" class="p-enji"/><line x1="97" y1="27" x2="101.31" y2="22.8" class="p-shibe"/><line x1="97" y1="27" x2="102.33" y2="29.81" class="p-shibe"/><line x1="97" y1="27" x2="95.98" y2="32.93" class="p-shibe"/><line x1="97" y1="27" x2="91.04" y2="27.86" class="p-shibe"/><line x1="97" y1="27" x2="94.34" y2="21.6" class="p-shibe"/></g><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" class="shell-out"/></g></svg><span class="lbl">屏風</span></a><a href="awase.html"><svg viewBox="0 0 124 74" role="img" aria-label="合貝" class=""><g class="half-l"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shL)"><path d="M52,70 C51.49,50.96 46.25,43.48 47,36 C47.75,43.48 56.59,50.96 58,70Z" class="p-roku"/><path d="M59,70 C59.93,47.6 65.25,38.8 66,30 C66.75,38.8 65.03,47.6 65,70Z" class="p-roku"/><path d="M67.4,70 C68.99,53.2 79.35,46.6 80,40 C80.65,46.6 73.41,53.2 72.6,70Z" class="p-roku2"/><path d="M68.6,29.37C68.1,30.71 67.09,33.43 65.71,34.41C64.33,35.39 61.81,35.59 60.31,35.25C58.81,34.9 57.74,33.21 56.73,32.34C55.71,31.47 54.68,31.05 54.24,30.04C53.81,29.03 53.02,27.23 54.13,26.26C55.24,25.3 59.07,24.86 60.88,24.27C62.7,23.67 63.72,22.35 65.02,22.7C66.32,23.04 68.09,25.24 68.68,26.35C69.28,27.46 69.1,28.02 68.6,29.37Z" class="p-tara-ai"/><path d="M60.74,26.94C60.56,28.54 59.79,29.12 58.85,29.9C57.9,30.69 56.2,31.76 55.07,31.63C53.94,31.49 52.68,30.24 52.08,29.09C51.47,27.93 51.44,26.4 51.47,24.71C51.49,23.02 51.46,20.05 52.23,18.93C53.01,17.81 54.82,17.77 56.11,18C57.39,18.23 59.16,18.83 59.93,20.32C60.7,21.81 60.92,25.34 60.74,26.94Z" class="p-tara-ai2"/><path d="M71.39,28.32C71.03,30.19 70.56,32.64 69.81,33.51C69.07,34.38 67.74,34.15 66.91,33.55C66.09,32.95 65.38,31.43 64.86,29.92C64.34,28.41 63.65,26.06 63.8,24.49C63.95,22.92 64.94,20.92 65.74,20.51C66.53,20.09 67.53,21.69 68.57,21.98C69.61,22.28 71.49,21.22 71.96,22.28C72.43,23.33 71.74,26.45 71.39,28.32Z" class="p-tara-ai2"/><path d="M21.6,70 C20.76,56.56 13.4,51.28 14,46 C14.6,51.28 24.84,56.56 26.4,70Z" class="p-roku2"/><path d="M101.6,70 C103.04,55.44 112.4,49.72 113,44 C113.6,49.72 107.12,55.44 106.4,70Z" class="p-roku2"/></g><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" class="shell-out"/></g><g class="half-r"><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shR)"><path d="M52,70 C51.49,50.96 46.25,43.48 47,36 C47.75,43.48 56.59,50.96 58,70Z" class="p-roku"/><path d="M59,70 C59.93,47.6 65.25,38.8 66,30 C66.75,38.8 65.03,47.6 65,70Z" class="p-roku"/><path d="M67.4,70 C68.99,53.2 79.35,46.6 80,40 C80.65,46.6 73.41,53.2 72.6,70Z" class="p-roku2"/><path d="M68.6,29.37C68.1,30.71 67.09,33.43 65.71,34.41C64.33,35.39 61.81,35.59 60.31,35.25C58.81,34.9 57.74,33.21 56.73,32.34C55.71,31.47 54.68,31.05 54.24,30.04C53.81,29.03 53.02,27.23 54.13,26.26C55.24,25.3 59.07,24.86 60.88,24.27C62.7,23.67 63.72,22.35 65.02,22.7C66.32,23.04 68.09,25.24 68.68,26.35C69.28,27.46 69.1,28.02 68.6,29.37Z" class="p-tara-ai"/><path d="M60.74,26.94C60.56,28.54 59.79,29.12 58.85,29.9C57.9,30.69 56.2,31.76 55.07,31.63C53.94,31.49 52.68,30.24 52.08,29.09C51.47,27.93 51.44,26.4 51.47,24.71C51.49,23.02 51.46,20.05 52.23,18.93C53.01,17.81 54.82,17.77 56.11,18C57.39,18.23 59.16,18.83 59.93,20.32C60.7,21.81 60.92,25.34 60.74,26.94Z" class="p-tara-ai2"/><path d="M71.39,28.32C71.03,30.19 70.56,32.64 69.81,33.51C69.07,34.38 67.74,34.15 66.91,33.55C66.09,32.95 65.38,31.43 64.86,29.92C64.34,28.41 63.65,26.06 63.8,24.49C63.95,22.92 64.94,20.92 65.74,20.51C66.53,20.09 67.53,21.69 68.57,21.98C69.61,22.28 71.49,21.22 71.96,22.28C72.43,23.33 71.74,26.45 71.39,28.32Z" class="p-tara-ai2"/><path d="M21.6,70 C20.76,56.56 13.4,51.28 14,46 C14.6,51.28 24.84,56.56 26.4,70Z" class="p-roku2"/><path d="M101.6,70 C103.04,55.44 112.4,49.72 113,44 C113.6,49.72 107.12,55.44 106.4,70Z" class="p-roku2"/></g><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" class="shell-out"/></g></svg><span class="lbl">合貝</span></a><a href="mon.html" aria-current="page"><svg viewBox="0 0 124 74" role="img" aria-label="意匠帳" class=""><g class="half-l"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shL)"><path d="M2,68 Q72,53 122,50" class="p-eda"/><ellipse cx="71.3" cy="32" rx="6.6" ry="3.6" transform="rotate(0 71.3 32)" class="p-go"/><ellipse cx="69.12" cy="37.98" rx="6.6" ry="3.6" transform="rotate(40 69.12 37.98)" class="p-go"/><ellipse cx="63.61" cy="41.16" rx="6.6" ry="3.6" transform="rotate(80.01 63.61 41.16)" class="p-go"/><ellipse cx="57.35" cy="40.05" rx="6.6" ry="3.6" transform="rotate(120.01 57.35 40.05)" class="p-go"/><ellipse cx="53.26" cy="35.18" rx="6.6" ry="3.6" transform="rotate(160.01 53.26 35.18)" class="p-go"/><ellipse cx="53.26" cy="28.82" rx="6.6" ry="3.6" transform="rotate(200.01 53.26 28.82)" class="p-go"/><ellipse cx="57.35" cy="23.95" rx="6.6" ry="3.6" transform="rotate(240.02 57.35 23.95)" class="p-go"/><ellipse cx="63.61" cy="22.84" rx="6.6" ry="3.6" transform="rotate(280.02 63.61 22.84)" class="p-go"/><ellipse cx="69.12" cy="26.02" rx="6.6" ry="3.6" transform="rotate(320.02 69.12 26.02)" class="p-go"/><circle cx="62" cy="32" r="3.6" class="p-kindei"/><ellipse cx="31.58" cy="46" rx="3.96" ry="2.16" transform="rotate(0 31.58 46)" class="p-go"/><ellipse cx="30.27" cy="49.59" rx="3.96" ry="2.16" transform="rotate(40 30.27 49.59)" class="p-go"/><ellipse cx="26.97" cy="51.5" rx="3.96" ry="2.16" transform="rotate(80.01 26.97 51.5)" class="p-go"/><ellipse cx="23.21" cy="50.83" rx="3.96" ry="2.16" transform="rotate(120.01 23.21 50.83)" class="p-go"/><ellipse cx="20.76" cy="47.91" rx="3.96" ry="2.16" transform="rotate(160.01 20.76 47.91)" class="p-go"/><ellipse cx="20.76" cy="44.09" rx="3.96" ry="2.16" transform="rotate(200.01 20.76 44.09)" class="p-go"/><ellipse cx="23.21" cy="41.17" rx="3.96" ry="2.16" transform="rotate(240.02 23.21 41.17)" class="p-go"/><ellipse cx="26.97" cy="40.5" rx="3.96" ry="2.16" transform="rotate(280.02 26.97 40.5)" class="p-go"/><ellipse cx="30.27" cy="42.41" rx="3.96" ry="2.16" transform="rotate(320.02 30.27 42.41)" class="p-go"/><circle cx="26" cy="46" r="2.16" class="p-kindei"/><ellipse cx="105.58" cy="40" rx="3.96" ry="2.16" transform="rotate(0 105.58 40)" class="p-go"/><ellipse cx="104.27" cy="43.59" rx="3.96" ry="2.16" transform="rotate(40 104.27 43.59)" class="p-go"/><ellipse cx="100.97" cy="45.5" rx="3.96" ry="2.16" transform="rotate(80.01 100.97 45.5)" class="p-go"/><ellipse cx="97.21" cy="44.83" rx="3.96" ry="2.16" transform="rotate(120.01 97.21 44.83)" class="p-go"/><ellipse cx="94.76" cy="41.91" rx="3.96" ry="2.16" transform="rotate(160.01 94.76 41.91)" class="p-go"/><ellipse cx="94.76" cy="38.09" rx="3.96" ry="2.16" transform="rotate(200.01 94.76 38.09)" class="p-go"/><ellipse cx="97.21" cy="35.17" rx="3.96" ry="2.16" transform="rotate(240.02 97.21 35.17)" class="p-go"/><ellipse cx="100.97" cy="34.5" rx="3.96" ry="2.16" transform="rotate(280.02 100.97 34.5)" class="p-go"/><ellipse cx="104.27" cy="36.41" rx="3.96" ry="2.16" transform="rotate(320.02 104.27 36.41)" class="p-go"/><circle cx="100" cy="40" r="2.16" class="p-kindei"/></g><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" class="shell-out"/></g><g class="half-r"><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shR)"><path d="M2,68 Q72,53 122,50" class="p-eda"/><ellipse cx="71.3" cy="32" rx="6.6" ry="3.6" transform="rotate(0 71.3 32)" class="p-go"/><ellipse cx="69.12" cy="37.98" rx="6.6" ry="3.6" transform="rotate(40 69.12 37.98)" class="p-go"/><ellipse cx="63.61" cy="41.16" rx="6.6" ry="3.6" transform="rotate(80.01 63.61 41.16)" class="p-go"/><ellipse cx="57.35" cy="40.05" rx="6.6" ry="3.6" transform="rotate(120.01 57.35 40.05)" class="p-go"/><ellipse cx="53.26" cy="35.18" rx="6.6" ry="3.6" transform="rotate(160.01 53.26 35.18)" class="p-go"/><ellipse cx="53.26" cy="28.82" rx="6.6" ry="3.6" transform="rotate(200.01 53.26 28.82)" class="p-go"/><ellipse cx="57.35" cy="23.95" rx="6.6" ry="3.6" transform="rotate(240.02 57.35 23.95)" class="p-go"/><ellipse cx="63.61" cy="22.84" rx="6.6" ry="3.6" transform="rotate(280.02 63.61 22.84)" class="p-go"/><ellipse cx="69.12" cy="26.02" rx="6.6" ry="3.6" transform="rotate(320.02 69.12 26.02)" class="p-go"/><circle cx="62" cy="32" r="3.6" class="p-kindei"/><ellipse cx="31.58" cy="46" rx="3.96" ry="2.16" transform="rotate(0 31.58 46)" class="p-go"/><ellipse cx="30.27" cy="49.59" rx="3.96" ry="2.16" transform="rotate(40 30.27 49.59)" class="p-go"/><ellipse cx="26.97" cy="51.5" rx="3.96" ry="2.16" transform="rotate(80.01 26.97 51.5)" class="p-go"/><ellipse cx="23.21" cy="50.83" rx="3.96" ry="2.16" transform="rotate(120.01 23.21 50.83)" class="p-go"/><ellipse cx="20.76" cy="47.91" rx="3.96" ry="2.16" transform="rotate(160.01 20.76 47.91)" class="p-go"/><ellipse cx="20.76" cy="44.09" rx="3.96" ry="2.16" transform="rotate(200.01 20.76 44.09)" class="p-go"/><ellipse cx="23.21" cy="41.17" rx="3.96" ry="2.16" transform="rotate(240.02 23.21 41.17)" class="p-go"/><ellipse cx="26.97" cy="40.5" rx="3.96" ry="2.16" transform="rotate(280.02 26.97 40.5)" class="p-go"/><ellipse cx="30.27" cy="42.41" rx="3.96" ry="2.16" transform="rotate(320.02 30.27 42.41)" class="p-go"/><circle cx="26" cy="46" r="2.16" class="p-kindei"/><ellipse cx="105.58" cy="40" rx="3.96" ry="2.16" transform="rotate(0 105.58 40)" class="p-go"/><ellipse cx="104.27" cy="43.59" rx="3.96" ry="2.16" transform="rotate(40 104.27 43.59)" class="p-go"/><ellipse cx="100.97" cy="45.5" rx="3.96" ry="2.16" transform="rotate(80.01 100.97 45.5)" class="p-go"/><ellipse cx="97.21" cy="44.83" rx="3.96" ry="2.16" transform="rotate(120.01 97.21 44.83)" class="p-go"/><ellipse cx="94.76" cy="41.91" rx="3.96" ry="2.16" transform="rotate(160.01 94.76 41.91)" class="p-go"/><ellipse cx="94.76" cy="38.09" rx="3.96" ry="2.16" transform="rotate(200.01 94.76 38.09)" class="p-go"/><ellipse cx="97.21" cy="35.17" rx="3.96" ry="2.16" transform="rotate(240.02 97.21 35.17)" class="p-go"/><ellipse cx="100.97" cy="34.5" rx="3.96" ry="2.16" transform="rotate(280.02 100.97 34.5)" class="p-go"/><ellipse cx="104.27" cy="36.41" rx="3.96" ry="2.16" transform="rotate(320.02 104.27 36.41)" class="p-go"/><circle cx="100" cy="40" r="2.16" class="p-kindei"/></g><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" class="shell-out"/></g></svg><span class="lbl">意匠帳</span></a><a href="atsurae.html"><svg viewBox="0 0 124 74" role="img" aria-label="誂え" class=""><g class="half-l"><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shL)"><path d="M6,72 Q32,57.4 86,26" class="p-miki"/><circle cx="62" cy="32" r="15" class="p-fusa"/><line x1="66.5" y1="32" x2="77.6" y2="32" class="p-hari"/><line x1="66.16" y1="33.72" x2="76.41" y2="37.97" class="p-hari"/><line x1="65.18" y1="35.18" x2="73.03" y2="43.03" class="p-hari"/><line x1="63.72" y1="36.16" x2="67.97" y2="46.41" class="p-hari"/><line x1="62" y1="36.5" x2="62" y2="47.6" class="p-hari"/><line x1="60.28" y1="36.16" x2="56.03" y2="46.41" class="p-hari"/><line x1="58.82" y1="35.18" x2="50.97" y2="43.03" class="p-hari"/><line x1="57.84" y1="33.72" x2="47.59" y2="37.97" class="p-hari"/><line x1="57.5" y1="32" x2="46.4" y2="32" class="p-hari"/><line x1="57.84" y1="30.28" x2="47.59" y2="26.03" class="p-hari"/><line x1="58.82" y1="28.82" x2="50.97" y2="20.97" class="p-hari"/><line x1="60.28" y1="27.84" x2="56.03" y2="17.59" class="p-hari"/><line x1="62" y1="27.5" x2="62" y2="16.4" class="p-hari"/><line x1="63.72" y1="27.84" x2="67.97" y2="17.59" class="p-hari"/><line x1="65.18" y1="28.82" x2="73.03" y2="20.97" class="p-hari"/><line x1="66.16" y1="30.28" x2="76.41" y2="26.03" class="p-hari"/><circle cx="100" cy="50" r="10" class="p-fusa"/><line x1="103" y1="50" x2="110.4" y2="50" class="p-hari"/><line x1="102.77" y1="51.15" x2="109.61" y2="53.98" class="p-hari"/><line x1="102.12" y1="52.12" x2="107.35" y2="57.35" class="p-hari"/><line x1="101.15" y1="52.77" x2="103.98" y2="59.61" class="p-hari"/><line x1="100" y1="53" x2="100" y2="60.4" class="p-hari"/><line x1="98.85" y1="52.77" x2="96.02" y2="59.61" class="p-hari"/><line x1="97.88" y1="52.12" x2="92.65" y2="57.35" class="p-hari"/><line x1="97.23" y1="51.15" x2="90.39" y2="53.98" class="p-hari"/><line x1="97" y1="50" x2="89.6" y2="50" class="p-hari"/><line x1="97.23" y1="48.85" x2="90.39" y2="46.02" class="p-hari"/><line x1="97.88" y1="47.88" x2="92.65" y2="42.65" class="p-hari"/><line x1="98.85" y1="47.23" x2="96.02" y2="40.39" class="p-hari"/><line x1="100" y1="47" x2="100" y2="39.6" class="p-hari"/><line x1="101.15" y1="47.23" x2="103.98" y2="40.39" class="p-hari"/><line x1="102.12" y1="47.88" x2="107.35" y2="42.65" class="p-hari"/><line x1="102.77" y1="48.85" x2="109.61" y2="46.02" class="p-hari"/></g><path d="M62,4 C31,6 3,20 3,38 C3,57 30,70 62,70 Z" class="shell-out"/></g><g class="half-r"><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" fill="var(--kin)"/><g clip-path="url(#shR)"><path d="M6,72 Q32,57.4 86,26" class="p-miki"/><circle cx="62" cy="32" r="15" class="p-fusa"/><line x1="66.5" y1="32" x2="77.6" y2="32" class="p-hari"/><line x1="66.16" y1="33.72" x2="76.41" y2="37.97" class="p-hari"/><line x1="65.18" y1="35.18" x2="73.03" y2="43.03" class="p-hari"/><line x1="63.72" y1="36.16" x2="67.97" y2="46.41" class="p-hari"/><line x1="62" y1="36.5" x2="62" y2="47.6" class="p-hari"/><line x1="60.28" y1="36.16" x2="56.03" y2="46.41" class="p-hari"/><line x1="58.82" y1="35.18" x2="50.97" y2="43.03" class="p-hari"/><line x1="57.84" y1="33.72" x2="47.59" y2="37.97" class="p-hari"/><line x1="57.5" y1="32" x2="46.4" y2="32" class="p-hari"/><line x1="57.84" y1="30.28" x2="47.59" y2="26.03" class="p-hari"/><line x1="58.82" y1="28.82" x2="50.97" y2="20.97" class="p-hari"/><line x1="60.28" y1="27.84" x2="56.03" y2="17.59" class="p-hari"/><line x1="62" y1="27.5" x2="62" y2="16.4" class="p-hari"/><line x1="63.72" y1="27.84" x2="67.97" y2="17.59" class="p-hari"/><line x1="65.18" y1="28.82" x2="73.03" y2="20.97" class="p-hari"/><line x1="66.16" y1="30.28" x2="76.41" y2="26.03" class="p-hari"/><circle cx="100" cy="50" r="10" class="p-fusa"/><line x1="103" y1="50" x2="110.4" y2="50" class="p-hari"/><line x1="102.77" y1="51.15" x2="109.61" y2="53.98" class="p-hari"/><line x1="102.12" y1="52.12" x2="107.35" y2="57.35" class="p-hari"/><line x1="101.15" y1="52.77" x2="103.98" y2="59.61" class="p-hari"/><line x1="100" y1="53" x2="100" y2="60.4" class="p-hari"/><line x1="98.85" y1="52.77" x2="96.02" y2="59.61" class="p-hari"/><line x1="97.88" y1="52.12" x2="92.65" y2="57.35" class="p-hari"/><line x1="97.23" y1="51.15" x2="90.39" y2="53.98" class="p-hari"/><line x1="97" y1="50" x2="89.6" y2="50" class="p-hari"/><line x1="97.23" y1="48.85" x2="90.39" y2="46.02" class="p-hari"/><line x1="97.88" y1="47.88" x2="92.65" y2="42.65" class="p-hari"/><line x1="98.85" y1="47.23" x2="96.02" y2="40.39" class="p-hari"/><line x1="100" y1="47" x2="100" y2="39.6" class="p-hari"/><line x1="101.15" y1="47.23" x2="103.98" y2="40.39" class="p-hari"/><line x1="102.12" y1="47.88" x2="107.35" y2="42.65" class="p-hari"/><line x1="102.77" y1="48.85" x2="109.61" y2="46.02" class="p-hari"/></g><path d="M62,4 C93,6 121,20 121,38 C121,57 94,70 62,70 Z" class="shell-out"/></g></svg><span class="lbl">誂え</span></a></nav>
+</div>
+
+</header><main class="body">
+<section class="sec wrap">
+  <h2>この絵が琳派である理由は五つ</h2>
+  <div class="rule"></div>
+  <p style="max-width:66ch">流派の名は看板ではありません。下の五つはどれか一つでも抜くと、この絵は琳派に見えなくなります。当家の職人が弟子に最初に言うのもこの五つです。</p>
+  <div class="gosoku">
+    <div><h3>一　金地</h3>
+      <div class="demo kin"><i class="teri" aria-hidden="true"></i></div>
+      <p>金は背景ではなく画面そのもの。面積で半分以上を占めます。一色に塗らず、<b>箔足</b>（一枚 十・九 センチ角の継ぎ目）が必ず見えていること。そして光の向きが一つあること。金にグラデーションはかけません。</p></div>
+    <div><h3>二　たらしこみ</h3>
+      <div class="demo"><svg viewBox="0 0 200 104" aria-hidden="true"><rect width="200" height="104" fill="#EFE8D4"/><path d="M36,26C44,20.33 58.67,18.67 66,22C73.33,25.33 79.33,36.67 80,46C80.67,55.33 77,71.67 70,78C63,84.33 46.67,87.67 38,84C29.33,80.33 18.33,65.67 18,56C17.67,46.33 28,31.67 36,26Z" fill="#2A4A93"/><text x="52" y="98" font-size="9" text-anchor="middle" fill="#4A3A16">ただの平塗り</text><path d="M173.06,54.24C171.13,60.43 169.53,66.47 165.29,71.61C161.04,76.74 154.28,84.7 147.58,85.05C140.88,85.4 131.47,79.37 125.09,73.72C118.71,68.08 110.69,57.77 109.31,51.17C107.94,44.57 112.31,39 116.84,34.1C121.36,29.21 129.42,23.92 136.45,21.8C143.49,19.68 152.32,19.27 159.06,21.39C165.79,23.5 174.51,29 176.84,34.47C179.17,39.95 174.98,48.05 173.06,54.24Z" class="p-tara-ai"/><text x="146" y="98" font-size="9" text-anchor="middle" fill="#4A3A16">たらしこみ</text></svg></div>
+      <p>乾かないうちに次の絵具を落とし、縁に溜めます。輪郭線ではなく<b>溜まりの縁</b>でかたちが決まる。左は平塗り、右がたらしこみ。同じ群青でも別のものに見えます。</p></div>
+    <div><h3>三　岩絵具の平塗り</h3>
+      <div class="chips"><div><i style="background:#2A4A93"></i><span>群青</span></div><div><i style="background:#4C7A5B"></i><span>緑青</span></div><div><i style="background:#F1EBDA"></i><span>胡粉</span></div><div><i style="background:#9E3524"></i><span>臙脂</span></div><div><i style="background:#8A6819"></i><span>金泥</span></div></div>
+      <p style="margin-top:10px">群青・緑青・胡粉・臙脂・金泥。<b>混色しない</b>、影を置かない、立体に見せない。五色は面積の割り当てまで決まっていて、臙脂が増えると途端に別の流派になります。</p></div>
+    <div><h3>四　切り取りと余白</h3>
+      <div class="demo"><svg viewBox="0 0 200 104" aria-hidden="true"><rect width="96" height="104" fill="#D9CFB4"/><rect x="104" width="96" height="104" fill="var(--kin)"/><g transform="translate(10,14) scale(0.62)"><circle cx="62.09" cy="79.89" r="14" class="p-go"/><circle cx="41.73" cy="68.14" r="14" class="p-go"/><circle cx="46.62" cy="45.14" r="14" class="p-go"/><circle cx="70" cy="42.68" r="14" class="p-go"/><circle cx="79.56" cy="64.16" r="14" class="p-go"/><circle cx="60" cy="60" r="8" class="p-enji"/><line x1="60" y1="60" x2="51.53" y2="74.97" class="p-shibe"/><line x1="60" y1="60" x2="43.15" y2="56.57" class="p-shibe"/><line x1="60" y1="60" x2="58.06" y2="42.91" class="p-shibe"/><line x1="60" y1="60" x2="75.65" y2="52.87" class="p-shibe"/><line x1="60" y1="60" x2="71.62" y2="72.68" class="p-shibe"/></g><g transform="translate(104,0)"><g clip-path="url(#trimC)"><g transform="translate(46,-8) scale(0.9)"><circle cx="51.67" cy="80.36" r="15.4" class="p-go"/><circle cx="38.06" cy="58.37" r="15.4" class="p-go"/><circle cx="54.77" cy="38.63" r="15.4" class="p-go"/><circle cx="78.71" cy="48.42" r="15.4" class="p-go"/><circle cx="76.79" cy="74.21" r="15.4" class="p-go"/><circle cx="60" cy="60" r="8.8" class="p-enji"/><line x1="60" y1="60" x2="44" y2="70.09" class="p-shibe"/><line x1="60" y1="60" x2="45.46" y2="47.9" class="p-shibe"/><line x1="60" y1="60" x2="67.02" y2="42.43" class="p-shibe"/><line x1="60" y1="60" x2="78.88" y2="61.24" class="p-shibe"/><line x1="60" y1="60" x2="64.65" y2="78.34" class="p-shibe"/></g></g></g><text x="48" y="99" font-size="9" text-anchor="middle" fill="#3A2F14">中央・全形（琳派ではない）</text><text x="152" y="99" font-size="9" text-anchor="middle" fill="#3A2F14">縁で切る</text></svg></div>
+      <p>主題は必ず画面の縁で切れます。中央に一つ置いて全形を見せるのは図鑑の作法。株は<b>奇数</b>で群れ、金地の余白が半分以上残ること。</p></div>
+    <div><h3>五　光琳模様</h3>
+      <div class="demo"><svg viewBox="0 0 200 104" aria-hidden="true"><rect width="200" height="104" fill="#EFE8D4"/><g transform="translate(-8,-14) scale(0.9)"><path d="M20,96 Q55,81 110,54" class="p-eda"/><path d="M56,52 C62,40 76,38 82,46 C88,38 100,42 100,52 C104,60 96,70 86,66 C80,74 66,72 62,64 C54,64 50,58 56,52Z" fill="#F1EBDA" stroke="#1C180F" stroke-width="1.2"/></g><text x="54" y="98" font-size="9" text-anchor="middle" fill="#4A3A16">写実の梅（描かない）</text><g transform="translate(96,-8)"><circle cx="46.05" cy="69" r="11.9" class="p-go"/><circle cx="29.85" cy="57.3" r="11.9" class="p-go"/><circle cx="35.97" cy="38.28" r="11.9" class="p-go"/><circle cx="55.95" cy="38.22" r="11.9" class="p-go"/><circle cx="62.18" cy="57.2" r="11.9" class="p-go"/><circle cx="46" cy="52" r="6.8" class="p-enji"/><line x1="46" y1="52" x2="37.54" y2="63.93" class="p-shibe"/><line x1="46" y1="52" x2="32.04" y2="47.64" class="p-shibe"/><line x1="46" y1="52" x2="45.83" y2="37.38" class="p-shibe"/><line x1="46" y1="52" x2="59.85" y2="47.32" class="p-shibe"/><line x1="46" y1="52" x2="54.73" y2="63.73" class="p-shibe"/></g><text x="142" y="98" font-size="9" text-anchor="middle" fill="#4A3A16">光琳梅＝円だけ</text></svg></div>
+      <p>自然の形を極端に約めた記号。梅は<b>円だけ</b>、水は等振幅の平行波、松は房と針。写実に近づけるほど琳派から離れます。当家の八題はすべてこの作法で描いています。</p></div>
+  </div>
+</section>
+
+<section class="sec wrap">
+  <h2>岩絵具</h2>
+  <div class="rule"></div>
+  <table><caption>当家の五色と面積の目安</caption>
+  <tr><th>色</th><th>色値</th><th>由来と使いどころ</th><th>面積</th></tr>
+  <tr><th>群青<br><span class="small">ぐんじょう</span></th><td><i style="display:inline-block;width:34px;height:14px;background:#2A4A93;border:1px solid rgba(28,24,15,.4);vertical-align:-2px"></i> #2A4A93</td><td>藍銅鉱を砕いた粒。粒が粗いほど濃い。燕子花の花弁と波に。</td><td>約 22%</td></tr><tr><th>緑青<br><span class="small">ろくしょう</span></th><td><i style="display:inline-block;width:34px;height:14px;background:#4C7A5B;border:1px solid rgba(28,24,15,.4);vertical-align:-2px"></i> #4C7A5B</td><td>孔雀石の粉。葉・草・松の房に。群青と混ぜてはいけない。</td><td>約 16%</td></tr><tr><th>胡粉<br><span class="small">ごふん</span></th><td><i style="display:inline-block;width:34px;height:14px;background:#F1EBDA;border:1px solid rgba(28,24,15,.4);vertical-align:-2px"></i> #F1EBDA</td><td>牡蠣殻を焼いて挽いた白。地塗り七度と、梅・菊・波頭に。</td><td>約 20%</td></tr><tr><th>臙脂<br><span class="small">えんじ</span></th><td><i style="display:inline-block;width:34px;height:14px;background:#9E3524;border:1px solid rgba(28,24,15,.4);vertical-align:-2px"></i> #9E3524</td><td>蘇芳と紅花。蕊と紅葉にだけ。面積が増えると琳派でなくなる。</td><td>5% 以下</td></tr><tr><th>金泥<br><span class="small">きんでい</span></th><td><i style="display:inline-block;width:34px;height:14px;background:#8A6819;border:1px solid rgba(28,24,15,.4);vertical-align:-2px"></i> #8A6819</td><td>金粉を膠で溶いたもの。線ではなく点として、蕊と縁に。</td><td>3% 以下</td></tr>
+  </table>
+  <p class="note">金地はこの表に入りません。地であって絵具ではないためです。</p>
+</section>
+
+<section class="sec wrap">
+  <h2>八題</h2>
+  <div class="rule"></div>
+  <p class="note" style="max-width:64ch">一組の貝合わせに使えるのは三題まで。歌は『古今和歌集』『百人一首』所収の古歌から、意匠に添うものを一首ずつ当てています。上の句を右の貝、下の句を左の貝に書き分けますので、合えば一首に戻ります。</p>
+  <div class="mons"><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="光琳梅の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M-8,60 Q62.14,37.03 128,16.64" class="p-eda"/><path d="M31.58,53.22 Q51.68,71.45 99.78,72.88" class="p-eda2"/><circle cx="71.15" cy="36.64" r="7.83" class="p-go"/><circle cx="62.6" cy="46.62" r="7.83" class="p-go"/><circle cx="50.46" cy="41.58" r="7.83" class="p-go"/><circle cx="51.51" cy="28.48" r="7.83" class="p-go"/><circle cx="64.29" cy="25.42" r="7.83" class="p-go"/><circle cx="60" cy="35.75" r="4.47" class="p-enji"/><line x1="60" y1="35.75" x2="67.36" y2="41.94" class="p-shibe"/><line x1="60" y1="35.75" x2="56.38" y2="44.66" class="p-shibe"/><line x1="60" y1="35.75" x2="50.41" y2="35.06" class="p-shibe"/><line x1="60" y1="35.75" x2="57.69" y2="26.42" class="p-shibe"/><line x1="60" y1="35.75" x2="68.16" y2="30.67" class="p-shibe"/><circle cx="14.43" cy="44.92" r="6.81" class="p-go"/><circle cx="25.87" cy="44.77" r="6.81" class="p-go"/><circle cx="29.54" cy="55.6" r="6.81" class="p-go"/><circle cx="20.38" cy="62.44" r="6.81" class="p-go"/><circle cx="11.04" cy="55.84" r="6.81" class="p-go"/><circle cx="20.25" cy="52.71" r="3.89" class="p-enji"/><line x1="20.25" y1="52.71" x2="20.08" y2="44.35" class="p-shibe"/><line x1="20.25" y1="52.71" x2="28.15" y2="49.96" class="p-shibe"/><line x1="20.25" y1="52.71" x2="25.31" y2="59.38" class="p-shibe"/><line x1="20.25" y1="52.71" x2="15.48" y2="59.58" class="p-shibe"/><line x1="20.25" y1="52.71" x2="12.24" y2="50.3" class="p-shibe"/><circle cx="106.69" cy="22.46" r="6.38" class="p-go"/><circle cx="104.09" cy="32.85" r="6.38" class="p-go"/><circle cx="93.4" cy="33.58" r="6.38" class="p-go"/><circle cx="89.41" cy="23.64" r="6.38" class="p-go"/><circle cx="97.62" cy="16.77" r="6.38" class="p-go"/><circle cx="98.24" cy="25.86" r="3.64" class="p-enji"/><line x1="98.24" y1="25.86" x2="105.86" y2="27.7" class="p-shibe"/><line x1="98.24" y1="25.86" x2="98.84" y2="33.67" class="p-shibe"/><line x1="98.24" y1="25.86" x2="91" y2="28.84" class="p-shibe"/><line x1="98.24" y1="25.86" x2="93.17" y2="19.89" class="p-shibe"/><line x1="98.24" y1="25.86" x2="102.35" y2="19.18" class="p-shibe"/><circle cx="48.89" cy="31.45" r="6.42" class="p-go"/><circle cx="40.06" cy="37.65" r="6.42" class="p-go"/><circle cx="31.44" cy="31.16" r="6.42" class="p-go"/><circle cx="34.94" cy="20.96" r="6.42" class="p-go"/><circle cx="45.73" cy="21.14" r="6.42" class="p-go"/><circle cx="40.21" cy="28.47" r="3.67" class="p-enji"/><line x1="40.21" y1="28.47" x2="44.8" y2="34.89" class="p-shibe"/><line x1="40.21" y1="28.47" x2="35.52" y2="34.82" class="p-shibe"/><line x1="40.21" y1="28.47" x2="32.73" y2="25.97" class="p-shibe"/><line x1="40.21" y1="28.47" x2="40.28" y2="20.58" class="p-shibe"/><line x1="40.21" y1="28.47" x2="47.74" y2="26.09" class="p-shibe"/><circle cx="23.01" cy="33.57" r="7.22" class="p-go"/><circle cx="30.56" cy="43.06" r="7.22" class="p-go"/><circle cx="23.87" cy="53.17" r="7.22" class="p-go"/><circle cx="12.18" cy="49.93" r="7.22" class="p-go"/><circle cx="11.65" cy="37.82" r="7.22" class="p-go"/><circle cx="20.25" cy="43.51" r="4.13" class="p-enji"/><line x1="20.25" y1="43.51" x2="27.15" y2="37.93" class="p-shibe"/><line x1="20.25" y1="43.51" x2="27.69" y2="48.34" class="p-shibe"/><line x1="20.25" y1="43.51" x2="17.95" y2="52.08" class="p-shibe"/><line x1="20.25" y1="43.51" x2="11.39" y2="43.97" class="p-shibe"/><line x1="20.25" y1="43.51" x2="17.07" y2="35.23" class="p-shibe"/><path d="M22.91,68.69C22.38,70.48 19.25,74.13 16.9,75.27C14.56,76.41 11.08,75.93 8.85,75.53C6.63,75.14 4.67,74.52 3.58,72.89C2.49,71.25 1.84,67.58 2.32,65.73C2.81,63.89 4.73,62.56 6.49,61.82C8.25,61.07 10.62,60.81 12.89,61.27C15.15,61.72 18.43,63.32 20.1,64.56C21.77,65.8 23.45,66.91 22.91,68.69Z" class="p-tara-roku"/></svg></div>
+<div class="txt">
+  <div><h3>光琳梅</h3><div class="kana">こうりんばい　／　早春</div></div>
+  <div class="uta">人はいさ心も知らず ふるさとは<br>花ぞ昔の香に匂ひける<br><span style="font-size:11.5px">— 紀貫之</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="燕子花の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M49.92,76.88 C49.07,59.51 41.47,52.68 42.15,45.86 C42.83,52.68 53.71,59.51 55.38,76.88Z" class="p-roku"/><path d="M57.27,76.88 C57.68,56.29 59.32,48.21 60,40.12 C60.68,48.21 62.32,56.29 62.73,76.88Z" class="p-roku"/><path d="M64.62,76.88 C66.29,57.98 77.17,50.55 77.85,43.12 C78.53,50.55 70.93,57.98 70.08,76.88Z" class="p-roku"/><path d="M67.01,41.87C67.23,43.26 67.68,44.7 66.55,45.55C65.43,46.39 62.21,46.89 60.26,46.94C58.3,46.99 55.99,46.85 54.82,45.85C53.64,44.85 53.29,42.3 53.2,40.95C53.1,39.6 53.37,38.85 54.24,37.76C55.11,36.67 57.23,34.77 58.43,34.41C59.62,34.05 60.27,35.15 61.41,35.61C62.55,36.08 64.33,36.16 65.26,37.2C66.19,38.24 66.79,40.47 67.01,41.87Z" class="p-tara-ai"/><path d="M60.47,42.9C60.19,45.14 58.47,48.26 57.52,49.23C56.56,50.2 55.81,49.59 54.75,48.74C53.69,47.89 51.78,45.56 51.16,44.13C50.53,42.7 50.95,41.82 51,40.17C51.06,38.53 50.59,35.32 51.5,34.27C52.4,33.21 55.15,33.58 56.44,33.84C57.74,34.09 58.58,34.31 59.25,35.82C59.93,37.33 60.76,40.67 60.47,42.9Z" class="p-tara-ai2"/><path d="M69.79,38.24C69.72,39.79 69.09,41.94 68.33,42.88C67.58,43.82 66.2,44.06 65.27,43.89C64.34,43.73 63.32,43.21 62.76,41.87C62.21,40.53 61.74,37.28 61.93,35.83C62.12,34.38 62.96,34.02 63.89,33.16C64.81,32.31 66.67,30.62 67.48,30.68C68.3,30.75 68.38,32.31 68.76,33.56C69.15,34.82 69.86,36.69 69.79,38.24Z" class="p-tara-ai2"/><path d="M-6.22,74.91 C-6.85,60.06 -12.47,54.22 -11.97,48.39 C-11.46,54.22 -3.42,60.06 -2.18,74.91Z" class="p-roku"/><path d="M-0.78,74.91 C-0.48,63.36 0.73,58.82 1.24,54.28 C1.74,58.82 2.95,63.36 3.26,74.91Z" class="p-roku"/><path d="M4.65,74.91 C5.89,57.7 13.94,50.94 14.44,44.18 C14.95,50.94 9.32,57.7 8.69,74.91Z" class="p-roku"/><path d="M7.41,50.36C7.12,51.5 6.34,52.31 5.35,52.57C4.36,52.84 2.83,51.97 1.46,51.95C0.08,51.93 -1.97,52.83 -2.9,52.45C-3.83,52.08 -3.92,50.73 -4.12,49.72C-4.32,48.71 -4.58,47.38 -4.1,46.39C-3.63,45.4 -2.64,43.95 -1.29,43.78C0.07,43.6 2.62,45.01 4.01,45.33C5.4,45.65 6.48,44.85 7.05,45.69C7.62,46.53 7.69,49.21 7.41,50.36Z" class="p-tara-ai"/><path d="M0.46,46.26C0.22,47.44 -0.16,48.15 -0.83,48.99C-1.51,49.82 -2.73,51.23 -3.59,51.26C-4.45,51.28 -5.42,50.34 -5.99,49.15C-6.56,47.96 -7.27,45.81 -7.03,44.13C-6.8,42.45 -5.46,39.93 -4.57,39.07C-3.69,38.21 -2.58,38.49 -1.72,38.97C-0.86,39.44 0.23,40.69 0.59,41.9C0.95,43.12 0.69,45.07 0.46,46.26Z" class="p-tara-ai2"/><path d="M8.74,48.99C8.69,49.98 7.78,51.16 7.2,52.11C6.62,53.07 6.05,54.87 5.27,54.71C4.49,54.55 3.08,52.21 2.49,51.16C1.91,50.11 1.54,49.53 1.76,48.42C1.98,47.3 3.13,45.42 3.81,44.47C4.49,43.51 5.22,42.4 5.84,42.69C6.46,42.97 7.04,45.14 7.52,46.19C8.01,47.24 8.8,48.01 8.74,48.99Z" class="p-tara-ai2"/><path d="M32.21,80.07 C31.56,68.23 25.77,63.58 26.29,58.93 C26.81,63.58 35.1,68.23 36.37,80.07Z" class="p-roku"/><path d="M37.81,80.07 C38.12,68.09 39.37,63.39 39.89,58.68 C40.41,63.39 41.66,68.09 41.97,80.07Z" class="p-roku"/><path d="M43.41,80.07 C44.68,65.15 52.97,59.29 53.49,53.43 C54.01,59.29 48.21,65.15 47.57,80.07Z" class="p-roku"/><path d="M44.58,54.44C44.25,55.36 45.15,57.3 44.52,58.03C43.9,58.76 42.28,58.9 40.82,58.81C39.36,58.71 36.87,58.03 35.76,57.44C34.65,56.85 34.52,56.09 34.17,55.27C33.81,54.45 32.95,53.34 33.64,52.53C34.33,51.73 36.81,50.79 38.29,50.43C39.77,50.08 41.17,50.06 42.54,50.41C43.91,50.76 46.16,51.86 46.5,52.53C46.84,53.2 44.91,53.52 44.58,54.44Z" class="p-tara-ai"/><path d="M39.3,51.26C39.09,52.52 38.71,53.72 37.9,54.44C37.1,55.16 35.23,55.81 34.45,55.57C33.68,55.33 33.54,54.25 33.26,53.01C32.98,51.77 32.54,49.34 32.77,48.14C32.99,46.93 33.97,46.42 34.61,45.8C35.25,45.18 35.85,44.24 36.61,44.41C37.36,44.59 38.71,45.7 39.16,46.84C39.61,47.98 39.51,49.99 39.3,51.26Z" class="p-tara-ai2"/><path d="M47.85,54.41C47.64,55.8 46.53,58.69 45.79,59.46C45.05,60.23 44.2,59.18 43.42,59.03C42.65,58.88 41.6,59.5 41.15,58.55C40.71,57.6 40.62,54.85 40.75,53.32C40.88,51.79 41.32,49.92 41.93,49.37C42.53,48.83 43.55,49.74 44.4,50.04C45.26,50.33 46.49,50.41 47.07,51.14C47.64,51.87 48.06,53.02 47.85,54.41Z" class="p-tara-ai2"/><path d="M102.67,75.89 C101.93,61.05 95.31,55.22 95.9,49.39 C96.49,55.22 105.97,61.05 107.43,75.89Z" class="p-roku"/><path d="M109.07,75.89 C109.43,59.67 110.86,53.3 111.45,46.93 C112.04,53.3 113.47,59.67 113.83,75.89Z" class="p-roku"/><path d="M115.47,75.89 C116.93,58.46 126.4,51.62 127,44.77 C127.59,51.62 120.97,58.46 120.23,75.89Z" class="p-roku"/><path d="M117.91,45.53C117.6,46.31 116.84,46.85 115.64,47.43C114.43,48 112.04,48.94 110.67,48.96C109.3,48.99 108.66,48.24 107.42,47.57C106.17,46.89 103.75,45.88 103.19,44.91C102.63,43.94 103.21,42.47 104.06,41.74C104.91,41.01 106.52,40.96 108.3,40.52C110.08,40.08 113.22,38.74 114.75,39.11C116.29,39.48 116.97,41.68 117.5,42.75C118.03,43.82 118.22,44.75 117.91,45.53Z" class="p-tara-ai"/><path d="M111.22,43.42C111.04,44.97 110.7,48.82 109.85,49.57C109,50.33 107.02,48.48 106.12,47.97C105.22,47.46 105.06,47.57 104.44,46.53C103.82,45.48 102.22,43.1 102.42,41.71C102.61,40.31 104.72,38.86 105.61,38.18C106.51,37.49 106.91,37.23 107.8,37.59C108.69,37.95 110.37,39.35 110.94,40.33C111.51,41.3 111.4,41.88 111.22,43.42Z" class="p-tara-ai2"/><path d="M119.6,45.76C119.44,47.29 119.75,49.91 119.05,50.56C118.35,51.22 116.21,50.09 115.4,49.68C114.58,49.27 114.61,49.15 114.17,48.1C113.72,47.05 112.75,44.73 112.73,43.38C112.72,42.04 113.38,40.57 114.07,40.02C114.77,39.48 115.93,39.89 116.91,40.12C117.89,40.35 119.51,40.46 119.96,41.4C120.41,42.35 119.75,44.24 119.6,45.76Z" class="p-tara-ai2"/><path d="M32.52,77.21 C31.41,68.09 22.26,64.51 22.76,60.92 C23.26,64.51 34.81,68.09 36.52,77.21Z" class="p-roku2"/><path d="M26.72,79.27 C26.64,69.02 25.03,65 25.53,60.98 C26.03,65 30.04,69.02 30.72,79.27Z" class="p-roku2"/><path d="M30.27,78.91 C30.76,69.38 33.37,65.63 33.87,61.89 C34.37,65.63 34.16,69.38 34.27,78.91Z" class="p-roku2"/><path d="M93.07,77.08 C94.98,60.86 107.96,54.49 108.46,48.12 C108.96,54.49 98.38,60.86 97.07,77.08Z" class="p-roku2"/><path d="M45.9,79.15 C46.43,63.87 49.29,57.87 49.79,51.86 C50.29,57.87 49.83,63.87 49.9,79.15Z" class="p-roku2"/></svg></div>
+<div class="txt">
+  <div><h3>燕子花</h3><div class="kana">かきつばた　／　初夏</div></div>
+  <div class="uta">唐衣きつつなれにし つましあれば<br>はるばる来ぬる旅をしぞ思ふ<br><span style="font-size:11.5px">— 在原業平</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="菊の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M-6,72.18 Q72,62.95 126,68.11" class="p-eda"/><path d="M125.08,64.92C124.12,66.3 119.86,67.11 117.77,67.86C115.69,68.61 114.55,69.6 112.58,69.44C110.62,69.29 108.27,67.67 105.98,66.93C103.69,66.18 99.22,66.36 98.82,64.97C98.41,63.58 101.97,59.65 103.55,58.58C105.13,57.51 105.84,58.75 108.3,58.53C110.77,58.31 115.81,57.07 118.35,57.24C120.89,57.41 122.42,58.27 123.54,59.55C124.67,60.83 126.04,63.53 125.08,64.92Z" class="p-tara-roku"/><path d="M105.34,78.73C104.57,80.95 103.54,83.63 102.05,84.81C100.57,85.99 98.51,85.92 96.41,85.81C94.32,85.7 90.99,85.27 89.46,84.16C87.93,83.04 87.62,81.37 87.23,79.15C86.84,76.92 86.34,72.19 87.14,70.82C87.94,69.44 89.95,71.05 92.01,70.9C94.08,70.75 97.08,69.82 99.53,69.92C101.97,70.02 105.73,70.02 106.7,71.49C107.66,72.96 106.11,76.51 105.34,78.73Z" class="p-tara-roku"/><path d="M50.31,65.03C49.85,66.54 47.17,68.36 45.61,69.15C44.05,69.93 43.26,69.49 40.95,69.75C38.64,70.01 33.29,71.58 31.76,70.69C30.22,69.81 31.81,66.95 31.74,64.45C31.67,61.96 30.53,57.31 31.33,55.73C32.12,54.14 34.64,55.54 36.51,54.96C38.38,54.39 40.57,51.45 42.54,52.3C44.52,53.15 47.05,57.97 48.34,60.09C49.64,62.21 50.77,63.53 50.31,65.03Z" class="p-tara-roku"/><path d="M120.23,62.49C119.45,63.81 119.04,66.08 116.99,67.29C114.93,68.5 110.26,69.93 107.91,69.75C105.55,69.57 104.01,67.31 102.86,66.2C101.7,65.09 101.14,64.36 100.99,63.07C100.84,61.78 100.91,59.85 101.96,58.45C103,57.05 105.27,55 107.25,54.64C109.22,54.29 111.42,55.52 113.82,56.3C116.23,57.08 120.61,58.31 121.68,59.34C122.75,60.37 121.01,61.16 120.23,62.49Z" class="p-tara-roku"/><ellipse cx="71.06" cy="39.64" rx="7.85" ry="4.28" transform="rotate(0 71.06 39.64)" class="p-go"/><ellipse cx="68.47" cy="46.75" rx="7.85" ry="4.28" transform="rotate(40 68.47 46.75)" class="p-go"/><ellipse cx="61.92" cy="50.53" rx="7.85" ry="4.28" transform="rotate(80.01 61.92 50.53)" class="p-go"/><ellipse cx="54.47" cy="49.22" rx="7.85" ry="4.28" transform="rotate(120.01 54.47 49.22)" class="p-go"/><ellipse cx="49.61" cy="43.42" rx="7.85" ry="4.28" transform="rotate(160.01 49.61 43.42)" class="p-go"/><ellipse cx="49.61" cy="35.86" rx="7.85" ry="4.28" transform="rotate(200.01 49.61 35.86)" class="p-go"/><ellipse cx="54.47" cy="30.06" rx="7.85" ry="4.28" transform="rotate(240.02 54.47 30.06)" class="p-go"/><ellipse cx="61.92" cy="28.75" rx="7.85" ry="4.28" transform="rotate(280.02 61.92 28.75)" class="p-go"/><ellipse cx="68.47" cy="32.53" rx="7.85" ry="4.28" transform="rotate(320.02 68.47 32.53)" class="p-go"/><ellipse cx="65.91" cy="42.14" rx="4.55" ry="2.48" transform="rotate(22.92 65.91 42.14)" class="p-go"/><ellipse cx="59.45" cy="46.03" rx="4.55" ry="2.48" transform="rotate(94.93 59.45 46.03)" class="p-go"/><ellipse cx="53.75" cy="41.09" rx="4.55" ry="2.48" transform="rotate(166.93 53.75 41.09)" class="p-go"/><ellipse cx="56.69" cy="34.14" rx="4.55" ry="2.48" transform="rotate(238.94 56.69 34.14)" class="p-go"/><ellipse cx="64.2" cy="34.79" rx="4.55" ry="2.48" transform="rotate(310.94 64.2 34.79)" class="p-go"/><circle cx="60" cy="39.64" r="3.92" class="p-kindei"/><ellipse cx="29.96" cy="16.3" rx="4.31" ry="2.35" transform="rotate(0 29.96 16.3)" class="p-go"/><ellipse cx="28.54" cy="20.21" rx="4.31" ry="2.35" transform="rotate(40 28.54 20.21)" class="p-go"/><ellipse cx="24.94" cy="22.28" rx="4.31" ry="2.35" transform="rotate(80.01 24.94 22.28)" class="p-go"/><ellipse cx="20.85" cy="21.56" rx="4.31" ry="2.35" transform="rotate(120.01 20.85 21.56)" class="p-go"/><ellipse cx="18.18" cy="18.38" rx="4.31" ry="2.35" transform="rotate(160.01 18.18 18.38)" class="p-go"/><ellipse cx="18.18" cy="14.23" rx="4.31" ry="2.35" transform="rotate(200.01 18.18 14.23)" class="p-go"/><ellipse cx="20.85" cy="11.05" rx="4.31" ry="2.35" transform="rotate(240.02 20.85 11.05)" class="p-go"/><ellipse cx="24.94" cy="10.33" rx="4.31" ry="2.35" transform="rotate(280.02 24.94 10.33)" class="p-go"/><ellipse cx="28.54" cy="12.4" rx="4.31" ry="2.35" transform="rotate(320.02 28.54 12.4)" class="p-go"/><ellipse cx="27.13" cy="17.68" rx="2.5" ry="1.36" transform="rotate(22.92 27.13 17.68)" class="p-go"/><ellipse cx="23.58" cy="19.81" rx="2.5" ry="1.36" transform="rotate(94.93 23.58 19.81)" class="p-go"/><ellipse cx="20.46" cy="17.1" rx="2.5" ry="1.36" transform="rotate(166.93 20.46 17.1)" class="p-go"/><ellipse cx="22.07" cy="13.29" rx="2.5" ry="1.36" transform="rotate(238.94 22.07 13.29)" class="p-go"/><ellipse cx="26.19" cy="13.64" rx="2.5" ry="1.36" transform="rotate(310.94 26.19 13.64)" class="p-go"/><circle cx="23.88" cy="16.3" r="2.15" class="p-kindei"/><ellipse cx="105.84" cy="33.4" rx="4.26" ry="2.33" transform="rotate(0 105.84 33.4)" class="p-go"/><ellipse cx="104.44" cy="37.26" rx="4.26" ry="2.33" transform="rotate(40 104.44 37.26)" class="p-go"/><ellipse cx="100.88" cy="39.31" rx="4.26" ry="2.33" transform="rotate(80.01 100.88 39.31)" class="p-go"/><ellipse cx="96.83" cy="38.6" rx="4.26" ry="2.33" transform="rotate(120.01 96.83 38.6)" class="p-go"/><ellipse cx="94.19" cy="35.45" rx="4.26" ry="2.33" transform="rotate(160.01 94.19 35.45)" class="p-go"/><ellipse cx="94.19" cy="31.34" rx="4.26" ry="2.33" transform="rotate(200.01 94.19 31.34)" class="p-go"/><ellipse cx="96.83" cy="28.19" rx="4.26" ry="2.33" transform="rotate(240.02 96.83 28.19)" class="p-go"/><ellipse cx="100.88" cy="27.48" rx="4.26" ry="2.33" transform="rotate(280.02 100.88 27.48)" class="p-go"/><ellipse cx="104.44" cy="29.53" rx="4.26" ry="2.33" transform="rotate(320.02 104.44 29.53)" class="p-go"/><ellipse cx="103.04" cy="34.75" rx="2.47" ry="1.35" transform="rotate(22.92 103.04 34.75)" class="p-go"/><ellipse cx="99.53" cy="36.87" rx="2.47" ry="1.35" transform="rotate(94.93 99.53 36.87)" class="p-go"/><ellipse cx="96.44" cy="34.19" rx="2.47" ry="1.35" transform="rotate(166.93 96.44 34.19)" class="p-go"/><ellipse cx="98.03" cy="30.41" rx="2.47" ry="1.35" transform="rotate(238.94 98.03 30.41)" class="p-go"/><ellipse cx="102.12" cy="30.76" rx="2.47" ry="1.35" transform="rotate(310.94 102.12 30.76)" class="p-go"/><circle cx="99.83" cy="33.4" r="2.13" class="p-kindei"/><ellipse cx="45.42" cy="21" rx="5.18" ry="2.83" transform="rotate(0 45.42 21)" class="p-go"/><ellipse cx="43.71" cy="25.69" rx="5.18" ry="2.83" transform="rotate(40 43.71 25.69)" class="p-go"/><ellipse cx="39.39" cy="28.18" rx="5.18" ry="2.83" transform="rotate(80.01 39.39 28.18)" class="p-go"/><ellipse cx="34.47" cy="27.32" rx="5.18" ry="2.83" transform="rotate(120.01 34.47 27.32)" class="p-go"/><ellipse cx="31.26" cy="23.49" rx="5.18" ry="2.83" transform="rotate(160.01 31.26 23.49)" class="p-go"/><ellipse cx="31.26" cy="18.5" rx="5.18" ry="2.83" transform="rotate(200.01 31.26 18.5)" class="p-go"/><ellipse cx="34.47" cy="14.67" rx="5.18" ry="2.83" transform="rotate(240.02 34.47 14.67)" class="p-go"/><ellipse cx="39.39" cy="13.81" rx="5.18" ry="2.83" transform="rotate(280.02 39.39 13.81)" class="p-go"/><ellipse cx="43.71" cy="16.3" rx="5.18" ry="2.83" transform="rotate(320.02 43.71 16.3)" class="p-go"/><ellipse cx="42.02" cy="22.64" rx="3" ry="1.64" transform="rotate(22.92 42.02 22.64)" class="p-go"/><ellipse cx="37.76" cy="25.21" rx="3" ry="1.64" transform="rotate(94.93 37.76 25.21)" class="p-go"/><ellipse cx="34" cy="21.95" rx="3" ry="1.64" transform="rotate(166.93 34 21.95)" class="p-go"/><ellipse cx="35.94" cy="17.37" rx="3" ry="1.64" transform="rotate(238.94 35.94 17.37)" class="p-go"/><ellipse cx="40.9" cy="17.8" rx="3" ry="1.64" transform="rotate(310.94 40.9 17.8)" class="p-go"/><circle cx="38.12" cy="21" r="2.59" class="p-kindei"/><ellipse cx="90.21" cy="42.55" rx="5.81" ry="3.17" transform="rotate(0 90.21 42.55)" class="p-go"/><ellipse cx="88.29" cy="47.81" rx="5.81" ry="3.17" transform="rotate(40 88.29 47.81)" class="p-go"/><ellipse cx="83.44" cy="50.61" rx="5.81" ry="3.17" transform="rotate(80.01 83.44 50.61)" class="p-go"/><ellipse cx="77.93" cy="49.64" rx="5.81" ry="3.17" transform="rotate(120.01 77.93 49.64)" class="p-go"/><ellipse cx="74.33" cy="45.35" rx="5.81" ry="3.17" transform="rotate(160.01 74.33 45.35)" class="p-go"/><ellipse cx="74.33" cy="39.75" rx="5.81" ry="3.17" transform="rotate(200.01 74.33 39.75)" class="p-go"/><ellipse cx="77.93" cy="35.46" rx="5.81" ry="3.17" transform="rotate(240.02 77.93 35.46)" class="p-go"/><ellipse cx="83.44" cy="34.48" rx="5.81" ry="3.17" transform="rotate(280.02 83.44 34.48)" class="p-go"/><ellipse cx="88.29" cy="37.28" rx="5.81" ry="3.17" transform="rotate(320.02 88.29 37.28)" class="p-go"/><ellipse cx="86.39" cy="44.4" rx="3.37" ry="1.84" transform="rotate(22.92 86.39 44.4)" class="p-go"/><ellipse cx="81.61" cy="47.28" rx="3.37" ry="1.84" transform="rotate(94.93 81.61 47.28)" class="p-go"/><ellipse cx="77.39" cy="43.62" rx="3.37" ry="1.84" transform="rotate(166.93 77.39 43.62)" class="p-go"/><ellipse cx="79.57" cy="38.48" rx="3.37" ry="1.84" transform="rotate(238.94 79.57 38.48)" class="p-go"/><ellipse cx="85.13" cy="38.96" rx="3.37" ry="1.84" transform="rotate(310.94 85.13 38.96)" class="p-go"/><circle cx="82.02" cy="42.55" r="2.91" class="p-kindei"/></svg></div>
+<div class="txt">
+  <div><h3>菊</h3><div class="kana">きく　／　晩秋</div></div>
+  <div class="uta">心あてに折らばや折らむ 初霜の<br>置きまどはせる白菊の花<br><span style="font-size:11.5px">— 凡河内躬恒</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="蔦紅葉の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M-8,14.7 Q37.29,54.38 128,66.82" class="p-tsuru"/><path d="M60,31.19C61.47,31.19 63.17,35.98 64.41,37.6C65.64,39.22 65.91,39.51 67.42,40.91C68.92,42.31 73.66,44.59 73.45,45.98C73.24,47.36 68.02,48.29 66.16,49.22C64.3,50.16 63.96,50.36 62.3,51.59C60.63,52.81 57.58,56.95 56.17,56.55C54.76,56.16 54.54,51.11 53.84,49.22C53.13,47.34 52.96,46.98 51.93,45.24C50.9,43.5 47.03,40.03 47.64,38.76C48.25,37.49 53.53,38.86 55.59,37.6C57.65,36.34 58.53,31.19 60,31.19Z" class="p-tara-enji"/><path d="M71.01,41.62C71.88,41.62 72.88,44.44 73.61,45.4C74.34,46.35 74.5,46.53 75.39,47.35C76.27,48.17 79.07,49.52 78.94,50.34C78.82,51.15 75.74,51.7 74.65,52.25C73.55,52.8 73.35,52.92 72.37,53.64C71.39,54.36 69.59,56.8 68.76,56.57C67.93,56.34 67.8,53.36 67.38,52.25C66.97,51.14 66.87,50.93 66.26,49.9C65.65,48.87 63.37,46.83 63.73,46.08C64.09,45.33 67.2,46.14 68.42,45.4C69.63,44.66 70.15,41.62 71.01,41.62Z" class="p-tara-roku"/><path d="M4.44,39.94C5.25,39.94 6.19,42.58 6.87,43.48C7.55,44.37 7.7,44.53 8.53,45.3C9.36,46.07 11.97,47.33 11.85,48.09C11.74,48.85 8.86,49.36 7.84,49.88C6.81,50.39 6.62,50.51 5.71,51.18C4.79,51.86 3.11,54.14 2.33,53.92C1.55,53.7 1.43,50.92 1.04,49.88C0.65,48.84 0.56,48.65 -0.01,47.68C-0.58,46.72 -2.71,44.81 -2.37,44.11C-2.04,43.41 0.88,44.17 2.01,43.48C3.15,42.78 3.63,39.94 4.44,39.94Z" class="p-tara-roku"/><path d="M42.53,38.82C43.24,38.82 44.06,41.14 44.66,41.92C45.25,42.7 45.38,42.85 46.11,43.52C46.84,44.19 49.13,45.3 49.03,45.97C48.93,46.64 46.4,47.09 45.5,47.54C44.61,47.99 44.44,48.09 43.64,48.68C42.83,49.27 41.36,51.27 40.67,51.08C39.99,50.89 39.89,48.45 39.55,47.54C39.2,46.63 39.12,46.46 38.62,45.61C38.12,44.77 36.25,43.1 36.55,42.48C36.84,41.87 39.4,42.53 40.39,41.92C41.39,41.31 41.81,38.82 42.53,38.82Z" class="p-tara-roku"/><path d="M98.27,62.13C99.11,62.13 100.09,64.87 100.79,65.8C101.5,66.72 101.65,66.89 102.51,67.69C103.38,68.48 106.08,69.79 105.96,70.58C105.84,71.37 102.86,71.9 101.8,72.44C100.73,72.97 100.54,73.09 99.59,73.79C98.64,74.49 96.89,76.85 96.09,76.63C95.28,76.4 95.16,73.51 94.75,72.44C94.35,71.36 94.25,71.16 93.66,70.16C93.07,69.16 90.86,67.18 91.21,66.46C91.56,65.73 94.58,66.52 95.75,65.8C96.93,65.07 97.43,62.13 98.27,62.13Z" class="p-tara-roku"/><path d="M104.97,15.45C105.74,15.45 106.63,17.96 107.28,18.81C107.93,19.65 108.07,19.81 108.85,20.54C109.64,21.27 112.12,22.46 112.01,23.19C111.9,23.91 109.17,24.4 108.2,24.89C107.22,25.38 107.05,25.48 106.18,26.12C105.3,26.76 103.71,28.93 102.97,28.72C102.23,28.52 102.12,25.87 101.75,24.89C101.38,23.9 101.29,23.72 100.75,22.8C100.21,21.89 98.18,20.08 98.5,19.41C98.82,18.74 101.59,19.47 102.67,18.81C103.74,18.15 104.2,15.45 104.97,15.45Z" class="p-tara-roku"/><path d="M3.57,68.83C4.4,68.83 5.36,71.53 6.06,72.45C6.75,73.36 6.9,73.53 7.75,74.32C8.61,75.1 11.28,76.4 11.16,77.18C11.04,77.96 8.1,78.48 7.05,79.01C6,79.54 5.8,79.66 4.86,80.35C3.92,81.04 2.2,83.37 1.41,83.15C0.61,82.93 0.49,80.07 0.09,79.01C-0.31,77.94 -0.41,77.75 -0.99,76.76C-1.57,75.78 -3.76,73.82 -3.41,73.1C-3.07,72.38 -0.09,73.16 1.08,72.45C2.24,71.74 2.74,68.83 3.57,68.83Z" class="p-tara-roku"/><circle cx="87.74" cy="72.55" r="2.49" class="p-sumi-d"/><circle cx="86.98" cy="22.92" r="2.3" class="p-sumi-d"/><circle cx="98.8" cy="59.23" r="2.41" class="p-sumi-d"/></svg></div>
+<div class="txt">
+  <div><h3>蔦紅葉</h3><div class="kana">つたもみぢ　／　秋</div></div>
+  <div class="uta">このたびは幣もとりあへず 手向山<br>紅葉の錦神のまにまに<br><span style="font-size:11.5px">— 菅家</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="光琳波の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M-6,49.79Q7.2,44.72 20.4,49.79Q33.6,54.86 46.8,49.79Q60,44.72 73.2,49.79Q86.4,54.86 99.6,49.79Q112.8,44.72 126,49.79" class="p-mizu"/><path d="M-6,58.24Q7.2,53.17 20.4,58.24Q33.6,63.31 46.8,58.24Q60,53.17 73.2,58.24Q86.4,63.31 99.6,58.24Q112.8,53.17 126,58.24" class="p-mizu"/><path d="M-6,66.7Q7.2,61.63 20.4,66.7Q33.6,71.76 46.8,66.7Q60,61.63 73.2,66.7Q86.4,71.76 99.6,66.7Q112.8,61.63 126,66.7" class="p-mizu"/><path d="M-6,75.15Q7.2,70.08 20.4,75.15Q33.6,80.22 46.8,75.15Q60,70.08 73.2,75.15Q86.4,80.22 99.6,75.15Q112.8,70.08 126,75.15" class="p-mizu"/><path d="M60,43.78L60.37,43.85L60.68,44.07L60.86,44.4L60.86,44.8L60.66,45.23L60.24,45.62L59.62,45.92L58.84,46.07L57.96,46.02L57.04,45.76L56.18,45.26L55.47,44.54L54.99,43.63L54.81,42.58L54.99,41.46L55.57,40.34L56.53,39.32L57.87,38.49L59.5,37.93L61.36,37.7L63.31,37.86L65.24,38.44L67.01,39.42L68.47,40.78L69.51,42.46L70.01,44.36L69.9,46.38L69.15,48.38L67.75,50.24L65.76,51.81L63.26,52.99L60.39,53.65L57.31,53.74L54.21,53.2L51.28,52.03L48.73,50.28L46.74,48.02L45.47,45.36L45.04,42.47L45.52,39.51L46.92,36.65L49.21,34.1L52.28,32.03L55.97,30.58" class="p-uzu"/><path d="M11.47,30.82L11.75,30.87L12,30.99L12.19,31.2L12.28,31.46L12.27,31.76L12.14,32.08L11.88,32.38L11.5,32.65L11.01,32.84L10.42,32.94L9.77,32.93L9.1,32.79L8.43,32.52L7.82,32.1L7.3,31.56L6.91,30.91L6.7,30.16L6.68,29.35L6.89,28.52L7.32,27.69L7.99,26.92L8.88,26.25L9.97,25.71L11.23,25.35L12.6,25.19L14.04,25.26L15.49,25.57L16.88,26.12L18.14,26.91L19.22,27.92L20.05,29.12L20.58,30.47L20.78,31.93L20.6,33.42L20.05,34.91L19.11,36.31L17.8,37.57L16.18,38.63L14.27,39.43L12.15,39.93L9.89,40.09L7.59,39.88L5.33,39.31L3.2,38.36" class="p-uzu"/><path d="M111.95,42.03L112.16,42L112.34,41.9L112.49,41.75L112.57,41.56L112.57,41.33L112.49,41.1L112.31,40.87L112.04,40.66L111.69,40.5L111.26,40.41L110.79,40.39L110.28,40.46L109.77,40.63L109.3,40.91L108.87,41.28L108.54,41.73L108.32,42.27L108.23,42.86L108.3,43.48L108.53,44.1L108.94,44.71L109.51,45.26L110.25,45.73L111.11,46.09L112.09,46.31L113.14,46.38L114.23,46.28L115.31,46L116.34,45.55L117.26,44.92L118.05,44.13L118.64,43.21L119.01,42.19L119.13,41.09L118.98,39.96L118.56,38.85L117.85,37.8L116.87,36.85L115.66,36.04L114.24,35.43L112.66,35.03L110.98,34.87L109.24,34.98L107.53,35.37" class="p-uzu"/><circle cx="109.81" cy="20.32" r="1.34" class="p-shibuki"/><circle cx="100.73" cy="35.43" r="2.19" class="p-shibuki"/><circle cx="104.69" cy="19.4" r="2.39" class="p-shibuki"/><circle cx="23.34" cy="22.42" r="1.6" class="p-shibuki"/><circle cx="58.08" cy="35.4" r="1.23" class="p-shibuki"/><circle cx="119" cy="24.47" r="2" class="p-shibuki"/><circle cx="70.01" cy="33.49" r="2.18" class="p-shibuki"/><path d="M29.81,73.77C29.75,75 26.14,76.06 23.83,77.04C21.53,78.02 19.53,79.53 16,79.65C12.47,79.77 6.56,78.94 2.66,77.75C-1.24,76.55 -6.97,73.79 -7.41,72.48C-7.85,71.16 -2.52,70.99 0.03,69.86C2.57,68.73 4.36,66.37 7.86,65.7C11.36,65.04 18.31,65.23 21.03,65.88C23.75,66.53 22.72,68.3 24.18,69.62C25.64,70.93 29.87,72.53 29.81,73.77Z" class="p-tara-sumi"/></svg></div>
+<div class="txt">
+  <div><h3>光琳波</h3><div class="kana">こうりんなみ　／　夏</div></div>
+  <div class="uta">風をいたみ岩うつ波の おのれのみ<br>くだけてものを思ふころかな<br><span style="font-size:11.5px">— 源重之</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="桜の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M-8,67.63 Q72.86,33.11 128,14.03" class="p-eda"/><path d="M54.09,28.19C53.42,26.02 55.34,27.64 55.99,27.44C56.63,27.24 57.3,26.23 57.97,26.99C58.64,27.75 59.32,32.01 60,32.01C60.68,32.01 61.36,27.75 62.03,26.99C62.7,26.23 63.37,27.24 64.01,27.44C64.66,27.64 66.58,26.02 65.91,28.19C65.24,30.35 61.97,40.42 60,40.42C58.03,40.42 54.76,30.35 54.09,28.19Z" class="p-tara-sakura"/><path d="M69.81,31.02C71.66,29.72 70.71,32.04 71.1,32.59C71.49,33.14 72.66,33.47 72.15,34.34C71.63,35.21 67.79,37.18 68,37.82C68.21,38.46 72.47,37.8 73.4,38.2C74.33,38.6 73.57,39.55 73.58,40.23C73.59,40.9 75.72,42.23 73.46,42.26C71.2,42.29 60.61,42.29 60,40.42C59.39,38.55 67.96,32.33 69.81,31.02Z" class="p-tara-sakura"/><path d="M71.97,46.84C73.78,48.2 71.28,48.02 70.88,48.56C70.47,49.1 70.53,50.32 69.54,50.09C68.55,49.87 65.49,46.83 64.94,47.23C64.4,47.62 66.35,51.47 66.25,52.48C66.16,53.49 65.02,53.06 64.38,53.28C63.74,53.5 63.14,55.93 62.41,53.79C61.68,51.65 58.41,41.58 60,40.42C61.59,39.26 70.16,45.49 71.97,46.84Z" class="p-tara-sakura"/><path d="M57.59,53.79C56.86,55.93 56.26,53.5 55.62,53.28C54.98,53.06 53.84,53.49 53.75,52.48C53.65,51.47 55.6,47.62 55.06,47.23C54.51,46.83 51.45,49.87 50.46,50.09C49.47,50.32 49.53,49.1 49.12,48.56C48.72,48.02 46.22,48.2 48.03,46.84C49.84,45.49 58.41,39.26 60,40.42C61.59,41.58 58.32,51.65 57.59,53.79Z" class="p-tara-sakura"/><path d="M46.54,42.26C44.28,42.23 46.41,40.9 46.42,40.23C46.43,39.55 45.67,38.6 46.6,38.2C47.53,37.8 51.79,38.46 52,37.82C52.21,37.18 48.37,35.21 47.85,34.34C47.34,33.47 48.51,33.14 48.9,32.59C49.29,32.04 48.34,29.72 50.19,31.02C52.04,32.33 60.61,38.55 60,40.42C59.39,42.29 48.8,42.29 46.54,42.26Z" class="p-tara-sakura"/><circle cx="60" cy="40.42" r="2.72" class="p-kindei"/><path d="M107.04,57.39C106.55,55.8 107.96,56.99 108.44,56.84C108.91,56.7 109.41,55.95 109.9,56.51C110.39,57.07 110.89,60.21 111.39,60.21C111.89,60.21 112.39,57.07 112.89,56.51C113.38,55.95 113.87,56.7 114.35,56.84C114.82,56.99 116.23,55.8 115.74,57.39C115.25,58.99 112.84,66.4 111.39,66.4C109.94,66.4 107.54,58.99 107.04,57.39Z" class="p-tara-sakura"/><path d="M118.61,59.48C119.97,58.52 119.28,60.23 119.56,60.63C119.85,61.04 120.71,61.28 120.33,61.92C119.95,62.56 117.13,64.01 117.28,64.48C117.43,64.96 120.57,64.47 121.26,64.76C121.94,65.06 121.38,65.76 121.39,66.26C121.4,66.75 122.97,67.73 121.3,67.75C119.63,67.77 111.84,67.78 111.39,66.4C110.94,65.02 117.25,60.44 118.61,59.48Z" class="p-tara-sakura"/><path d="M120.2,71.12C121.54,72.12 119.7,71.99 119.4,72.39C119.1,72.79 119.14,73.68 118.41,73.52C117.68,73.35 115.43,71.11 115.03,71.41C114.63,71.7 116.06,74.53 115.99,75.27C115.93,76.02 115.09,75.7 114.62,75.86C114.14,76.02 113.7,77.81 113.17,76.24C112.63,74.66 110.22,67.25 111.39,66.4C112.56,65.54 118.87,70.13 120.2,71.12Z" class="p-tara-sakura"/><path d="M109.62,76.24C109.08,77.81 108.64,76.02 108.17,75.86C107.7,75.7 106.86,76.02 106.79,75.27C106.72,74.53 108.16,71.7 107.75,71.41C107.35,71.11 105.1,73.35 104.37,73.52C103.64,73.68 103.69,72.79 103.39,72.39C103.09,71.99 101.25,72.12 102.58,71.12C103.92,70.13 110.22,65.54 111.39,66.4C112.56,67.25 110.16,74.66 109.62,76.24Z" class="p-tara-sakura"/><path d="M101.49,67.75C99.82,67.73 101.39,66.75 101.39,66.26C101.4,65.76 100.84,65.06 101.53,64.76C102.21,64.47 105.35,64.96 105.5,64.48C105.66,64.01 102.83,62.56 102.45,61.92C102.07,61.28 102.93,61.04 103.22,60.64C103.51,60.23 102.81,58.52 104.17,59.48C105.54,60.44 111.84,65.02 111.39,66.4C110.94,67.78 103.15,67.77 101.49,67.75Z" class="p-tara-sakura"/><circle cx="111.39" cy="66.4" r="2" class="p-kindei"/><path d="M33.97,53.06C33.56,51.75 34.72,52.73 35.11,52.61C35.5,52.49 35.91,51.88 36.31,52.34C36.71,52.8 37.13,55.37 37.53,55.37C37.94,55.37 38.36,52.8 38.76,52.34C39.16,51.88 39.57,52.49 39.96,52.61C40.35,52.73 41.51,51.75 41.1,53.06C40.7,54.37 38.72,60.45 37.53,60.45C36.35,60.45 34.37,54.37 33.97,53.06Z" class="p-tara-sakura"/><path d="M43.46,54.77C44.57,53.98 44,55.39 44.24,55.72C44.47,56.05 45.18,56.25 44.87,56.77C44.56,57.3 42.24,58.49 42.36,58.88C42.49,59.26 45.06,58.86 45.63,59.1C46.19,59.35 45.73,59.92 45.74,60.33C45.74,60.74 47.03,61.54 45.66,61.56C44.29,61.58 37.9,61.58 37.53,60.45C37.17,59.31 42.34,55.56 43.46,54.77Z" class="p-tara-sakura"/><path d="M44.76,64.32C45.86,65.14 44.35,65.03 44.1,65.36C43.86,65.69 43.89,66.42 43.29,66.29C42.7,66.15 40.85,64.31 40.52,64.55C40.19,64.79 41.37,67.12 41.31,67.73C41.25,68.33 40.57,68.08 40.18,68.21C39.79,68.34 39.43,69.81 38.99,68.52C38.55,67.22 36.57,61.14 37.53,60.45C38.5,59.75 43.67,63.5 44.76,64.32Z" class="p-tara-sakura"/><path d="M36.08,68.52C35.64,69.81 35.28,68.34 34.89,68.21C34.5,68.08 33.82,68.33 33.76,67.73C33.7,67.12 34.88,64.79 34.55,64.55C34.22,64.31 32.37,66.15 31.78,66.29C31.18,66.42 31.21,65.69 30.97,65.36C30.72,65.03 29.21,65.14 30.31,64.32C31.4,63.5 36.57,59.75 37.53,60.45C38.5,61.14 36.52,67.22 36.08,68.52Z" class="p-tara-sakura"/><path d="M29.41,61.56C28.04,61.54 29.33,60.74 29.33,60.33C29.34,59.92 28.88,59.35 29.44,59.1C30.01,58.86 32.58,59.26 32.71,58.88C32.83,58.49 30.51,57.3 30.2,56.77C29.89,56.25 30.6,56.05 30.83,55.72C31.07,55.39 30.5,53.98 31.61,54.77C32.73,55.56 37.9,59.31 37.53,60.45C37.17,61.58 30.78,61.58 29.41,61.56Z" class="p-tara-sakura"/><circle cx="37.53" cy="60.45" r="1.64" class="p-kindei"/><path d="M67.83,57.47C67.4,56.08 68.64,57.12 69.05,56.99C69.47,56.86 69.9,56.21 70.33,56.7C70.76,57.19 71.2,59.93 71.64,59.93C72.07,59.93 72.51,57.19 72.94,56.7C73.37,56.21 73.8,56.86 74.22,56.99C74.63,57.12 75.87,56.08 75.44,57.47C75.01,58.86 72.9,65.34 71.64,65.34C70.37,65.34 68.26,58.86 67.83,57.47Z" class="p-tara-sakura"/><path d="M77.95,59.29C79.14,58.45 78.53,59.95 78.78,60.3C79.03,60.66 79.79,60.87 79.45,61.43C79.12,61.99 76.65,63.26 76.78,63.67C76.92,64.08 79.66,63.66 80.26,63.91C80.86,64.17 80.37,64.78 80.38,65.22C80.38,65.65 81.75,66.51 80.3,66.53C78.84,66.55 72.03,66.55 71.64,65.34C71.24,64.14 76.76,60.13 77.95,59.29Z" class="p-tara-sakura"/><path d="M79.34,69.48C80.51,70.35 78.9,70.23 78.63,70.58C78.37,70.93 78.41,71.71 77.77,71.57C77.14,71.42 75.17,69.47 74.82,69.72C74.46,69.98 75.72,72.45 75.66,73.1C75.6,73.75 74.87,73.48 74.45,73.62C74.04,73.76 73.66,75.32 73.19,73.95C72.72,72.57 70.61,66.09 71.64,65.34C72.66,64.6 78.17,68.6 79.34,69.48Z" class="p-tara-sakura"/><path d="M70.08,73.95C69.61,75.32 69.23,73.76 68.82,73.62C68.4,73.48 67.67,73.75 67.61,73.1C67.55,72.45 68.81,69.98 68.45,69.72C68.1,69.47 66.13,71.42 65.5,71.57C64.86,71.71 64.9,70.93 64.64,70.58C64.38,70.23 62.77,70.35 63.93,69.48C65.1,68.6 70.61,64.6 71.64,65.34C72.66,66.09 70.55,72.57 70.08,73.95Z" class="p-tara-sakura"/><path d="M62.97,66.53C61.52,66.51 62.89,65.65 62.89,65.22C62.9,64.78 62.41,64.17 63.01,63.91C63.61,63.66 66.35,64.08 66.49,63.67C66.62,63.26 64.15,61.99 63.82,61.43C63.49,60.87 64.24,60.66 64.49,60.3C64.74,59.95 64.13,58.45 65.32,59.29C66.51,60.13 72.03,64.14 71.64,65.34C71.24,66.55 64.43,66.55 62.97,66.53Z" class="p-tara-sakura"/><circle cx="71.64" cy="65.34" r="1.75" class="p-kindei"/><path d="M92.35,39.68C92.02,38.61 92.97,39.41 93.29,39.31C93.61,39.21 93.94,38.71 94.27,39.09C94.6,39.46 94.94,41.57 95.27,41.57C95.6,41.57 95.94,39.46 96.27,39.09C96.6,38.71 96.93,39.21 97.25,39.31C97.57,39.41 98.52,38.61 98.19,39.68C97.86,40.75 96.24,45.72 95.27,45.72C94.3,45.72 92.68,40.75 92.35,39.68Z" class="p-tara-sakura"/><path d="M100.11,41.08C101.03,40.43 100.56,41.58 100.75,41.85C100.95,42.13 101.52,42.29 101.27,42.72C101.01,43.15 99.12,44.12 99.22,44.44C99.32,44.75 101.43,44.43 101.89,44.62C102.35,44.82 101.97,45.29 101.98,45.63C101.98,45.96 103.03,46.61 101.92,46.63C100.8,46.64 95.57,46.65 95.27,45.72C94.97,44.8 99.2,41.72 100.11,41.08Z" class="p-tara-sakura"/><path d="M101.18,48.89C102.08,49.56 100.84,49.47 100.64,49.74C100.44,50.01 100.47,50.61 99.98,50.5C99.49,50.39 97.98,48.88 97.71,49.08C97.44,49.28 98.4,51.18 98.36,51.68C98.31,52.17 97.75,51.96 97.43,52.07C97.12,52.18 96.82,53.38 96.46,52.32C96.1,51.26 94.48,46.29 95.27,45.72C96.06,45.15 100.29,48.22 101.18,48.89Z" class="p-tara-sakura"/><path d="M94.08,52.32C93.72,53.38 93.42,52.18 93.11,52.07C92.79,51.96 92.23,52.17 92.18,51.68C92.14,51.18 93.1,49.28 92.83,49.08C92.56,48.88 91.05,50.39 90.56,50.5C90.07,50.61 90.1,50.01 89.9,49.74C89.7,49.47 88.46,49.56 89.36,48.89C90.25,48.22 94.48,45.15 95.27,45.72C96.06,46.29 94.44,51.26 94.08,52.32Z" class="p-tara-sakura"/><path d="M88.62,46.63C87.51,46.61 88.56,45.96 88.56,45.63C88.57,45.29 88.19,44.82 88.65,44.62C89.11,44.43 91.22,44.75 91.32,44.44C91.42,44.12 89.53,43.15 89.27,42.72C89.02,42.29 89.6,42.13 89.79,41.85C89.98,41.58 89.51,40.43 90.43,41.08C91.34,41.72 95.57,44.8 95.27,45.72C94.97,46.65 89.74,46.64 88.62,46.63Z" class="p-tara-sakura"/><circle cx="95.27" cy="45.72" r="1.34" class="p-kindei"/><ellipse cx="75.18" cy="49.19" rx="2.2" ry="1.37" transform="rotate(124.19 75.18 49.19)" class="p-hira"/><ellipse cx="111.61" cy="23.06" rx="2.41" ry="1.5" transform="rotate(5.35 111.61 23.06)" class="p-hira"/><ellipse cx="107.71" cy="28.62" rx="2.96" ry="1.83" transform="rotate(59.58 107.71 28.62)" class="p-hira"/><ellipse cx="112.84" cy="6.87" rx="1.99" ry="1.23" transform="rotate(47.78 112.84 6.87)" class="p-hira"/><ellipse cx="7.03" cy="23.03" rx="2.5" ry="1.55" transform="rotate(84.95 7.03 23.03)" class="p-hira"/><ellipse cx="117.72" cy="24.39" rx="2.44" ry="1.51" transform="rotate(116.5 117.72 24.39)" class="p-hira"/><ellipse cx="36.49" cy="63.23" rx="2.31" ry="1.43" transform="rotate(131.44 36.49 63.23)" class="p-hira"/><ellipse cx="22.75" cy="14.15" rx="2.81" ry="1.74" transform="rotate(162.49 22.75 14.15)" class="p-hira"/><ellipse cx="53.38" cy="46.66" rx="2.7" ry="1.68" transform="rotate(68.32 53.38 46.66)" class="p-hira"/></svg></div>
+<div class="txt">
+  <div><h3>桜</h3><div class="kana">さくら　／　春</div></div>
+  <div class="uta">久方の光のどけき 春の日に<br>しづ心なく花の散るらむ<br><span style="font-size:11.5px">— 紀友則</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="薄の意匠"><rect width="120" height="84" fill="var(--kin)"/><circle cx="101.09" cy="16.81" r="15.6" class="p-tsuki"/><path d="M27.5,86.66 C27.82,68.11 28.96,60.82 29.56,53.54 C30.17,60.82 31.91,68.11 32.32,86.66Z" class="p-roku2"/><path d="M14.86,86.92 C16.9,64.57 30.59,55.79 31.23,47.01 C31.88,55.79 21.28,64.57 20.01,86.92Z" class="p-roku"/><path d="M93.68,87.73 C93.7,60.43 92.54,49.71 93.18,38.98 C93.82,49.71 98.05,60.43 98.81,87.73Z" class="p-roku"/><path d="M36.36,87.17 C38.66,56.88 54.71,44.97 55.12,33.07 C55.53,44.97 41.47,56.88 39.66,87.17Z" class="p-roku2"/><path d="M43.15,85.13 C44.08,68.05 50.01,61.34 50.44,54.63 C50.87,61.34 46.99,68.05 46.58,85.13Z" class="p-roku"/><path d="M63.82,84.95 C63.59,63.63 61.09,55.26 61.51,46.88 C61.92,55.26 66.43,63.63 67.16,84.95Z" class="p-roku"/><path d="M7.51,81.53 C8.62,63.84 15.75,56.9 16.26,49.95 C16.77,56.9 12.09,63.84 11.59,81.53Z" class="p-roku2"/><path d="M25.12,85.54 C25.68,51.87 28.56,38.65 29.18,25.42 C29.8,38.65 29.88,51.87 30.06,85.54Z" class="p-roku"/><path d="M118.87,81.99 C120.78,58.93 133.76,49.88 134.28,40.82 C134.8,49.88 124.34,58.93 123.05,81.99Z" class="p-roku"/><path d="M60,88 Q56.59,56.12 51.46,34.87" class="p-kuki"/><line x1="51.46" y1="34.87" x2="57.53" y2="27.46" class="p-ho"/><line x1="51.46" y1="34.87" x2="55.28" y2="26.77" class="p-ho"/><line x1="51.46" y1="34.87" x2="45.15" y2="22.06" class="p-ho"/><line x1="51.46" y1="34.87" x2="45.37" y2="27.73" class="p-ho"/><line x1="51.46" y1="34.87" x2="57.46" y2="28.41" class="p-ho"/><line x1="51.46" y1="34.87" x2="47.53" y2="24.75" class="p-ho"/><line x1="51.46" y1="34.87" x2="43.75" y2="28.3" class="p-ho"/><line x1="51.46" y1="34.87" x2="61.93" y2="30.38" class="p-ho"/><line x1="51.46" y1="34.87" x2="49.33" y2="24.84" class="p-ho"/><line x1="51.46" y1="34.87" x2="58.14" y2="24.79" class="p-ho"/><line x1="51.46" y1="34.87" x2="57.82" y2="25.97" class="p-ho"/><path d="M18.46,88 Q24.31,55.84 33.1,34.4" class="p-kuki"/><line x1="33.1" y1="34.4" x2="36.3" y2="24.71" class="p-ho"/><line x1="33.1" y1="34.4" x2="37.04" y2="25.05" class="p-ho"/><line x1="33.1" y1="34.4" x2="25.45" y2="23.02" class="p-ho"/><line x1="33.1" y1="34.4" x2="27.84" y2="27.71" class="p-ho"/><line x1="33.1" y1="34.4" x2="39.8" y2="25.94" class="p-ho"/><line x1="33.1" y1="34.4" x2="30.59" y2="23.38" class="p-ho"/><line x1="33.1" y1="34.4" x2="27.24" y2="26.33" class="p-ho"/><line x1="33.1" y1="34.4" x2="39.09" y2="28.89" class="p-ho"/><line x1="33.1" y1="34.4" x2="30.8" y2="26.94" class="p-ho"/><line x1="33.1" y1="34.4" x2="24.62" y2="24.31" class="p-ho"/><line x1="33.1" y1="34.4" x2="39.41" y2="24.22" class="p-ho"/><path d="M105.67,88 Q99.36,53.67 89.89,30.78" class="p-kuki"/><line x1="89.89" y1="30.78" x2="80.54" y2="24.83" class="p-ho"/><line x1="89.89" y1="30.78" x2="89.15" y2="17.52" class="p-ho"/><line x1="89.89" y1="30.78" x2="100" y2="21.47" class="p-ho"/><line x1="89.89" y1="30.78" x2="92.11" y2="22.48" class="p-ho"/><line x1="89.89" y1="30.78" x2="84.3" y2="21.33" class="p-ho"/><line x1="89.89" y1="30.78" x2="94.73" y2="18.89" class="p-ho"/><line x1="89.89" y1="30.78" x2="93.24" y2="21.49" class="p-ho"/><line x1="89.89" y1="30.78" x2="89.75" y2="16.42" class="p-ho"/><line x1="89.89" y1="30.78" x2="97.54" y2="21.93" class="p-ho"/><line x1="89.89" y1="30.78" x2="93.67" y2="20.59" class="p-ho"/><line x1="89.89" y1="30.78" x2="79.84" y2="25.87" class="p-ho"/></svg></div>
+<div class="txt">
+  <div><h3>薄</h3><div class="kana">すすき　／　仲秋</div></div>
+  <div class="uta">秋の田のかりほの庵の 苫をあらみ<br>わが衣手は露にぬれつつ<br><span style="font-size:11.5px">— 天智天皇</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article><article class="mon">
+<div class="pic"><svg viewBox="0 0 120 84" role="img" aria-label="松の意匠"><rect width="120" height="84" fill="var(--kin)"/><path d="M-6,85.78 Q19.24,65.1 83.83,20.81" class="p-miki"/><path d="M38.14,58.58 Q93.07,53.58 128,60.57" class="p-eda"/><circle cx="60" cy="35.12" r="14.79" class="p-fusa"/><line x1="64.44" y1="35.12" x2="75.39" y2="35.12" class="p-hari"/><line x1="64.17" y1="36.64" x2="74.46" y2="40.38" class="p-hari"/><line x1="63.4" y1="37.97" x2="71.79" y2="45.01" class="p-hari"/><line x1="62.22" y1="38.96" x2="67.69" y2="48.44" class="p-hari"/><line x1="60.77" y1="39.49" x2="62.67" y2="50.27" class="p-hari"/><line x1="59.23" y1="39.49" x2="57.33" y2="50.27" class="p-hari"/><line x1="57.78" y1="38.96" x2="52.31" y2="48.44" class="p-hari"/><line x1="56.6" y1="37.97" x2="48.21" y2="45.01" class="p-hari"/><line x1="55.83" y1="36.64" x2="45.54" y2="40.38" class="p-hari"/><line x1="55.56" y1="35.12" x2="44.61" y2="35.12" class="p-hari"/><line x1="55.83" y1="33.6" x2="45.54" y2="29.86" class="p-hari"/><line x1="56.6" y1="32.26" x2="48.21" y2="25.23" class="p-hari"/><line x1="57.78" y1="31.27" x2="52.31" y2="21.79" class="p-hari"/><line x1="59.23" y1="30.75" x2="57.33" y2="19.97" class="p-hari"/><line x1="60.77" y1="30.75" x2="62.67" y2="19.97" class="p-hari"/><line x1="62.22" y1="31.27" x2="67.69" y2="21.79" class="p-hari"/><line x1="63.4" y1="32.26" x2="71.79" y2="25.23" class="p-hari"/><line x1="64.17" y1="33.6" x2="74.46" y2="29.86" class="p-hari"/><circle cx="45.15" cy="46.88" r="9.24" class="p-fusa"/><line x1="47.92" y1="46.88" x2="54.76" y2="46.88" class="p-hari"/><line x1="47.76" y1="47.83" x2="54.18" y2="50.17" class="p-hari"/><line x1="47.27" y1="48.66" x2="52.51" y2="53.06" class="p-hari"/><line x1="46.54" y1="49.28" x2="49.96" y2="55.2" class="p-hari"/><line x1="45.63" y1="49.61" x2="46.82" y2="56.34" class="p-hari"/><line x1="44.67" y1="49.61" x2="43.48" y2="56.34" class="p-hari"/><line x1="43.76" y1="49.28" x2="40.34" y2="55.2" class="p-hari"/><line x1="43.03" y1="48.66" x2="37.79" y2="53.06" class="p-hari"/><line x1="42.54" y1="47.83" x2="36.12" y2="50.17" class="p-hari"/><line x1="42.38" y1="46.88" x2="35.54" y2="46.88" class="p-hari"/><line x1="42.54" y1="45.93" x2="36.12" y2="43.59" class="p-hari"/><line x1="43.03" y1="45.09" x2="37.79" y2="40.7" class="p-hari"/><line x1="43.76" y1="44.48" x2="40.34" y2="38.55" class="p-hari"/><line x1="44.67" y1="44.15" x2="43.48" y2="37.41" class="p-hari"/><line x1="45.63" y1="44.15" x2="46.82" y2="37.41" class="p-hari"/><line x1="46.54" y1="44.48" x2="49.96" y2="38.55" class="p-hari"/><line x1="47.27" y1="45.09" x2="52.51" y2="40.7" class="p-hari"/><line x1="47.76" y1="45.93" x2="54.18" y2="43.59" class="p-hari"/><circle cx="49.77" cy="24.2" r="11.34" class="p-fusa"/><line x1="53.17" y1="24.2" x2="61.56" y2="24.2" class="p-hari"/><line x1="52.96" y1="25.36" x2="60.85" y2="28.23" class="p-hari"/><line x1="52.37" y1="26.39" x2="58.8" y2="31.78" class="p-hari"/><line x1="51.47" y1="27.15" x2="55.66" y2="34.41" class="p-hari"/><line x1="50.36" y1="27.55" x2="51.82" y2="35.81" class="p-hari"/><line x1="49.18" y1="27.55" x2="47.72" y2="35.81" class="p-hari"/><line x1="48.07" y1="27.15" x2="43.87" y2="34.41" class="p-hari"/><line x1="47.16" y1="26.39" x2="40.73" y2="31.78" class="p-hari"/><line x1="46.57" y1="25.36" x2="38.69" y2="28.23" class="p-hari"/><line x1="46.37" y1="24.2" x2="37.97" y2="24.2" class="p-hari"/><line x1="46.57" y1="23.04" x2="38.69" y2="20.17" class="p-hari"/><line x1="47.16" y1="22.01" x2="40.73" y2="16.62" class="p-hari"/><line x1="48.07" y1="21.25" x2="43.87" y2="13.99" class="p-hari"/><line x1="49.18" y1="20.85" x2="47.72" y2="12.59" class="p-hari"/><line x1="50.36" y1="20.85" x2="51.82" y2="12.59" class="p-hari"/><line x1="51.47" y1="21.25" x2="55.66" y2="13.99" class="p-hari"/><line x1="52.37" y1="22.01" x2="58.8" y2="16.62" class="p-hari"/><line x1="52.96" y1="23.04" x2="60.85" y2="20.17" class="p-hari"/><circle cx="83.22" cy="20.36" r="11.53" class="p-fusa"/><line x1="86.68" y1="20.36" x2="95.22" y2="20.36" class="p-hari"/><line x1="86.47" y1="21.54" x2="94.49" y2="24.46" class="p-hari"/><line x1="85.87" y1="22.58" x2="92.41" y2="28.07" class="p-hari"/><line x1="84.95" y1="23.36" x2="89.22" y2="30.75" class="p-hari"/><line x1="83.82" y1="23.77" x2="85.3" y2="32.17" class="p-hari"/><line x1="82.62" y1="23.77" x2="81.14" y2="32.17" class="p-hari"/><line x1="81.49" y1="23.36" x2="77.22" y2="30.75" class="p-hari"/><line x1="80.57" y1="22.58" x2="74.03" y2="28.07" class="p-hari"/><line x1="79.97" y1="21.54" x2="71.95" y2="24.46" class="p-hari"/><line x1="79.76" y1="20.36" x2="71.22" y2="20.36" class="p-hari"/><line x1="79.97" y1="19.18" x2="71.95" y2="16.26" class="p-hari"/><line x1="80.57" y1="18.14" x2="74.03" y2="12.65" class="p-hari"/><line x1="81.49" y1="17.36" x2="77.22" y2="9.97" class="p-hari"/><line x1="82.62" y1="16.95" x2="81.14" y2="8.55" class="p-hari"/><line x1="83.82" y1="16.95" x2="85.3" y2="8.55" class="p-hari"/><line x1="84.95" y1="17.36" x2="89.22" y2="9.97" class="p-hari"/><line x1="85.87" y1="18.14" x2="92.41" y2="12.65" class="p-hari"/><line x1="86.47" y1="19.18" x2="94.49" y2="16.26" class="p-hari"/><circle cx="67.17" cy="32.51" r="8.19" class="p-fusa"/><line x1="69.62" y1="32.51" x2="75.69" y2="32.51" class="p-hari"/><line x1="69.47" y1="33.35" x2="75.17" y2="35.42" class="p-hari"/><line x1="69.05" y1="34.09" x2="73.69" y2="37.99" class="p-hari"/><line x1="68.39" y1="34.64" x2="71.43" y2="39.89" class="p-hari"/><line x1="67.59" y1="34.93" x2="68.64" y2="40.9" class="p-hari"/><line x1="66.74" y1="34.93" x2="65.69" y2="40.9" class="p-hari"/><line x1="65.94" y1="34.64" x2="62.91" y2="39.89" class="p-hari"/><line x1="65.28" y1="34.09" x2="60.64" y2="37.99" class="p-hari"/><line x1="64.86" y1="33.35" x2="59.16" y2="35.42" class="p-hari"/><line x1="64.71" y1="32.51" x2="58.64" y2="32.51" class="p-hari"/><line x1="64.86" y1="31.67" x2="59.16" y2="29.6" class="p-hari"/><line x1="65.28" y1="30.93" x2="60.64" y2="27.03" class="p-hari"/><line x1="65.94" y1="30.38" x2="62.91" y2="25.13" class="p-hari"/><line x1="66.74" y1="30.09" x2="65.69" y2="24.12" class="p-hari"/><line x1="67.59" y1="30.09" x2="68.64" y2="24.12" class="p-hari"/><line x1="68.39" y1="30.38" x2="71.43" y2="25.13" class="p-hari"/><line x1="69.05" y1="30.93" x2="73.69" y2="27.03" class="p-hari"/><line x1="69.47" y1="31.67" x2="75.17" y2="29.6" class="p-hari"/></svg></div>
+<div class="txt">
+  <div><h3>松</h3><div class="kana">まつ　／　常盤</div></div>
+  <div class="uta">立ち別れいなばの山の 峰に生ふる<br>まつとし聞かば今帰り来む<br><span style="font-size:11.5px">— 中納言行平</span></div>
+  <div class="meta">上の句を右の貝に、下の句を左の貝に。<br>一対 <span class="tcy">9</span>,<span class="tcy">50</span>0 円（歌入れ込み・四日）</div>
+</div></article></div>
+</section>
+
+<section class="sec wrap">
+  <h2>同じ題でも一枚ずつ違います</h2>
+  <div class="rule"></div>
+  <p class="note" id="hennote">二十四枚の見本は、この頁を開いた時に描かれます。</p>
+  <div class="hen" id="hen"></div>
+  <noscript><p class="note">※ この一覧は JavaScript で描いています。上の八題はすべて静止画として載せてありますので、意匠の選定にはそちらをご覧ください。</p></noscript>
+</section>
+</main>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><clipPath id="trimC"><rect x="0" y="0" width="96" height="104"/></clipPath></defs></svg><footer class="ft"><div class="wrap">
+<div class="cols">
+<div><b>合貝堂（あわせがいどう）</b><br>京都市中京区 室町通六角下ル 鯉山町二七<br>電話 075-231-4187<br>火〜土 一〇時—一八時（日・月 定休）</div>
+<div><b>仕事</b><br>貝合わせ道具一式の誂え<br>貝桶・雛道具<br>六曲一双 屏風の絵付と修復<br>一貝からの補彩・剥落止め</div>
+<div><b>人</b><br>七代　尾関 宗甫（絵付・箔押）<br>絵師　廣瀬 巳代（意匠・歌書き）<br>箔押　中路 敦<br>受付　尾関 千歳</div>
+<div><b>頁</b><br><a href="index.html">屏風（本店）</a><br><a href="awase.html">合貝</a><br><a href="mon.html">意匠帳</a><br><a href="atsurae.html">誂え</a></div>
+</div>
+<div class="rule" style="border-color:rgba(205,164,59,.35)"></div>
+<p class="small" style="color:#9C8A63;line-height:1.9">本站為 Design Skills Center 之風格範例站，商號・人名・価格・電話・住所皆為虛構示意。歌はいずれも『古今和歌集』『百人一首』所収の古歌（公有領域）。<br>意匠・絵・logo・favicon はすべて同一の描画引擎から生成しており、外部画像・音声ファイルは一枚も使用していません。</p>
+</div></footer>
+<script>/* ===== 合貝堂・意匠引擎（琳派 5 特徵の唯一の描画源） =====
+   全站の絵はすべてこの一本から出る。同じ seed は必ず同じ絵。 */
+var AG=(function(){
+  function fnv1a(s){var h=0x811c9dc5,i;for(i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h>>>0;}
+  function mul32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function rng(seed){var r=mul32(fnv1a(String(seed)));var o={
+    f:function(a,b){return a+(b-a)*r();},
+    i:function(a,b){return Math.floor(a+(b-a+1)*r());},
+    p:function(x){return r()<x;},
+    pick:function(a){return a[Math.floor(r()*a.length)];}};return o;}
+  function n(v){return Math.round(v*100)/100;}
+
+  /* 原語 A：たらしこみの色面。輪郭線でなく「溜まり縁」で形が決まる */
+  function pool(pts){
+    var m=pts.length,d='M'+n(pts[0][0])+','+n(pts[0][1]),i;
+    for(i=0;i<m;i++){
+      var p0=pts[(i-1+m)%m],p1=pts[i],p2=pts[(i+1)%m],p3=pts[(i+2)%m];
+      d+='C'+n(p1[0]+(p2[0]-p0[0])/6)+','+n(p1[1]+(p2[1]-p0[1])/6)+' '
+        +n(p2[0]-(p3[0]-p1[0])/6)+','+n(p2[1]-(p3[1]-p1[1])/6)+' '+n(p2[0])+','+n(p2[1]);
+    }
+    return d+'Z';
+  }
+  function blobPts(cx,cy,rx,ry,k,r,w){
+    var a=[],i,t,g;for(i=0;i<k;i++){t=i/k*6.283185+r.f(0,.4);g=1+r.f(-w,w);
+      a.push([cx+Math.cos(t)*rx*g,cy+Math.sin(t)*ry*g]);}return a;}
+  function tara(cx,cy,rx,ry,k,r,w,cls){
+    return '<path d="'+pool(blobPts(cx,cy,rx,ry,k,r,w))+'" class="'+cls+'"/>';}
+
+  /* 原語 B：光琳梅＝円だけで作る。写実描写を禁じる */
+  function ume(cx,cy,rad,r,cls){
+    var g='',i,a,off=r.f(0,6.28);
+    for(i=0;i<5;i++){a=off+i/5*6.283185;
+      g+='<circle cx="'+n(cx+Math.cos(a)*rad*1.00)+'" cy="'+n(cy+Math.sin(a)*rad*1.00)+'" r="'+n(rad*.70)+'" class="'+cls+'"/>';}
+    g+='<circle cx="'+n(cx)+'" cy="'+n(cy)+'" r="'+n(rad*.40)+'" class="p-enji"/>';
+    for(i=0;i<5;i++){a=off+.62+i/5*6.283185;
+      g+='<line x1="'+n(cx)+'" y1="'+n(cy)+'" x2="'+n(cx+Math.cos(a)*rad*.86)+'" y2="'+n(cy+Math.sin(a)*rad*.86)+'" class="p-shibe"/>';}
+    return g;
+  }
+  /* 原語 C：光琳水＝一定振幅の平行波。線の太さを変えない */
+  function mizu(x0,y0,w,rows,amp,gap,cls){
+    var g='',r0,i,y,d,seg=5,x1,x2;
+    for(r0=0;r0<rows;r0++){
+      y=y0+r0*gap; d='M'+n(x0)+','+n(y);
+      for(i=0;i<seg;i++){x1=x0+w*(i+.5)/seg;x2=x0+w*(i+1)/seg;
+        d+='Q'+n(x1)+','+n(y+(i%2?amp:-amp))+' '+n(x2)+','+n(y);}
+      g+='<path d="'+d+'" class="'+cls+'"/>';
+    }
+    return g;
+  }
+  /* 原語 D：剣状の葉・草 */
+  function blade(x,y,h,lean,w){
+    var tx=x+lean,ty=y-h,cx=x+lean*.12,cy=y-h*.56;
+    return 'M'+n(x-w)+','+n(y)+' C'+n(cx-w*.85)+','+n(cy)+' '+n(tx-w*.25)+','+n(ty+h*.22)+' '+n(tx)+','+n(ty)
+      +' C'+n(tx+w*.25)+','+n(ty+h*.22)+' '+n(cx+w*.85)+','+n(cy)+' '+n(x+w)+','+n(y)+'Z';
+  }
+  /* 原語 E：枝（墨の一本線） */
+  function eda(x0,y0,x1,y1,bow){
+    return 'M'+n(x0)+','+n(y0)+' Q'+n((x0+x1)/2+bow)+','+n((y0+y1)/2-bow*.6)+' '+n(x1)+','+n(y1);
+  }
+
+  /* ---- 意匠（八題）。画面は 120×84。必ず一つは中線 x=60 をまたぐ ---- */
+  var MON={
+    ume:{jp:'光琳梅',kana:'こうりんばい',ki:'早春',
+      uta:['人はいさ心も知らず ふるさとは','花ぞ昔の香に匂ひける'],yomi:'紀貫之',
+      draw:function(r){
+        var g='',i,k=r.i(2,3),bx=r.f(-6,4);
+        g+='<path d="'+eda(-8,r.f(58,70),128,r.f(16,30),bx)+'" class="p-eda"/>';
+        g+='<path d="'+eda(r.f(24,40),r.f(50,62),r.f(96,116),r.f(60,76),-14)+'" class="p-eda2"/>';
+        g+=ume(60,r.f(30,40),r.f(11,13),r,'p-go');           /* 中線をまたぐ一輪 */
+        var xs=[r.f(10,26),r.f(88,110),r.f(30,46)];
+        for(i=0;i<k+1;i++){g+=ume(xs[i%3],r.f(20,66),r.f(7.5,11),r,'p-go');}
+        g+=tara(r.f(6,18),r.f(62,76),r.f(9,14),r.f(5,8),8,r,.2,'p-tara-roku');
+        return g;}},
+    kaki:{jp:'燕子花',kana:'かきつばた',ki:'初夏',
+      uta:['唐衣きつつなれにし つましあれば','はるばる来ぬる旅をしぞ思ふ'],yomi:'在原業平',
+      draw:function(r){
+        var g='',i,j,gx,base;
+        function kabu(cx,cy,s){
+          var o='',a;
+          for(a=0;a<3;a++){o+='<path d="'+blade(cx+(a-1)*7*s,cy,r.f(26,40)*s,(a-1)*10*s,2.6*s)+'" class="p-roku"/>';}
+          o+=tara(cx,cy-r.f(30,36)*s,7.5*s,5.6*s,9,r,.22,'p-tara-ai');
+          o+=tara(cx-5*s,cy-r.f(33,39)*s,4.6*s,7.2*s,8,r,.24,'p-tara-ai2');
+          o+=tara(cx+5.4*s,cy-r.f(31,37)*s,4.2*s,6.4*s,8,r,.24,'p-tara-ai2');
+          return o;}
+        base=r.f(76,84);
+        g+=kabu(60,base,1.05);                                /* 中線をまたぐ株 */
+        for(i=0;i<3;i++){gx=[r.f(-4,12),r.f(26,40),r.f(96,124)][i];g+=kabu(gx,base+r.f(-4,4),r.f(.72,1.02));}
+        for(j=0;j<5;j++){g+='<path d="'+blade(r.f(0,120),base+r.f(0,4),r.f(16,30),r.f(-14,14),2)+'" class="p-roku2"/>';}
+        return g;}},
+    kiku:{jp:'菊',kana:'きく',ki:'晩秋',
+      uta:['心あてに折らばや折らむ 初霜の','置きまどはせる白菊の花'],yomi:'凡河内躬恒',
+      draw:function(r){
+        var g='',i,a,cx,cy,rad;
+        function hana(cx,cy,rad){
+          var o='',i,a,ring;
+          for(ring=0;ring<2;ring++){var m=ring?5:9,rr=rad*(ring?.58:1);
+            for(i=0;i<m;i++){a=i/m*6.283185+ring*.4;
+              o+='<ellipse cx="'+n(cx+Math.cos(a)*rr*.62)+'" cy="'+n(cy+Math.sin(a)*rr*.62)+'" rx="'+n(rr*.44)+'" ry="'+n(rr*.24)+'" transform="rotate('+n(a*57.3)+' '+n(cx+Math.cos(a)*rr*.62)+' '+n(cy+Math.sin(a)*rr*.62)+')" class="p-go"/>';}}
+          o+='<circle cx="'+n(cx)+'" cy="'+n(cy)+'" r="'+n(rad*.22)+'" class="p-kindei"/>';return o;}
+        g+='<path d="'+eda(-6,r.f(72,82),126,r.f(56,72),12)+'" class="p-eda"/>';
+        for(i=0;i<4;i++){g+=tara(r.f(4,116),r.f(58,80),r.f(9,15),r.f(6,10),9,r,.24,'p-tara-roku');}
+        g+=hana(60,r.f(30,42),r.f(15,18));                    /* 中線をまたぐ一輪 */
+        var xs=[r.f(8,24),r.f(94,116),r.f(30,44),r.f(74,90)];
+        for(i=0;i<4;i++){g+=hana(xs[i],r.f(16,58),r.f(8.5,13.5));}
+        return g;}},
+    tsuta:{jp:'蔦紅葉',kana:'つたもみぢ',ki:'秋',
+      uta:['このたびは幣もとりあへず 手向山','紅葉の錦神のまにまに'],yomi:'菅家',
+      draw:function(r){
+        var g='',i,x,y,s,c;
+        g+='<path d="'+eda(-8,r.f(10,22),128,r.f(66,78),r.f(-24,-12))+'" class="p-tsuru"/>';
+        function ha(cx,cy,s,cls){
+          var p=[],i,a,rr;
+          for(i=0;i<11;i++){a=-1.5708+i/11*6.283185;rr=(i%3===0?1:.6)*s;
+            p.push([cx+Math.cos(a)*rr*1.05,cy+Math.sin(a)*rr]);}
+          return '<path d="'+pool(p)+'" class="'+cls+'"/>';}
+        g+=ha(60,r.f(38,48),r.f(11,14),'p-tara-enji');        /* 中線をまたぐ一葉 */
+        for(i=0;i<6;i++){x=r.f(2,118);y=r.f(8,78);s=r.f(6,12);
+          c=r.p(.55)?'p-tara-enji':'p-tara-roku';g+=ha(x,y,s,c);}
+        for(i=0;i<3;i++){g+='<circle cx="'+n(r.f(6,114))+'" cy="'+n(r.f(10,76))+'" r="'+n(r.f(1.6,2.6))+'" class="p-sumi-d"/>';}
+        return g;}},
+    nami:{jp:'光琳波',kana:'こうりんなみ',ki:'夏',
+      uta:['風をいたみ岩うつ波の おのれのみ','くだけてものを思ふころかな'],yomi:'源重之',
+      draw:function(r){
+        var g='',i,a,cx,cy,rad,d;
+        g+=mizu(-6,r.f(46,54),132,4,r.f(4,6),r.f(8,10),'p-mizu');
+        function uzu(cx,cy,rad,turn){
+          var d='M'+n(cx)+','+n(cy),i,a,rr,st=44;
+          for(i=1;i<=st;i++){a=i/st*turn;rr=rad*i/st;
+            d+='L'+n(cx+Math.cos(a)*rr)+','+n(cy+Math.sin(a)*rr*.8);}
+          return '<path d="'+d+'" class="p-uzu"/>';}
+        g+=uzu(60,r.f(34,44),r.f(13,17),r.f(9,12));           /* 中線をまたぐ渦 */
+        g+=uzu(r.f(10,26),r.f(24,40),r.f(8,13),r.f(8,11));
+        g+=uzu(r.f(94,114),r.f(28,44),r.f(8,13),-r.f(8,11));
+        for(i=0;i<7;i++){g+='<circle cx="'+n(r.f(0,120))+'" cy="'+n(r.f(18,44))+'" r="'+n(r.f(1.2,2.4))+'" class="p-shibuki"/>';}
+        g+=tara(r.f(6,20),r.f(70,80),r.f(12,18),r.f(6,9),9,r,.22,'p-tara-sumi');
+        return g;}},
+    sakura:{jp:'桜',kana:'さくら',ki:'春',
+      uta:['久方の光のどけき 春の日に','しづ心なく花の散るらむ'],yomi:'紀友則',
+      draw:function(r){
+        var g='',i,a,x,y,s;
+        function hana(cx,cy,s){
+          var o='',i,a,p,j,rr;
+          for(i=0;i<5;i++){a=-1.5708+i/5*6.283185;p=[];
+            for(j=0;j<7;j++){var t=a-.45+j/6*.9,q=(j===3?.72:1);
+              rr=s*(Math.abs(j-3)<1?.86:1)*q;p.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr]);}
+            p.push([cx,cy]);o+='<path d="'+pool(p)+'" class="p-tara-sakura"/>';}
+          o+='<circle cx="'+n(cx)+'" cy="'+n(cy)+'" r="'+n(s*.20)+'" class="p-kindei"/>';return o;}
+        g+='<path d="'+eda(-8,r.f(66,78),128,r.f(8,22),r.f(10,22))+'" class="p-eda"/>';
+        g+=hana(60,r.f(36,48),r.f(11,14));                    /* 中線をまたぐ一花 */
+        for(i=0;i<4;i++){g+=hana(r.f(4,116),r.f(12,70),r.f(6.5,11));}
+        for(i=0;i<9;i++){x=r.f(0,120);y=r.f(6,82);s=r.f(1.8,3.2);
+          g+='<ellipse cx="'+n(x)+'" cy="'+n(y)+'" rx="'+n(s)+'" ry="'+n(s*.62)+'" transform="rotate('+n(r.f(0,180))+' '+n(x)+' '+n(y)+')" class="p-hira"/>';}
+        return g;}},
+    susuki:{jp:'薄',kana:'すすき',ki:'仲秋',
+      uta:['秋の田のかりほの庵の 苫をあらみ','わが衣手は露にぬれつつ'],yomi:'天智天皇',
+      draw:function(r){
+        var g='',i,x,h,ln;
+        g+='<circle cx="'+n(r.f(78,104))+'" cy="'+n(r.f(10,22))+'" r="'+n(r.f(13,17))+'" class="p-tsuki"/>';
+        for(i=0;i<9;i++){x=r.f(-4,124);h=r.f(30,62);ln=r.f(-22,22);
+          g+='<path d="'+blade(x,r.f(80,88),h,ln,r.f(1.6,2.6))+'" class="'+(i%3?'p-roku':'p-roku2')+'"/>';}
+        for(i=0;i<3;i++){x=[60,r.f(12,30),r.f(92,114)][i];h=r.f(44,58);ln=r.f(-16,16);
+          var tx=x+ln,ty=88-h,j,a;
+          g+='<path d="M'+n(x)+',88 Q'+n(x+ln*.4)+','+n(88-h*.6)+' '+n(tx)+','+n(ty)+'" class="p-kuki"/>';
+          for(j=0;j<11;j++){a=r.f(-.9,.9);
+            g+='<line x1="'+n(tx)+'" y1="'+n(ty)+'" x2="'+n(tx+Math.sin(a)*r.f(9,17))+'" y2="'+n(ty-Math.cos(a)*r.f(7,15))+'" class="p-ho"/>';}}
+        return g;}},
+    matsu:{jp:'松',kana:'まつ',ki:'常盤',
+      uta:['立ち別れいなばの山の 峰に生ふる','まつとし聞かば今帰り来む'],yomi:'中納言行平',
+      draw:function(r){
+        var g='',i,j,a,cx,cy,rad;
+        g+='<path d="'+eda(-6,r.f(78,88),r.f(70,92),r.f(20,34),r.f(-20,-8))+'" class="p-miki"/>';
+        g+='<path d="'+eda(r.f(30,48),r.f(52,64),128,r.f(48,64),10)+'" class="p-eda"/>';
+        function fusa(cx,cy,rad){
+          var o='<circle cx="'+n(cx)+'" cy="'+n(cy)+'" r="'+n(rad)+'" class="p-fusa"/>',i,a;
+          for(i=0;i<18;i++){a=i/18*6.283185;
+            o+='<line x1="'+n(cx+Math.cos(a)*rad*.30)+'" y1="'+n(cy+Math.sin(a)*rad*.30)+'" x2="'+n(cx+Math.cos(a)*rad*1.04)+'" y2="'+n(cy+Math.sin(a)*rad*1.04)+'" class="p-hari"/>';}
+          return o;}
+        g+=fusa(60,r.f(30,42),r.f(14,18));                    /* 中線をまたぐ一房 */
+        for(i=0;i<4;i++){g+=fusa(r.f(6,114),r.f(14,66),r.f(8,13));}
+        return g;}}
+  };
+  var KEYS=['ume','kaki','kiku','tsuta','nami','sakura','susuki','matsu'];
+
+  /* 一幅（120×84）を描く。half: 'l'|'r'|null（null＝全幅） */
+  function paint(key,seed,half){
+    var r=rng(key+'/'+seed), body=MON[key].draw(r);
+    var clip = half? '<clipPath id="c'+half+seed+'"><rect x="'+(half==='l'?0:60)+'" y="0" width="60" height="84"/></clipPath>' : '';
+    return {defs:clip, body:body, clipId: half? 'c'+half+seed : null};
+  }
+  return {rng:rng,fnv1a:fnv1a,MON:MON,KEYS:KEYS,paint:paint,pool:pool,tara:tara,ume:ume,mizu:mizu,blade:blade,eda:eda,n:n};
+})();
+</script>
+<script>/* ===== 照り engine：全站の金地を統べる唯一の光源 =====
+   出力は二つだけ — (1) 各 .teri を transform で動かす（合成のみ・60fps）
+                    (2) 各扇の .lit の opacity（合成のみ）
+   fePointLight の座標だけは 60ms に間引く（フィルタの再評価は高い） */
+(function(){
+  var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var tx=.5,ty=.22,cx=.5,cy=.22,manual=0,t0=performance.now(),lastF=0;
+  var teris=[],chous=[],pl=null,pw=0,ph=0;
+  function collect(){
+    teris=[].slice.call(document.querySelectorAll('.teri'));
+    chous=[].slice.call(document.querySelectorAll('[data-yaw]'));
+    pl=document.getElementById('hakuLight');
+    pw=innerWidth;ph=innerHeight;
+    chous.forEach(function(c){var b=c.getBoundingClientRect();c._cx=(b.left+b.width/2)/pw;c._cy=(b.top+b.height/2)/Math.max(1,ph);});
+  }
+  function apply(){
+    var i,c,nx,nz,yaw,lx,ly,lz,d,m,lit;
+    for(i=0;i<teris.length;i++){
+      teris[i].style.transform='translate3d('+((cx-.5)*46).toFixed(2)+'%,'+((cy-.5)*40).toFixed(2)+'%,0)';
+    }
+    for(i=0;i<chous.length;i++){
+      c=chous[i];yaw=(+c.dataset.yaw)*Math.PI/180;
+      nx=Math.sin(yaw);nz=Math.cos(yaw);
+      lx=cx-c._cx;ly=cy-c._cy;lz=.92;
+      m=Math.sqrt(lx*lx+ly*ly+lz*lz)||1;lx/=m;ly/=m;lz/=m;
+      d=nx*lx+nz*lz; if(d<0)d=0;
+      lit=Math.pow(d,3.4);
+      if(c._lit)c._lit.style.opacity=(0.10+0.80*lit).toFixed(3);
+    }
+    if(pl){
+      var now=performance.now();
+      if(now-lastF>90){lastF=now;
+        pl.setAttribute('x',(cx*320).toFixed(1));pl.setAttribute('y',(cy*200).toFixed(1));}
+    }
+  }
+  function frame(now){
+    if(!RM){
+      if(manual>0){manual-=16;}
+      else{var w=(now-t0)/38000*6.283185;tx=.5+.34*Math.sin(w);ty=.24+.13*Math.cos(w*.73);}
+      cx+=(tx-cx)*.10;cy+=(ty-cy)*.10;
+    }else{cx=tx;cy=ty;}
+    apply();requestAnimationFrame(frame);
+  }
+  function init(){
+    collect();
+    chous.forEach(function(c){c._lit=c.querySelector('.lit');});
+    addEventListener('resize',collect,{passive:true});
+    addEventListener('pointermove',function(e){
+      tx=e.clientX/innerWidth;ty=e.clientY/innerHeight;manual=5200;},{passive:true});
+    var btn=document.getElementById('tiltBtn');
+    if(btn){
+      var on=false;
+      function handler(ev){
+        if(ev.gamma==null)return;
+        var g=Math.max(-45,Math.min(45,ev.gamma)),b=Math.max(-20,Math.min(70,ev.beta||30));
+        tx=.5+g/45*.46;ty=.10+(b-(-20))/90*.7;manual=5200;}
+      btn.addEventListener('click',function(){
+        if(on){removeEventListener('deviceorientation',handler);on=false;btn.textContent='端末を傾けて光を動かす';btn.setAttribute('aria-pressed','false');return;}
+        var D=window.DeviceOrientationEvent;
+        if(!D){btn.textContent='この端末は傾きを検出できません';btn.disabled=true;return;}
+        if(typeof D.requestPermission==='function'){
+          D.requestPermission().then(function(s){
+            if(s==='granted'){addEventListener('deviceorientation',handler);on=true;btn.textContent='傾きで光を動かす：入';btn.setAttribute('aria-pressed','true');}
+            else{btn.textContent='許可されませんでした（指でなぞってください）';}
+          }).catch(function(){btn.textContent='許可されませんでした（指でなぞってください）';});
+        }else{addEventListener('deviceorientation',handler);on=true;btn.textContent='傾きで光を動かす：入';btn.setAttribute('aria-pressed','true');}
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  if(document.readyState!=='loading')init();else addEventListener('DOMContentLoaded',init);
+})();
+</script><script>
+(function(){
+  var host=document.getElementById('hen'); if(!host)return;
+  var out='',i,k;
+  for(i=0;i<AG.KEYS.length;i++){k=AG.KEYS[i];
+    var j; for(j=1;j<=3;j++){
+      out+='<figure><svg viewBox="0 0 120 84" role="img" aria-label="'+AG.MON[k].jp+' 変'+j+'"><rect width="120" height="84" fill="var(--kin)"/>'
+        +AG.paint(k,'hen-'+k+'-'+j,null).body+'</svg><figcaption>'+AG.MON[k].jp+' 変'+j+'</figcaption></figure>';
+    }
+  }
+  host.innerHTML=out;
+  document.getElementById('hennote').textContent='二十四枚とも別の絵です（八題 × 三度）。同じ題でも株の数・傾き・溜まりの縁がその都度違うため、三百六十貝に同じ絵は一枚もありません。';
+})();
+</script>
+</body></html>

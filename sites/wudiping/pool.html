@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>籤簿・擺形｜無地平 跳傘訓練所</title>
+<meta name="description" content="抽三個形，把四個人擺出來。只看相對位置——整組轉幾度、擺在哪一角、擺多大都算對。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%23F2F2EF'/%3E%3Crect%20x='7'%20y='5'%20width='13'%20height='13'%20fill='%230E0E10'/%3E%3Crect%20x='3'%20y='22'%20width='26'%20height='5'%20fill='%23E5301C'%20transform='rotate(-33%2016%2024)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ══ 至上主義紀律：無邊框・無圓角・無陰影・無漸層・無材質・無網格線 ══ */
+*{margin:0;padding:0;box-sizing:border-box;border:0;border-radius:0;box-shadow:none;background-image:none}
+:root{--void:#F2F2EF;--ink:#0E0E10;--red:#E5301C;--green:#0B7A4B;--tilt:-33deg}
+html,body{background:var(--void)}
+body{color:var(--ink);font-family:"Noto Sans TC","Archivo",system-ui,sans-serif;font-weight:400;line-height:1.72;
+ -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:16px}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit;background:transparent;outline-offset:3px}
+::selection{background:var(--red);color:#fff}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.n{font-family:"Archivo",sans-serif;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.hd{font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:800;letter-spacing:-.01em;line-height:1.04}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* ── 形 ─────────────────────────────────────── */
+.f{position:absolute;left:calc(var(--x)*1%);top:calc(var(--y)*1%);width:calc(var(--w)*1%);height:calc(var(--h)*1%);
+ transform:translate(var(--bx,0px),var(--by,0px)) rotate(var(--r,0deg));transform-origin:50% 50%}
+.blk{background:var(--ink)}.rd{background:var(--red)}.gr{background:var(--green)}
+.disc{border-radius:50%}
+.lbl{position:absolute;font-size:11px;letter-spacing:.14em;line-height:1.5;white-space:nowrap}
+.lbl.n{font-weight:600}
+.lbl-w{color:#F2F2EF}
+.vert{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.32em;font-size:11px;font-weight:600}
+.tilt{display:inline-block;transform:rotate(-33deg);transform-origin:0 50%}
+/* ── 導覽：黑方定位（全站唯一未旋轉的形＝現用頁）───── */
+.nav{position:fixed;top:22px;right:24px;width:206px;height:132px;z-index:70}
+.nav a{position:absolute;display:block;text-align:right}
+.nav a i{position:absolute;right:0;top:0;display:block;width:46px;height:9px;background:var(--red);
+ transform:rotate(var(--tilt));transform-origin:100% 50%;transition:transform .16s steps(3)}
+.nav a b{position:absolute;right:56px;top:-4px;font-size:11px;font-weight:500;letter-spacing:.2em;white-space:nowrap;color:var(--ink)}
+.nav a:hover i{transform:rotate(-52deg)}
+.nav a[aria-current="page"] i{width:22px;height:22px;background:var(--ink);transform:rotate(0deg);top:-7px}
+.nav a[aria-current="page"] b{font-weight:900;right:34px}
+.nav a:nth-child(1){right:0;top:2px}
+.nav a:nth-child(2){right:26px;top:36px}
+.nav a:nth-child(3){right:52px;top:70px}
+.nav a:nth-child(4){right:78px;top:104px}
+.brand{position:fixed;top:24px;left:26px;z-index:70;display:block}
+.brand svg{display:block;width:132px;height:auto}
+/* ── 解散鈕（簽名動效）──────────────────────── */
+.bo{position:fixed;left:26px;top:96px;z-index:70;width:34px;height:34px;background:var(--red);border-radius:50%;cursor:pointer;
+ color:var(--ink);font-size:10px;letter-spacing:.06em;font-weight:700;line-height:34px;text-align:center;font-family:"Noto Sans TC",sans-serif}
+.bo:hover{background:var(--ink);color:#F2F2EF}
+html:not(.js) .jsonly{display:none!important}
+body.scattered .f{transition:transform .9s steps(6)}
+body.scattered .void .f{--bx:var(--sx);--by:var(--sy)}
+/* ── 版面 ──────────────────────────────────── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 30px}
+.void{position:relative;height:clamp(560px,84vh,800px);margin:0 auto;max-width:1180px}
+.void .f{transition:transform .9s steps(6)}
+section{padding:0 0 96px}
+h2.hd{font-size:clamp(26px,3.4vw,44px);margin:0 0 6px}
+h3{font-size:17px;font-weight:700;letter-spacing:.02em;margin:0 0 4px}
+p{max-width:34em}
+.tag{font-size:11px;letter-spacing:.26em;font-weight:600;color:var(--ink)}
+.bar{height:9px;background:var(--red);width:170px;margin:0 0 22px}
+.bar.k{background:var(--ink)}
+.stack{display:flow-root}
+.row{display:flex;flex-wrap:wrap;gap:38px 54px;align-items:flex-start}
+.col{flex:1 1 250px;min-width:240px}
+.lead{font-size:19px;line-height:1.78;max-width:31em}
+.sm{font-size:13.5px;line-height:1.7}
+.mut{color:#4A4A4C}
+table{border-collapse:collapse;width:100%;max-width:620px}
+th,td{text-align:left;padding:9px 16px 9px 0;font-size:14px;vertical-align:top}
+th{font-weight:700;font-size:11.5px;letter-spacing:.2em}
+tbody tr td:first-child{font-weight:700}
+.klist{list-style:none}
+.klist li{padding-left:26px;position:relative;margin-bottom:9px;font-size:14.5px;max-width:33em}
+.klist li::before{content:"";position:absolute;left:0;top:.62em;width:13px;height:13px;background:var(--ink);transform:rotate(-33deg)}
+.klist li.r::before{background:var(--red)}
+/* ── 表單／按鈕（無邊框，靠色塊）─────────────── */
+.btn{display:inline-block;background:var(--ink);color:#F2F2EF;padding:13px 26px;font-size:13px;font-weight:700;
+ letter-spacing:.18em;cursor:pointer;transition:background .01s}
+.btn:hover{background:var(--red);color:var(--ink)}
+.btn[disabled]{background:#9C9C99;cursor:not-allowed}
+.btn.gh{background:var(--red);color:var(--ink)}
+.btn.gh:hover{background:var(--ink);color:#F2F2EF}
+.fld{margin:0 0 20px;max-width:420px}
+.fld label{display:block;font-size:11px;letter-spacing:.2em;font-weight:700;margin:0 0 6px}
+.fld input,.fld select,.fld textarea{width:100%;background:#fff;padding:12px 14px;font-size:15px}
+.fld input:focus,.fld select:focus{background:#fff;outline:3px solid var(--red)}
+.err{color:var(--red);font-size:13px;font-weight:700;margin-top:7px;max-width:32em}
+footer{background:var(--ink);color:#F2F2EF;padding:56px 0 44px;margin-top:40px}
+footer a:hover{color:#FFFFFF;text-decoration:underline}
+footer .row{gap:30px 56px}
+/* ── 逐格降落（ambient）───────────────────── */
+@keyframes fall{0%{transform:translateY(-14vh) rotate(0deg)}100%{transform:translateY(112vh) rotate(198deg)}}
+.faller{position:fixed;width:13px;height:13px;background:var(--ink);z-index:1;pointer-events:none;
+ animation:fall 26s steps(16,end) infinite}
+.faller.b{width:8px;height:26px;background:var(--red);animation-duration:41s;animation-timing-function:steps(11,end)}
+/* ── 斜線推移（transition）─────────────────── */
+@keyframes wipe{from{clip-path:polygon(0 0,0 0,-38% 100%,-38% 100%)}to{clip-path:polygon(0 0,142% 0,100% 100%,-38% 100%)}}
+.wipe{animation:wipe .19s cubic-bezier(.2,0,0,1) both}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important}
+ .faller{display:none}
+}
+/* ── RWD ────────────────────────────────────── */
+@media (max-width:900px){
+ body{padding-top:74px;font-size:15.5px}
+ .brand{top:16px;left:18px}.brand svg{width:104px}
+ .bo{top:20px;left:auto;right:18px;width:30px;height:30px;line-height:30px;font-size:9px}
+ .nav{position:fixed;top:56px;left:0;right:0;width:100%;height:36px;background:var(--void);padding:0 14px;display:flex;gap:0}
+ .nav a{position:static;flex:1;text-align:center;padding-top:4px}
+ .nav a i{position:static;display:block;width:100%;height:7px;margin:0 auto 5px;transform:none}
+ .nav a[aria-current="page"] i{width:14px;height:14px;margin-bottom:1px;transform:none}
+ .nav a b{position:static;display:block;font-size:10px;letter-spacing:.1em}
+ .nav a:hover i{transform:none}
+ .void{height:auto;min-height:0;padding-bottom:12px}
+ .wrap{padding:0 18px}
+ p,.klist li,.lead{max-width:none}
+}
+@media (max-width:560px){
+ .lead{font-size:17px}
+ .row{gap:26px}
+ th,td{font-size:13px;padding:7px 10px 7px 0}
+}
+
+/* ── 籤簿 ─────────────────────────────────── */
+.head{padding:26px 0 8px}
+.rules{display:flex;flex-wrap:wrap;gap:0 34px;margin:18px 0 0}
+.rules p{font-size:14.5px;font-weight:500;flex:1 1 230px;min-width:210px;max-width:none;padding-left:26px;position:relative}
+.rules p::before{content:"";position:absolute;left:0;top:.6em;width:14px;height:14px;background:var(--red);transform:rotate(-33deg)}
+.rules p:nth-child(2)::before{background:var(--ink)}
+.rules p:nth-child(3)::before{background:var(--ink);transform:rotate(0deg)}
+.deck{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;margin:34px 0 0}
+.panel{flex:0 0 232px}
+.arena{flex:1 1 560px;min-width:300px;position:relative;height:clamp(400px,58vh,560px);background:var(--void);touch-action:none}
+.arena.done{background:var(--void)}
+.j{position:absolute;left:0;top:0;width:0;height:0;transform:translate(var(--px,0px),var(--py,0px));cursor:grab;touch-action:none;z-index:3}
+.j:active{cursor:grabbing}
+.jr{position:absolute;left:0;top:0;transform:rotate(var(--fa,90deg));display:block}
+.jb{position:absolute;left:-25px;top:-6px;width:50px;height:12px;background:var(--ink)}
+.jn{position:absolute;left:26px;top:-5px;width:10px;height:10px;background:var(--red)}
+.jl{position:absolute;left:-8px;top:-34px;font-size:12px;font-weight:900;letter-spacing:.06em}
+.jh{position:absolute;left:-32px;top:-30px;width:64px;height:62px;touch-action:none}
+.j.sel{z-index:6}
+.j.sel .jb{background:var(--red)}.j.sel .jn{background:var(--ink)}
+.j.sel .jl{color:var(--red)}
+.j:focus-visible{outline:none}.j:focus-visible .jl{outline:3px solid var(--red);outline-offset:3px}
+.arena.ok .jb{background:var(--green)}.arena.ok .jn{background:var(--ink)}
+#gauge{position:absolute;height:2px;background:var(--red);transform-origin:0 50%;display:none;z-index:2;pointer-events:none}
+#gaugeL{position:absolute;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink);display:none;z-index:4;pointer-events:none;background:var(--void);padding:1px 4px}
+.tgt{margin:0 0 16px}
+.tgt .fig{width:150px;height:150px}
+.tgt h3{font-size:26px;font-weight:900;letter-spacing:.02em;margin:10px 0 2px}
+.tgt .n{font-size:12px;letter-spacing:.18em;color:#4A4A4C}
+.clock{font-family:"Archivo",sans-serif;font-weight:800;font-size:48px;line-height:1;letter-spacing:-.02em;margin:16px 0 2px}
+.clock.warn{color:var(--red)}
+.pips{display:flex;gap:7px;margin:12px 0 18px}
+.pips i{display:block;width:22px;height:22px;background:#C9C9C5}
+.pips i.on{background:var(--ink)}.pips i.ok{background:var(--green)}.pips i.no{background:var(--red)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 0}
+.hint{font-size:12.5px;line-height:1.65;color:#4A4A4C;margin-top:16px;max-width:30em}
+.verdict{margin:18px 0 0;max-width:44em;min-height:52px}
+.verdict b{font-size:22px;line-height:1.35}
+.verdict .g{color:var(--green)}
+.verdict .x{color:var(--red)}
+#sheet{display:none;margin:38px 0 0;background:var(--ink);color:#F2F2EF;padding:34px 30px}
+#sheet.on{display:block}
+#sheet h2{color:#F2F2EF}
+#sheet table{max-width:520px}
+#sheet th,#sheet td{color:#F2F2EF;font-size:13.5px}
+#sheet .grade{font-size:64px;font-weight:900;line-height:1;font-family:"Archivo",sans-serif}
+#sheet .stampbox{background:#F2F2EF;width:168px;height:168px}
+#sheet .share{font-size:12px;color:#DEDEDA;word-break:break-all}
+.figs{display:flex;flex-wrap:wrap;gap:26px 30px}
+.figc{width:104px}.fig{width:104px;height:104px;background:var(--void)}
+.figc figcaption{font-size:11.5px;letter-spacing:.1em;margin-top:7px;font-weight:700}
+.figc .cap2{font-size:10.5px;font-weight:400;color:#4A4A4C;letter-spacing:.02em}
+.chk{font-size:13px;font-weight:600;letter-spacing:.06em;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.chk input{width:17px;height:17px;background:#fff;-webkit-appearance:none;appearance:none;cursor:pointer}
+.chk input:checked{background:var(--red)}
+@media (max-width:900px){
+ .arena{height:clamp(330px,48vh,430px);flex:1 1 100%}
+ .panel{flex:1 1 100%;display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+ .panel .tgt{flex:0 0 128px}.tgt .fig{width:128px;height:128px}
+ .panel .side{flex:1 1 180px}
+ .jb{left:-19px;top:-5px;width:38px;height:10px}
+ .jn{left:20px;top:-4px;width:8px;height:8px}
+}
+.void.strip{height:130px;margin:6px 0 2px;position:relative}
+@media (max-width:900px){.void.strip{height:88px}}
+.void.strip .vert{position:absolute;right:1%;top:8%;height:84%;color:var(--ink)}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">跳到主要內容</a>
+<a class="brand" href="index.html" aria-label="無地平 跳傘訓練所 首頁">
+<svg viewBox="0 0 240 120" aria-hidden="true"><rect width="240" height="120" fill="#F2F2EF"/><g transform="rotate(-33 60 60)"><rect x="6" y="52" width="108" height="9" fill="#E5301C"/><rect x="30" y="20" width="30" height="30" fill="#0E0E10"/><rect x="72" y="66" width="14" height="14" fill="#0E0E10"/><circle cx="20" cy="30" r="7" fill="#0E0E10"/></g><text x="126" y="56" font-family="Archivo,Helvetica,sans-serif" font-size="26" font-weight="800" letter-spacing="1.5" fill="#0E0E10">NO</text><text x="126" y="82" font-family="Archivo,Helvetica,sans-serif" font-size="26" font-weight="800" letter-spacing="1.5" fill="#0E0E10">HORIZON</text><rect x="126" y="88" width="52" height="5" fill="#E5301C"/></svg>
+</a>
+<button class="bo jsonly" id="bo" type="button" aria-pressed="false">解散</button>
+<nav class="nav" aria-label="主導覽">
+<a href="index.html"><i aria-hidden="true"></i><b>虛空</b></a>
+<a href="pool.html" aria-current="page"><i aria-hidden="true"></i><b>籤簿</b></a>
+<a href="fa.html"><i aria-hidden="true"></i><b>判形之法</b></a>
+<a href="wei.html"><i aria-hidden="true"></i><b>報名・包機</b></a>
+</nav>
+
+<div class="faller" aria-hidden="true" style="left:93%"></div>
+
+<main id="main" class="wrap">
+<div class="head">
+  <p class="tag">籤簿</p>
+  <h1 class="hd" style="font-size:clamp(30px,5vw,60px);margin:6px 0 0">擺一次給我看</h1>
+  <div class="bar" style="margin-top:16px"></div>
+  <div class="rules">
+    <p>抽籤給你三個形，一個一個來。</p>
+    <p>把甲乙丙丁四個人拖成那個形；選中一個人可用方向鍵微調、<b>R</b> 與 <b>E</b> 轉身。</p>
+    <p>只看相對位置——整組轉幾度、擺在哪一角、擺多大，全部算對。</p>
+  </div>
+</div>
+
+<div class="void strip">
+  <div class="f blk" style="--x:2;--y:24;--w:30;--h:8;--r:-33deg" aria-hidden="true"></div>
+  <div class="f rd" style="--x:44;--y:10;--w:8;--h:58;--r:-33deg" aria-hidden="true"></div>
+  <div class="f blk" style="--x:62;--y:38;--w:6;--h:28;--r:0deg" aria-hidden="true"></div>
+  <div class="f blk disc" style="--x:77;--y:20;--w:4.5;--h:32;--r:0deg" aria-hidden="true"></div>
+  <div class="f rd" style="--x:88;--y:60;--w:4;--h:13;--r:-33deg" aria-hidden="true"></div>
+  <p class="vert">三十五秒</p>
+</div>
+
+<noscript><p class="lead" style="background:var(--red);color:#fff;padding:16px 18px;max-width:none">擺形需要 JavaScript。本頁下半部的<b>八形圖籍</b>與判形規則不需要 JavaScript，可直接閱讀；完整的判形算法寫在 <a href="fa.html" style="text-decoration:underline">判形之法</a>。</p></noscript>
+
+<div class="deck jsonly" id="deck">
+  <div class="panel">
+    <div class="tgt">
+      <p class="tag">第 <span id="idx">1</span> 形</p>
+      <div class="fig" id="tgtfig"></div>
+      <h3 id="tgtname">輪</h3>
+      <p class="n" id="tgten">Star</p>
+    </div>
+    <div class="side">
+      <p class="tag">工作時間</p>
+      <p class="clock n" id="clock">35</p>
+      <div class="pips" id="pips"><i></i><i></i><i></i></div>
+      <label class="chk"><input type="checkbox" id="notime"> 不計時練習</label>
+      <div class="ctl">
+        <button class="btn" id="lock" type="button">定形</button>
+        <button class="btn gh" id="reset" type="button">重來</button>
+      </div>
+      <p class="hint">出艙後真正能用來把形擺出來的時間，四人隊是三十五秒。時間到就算沒完成，直接進下一個形。</p>
+    </div>
+  </div>
+  <div class="arena" id="arena">
+    <div id="gauge"></div><div id="gaugeL"></div>
+    <div class="j" id="j0" tabindex="0" role="button" aria-label="甲 卓明賢，方向鍵移動，R 與 E 轉身"><span class="jh"></span><span class="jr"><span class="jb"></span><span class="jn"></span></span><span class="jl">甲</span></div>
+    <div class="j" id="j1" tabindex="0" role="button" aria-label="乙 賴亞恬，方向鍵移動，R 與 E 轉身"><span class="jh"></span><span class="jr"><span class="jb"></span><span class="jn"></span></span><span class="jl">乙</span></div>
+    <div class="j" id="j2" tabindex="0" role="button" aria-label="丙 高妤欣，方向鍵移動，R 與 E 轉身"><span class="jh"></span><span class="jr"><span class="jb"></span><span class="jn"></span></span><span class="jl">丙</span></div>
+    <div class="j" id="j3" tabindex="0" role="button" aria-label="丁 潘建霖，方向鍵移動，R 與 E 轉身"><span class="jh"></span><span class="jr"><span class="jb"></span><span class="jn"></span></span><span class="jl">丁</span></div>
+  </div>
+</div>
+<p class="verdict jsonly" id="verdict" role="status" aria-live="polite"></p>
+
+<div id="sheet">
+  <p class="tag" style="color:#F2F2EF">跳次單</p>
+  <div class="row" style="margin-top:14px;align-items:flex-start">
+    <div class="col" style="flex:1 1 300px">
+      <p class="grade" id="grade">乙</p>
+      <p class="hd" id="gword" style="font-size:20px;margin:10px 0 14px"></p>
+      <table><thead><tr><th>形</th><th>結果</th><th>形差</th><th>用時</th></tr></thead><tbody id="srows"></tbody></table>
+      <p class="share" id="share" style="margin-top:18px"></p>
+      <p style="margin-top:20px"><button class="btn gh" id="again" type="button">再抽一次</button></p>
+    </div>
+    <div class="col" style="flex:0 0 168px">
+      <p class="tag" style="color:#9C9C99;margin-bottom:8px">跳次印記</p>
+      <div class="stampbox" id="stamp"></div>
+      <p class="share" id="stampno" style="margin-top:8px"></p>
+    </div>
+  </div>
+</div>
+
+<section style="padding-top:64px">
+  <p class="tag">圖籍</p>
+  <h2 class="hd">籤簿裡的八個形</h2>
+  <div class="bar k" style="margin-top:14px"></div>
+  <p class="sm" style="max-width:36em;margin-bottom:26px">依國際四人隊 randoms 的通用名稱重繪為示意圖（非官方握點圖）。紅色小方是每個人的正面。</p>
+  <div class="figs"><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="輪（Star）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,25.00) rotate(90)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(75.00,50.00) rotate(180)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g><g transform="translate(50.00,75.00) rotate(270)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(25.00,50.00) rotate(0)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g></svg></div><figcaption>一・輪<span class="cap2"><br>Star</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="甜圈（Donut）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,25.00) rotate(180)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(75.00,50.00) rotate(270)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g><g transform="translate(50.00,75.00) rotate(0)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#0E0E10"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#E5301C"/></g><g transform="translate(25.00,50.00) rotate(90)"><rect x="-10.00" y="-4.25" width="20.00" height="8.50" fill="#E5301C"/><rect x="10.50" y="-3.00" width="6.00" height="6.00" fill="#0E0E10"/></g></svg></div><figcaption>二・甜圈<span class="cap2"><br>Donut</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="開扇（Open Accordion）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(21.32,50.00) rotate(0)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#0E0E10"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#E5301C"/></g><g transform="translate(40.14,50.00) rotate(270)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#E5301C"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#0E0E10"/></g><g transform="translate(59.86,50.00) rotate(270)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#0E0E10"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#E5301C"/></g><g transform="translate(78.68,50.00) rotate(180)"><rect x="-7.17" y="-3.05" width="14.34" height="6.09" fill="#E5301C"/><rect x="7.53" y="-2.15" width="4.30" height="4.30" fill="#0E0E10"/></g></svg></div><figcaption>三・開扇<span class="cap2"><br>Open Accordion</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="側身（Sidebody）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(23.83,37.49) rotate(90)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(48.86,37.49) rotate(180)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g><g transform="translate(48.86,62.51) rotate(0)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(76.17,62.51) rotate(270)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g></svg></div><figcaption>四・側身<span class="cap2"><br>Sidebody</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="貓（Cat）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(50.00,23.83) rotate(90)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(50.00,48.86) rotate(90)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g><g transform="translate(26.11,69.34) rotate(45)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#0E0E10"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#E5301C"/></g><g transform="translate(73.89,69.34) rotate(135)"><rect x="-9.10" y="-3.87" width="18.20" height="7.74" fill="#E5301C"/><rect x="9.56" y="-2.73" width="5.46" height="5.46" fill="#0E0E10"/></g></svg></div><figcaption>五・貓<span class="cap2"><br>Cat</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="雙極（Bipole）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(34.99,24.59) rotate(90)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#0E0E10"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#E5301C"/></g><g transform="translate(65.01,24.59) rotate(90)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#E5301C"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#0E0E10"/></g><g transform="translate(34.99,75.41) rotate(270)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#0E0E10"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#E5301C"/></g><g transform="translate(65.01,75.41) rotate(270)"><rect x="-9.68" y="-4.11" width="19.36" height="8.23" fill="#E5301C"/><rect x="10.17" y="-2.90" width="5.81" height="5.81" fill="#0E0E10"/></g></svg></div><figcaption>六・雙極<span class="cap2"><br>Bipole</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="之字（Zig Zag）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(22.03,38.04) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#0E0E10"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#E5301C"/></g><g transform="translate(40.74,57.33) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#E5301C"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#0E0E10"/></g><g transform="translate(59.26,38.04) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#0E0E10"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#E5301C"/></g><g transform="translate(77.97,57.33) rotate(0)"><rect x="-7.72" y="-3.28" width="15.43" height="6.56" fill="#E5301C"/><rect x="8.10" y="-2.31" width="4.63" height="4.63" fill="#0E0E10"/></g></svg></div><figcaption>七・之字<span class="cap2"><br>Zig Zag</span></figcaption></figure><figure class="figc"><div class="fig"><svg viewBox="0 0 100 100" width="104" height="104" role="img" aria-label="方陣（Phalanx）隊形示意圖"><rect width="100" height="100" fill="#F2F2EF"/><g transform="translate(27.94,27.94) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#0E0E10"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#E5301C"/></g><g transform="translate(72.06,27.94) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#E5301C"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#0E0E10"/></g><g transform="translate(27.94,72.06) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#0E0E10"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#E5301C"/></g><g transform="translate(72.06,72.06) rotate(90)"><rect x="-12.26" y="-5.21" width="24.52" height="10.42" fill="#E5301C"/><rect x="12.87" y="-3.68" width="7.35" height="7.35" fill="#0E0E10"/></g></svg></div><figcaption>八・方陣<span class="cap2"><br>Phalanx</span></figcaption></figure></div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div class="col" style="flex:1 1 300px">
+        <p class="hd" style="font-size:22px;margin-bottom:10px">無地平 跳傘訓練所</p>
+        <p class="sm" style="color:#DEDEDA">屏東縣潮州鎮四林路 71-3 號<br>08-788-4152｜週三–週日 06:30–17:30</p>
+      </div>
+      <div class="col">
+        <p class="tag" style="color:#9C9C99">頁面</p>
+        <p class="sm"><a href="index.html">虛空（首頁）</a><br><a href="pool.html">籤簿・擺形</a><br><a href="fa.html">判形之法</a><br><a href="wei.html">報名與包機</a></p>
+      </div>
+      <div class="col">
+        <p class="tag" style="color:#9C9C99">館藏</p>
+        <p class="sm"><a href="SKILL.md">SKILL.md 風格規格書</a><br><a href="README.md">README</a><br><a href="../../index.html">回 Design Skills Center</a></p>
+      </div>
+    </div>
+    <p class="sm" style="color:#8B8B88;margin-top:34px">本站為 Design Skills Center 的風格示範站，品牌、人名、價目、電話與地址皆為虛構。至上主義 Suprematism｜Kazimir Malevich, 1915。</p>
+  </div>
+</footer>
+<script>
+/* ══ 無地平 跳傘訓練所・共用引擎 ══════════════════════
+   1) POOL 八形（畫面座標，y 向下；face 為順時針自畫面右方起算的度數）
+   2) 旋轉／平移／縮放不變的判形（2D Procrustes + 4! 身分指派枚舉）
+   3) 形的繪製（全站唯一圖像原語）
+   4) 解散／集合（簽名動效）
+   ════════════════════════════════════════════════ */
+var WD=(function(){
+"use strict";
+try{document.documentElement.classList.add("js");}catch(e){}
+var POOL={
+ '輪':   {code:'一',en:'Star',pts:[{x:0,y:-1,face:90},{x:1,y:0,face:180},{x:0,y:1,face:270},{x:-1,y:0,face:0}],note:'四人繞成一圈，每個人都面向圓心。最基本的形，也是每一趟的第一個形。'},
+ '甜圈': {code:'二',en:'Donut',pts:[{x:0,y:-1,face:180},{x:1,y:0,face:270},{x:0,y:1,face:0},{x:-1,y:0,face:90}],note:'位置與「輪」完全一樣，四個人卻全部轉了九十度改為側身相接。判形要看的就是這個差別。'},
+ '開扇': {code:'三',en:'Open Accordion',pts:[{x:-1.6,y:0,face:0},{x:-0.55,y:0,face:270},{x:0.55,y:0,face:270},{x:1.6,y:0,face:180}],note:'一列四人，中間兩人並肩同向，兩端各自向內。橫向最長的形，出艙後最花時間拉開。'},
+ '側身': {code:'四',en:'Sidebody',pts:[{x:-1.15,y:-0.55,face:90},{x:-0.05,y:-0.55,face:180},{x:-0.05,y:0.55,face:0},{x:1.15,y:0.55,face:270}],note:'兩兩相對、整體錯開半個身長。新手最常把錯開的方向做反。'},
+ '貓':   {code:'五',en:'Cat',pts:[{x:0,y:-1.15,face:90},{x:0,y:-0.05,face:90},{x:-1.05,y:0.85,face:45},{x:1.05,y:0.85,face:135}],note:'兩人前後同向，另兩人各斜四十五度在後方張開，像一隻趴著的貓。'},
+ '雙極': {code:'六',en:'Bipole',pts:[{x:-0.62,y:-1.05,face:90},{x:0.62,y:-1.05,face:90},{x:-0.62,y:1.05,face:270},{x:0.62,y:1.05,face:270}],note:'上下兩組並肩，彼此背對。兩組之間的距離是唯一的線索。'},
+ '之字': {code:'七',en:'Zig Zag',pts:[{x:-1.45,y:-0.62,face:0},{x:-0.48,y:0.38,face:0},{x:0.48,y:-0.62,face:0},{x:1.45,y:0.38,face:0}],note:'四人全部同向，位置上下交錯。全隊朝向一致，錯一個人就整組垮掉。'},
+ '方陣': {code:'八',en:'Phalanx',pts:[{x:-0.72,y:-0.72,face:90},{x:0.72,y:-0.72,face:90},{x:-0.72,y:0.72,face:90},{x:0.72,y:0.72,face:90}],note:'四人排成方形、全部同向。看似最簡單，卻最難維持——沒有人可以當參考點。'}
+};
+var NAMES=Object.keys(POOL);
+/* ── 決定性偽亂數 ── */
+function fnv1a(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* ── 判形 ── */
+var PERM4=(function(){var r=[];function go(cur,rest){if(!rest.length){r.push(cur.slice());return;}for(var i=0;i<rest.length;i++){go(cur.concat(rest[i]),rest.filter(function(_,j){return j!==i;}));}}go([],[0,1,2,3]);return r;})();
+function centroid(P){var x=0,y=0;for(var i=0;i<P.length;i++){x+=P[i].x;y+=P[i].y;}return{x:x/P.length,y:y/P.length};}
+function fit(U,T){
+ var cu=centroid(U),ct=centroid(T),a=0,b=0,su=0,st=0,i,ux,uy,tx,ty;
+ for(i=0;i<U.length;i++){ux=U[i].x-cu.x;uy=U[i].y-cu.y;tx=T[i].x-ct.x;ty=T[i].y-ct.y;
+  a+=ux*tx+uy*ty; b+=ux*ty-uy*tx; su+=ux*ux+uy*uy; st+=tx*tx+ty*ty;}
+ var th=Math.atan2(b,a), s=su>1e-9?Math.sqrt(a*a+b*b)/su:0, res=0, co=Math.cos(th), si=Math.sin(th);
+ for(i=0;i<U.length;i++){ux=U[i].x-cu.x;uy=U[i].y-cu.y;tx=T[i].x-ct.x;ty=T[i].y-ct.y;
+  var X=s*(ux*co-uy*si), Y=s*(ux*si+uy*co); res+=(X-tx)*(X-tx)+(Y-ty)*(Y-ty);}
+ return {theta:th,scale:s,rms:st>1e-9?Math.sqrt(res/st):9};
+}
+function angDiff(a,b){var d=(a-b)%360;if(d>180)d-=360;if(d<-180)d+=360;return d;}
+var BEARING=['右','右後','後','左後','左','左前','前','右前'];
+function bearingWord(dx,dy,ref){ /* ref：被參照者的朝向 */
+ var ang=Math.atan2(dy,dx)*180/Math.PI-ref, k=Math.round(((ang%360)+360)%360/45)%8;
+ return BEARING[k];
+}
+function judge(user,target){
+ var best=null;
+ for(var p=0;p<PERM4.length;p++){
+  var pm=PERM4[p], U=[pm[0],pm[1],pm[2],pm[3]].map(function(i){return user[i];});
+  var f=fit(U,target), thDeg=f.theta*180/Math.PI, maxFace=0, faces=[];
+  for(var i=0;i<4;i++){var d=angDiff(U[i].face+thDeg,target[i].face);faces.push(d);if(Math.abs(d)>maxFace)maxFace=Math.abs(d);}
+  var score=f.rms+Math.max(0,maxFace-18)/180;
+  if(!best||score<best.score)best={score:score,perm:pm,rms:f.rms,theta:thDeg,scale:f.scale,maxFace:maxFace,faces:faces};
+ }
+ best.pass=best.rms<=0.18&&best.maxFace<=32;
+ return best;
+}
+/* 錯在哪：找出殘差最大的那個人，並用相對方位講出來 */
+function diagnose(user,target,res){
+ var pm=res.perm, U=pm.map(function(i){return user[i];});
+ var cu=centroid(U),ct=centroid(target),co=Math.cos(res.theta),si=Math.sin(res.theta),s=res.scale;
+ var worst=-1,wi=0,i;
+ for(i=0;i<4;i++){var ux=U[i].x-cu.x,uy=U[i].y-cu.y;
+  var X=s*(ux*co-uy*si),Y=s*(ux*si+uy*co),d=Math.hypot(X-(target[i].x-ct.x),Y-(target[i].y-ct.y));
+  if(d>worst){worst=d;wi=i;}}
+ var ref=(wi+1)%4;
+ var ux=U[wi].x-cu.x,uy=U[wi].y-cu.y,rx=U[ref].x-cu.x,ry=U[ref].y-cu.y;
+ var uX=s*(ux*co-uy*si),uY=s*(ux*si+uy*co),rX=s*(rx*co-ry*si),rY=s*(rx*si+ry*co);
+ var got=bearingWord(uX-rX,uY-rY,target[ref].face);
+ var want=bearingWord(target[wi].x-target[ref].x,target[wi].y-target[ref].y,target[ref].face);
+ var faceErr=Math.round(res.faces[wi]);
+ return {who:wi,ref:ref,got:got,want:want,faceErr:faceErr,dist:worst};
+}
+/* ── 形的繪製（全站唯一圖像原語）── */
+function formSVG(pts,size,opt){
+ opt=opt||{};
+ var m=0,i;for(i=0;i<pts.length;i++){m=Math.max(m,Math.abs(pts[i].x),Math.abs(pts[i].y));}
+ var s=opt.scale!=null?opt.scale:38/(m+0.52);
+ var out='<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'" role="img" aria-label="'+(opt.label||'隊形示意')+'">';
+ if(opt.bg!==false)out+='<rect width="100" height="100" fill="'+(opt.bg||'#F2F2EF')+'"/>';
+ for(i=0;i<pts.length;i++){
+  var p=pts[i],x=50+p.x*s,y=50+p.y*s;
+  var col=(opt.colors&&opt.colors[i])||(i%2?'#E5301C':'#0E0E10');
+  var nub=col==='#E5301C'?'#0E0E10':'#E5301C';
+  out+='<g transform="translate('+x.toFixed(2)+','+y.toFixed(2)+') rotate('+p.face+')">'
+    +'<rect x="'+(-s*0.40).toFixed(2)+'" y="'+(-s*0.17).toFixed(2)+'" width="'+(s*0.80).toFixed(2)+'" height="'+(s*0.34).toFixed(2)+'" fill="'+col+'"/>'
+    +'<rect x="'+(s*0.42).toFixed(2)+'" y="'+(-s*0.12).toFixed(2)+'" width="'+(s*0.24).toFixed(2)+'" height="'+(s*0.24).toFixed(2)+'" fill="'+nub+'"/></g>';
+ }
+ return out+'</svg>';
+}
+/* ── 今日籤（依日期決定性抽三形）── */
+function drawOfDay(d){
+ d=d||new Date();
+ var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+ var r=mulberry32(fnv1a('wudiping/'+key)),pick=[],pool=NAMES.slice();
+ for(var i=0;i<3;i++){pick.push(pool.splice(Math.floor(r()*pool.length),1)[0]);}
+ return {key:key,names:pick};
+}
+/* ── 解散／集合（簽名動效）── */
+function initBreakoff(){
+ var btn=document.getElementById('bo');if(!btn)return;
+ btn.addEventListener('click',function(){
+  var on=!document.body.classList.contains('scattered');
+  if(on){
+   var boxes=document.querySelectorAll('.void');
+   for(var b=0;b<boxes.length;b++){
+    var rc=boxes[b].getBoundingClientRect(),cx=rc.width/2,cy=rc.height/2;
+    var reach=Math.max(rc.width,rc.height)*1.35+240;
+    var fs=boxes[b].querySelectorAll('.f');
+    for(var i=0;i<fs.length;i++){
+     var r2=fs[i].getBoundingClientRect();
+     var dx=(r2.left-rc.left+r2.width/2)-cx, dy=(r2.top-rc.top+r2.height/2)-cy;
+     var len=Math.hypot(dx,dy)||1;
+     fs[i].style.setProperty('--sx',(dx/len*reach).toFixed(0)+'px');
+     fs[i].style.setProperty('--sy',(dy/len*reach).toFixed(0)+'px');
+    }
+   }
+  }
+  document.body.classList.toggle('scattered',on);
+  btn.setAttribute('aria-pressed',on?'true':'false');
+  btn.textContent=on?'集合':'解散';
+ });
+}
+function ready(fn){if(document.readyState!=='loading')fn();else document.addEventListener('DOMContentLoaded',fn);}
+return {POOL:POOL,NAMES:NAMES,judge:judge,diagnose:diagnose,formSVG:formSVG,fnv1a:fnv1a,mulberry32:mulberry32,
+        drawOfDay:drawOfDay,initBreakoff:initBreakoff,ready:ready,bearingWord:bearingWord};
+})();
+
+/* ══ 籤簿：抽三形 → 擺 → 判 → 跳次單 ══════════════ */
+WD.ready(function(){
+ WD.initBreakoff();
+ var deck=document.getElementById('deck'); if(!deck) return;
+ var els=[0,1,2,3].map(function(i){return document.getElementById('j'+i);});
+ var arena=document.getElementById('arena'),gauge=document.getElementById('gauge'),gaugeL=document.getElementById('gaugeL');
+ var verdict=document.getElementById('verdict'),sheet=document.getElementById('sheet');
+ var LIMIT=35, state=null, sel=0, timer=null;
+
+ function unit(){return arena.clientWidth<430?38:56;}
+ function newRound(names){
+  state={names:names,i:0,res:[],locked:false,t0:Date.now(),left:LIMIT};
+  arena.classList.remove('ok');sheet.classList.remove('on');verdict.innerHTML='';
+  layoutStart();paintTarget();startClock();
+ }
+ function layoutStart(){
+  var u=unit(),w=arena.clientWidth,h=arena.clientHeight;
+  var bx=Math.max(70,w*0.16), by=h*0.72;
+  els.forEach(function(el,i){
+   el.dataset.x=(bx+i*u*1.35);el.dataset.y=by;el.dataset.fa=90;
+   paintJ(el);
+  });
+  select(0);
+ }
+ function paintJ(el){
+  el.style.setProperty('--px',el.dataset.x+'px');
+  el.style.setProperty('--py',el.dataset.y+'px');
+  el.querySelector('.jr').style.setProperty('--fa',el.dataset.fa+'deg');
+ }
+ function select(i){sel=i;els.forEach(function(e,k){e.classList.toggle('sel',k===i);});}
+ function paintTarget(){
+  var n=state.names[state.i],f=WD.POOL[n];
+  document.getElementById('idx').textContent=(state.i+1);
+  document.getElementById('tgtfig').innerHTML=WD.formSVG(f.pts,150,{label:n+' 隊形示意圖'});
+  document.getElementById('tgtfig').classList.add('wipe');
+  setTimeout(function(){document.getElementById('tgtfig').classList.remove('wipe');},220);
+  document.getElementById('tgtname').textContent=f.code+'・'+n;
+  document.getElementById('tgten').textContent=f.en+'　'+f.note;
+  var pips=document.getElementById('pips').children;
+  for(var k=0;k<3;k++){
+   pips[k].className=state.res[k]?(state.res[k].pass?'ok':'no'):(k===state.i?'on':'');
+  }
+ }
+ /* ── 計時 ── */
+ function startClock(){
+  stopClock();state.tStart=Date.now();state.left=LIMIT;paintClock();
+  if(document.getElementById('notime').checked){document.getElementById('clock').textContent='—';return;}
+  timer=setInterval(function(){
+   state.left=LIMIT-Math.floor((Date.now()-state.tStart)/1000);
+   if(state.left<=0){state.left=0;paintClock();submit(true);}else paintClock();
+  },250);
+ }
+ function stopClock(){if(timer){clearInterval(timer);timer=null;}}
+ function paintClock(){
+  var c=document.getElementById('clock');
+  c.textContent=state.left<10?('0'+state.left):String(state.left);
+  c.classList.toggle('warn',state.left<=10);
+ }
+ /* ── 拖曳與鍵盤 ── */
+ var drag=null;
+ els.forEach(function(el,i){
+  el.addEventListener('pointerdown',function(ev){
+   if(state.locked)return;
+   select(i);el.setPointerCapture(ev.pointerId);
+   var rc=arena.getBoundingClientRect();
+   drag={el:el,i:i,ox:(ev.clientX-rc.left)-parseFloat(el.dataset.x),oy:(ev.clientY-rc.top)-parseFloat(el.dataset.y)};
+   ev.preventDefault();
+  });
+  el.addEventListener('pointermove',function(ev){
+   if(!drag||drag.el!==el)return;
+   var rc=arena.getBoundingClientRect(),w=rc.width,h=rc.height;
+   el.dataset.x=Math.max(30,Math.min(w-30,(ev.clientX-rc.left)-drag.ox));
+   el.dataset.y=Math.max(38,Math.min(h-22,(ev.clientY-rc.top)-drag.oy));
+   paintJ(el);showGauge(i);
+  });
+  el.addEventListener('pointerup',function(ev){drag=null;hideGauge();el.releasePointerCapture(ev.pointerId);});
+  el.addEventListener('pointercancel',function(){drag=null;hideGauge();});
+  el.addEventListener('focus',function(){select(i);});
+  el.addEventListener('keydown',function(ev){
+   if(state.locked)return;
+   var step=ev.shiftKey?2:9,k=ev.key,used=true;
+   if(k==='ArrowLeft')el.dataset.x=parseFloat(el.dataset.x)-step;
+   else if(k==='ArrowRight')el.dataset.x=parseFloat(el.dataset.x)+step;
+   else if(k==='ArrowUp')el.dataset.y=parseFloat(el.dataset.y)-step;
+   else if(k==='ArrowDown')el.dataset.y=parseFloat(el.dataset.y)+step;
+   else if(k==='r'||k==='R')el.dataset.fa=(parseFloat(el.dataset.fa)+15)%360;
+   else if(k==='e'||k==='E')el.dataset.fa=(parseFloat(el.dataset.fa)+345)%360;
+   else used=false;
+   if(used){ev.preventDefault();paintJ(el);showGauge(i);setTimeout(hideGauge,900);}
+  });
+ });
+ function showGauge(i){
+  var a=els[i],ax=parseFloat(a.dataset.x),ay=parseFloat(a.dataset.y),best=null;
+  els.forEach(function(b,k){
+   if(k===i)return;var d=Math.hypot(parseFloat(b.dataset.x)-ax,parseFloat(b.dataset.y)-ay);
+   if(!best||d<best.d)best={d:d,x:parseFloat(b.dataset.x),y:parseFloat(b.dataset.y)};
+  });
+  if(!best)return;
+  var ang=Math.atan2(best.y-ay,best.x-ax)*180/Math.PI;
+  gauge.style.display='block';gauge.style.left=ax+'px';gauge.style.top=ay+'px';
+  gauge.style.width=best.d+'px';gauge.style.transform='rotate('+ang+'deg)';
+  gaugeL.style.display='block';
+  gaugeL.style.left=((ax+best.x)/2)+'px';gaugeL.style.top=((ay+best.y)/2-16)+'px';
+  gaugeL.textContent=(best.d/unit()).toFixed(1)+' 身長';
+ }
+ function hideGauge(){gauge.style.display='none';gaugeL.style.display='none';}
+ /* ── 定形 ── */
+ function readUser(){
+  return els.map(function(el){return {x:parseFloat(el.dataset.x),y:parseFloat(el.dataset.y),face:parseFloat(el.dataset.fa)};});
+ }
+ var ROLE=['甲','乙','丙','丁'];
+ function submit(timeout){
+  if(state.locked)return;
+  stopClock();
+  var n=state.names[state.i],T=WD.POOL[n].pts,used=Math.min(LIMIT,Math.round((Date.now()-state.tStart)/1000));
+  var r=timeout?{pass:false,rms:9,maxFace:180,perm:[0,1,2,3],theta:0,scale:1,faces:[0,0,0,0]}:WD.judge(readUser(),T);
+  state.res[state.i]={name:n,pass:r.pass,rms:r.rms,t:used,timeout:!!timeout};
+  if(r.pass){
+   arena.classList.add('ok');
+   verdict.innerHTML='<b class="g">成形。</b>'+n+'　形差 '+(r.rms*100).toFixed(1)+'%，整組偏了 '+Math.round(Math.abs(r.theta))+' 度——沒關係，轉幾度都算對。';
+  }else if(timeout){
+   verdict.innerHTML='<b class="x">時間到。</b>'+n+' 沒有成形，直接進下一個。真的在天上，這時候已經該解散開傘了。';
+  }else{
+   var d=WD.diagnose(readUser(),T,r);
+   var msg='<b class="x">還不是 '+n+'。</b>';
+   if(r.rms>0.18)msg+=ROLE[r.perm[d.who]]+' 應該在 '+ROLE[r.perm[d.ref]]+' 的<b>'+d.want+'方</b>，你把他擺在<b>'+d.got+'方</b>。';
+   if(r.maxFace>32)msg+=(r.rms>0.18?'另外，':'位置對了，可是')+'有人的<b>朝向差了 '+Math.round(r.maxFace)+' 度</b>（容許 32 度）。';
+   msg+='　形差 '+(r.rms*100).toFixed(1)+'%（要 ≤18%）。';
+   verdict.innerHTML=msg;
+  }
+  state.locked=true;
+  setTimeout(function(){
+   state.locked=false;arena.classList.remove('ok');
+   state.i++;
+   if(state.i>=3){finish();}else{paintTarget();startClock();}
+  },r.pass?1500:2600);
+ }
+ document.getElementById('lock').addEventListener('click',function(){submit(false);});
+ document.getElementById('reset').addEventListener('click',function(){stopClock();newRound(state.names);});
+ document.getElementById('notime').addEventListener('change',function(){stopClock();startClock();});
+ arena.addEventListener('pointerdown',function(ev){if(ev.target===arena)hideGauge();});
+ /* ── 跳次單 ── */
+ function finish(){
+  stopClock();
+  var ok=state.res.filter(function(r){return r.pass;}).length;
+  var avg=ok?state.res.filter(function(r){return r.pass;}).reduce(function(a,b){return a+b.rms;},0)/ok:1;
+  var grade= ok===3&&avg<=0.08 ? '甲' : ok===3 ? '乙' : ok>=1 ? '丙' : '丁';
+  var words={'甲':'乾淨。四個人在沒有座標的地方對上了，可以上飛機。',
+             '乙':'三個形都出來了，形差還鬆——地面爬行再走兩趟。',
+             '丙':'成了 '+ok+' 個。沒成的那幾個，先看清楚誰該在誰的哪一邊。',
+             '丁':'一個也沒成。這不丟臉，先去圖籍把八個形看一遍。'};
+  document.getElementById('grade').textContent=grade;
+  document.getElementById('gword').textContent=words[grade];
+  document.getElementById('srows').innerHTML=state.res.map(function(r){
+   return '<tr><td>'+r.name+'</td><td>'+(r.pass?'成形':(r.timeout?'逾時':'未成'))+'</td><td class="n">'+(r.pass?(r.rms*100).toFixed(1)+'%':'—')+'</td><td class="n">'+r.t+' 秒</td></tr>';
+  }).join('');
+  var code=state.names.map(function(n){return WD.NAMES.indexOf(n);}).join('')+'-'+state.res.map(function(r){return r.pass?'1':'0';}).join('')+'-'+grade;
+  var no='WD-'+code.replace(/-/g,'')+'-'+(WD.fnv1a(code+state.res.map(function(r){return r.t;}).join(''))%10000+10000).toString().slice(1);
+  document.getElementById('stampno').textContent='印記號 '+no;
+  document.getElementById('stamp').innerHTML=stampSVG(no);
+  var url=location.origin+location.pathname+'?d='+encodeURIComponent(code);
+  document.getElementById('share').textContent='分享碼　'+url;
+  try{localStorage.setItem('wudiping.jump',JSON.stringify({done:ok,grade:grade+'等',code:code}));}catch(e){}
+  sheet.classList.add('on');sheet.classList.add('wipe');
+  sheet.scrollIntoView({block:'nearest'});
+ }
+ /* 印記：由跳次號決定性生成的至上主義構成 */
+ function stampSVG(no){
+  var r=WD.mulberry32(WD.fnv1a(no)),pts=[];
+  for(var i=0;i<4;i++)pts.push({x:(r()*2-1)*1.35,y:(r()*2-1)*1.35,face:Math.floor(r()*8)*45});
+  return WD.formSVG(pts,168,{label:'跳次印記 '+no,colors:['#0E0E10','#E5301C','#0E0E10','#0B7A4B']});
+ }
+ document.getElementById('again').addEventListener('click',function(){
+  var r=WD.mulberry32(WD.fnv1a(String(Date.now()))),pool=WD.NAMES.slice(),pick=[];
+  for(var i=0;i<3;i++)pick.push(pool.splice(Math.floor(r()*pool.length),1)[0]);
+  newRound(pick);window.scrollTo({top:0});
+ });
+ /* ── 起手：今日籤或分享碼 ── */
+ var q=new URLSearchParams(location.search).get('d'),names=null;
+ if(q&&/^\d{3}-[01]{3}-/.test(q)){
+  names=q.slice(0,3).split('').map(function(c){return WD.NAMES[+c];});
+  if(names.some(function(n){return !n;}))names=null;
+ }
+ newRound(names||WD.drawOfDay().names);
+ window.addEventListener('resize',function(){if(state&&state.i===0&&!state.res.length)layoutStart();});
+});
+
+</script>
+</body>
+</html>

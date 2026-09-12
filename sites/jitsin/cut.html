@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>窗房｜日新瓦斯行</title>
+<meta name="description" content="挑一份電報，替六格各指派一塊型版。同一塊版在同一扇窗裡只有一個意思——這是講給不識字的人聽的規矩。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23C4B896'/%3E%3Cg fill='%2317150F'%3E%3Crect x='3' y='3' width='12' height='11'/%3E%3Crect x='17' y='3' width='12' height='11'/%3E%3Crect x='3' y='18' width='12' height='11'/%3E%3C/g%3E%3Crect x='17' y='18' width='12' height='11' fill='%23D0301E'/%3E%3Crect x='7' y='0' width='4' height='6' fill='%23C4B896'/%3E%3Crect x='21' y='26' width='4' height='6' fill='%23C4B896'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;900&family=Saira+Stencil+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#C4B896; --paper-new:#D8CFB4; --paper-old:#B3A483; --paper-oldest:#A79769;
+  --red:#D0301E; --ink:#17150F; --over:#7A1A12; --blue:#2C5A7A;
+  --street:#6E6350; --frame:#4A4133; --edge:#8E8065;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--street);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-weight:500;
+  font-size:16px;line-height:1.85;letter-spacing:.02em}
+.mono,.no,.lat{font-family:"Saira Stencil One","Arial Narrow",Impact,sans-serif;letter-spacing:.06em;font-weight:400}
+a{color:var(--red);text-decoration:none;border-bottom:2px solid currentColor}
+a:hover,a:focus-visible{color:var(--ink)}
+h1,h2,h3{font-weight:900;line-height:1.25;margin:0 0 .5em;letter-spacing:.04em}
+h2{font-size:26px;border-bottom:4px solid var(--ink);padding-bottom:6px;display:inline-block}
+h3{font-size:19px}
+p{margin:0 0 1em}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 16px 20px}
+
+/* ── 玻璃（環境動效：日光一格一格掃過）───────────────── */
+.glass{position:relative;border:7px solid var(--frame);
+  box-shadow:inset 0 0 0 3px #5c523f, 0 20px 0 -8px rgba(0,0,0,.22);
+  background:#7A6E59;padding:40px 26px 46px}
+.glass::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:9;
+  background:linear-gradient(101deg,transparent 41%,rgba(255,255,255,.22) 46%,rgba(255,255,255,.07) 51%,transparent 57%);
+  background-size:300% 100%;background-position:100% 0;
+  animation:glare 42s steps(14,jump-none) infinite}
+@keyframes glare{from{background-position:130% 0}to{background-position:-40% 0}}
+
+/* ── 疊貼層（簽名：累貼）──────────────────────────── */
+.stack{position:relative;z-index:2}
+.sheet{background:var(--paper);border:2px solid var(--edge);
+  box-shadow:0 3px 0 rgba(0,0,0,.20)}
+.sheet.top{position:relative;z-index:5;padding:26px 24px 30px;
+  background:var(--paper);animation:slap 260ms steps(3,jump-none) 1}
+@keyframes slap{from{transform:scale(1.05) rotate(1.1deg)}to{transform:none}}
+.under{position:absolute;display:block;border-bottom:0;color:var(--ink);
+  height:100%;background:var(--paper-old);transition:transform 90ms steps(2,jump-none)}
+.under .tab{position:absolute;left:24px;font-weight:900;font-size:14px;letter-spacing:.1em;white-space:nowrap}
+.under .tab .no{font-size:12px;opacity:.75;margin-right:8px}
+.u1{top:-36px;left:4%;right:11%;transform:rotate(-1.3deg);z-index:1;background:var(--paper-oldest)}
+.u1 .tab{top:7px}
+.u2{top:-20px;left:10%;right:4%;transform:rotate(.9deg);z-index:2}
+.u2 .tab{top:3px}
+.u3{bottom:-32px;left:6%;right:9%;transform:rotate(-1.7deg);z-index:1;background:var(--paper-oldest)}
+.u3 .tab{bottom:7px}
+.u1:hover,.u1:focus-visible{transform:rotate(-2.6deg) translateY(-9px)}
+.u2:hover,.u2:focus-visible{transform:rotate(2deg) translateY(-9px)}
+.u3:hover,.u3:focus-visible{transform:rotate(-3deg) translateY(9px)}
+.under:hover .tab,.under:focus-visible .tab{color:var(--red)}
+.navrow{display:none;gap:6px;margin:0 0 16px;flex-wrap:wrap}
+.navrow a{flex:1 1 auto;text-align:center;background:var(--paper-old);border:2px solid var(--edge);
+  border-bottom:2px solid var(--edge);padding:7px 8px;font-weight:900;font-size:14px;color:var(--ink)}
+.navrow a.cur{background:var(--red);color:var(--paper-new);border-color:var(--ink)}
+
+/* ── 招牌 ────────────────────────────────────────── */
+.plate-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;
+  border-bottom:5px solid var(--ink);padding-bottom:12px;margin-bottom:22px}
+.shopname{font-size:clamp(30px,6vw,52px);font-weight:900;letter-spacing:.1em;margin:0;line-height:1}
+.shopname em{font-style:normal;color:var(--red)}
+.shopsub{font-size:13px;letter-spacing:.22em;margin:0 0 4px}
+.shopinfo{margin-left:auto;font-size:13px;line-height:1.7;text-align:right}
+
+/* ── 連環格 ──────────────────────────────────────── */
+.win{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:4px solid var(--ink);background:var(--ink)}
+.cell{background:var(--paper-new);display:flex;gap:6px;padding:14px 10px 24px;position:relative;
+  border:2px solid var(--ink);margin:-1px;min-height:196px}
+.cell .cno{position:absolute;top:0;left:0;background:var(--ink);color:var(--paper-new);
+  font-size:13px;padding:1px 7px 2px;font-family:"Saira Stencil One",sans-serif}
+.cell .art{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-width:0;padding:8px 0 0}
+.cell .art svg{width:100%;max-width:132px;height:auto;display:block}
+.strip{writing-mode:vertical-rl;text-orientation:upright;font-weight:900;font-size:15px;
+  line-height:1.6;letter-spacing:.14em;padding:8px 2px 4px;border-left:3px solid var(--ink);
+  max-height:200px}
+.strip b{font-weight:900;display:block}
+.tcu{text-combine-upright:all}
+.cell .mtag{position:absolute;bottom:0;left:0;right:0;background:var(--paper-old);
+  border-top:2px solid var(--ink);font-size:11px;padding:1px 7px;letter-spacing:.08em;text-align:right}
+.pk{mix-blend-mode:multiply}
+.pr{mix-blend-mode:multiply;transform:translate(1.6px,-1.1px);animation:reg 17s steps(4,jump-none) infinite alternate}
+@keyframes reg{from{transform:translate(1.6px,-1.1px)}to{transform:translate(-1.1px,1.4px)}}
+
+/* ── 雜項 ───────────────────────────────────────── */
+.rule{border:3px solid var(--ink);padding:14px 16px;margin:20px 0;background:var(--paper-new)}
+.rule ol{margin:0;padding-left:1.4em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:0 0 14px}
+th,td{border:2px solid var(--ink);padding:6px 9px;text-align:left}
+th{background:var(--ink);color:var(--paper-new);font-weight:900;letter-spacing:.08em}
+tbody tr:nth-child(even) td{background:var(--paper-old)}
+.btn{font-family:inherit;font-weight:900;font-size:16px;letter-spacing:.1em;cursor:pointer;
+  background:var(--red);color:var(--paper-new);border:3px solid var(--ink);padding:9px 22px;
+  transition:transform 80ms steps(2,jump-none)}
+.btn:hover,.btn:focus-visible{transform:translate(-2px,-2px)}
+.btn.k{background:var(--ink)}
+.btn[disabled]{background:var(--paper-old);color:#6b604a;cursor:not-allowed;transform:none}
+.foot{margin-top:34px;border-top:4px solid var(--paper-old);padding-top:14px;color:var(--paper-new);font-size:13px}
+.foot a{color:var(--paper-new);border-color:var(--paper-old)}
+.foot .fl{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.flogo{display:block;width:240px;max-width:100%;height:auto;margin:0 0 12px;border:3px solid var(--paper-old)}
+.note{font-size:13px;line-height:1.75;color:#4a4234}
+.chip{display:inline-block;background:var(--ink);color:var(--paper-new);font-size:12px;
+  padding:1px 8px;margin:0 4px 4px 0;letter-spacing:.06em}
+.chip.r{background:var(--red)}
+.hr{height:0;border:0;border-top:3px solid var(--ink);margin:26px 0}
+.kbd{font-size:12px;background:var(--paper-old);border:2px solid var(--ink);padding:0 5px}
+@media (max-width:900px){
+  .glass{padding:16px 10px 20px;border-width:5px}
+  .under{display:none}
+  .navrow{display:flex}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .win{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  body{font-size:15px}
+  .win{grid-template-columns:1fr}
+  .cell .art svg{max-width:104px}
+  .strip{font-size:14px;max-height:none}
+  .shopinfo{margin-left:0;text-align:left}
+  table{font-size:14px}
+  th,td{padding:5px 6px}
+}
+@media (prefers-reduced-motion:reduce){
+  .glass::after{animation:none;background-position:52% 0}
+  .sheet.top{animation:none}
+  .pr{animation:none}
+  .under,.btn{transition:none}
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important}
+}
+
+.tels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tel{text-align:left;background:var(--paper-old);border:3px solid var(--ink);padding:9px 11px;
+  cursor:pointer;font-family:inherit;font-size:14px;line-height:1.5;color:var(--ink);
+  transition:transform 80ms steps(2,jump-none)}
+.tel:hover,.tel:focus-visible{transform:translate(-2px,-2px)}
+.tel b{display:block;font-size:15px;margin:2px 0}
+.tel .lat{font-size:12px;opacity:.8}
+.tel[aria-pressed=true]{background:var(--red);color:var(--paper-new);border-color:var(--ink)}
+.tel[aria-pressed=true] .from{color:var(--paper-new)}
+.from{font-size:11.5px;opacity:.85;letter-spacing:.02em}
+.bench{display:grid;grid-template-columns:1fr;gap:0;border:4px solid var(--ink)}
+.row{display:grid;grid-template-columns:38px 128px 1fr 250px;gap:0;border-bottom:3px solid var(--ink);
+  background:var(--paper-new)}
+.row:last-child{border-bottom:0}
+.row.bad{background:#D9C6A4}
+.rno{background:var(--ink);color:var(--paper-new);display:flex;align-items:center;justify-content:center;
+  font-family:"Saira Stencil One",sans-serif;font-size:17px}
+.rmean{padding:10px;border-right:3px solid var(--ink)}
+.rmean b{display:block;font-size:16px}
+.rmean span{font-size:12px;line-height:1.6;display:block;opacity:.85}
+.rcap{padding:10px;border-right:3px solid var(--ink);display:flex;gap:14px;align-items:flex-start}
+.rcap .strip{max-height:none;border-left:0;padding:0}
+.rpick{padding:10px;display:flex;gap:10px;align-items:center}
+.rpick select{font-family:inherit;font-size:14px;padding:5px 6px;border:3px solid var(--ink);
+  background:var(--paper);color:var(--ink);width:100%;max-width:170px}
+.prev{width:58px;height:58px;flex:0 0 58px;border:2px solid var(--ink);background:var(--paper);
+  display:flex;align-items:center;justify-content:center}
+.prev svg{width:100%;height:100%}
+.prev.empty::after{content:"？";font-weight:900;font-size:22px;opacity:.4}
+.prev.newcut{background:var(--red)}
+.prev.newcut::after{content:"新";color:var(--paper-new);font-weight:900;font-size:20px}
+.act{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0 6px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.newcut{background:var(--red);color:var(--paper-new);font-weight:900;text-align:center;
+  display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1.3}
+.pile{position:relative;margin-top:12px}
+.pasted{position:absolute;left:0;right:0;background:var(--paper-new);border:3px solid var(--edge);
+  box-shadow:0 3px 0 rgba(0,0,0,.2);padding:12px 14px 14px;
+  transition:transform 90ms steps(2,jump-none)}
+.pasted:hover,.pasted:focus-within{z-index:90 !important;transform:translateY(-8px) rotate(0deg) !important}
+.pasted .ph{display:flex;gap:10px;align-items:baseline;border-bottom:3px solid var(--ink);
+  padding-bottom:5px;margin-bottom:9px}
+.pasted .ph b{font-size:16px}
+.pasted .ph .lat{font-size:14px}
+.pasted.rej{background:var(--paper-old);border-color:var(--red)}
+.pasted.rej .ph{border-color:var(--red);color:var(--red)}
+.bill{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;margin:10px 0 6px}
+.bill b{font-family:"Saira Stencil One",sans-serif;font-size:16px}
+.say{border-left:6px solid var(--red);padding:2px 0 2px 12px;font-size:14px;margin:8px 0 0}
+.errl{margin:6px 0 0;padding-left:1.2em;font-size:14px}
+.share{font-size:12.5px;margin-top:8px;word-break:break-all}
+.win.mini .cell{padding:8px 6px 6px}
+.win.mini .cell .art svg{max-width:74px}
+.win.mini .strip{font-size:12.5px;letter-spacing:.1em;max-height:none}
+.win.mini .cno{font-size:11px}
+.win.mini .mtag{font-size:10px}
+@media (max-width:900px){
+ .tels{grid-template-columns:1fr 1fr}
+ .row{grid-template-columns:32px 1fr;grid-template-areas:"n m" "c c" "p p"}
+ .rno{grid-area:n}.rmean{grid-area:m;border-right:0}
+ .rcap{grid-area:c;border-right:0;border-top:2px solid var(--ink)}
+ .rpick{grid-area:p;border-top:2px solid var(--ink)}
+ .rpick select{max-width:none}
+}
+@media (max-width:560px){.tels{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="glass">
+<a class="under u1" href="index.html"><span class="tab"><span class="no">一</span>今仔日的窗</span></a>
+<a class="under u2" href="plate.html"><span class="tab"><span class="no">三</span>型版簿</span></a>
+<a class="under u3" href="order.html"><span class="tab"><span class="no">四</span>叫瓦斯與安全</span></a>
+<div class="stack">
+<main class="sheet top">
+<nav class="navrow" aria-label="頁面"><a href="index.html">今仔日的窗</a><a href="cut.html" class="cur" aria-current="page">窗房</a><a href="plate.html">型版簿</a><a href="order.html">叫瓦斯與安全</a></nav>
+
+<header class="plate-head">
+ <div><p class="shopsub lat">JIʼT-SIN GAS · WINDOW WORKSHOP</p>
+ <h1 class="shopname">窗<em>房</em></h1></div>
+ <div class="shopinfo">日新瓦斯行・後面那間<br>型版抽屜二十四塊<br>剪一塊七分鐘・刷一遍色九分鐘</div>
+</header>
+
+<div class="rule"><ol>
+<li>挑一份電報。電報已經把這禮拜要講的<b>六件事</b>定好了，內容不能改。</li>
+<li>每一格挑一塊<b>型版</b>來演那件事——抽屜裡有的不用錢，沒有合的就<b>現剪一塊</b>（加七分鐘）。</li>
+<li><b>同一塊版在這扇窗裡只有一個意思。</b>兩格講同一件，就用同一塊；兩格講不同的，就不能共用。</li>
+</ol>
+<p class="note" style="margin:8px 0 0">排好就按「開窗」。師傅會告訴你：哪一格讀不出來、有沒有一版兩義、你剪了幾塊、最少要剪幾塊。沒有分數、沒有星等——這只是一張工房的帳。</p>
+</div>
+
+<div id="app" hidden>
+<h2>一・這禮拜的電報</h2>
+<div id="tels" class="tels"></div>
+
+<h2 style="margin-top:22px">二・排六格</h2>
+<div id="bench" class="bench"></div>
+
+<div class="act">
+ <button class="btn" id="go">開窗</button>
+ <button class="btn k" id="best" title="把這扇窗剪最少的一種排法排給你看">排一版看看</button>
+ <button class="btn k" id="clr">全部清掉</button>
+ <span class="note" id="thick"></span>
+</div>
+
+<h2 style="margin-top:26px">三・貼佇玻璃頂</h2>
+<p class="note" id="pilehint">開一次窗就貼一張紙。舊的<b>不撕</b>——它在下面，上緣那一條邊還看得見，
+  滑鼠移過去（或用 Tab 選）它就會掀起來。</p>
+<div id="pile" class="pile"></div>
+</div>
+
+<noscript>
+<h2>沒有 JavaScript 的時候</h2>
+<p>窗房的排版需要 JavaScript。下面是<b>電報 №216「桶仔不能橫著放」</b>的一組解，
+規則和判法跟上面講的完全一樣——這扇窗<b>最少要剪一塊</b>：
+④的「桶要站正」和①的「鋼瓶」都只有 K02 演得出來，②的「桶橫著放」只有 K12 演得出來，
+K12 雖然也演得出「鋼瓶」，可是它已經去做②了，所以④走不掉，只好現剪。</p>
+<div class="win">
+<figure class="cell">
+   <span class="cno">①</span>
+   <div class="art"><svg viewBox="-2 -2 68 68" role="img" aria-label="型版 K02：徛予正的桶" focusable="false"><g class="pk"><polygon points="20,20 44,20 44,58 20,58" fill="var(--ink)"/><polygon points="27,10 37,10 37,20 27,20" fill="var(--ink)"/><path d="M24,9 L40,9" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linejoin="miter" stroke-linecap="butt"/><polygon points="18,32 46,32 46,39 18,39" fill="var(--paper-new)"/></g></svg></div>
+   <div class="strip"><b>一桶二十公斤沉</b><b>靠牆站好莫擋人</b></div>
+   <span class="mtag">K02｜鋼瓶</span>
+  </figure>
+<figure class="cell">
+   <span class="cno">②</span>
+   <div class="art"><svg viewBox="-2 -2 68 68" role="img" aria-label="型版 K12：倒落去的桶" focusable="false"><g class="pk"><polygon points="10,24 48,24 48,48 10,48" fill="var(--ink)"/><polygon points="48,30 58,30 58,42 48,42" fill="var(--ink)"/><path d="M9,26 L9,46" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M16,14 L26,20" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M28,10 L32,18" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linejoin="miter" stroke-linecap="butt"/><polygon points="26,22 34,22 34,50 26,50" fill="var(--paper-new)"/></g></svg></div>
+   <div class="strip"><b>橫著放的最要命</b><b>液體會流入管頸</b></div>
+   <span class="mtag">K12｜桶橫著放</span>
+  </figure>
+<figure class="cell">
+   <span class="cno">③</span>
+   <div class="art"><svg viewBox="-2 -2 68 68" role="img" aria-label="型版 K09：大叉" focusable="false"><g class="pk"><path d="M12,12 L52,52" fill="none" stroke="var(--ink)" stroke-width="11" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M52,12 L12,52" fill="none" stroke="var(--ink)" stroke-width="11" stroke-linejoin="miter" stroke-linecap="butt"/></g></svg></div>
+   <div class="strip"><b>樓梯間內袂使囥</b><b>走火的路愛留空</b></div>
+   <span class="mtag">K09｜不可以</span>
+  </figure>
+<figure class="cell"><span class="cno">④</span>
+     <div class="art newcut"><span>現剪<br>一塊</span></div>
+     <div class="strip"><b>站正閣愛用索綁</b><b>地動彼工才袂晃</b></div>
+     <span class="mtag">新版｜桶要站正</span></figure>
+<figure class="cell">
+   <span class="cno">⑤</span>
+   <div class="art"><svg viewBox="-2 -2 68 68" role="img" aria-label="型版 K10：厝" focusable="false"><g class="pk"><polygon points="32,6 58,26 58,60 6,60 6,26" fill="var(--ink)"/><polygon points="26,40 38,40 38,62 26,62" fill="var(--paper-new)"/><polygon points="14,30 22,30 22,38 14,38" fill="var(--paper-new)"/><polygon points="17,22 19,22 19,32 17,32" fill="var(--paper-new)"/></g></svg></div>
+   <div class="strip"><b>灶跤通風愛暢通</b><b>莫用紙箱共窗封</b></div>
+   <span class="mtag">K10｜灶跤</span>
+  </figure>
+<figure class="cell">
+   <span class="cno">⑥</span>
+   <div class="art"><svg viewBox="-2 -2 68 68" role="img" aria-label="型版 K15：目睭" focusable="false"><g class="pr"><path d="M6,32 C18,14 46,14 58,32 C46,50 18,50 6,32 Z" fill="var(--red)"/><path d="M12,32 C20,20 44,20 52,32 C44,44 20,44 12,32 Z" fill="var(--paper-new)"/><polygon points="50,30 64,28 64,34 50,34" fill="var(--paper-new)"/><circle cx="32" cy="32" r="8" fill="var(--red)"/></g></svg></div>
+   <div class="strip"><b>每月家己看一遍</b><b>無代誌攏是看見</b></div>
+   <span class="mtag">K15｜檢查</span>
+  </figure>
+</div>
+<p class="note">工房帳：現剪 <b>1</b> 塊（七分鐘）・重用 <b>0</b> 次・這扇窗用了 <b>6</b> 塊版・
+刷 <b>2</b> 遍色（紅、黑，十八分鐘）・合計 <b>25</b> 分鐘。最少要剪 <b>1</b> 塊，剛好剪一塊。</p>
+<p class="note"><a href="plate.html">型版簿</a>裡二十四塊版各自演得出什麼，沒有 JavaScript 也讀得到。</p>
+</noscript>
+
+</main>
+</div>
+</div>
+<footer class="foot">
+ <img class="flogo" src="assets/logo.svg" alt="日新瓦斯行 招牌" width="240" height="72">
+ <div class="fl"><a href="index.html">一・今仔日的窗</a><a href="cut.html">二・窗房</a><a href="plate.html">三・型版簿</a><a href="order.html">四・叫瓦斯與安全</a></div>
+ <div>日新瓦斯行　台南市中西區康樂街118號　06-221-8874　每天 07:30–20:30（除夕休一天）　液化石油氣分裝・配送</div>
+ <div style="margin-top:6px;opacity:.8">本站為設計範例，店號、人名、電話、地址、價目與電報內容皆為虛構。瓦斯安全事項請以當地消防單位與瓦斯業者公告為準。</div>
+</footer>
+</div>
+<script>
+
+(function(){
+"use strict";
+var PL=[{"i":"K01","n":"舉手的人","s":["m01","m11","m12"],"g":"<g class=\"\"><circle cx=\"30\" cy=\"13\" r=\"8\" fill=\"var(--ink)\"/><polygon points=\"22,23 38,23 41,44 19,44\" fill=\"var(--ink)\"/><path d=\"M40,28 L54,10\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M25,44 L23,60\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M35,44 L39,60\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K02","n":"徛予正的桶","s":["m02","m17"],"g":"<g class=\"\"><polygon points=\"20,20 44,20 44,58 20,58\" fill=\"var(--ink)\"/><polygon points=\"27,10 37,10 37,20 27,20\" fill=\"var(--ink)\"/><path d=\"M24,9 L40,9\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><polygon points=\"18,32 46,32 46,39 18,39\" fill=\"var(--paper-new)\"/></g>"},{"i":"K03","n":"火舌","s":["m03","m13"],"g":"<g class=\"\"><polygon points=\"32,6 42,22 39,28 46,26 44,42 36,56 28,56 19,42 22,26 27,24 25,16\" fill=\"var(--ink)\"/><polygon points=\"30,26 36,30 34,42 31,58 28,58 27,42 28,32\" fill=\"var(--paper-new)\"/></g>"},{"i":"K04","n":"一截膠管","s":["m04","m05"],"g":"<g class=\"\"><path d=\"M8,44 C20,44 20,20 32,20 C44,20 44,44 56,44\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"9\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><rect x=\"6\" y=\"38\" width=\"6\" height=\"12\" fill=\"var(--ink)\"/><rect x=\"52\" y=\"38\" width=\"6\" height=\"12\" fill=\"var(--ink)\"/></g>"},{"i":"K05","n":"三道風","s":["m06","m08"],"g":"<g class=\"\"><path d=\"M6,20 L40,20 C48,20 48,10 41,12\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M6,33 L46,33 C54,33 54,23 47,25\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M6,46 L36,46 C44,46 44,36 37,38\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K06","n":"一隻手","s":["m07","m16"],"g":"<g class=\"\"><polygon points=\"20,26 20,12 26,12 26,26 30,26 30,9 36,9 36,26 40,26 40,13 46,13 46,30 46,46 40,58 24,58 18,44 14,32 18,28\" fill=\"var(--ink)\"/><polygon points=\"25,10 27,10 27,27 25,27\" fill=\"var(--paper-new)\"/><polygon points=\"35,8 37,8 37,27 35,27\" fill=\"var(--paper-new)\"/></g>"},{"i":"K07","n":"鼻","s":["m08"],"g":"<g class=\"\"><polygon points=\"30,6 36,8 40,30 46,40 38,44 38,52 24,54 20,44 22,30 26,14\" fill=\"var(--ink)\"/><polygon points=\"30,42 36,42 36,58 30,58\" fill=\"var(--paper-new)\"/></g>"},{"i":"K08","n":"時鐘","s":["m09"],"g":"<g class=\"\"><circle cx=\"32\" cy=\"34\" r=\"24\" fill=\"var(--ink)\"/><rect x=\"29\" y=\"4\" width=\"6\" height=\"6\" fill=\"var(--ink)\"/><circle cx=\"32\" cy=\"34\" r=\"18\" fill=\"var(--paper-new)\"/><polygon points=\"44,22 62,4 66,9 48,27\" fill=\"var(--paper-new)\"/><path d=\"M32,34 L32,19\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"4\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M32,34 L44,40\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"4\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><circle cx=\"32\" cy=\"34\" r=\"3\" fill=\"var(--ink)\"/></g>"},{"i":"K09","n":"大叉","s":["m10"],"g":"<g class=\"\"><path d=\"M12,12 L52,52\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"11\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M52,12 L12,52\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"11\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K10","n":"厝","s":["m14"],"g":"<g class=\"\"><polygon points=\"32,6 58,26 58,60 6,60 6,26\" fill=\"var(--ink)\"/><polygon points=\"26,40 38,40 38,62 26,62\" fill=\"var(--paper-new)\"/><polygon points=\"14,30 22,30 22,38 14,38\" fill=\"var(--paper-new)\"/><polygon points=\"17,22 19,22 19,32 17,32\" fill=\"var(--paper-new)\"/></g>"},{"i":"K11","n":"銀角仔","s":["m15"],"g":"<g class=\"\"><circle cx=\"32\" cy=\"32\" r=\"25\" fill=\"var(--ink)\"/><circle cx=\"32\" cy=\"32\" r=\"19\" fill=\"var(--paper-new)\"/><polygon points=\"30,50 34,50 34,60 30,60\" fill=\"var(--paper-new)\"/><polygon points=\"28,17 36,17 36,47 28,47\" fill=\"var(--ink)\"/><path d=\"M21,25 L43,25\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M21,37 L43,37\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K12","n":"倒落去的桶","s":["m18","m02"],"g":"<g class=\"\"><polygon points=\"10,24 48,24 48,48 10,48\" fill=\"var(--ink)\"/><polygon points=\"48,30 58,30 58,42 48,42\" fill=\"var(--ink)\"/><path d=\"M9,26 L9,46\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M16,14 L26,20\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M28,10 L32,18\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><polygon points=\"26,22 34,22 34,50 26,50\" fill=\"var(--paper-new)\"/></g>"},{"i":"K13","n":"肥皂泡","s":["m19"],"g":"<g class=\"\"><circle cx=\"22\" cy=\"40\" r=\"13\" fill=\"var(--ink)\"/><circle cx=\"42\" cy=\"32\" r=\"10\" fill=\"var(--ink)\"/><circle cx=\"34\" cy=\"50\" r=\"7\" fill=\"var(--ink)\"/><path d=\"M8,58 L56,58\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><polygon points=\"14,32 20,30 22,36 16,38\" fill=\"var(--paper-new)\"/><polygon points=\"36,25 41,24 42,29 37,30\" fill=\"var(--paper-new)\"/></g>"},{"i":"K14","n":"樓梯","s":["m20"],"g":"<g class=\"\"><polygon points=\"6,58 6,46 20,46 20,34 34,34 34,22 48,22 48,10 58,10 58,58\" fill=\"var(--ink)\"/></g>"},{"i":"K15","n":"目睭","s":["m16"],"g":"<g class=\"\"><path d=\"M6,32 C18,14 46,14 58,32 C46,50 18,50 6,32 Z\" fill=\"var(--ink)\"/><path d=\"M12,32 C20,20 44,20 52,32 C44,44 20,44 12,32 Z\" fill=\"var(--paper-new)\"/><polygon points=\"50,30 64,28 64,34 50,34\" fill=\"var(--paper-new)\"/><circle cx=\"32\" cy=\"32\" r=\"8\" fill=\"var(--ink)\"/></g>"},{"i":"K16","n":"電話","s":["m01"],"g":"<g class=\"\"><polygon points=\"10,14 26,14 26,26 18,26 20,38 30,44 34,36 46,42 46,58 28,58 12,44 8,26\" fill=\"var(--ink)\"/><path d=\"M34,10 L52,10\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M50,8 L50,22\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K17","n":"裂縫","s":["m05","m09"],"g":"<g class=\"\"><polygon points=\"28,4 38,20 30,24 42,34 32,38 44,60 34,58 24,38 32,34 20,24 28,20 22,8\" fill=\"var(--ink)\"/></g>"},{"i":"K18","n":"窗仔","s":["m06","m14"],"g":"<g class=\"\"><polygon points=\"6,8 58,8 58,58 6,58\" fill=\"var(--ink)\"/><polygon points=\"13,15 30,15 30,30 13,30\" fill=\"var(--paper-new)\"/><polygon points=\"34,15 51,15 51,30 34,30\" fill=\"var(--paper-new)\"/><polygon points=\"13,34 30,34 30,51 13,51\" fill=\"var(--paper-new)\"/><polygon points=\"34,34 51,34 51,51 34,51\" fill=\"var(--paper-new)\"/><polygon points=\"19,4 24,4 24,17 19,17\" fill=\"var(--paper-new)\"/><polygon points=\"40,4 45,4 45,17 40,17\" fill=\"var(--paper-new)\"/><polygon points=\"19,49 24,49 24,62 19,62\" fill=\"var(--paper-new)\"/><polygon points=\"40,49 45,49 45,62 40,62\" fill=\"var(--paper-new)\"/></g>"},{"i":"K19","n":"扛桶的人","s":["m12","m20"],"g":"<g class=\"\"><circle cx=\"24\" cy=\"14\" r=\"7\" fill=\"var(--ink)\"/><polygon points=\"16,23 30,23 32,44 14,44\" fill=\"var(--ink)\"/><path d=\"M18,44 L15,60\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M27,44 L31,60\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><polygon points=\"34,8 56,8 56,32 34,32\" fill=\"var(--ink)\"/><path d=\"M30,20 L36,14\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><polygon points=\"32,16 58,16 58,22 32,22\" fill=\"var(--paper-new)\"/></g>"},{"i":"K20","n":"爐頭","s":["m03","m14"],"g":"<g class=\"\"><circle cx=\"32\" cy=\"36\" r=\"22\" fill=\"var(--ink)\"/><path d=\"M32,36 L32,6\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M12,20 L20,26\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M52,20 L44,26\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><rect x=\"8\" y=\"54\" width=\"48\" height=\"6\" fill=\"var(--ink)\"/><circle cx=\"32\" cy=\"36\" r=\"11\" fill=\"var(--paper-new)\"/><polygon points=\"29,42 35,42 35,58 29,58\" fill=\"var(--paper-new)\"/></g>"},{"i":"K21","n":"水槽","s":["m19"],"g":"<g class=\"\"><polygon points=\"6,26 58,26 50,54 14,54\" fill=\"var(--ink)\"/><path d=\"M20,8 L20,20 L38,20\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M38,18 L38,26\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"6\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K22","n":"號碼牌","s":["m15","m09"],"g":"<g class=\"\"><polygon points=\"18,8 52,8 52,58 18,58 10,33\" fill=\"var(--ink)\"/><circle cx=\"22\" cy=\"20\" r=\"5\" fill=\"var(--paper-new)\"/><polygon points=\"20,4 24,4 24,20 20,20\" fill=\"var(--paper-new)\"/><path d=\"M26,34 L46,34\" fill=\"none\" stroke=\"var(--paper-new)\" stroke-width=\"4\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M26,44 L46,44\" fill=\"none\" stroke=\"var(--paper-new)\" stroke-width=\"4\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K23","n":"徛咧的人","s":["m11"],"g":"<g class=\"\"><circle cx=\"32\" cy=\"13\" r=\"8\" fill=\"var(--ink)\"/><polygon points=\"24,23 40,23 42,44 22,44\" fill=\"var(--ink)\"/><path d=\"M26,44 L24,60\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/><path d=\"M38,44 L40,60\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"7\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"},{"i":"K24","n":"調整器","s":["m04","m07"],"g":"<g class=\"\"><polygon points=\"14,22 50,22 50,40 14,40\" fill=\"var(--ink)\"/><polygon points=\"22,10 42,10 46,22 18,22\" fill=\"var(--ink)\"/><circle cx=\"32\" cy=\"50\" r=\"12\" fill=\"var(--ink)\"/><rect x=\"28\" y=\"38\" width=\"8\" height=\"6\" fill=\"var(--ink)\"/><circle cx=\"32\" cy=\"50\" r=\"5\" fill=\"var(--paper-new)\"/><polygon points=\"29,50 35,50 35,64 29,64\" fill=\"var(--paper-new)\"/><path d=\"M18,30 L46,30\" fill=\"none\" stroke=\"var(--paper-new)\" stroke-width=\"4\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/></g>"}];
+var ME={"m01":{"t":"叫瓦斯","d":"拿起電話撥給瓦斯行","c":"r"},"m02":{"t":"鋼瓶","d":"一桶瓦斯","c":"k"},"m03":{"t":"火","d":"燒起來的火","c":"k"},"m04":{"t":"膠管","d":"爐頭和桶子中間那一條","c":"k"},"m05":{"t":"漏氣","d":"管子裂了、氣跑出來","c":"k"},"m06":{"t":"開窗通風","d":"門窗全部打開","c":"r"},"m07":{"t":"關掉","d":"總開關和爐頭都關","c":"r"},"m08":{"t":"聞到味","d":"屋裡有臭味","c":"k"},"m09":{"t":"到期","d":"太久了，該換","c":"k"},"m10":{"t":"不可以","d":"這件事別做","c":"k"},"m11":{"t":"人","d":"厝內的人","c":"r"},"m12":{"t":"送桶的來","d":"送瓦斯的到了","c":"r"},"m13":{"t":"熱水器","d":"燒水那一台","c":"k"},"m14":{"t":"灶跤","d":"廚房、煮飯的地方","c":"k"},"m15":{"t":"錢","d":"價錢","c":"r"},"m16":{"t":"檢查","d":"仔細看過一遍","c":"r"},"m17":{"t":"桶要站正","d":"直直立著，不能倒","c":"r"},"m18":{"t":"桶橫著放","d":"倒著擺","c":"k"},"m19":{"t":"抹肥皂水","d":"抹上去看有沒有起泡","c":"r"},"m20":{"t":"搬上樓","d":"扛到樓上","c":"r"}};
+var TE=[{"no":"213","title":"膠管兩年換一擺","from":"市瓦斯商業同業公會・九月三日電","panels":[{"m":"m08","cap":["聞到臭味先別慌","事情就從這裡長"]},{"m":"m07","cap":["總開關順時轉緊","爐頭開關也關盡"]},{"m":"m06","cap":["門和窗仔全打開","讓風先進人後來"]},{"m":"m10","cap":["電燈開關別去動","一點火星整間空"]},{"m":"m01","cap":["人先退到外面叫","電話一通我們到"]},{"m":"m04","cap":["膠管兩年換一擺","勝過整暝睏袂在"]}]},{"no":"214","title":"新桶送來那一工","from":"日新瓦斯行・九月三日自記","panels":[{"m":"m12","cap":["送桶的人到門口","單子先看才伸手"]},{"m":"m16","cap":["桶身桶頸看有損","封條完整才會準"]},{"m":"m17","cap":["桶仔徛正才會穩","橫放的是外行人"]},{"m":"m19","cap":["肥皂水抹落去試","有泡就是漏出氣"]},{"m":"m05","cap":["若有起泡別再接","趕緊打來我們解"]},{"m":"m01","cap":["電話號碼寫在門","半暝三點嘛有人"]}]},{"no":"215","title":"灶跤的火若不對","from":"消防分隊・九月一日通報","panels":[{"m":"m14","cap":["灶跤是整間的心","每工都要顧得緊"]},{"m":"m03","cap":["火色一定要是藍","黃火就是燒無完"]},{"m":"m09","cap":["調整器五年要換","過期的都會出亂"]},{"m":"m13","cap":["熱水器裝在外面","排煙管直透天邊"]},{"m":"m16","cap":["一年兩擺請人看","勝過出代誌才煩"]},{"m":"m07","cap":["出門進前總關全","無人的厝莫留煙"]}]},{"no":"216","title":"桶仔不能橫著放","from":"日新瓦斯行・八月廿七自記","panels":[{"m":"m02","cap":["一桶二十公斤沉","靠牆站好莫擋人"]},{"m":"m18","cap":["橫著放的最要命","液體會流入管頸"]},{"m":"m10","cap":["樓梯間內袂使囥","走火的路愛留空"]},{"m":"m17","cap":["站正閣愛用索綁","地動彼工才袂晃"]},{"m":"m14","cap":["灶跤通風愛暢通","莫用紙箱共窗封"]},{"m":"m16","cap":["每月家己看一遍","無代誌攏是看見"]}]}];
+var NUM=["①","②","③","④","⑤","⑥"];
+var app=document.getElementById("app");
+app.hidden=false;
+
+var state={tel:0,pick:[null,null,null,null,null,null],n:0};
+
+function svgOf(id,col){
+  var p=null;for(var i=0;i<PL.length;i++)if(PL[i].i===id)p=PL[i];
+  if(!p)return "";
+  var g=p.g.replace(/var\(--ink\)/g, col==="r"?"var(--red)":"var(--ink)");
+  return '<svg viewBox="-2 -2 68 68" role="img" aria-label="型版 '+p.i+'：'+p.n+'" focusable="false">'
+       + '<g class="'+(col==="r"?"pr":"pk")+'">'+g+'</g></svg>';
+}
+function plate(id){for(var i=0;i<PL.length;i++)if(PL[i].i===id)return PL[i];return null;}
+
+/* ── 二分匹配：這扇窗上少愛剪幾塊 ───────────────── */
+function minCuts(ms){
+  var uniq=[],seenU={},i;
+  for(i=0;i<ms.length;i++) if(!seenU[ms[i]]){seenU[ms[i]]=1;uniq.push(ms[i]);}
+  var mo={};
+  function tryK(m,seen){
+    for(var j=0;j<PL.length;j++){
+      var p=PL[j];
+      if(p.s.indexOf(m)<0||seen[p.i])continue;
+      seen[p.i]=1;
+      if(mo[p.i]===undefined||tryK(mo[p.i],seen)){mo[p.i]=m;return true;}
+    }
+    return false;
+  }
+  var n=0;
+  for(i=0;i<uniq.length;i++) if(tryK(uniq[i],{})) n++;
+  return {min:uniq.length-n,uniq:uniq.length,plan:mo};
+}
+/* ── 判定 ─────────────────────────────────────── */
+function judge(ms,pick){
+  var errs=[],use={},i,k;
+  for(i=0;i<ms.length;i++){
+    k=pick[i];
+    if(k===null){errs.push({t:"空格",i:i});continue;}
+    if(k==="NEW")continue;
+    var p=plate(k);
+    if(!p||p.s.indexOf(ms[i])<0){errs.push({t:"讀不出",i:i,k:k});continue;}
+    if(!use[k])use[k]={};
+    use[k][ms[i]]=1;
+  }
+  for(k in use){
+    var mm=Object.keys(use[k]);
+    if(mm.length>1) errs.push({t:"一版兩義",k:k,ms:mm});
+  }
+  var cuts={},plates={};
+  for(i=0;i<ms.length;i++){
+    if(pick[i]==="NEW") cuts[ms[i]]=1;
+    else if(pick[i]) plates[pick[i]]=1;
+  }
+  var nc=Object.keys(cuts).length, np=Object.keys(plates).length+nc;
+  var cols={};for(i=0;i<ms.length;i++)cols[ME[ms[i]].c]=1;
+  var passes=Object.keys(cols).length;
+  return {ok:errs.length===0,errs:errs,cuts:nc,plates:np,reuse:ms.length-np,
+          passes:passes,minutes:nc*7+passes*9};
+}
+/* ── 貪心求一組上少剪的解（示範用）───────────────── */
+function suggest(ms){
+  var r=minCuts(ms), inv={}, k;
+  for(k in r.plan) inv[r.plan[k]]=k;
+  var out=[];
+  for(var i=0;i<ms.length;i++) out.push(inv[ms[i]]?inv[ms[i]]:"NEW");
+  return out;
+}
+/* ── 分享碼 ───────────────────────────────────── */
+var A="abcdefghijklmnopqrstuvwx";
+function enc(){
+  var s=""+state.tel;
+  for(var i=0;i<6;i++){
+    var p=state.pick[i];
+    if(p===null)s+="_";else if(p==="NEW")s+="z";
+    else{var ix=0;for(var j=0;j<PL.length;j++)if(PL[j].i===p)ix=j;s+=A[ix];}
+  }
+  return s;
+}
+function dec(c){
+  if(!c||c.length!==7)return null;
+  var t=parseInt(c[0],10); if(isNaN(t)||t<0||t>=TE.length)return null;
+  var pk=[];
+  for(var i=1;i<7;i++){
+    var ch=c[i];
+    if(ch==="_")pk.push(null);
+    else if(ch==="z")pk.push("NEW");
+    else{var ix=A.indexOf(ch); if(ix<0||ix>=PL.length)return null; pk.push(PL[ix].i);}
+  }
+  return {tel:t,pick:pk};
+}
+/* ── 畫電報鈕 ─────────────────────────────────── */
+function drawTels(){
+  var h="";
+  for(var i=0;i<TE.length;i++){
+    h+='<button type="button" class="tel" data-t="'+i+'" aria-pressed="'+(i===state.tel)+'">'
+     + '<span class="lat">電報 №'+TE[i].no+'</span><b>'+TE[i].title+'</b>'
+     + '<span class="from">'+TE[i].from+'</span></button>';
+  }
+  document.getElementById("tels").innerHTML=h;
+}
+/* ── 畫工作台 ─────────────────────────────────── */
+function drawBench(){
+  var t=TE[state.tel],h="";
+  for(var i=0;i<6;i++){
+    var m=t.panels[i].m, cap=t.panels[i].cap, me=ME[m];
+    var can=[],oth=[];
+    for(var j=0;j<PL.length;j++){
+      var o='<option value="'+PL[j].i+'"'+(state.pick[i]===PL[j].i?" selected":"")+'>'+PL[j].i+"　"+PL[j].n+'</option>';
+      if(PL[j].s.indexOf(m)>=0)can.push(o);else oth.push(o);
+    }
+    h+='<div class="row" data-i="'+i+'">'
+     + '<div class="rno">'+NUM[i]+'</div>'
+     + '<div class="rmean"><b>'+me.t+'</b><span>'+me.d+'</span>'
+     +   '<span class="chip'+(me.c==="r"?" r":"")+'">'+(me.c==="r"?"紅版・你可以做的":"黑版・出事的東西")+'</span></div>'
+     + '<div class="rcap"><div class="strip"><b>'+cap[0]+'</b><b>'+cap[1]+'</b></div>'
+     +   '<span class="note" style="font-size:12px">字條是講給識字的人聽的。<br>圖必須自己講得出同一件。</span></div>'
+     + '<div class="rpick">'
+     +   '<label class="vh" for="s'+i+'">第'+(i+1)+'格的型版</label>'
+     +   '<select id="s'+i+'" data-i="'+i+'">'
+     +     '<option value="">—— 還沒挑 ——</option>'
+     +     '<option value="NEW"'+(state.pick[i]==="NEW"?" selected":"")+'>現剪一塊新的（＋7 分）</option>'
+     +     '<optgroup label="讀會出這件事的版">'+can.join("")+'</optgroup>'
+     +     '<optgroup label="其他型版">'+oth.join("")+'</optgroup>'
+     +   '</select>'
+     +   '<div class="prev'+(state.pick[i]===null?" empty":(state.pick[i]==="NEW"?" newcut":""))+'" id="v'+i+'">'
+     +     (state.pick[i]&&state.pick[i]!=="NEW"?svgOf(state.pick[i],me.c):"")+'</div>'
+     + '</div></div>';
+  }
+  document.getElementById("bench").innerHTML=h;
+}
+/* ── 貼一張紙（簽名動效：累貼）────────────────── */
+function paste(node,rej){
+  var pile=document.getElementById("pile");
+  var d=document.createElement("article");
+  d.className="pasted"+(rej?" rej":"");
+  d.tabIndex=0;
+  d.innerHTML=node;
+  var i=pile.children.length;
+  d.style.top=(i*34)+"px";
+  d.style.zIndex=String(10+i);
+  d.style.transform="rotate("+(((i%2)?1:-1)*(0.5+(i%3)*0.35)).toFixed(2)+"deg)";
+  pile.appendChild(d);
+  relayout();
+  document.getElementById("pilehint").innerHTML=
+    "開一次窗就貼一張紙。舊的<b>不撕</b>——它在下面，上緣那一條邊還看得見，"
+   +"滑鼠移過去（或用 Tab 選）它就會掀起來。這面玻璃現在厚 <b>"+(i+1)+"</b> 張。";
+  document.getElementById("thick").textContent="玻璃厚度："+(i+1)+" 張（沒撕過）";
+  d.scrollIntoView({block:"nearest"});
+}
+function relayout(){
+  var pile=document.getElementById("pile"),last=pile.lastElementChild;
+  if(!last){pile.style.height="0px";return;}
+  pile.style.height=(last.offsetTop+last.offsetHeight+14)+"px";
+}
+window.addEventListener("resize",relayout);
+
+function cellsHTML(t,pick){
+  var h="";
+  for(var i=0;i<6;i++){
+    var m=t.panels[i].m,me=ME[m],cap=t.panels[i].cap,k=pick[i];
+    h+='<figure class="cell"><span class="cno">'+NUM[i]+'</span>'
+     + '<div class="art'+(k==="NEW"?" newcut":"")+'">'
+     +   (k==="NEW"?"<span>現剪<br>一塊</span>":svgOf(k,me.c))+'</div>'
+     + '<div class="strip"><b>'+cap[0]+'</b><b>'+cap[1]+'</b></div>'
+     + '<span class="mtag">'+(k==="NEW"?"新版":k)+'｜'+me.t+'</span></figure>';
+  }
+  return h;
+}
+function open(){
+  var t=TE[state.tel], ms=t.panels.map(function(p){return p.m;});
+  var j=judge(ms,state.pick), mc=minCuts(ms);
+  state.n++;
+  if(!j.ok){
+    var li="";
+    for(var e=0;e<j.errs.length;e++){
+      var x=j.errs[e];
+      if(x.t==="空格") li+="<li>第"+NUM[x.i]+"格還沒挑版。</li>";
+      else if(x.t==="讀不出"){
+        var p=plate(x.k);
+        li+="<li>第"+NUM[x.i]+"格：<b>"+x.k+"</b> 剪的是「"+p.n+"」，讀不出「"+ME[ms[x.i]].t+"」。"
+          + "它演得出來的是"+p.s.map(function(z){return "「"+ME[z].t+"」";}).join("、")+"。</li>";
+      } else {
+        li+="<li><b>"+x.k+"</b> 在這扇窗裡做了兩個意思："
+          + x.ms.map(function(z){return "「"+ME[z].t+"」";}).join("和")
+          + "。街上沒有人能問你——一塊版一個意思。</li>";
+      }
+    }
+    paste('<div class="ph"><span class="lat">退件 №'+t.no+"-"+state.n+'</span><b>這扇貼不出去</b></div>'
+      + '<ol class="errl">'+li+'</ol>'
+      + '<p class="say">林振發：「不是難看，是讀不出來。那一格再找一塊版。」</p>',true);
+    return;
+  }
+  var say;
+  if(j.cuts===mc.min&&mc.min===0) say="一塊都沒剪。抽屜裡有的就別再剪一次，這是這間店能一個晚上貼三十扇的原因。";
+  else if(j.cuts===mc.min) say="這扇本來就走不掉——你剪的那一塊剛好是非剪不可的。";
+  else if(j.cuts===mc.min+1) say="多剪了一塊。沒關係，剪下去的版明年還在。";
+  else say="你剪了 "+j.cuts+" 塊，其實 "+mc.min+" 塊就夠。抽屜先翻一翻再落刀。";
+  var extra = (j.reuse>0? " 重用 <b>"+j.reuse+"</b> 次。":"") + (j.passes===1?" 整扇只刷一遍色，快。":"");
+  paste('<div class="ph"><span class="lat">窗 №'+t.no+"-"+state.n+'</span><b>'+t.title+'</b></div>'
+    + '<div class="win mini">'+cellsHTML(t,state.pick)+'</div>'
+    + '<div class="bill">'
+    +   '<span>現剪 <b>'+j.cuts+'</b> 塊</span>'
+    +   '<span>重用 <b>'+j.reuse+'</b> 擺</span>'
+    +   '<span>這扇用著 <b>'+j.plates+'</b> 塊版</span>'
+    +   '<span>刷 <b>'+j.passes+'</b> 遍色</span>'
+    +   '<span>工時 <b>'+j.minutes+'</b> 分</span>'
+    +   '<span>上少愛剪 <b>'+mc.min+'</b> 塊</span>'
+    + '</div>'
+    + '<p class="say">林振發：「'+say+extra+'」</p>'
+    + '<p class="share">分享碼　<span class="lat">?w='+enc()+'</span>　'
+    + '（把這條網址寄給別人，開起來就是這一扇）</p>',false);
+}
+
+/* ── 事件 ─────────────────────────────────────── */
+document.getElementById("tels").addEventListener("click",function(e){
+  var b=e.target.closest("[data-t]");if(!b)return;
+  state.tel=+b.dataset.t;state.pick=[null,null,null,null,null,null];
+  drawTels();drawBench();
+});
+document.getElementById("bench").addEventListener("change",function(e){
+  var s=e.target;if(s.tagName!=="SELECT")return;
+  var i=+s.dataset.i, v=s.value;
+  state.pick[i]= v===""?null:v;
+  var me=ME[TE[state.tel].panels[i].m];
+  var prev=document.getElementById("v"+i);
+  prev.className="prev"+(v===""?" empty":(v==="NEW"?" newcut":""));
+  prev.innerHTML=(v&&v!=="NEW")?svgOf(v,me.c):"";
+});
+document.getElementById("go").addEventListener("click",open);
+document.getElementById("clr").addEventListener("click",function(){
+  state.pick=[null,null,null,null,null,null];drawBench();
+});
+document.getElementById("best").addEventListener("click",function(){
+  state.pick=suggest(TE[state.tel].panels.map(function(p){return p.m;}));drawBench();
+});
+
+/* 分享碼還原 */
+var q=new URLSearchParams(location.search).get("w");
+var d=q?dec(q):null;
+if(d){state.tel=d.tel;state.pick=d.pick;}
+drawTels();drawBench();relayout();
+})();
+
+</script>
+</body>
+</html>

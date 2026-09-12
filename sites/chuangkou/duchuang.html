@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>讀窗｜窗口夜校</title>
+<meta name="description" content="把字蓋起來，只憑圖讀懂第 0631 號窗。九格三選一，約九十秒；答完掀開銅片對答案。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23DCCFB2'/%3E%3Cg fill='%23181410'%3E%3Crect x='3' y='3' width='26' height='3'/%3E%3Crect x='3' y='26' width='26' height='3'/%3E%3Crect x='3' y='3' width='3' height='26'/%3E%3Crect x='26' y='3' width='3' height='26'/%3E%3Crect x='11.5' y='3' width='3' height='26'/%3E%3Crect x='19.5' y='3' width='3' height='26'/%3E%3Crect x='3' y='11.5' width='26' height='3'/%3E%3Crect x='3' y='19.5' width='26' height='3'/%3E%3C/g%3E%3Crect x='22.5' y='22.5' width='4' height='4' fill='%23C4271A'/%3E%3Crect x='6' y='6' width='5.5' height='5.5' fill='%23C4902C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══ 窗口夜校 · ROSTA 窗 模版三色套印 ═══ */
+:root{
+  --wall:#6E8781; --wall-d:#5C7570; --paper:#DCCFB2; --paper-d:#CDBE9C;
+  --ink:#181410; --red:#C4271A; --ochre:#C4902C; --brass:#9A8F72; --brass-d:#7C7259;
+  --rx:0px; --ry:0px; --ox:0px; --oy:0px;
+  --gut:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--wall);
+  background-image:
+    repeating-linear-gradient(0deg,var(--wall-d) 0 2px,transparent 2px 62px),
+    repeating-linear-gradient(90deg,var(--wall-d) 0 2px,transparent 2px 62px);
+  color:var(--ink);
+  font-family:"Noto Sans TC",system-ui,sans-serif;font-weight:400;
+  font-size:16px;line-height:1.72;letter-spacing:.01em;
+  padding:0 0 0;
+}
+img,svg{display:block}
+a{color:inherit}
+::selection{background:var(--red);color:var(--paper)}
+
+/* ── 紙 ───────────────────────────────── */
+.sheet{
+  background:var(--paper);
+  clip-path:polygon(0.4% 0.5%,99.6% 0%,100% 99.4%,0.2% 100%);
+  padding:26px 26px 30px;
+  position:relative;
+}
+.sheet::after{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 0 2px rgba(24,20,16,.09)}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 18px 90px}
+
+/* ── 模版三版 ─────────────────────────── */
+.cut{width:100%;height:auto;isolation:isolate}
+.pl{mix-blend-mode:multiply}
+.p-i path{fill:var(--ink)}
+.p-r path{fill:var(--red)}
+.p-o path{fill:var(--ochre)}
+.p-r{translate:var(--rx) var(--ry);animation:wob-r 17s linear infinite}
+.p-o{translate:var(--ox) var(--oy);animation:wob-o 23s linear infinite}
+.p-i{animation:wob-i 29s linear infinite}
+@keyframes wob-r{0%{transform:translate(.7px,-.3px)}33%{transform:translate(-.5px,.6px)}66%{transform:translate(.2px,.7px)}100%{transform:translate(.7px,-.3px)}}
+@keyframes wob-o{0%{transform:translate(-.6px,.5px)}50%{transform:translate(.7px,-.6px)}100%{transform:translate(-.6px,.5px)}}
+@keyframes wob-i{0%{transform:translate(.2px,.2px)}50%{transform:translate(-.25px,-.15px)}100%{transform:translate(.2px,.2px)}}
+
+/* ── 一扇窗：subgrid 讓九格的四條橫軌對齊 ── */
+.window{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  grid-auto-rows:auto;gap:var(--gut);
+  background:var(--paper);padding:var(--gut);
+}
+.cell{
+  display:grid;grid-row:span 4;grid-template-rows:subgrid;
+  row-gap:6px;background:var(--paper);position:relative;isolation:isolate;
+  border:0;text-align:left;font:inherit;color:inherit;cursor:pointer;
+  padding:0;
+}
+@supports not (grid-template-rows:subgrid){
+  .cell{grid-row:auto;grid-template-rows:22px 1fr 10px auto}
+}
+.cell .no{font-family:"Archivo Black",sans-serif;font-size:15px;line-height:1.4;
+  color:var(--paper);background:var(--ink);padding:1px 8px;justify-self:start;letter-spacing:.06em}
+.cell .fig{align-self:stretch;display:flex;align-items:center;justify-content:center;
+  background:var(--paper-d);padding:10px 6px}
+.cell .fig .cut{width:100%;max-width:176px}
+.cell .knife{height:10px;background:repeating-linear-gradient(90deg,var(--ink) 0 9px,transparent 9px 15px);
+  opacity:.32;transition:opacity .12s linear}
+.cell .verse{font-weight:900;font-size:clamp(13px,1.55vw,17px);line-height:1.34;
+  letter-spacing:.02em;padding:5px 4px 7px;background:var(--paper)}
+.cell .verse b{display:block;font-weight:900}
+.cell:hover .knife,.cell:focus-visible .knife{opacity:1}
+.cell:focus-visible{outline:4px solid var(--red);outline-offset:3px}
+.cell.plain{cursor:default}
+
+/* 逐格傾角：手工貼的紙不會正 */
+.cell:nth-child(3n+1){rotate:-.32deg}
+.cell:nth-child(3n+2){rotate:.18deg}
+.cell:nth-child(3n+3){rotate:-.14deg}
+
+/* ── 導覽：cutout-plate 鏤空模版 ──────── */
+.navplate{background:var(--red);padding:7px;display:flex;gap:7px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:40;box-shadow:0 3px 0 rgba(24,20,16,.22)}
+.navplate a{
+  flex:1 1 0;min-width:96px;text-decoration:none;background:var(--brass);
+  color:var(--ink);font-weight:900;font-size:15px;letter-spacing:.06em;
+  padding:9px 10px 8px;display:flex;align-items:baseline;gap:8px;
+  border-top:2px solid #B4A886;border-bottom:2px solid var(--brass-d);
+  transition:background .12s linear}
+.navplate a em{font-family:"Archivo Black",sans-serif;font-style:normal;font-size:12px;opacity:.66}
+.navplate a:hover{background:#AA9F80}
+.navplate a[aria-current="page"]{
+  background:transparent;color:var(--paper);border-top:2px dashed rgba(24,20,16,.7);
+  border-bottom:2px dashed rgba(24,20,16,.7);
+  box-shadow:inset 2px 0 0 rgba(24,20,16,.7),inset -2px 0 0 rgba(24,20,16,.7)}
+.navplate a[aria-current="page"] em{opacity:.9}
+
+/* ── 標題：三版疊印 ────────────────────── */
+.ptitle{position:relative;display:block;font-weight:900;line-height:1.06;
+  font-size:clamp(30px,6.4vw,64px);letter-spacing:.005em;isolation:isolate}
+.ptitle .lay{position:absolute;inset:0;mix-blend-mode:multiply;pointer-events:none}
+.ptitle .lay.r{color:var(--red);translate:var(--rx) var(--ry)}
+.ptitle .lay.o{color:var(--ochre);translate:var(--ox) var(--oy)}
+.ptitle .base{position:relative;color:var(--ink)}
+
+h2{font-weight:900;font-size:clamp(20px,2.7vw,28px);line-height:1.24;margin:0 0 10px}
+h3{font-weight:900;font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px;max-width:64ch}
+.lead{font-size:17px;font-weight:500}
+.small{font-size:13.5px;line-height:1.62}
+.mono{font-family:"Archivo Black",sans-serif;letter-spacing:.04em}
+.rule{height:6px;background:var(--ink);margin:20px 0}
+.rule.r{background:var(--red)}
+.tag{display:inline-block;background:var(--ink);color:var(--paper);font-weight:900;
+  font-size:12.5px;letter-spacing:.1em;padding:2px 9px}
+.tag.r{background:var(--red)}
+.tag.o{background:var(--ochre);color:var(--ink)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:20px}
+.band{background:var(--ink);color:var(--paper);padding:14px 18px;display:flex;
+  flex-wrap:wrap;gap:6px 26px;align-items:baseline}
+.band.top{margin:-26px -26px 18px}
+.band b{font-weight:900}
+.band .k{color:var(--ochre);font-weight:900;font-size:12.5px;letter-spacing:.1em}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:2px solid rgba(24,20,16,.16);vertical-align:top}
+th{background:var(--ink);color:var(--paper);font-weight:900;font-size:13px;letter-spacing:.06em;border:0}
+tr:nth-child(even) td{background:var(--paper-d)}
+
+.btn{display:inline-block;background:var(--red);color:var(--paper);font-weight:900;
+  border:0;padding:11px 20px;font-size:16px;cursor:pointer;text-decoration:none;
+  font-family:inherit;letter-spacing:.04em;transition:translate .1s linear}
+.btn:hover{translate:0 -2px}
+.btn.q{background:var(--paper-d);color:var(--ink);box-shadow:inset 0 0 0 3px var(--ink)}
+.btn:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+
+/* ── 對版台（簽名動效的控制器）───────── */
+.regbox{position:fixed;right:14px;bottom:14px;z-index:60;background:var(--brass);
+  border-top:3px solid #B7AB88;border-bottom:3px solid var(--brass-d);
+  padding:9px 10px 8px;width:186px;font-size:12px;line-height:1.42}
+.regbox .hd{font-weight:900;font-size:12px;letter-spacing:.1em;margin-bottom:5px;display:flex;justify-content:space-between}
+.regpad{position:relative;height:74px;background:var(--paper);cursor:grab;touch-action:none;isolation:isolate}
+.regpad:active{cursor:grabbing}
+.regpad i{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;
+  mix-blend-mode:multiply}
+.regpad i::before,.regpad i::after{content:"";position:absolute;background:currentColor}
+.regpad i::before{left:0;top:15px;width:34px;height:4px}
+.regpad i::after{top:0;left:15px;height:34px;width:4px}
+.regpad .ci{color:var(--ink)}
+.regpad .cr{color:var(--red);translate:calc(var(--rx) * 5) calc(var(--ry) * 5)}
+.regpad .co{color:var(--ochre);translate:calc(var(--ox) * 5) calc(var(--oy) * 5)}
+.regbox .rd{display:flex;justify-content:space-between;margin-top:5px;font-weight:900}
+.regbox .ok{background:var(--red);color:var(--paper);text-align:center;font-weight:900;margin-top:4px;padding:2px}
+.regbox.hide{display:none}
+
+/* ── 窗庫 ─────────────────────────────── */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px}
+.shelf .it{background:var(--paper);padding:9px;border:0;text-align:left;cursor:pointer;
+  font:inherit;color:inherit;display:grid;grid-template-rows:auto 1fr auto;gap:6px;isolation:isolate}
+.shelf .it:hover{background:#E6DBC1}
+.shelf .it .cap{font-weight:900;font-size:13.5px;line-height:1.3}
+.shelf .it .mt{font-size:11.5px;font-family:"Archivo Black",sans-serif;letter-spacing:.04em}
+.detail{background:var(--paper);padding:20px}
+.detail .big{max-width:300px;margin:0 auto 14px;background:var(--paper-d);padding:10px}
+#zfig .cut,#rfig .cut{max-width:300px;margin:0 auto}
+
+/* ── 讀窗 ─────────────────────────────── */
+.cover{position:relative;background:var(--brass);
+  border-top:3px solid #B7AB88;border-bottom:3px solid var(--brass-d);
+  min-height:52px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12.5px;letter-spacing:.14em;color:#4A4432}
+.cover span{position:absolute;width:7px;height:7px;background:var(--brass-d);border-radius:50%}
+.cover span:nth-child(1){left:5px;top:5px}.cover span:nth-child(2){right:5px;top:5px}
+.cover span:nth-child(3){left:5px;bottom:5px}.cover span:nth-child(4){right:5px;bottom:5px}
+.opts{display:grid;gap:5px;margin-top:6px}
+.opt{background:var(--paper-d);border:0;border-left:7px solid var(--ink);
+  font:inherit;font-weight:700;font-size:13.5px;text-align:left;padding:6px 9px;cursor:pointer;
+  line-height:1.4}
+.opt:hover{background:#E6DBC1}
+.opt:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.opt.pick{border-left-color:var(--red);background:var(--paper)}
+.opt.right{border-left-color:var(--red);background:var(--red);color:var(--paper)}
+.opt.wrong{border-left-color:var(--ochre);opacity:.55;text-decoration:line-through}
+.cell.answered .cover{background:transparent;border-color:transparent;min-height:0}
+.cell.answered .cover span{display:none}
+.cell .miss{transition:translate .26s cubic-bezier(.2,1.5,.4,1)}
+.cell.wrongp .fig,.cell.wrongp .verse{translate:9px -3px}
+.scorebar{background:var(--ink);color:var(--paper);padding:12px 16px;display:flex;
+  gap:8px 22px;flex-wrap:wrap;align-items:baseline;position:sticky;top:52px;z-index:30}
+.scorebar b{font-family:"Archivo Black",sans-serif;font-size:22px;color:var(--ochre)}
+
+footer{background:var(--ink);color:var(--paper);margin-top:34px;padding:22px 18px 30px}
+footer .in{max-width:1080px;margin:0 auto;display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));font-size:13.5px;line-height:1.7}
+footer a{color:var(--ochre);font-weight:700}
+footer h3{color:var(--paper);font-size:13px;letter-spacing:.12em;margin-bottom:5px}
+
+/* ── View Transitions ─────────────────── */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.26s}
+
+@media (max-width:760px){
+  .window{grid-template-columns:repeat(2,1fr)}
+  .cell{grid-row:span 4}
+  .wrap{padding:14px 12px 84px}
+  .band.top{margin:-18px -15px 14px}
+  .sheet{padding:18px 15px 22px}
+}
+@media (max-width:560px){
+  body{font-size:15px}
+  footer{padding-bottom:104px}
+  .window{grid-template-columns:1fr;--gut:8px}
+  .navplate{padding:5px;gap:5px}
+  .navplate a{min-width:0;flex:1 1 44%;font-size:13px;padding:7px 8px}
+  .regbox{left:10px;right:10px;width:auto;bottom:10px;display:flex;gap:10px;align-items:center}
+  .regbox .bd{flex:1}
+  .scorebar{position:static}
+  .cell .verse{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .btn:hover{translate:0}
+  ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+}
+
+</style>
+</head>
+<body>
+<nav class="navplate" aria-label="主導覽"><a href="index.html"><em>TODAY</em>今天這扇窗</a><a href="duchuang.html" aria-current="page"><em>READ</em>讀窗</a><a href="chuangku.html"><em>ARCHIVE</em>窗庫</a><a href="yexiao.html"><em>SCHOOL</em>夜校與代筆處</a></nav>
+<main class="wrap">
+<div class="sheet"><div class="band top"><span class="k">ОКНО № 0631</span><b>冬天這幾件事</b><span>2021 年 1 月貼</span><span class="k">字帶：壓銅片</span><span>讀窗測驗用窗</span></div><p class="tag r">讀窗</p><h1 style="margin:8px 0 8px"><span class="ptitle"><span class="lay r" aria-hidden="true">把字蓋起來</span><span class="lay o" aria-hidden="true">把字蓋起來</span><span class="base">把字蓋起來</span></span></h1><p class="lead" style="max-width:52ch"><b>規則三句：</b>九格圖的字帶全部被一片銅片壓著，你只能看圖。每一格從三句話裡挑出這一格要你做的那一件事。九格答完，銅片掀開對答案。</p><p class="small" style="max-width:52ch">答錯的那一格會當場走版——錯的那一張要重刷，滑架就再爬一次。右下角的印張數是這樣累出來的；想把顏色壓回去，拖對版台。</p><div class="rule r"></div></div><div class="scorebar" id="bar"><span>讀窗率</span><b id="sc">0</b><span>／ 9 格</span><span id="prog">還沒開始</span><span style="margin-left:auto" class="mono" id="hint">只看圖，不看字</span></div><div class="sheet" style="margin-top:0"><div class="window" id="quiz"><div class="cell" data-i="0"><span class="no">01</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M6.0 58.0L44.0 58.0L44.0 94.0L6.0 94.0Z"/></g><g class="pl p-r"><path d="M13.0 68.0L37.0 68.0L37.0 86.0L13.0 86.0Z"/></g><g class="pl p-i"><path d="M14.7 64.0L35.3 64.0L35.3 58.0L14.7 58.0ZM38.0 66.7L38.0 85.3L44.0 85.3L44.0 66.7ZM35.3 88.0L14.7 88.0L14.7 94.0L35.3 94.0ZM12.0 85.3L12.0 66.7L6.0 66.7L6.0 85.3ZM64.0 4.0L82.0 17.0L38.0 84.0L27.0 76.0ZM27.0 76.0L38.0 84.0L23.0 95.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv0"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 1 格，三選一"><button class="opt" data-i="0" data-k="0">代筆處今天有人，筆和墨都在</button><button class="opt" data-i="0" data-k="1">本班教書法</button><button class="opt" data-i="0" data-k="2">墨水缺貨，請改天再來</button></div></div></div><div class="cell" data-i="1"><span class="no">02</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M3.0 93.0L97.0 93.0L97.0 100.0L3.0 100.0Z"/></g><g class="pl p-r"><path d="M4.0 10.5L24.0 10.5L24.0 15.5L36.0 7.0L24.0 -1.5L24.0 3.5L4.0 3.5Z"/></g><g class="pl p-i"><path d="M25.4 27.4L23.7 30.4L20.7 32.1L17.3 32.1L14.3 30.4L12.6 27.4L12.6 24.0L14.3 21.0L17.3 19.3L20.7 19.3L23.7 21.0L25.4 24.0ZM12.0 34.1L26.0 34.1L28.1 58.6L9.9 58.6ZM12.1 35.3L7.2 38.1L9.8 42.7L14.7 39.9ZM22.7 39.5L26.9 43.7L30.7 39.9L26.5 35.7ZM11.8 57.0L9.7 85.0L15.7 85.4L17.8 57.4ZM20.2 57.4L22.3 85.4L28.3 85.0L26.2 57.0ZM56.9 23.1L55.0 26.3L51.9 28.1L48.2 28.1L45.0 26.3L43.1 23.1L43.1 19.4L45.0 16.2L48.1 14.4L51.8 14.4L55.0 16.2L56.9 19.4ZM42.5 30.3L57.5 30.3L59.8 56.5L40.3 56.5ZM42.2 31.9L36.9 36.4L40.6 40.6L45.8 36.1ZM54.6 36.4L59.9 39.4L62.6 34.6L57.4 31.6ZM42.3 54.8L40.1 84.8L46.4 85.2L48.7 55.2ZM51.3 55.2L53.6 85.2L59.9 84.8L57.7 54.8ZM87.2 29.1L85.6 32.0L82.7 33.7L79.3 33.7L76.4 32.1L74.8 29.2L74.8 25.8L76.4 22.9L79.3 21.2L82.7 21.2L85.6 22.9L87.2 25.8ZM74.2 35.6L87.8 35.6L89.8 59.4L72.2 59.4ZM74.8 36.6L70.7 38.0L72.3 42.8L76.4 41.5ZM84.6 40.8L88.0 44.2L91.6 40.6L88.2 37.2ZM74.0 57.9L72.0 85.1L77.8 85.5L79.8 58.3ZM82.2 58.3L84.2 85.5L90.0 85.1L88.0 57.9Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv1"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 2 格，三選一"><button class="opt" data-i="1" data-k="0">今天已經客滿</button><button class="opt" data-i="1" data-k="1">報名從這一頭排起</button><button class="opt" data-i="1" data-k="2">這裡是公車站牌</button></div></div></div><div class="cell" data-i="2"><span class="no">03</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M7.0 31.0L46.0 24.0L46.0 79.0L7.0 86.0ZM54.0 24.0L93.0 31.0L93.0 86.0L54.0 79.0Z"/></g><g class="pl p-r"><path d="M46.0 21.0L54.0 21.0L54.0 83.0L46.0 83.0Z"/></g><g class="pl p-i"><path d="M11.9 32.7L42.0 27.3L41.1 22.3L11.0 27.7ZM43.5 28.5L43.5 74.5L48.5 74.5L48.5 28.5ZM41.1 77.3L11.0 82.7L11.9 87.7L42.0 82.3ZM9.5 81.5L9.5 35.5L4.5 35.5L4.5 81.5ZM58.0 27.3L88.1 32.7L89.0 27.7L58.9 22.3ZM90.5 35.5L90.5 81.5L95.5 81.5L95.5 35.5ZM89.0 82.7L58.9 77.3L58.0 82.3L88.1 87.7ZM56.5 74.5L56.5 28.5L51.5 28.5L51.5 74.5ZM14.4 46.2L40.4 41.2L39.6 36.8L13.6 41.8ZM14.4 58.2L40.4 53.2L39.6 48.8L13.6 53.8ZM59.6 41.2L85.6 46.2L86.4 41.8L60.4 36.8ZM59.6 53.2L85.6 58.2L86.4 53.8L60.4 48.8Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv2"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 3 格，三選一"><button class="opt" data-i="2" data-k="0">這裡是圖書館</button><button class="opt" data-i="2" data-k="1">請保持安靜</button><button class="opt" data-i="2" data-k="2">課本在櫃檯領，不用錢</button></div></div></div><div class="cell" data-i="3"><span class="no">04</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M38.0 20.0L62.0 20.0L74.0 70.0L26.0 70.0Z"/></g><g class="pl p-r"><path d="M58.0 88.0L56.9 92.0L54.0 94.9L50.0 96.0L46.0 94.9L43.1 92.0L42.0 88.0L43.1 84.0L46.0 81.1L50.0 80.0L54.0 81.1L56.9 84.0Z"/></g><g class="pl p-i"><path d="M41.0 21.3L59.0 21.3L59.0 14.8L41.0 14.8ZM62.1 23.7L73.6 68.0L79.9 66.3L68.4 22.0ZM73.0 68.8L27.0 68.8L27.0 75.3L73.0 75.3ZM26.4 68.0L37.9 23.7L31.6 22.0L20.1 66.3ZM23.0 72.0L77.0 72.0L77.0 80.0L23.0 80.0ZM45.0 4.0L55.0 4.0L55.0 18.0L45.0 18.0ZM47.3 26.0L47.3 62.0L52.8 62.0L52.8 26.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv3"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 4 格，三選一"><button class="opt" data-i="3" data-k="0">鐘響就進教室</button><button class="opt" data-i="3" data-k="1">火警的時候敲這口鐘</button><button class="opt" data-i="3" data-k="2">這裡是教堂</button></div></div></div><div class="cell" data-i="4"><span class="no">05</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M10.0 12.0L90.0 12.0L90.0 72.0L10.0 72.0Z"/></g><g class="pl p-r"><path d="M62.0 60.0L76.0 54.0L80.0 63.0L66.0 69.0Z"/></g><g class="pl p-i"><path d="M18.1 17.0L81.8 17.0L81.8 10.0L18.1 10.0ZM85.0 20.1L85.0 63.9L92.0 63.9L92.0 20.1ZM81.8 67.0L18.1 67.0L18.1 74.0L81.8 74.0ZM15.0 63.9L15.0 20.1L8.0 20.1L8.0 63.9ZM24.0 35.0L54.0 35.0L54.0 29.0L24.0 29.0ZM24.0 49.0L70.0 49.0L70.0 43.0L24.0 43.0ZM24.0 63.0L44.0 63.0L44.0 57.0L24.0 57.0ZM6.0 78.0L94.0 78.0L94.0 86.0L6.0 86.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv4"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 5 格，三選一"><button class="opt" data-i="4" data-k="0">禁止在牆上塗寫</button><button class="opt" data-i="4" data-k="1">寫錯了擦掉重寫</button><button class="opt" data-i="4" data-k="2">今日停課</button></div></div></div><div class="cell" data-i="5"><span class="no">06</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M10.0 20.0L90.0 14.0L94.0 80.0L6.0 86.0Z"/></g><g class="pl p-r"><path d="M-1.2 5.8L24.8 27.8L31.2 20.2L5.2 -1.8Z"/></g><g class="pl p-i"><path d="M15.2 22.1L85.2 16.9L84.8 11.9L14.8 17.1ZM87.8 19.1L91.2 75.2L96.2 74.9L92.8 18.8ZM88.8 77.8L10.8 83.2L11.2 88.2L89.2 82.8ZM8.8 81.2L12.2 25.1L7.2 24.8L3.8 80.9ZM22.4 41.5L78.4 35.5L77.6 28.5L21.6 34.5ZM22.3 57.5L72.3 52.5L71.7 45.5L21.7 50.5ZM22.4 73.5L58.4 69.5L57.6 62.5L21.6 66.5ZM0.0 0.0L11.0 0.0L11.0 11.0L0.0 11.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv5"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 6 格，三選一"><button class="opt" data-i="5" data-k="0">請勿撕毀</button><button class="opt" data-i="5" data-k="1">這面牆要重新油漆</button><button class="opt" data-i="5" data-k="2">這張紙每天早上換一張</button></div></div></div><div class="cell" data-i="6"><span class="no">07</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M22.0 92.0L78.0 92.0L78.0 100.0L22.0 100.0Z"/></g><g class="pl p-r"><path d="M35.1 34.9L37.9 32.3L41.1 30.3L44.6 29.0L48.3 28.3L52.1 28.3L55.8 29.1L59.3 30.5L62.4 32.6L65.1 35.2L67.3 38.3L68.8 41.8L69.6 45.5L69.8 49.2L69.2 53.0L67.9 56.5L65.9 59.7L63.4 62.6L60.4 64.8L57.0 66.5L53.4 67.5L49.6 67.8L45.9 67.4L47.0 62.3L49.7 62.6L52.5 62.4L55.2 61.6L57.7 60.4L59.9 58.7L61.8 56.7L63.2 54.3L64.1 51.7L64.6 48.9L64.5 46.1L63.9 43.4L62.7 40.9L61.1 38.6L59.2 36.6L56.8 35.1L54.3 34.0L51.5 33.5L48.8 33.5L46.0 34.0L43.4 35.0L41.1 36.5L39.0 38.4ZM22.8 24.1L27.9 19.4L33.7 15.7L40.1 13.2L46.9 11.9L53.8 12.0L60.6 13.4L66.9 16.0L72.7 19.8L77.6 24.6L81.6 30.3L84.4 36.6L85.9 43.3L86.1 50.2L85.1 57.1L82.7 63.5L79.2 69.5L74.6 74.6L69.1 78.8L62.9 81.8L56.2 83.7L49.3 84.2L42.5 83.4L43.6 78.3L49.4 79.0L55.3 78.5L61.0 77.0L66.3 74.4L71.0 70.8L75.0 66.4L78.0 61.3L80.0 55.8L80.9 49.9L80.7 44.0L79.4 38.2L77.0 32.8L73.7 28.0L69.4 23.9L64.5 20.6L59.1 18.4L53.3 17.2L47.4 17.1L41.5 18.2L36.0 20.3L31.0 23.5L26.7 27.5Z"/></g><g class="pl p-i"><path d="M41.3 40.3L42.9 38.8L44.8 37.6L46.8 36.8L49.0 36.4L51.2 36.5L53.4 36.9L55.4 37.7L57.3 39.0L58.9 40.5L60.1 42.3L61.0 44.4L61.5 46.5L61.6 48.7L61.2 50.9L60.5 53.0L59.3 54.9L57.9 56.5L56.1 57.9L54.1 58.8L52.0 59.4L49.8 59.6L47.6 59.3L48.7 54.3L49.9 54.4L51.1 54.3L52.3 54.0L53.4 53.4L54.3 52.7L55.2 51.8L55.8 50.7L56.2 49.6L56.4 48.4L56.3 47.2L56.1 46.0L55.6 44.9L54.9 43.9L54.0 43.0L53.0 42.3L51.9 41.9L50.7 41.6L49.5 41.6L48.3 41.8L47.1 42.3L46.1 42.9L45.2 43.8ZM29.0 29.5L32.9 25.9L37.4 23.0L42.4 21.1L47.6 20.1L52.9 20.2L58.2 21.2L63.1 23.3L67.6 26.2L71.4 29.9L74.4 34.3L76.6 39.2L77.8 44.4L77.9 49.7L77.1 55.0L75.3 60.0L72.5 64.6L69.0 68.6L64.7 71.8L60.0 74.2L54.8 75.6L49.5 76.0L44.2 75.4L45.3 70.3L49.6 70.8L53.9 70.5L58.1 69.3L62.0 67.4L65.5 64.8L68.4 61.5L70.6 57.8L72.1 53.7L72.8 49.4L72.6 45.1L71.6 40.8L69.9 36.9L67.4 33.3L64.3 30.2L60.7 27.9L56.7 26.2L52.4 25.3L48.1 25.3L43.8 26.1L39.7 27.6L36.1 30.0L32.9 32.9ZM16.7 18.7L22.8 12.9L30.0 8.4L37.9 5.3L46.2 3.8L54.7 3.8L63.0 5.5L70.8 8.8L77.9 13.4L83.9 19.3L88.7 26.3L92.1 34.0L94.0 42.3L94.3 50.7L93.0 59.1L90.1 67.1L85.8 74.3L80.1 80.6L73.4 85.7L65.8 89.5L57.6 91.7L49.2 92.4L40.8 91.4L41.9 86.3L49.3 87.2L56.7 86.6L63.9 84.6L70.6 81.3L76.6 76.8L81.6 71.2L85.4 64.8L88.0 57.8L89.1 50.4L88.9 43.0L87.2 35.7L84.2 28.8L79.9 22.7L74.6 17.5L68.4 13.4L61.4 10.5L54.1 9.0L46.6 8.9L39.3 10.3L32.3 13.0L26.0 17.0L20.6 22.1ZM46.0 91.0L54.0 91.0L54.0 85.0L46.0 85.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv6"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 7 格，三選一"><button class="opt" data-i="6" data-k="0">不會寫名字的按指印</button><button class="opt" data-i="6" data-k="1">入內須採指紋</button><button class="opt" data-i="6" data-k="2">按了就不能反悔</button></div></div></div><div class="cell" data-i="7"><span class="no">08</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M71.0 50.0L69.4 58.0L64.8 64.8L58.0 69.4L50.0 71.0L42.0 69.4L35.2 64.8L30.6 58.0L29.0 50.0L30.6 42.0L35.2 35.2L42.0 30.6L50.0 29.0L58.0 30.6L64.8 35.2L69.4 42.0Z"/></g><g class="pl p-r"><path d="M8.1 15.9L84.1 91.9L91.9 84.1L15.9 8.1ZM84.1 8.1L8.1 84.1L15.9 91.9L91.9 15.9Z"/></g><g class="pl p-i"><path d="M79.7 54.5L78.8 58.3L77.5 61.9L75.8 65.4L73.6 68.5L71.0 71.4L68.1 74.0L64.8 76.1L61.4 77.8L57.7 79.0L53.9 79.7L50.0 80.0L46.2 79.8L42.4 79.0L38.7 77.8L35.2 76.1L32.0 74.0L29.0 71.5L26.4 68.6L24.3 65.4L22.5 62.0L21.2 58.3L20.3 54.5L28.3 53.3L28.9 56.1L29.8 58.8L31.1 61.3L32.7 63.6L34.6 65.7L36.8 67.6L39.2 69.1L41.7 70.4L44.4 71.3L47.2 71.8L50.0 72.0L52.8 71.8L55.6 71.3L58.3 70.4L60.9 69.1L63.2 67.6L65.4 65.7L67.3 63.6L68.9 61.3L70.2 58.7L71.1 56.1L71.8 53.3ZM20.3 45.6L21.1 41.8L22.4 38.1L24.2 34.7L26.4 31.5L29.0 28.6L31.9 26.1L35.1 23.9L38.6 22.2L42.3 21.0L46.1 20.3L49.9 20.0L53.8 20.2L57.6 21.0L61.3 22.2L64.7 23.9L68.0 26.0L70.9 28.5L73.5 31.4L75.7 34.6L77.5 38.0L78.8 41.6L79.6 45.4L71.7 46.6L71.1 43.9L70.2 41.2L68.9 38.7L67.3 36.3L65.3 34.2L63.2 32.4L60.8 30.8L58.3 29.6L55.6 28.7L52.8 28.2L49.9 28.0L47.1 28.2L44.3 28.7L41.6 29.6L39.1 30.9L36.7 32.5L34.6 34.3L32.7 36.4L31.1 38.8L29.8 41.3L28.8 44.0L28.2 46.7ZM45.0 40.0L55.0 40.0L55.0 60.0L45.0 60.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv7"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 8 格，三選一"><button class="opt" data-i="7" data-k="0">本處不找零</button><button class="opt" data-i="7" data-k="1">一毛錢都不收</button><button class="opt" data-i="7" data-k="2">暫停營業</button></div></div></div><div class="cell" data-i="8"><span class="no">09</span><span class="fig miss"><svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true"><g class="pl p-o"><path d="M6.0 96.0L94.0 96.0L94.0 100.0L6.0 100.0Z"/></g><g class="pl p-r"><path d="M33.0 54.0L67.0 54.0L88.0 95.0L12.0 95.0Z"/></g><g class="pl p-i"><path d="M30.0 26.0L70.0 26.0L82.0 52.0L18.0 52.0ZM46.0 6.0L54.0 6.0L54.0 26.0L46.0 26.0ZM44.0 54.0L56.0 54.0L56.0 88.0L44.0 88.0ZM28.0 88.0L72.0 88.0L72.0 96.0L28.0 96.0Z"/></g></svg></span><span class="knife" aria-hidden="true"></span><div><div class="cover" id="cv8"><span></span><span></span><span></span><span></span>字帶壓著銅片</div><div class="opts" role="group" aria-label="第 9 格，三選一"><button class="opt" data-i="8" data-k="0">請隨手關燈</button><button class="opt" data-i="8" data-k="1">這裡有電，小心</button><button class="opt" data-i="8" data-k="2">天黑了燈就先開著</button></div></div></div></div></div><div class="sheet" id="res" hidden style="margin-top:16px"><p class="tag">結果單</p><h2 id="rh" style="margin-top:8px"></h2><div class="cols"><div><p id="rp"></p><p class="small">窗口夜校自 1998 年把每一扇窗的讀窗率記進窗庫。第 0631 號窗至今由 1,842 人讀過，中位數 6／9。最多人讀錯的是第 6 格（那張紙每天換）——刷子那一筆畫得太像掃把，柯主任說第二年就該重刻，一直沒改。第 8 格（不收錢）讀對率最高，98%：兩道叉壓過錢幣邊緣，誰都懂。</p><p class="small">這一份不是成績。它量的不是你，是這扇窗——一扇要靠圖說話的窗，讀不出來就是刻壞了。</p><p><a class="btn" href="chuangku.html">去窗庫看這扇窗的刀路檢查</a> <button class="btn q" id="again">重讀一次</button></p></div><div id="rfig" style="background:var(--paper-d);padding:12px"></div></div></div><div class="sheet" style="margin-top:16px"><details><summary style="font-weight:900;cursor:pointer">對答案（不必 JavaScript，這裡直接印出九條字帶）</summary><table style="margin-top:10px"><tr><th>格</th><th>圖說的是</th><th>字帶</th></tr><tr><td class="mono">01</td><td>代筆處今天有人，筆和墨都在</td><td>筆借你不用還／要寫什麼你講就算</td></tr><tr><td class="mono">02</td><td>報名從這一頭排起</td><td>從這一頭排起／輪到你就登記</td></tr><tr><td class="mono">03</td><td>課本在櫃檯領，不用錢</td><td>課本不必買／櫃檯開口就領得來</td></tr><tr><td class="mono">04</td><td>鐘響就進教室</td><td>鐘敲第一下／人就該坐下</td></tr><tr><td class="mono">05</td><td>寫錯了擦掉重寫</td><td>寫錯了不要緊／擦掉再寫一遍就行</td></tr><tr><td class="mono">06</td><td>這張紙每天早上換一張</td><td>這張紙只貼一天／明早六點四十再換一遍</td></tr><tr><td class="mono">07</td><td>不會寫名字的按指印</td><td>名字寫不出來／按個指印就在</td></tr><tr><td class="mono">08</td><td>一毛錢都不收</td><td>錢你收好別拿出來／這裡從頭到尾不賣</td></tr><tr><td class="mono">09</td><td>天黑了燈就先開著</td><td>五點半天就暗／燈先替你點上一盞</td></tr></table></details></div>
+</main>
+<aside class="regbox" id="regbox" aria-label="對版台"><div class="hd"><span>對版台</span><span class="mono">РОСТА</span></div><div class="bd"><div class="regpad" id="regpad" tabindex="0" role="slider" aria-label="拖曳以校正套色偏移" aria-valuemin="-6" aria-valuemax="7" aria-valuenow="0"><i class="ci"></i><i class="co"></i><i class="cr"></i></div><div class="rd"><span>印張 <span id="rd-n">0</span></span><span>偏 <span id="rd-p">0.0px</span></span></div><div class="ok" id="rd-ok" style="display:none">已對版</div><button class="opt" id="regreset" style="border-left-width:5px;margin-top:4px;font-size:11.5px;padding:3px 7px">重新上版（歸零）</button></div></aside>
+<footer><div style="max-width:1080px;margin:0 auto 16px"><img src="assets/logo.svg" alt="窗口夜校" width="340" height="110" style="max-width:100%;height:auto"></div><div class="in"><div><h3>窗口夜校</h3>港東區立第七夜間識字班暨代筆處<br>港東區鍋爐街 41 號（舊布莊騎樓轉角）<br>(07) 231-0741</div><div><h3>開課</h3>週一至週五 19:00–21:20<br>週六 09:00–11:20（托兒班同時段）<br>學費全免，紙筆由校方發</div><div><h3>代筆處</h3>週二、週四 18:00–19:00<br>代寫書信 每封 12 元<br>代讀公文・按指印代簽 免費</div><div><h3>窗</h3>每日 06:40 換窗，舊窗收進<a href="chuangku.html">窗庫</a><br>圖版體例仿 РОСТА 窗（莫斯科，1919–1921）<br><span class="small">本站為設計範例，商號、人名、電話、價目與統計數字皆為虛構。</span></div></div></footer>
+<noscript><div style="background:#181410;color:#DCCFB2;padding:14px 18px;font-size:14px">沒有 JavaScript 也讀得完：整扇窗、全部押韻字帶、窗庫二十四扇與夜校資訊都是靜態 HTML。關掉的只有三樣：套色會停在建置時的偏移量、對版台不能拖、讀窗要改看窗庫裡的原窗對答案。</div></noscript>
+<script>
+/* ── 窗口夜校 · 模版引擎 ────────────────────────────────
+   全部圖像由可割模版原語生成：無孤島、最小刀寬 ≥4、一色一版。 */
+var K={
+fnv:function(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h>>>0},
+rng:function(seed){var a=seed>>>0;return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}},
+rect:function(x,y,w,h){var p=[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];p.w=Math.min(Math.abs(w),Math.abs(h));return p},
+ngon:function(cx,cy,r,n,rot){var p=[],i;rot=rot||0;for(i=0;i<n;i++){var a=rot+i*2*Math.PI/n;p.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}p.w=2*r*Math.cos(Math.PI/n);return p},
+bar:function(x1,y1,x2,y2,w){var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,nx=-dy/L*w/2,ny=dx/L*w/2;
+  var p=[[x1+nx,y1+ny],[x2+nx,y2+ny],[x2-nx,y2-ny],[x1-nx,y1-ny]];p.w=w;return p},
+arrow:function(x1,y1,x2,y2,w,hw,hl){var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+  var bx=x2-ux*hl,by=y2-uy*hl;
+  var p=[[x1+nx*w/2,y1+ny*w/2],[bx+nx*w/2,by+ny*w/2],[bx+nx*hw/2,by+ny*hw/2],[x2,y2],
+         [bx-nx*hw/2,by-ny*hw/2],[bx-nx*w/2,by-ny*w/2],[x1-nx*w/2,y1-ny*w/2]];p.w=w;return p},
+/* C 形環：留一道 bridgeW 寬的連橋缺口，故不產生孤島 */
+carc:function(cx,cy,r,t,a0,a1){var p=[],i,n=22;
+  for(i=0;i<=n;i++){var a=a0+(a1-a0)*i/n;p.push([cx+(r+t/2)*Math.cos(a),cy+(r+t/2)*Math.sin(a)])}
+  for(i=n;i>=0;i--){var a2=a0+(a1-a0)*i/n;p.push([cx+(r-t/2)*Math.cos(a2),cy+(r-t/2)*Math.sin(a2)])}
+  p.w=t;return p},
+path:function(poly){var s='M';for(var i=0;i<poly.length;i++){s+=(i?'L':'')+poly[i][0].toFixed(1)+' '+poly[i][1].toFixed(1)}return s+'Z'},
+/* 人形剪影：頭＝12 邊形，身＝梯形，四肢＝粗桿；全部 ≥5 寬 */
+person:function(x,y,h,o){o=o||{};var u=h/100,P=[],B=K.bar;
+  P.push(K.ngon(x,y+11*u,9.5*u,12,0.26));
+  P.push([[x-10*u,y+23*u],[x+10*u,y+23*u],[x+13*u,y+58*u],[x-13*u,y+58*u]]);
+  var la=o.la||[-24,42],ra=o.ra||[24,42];
+  P.push(B(x-8*u,y+28*u,x+la[0]*u,y+la[1]*u,7.5*u));
+  P.push(B(x+8*u,y+28*u,x+ra[0]*u,y+ra[1]*u,7.5*u));
+  P.push(B(x-6*u,y+56*u,x+(o.ll||-9)*u,y+96*u,8.5*u));
+  P.push(B(x+6*u,y+56*u,x+(o.rl||9)*u,y+96*u,8.5*u));
+  return P},
+handPoint:function(x,y,s,dir){var u=s/100,d=dir||1;
+  return[K.rect(x,y,34*u*d,30*u),K.bar(x+34*u*d,y+9*u,x+62*u*d,y+9*u,12*u),K.rect(x-13*u*d,y+3*u,13*u*d,24*u)]},
+/* 輪廓：沿每一條邊刷一道，兩端各留 gap 的連橋缺口 → 不產生孤島 */
+outline:function(pts,t,gap){var o=[],i,n=pts.length;gap=gap==null?t*0.95:gap;
+  for(i=0;i<n;i++){var a=pts[i],b=pts[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;
+    if(L<=2*gap+t)continue;var ux=dx/L,uy=dy/L;
+    o.push(K.bar(a[0]+ux*gap,a[1]+uy*gap,b[0]-ux*gap,b[1]-uy*gap,t))}
+  return o},
+frame:function(x,y,w,h,t,gap){return K.outline([[x+t/2,y+t/2],[x+w-t/2,y+t/2],[x+w-t/2,y+h-t/2],[x+t/2,y+h-t/2]],t,gap)}
+};
+
+/* ── 母題模版庫：每一枚回傳墨／朱／赭三塊版 ────────────────
+   規矩：墨版只做剪影與輪廓，絕不壓在要看見的赭朱色域上；
+   三塊版之間只在套色錯位的 1–3px 邊緣相疊。 */
+var MOTIF={
+looker:function(){var ink=K.person(34,4,86,{la:[-26,40],ra:[22,16]}),red=[],och=[];
+  ink=ink.concat(K.frame(60,8,38,50,5));
+  red.push(K.rect(65,13,28,40));och.push(K.rect(56,58,46,7));
+  return{ink:ink,red:red,ochre:och}},
+letter:function(){var ink=[],red=[],och=[];
+  och.push(K.rect(18,36,64,38));
+  ink=ink.concat(K.frame(16,34,68,42,6));
+  ink.push(K.bar(30,48,50,60,6));ink.push(K.bar(70,48,50,60,6));
+  red.push(K.rect(56,46,22,6));red.push(K.rect(56,57,22,6));
+  ink=ink.concat(K.handPoint(6,80,58,1));
+  return{ink:ink,red:red,ochre:och}},
+thumb:function(){var i,ink=[],red=[],och=[];
+  for(i=0;i<5;i++){var r=9+i*8.2,t=5.2;
+    (i%2?red:ink).push(K.carc(50,48,r,t,-2.42,1.78))}
+  ink.push(K.bar(46,88,54,88,6));
+  och.push(K.rect(22,92,56,8));
+  return{ink:ink,red:red,ochre:och}},
+lamp:function(){var ink=[],red=[],och=[];
+  red.push([[33,54],[67,54],[88,95],[12,95]]);
+  ink.push([[30,26],[70,26],[82,52],[18,52]]);
+  ink.push(K.rect(46,6,8,20));ink.push(K.rect(44,54,12,34));ink.push(K.rect(28,88,44,8));
+  och.push(K.rect(6,96,88,4));
+  return{ink:ink,red:red,ochre:och}},
+clock7:function(){var ink=[],red=[],och=[],i;
+  och.push(K.ngon(50,52,30,16,0));
+  ink.push(K.carc(50,52,32,7,0.13,3.01));ink.push(K.carc(50,52,32,7,3.27,6.15));
+  for(i=0;i<12;i++){var a=i*Math.PI/6-Math.PI/2;
+    ink.push(K.bar(50+21*Math.cos(a),52+21*Math.sin(a),50+26*Math.cos(a),52+26*Math.sin(a),i%3?4.2:6.5))}
+  red.push(K.bar(50,52,50+14*Math.cos(-0.52),52+14*Math.sin(-0.52),7));
+  red.push(K.bar(50,52,50,28,5.5));
+  ink.push(K.rect(38,2,24,7));
+  return{ink:ink,red:red,ochre:och}},
+bench:function(){var ink=[],red=[],och=[];
+  ink.push(K.rect(8,44,84,10));ink.push(K.rect(18,54,10,36));ink.push(K.rect(72,54,10,32));
+  och.push(K.rect(4,92,92,7));
+  red.push([[58,18],[71,11],[77,22],[64,29]]);
+  ink.push(K.bar(30,36,58,20,6));
+  return{ink:ink,red:red,ochre:och}},
+child:function(){var ink=K.person(30,4,82,{ra:[26,36]}),red=[],och=[];
+  ink=ink.concat(K.person(72,40,56,{la:[-22,26],ra:[16,30]}));
+  red.push(K.bar(50,42,64,52,6.5));
+  och.push(K.rect(4,93,92,7));
+  return{ink:ink,red:red,ochre:och}},
+coinNo:function(){var ink=[],red=[],och=[];
+  och.push(K.ngon(50,50,21,16,0));
+  ink.push(K.carc(50,50,26,8,0.15,2.99));ink.push(K.carc(50,50,26,8,3.29,6.13));
+  ink.push(K.rect(45,40,10,20));
+  red.push(K.bar(12,12,88,88,11));red.push(K.bar(88,12,12,88,11));
+  return{ink:ink,red:red,ochre:och}},
+doorArrow:function(){var ink=[],red=[],och=[];
+  och.push(K.rect(60,8,34,88));
+  ink=ink.concat(K.frame(58,6,38,92,6));
+  ink.push(K.ngon(66,54,5,10,0));
+  red.push(K.arrow(4,52,54,52,15,34,22));
+  return{ink:ink,red:red,ochre:och}},
+pen:function(){var ink=[],red=[],och=[];
+  och.push(K.rect(6,58,38,36));
+  ink=ink.concat(K.frame(6,58,38,36,6));
+  ink.push([[64,4],[82,17],[38,84],[27,76]]);
+  ink.push([[27,76],[38,84],[23,95]]);
+  red.push(K.rect(13,68,24,18));
+  return{ink:ink,red:red,ochre:och}},
+queue:function(){var ink=[],red=[],och=[];
+  ink=ink.concat(K.person(19,18,70,{la:[-15,32],ra:[14,34]}));
+  ink=ink.concat(K.person(50,13,75,{la:[-15,34],ra:[15,32]}));
+  ink=ink.concat(K.person(81,20,68,{la:[-14,30],ra:[13,33]}));
+  och.push(K.rect(3,93,94,7));
+  red.push(K.arrow(4,7,36,7,7,17,12));
+  return{ink:ink,red:red,ochre:och}},
+book:function(){var ink=[],red=[],och=[];
+  var L=[[7,31],[46,24],[46,79],[7,86]],R=[[54,24],[93,31],[93,86],[54,79]];
+  och.push(L);och.push(R);
+  ink=ink.concat(K.outline(L,5,4.5));ink=ink.concat(K.outline(R,5,4.5));
+  ink.push(K.bar(14,44,40,39,4.5));ink.push(K.bar(14,56,40,51,4.5));
+  ink.push(K.bar(60,39,86,44,4.5));ink.push(K.bar(60,51,86,56,4.5));
+  red.push(K.rect(46,21,8,62));
+  return{ink:ink,red:red,ochre:och}},
+bell:function(){var ink=[],red=[],och=[];
+  och.push([[38,20],[62,20],[74,70],[26,70]]);
+  ink=ink.concat(K.outline([[36,18],[64,18],[78,72],[22,72]],6.5,5));
+  ink.push(K.rect(23,72,54,8));ink.push(K.rect(45,4,10,14));
+  ink.push(K.bar(50,26,50,62,5.5));
+  red.push(K.ngon(50,88,8,12,0));
+  return{ink:ink,red:red,ochre:och}},
+chalk:function(){var ink=[],red=[],och=[];
+  och.push(K.rect(10,12,80,60));
+  ink=ink.concat(K.frame(8,10,84,64,7));
+  ink.push(K.bar(24,32,54,32,6));ink.push(K.bar(24,46,70,46,6));ink.push(K.bar(24,60,44,60,6));
+  ink.push(K.rect(6,78,88,8));
+  red.push([[62,60],[76,54],[80,63],[66,69]]);
+  return{ink:ink,red:red,ochre:och}},
+window9:function(){var ink=[],red=[],och=[],i,j;
+  for(i=0;i<3;i++)for(j=0;j<3;j++){((i+j)%2?och:red).push(K.rect(11+j*28,11+i*28,22,22))}
+  ink=ink.concat(K.frame(5,5,90,90,6));
+  for(i=1;i<3;i++){var v=5+i*28;
+    ink.push(K.bar(v,10,v,29,6));ink.push(K.bar(v,37,v,57,6));ink.push(K.bar(v,65,v,90,6));
+    ink.push(K.bar(10,v,29,v,6));ink.push(K.bar(37,v,57,v,6));ink.push(K.bar(65,v,90,v,6))}
+  return{ink:ink,red:red,ochre:och}},
+paste:function(){var ink=[],red=[],och=[];
+  och.push([[10,20],[90,14],[94,80],[6,86]]);
+  ink=ink.concat(K.outline([[10,20],[90,14],[94,80],[6,86]],5,5));
+  ink.push(K.bar(22,38,78,32,7));ink.push(K.bar(22,54,72,49,7));ink.push(K.bar(22,70,58,66,7));
+  red.push(K.bar(2,2,28,24,10));
+  ink.push(K.rect(0,0,11,11));
+  return{ink:ink,red:red,ochre:och}}
+};
+var MOTIF_KEYS=Object.keys(MOTIF);
+
+/* ── 渲染：三塊版各自一個 <g>，multiply 疊印，位移由 CSS 變數驅動 ── */
+function plates(m){
+  function g(list,cls){var d='',i;for(i=0;i<list.length;i++){d+=K.path(list[i])}
+    return '<g class="pl '+cls+'"><path d="'+d+'"/></g>'}
+  return g(m.ochre,'p-o')+g(m.red,'p-r')+g(m.ink,'p-i')}
+
+function panelSVG(key,extra){
+  var m=MOTIF[key]?MOTIF[key]():MOTIF.window9();
+  return '<svg class="cut" viewBox="-4 -4 108 108" aria-hidden="true">'+plates(m)+(extra||'')+'</svg>'}
+
+/* ── 模版可割性驗證（刀路檢查）─────────────────────────
+   一色一版，逐版檢查：
+   最小刀寬＝墨跡的中軸最小寬度（刷子的下限）；
+   孤島＝被墨完全包住、割下來會掉的那塊銅片。 */
+function rasterize(polys,N){
+  var g=new Uint8Array(N*N),x,y,k,a,b;
+  var bb=[];
+  for(k=0;k<polys.length;k++){var r=polys[k],x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    for(a=0;a<r.length;a++){if(r[a][0]<x0)x0=r[a][0];if(r[a][0]>x1)x1=r[a][0];
+      if(r[a][1]<y0)y0=r[a][1];if(r[a][1]>y1)y1=r[a][1]}bb.push([x0,x1,y0,y1])}
+  for(y=0;y<N;y++){var py=(y+.5)*100/N;
+    for(x=0;x<N;x++){var px=(x+.5)*100/N,on=0;
+      for(k=0;k<polys.length&&!on;k++){
+        if(px<bb[k][0]||px>bb[k][1]||py<bb[k][2]||py>bb[k][3])continue;
+        var r2=polys[k],c=false;
+        for(a=0,b=r2.length-1;a<r2.length;b=a++){var yi=r2[a][1],yj=r2[b][1];
+          if((yi>py)!==(yj>py)&&px<(r2[b][0]-r2[a][0])*(py-yi)/(yj-yi)+r2[a][0])c=!c}
+        if(c)on=1}
+      g[y*N+x]=on}}
+  return g}
+function dt(g,N,val){                       /* 到反相區的城市距離（chamfer） */
+  var d=new Float32Array(N*N),x,y,i,m;
+  for(y=0;y<N;y++)for(x=0;x<N;x++){i=y*N+x;if(g[i]!==val){d[i]=0;continue}m=1e9;
+    m=Math.min(m,(x>0?d[i-1]:0)+1);m=Math.min(m,(y>0?d[i-N]:0)+1);
+    if(x>0&&y>0)m=Math.min(m,d[i-N-1]+1.414);if(x<N-1&&y>0)m=Math.min(m,d[i-N+1]+1.414);
+    d[i]=m}
+  for(y=N-1;y>=0;y--)for(x=N-1;x>=0;x--){i=y*N+x;if(g[i]!==val)continue;m=d[i];
+    m=Math.min(m,(x<N-1?d[i+1]:0)+1);m=Math.min(m,(y<N-1?d[i+N]:0)+1);
+    if(x<N-1&&y<N-1)m=Math.min(m,d[i+N+1]+1.414);if(x>0&&y<N-1)m=Math.min(m,d[i+N-1]+1.414);
+    d[i]=m}
+  return d}
+function validatePlate(polys,N){
+  N=N||100;
+  if(!polys.length)return{minCut:100,islands:0};
+  var g=rasterize(polys,N),d=dt(g,N,1),i,x,y,mn=1e9,sc=100/N;
+  for(y=1;y<N-1;y++)for(x=1;x<N-1;x++){i=y*N+x;if(!g[i]||d[i]<1)continue;
+    if(d[i]>=d[i-1]&&d[i]>=d[i+1]&&d[i]>=d[i-N]&&d[i]>=d[i+N]
+       &&d[i]>=d[i-N-1]&&d[i]>=d[i-N+1]&&d[i]>=d[i+N-1]&&d[i]>=d[i+N+1]){if(d[i]<mn)mn=d[i]}}
+  if(mn>1e8)mn=0;
+  /* 孤島：不接觸邊界的銅片連通區 */
+  var seen=new Uint8Array(N*N),st=[],islands=0,j;
+  for(i=0;i<N*N;i++){if(g[i]||seen[i])continue;
+    st.length=0;st.push(i);seen[i]=1;var touch=false,comp=0;
+    while(st.length){var p=st.pop(),px=p%N,py=(p-px)/N;comp++;
+      if(px===0||py===0||px===N-1||py===N-1)touch=true;
+      var nb=[[px-1,py],[px+1,py],[px,py-1],[px,py+1]];
+      for(j=0;j<4;j++){var nx=nb[j][0],ny=nb[j][1];if(nx<0||ny<0||nx>=N||ny>=N)continue;
+        var q=ny*N+nx;if(!g[q]&&!seen[q]){seen[q]=1;st.push(q)}}}
+    if(!touch&&comp>6)islands++}
+  return{minCut:+(mn*2*sc).toFixed(1),islands:islands}}
+/* 刀寬：引擎畫每一刀時就知道它有多寬（原語自帶 w）；
+   手繪多邊形以凸多邊形最小寬度（旋轉卡尺）補算。
+   孤島：整版光柵化後找不接觸邊界的銅片連通區。 */
+function polyWidth(p){
+  if(p.w)return p.w;
+  var n=p.length,i,j,mn=1e9;
+  for(i=0;i<n;i++){var a=p[i],b=p[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);
+    if(L<1e-6)continue;var mx=0;
+    for(j=0;j<n;j++){var d=Math.abs((p[j][0]-a[0])*dy-(p[j][1]-a[1])*dx)/L;if(d>mx)mx=d}
+    if(mx<mn)mn=mx}
+  return mn>1e8?0:mn}
+function validate(m){
+  var out={minCut:1e9,islands:0},ks=['ink','red','ochre'],i,j;
+  for(i=0;i<3;i++){var list=m[ks[i]]||[];if(!list.length)continue;
+    out.islands+=validatePlate(list).islands;
+    for(j=0;j<list.length;j++){var w=polyWidth(list[j]);if(w<out.minCut)out.minCut=w}}
+  if(out.minCut>1e8)out.minCut=0;
+  out.minCut=+out.minCut.toFixed(1);
+  return out}
+
+/* ── 執行時：套色漂移（簽名動效）／對版台／轉場 ─────────── */
+var OK={
+  U:[0.862,-0.507],           /* 走版方向：滑架每刷一張就往這個方向爬一點 */
+  MAXN:200, MAXPX:6.4,
+  n:0, s:0,                   /* n=印張數  s=對版補償量 */
+  reduced:false,
+  drift:function(n){return OK.MAXPX*Math.log1p(n)/Math.log1p(OK.MAXN)},
+  load:function(){
+    try{OK.n=parseInt(sessionStorage.getItem('okno.n')||'0',10)||0;
+        OK.s=parseFloat(sessionStorage.getItem('okno.s')||'0')||0}catch(e){}
+  },
+  save:function(){try{sessionStorage.setItem('okno.n',OK.n);sessionStorage.setItem('okno.s',OK.s)}catch(e){}},
+  k:function(){return OK.drift(OK.n)-OK.s},
+  apply:function(){
+    var k=OK.k(),r=document.documentElement.style;
+    r.setProperty('--rx',(OK.U[0]*k).toFixed(2)+'px');
+    r.setProperty('--ry',(OK.U[1]*k).toFixed(2)+'px');
+    r.setProperty('--ox',(OK.U[0]*k*0.7).toFixed(2)+'px');
+    r.setProperty('--oy',(OK.U[1]*k*0.7).toFixed(2)+'px');
+    var a=document.getElementById('rd-n'),b=document.getElementById('rd-p');
+    if(a)a.textContent=OK.n;
+    if(b)b.textContent=(k>=0?'':'−')+Math.abs(k).toFixed(1)+'px';
+    var ok=document.getElementById('rd-ok');
+    if(ok)ok.style.display=(Math.abs(k)<0.4?'block':'none');
+  },
+  pull:function(m){OK.n+=(m||1);OK.save();OK.apply()},
+  reg:function(ds){
+    OK.s+=ds;
+    if(Math.abs(OK.k())<0.4){OK.n=0;OK.s=0;
+      var ok=document.getElementById('rd-ok');if(ok){ok.textContent='已對版 · 印張歸零'}}
+    OK.save();OK.apply();
+  },
+  /* 轉場：同文件 View Transitions，不支援時直接切換（資訊零損失） */
+  go:function(fn){
+    if(document.startViewTransition&&!OK.reduced){try{return document.startViewTransition(fn)}catch(e){}}
+    fn();return null;
+  },
+  boot:function(){
+    try{OK.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+    OK.load();OK.n+=1;OK.save();OK.apply();
+    var pad=document.getElementById('regpad');
+    if(pad){
+      var drag=false,px=0,py=0;
+      pad.addEventListener('pointerdown',function(e){drag=true;px=e.clientX;py=e.clientY;
+        pad.setPointerCapture(e.pointerId);e.preventDefault()});
+      pad.addEventListener('pointermove',function(e){if(!drag)return;
+        var dx=e.clientX-px,dy=e.clientY-py;px=e.clientX;py=e.clientY;
+        OK.reg((dx*OK.U[0]+dy*OK.U[1])/5);});
+      var up=function(e){if(!drag)return;drag=false;try{pad.releasePointerCapture(e.pointerId)}catch(x){}};
+      pad.addEventListener('pointerup',up);pad.addEventListener('pointercancel',up);
+      pad.addEventListener('keydown',function(e){
+        if(e.key==='ArrowLeft'||e.key==='ArrowDown'){OK.reg(-0.35);e.preventDefault()}
+        if(e.key==='ArrowRight'||e.key==='ArrowUp'){OK.reg(0.35);e.preventDefault()}});
+    }
+    var rb=document.getElementById('regreset');
+    if(rb)rb.addEventListener('click',function(){OK.n=0;OK.s=0;OK.save();OK.apply();
+      var ok=document.getElementById('rd-ok');if(ok)ok.textContent='已對版 · 印張歸零'});
+  }
+};
+
+var Q=[{"m":"pen","v":["筆借你不用還","要寫什麼你講就算"],"o":["代筆處今天有人，筆和墨都在","本班教書法","墨水缺貨，請改天再來"],"a":0},{"m":"queue","v":["從這一頭排起","輪到你就登記"],"o":["今天已經客滿","報名從這一頭排起","這裡是公車站牌"],"a":1},{"m":"book","v":["課本不必買","櫃檯開口就領得來"],"o":["這裡是圖書館","請保持安靜","課本在櫃檯領，不用錢"],"a":2},{"m":"bell","v":["鐘敲第一下","人就該坐下"],"o":["鐘響就進教室","火警的時候敲這口鐘","這裡是教堂"],"a":0},{"m":"chalk","v":["寫錯了不要緊","擦掉再寫一遍就行"],"o":["禁止在牆上塗寫","寫錯了擦掉重寫","今日停課"],"a":1},{"m":"paste","v":["這張紙只貼一天","明早六點四十再換一遍"],"o":["請勿撕毀","這面牆要重新油漆","這張紙每天早上換一張"],"a":2},{"m":"thumb","v":["名字寫不出來","按個指印就在"],"o":["不會寫名字的按指印","入內須採指紋","按了就不能反悔"],"a":0},{"m":"coinNo","v":["錢你收好別拿出來","這裡從頭到尾不賣"],"o":["本處不找零","一毛錢都不收","暫停營業"],"a":1},{"m":"lamp","v":["五點半天就暗","燈先替你點上一盞"],"o":["請隨手關燈","這裡有電，小心","天黑了燈就先開著"],"a":2}];var done=0,right=0,ans=[];
+var quiz=document.getElementById("quiz");
+function upd(){document.getElementById("sc").textContent=right;
+ document.getElementById("prog").textContent=done?("已讀 "+done+" 格"):"還沒開始";}
+quiz.addEventListener("click",function(e){
+ var b=e.target.closest(".opt");if(!b)return;var i=+b.dataset.i,k=+b.dataset.k;
+ if(ans[i]!=null)return;ans[i]=k;done++;
+ var cellEl=quiz.querySelector('.cell[data-i="'+i+'"]');
+ var ok=(k===Q[i].a);if(ok)right++;
+ OK.pull(ok?2:6);
+ [].forEach.call(cellEl.querySelectorAll(".opt"),function(o){
+  var kk=+o.dataset.k;o.disabled=true;
+  if(kk===Q[i].a)o.className="opt right";else if(kk===k)o.className="opt wrong";else o.className="opt";});
+ if(!ok)cellEl.classList.add("wrongp");
+ OK.go(function(){
+  var cv=document.getElementById("cv"+i);
+  cv.outerHTML='<span class="verse miss" id="cv'+i+'"><b>'+Q[i].v[0]+'</b><b>'+Q[i].v[1]+'</b></span>';
+  cellEl.classList.add("answered");});
+ upd();
+ if(done===9)finish();});
+function finish(){var r=document.getElementById("res");
+ var t=right>=8?"這扇窗刻得住":right>=6?"這扇窗大致讀得出來":right>=4?"這扇窗有幾格刻壞了":"這扇窗該重刻";
+ OK.go(function(){
+  document.getElementById("rh").textContent="九格讀對 "+right+" 格・"+t;
+  document.getElementById("rp").textContent=(right>=6?
+   "你在沒有一個字的情況下讀出了 "+right+" 格。那正是這扇窗被刷出來的理由——它得在不識字的人面前站得住。":
+   "你只讀出了 "+right+" 格。這不是你的問題：一扇要靠圖說話的窗，讀不出來就是刻的人沒把話說清楚。");
+  var wrongIdx=-1;for(var i=0;i<9;i++)if(ans[i]!==Q[i].a){wrongIdx=i;break}
+  document.getElementById("rfig").innerHTML=panelSVG(Q[wrongIdx<0?5:wrongIdx].m)+
+   '<p class="small" style="margin:8px 0 0">'+(wrongIdx<0?"第 6 格（那張紙每天換）：全窗讀錯率最高的一格，你讀對了。":"第 "+(wrongIdx+1)+" 格：你在這裡讀岔了。這一格的刀路寫在窗庫裡。")+'</p>';
+  r.hidden=false;});
+ if(OK.reduced)r.scrollIntoView({block:"start"});
+ else setTimeout(function(){r.scrollIntoView({behavior:"smooth",block:"start"})},280);}
+document.getElementById("again").addEventListener("click",function(){location.reload()});
+quiz.addEventListener("pointermove",function(e){
+ var c=e.target.closest(".cell");if(!c||c.classList.contains("wrongp"))return;
+ var r=c.getBoundingClientRect(),dx=(e.clientX-r.left)/r.width-.5,dy=(e.clientY-r.top)/r.height-.5,k=OK.k();
+ c.style.setProperty("--rx",(OK.U[0]*k-dx*4.4).toFixed(2)+"px");
+ c.style.setProperty("--ry",(OK.U[1]*k-dy*4.4).toFixed(2)+"px");});
+quiz.addEventListener("pointerleave",function(){[].forEach.call(quiz.querySelectorAll(".cell"),
+ function(c){c.style.removeProperty("--rx");c.style.removeProperty("--ry");});});
+upd();
+
+OK.boot();
+</script>
+</body>
+</html>

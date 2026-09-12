@@ -1,0 +1,446 @@
+<!DOCTYPE html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>住戶名冊｜和平新村管理委員會</title>
+<meta name="description" content="和平新村四十一戶區分所有權人名冊、身分標記、到會習慣，以及十二件住戶提案的全文與立場對照表。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FF4B8C'/%3E%3Cpath d='M4 5L15 4L28 6L27 17L28 28L14 27L5 28L3 16Z' fill='%230B0B0B'/%3E%3Cpath d='M12 9h9v3h-3v12h-3V12h-3z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+:root{
+  --paper:#FF4B8C; --toner:#0B0B0B; --sheet:#FFFFFF; --warn:#E8FF3A; --tape:#B9B4AC;
+  --edge:8px;
+}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper); color:var(--toner);
+  font-family:"Noto Sans TC",system-ui,sans-serif; font-weight:400;
+  font-size:16px; line-height:1.72; overflow-x:hidden;
+}
+/* 螢光紙的紙纖：一層極細的靜態橫紋，不是漸層 */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:repeating-linear-gradient(0deg,rgba(11,11,11,.055) 0 1px,transparent 1px 4px);
+  mix-blend-mode:multiply}
+/* ambient：影印機的掃描光棒，steps() 逐格掃過整張紙 */
+body::after{content:"";position:fixed;left:0;right:0;top:0;height:22px;z-index:2;pointer-events:none;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 3px 0 rgba(11,11,11,.16);
+  animation:scanbar 9s steps(46,end) infinite}
+@keyframes scanbar{0%{transform:translateY(-8vh)}88%{transform:translateY(112vh)}88.01%,100%{transform:translateY(-8vh)}}
+
+.fx{position:absolute;width:0;height:0;overflow:hidden}
+a{color:inherit}
+::selection{background:var(--toner);color:var(--warn)}
+:focus-visible{outline:4px solid var(--toner);outline-offset:2px}
+
+/* ── 字面：贖金字用的三種面 ── */
+.f-a{font-family:"Noto Sans TC",sans-serif;font-weight:900}
+.f-b{font-family:"Noto Serif TC",serif;font-weight:900}
+.f-c{font-family:"Noto Sans TC",sans-serif;font-weight:400}
+.rs{display:inline-block;background:var(--sheet);color:var(--toner);line-height:1;
+  transform:rotate(var(--rot)) scaleX(var(--sc)) translateY(var(--dy));
+  margin:0 -1px}
+.rs.inv{background:var(--toner);color:var(--sheet)}
+.rs-sp{display:inline-block;width:.5em}
+.ransom{font-size:clamp(38px,8.4vw,86px);letter-spacing:0;word-break:break-all;
+  filter:url(#xg1)}   /* 標題本來就是從已經影印過的報紙上剪下來的：邊緣一律 1-bit，沒有抗鋸齒 */
+.ransom.sm{font-size:clamp(24px,4.6vw,40px)}
+.ransom.xs{font-size:clamp(19px,3vw,26px)}
+
+/* ── 紙 ── */
+.sheetbox{background:var(--sheet);color:var(--toner);position:relative;
+  box-shadow:7px 7px 0 var(--toner)}
+.sheetbox.warn{background:var(--warn)}
+.pad{padding:26px 26px 30px}
+@media(max-width:560px){.pad{padding:18px 15px 22px}}
+
+/* ── 影印世代（signature：generation-wear） ── */
+[data-gen="1"]{filter:url(#xg1)}
+[data-gen="2"]{filter:url(#xg2);transform:rotate(-.9deg)}
+[data-gen="3"]{filter:url(#xg3);transform:rotate(1.7deg)}
+[data-gen="2"]>.edgeband,[data-gen="3"]>.edgeband{opacity:1}
+.edgeband{position:absolute;left:0;top:0;bottom:0;width:9px;background:var(--toner);opacity:0;pointer-events:none}
+[data-gen="3"]>.edgeband{width:16px}
+.genmark{position:absolute;right:8px;top:6px;font-family:"Courier Prime",monospace;font-size:11px;
+  letter-spacing:.06em;background:var(--toner);color:var(--sheet);padding:1px 5px}
+/* input-driven：hover／focus 預覽「再影印一次會變成什麼」（只套在小面積元件上，避免大區塊重繪） */
+.pcard.wear:hover,.pcard.wear:focus-visible{filter:url(#xgh)}
+.sheetd.wear:not([open]):hover>summary{filter:url(#xgh)}
+.sheetbox.wear:hover{filter:url(#xgh)}
+.wear{transition:none}
+
+/* ── 膠帶 ── */
+.tapebit{position:absolute;background:var(--tape);opacity:.85;
+  box-shadow:inset 0 0 0 1px rgba(11,11,11,.35)}
+
+/* ── nav：tape-corner 膠帶貼角導覽 ── */
+nav.tapenav{position:fixed;right:16px;top:16px;z-index:40;width:180px;display:block}
+nav.tapenav .tp{display:block;position:relative;background:var(--sheet);color:var(--toner);
+  text-decoration:none;padding:9px 11px 9px 14px;margin-bottom:11px;
+  font-weight:900;font-size:14px;letter-spacing:.02em;
+  box-shadow:4px 4px 0 var(--toner);transform:rotate(var(--tr,-1.2deg))}
+nav.tapenav .tp .en{display:block;font-family:"Courier Prime",monospace;font-weight:400;font-size:10px;letter-spacing:.14em;opacity:.7}
+/* 舊膠帶：發黃、翹角、其中一條只剩半條 */
+nav.tapenav .tp::before{content:"";position:absolute;left:-13px;top:-9px;width:52px;height:17px;
+  background:#C9BE9A;opacity:.72;transform:rotate(-32deg);
+  box-shadow:inset 0 0 0 1px rgba(11,11,11,.3)}
+nav.tapenav .tp::after{content:"";position:absolute;left:-8px;top:-11px;width:16px;height:15px;
+  background:#DCD3B4;opacity:.9;transform:rotate(-32deg) skewX(-14deg);
+  box-shadow:inset 0 0 0 1px rgba(11,11,11,.35)}
+nav.tapenav .tp:nth-child(2){--tr:1.6deg}
+nav.tapenav .tp:nth-child(3){--tr:-2.1deg}
+nav.tapenav .tp:nth-child(4){--tr:.9deg}
+nav.tapenav .tp:nth-child(3)::before{width:26px}       /* 這條只剩半條 */
+nav.tapenav .tp:nth-child(4)::after{display:none}      /* 這條的翹角已經掉了 */
+/* 現用頁：膠帶是剛貼上去的——不透明、壓平、沒有翹角、紙也擺正 */
+nav.tapenav .tp[aria-current="page"]{transform:rotate(0deg);box-shadow:6px 6px 0 var(--toner)}
+nav.tapenav .tp[aria-current="page"]::before{background:var(--tape);opacity:1;width:58px;height:19px;transform:rotate(-30deg)}
+nav.tapenav .tp[aria-current="page"]::after{display:none}
+nav.tapenav .tp:hover::after{transform:rotate(-32deg) skewX(-30deg) translate(-3px,-3px);width:22px}
+@media(prefers-reduced-motion:reduce){nav.tapenav .tp:hover::after{transform:rotate(-32deg) skewX(-14deg)}}
+@media(max-width:900px){
+  nav.tapenav{position:sticky;top:0;right:auto;width:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--toner);padding:0}
+  nav.tapenav .tp{margin:0;transform:none!important;box-shadow:none;border-right:2px solid var(--toner);
+    font-size:12px;padding:8px 6px;text-align:center}
+  nav.tapenav .tp::before,nav.tapenav .tp::after{display:none}
+  nav.tapenav .tp[aria-current="page"]{background:var(--warn)}
+}
+
+/* ── 版面 ── */
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 90px;position:relative;z-index:3}
+@media(min-width:901px){.wrap{padding-right:216px;max-width:1180px}}
+header.mast{padding:26px 0 14px;position:relative}
+.stamp{display:inline-block;font-family:"Courier Prime",monospace;font-size:12px;letter-spacing:.2em;
+  background:var(--toner);color:var(--paper);padding:3px 9px;transform:rotate(-1.4deg)}
+h2.sec{font-weight:900;font-size:clamp(21px,3.4vw,30px);line-height:1.25;margin:44px 0 14px;
+  background:var(--toner);color:var(--paper);display:inline-block;padding:4px 12px;transform:rotate(-.7deg)}
+h3{font-weight:900;font-size:18px;margin:20px 0 8px}
+p{margin:0 0 12px}
+.mono{font-family:"Courier Prime",monospace}
+.tw{font-family:"Courier Prime",monospace;font-size:14.5px;line-height:1.9;letter-spacing:.01em}
+.hr{height:5px;background:var(--toner);margin:26px 0}
+.hr.d{height:0;border-top:4px dashed var(--toner)}
+.note{font-size:13px;line-height:1.7}
+.marker{display:inline-block;background:var(--warn);padding:0 3px;box-shadow:0 0 0 2px var(--warn)}
+.pen{color:var(--toner);font-family:"Noto Serif TC",serif;font-weight:700;
+  text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px}
+.strike{text-decoration:line-through;text-decoration-thickness:4px}
+
+/* 出紙疊 */
+.stack{margin-top:6px}
+.sheetd{background:var(--sheet);position:relative;margin-bottom:5px;box-shadow:6px 6px 0 var(--toner)}
+.sheetd>summary{list-style:none;cursor:pointer;padding:9px 14px;display:flex;gap:12px;align-items:baseline;
+  font-family:"Courier Prime",monospace;font-size:13px;border-bottom:3px solid var(--toner)}
+.sheetd>summary::-webkit-details-marker{display:none}
+.sheetd>summary b{font-family:"Noto Sans TC",sans-serif;font-weight:900;font-size:15px}
+.sheetd[open]>summary{background:var(--toner);color:var(--sheet)}
+.sheetd>summary .no{opacity:.7}
+.pull{animation:pull .42s steps(6,end) both}
+@keyframes pull{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){.pull{animation:none}
+  body::after{display:none}
+  .pcard.wear:hover,.sheetbox.wear:hover,.sheetd.wear:not([open]):hover>summary{filter:none}}
+
+/* 表格 */
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--sheet)}
+th,td{border:2px solid var(--toner);padding:4px 7px;text-align:left;vertical-align:top}
+th{background:var(--toner);color:var(--sheet);font-weight:900;font-size:12.5px}
+td.n{font-family:"Courier Prime",monospace;text-align:right;white-space:nowrap}
+.scroller{overflow-x:auto;box-shadow:6px 6px 0 var(--toner)}
+.st1{font-weight:900}
+.st0{opacity:.42}
+.stm{background:var(--toner);color:var(--sheet);display:inline-block;width:1.35em;text-align:center}
+
+/* 按鈕 */
+button,.btn{font-family:"Noto Sans TC",sans-serif;font-weight:900;font-size:15px;
+  background:var(--toner);color:var(--warn);border:0;padding:11px 20px;cursor:pointer;
+  box-shadow:5px 5px 0 var(--sheet);text-decoration:none;display:inline-block}
+button:hover,.btn:hover{background:var(--warn);color:var(--toner);box-shadow:5px 5px 0 var(--toner)}
+button[disabled]{opacity:.4;cursor:not-allowed}
+button.ghost{background:var(--sheet);color:var(--toner);box-shadow:5px 5px 0 var(--toner)}
+
+/* 提案卡 */
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:820px){.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.g3,.g2{grid-template-columns:1fr}}
+.pcard{background:var(--sheet);position:relative;padding:13px 13px 12px;box-shadow:5px 5px 0 var(--toner);
+  cursor:pointer;text-align:left;width:100%;font-weight:400;color:var(--toner);font-size:14px;line-height:1.6}
+.pcard:hover{background:var(--sheet);box-shadow:5px 5px 0 var(--toner)}
+.pcard .hd{display:flex;justify-content:space-between;font-family:"Courier Prime",monospace;font-size:12px;margin-bottom:5px}
+.pcard .tt{font-weight:900;font-size:16px;line-height:1.3;margin-bottom:6px}
+.pcard[aria-pressed="true"]{background:var(--toner);color:var(--sheet);box-shadow:5px 5px 0 var(--warn)}
+.pcard[aria-pressed="true"] .lvl{background:var(--warn);color:var(--toner)}
+.pcard[disabled]{opacity:.45;cursor:not-allowed}
+.lvl{display:inline-block;background:var(--toner);color:var(--sheet);padding:0 6px;font-size:11px;font-weight:900;font-family:"Courier Prime",monospace}
+.cut{width:100%;height:auto;display:block}
+.cut.k{width:62px}
+.cut.kk{width:100%;max-width:150px}
+
+/* 結果 */
+.rec{margin-top:22px}
+.rowres{border:3px solid var(--toner);padding:10px 12px;margin-bottom:9px;background:var(--sheet)}
+.rowres.no{background:var(--warn)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;font-family:"Courier Prime",monospace;font-size:13px}
+.err{background:var(--toner);color:var(--warn);padding:10px 13px;font-weight:900;margin:12px 0}
+footer{margin-top:60px;background:var(--toner);color:var(--paper);padding:26px 20px 34px;position:relative;z-index:3}
+footer a{color:var(--warn)}
+footer .in{max-width:1000px;margin:0 auto;font-size:13.5px;line-height:1.85}
+.skiplink{position:absolute;left:-9999px}
+.skiplink:focus{left:8px;top:8px;z-index:99;background:var(--toner);color:var(--warn);padding:8px}
+</style></head><body>
+<svg class="fx" aria-hidden="true" focusable="false"><defs>
+<filter id="xg1" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="0.4"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/></feComponentTransfer></filter>
+<filter id="xg2" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="0.8"/><feMorphology operator="erode" radius="0.5"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/>
+    <feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/>
+    <feFuncB type="discrete" tableValues="0 1"/></feComponentTransfer></filter>
+<filter id="xg3" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="1.35"/><feMorphology operator="erode" radius="1.15"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 0 1 1"/>
+    <feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/>
+    <feFuncB type="discrete" tableValues="0 1"/></feComponentTransfer></filter>
+<filter id="xgh" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+  <feMorphology operator="dilate" radius="0.65"/><feMorphology operator="erode" radius="0.35"/>
+  <feComponentTransfer><feFuncA type="discrete" tableValues="0 0 1 1"/></feComponentTransfer></filter>
+</defs></svg>
+<a class="skiplink" href="#main">跳至主要內容</a>
+<nav class="tapenav" aria-label="主導覽"><a class="tp" href="index.html"><span class="en">01 / NOTICE BOARD</span>公告板</a><a class="tp" href="an.html"><span class="en">02 / OWNERS MEETING</span>區權會</a><a class="tp" href="mingce.html" aria-current="page"><span class="en">03 / ROLL & MOTIONS</span>住戶名冊</a><a class="tp" href="guiyue.html"><span class="en">04 / BYLAWS</span>規約與沿革</a></nav>
+<div class="wrap"><main id="main">
+<header class="mast">
+<div class="stamp">附件一　區分所有權人名冊暨提案立場對照表</div>
+<div class="ransom sm" style="margin:14px 0 10px"><span class="rs f-a inv" style="--rot:0.70deg;--sc:1.179;--dy:4.5px;padding:4px 5px;clip-path:polygon(5% 1%, 50% 3%, 95% 4%, 93% 50%, 98% 97%, 50% 94%, 1% 95%, 1% 50%)">四</span><span class="rs f-b" style="--rot:5.32deg;--sc:1.178;--dy:-2.0px;padding:5px 10px;clip-path:polygon(6% 1%, 50% 4%, 99% 6%, 94% 50%, 97% 95%, 50% 94%, 7% 99%, 7% 50%)">十</span><span class="rs f-b inv" style="--rot:-1.11deg;--sc:1.107;--dy:-3.1px;padding:4px 4px;clip-path:polygon(4% 3%, 50% 1%, 100% 6%, 99% 50%, 99% 96%, 50% 95%, 5% 96%, 6% 50%)">一</span><span class="rs f-c" style="--rot:5.25deg;--sc:1.132;--dy:-0.9px;padding:5px 6px;clip-path:polygon(3% 1%, 50% 3%, 94% 3%, 100% 50%, 96% 97%, 50% 94%, 3% 97%, 3% 50%)">戶</span><span class="rs f-c inv" style="--rot:3.74deg;--sc:1.059;--dy:4.4px;padding:3px 9px;clip-path:polygon(3% 6%, 50% 2%, 96% 5%, 100% 50%, 98% 99%, 50% 99%, 5% 94%, 2% 50%)">都</span><span class="rs f-c" style="--rot:4.66deg;--sc:1.141;--dy:-2.4px;padding:2px 9px;clip-path:polygon(6% 2%, 50% 1%, 99% 5%, 95% 50%, 97% 98%, 50% 97%, 2% 95%, 5% 50%)">在</span><span class="rs f-c" style="--rot:-3.26deg;--sc:1.061;--dy:1.3px;padding:5px 3px;clip-path:polygon(4% 1%, 50% 3%, 97% 4%, 99% 50%, 99% 99%, 50% 98%, 2% 98%, 3% 50%)">這</span><span class="rs f-a" style="--rot:2.80deg;--sc:0.928;--dy:5.1px;padding:2px 5px;clip-path:polygon(4% 4%, 50% 4%, 98% 4%, 98% 50%, 97% 98%, 50% 97%, 4% 96%, 1% 50%)">裡</span></div>
+<div class="tw" style="max-width:660px">
+本表是這個社區唯一的情報，而且它是公開的。每一戶的坪數、權利比例、三個身分標記、到會習慣，
+以及他對十二件提案的立場，全部印在同一張紙上。<br>
+<b>○ 贊成　✕ 反對　— 棄權（出席但不投）。棄權會算進出席人數，也就是算進分母。</b>
+</div>
+</header>
+
+<h2 class="sec">十二件住戶提案</h2>
+<div class="sheetbox pad wear" data-wear="m1" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M12.2 17.8L50.9 18.0L86.6 16.9L86.6 40.6L87.3 62.8L73.2 64.1L53.5 63.5L48.5 73.7L46.5 83.1L42.6 78.1L38.9 70.2L39.3 64.5L30.0 64.5L20.3 62.3L12.7 64.1L12.1 41.6Z" transform="translate(2.5 2.8)" fill="#0B0B0B" opacity=".999"/><path d="M12.2 17.8L50.9 18.0L86.6 16.9L86.6 40.6L87.3 62.8L73.2 64.1L53.5 63.5L48.5 73.7L46.5 83.1L42.6 78.1L38.9 70.2L39.3 64.5L30.0 64.5L20.3 62.3L12.7 64.1L12.1 41.6Z" fill="#0B0B0B"/><rect x="30.5" y="24.5" width="37.4" height="1.2" fill="#fff"/><rect x="44.0" y="75.4" width="12.9" height="1.9" fill="#fff"/><rect x="34.3" y="57.3" width="37.5" height="0.8" fill="#fff"/><rect x="33.4" y="51.5" width="45.8" height="1.2" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 1 號提案</span><span class="lvl">特別決議</span><span>經費 168,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">頂樓防水層全面重做</div>
+<p class="note">一一四年七月起 A 棟九樓以上四戶天花板滲水，簡易補漆已做過兩次。廠商評估須刨除舊層重做。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>29</b>　反對 <b>7</b>　棄權 <b>5</b>　／　通過門檻：出席人數三分之二以上，且其區分所有權比例合計三分之二以上之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m2" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M18.1 7.7L48.4 8.9L81.4 7.0L84.3 35.6L80.7 61.7L81.3 91.7L49.6 90.0L17.2 91.7L17.3 64.2L15.8 34.7Z" transform="translate(2.7 3.2)" fill="#0B0B0B" opacity=".999"/><path d="M18.1 7.7L48.4 8.9L81.4 7.0L84.3 35.6L80.7 61.7L81.3 91.7L49.6 90.0L17.2 91.7L17.3 64.2L15.8 34.7Z" fill="#0B0B0B"/><rect x="49" y="10" width="2" height="80" fill="#fff"/><rect x="27.2" y="51.3" width="38.3" height="2.2" fill="#fff"/><rect x="27.2" y="47.0" width="30.7" height="0.9" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 2 號提案</span><span class="lvl">重大決議</span><span>經費 320,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">電梯轎廂與控制盤更新</div>
+<p class="note">B 棟電梯民國九十三年出廠，控制盤已停產，維修商僅能以拆機零件維持。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>33</b>　反對 <b>4</b>　棄權 <b>4</b>　／　通過門檻：出席人數四分之三以上，且其區分所有權比例合計四分之三以上之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m3" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M9.2 66.9L17.2 63.9L25.0 65.3L30.1 61.0L31.1 55.6L35.0 48.7L43.7 48.4L58.1 49.3L61.2 53.0L64.0 57.3L65.1 60.0L72.1 61.7L77.0 58.6L86.6 58.7L90.0 68.3L92.7 70.8L92.7 78.0L91.2 82.3L64.7 80.2L37.3 79.8L8.6 81.8L10.1 78.3L8.0 72.8Z" transform="translate(4.0 3.3)" fill="#0B0B0B" opacity=".999"/><path d="M9.2 66.9L17.2 63.9L25.0 65.3L30.1 61.0L31.1 55.6L35.0 48.7L43.7 48.4L58.1 49.3L61.2 53.0L64.0 57.3L65.1 60.0L72.1 61.7L77.0 58.6L86.6 58.7L90.0 68.3L92.7 70.8L92.7 78.0L91.2 82.3L64.7 80.2L37.3 79.8L8.6 81.8L10.1 78.3L8.0 72.8Z" fill="#0B0B0B"/><rect x="18" y="70" width="10" height="10" fill="#fff"/><rect x="74" y="70" width="10" height="10" fill="#fff"/><rect x="22.7" y="31.0" width="19.1" height="2.1" fill="#fff"/><rect x="45.9" y="51.6" width="25.8" height="2.1" fill="#fff"/><rect x="31.2" y="81.6" width="45.5" height="2.1" fill="#fff"/><rect x="24.1" y="70.1" width="44.8" height="1.7" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 3 號提案</span><span class="lvl">普通決議</span><span>經費 42,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">地下室機車格重新劃設</div>
+<p class="note">機車格加十二格、汽車格減兩格。減掉的兩格現由 B1F-1 與 C4-2 承租。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>23</b>　反對 <b>10</b>　棄權 <b>8</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m4" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M46.4 11.0L49.7 10.6L55.0 9.7L52.6 21.7L52.9 32.6L55.2 43.3L62.5 44.3L69.9 42.0L78.2 44.1L74.5 55.7L71.0 66.9L55.4 66.8L41.6 65.0L30.5 64.7L27.5 57.6L23.9 49.7L22.6 44.1L33.4 42.1L45.4 44.3L46.8 32.9L46.1 19.9Z" transform="translate(2.7 4.4)" fill="#0B0B0B" opacity=".999"/><path d="M46.4 11.0L49.7 10.6L55.0 9.7L52.6 21.7L52.9 32.6L55.2 43.3L62.5 44.3L69.9 42.0L78.2 44.1L74.5 55.7L71.0 66.9L55.4 66.8L41.6 65.0L30.5 64.7L27.5 57.6L23.9 49.7L22.6 44.1L33.4 42.1L45.4 44.3L46.8 32.9L46.1 19.9Z" fill="#0B0B0B"/><rect x="42" y="20" width="16" height="3" fill="#fff"/><rect x="39.1" y="41.1" width="13.8" height="1.1" fill="#fff"/><rect x="27.8" y="52.5" width="34.6" height="2.0" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 4 號提案</span><span class="lvl">普通決議</span><span>經費 56,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">中庭與後巷夜間照明加設</div>
+<p class="note">後巷路燈已壞十一個月，報修三次未修復。改為社區自設感應燈六盞。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>22</b>　反對 <b>11</b>　棄權 <b>8</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m5" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M10.8 66.4L16.9 65.7L27.5 66.9L26.3 59.1L29.5 52.0L35.6 47.3L45.6 47.6L56.5 47.7L57.9 50.0L61.8 56.0L64.1 59.0L76.0 62.1L86.6 61.5L87.9 68.2L93.3 72.8L89.9 73.9L94.0 77.0L92.3 82.1L67.1 81.8L39.3 80.8L11.3 81.1L11.6 75.1L10.2 73.4Z" transform="translate(4.5 3.9)" fill="#0B0B0B" opacity=".999"/><path d="M10.8 66.4L16.9 65.7L27.5 66.9L26.3 59.1L29.5 52.0L35.6 47.3L45.6 47.6L56.5 47.7L57.9 50.0L61.8 56.0L64.1 59.0L76.0 62.1L86.6 61.5L87.9 68.2L93.3 72.8L89.9 73.9L94.0 77.0L92.3 82.1L67.1 81.8L39.3 80.8L11.3 81.1L11.6 75.1L10.2 73.4Z" fill="#0B0B0B"/><rect x="18" y="70" width="10" height="10" fill="#fff"/><rect x="74" y="70" width="10" height="10" fill="#fff"/><rect x="28.5" y="72.5" width="35.7" height="1.4" fill="#fff"/><rect x="32.2" y="77.1" width="15.7" height="1.3" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 5 號提案</span><span class="lvl">普通決議</span><span>經費 8,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">一樓騎樓全面禁停機車</div>
+<p class="note">消防安全設備檢修申報已列缺失兩次。僅需油漆劃線與立牌。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>23</b>　反對 <b>11</b>　棄權 <b>7</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m6" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M22.6 26.8L47.9 28.0L77.3 28.3L75.4 49.5L73.1 67.6L69.9 86.4L59.0 89.0L44.7 85.7L30.1 87.3L25.2 58.0Z" transform="translate(4.5 3.4)" fill="#0B0B0B" opacity=".999"/><path d="M22.6 26.8L47.9 28.0L77.3 28.3L75.4 49.5L73.1 67.6L69.9 86.4L59.0 89.0L44.7 85.7L30.1 87.3L25.2 58.0Z" fill="#0B0B0B"/><rect x="32" y="40" width="36" height="4" fill="#fff"/><rect x="43.6" y="22.1" width="29.7" height="1.2" fill="#fff"/><rect x="40.6" y="22.1" width="24.3" height="1.9" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 6 號提案</span><span class="lvl">普通決議</span><span>經費 74,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">資源回收室除臭與監視器</div>
+<p class="note">夏天味道傳到二樓，且回收物常遭外人翻找。含抽風機一台與攝影機兩支。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>22</b>　反對 <b>11</b>　棄權 <b>8</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m7" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M23.4 25.3L48.6 27.9L77.0 24.8L77.7 58.1L77.0 84.6L72.1 90.1L71.2 91.9L58.2 94.3L42.4 92.2L29.1 91.9L25.4 91.6L23.4 89.4L22.9 85.1L24.0 57.8Z" transform="translate(2.6 3.3)" fill="#0B0B0B" opacity=".999"/><path d="M23.4 25.3L48.6 27.9L77.0 24.8L77.7 58.1L77.0 84.6L72.1 90.1L71.2 91.9L58.2 94.3L42.4 92.2L29.1 91.9L25.4 91.6L23.4 89.4L22.9 85.1L24.0 57.8Z" fill="#0B0B0B"/><rect x="26" y="36" width="48" height="3" fill="#fff"/><rect x="26" y="52" width="48" height="3" fill="#fff"/><rect x="17.3" y="54.2" width="30.3" height="2.0" fill="#fff"/><rect x="28.6" y="35.6" width="38.4" height="2.1" fill="#fff"/><rect x="16.4" y="74.7" width="34.0" height="1.8" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 7 號提案</span><span class="lvl">普通決議</span><span>經費 38,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">頂樓平台改設共用曬衣區</div>
+<p class="note">現況為堆置雜物。與第一案為同一標的，同次會議不得併案（見規約第九條）。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>22</b>　反對 <b>11</b>　棄權 <b>8</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m8" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M10.5 18.7L50.7 20.2L86.5 17.8L88.0 40.5L88.1 63.4L69.7 65.5L53.3 62.4L49.7 73.2L44.6 85.4L42.2 74.0L39.0 64.8L25.4 65.5L10.8 63.2L10.2 47.9L11.7 31.9Z" transform="translate(4.5 4.9)" fill="#0B0B0B" opacity=".999"/><path d="M10.5 18.7L50.7 20.2L86.5 17.8L88.0 40.5L88.1 63.4L69.7 65.5L53.3 62.4L49.7 73.2L44.6 85.4L42.2 74.0L39.0 64.8L25.4 65.5L10.8 63.2L10.2 47.9L11.7 31.9Z" fill="#0B0B0B"/><rect x="31.5" y="79.4" width="35.8" height="2.0" fill="#fff"/><rect x="42.3" y="35.9" width="34.9" height="1.8" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 8 號提案</span><span class="lvl">重大決議</span><span>經費 410,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">外牆磁磚全面檢修與剝落防護</div>
+<p class="note">民國一一二年三月 C 棟外牆掉過一塊在人行道上。須搭設施工架，與第二案不得同期施作。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>32</b>　反對 <b>6</b>　棄權 <b>3</b>　／　通過門檻：出席人數四分之三以上，且其區分所有權比例合計四分之三以上之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m9" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M15.0 14.7L51.4 13.8L84.5 15.5L85.6 39.2L83.9 62.5L83.6 83.9L62.9 86.3L40.2 85.0L17.2 84.4L14.0 49.6Z" transform="translate(4.0 4.5)" fill="#0B0B0B" opacity=".999"/><path d="M15.0 14.7L51.4 13.8L84.5 15.5L85.6 39.2L83.9 62.5L83.6 83.9L62.9 86.3L40.2 85.0L17.2 84.4L14.0 49.6Z" fill="#0B0B0B"/><rect x="24" y="30" width="52" height="3" fill="#fff"/><rect x="24" y="42" width="40" height="3" fill="#fff"/><rect x="24" y="54" width="46" height="3" fill="#fff"/><rect x="24" y="66" width="30" height="3" fill="#fff"/><rect x="17.6" y="46.0" width="16.3" height="1.2" fill="#fff"/><rect x="38.9" y="73.7" width="19.9" height="1.9" fill="#fff"/><rect x="45.3" y="67.6" width="18.4" height="1.6" fill="#fff"/><rect x="20.4" y="50.5" width="28.0" height="1.3" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 9 號提案</span><span class="lvl">特別決議</span><span>經費 0 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">管理費調漲每坪十元</div>
+<p class="note">公積金餘額六十二萬，已不足支應兩次大修。調漲後每月增收約二萬八千元。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>29</b>　反對 <b>9</b>　棄權 <b>3</b>　／　通過門檻：出席人數三分之二以上，且其區分所有權比例合計三分之二以上之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m10" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M20.4 14.5L41.0 13.0L59.9 15.4L78.9 12.4L78.9 51.1L79.0 85.8L62.1 87.3L38.1 86.2L19.5 86.5L20.8 59.9L20.4 35.9Z" transform="translate(3.4 5.0)" fill="#0B0B0B" opacity=".999"/><path d="M20.4 14.5L41.0 13.0L59.9 15.4L78.9 12.4L78.9 51.1L79.0 85.8L62.1 87.3L38.1 86.2L19.5 86.5L20.8 59.9L20.4 35.9Z" fill="#0B0B0B"/><rect x="46" y="44" width="8" height="8" fill="#fff"/><rect x="41.5" y="20.8" width="16.1" height="2.0" fill="#fff"/><rect x="39.3" y="25.5" width="45.6" height="1.8" fill="#fff"/><rect x="41.1" y="40.9" width="29.8" height="1.0" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 10 號提案</span><span class="lvl">普通決議</span><span>經費 96,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">大門門禁改感應卡</div>
+<p class="note">現行鑰匙自民國八十九年起已配出四百餘把，無法回收。改卡後可逐戶註銷。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>22</b>　反對 <b>11</b>　棄權 <b>8</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m11" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M23.5 84.0L22.8 73.9L24.2 62.3L24.2 52.3L25.5 47.1L31.3 40.9L30.4 38.1L29.7 29.9L28.3 25.0L34.0 25.6L41.0 32.5L45.2 31.3L54.7 31.8L58.2 32.3L64.9 29.1L69.1 29.0L72.7 23.1L71.5 28.8L69.7 32.6L66.6 36.8L68.3 41.8L72.0 47.4L77.2 52.4L77.4 66.3L77.4 82.5L48.2 86.1Z" transform="translate(2.8 3.0)" fill="#0B0B0B" opacity=".999"/><path d="M23.5 84.0L22.8 73.9L24.2 62.3L24.2 52.3L25.5 47.1L31.3 40.9L30.4 38.1L29.7 29.9L28.3 25.0L34.0 25.6L41.0 32.5L45.2 31.3L54.7 31.8L58.2 32.3L64.9 29.1L69.1 29.0L72.7 23.1L71.5 28.8L69.7 32.6L66.6 36.8L68.3 41.8L72.0 47.4L77.2 52.4L77.4 66.3L77.4 82.5L48.2 86.1Z" fill="#0B0B0B"/><rect x="36" y="44" width="6" height="6" fill="#fff"/><rect x="58" y="44" width="6" height="6" fill="#fff"/><rect x="26.2" y="65.3" width="38.4" height="1.7" fill="#fff"/><rect x="25.0" y="50.8" width="21.0" height="1.0" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 11 號提案</span><span class="lvl">特別決議</span><span>經費 4,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">寵物使用公共空間規範修訂</div>
+<p class="note">一一三年十月電梯咬傷事件後規約仍未修訂。屬規約變更，須特別決議。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>27</b>　反對 <b>10</b>　棄權 <b>4</b>　／　通過門檻：出席人數三分之二以上，且其區分所有權比例合計三分之二以上之同意</div>
+</div></div></div><div class="sheetbox pad wear" data-wear="m12" style="margin-bottom:14px">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:74px;flex:none"><svg class="cut k" viewBox="-6 -6 116 116" role="img" aria-hidden="true"><path d="M23.5 24.7L51.1 24.0L78.3 24.9L76.2 48.0L77.6 66.1L77.6 85.2L75.5 90.1L72.4 92.0L69.7 92.3L49.5 93.1L30.0 93.4L25.6 89.1L25.6 90.1L23.2 86.8L22.0 66.1L23.7 43.9Z" transform="translate(2.6 3.8)" fill="#0B0B0B" opacity=".999"/><path d="M23.5 24.7L51.1 24.0L78.3 24.9L76.2 48.0L77.6 66.1L77.6 85.2L75.5 90.1L72.4 92.0L69.7 92.3L49.5 93.1L30.0 93.4L25.6 89.1L25.6 90.1L23.2 86.8L22.0 66.1L23.7 43.9Z" fill="#0B0B0B"/><rect x="26" y="36" width="48" height="3" fill="#fff"/><rect x="26" y="52" width="48" height="3" fill="#fff"/><rect x="17.5" y="55.8" width="39.9" height="2.0" fill="#fff"/><rect x="37.4" y="75.9" width="12.0" height="1.0" fill="#fff"/></svg></div>
+<div style="flex:1;min-width:240px">
+<div class="hd mono" style="font-size:12px;display:flex;gap:12px"><span>第 12 號提案</span><span class="lvl">普通決議</span><span>經費 24,000 元</span></div>
+<div style="font-weight:900;font-size:19px;margin:4px 0 6px">水塔清洗改為每半年一次</div>
+<p class="note">現行一年一次。去年十一月自主送驗，總菌落數偏高但未超標。</p>
+<div class="tw" style="font-size:13px">立場統計：贊成 <b>22</b>　反對 <b>11</b>　棄權 <b>8</b>　／　通過門檻：出席人數過半數，且其區分所有權比例合計過半數之同意</div>
+</div></div></div>
+
+<h2 class="sec">四十一戶立場對照表</h2>
+<p class="note">到會習慣：必到 9 戶、看議題 12 戶、不到 20 戶。「看議題」只要議程中有他不是棄權的就來；「不到」只有議程中有他反對的才來。</p>
+<div class="scroller"><table>
+<tr><th>戶號</th><th>坪</th><th>‰</th><th>身分標記</th><th>到會</th>
+<th style="text-align:center">1</th><th style="text-align:center">2</th><th style="text-align:center">3</th><th style="text-align:center">4</th><th style="text-align:center">5</th><th style="text-align:center">6</th><th style="text-align:center">7</th><th style="text-align:center">8</th><th style="text-align:center">9</th><th style="text-align:center">10</th><th style="text-align:center">11</th><th style="text-align:center">12</th></tr>
+<tr><td class="mono">A1F-1</td><td class="n">47</td><td class="n">36.0</td>
+<td style="font-size:12px">店面・機車・怕吵</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A2-2</td><td class="n">35</td><td class="n">26.8</td>
+<td style="font-size:12px">有車・租客・怕吵</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">A3-1</td><td class="n">26</td><td class="n">19.9</td>
+<td style="font-size:12px">租客・有小孩・機車</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">A3-2</td><td class="n">27</td><td class="n">20.7</td>
+<td style="font-size:12px">有小孩・機車・長輩</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A4-1</td><td class="n">24</td><td class="n">18.4</td>
+<td style="font-size:12px">怕吵・長輩・有小孩</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A4-2</td><td class="n">27</td><td class="n">20.7</td>
+<td style="font-size:12px">租客・養寵・長年在外</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">A5-1</td><td class="n">37</td><td class="n">28.3</td>
+<td style="font-size:12px">怕吵・有車・租客</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">A5-2</td><td class="n">36</td><td class="n">27.6</td>
+<td style="font-size:12px">長年在外・長輩・養寵</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A6-1</td><td class="n">25</td><td class="n">19.1</td>
+<td style="font-size:12px">有車・長年在外・養寵</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">A6-2</td><td class="n">35</td><td class="n">26.8</td>
+<td style="font-size:12px">有小孩・養寵・怕吵</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A7-1</td><td class="n">37</td><td class="n">28.3</td>
+<td style="font-size:12px">有車・養寵・機車</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A7-2</td><td class="n">37</td><td class="n">28.3</td>
+<td style="font-size:12px">養寵・長年在外・機車</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">A8-1</td><td class="n">30</td><td class="n">23.0</td>
+<td style="font-size:12px">長輩・有車・養寵</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A8-2</td><td class="n">32</td><td class="n">24.5</td>
+<td style="font-size:12px">有車・有小孩・租客</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">A9-1</td><td class="n">41</td><td class="n">31.4</td>
+<td style="font-size:12px">頂樓・長年在外・長輩</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B1F-1</td><td class="n">39</td><td class="n">29.9</td>
+<td style="font-size:12px">店面・租客・機車</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">B2-2</td><td class="n">34</td><td class="n">26.0</td>
+<td style="font-size:12px">怕吵・租客・長年在外</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">B3-1</td><td class="n">25</td><td class="n">19.1</td>
+<td style="font-size:12px">機車・長年在外・怕吵</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">B3-2</td><td class="n">28</td><td class="n">21.4</td>
+<td style="font-size:12px">有小孩・長輩・租客</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B4-1</td><td class="n">25</td><td class="n">19.1</td>
+<td style="font-size:12px">機車・怕吵・長輩</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B4-2</td><td class="n">38</td><td class="n">29.1</td>
+<td style="font-size:12px">有車・機車・長年在外</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">B5-1</td><td class="n">29</td><td class="n">22.2</td>
+<td style="font-size:12px">養寵・有小孩・機車</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B5-2</td><td class="n">38</td><td class="n">29.1</td>
+<td style="font-size:12px">機車・養寵・長年在外</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">B6-1</td><td class="n">26</td><td class="n">19.9</td>
+<td style="font-size:12px">有車・長年在外・有小孩</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B6-2</td><td class="n">27</td><td class="n">20.7</td>
+<td style="font-size:12px">長年在外・養寵・租客</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">B7-1</td><td class="n">30</td><td class="n">23.0</td>
+<td style="font-size:12px">有車・養寵・怕吵</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B7-2</td><td class="n">37</td><td class="n">28.3</td>
+<td style="font-size:12px">有車・長年在外・租客</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">B8-1</td><td class="n">25</td><td class="n">19.1</td>
+<td style="font-size:12px">有車・長輩・怕吵</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">B8-2</td><td class="n">36</td><td class="n">27.6</td>
+<td style="font-size:12px">有小孩・租客・長年在外</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">C2-1</td><td class="n">29</td><td class="n">22.2</td>
+<td style="font-size:12px">機車・有車・長輩</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">C2-2</td><td class="n">31</td><td class="n">23.7</td>
+<td style="font-size:12px">機車・租客・有小孩</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">C3-1</td><td class="n">33</td><td class="n">25.3</td>
+<td style="font-size:12px">租客・怕吵・有車</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">C3-2</td><td class="n">34</td><td class="n">26.0</td>
+<td style="font-size:12px">有車・租客・長輩</td><td style="font-size:12px;white-space:nowrap">必到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">C4-1</td><td class="n">29</td><td class="n">22.2</td>
+<td style="font-size:12px">養寵・長輩・有小孩</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">C4-2</td><td class="n">32</td><td class="n">24.5</td>
+<td style="font-size:12px">租客・養寵・長年在外</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">C5-1</td><td class="n">33</td><td class="n">25.3</td>
+<td style="font-size:12px">機車・有小孩・養寵</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">C5-2</td><td class="n">36</td><td class="n">27.6</td>
+<td style="font-size:12px">租客・有車・有小孩</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td></tr><tr><td class="mono">C6-1</td><td class="n">24</td><td class="n">18.4</td>
+<td style="font-size:12px">長輩・有車・怕吵</td><td style="font-size:12px;white-space:nowrap">看議題</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">C6-2</td><td class="n">28</td><td class="n">21.4</td>
+<td style="font-size:12px">養寵・長年在外・租客</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td></tr><tr><td class="mono">C7-1</td><td class="n">29</td><td class="n">22.2</td>
+<td style="font-size:12px">長年在外・養寵・長輩</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr><tr><td class="mono">C7-2</td><td class="n">35</td><td class="n">26.8</td>
+<td style="font-size:12px">養寵・長年在外・長輩</td><td style="font-size:12px;white-space:nowrap">不到</td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st0">—</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="stm">✕</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td><td style="text-align:center;padding:2px 4px"><span class="st1">○</span></td></tr>
+</table></div>
+<p class="note" style="margin-top:12px">※ 全部戶號、坪數與立場皆為虛構示意，不對應任何真實社區或個人。權利比例依登記坪數換算，合計 1000.0‰（四捨五入後為 999.9）。</p>
+
+<h2 class="sec">身分標記的意思</h2>
+<div class="scroller"><table>
+<tr><th>標記</th><th>意思</th><th>戶數</th></tr>
+<tr><td><b>頂樓</b></td><td>九樓以上，漏水與頂樓平台的直接關係人</td><td class="n">1</td></tr><tr><td><b>店面</b></td><td>一樓沿街營業（洗衣店、自助餐），權利比例最大、繳最多</td><td class="n">2</td></tr><tr><td><b>有車</b></td><td>承租地下室汽車位</td><td class="n">16</td></tr><tr><td><b>機車</b></td><td>停機車，騎樓與機車格的當事人</td><td class="n">14</td></tr><tr><td><b>養寵</b></td><td>家中有犬或貓</td><td class="n">17</td></tr><tr><td><b>有小孩</b></td><td>學齡以下或就學中子女同住</td><td class="n">13</td></tr><tr><td><b>長輩</b></td><td>六十五歲以上同住</td><td class="n">14</td></tr><tr><td><b>長年在外</b></td><td>長期不住在此，出租或空置，幾乎不出席</td><td class="n">17</td></tr><tr><td><b>怕吵</b></td><td>曾就噪音向管理室反映</td><td class="n">12</td></tr><tr><td><b>租客</b></td><td>承租戶（表決權仍歸所有權人，本表以實際居住者立場登載）</td><td class="n">17</td></tr>
+</table></div>
+<script>
+/* ── 影印世代（signature: generation-wear） ─────────────────────────
+   本站沒有 hover 底色、沒有現用色塊、沒有 focus 光暈。
+   你讀過的每一張紙，就是被多影印了一代：黑更胖、細線掉、紙歪掉、
+   左緣多一條沒蓋好的黑邊。累積、跨頁、不可逆（除非到規約頁拿新原稿）。 */
+(function(){
+  var KEY='hopeng.gen.v1';
+  var G={};try{G=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){G={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(G));}catch(e){}}
+  function apply(el){var k=el.getAttribute('data-wear');if(!k)return;
+    var g=Math.min(3,G[k]||0);
+    if(g>0){el.setAttribute('data-gen',String(g));
+      if(!el.querySelector(':scope>.edgeband')){var b=document.createElement('span');b.className='edgeband';el.appendChild(b);}
+      var m=el.querySelector(':scope>.genmark');
+      if(!m){m=document.createElement('span');m.className='genmark';el.appendChild(m);}
+      m.textContent='第 '+(g+1)+' 代';
+    } else {el.removeAttribute('data-gen');}
+  }
+  window.HOPENG_WEAR={
+    all:function(){[].forEach.call(document.querySelectorAll('[data-wear]'),apply);},
+    bump:function(k,el){G[k]=Math.min(3,(G[k]||0)+1);save();if(el)apply(el);},
+    reset:function(){G={};save();
+      [].forEach.call(document.querySelectorAll('[data-wear]'),function(el){
+        el.removeAttribute('data-gen');
+        var b=el.querySelector(':scope>.edgeband');if(b)b.remove();
+        var m=el.querySelector(':scope>.genmark');if(m)m.remove();});},
+    count:function(){var n=0;for(var k in G)if(G[k]>0)n++;return n;}
+  };
+  document.addEventListener('DOMContentLoaded',window.HOPENG_WEAR.all);
+})();
+document.addEventListener('DOMContentLoaded',function(){
+  [].forEach.call(document.querySelectorAll('[data-wear^="m"]'),function(el){
+    el.addEventListener('click',function(){window.HOPENG_WEAR.bump(el.getAttribute('data-wear'),el);});
+  });
+});</script></main></div>
+<footer><div class="in">
+<div style="margin-bottom:10px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 96" width="200" height="80" role="img" aria-label="和平新村管理委員會" style="display:block">
+<title>和平新村管理委員會</title>
+<rect width="240" height="96" fill="#FF4B8C"/>
+<path d="M8.4 14.9L121.5 8.4L234.2 13.4L228.2 48.3L232.5 83.4L117.1 86.7L7.4 84.6L13.7 49.8Z" fill="#0B0B0B"/>
+<g fill="#FFFFFF">
+<rect x="18" y="26" width="44" height="44" transform="rotate(-3 40 48)"/>
+<rect x="70" y="24" width="44" height="44" transform="rotate(2.4 92 46)"/>
+<rect x="124" y="27" width="44" height="44" transform="rotate(-1.6 146 49)"/>
+<rect x="176" y="25" width="44" height="44" transform="rotate(3.1 198 47)"/>
+</g>
+<g fill="#0B0B0B" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="30" text-anchor="middle">
+<text x="40" y="59" transform="rotate(-3 40 48)">和</text>
+<text x="92" y="57" transform="rotate(2.4 92 46)">平</text>
+<text x="146" y="60" transform="rotate(-1.6 146 49)">新</text>
+<text x="198" y="58" transform="rotate(3.1 198 47)">村</text>
+</g>
+<rect x="-6" y="4" width="62" height="17" fill="#B9B4AC" opacity=".85" transform="rotate(-28 25 12)"/>
+<rect x="190" y="76" width="58" height="16" fill="#B9B4AC" opacity=".85" transform="rotate(-24 219 84)"/>
+<g fill="#FFFFFF"><rect x="30" y="40" width="18" height="1.6"/><rect x="150" y="36" width="14" height="1.4"/></g>
+<text x="120" y="93" fill="#0B0B0B" font-family="'Courier Prime',monospace" font-size="9" letter-spacing="3" text-anchor="middle">HOPENG BLOCK COMMITTEE / 7TH</text>
+</svg></div>
+<div style="font-weight:900;font-size:17px;margin-bottom:6px">和平新村公寓大廈管理委員會（第七屆）</div>
+<div class="tw">管理室｜臺北市文山區興隆路三段 182 巷 7 號 1 樓（A 棟入口右手邊）<br>
+電話 02-2938-4471　傳真 02-2938-4472　夜間緊急 0937-118-402（值班室手機）<br>
+管理室開放 平日 07:00–12:00、14:00–21:00｜例假日 08:00–17:00｜週三下午公休<br>
+主任委員 何秀鑾（B7-1）　總幹事 吳定國　財務委員 蔡明順（C5-2）　監察委員 林淑貞（A11-2）<br>
+公告張貼點：三部電梯轎廂、A 棟一樓佈告欄、地下室機車坡道口</div>
+<div class="hr" style="background:#FF4B8C;height:3px"></div>
+<div class="tw" style="opacity:.85">本站所有住戶姓名、戶號、坪數、金額、電話與決議紀錄皆為虛構示意，不對應任何真實社區或個人。<br>
+本站設計風格為<b>龐克剪貼 Punk Xerox</b>（一九七六—七九，Jamie Reid／Sniffin' Glue／影印機自出版）。
+規格書：<a href="SKILL.md">SKILL.md</a>　·　<a href="../../index.html">回 Design Skills Center</a></div>
+</div></footer>
+</body></html>

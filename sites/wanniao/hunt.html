@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>P888 抓頁 · 晚鳥假期</title>
+<meta name="description" content="P888 抓頁：九十秒內用三位數頁碼找出符合委託單的三個晚鳥團。圖文電視風格的等待式搜尋遊戲。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23000'/%3E%3Crect x='1' y='1' width='3' height='3' fill='%23F00'/%3E%3Crect x='4' y='1' width='3' height='3' fill='%230F0'/%3E%3Crect x='1' y='4' width='3' height='3' fill='%23FF0'/%3E%3Crect x='4' y='4' width='3' height='3' fill='%230FF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=Noto+Sans+TC:wght@700&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#000;-webkit-text-size-adjust:100%}
+body{background:#000;color:#FFF;font:700 15px/1.5 "IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+ padding:14px 0 40px;overflow-x:hidden}
+:root{
+ --avail:min(calc(100vw - 18px),880px);
+ --cw:round(down,calc(var(--avail)/40),1px);
+ --chh:round(down,calc(var(--cw)*5/3),1px);
+}
+@supports not (width:round(down,10px,1px)){
+ :root{--cw:calc(var(--avail)/40);--chh:calc(var(--cw)*5/3)}
+}
+.wrap{width:calc(var(--cw)*40);margin:0 auto}
+.pg{position:relative;width:calc(var(--cw)*40);margin:0 auto}
+.tt{position:relative;width:calc(var(--cw)*40);height:calc(var(--chh)*25);
+ display:grid;grid-template-columns:repeat(40,var(--cw));grid-template-rows:repeat(25,var(--chh));
+ background:#000;overflow:hidden}
+.pg.js .tt{display:none}
+.pg.js .tt.on{display:grid}
+.pg.js .tt.under{display:grid;position:absolute;inset:0;z-index:0}
+.pg.js .tt.on{position:relative;z-index:1}
+.rw{grid-column:1/-1;grid-row:var(--y);display:flex;align-items:stretch}
+.dh{grid-row:var(--y)/span 2}
+i{flex:0 0 auto;width:calc(var(--cw)*var(--w,1));height:100%;display:flex;align-items:center;
+ justify-content:center;font-style:normal;font-size:calc(var(--cw)*1.30);line-height:1;
+ letter-spacing:0;white-space:pre;overflow:hidden}
+.w2{--w:2;font-family:"Noto Sans TC","Noto Sans CJK TC",sans-serif;font-weight:700;
+ font-size:calc(var(--cw)*1.72)}
+.cv{--w:1;background:none!important}
+.thin i{align-self:flex-end;height:33.34%}
+.dh i{height:50%;align-self:center;transform:scaleY(2)}
+.gx{grid-column:var(--x)/span var(--w);grid-row:var(--y)/span var(--h);width:100%;height:100%;display:block}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.fl i{animation:flsh 1.4s steps(1,end) infinite}
+@keyframes flsh{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+/* ── 簽名動效：逐列播送 vbi-rowfill ── */
+.vbi{animation:vbi 720ms steps(24,end) both}
+@keyframes vbi{from{clip-path:inset(0 0 96% 0)}to{clip-path:inset(0 0 0 0)}}
+.grb{position:absolute;left:0;grid-column:1/-1;grid-row:var(--y);display:flex;z-index:3;pointer-events:none}
+/* ── 轉場：跨文件 View Transitions ── */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:ttout 200ms steps(12,end) both}
+::view-transition-new(root){animation:ttin 340ms steps(24,end) both}
+@keyframes ttout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(48% 0 48% 0)}}
+@keyframes ttin{from{clip-path:inset(0 0 96% 0)}to{clip-path:inset(0 0 0 0)}}
+/* ── 螢幕外：頁尾保底連結 ── */
+.tail{width:calc(var(--cw)*40);margin:calc(var(--chh)*0.7) auto 0;border-top:2px solid #FFF;
+ padding-top:8px;font-size:clamp(11px,calc(var(--cw)*0.72),14px);color:#FFF;line-height:1.7}
+.tail a{color:#FFFF00;text-decoration:underline;text-underline-offset:2px}
+.tail a:focus-visible,.key:focus-visible{outline:3px solid #FFFF00;outline-offset:2px}
+.tail b{color:#00FFFF;font-weight:700}
+.hold{display:inline-block;margin-top:6px;background:#000;color:#00FFFF;border:2px solid #00FFFF;
+ font:inherit;font-size:inherit;padding:3px 10px;cursor:pointer}
+.hold[aria-pressed="true"]{background:#00FFFF;color:#000}
+/* FASTEXT 鍵（螢幕內第 23–24 列已印，這裡是可點的透明覆蓋） */
+.keys{position:absolute;left:0;right:0;bottom:0;height:calc(var(--chh)*2);display:grid;
+ grid-template-columns:repeat(4,1fr);z-index:2}
+.key{display:block;background:none;border:0;cursor:pointer;text-indent:-9999px;overflow:hidden}
+.key[aria-disabled="true"]{cursor:default}
+@media (max-width:560px){
+ body{padding:8px 0 28px}
+ .tail{font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+ .fl i{animation:none;opacity:1;text-decoration:underline;text-decoration-thickness:2px}
+ .vbi{animation:none}
+ ::view-transition-old(root),::view-transition-new(root){animation:none}
+ *{transition:none!important}
+}
+.c00{color:#000000;background:#000000}.c01{color:#000000;background:#FF0000}.c02{color:#000000;background:#00FF00}.c03{color:#000000;background:#FFFF00}.c04{color:#000000;background:#0000FF}.c05{color:#000000;background:#FF00FF}.c06{color:#000000;background:#00FFFF}.c07{color:#000000;background:#FFFFFF}.c10{color:#FF0000;background:#000000}.c11{color:#FF0000;background:#FF0000}.c12{color:#FF0000;background:#00FF00}.c13{color:#FF0000;background:#FFFF00}.c14{color:#FF0000;background:#0000FF}.c15{color:#FF0000;background:#FF00FF}.c16{color:#FF0000;background:#00FFFF}.c17{color:#FF0000;background:#FFFFFF}.c20{color:#00FF00;background:#000000}.c21{color:#00FF00;background:#FF0000}.c22{color:#00FF00;background:#00FF00}.c23{color:#00FF00;background:#FFFF00}.c24{color:#00FF00;background:#0000FF}.c25{color:#00FF00;background:#FF00FF}.c26{color:#00FF00;background:#00FFFF}.c27{color:#00FF00;background:#FFFFFF}.c30{color:#FFFF00;background:#000000}.c31{color:#FFFF00;background:#FF0000}.c32{color:#FFFF00;background:#00FF00}.c33{color:#FFFF00;background:#FFFF00}.c34{color:#FFFF00;background:#0000FF}.c35{color:#FFFF00;background:#FF00FF}.c36{color:#FFFF00;background:#00FFFF}.c37{color:#FFFF00;background:#FFFFFF}.c40{color:#0000FF;background:#000000}.c41{color:#0000FF;background:#FF0000}.c42{color:#0000FF;background:#00FF00}.c43{color:#0000FF;background:#FFFF00}.c44{color:#0000FF;background:#0000FF}.c45{color:#0000FF;background:#FF00FF}.c46{color:#0000FF;background:#00FFFF}.c47{color:#0000FF;background:#FFFFFF}.c50{color:#FF00FF;background:#000000}.c51{color:#FF00FF;background:#FF0000}.c52{color:#FF00FF;background:#00FF00}.c53{color:#FF00FF;background:#FFFF00}.c54{color:#FF00FF;background:#0000FF}.c55{color:#FF00FF;background:#FF00FF}.c56{color:#FF00FF;background:#00FFFF}.c57{color:#FF00FF;background:#FFFFFF}.c60{color:#00FFFF;background:#000000}.c61{color:#00FFFF;background:#FF0000}.c62{color:#00FFFF;background:#00FF00}.c63{color:#00FFFF;background:#FFFF00}.c64{color:#00FFFF;background:#0000FF}.c65{color:#00FFFF;background:#FF00FF}.c66{color:#00FFFF;background:#00FFFF}.c67{color:#00FFFF;background:#FFFFFF}.c70{color:#FFFFFF;background:#000000}.c71{color:#FFFFFF;background:#FF0000}.c72{color:#FFFFFF;background:#00FF00}.c73{color:#FFFFFF;background:#FFFF00}.c74{color:#FFFFFF;background:#0000FF}.c75{color:#FFFFFF;background:#FF00FF}.c76{color:#FFFFFF;background:#00FFFF}.c77{color:#FFFFFF;background:#FFFFFF}
+.remote{width:calc(var(--cw)*40);margin:calc(var(--chh)*0.6) auto 0;display:grid;
+ grid-template-columns:repeat(6,1fr);gap:calc(var(--cw)*0.34)}
+.remote button{font:700 clamp(13px,calc(var(--cw)*0.92),19px)/1 "IBM Plex Mono","Noto Sans TC",ui-monospace,monospace;
+ background:#000;color:#FFF;border:2px solid #FFF;padding:calc(var(--chh)*0.34) 0;cursor:pointer}
+.remote button:active,.remote button.dn{background:#FFF;color:#000}
+.remote .num{color:#00FFFF;border-color:#00FFFF}
+.remote .num:active,.remote .num.dn{background:#00FFFF;color:#000}
+.remote .grn{grid-column:span 3;color:#00FF00;border-color:#00FF00}
+.remote .grn:active,.remote .grn.dn{background:#00FF00;color:#000}
+.remote .ylw{grid-column:span 2;color:#FFFF00;border-color:#FFFF00}
+.remote .ylw:active,.remote .ylw.dn{background:#FFFF00;color:#000}
+.remote .red{color:#FF0000;border-color:#FF0000}
+.remote .red:active,.remote .red.dn{background:#FF0000;color:#000}
+.remote button:focus-visible{outline:3px solid #FF00FF;outline-offset:2px}
+.remote button[disabled]{opacity:.45;cursor:default}
+#sigil{display:none}
+#sigil.on{display:block}
+@media (max-width:560px){.remote button{padding:calc(var(--chh)*0.28) 0}}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" width="0" height="0" focusable="false"><defs><symbol id="x1" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1z"/></symbol><symbol id="x2" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1z"/></symbol><symbol id="x3" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1z"/></symbol><symbol id="x4" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1z"/></symbol><symbol id="x5" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1z"/></symbol><symbol id="x6" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1z"/></symbol><symbol id="x7" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1z"/></symbol><symbol id="x8" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 1h1v1h-1z"/></symbol><symbol id="x9" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x10" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x11" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x12" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x13" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x14" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x15" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1z"/></symbol><symbol id="x16" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 2h1v1h-1z"/></symbol><symbol id="x17" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x18" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x19" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x20" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x21" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x22" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x23" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x24" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x25" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x26" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x27" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x28" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x29" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x30" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x31" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/></symbol><symbol id="x32" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 2h1v1h-1z"/></symbol><symbol id="x33" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x34" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x35" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x36" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x37" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x38" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x39" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x40" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x41" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x42" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x43" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x44" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x45" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x46" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x47" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x48" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x49" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x50" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x51" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x52" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x53" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x54" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x55" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x56" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x57" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x58" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x59" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x60" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x61" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x62" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol><symbol id="x63" viewBox="0 0 2 3" preserveAspectRatio="none"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1z"/></symbol></defs></svg>
+<main class="wrap">
+<div class="pg"><div class="tt on" id="game"><svg class="gx" style="--x:1;--y:4;--w:40;--h:1" viewBox="0 0 80 3" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="2" height="3" fill="#FFFF00"/><rect x="2" y="0" width="2" height="3" fill="#FFFF00"/><rect x="4" y="0" width="2" height="3" fill="#FFFF00"/><rect x="6" y="0" width="2" height="3" fill="#FFFF00"/><rect x="8" y="0" width="2" height="3" fill="#FFFF00"/><rect x="10" y="0" width="2" height="3" fill="#FFFF00"/><rect x="12" y="0" width="2" height="3" fill="#FFFF00"/><rect x="14" y="0" width="2" height="3" fill="#FFFF00"/><rect x="16" y="0" width="2" height="3" fill="#FFFF00"/><rect x="18" y="0" width="2" height="3" fill="#FFFF00"/><rect x="20" y="0" width="2" height="3" fill="#FFFF00"/><rect x="22" y="0" width="2" height="3" fill="#FFFF00"/><rect x="24" y="0" width="2" height="3" fill="#FFFF00"/><rect x="26" y="0" width="2" height="3" fill="#FFFF00"/><rect x="28" y="0" width="2" height="3" fill="#FFFF00"/><rect x="30" y="0" width="2" height="3" fill="#FFFF00"/><rect x="32" y="0" width="2" height="3" fill="#FFFF00"/><rect x="34" y="0" width="2" height="3" fill="#FFFF00"/><rect x="36" y="0" width="2" height="3" fill="#FFFF00"/><rect x="38" y="0" width="2" height="3" fill="#FFFF00"/><rect x="40" y="0" width="2" height="3" fill="#FFFF00"/><rect x="42" y="0" width="2" height="3" fill="#FFFF00"/><rect x="44" y="0" width="2" height="3" fill="#FFFF00"/><rect x="46" y="0" width="2" height="3" fill="#FFFF00"/><rect x="48" y="0" width="2" height="3" fill="#FFFF00"/><rect x="50" y="0" width="2" height="3" fill="#FFFF00"/><rect x="52" y="0" width="2" height="3" fill="#FFFF00"/><rect x="54" y="0" width="2" height="3" fill="#FFFF00"/><rect x="56" y="0" width="2" height="3" fill="#FFFF00"/><rect x="58" y="0" width="2" height="3" fill="#FFFF00"/><rect x="60" y="0" width="2" height="3" fill="#FFFF00"/><rect x="62" y="0" width="2" height="3" fill="#FFFF00"/><rect x="64" y="0" width="2" height="3" fill="#FFFF00"/><rect x="66" y="0" width="2" height="3" fill="#FFFF00"/><rect x="68" y="0" width="2" height="3" fill="#FFFF00"/><rect x="70" y="0" width="2" height="3" fill="#FFFF00"/><rect x="72" y="0" width="2" height="3" fill="#FFFF00"/><rect x="74" y="0" width="2" height="3" fill="#FFFF00"/><rect x="76" y="0" width="2" height="3" fill="#FFFF00"/><rect x="78" y="0" width="2" height="3" fill="#FFFF00"/><use href="#x3" x="2" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="6" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="10" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="14" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="18" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="22" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="26" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="30" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="34" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="38" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="42" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="46" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="50" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="54" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="58" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="62" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="66" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="70" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="74" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="78" y="0" width="2" height="3" fill="#000000"/></svg><div class="rw" style="--y:1"><i class="c06">P</i><i class="c06">8</i><i class="c06">8</i><i class="c06">8</i><i class="c00" style="--w:1"></i><i class="c30 w2">晚</i><i class="c30 w2">鳥</i><i class="c30 w2">假</i><i class="c30 w2">期</i><i class="c00" style="--w:1"></i><i class="c50">1</i><i class="c50">/</i><i class="c50">1</i><i class="c00" style="--w:3"></i><i class="c70">F</i><i class="c70">R</i><i class="c70">I</i><i class="c70"></i><i class="c70">1</i><i class="c70">4</i><i class="c70"></i><i class="c70">F</i><i class="c70">E</i><i class="c70">B</i><i class="c00" style="--w:2"></i><i class="c70 ck">2</i><i class="c70 ck">1</i><i class="c70 ck">:</i><i class="c70 ck">4</i><i class="c70 ck">7</i><i class="c70 ck">:</i><i class="c70 ck">3</i><i class="c70 ck">3</i></div><div class="rw dh" style="--y:2"><i class="c04"></i><i class="c04"></i><i class="c34 w2">抓</i><i class="c34 w2">頁</i><i class="c04"></i><i class="c64">C</i><i class="c64">A</i><i class="c64">T</i><i class="c64">C</i><i class="c64">H</i><i class="c64"></i><i class="c64">T</i><i class="c64">H</i><i class="c64">E</i><i class="c64"></i><i class="c64">P</i><i class="c64">A</i><i class="c64">G</i><i class="c64">E</i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i></div><div class="rw" style="--y:4"><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i></div><div class="rw" style="--y:5"><i class="c04" style="--w:1"></i><i class="c64 w2">規</i><i class="c64 w2">則</i><i class="c64 w2">三</i><i class="c64 w2">句</i><i class="c64 w2">話</i><i class="c04" style="--w:29"></i></div><div class="rw" style="--y:6"><i class="c04" style="--w:40"></i></div><div class="rw" style="--y:7"><i class="c04" style="--w:1"></i><i class="c74 w2">一</i><i class="c74 w2">　</i><i class="c74 w2">看</i><i class="c74 w2">委</i><i class="c74 w2">託</i><i class="c74 w2">單</i><i class="c74 w2">上</i><i class="c74 w2">的</i><i class="c74 w2">四</i><i class="c74 w2">個</i><i class="c74 w2">條</i><i class="c74 w2">件</i><i class="c74 w2">。</i><i class="c04" style="--w:13"></i></div><div class="rw" style="--y:8"><i class="c04" style="--w:40"></i></div><div class="rw" style="--y:9"><i class="c04" style="--w:1"></i><i class="c74 w2">二</i><i class="c74 w2">　</i><i class="c74 w2">按</i><i class="c74 w2">數</i><i class="c74 w2">字</i><i class="c74 w2">鍵</i><i class="c74 w2">輸</i><i class="c74 w2">入</i><i class="c74 w2">三</i><i class="c74 w2">位</i><i class="c74 w2">數</i><i class="c74 w2">頁</i><i class="c74 w2">碼</i><i class="c74 w2">，</i><i class="c04" style="--w:11"></i></div><div class="rw" style="--y:10"><i class="c04" style="--w:1"></i><i class="c74 w2">　</i><i class="c74 w2">　</i><i class="c74 w2">等</i><i class="c74 w2">它</i><i class="c74 w2">播</i><i class="c74 w2">到</i><i class="c74 w2">；</i><i class="c74 w2">子</i><i class="c74 w2">頁</i><i class="c74 w2">自</i><i class="c74 w2">己</i><i class="c74 w2">翻</i><i class="c74 w2">。</i><i class="c04" style="--w:13"></i></div><div class="rw" style="--y:11"><i class="c04" style="--w:40"></i></div><div class="rw" style="--y:12"><i class="c04" style="--w:1"></i><i class="c74 w2">三</i><i class="c74 w2">　</i><i class="c74 w2">九</i><i class="c74 w2">十</i><i class="c74 w2">秒</i><i class="c74 w2">內</i><i class="c74 w2">用</i><i class="c74 w2">綠</i><i class="c74 w2">鍵</i><i class="c74 w2">收</i><i class="c74 w2">下</i><i class="c74 w2">三</i><i class="c74 w2">個</i><i class="c04" style="--w:13"></i></div><div class="rw" style="--y:13"><i class="c04" style="--w:1"></i><i class="c74 w2">　</i><i class="c74 w2">　</i><i class="c74 w2">都</i><i class="c74 w2">符</i><i class="c74 w2">合</i><i class="c74 w2">的</i><i class="c74 w2">團</i><i class="c74 w2">。</i><i class="c74 w2">收</i><i class="c74 w2">錯</i><i class="c74 w2">扣</i><i class="c74 w2">十</i><i class="c74 w2">秒</i><i class="c74 w2">。</i><i class="c04" style="--w:11"></i></div><div class="rw" style="--y:14"><i class="c04" style="--w:40"></i></div><div class="rw thin" style="--y:15"><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i></div><div class="rw" style="--y:16"><i class="c04" style="--w:1"></i><i class="c34 w2">二</i><i class="c34 w2">十</i><i class="c34 w2">四</i><i class="c34 w2">個</i><i class="c34 w2">團</i><i class="c34 w2">散</i><i class="c34 w2">在</i><i class="c34"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">1</i><i class="c34 w2">–</i><i class="c34">3</i><i class="c34">4</i><i class="c34">6</i><i class="c34"></i><i class="c34 w2">六</i><i class="c34 w2">個</i><i class="c34 w2">頁</i><i class="c04" style="--w:9"></i></div><div class="rw" style="--y:17"><i class="c04" style="--w:1"></i><i class="c34 w2">碼</i><i class="c34 w2">、</i><i class="c34 w2">各</i><i class="c34 w2">四</i><i class="c34 w2">張</i><i class="c34 w2">子</i><i class="c34 w2">頁</i><i class="c34 w2">裡</i><i class="c34 w2">。</i><i class="c34 w2">頁</i><i class="c34 w2">碼</i><i class="c34"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">0</i><i class="c34"></i><i class="c34 w2">是</i><i class="c04" style="--w:10"></i></div><div class="rw" style="--y:18"><i class="c04" style="--w:1"></i><i class="c34 w2">索</i><i class="c34 w2">引</i><i class="c34 w2">，</i><i class="c34 w2">會</i><i class="c34 w2">告</i><i class="c34 w2">訴</i><i class="c34 w2">你</i><i class="c34 w2">哪</i><i class="c34 w2">一</i><i class="c34 w2">頁</i><i class="c34 w2">放</i><i class="c34 w2">什</i><i class="c34 w2">麼</i><i class="c34 w2">。</i><i class="c04" style="--w:11"></i></div><div class="rw" style="--y:19"><i class="c04" style="--w:40"></i></div><div class="rw" style="--y:20"><i class="c04" style="--w:1"></i><i class="c64 w2">這</i><i class="c64 w2">個</i><i class="c64 w2">遊</i><i class="c64 w2">戲</i><i class="c64 w2">唯</i><i class="c64 w2">一</i><i class="c64 w2">的</i><i class="c64 w2">成</i><i class="c64 w2">本</i><i class="c64 w2">是</i><i class="c64 w2">「</i><i class="c64 w2">等</i><i class="c64 w2">」</i><i class="c64 w2">。</i><i class="c04" style="--w:11"></i></div><div class="rw" style="--y:21"><i class="c04" style="--w:40"></i></div><div class="rw" style="--y:22"><i class="c02"></i><i class="c02 w2">按</i><i class="c02 w2">下</i><i class="c02 w2">方</i><i class="c02 w2">綠</i><i class="c02 w2">鍵</i><i class="c02 w2">「</i><i class="c02 w2">開</i><i class="c02 w2">始</i><i class="c02 w2">」</i><i class="c02 w2">即</i><i class="c02 w2">開</i><i class="c02 w2">播</i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i><i class="c02"></i></div><div class="rw" style="--y:23"><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i></div><div class="rw" style="--y:24"><i class="c01"></i><i class="c01">1</i><i class="c01">0</i><i class="c01">0</i><i class="c01"></i><i class="c01 w2">目</i><i class="c01 w2">錄</i><i class="c01"></i><i class="c02"></i><i class="c02">3</i><i class="c02">4</i><i class="c02">1</i><i class="c02"></i><i class="c02 w2">特</i><i class="c02 w2">價</i><i class="c02"></i><i class="c00"></i><i class="c30">8</i><i class="c30">8</i><i class="c30">8</i><i class="c00"></i><i class="c30 w2">目</i><i class="c30 w2">前</i><i class="c00"></i><i class="c06"></i><i class="c06">1</i><i class="c06">9</i><i class="c06">9</i><i class="c06"></i><i class="c06 w2">本</i><i class="c06 w2">社</i><i class="c06"></i></div><div class="rw" style="--y:25"><i class="c00" style="--w:1"></i><i class="c70 w2">紅</i><i class="c70"></i><i class="c70">R</i><i class="c70">E</i><i class="c70">D</i><i class="c00" style="--w:4"></i><i class="c70 w2">綠</i><i class="c70"></i><i class="c70">G</i><i class="c70">R</i><i class="c70">N</i><i class="c00" style="--w:4"></i><i class="c30 w2">現</i><i class="c30 w2">在</i><i class="c30 w2">這</i><i class="c30 w2">頁</i><i class="c00" style="--w:2"></i><i class="c70 w2">青</i><i class="c70"></i><i class="c70">C</i><i class="c70">Y</i><i class="c70">N</i><i class="c00" style="--w:3"></i></div></div><div class="keys"><a class="key" id="k1" data-href="index.html" href="index.html">前往 100 目錄</a><a class="key" id="k2" data-href="deals.html" href="deals.html">前往 341 特價</a><span class="key" id="k3" aria-disabled="true">888 目前這頁</span><a class="key" id="k4" data-href="about.html" href="about.html">前往 199 本社</a></div></div><div class="remote" id="remote"></div><nav class="tail" aria-label="頁碼索引">快捷鍵：鍵盤 R／G／Y／C，或直接點畫面下緣四色鍵。<br><a href="index.html">100 目錄</a> ｜ <a href="deals.html">341 特價</a> ｜ <b>888 抓頁（本頁）</b> ｜ <a href="about.html">199 本社</a><br>本頁的鍵盤是遙控器：數字鍵 0–9 輸入頁碼、Enter 或 G 為綠鍵收下。關閉 JavaScript 時本頁顯示完整規則，下方 P889 附錄可讀到全部 24 個團。<br><a href="SKILL.md">下載本站 SKILL.md 風格規格書</a> ｜ <a href="../../index.html">回設計技術館</a></nav><div class="pg" data-carousel style="margin-top:calc(var(--chh)*1.2)"><div class="tt on"><svg class="gx" style="--x:1;--y:4;--w:40;--h:1" viewBox="0 0 80 3" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="2" height="3" fill="#00FFFF"/><rect x="2" y="0" width="2" height="3" fill="#00FFFF"/><rect x="4" y="0" width="2" height="3" fill="#00FFFF"/><rect x="6" y="0" width="2" height="3" fill="#00FFFF"/><rect x="8" y="0" width="2" height="3" fill="#00FFFF"/><rect x="10" y="0" width="2" height="3" fill="#00FFFF"/><rect x="12" y="0" width="2" height="3" fill="#00FFFF"/><rect x="14" y="0" width="2" height="3" fill="#00FFFF"/><rect x="16" y="0" width="2" height="3" fill="#00FFFF"/><rect x="18" y="0" width="2" height="3" fill="#00FFFF"/><rect x="20" y="0" width="2" height="3" fill="#00FFFF"/><rect x="22" y="0" width="2" height="3" fill="#00FFFF"/><rect x="24" y="0" width="2" height="3" fill="#00FFFF"/><rect x="26" y="0" width="2" height="3" fill="#00FFFF"/><rect x="28" y="0" width="2" height="3" fill="#00FFFF"/><rect x="30" y="0" width="2" height="3" fill="#00FFFF"/><rect x="32" y="0" width="2" height="3" fill="#00FFFF"/><rect x="34" y="0" width="2" height="3" fill="#00FFFF"/><rect x="36" y="0" width="2" height="3" fill="#00FFFF"/><rect x="38" y="0" width="2" height="3" fill="#00FFFF"/><rect x="40" y="0" width="2" height="3" fill="#00FFFF"/><rect x="42" y="0" width="2" height="3" fill="#00FFFF"/><rect x="44" y="0" width="2" height="3" fill="#00FFFF"/><rect x="46" y="0" width="2" height="3" fill="#00FFFF"/><rect x="48" y="0" width="2" height="3" fill="#00FFFF"/><rect x="50" y="0" width="2" height="3" fill="#00FFFF"/><rect x="52" y="0" width="2" height="3" fill="#00FFFF"/><rect x="54" y="0" width="2" height="3" fill="#00FFFF"/><rect x="56" y="0" width="2" height="3" fill="#00FFFF"/><rect x="58" y="0" width="2" height="3" fill="#00FFFF"/><rect x="60" y="0" width="2" height="3" fill="#00FFFF"/><rect x="62" y="0" width="2" height="3" fill="#00FFFF"/><rect x="64" y="0" width="2" height="3" fill="#00FFFF"/><rect x="66" y="0" width="2" height="3" fill="#00FFFF"/><rect x="68" y="0" width="2" height="3" fill="#00FFFF"/><rect x="70" y="0" width="2" height="3" fill="#00FFFF"/><rect x="72" y="0" width="2" height="3" fill="#00FFFF"/><rect x="74" y="0" width="2" height="3" fill="#00FFFF"/><rect x="76" y="0" width="2" height="3" fill="#00FFFF"/><rect x="78" y="0" width="2" height="3" fill="#00FFFF"/><use href="#x3" x="2" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="6" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="10" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="14" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="18" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="22" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="26" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="30" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="34" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="38" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="42" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="46" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="50" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="54" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="58" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="62" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="66" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="70" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="74" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="78" y="0" width="2" height="3" fill="#000000"/></svg><div class="rw" style="--y:1"><i class="c06">P</i><i class="c06">8</i><i class="c06">8</i><i class="c06">9</i><i class="c00" style="--w:1"></i><i class="c30 w2">晚</i><i class="c30 w2">鳥</i><i class="c30 w2">假</i><i class="c30 w2">期</i><i class="c00" style="--w:1"></i><i class="c50">1</i><i class="c50">/</i><i class="c50">2</i><i class="c00" style="--w:3"></i><i class="c70">F</i><i class="c70">R</i><i class="c70">I</i><i class="c70"></i><i class="c70">1</i><i class="c70">4</i><i class="c70"></i><i class="c70">F</i><i class="c70">E</i><i class="c70">B</i><i class="c00" style="--w:2"></i><i class="c70 ck">2</i><i class="c70 ck">1</i><i class="c70 ck">:</i><i class="c70 ck">4</i><i class="c70 ck">7</i><i class="c70 ck">:</i><i class="c70 ck">3</i><i class="c70 ck">3</i></div><div class="rw dh" style="--y:2"><i class="c04"></i><i class="c04"></i><i class="c34 w2">全</i><i class="c34 w2">部</i><i class="c34 w2">團</i><i class="c34 w2">表</i><i class="c04"></i><i class="c64">1</i><i class="c64">/</i><i class="c64">2</i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i></div><div class="rw" style="--y:4"><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i></div><div class="rw" style="--y:5"><i class="c04" style="--w:1"></i><i class="c64 w2">頁</i><i class="c64 w2">　</i><i class="c64 w2">團</i><i class="c64 w2">號</i><i class="c64"></i><i class="c64 w2">行</i><i class="c64 w2">程</i><i class="c64 w2">　</i><i class="c64 w2">　</i><i class="c64 w2">　</i><i class="c64 w2">　</i><i class="c64 w2">天</i><i class="c64"></i><i class="c64 w2">出</i><i class="c64 w2">發</i><i class="c64"></i><i class="c64 w2">團</i><i class="c64 w2">費</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:6"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">1</i><i class="c04" style="--w:1"></i><i class="c24">A</i><i class="c24">1</i><i class="c24">1</i><i class="c04" style="--w:1"></i><i class="c74 w2">帛</i><i class="c74 w2">琉</i><i class="c74 w2">洛</i><i class="c74 w2">克</i><i class="c74 w2">群</i><i class="c04" style="--w:1"></i><i class="c64">4</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">7</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c04" style="--w:2"></i></div><div class="rw" style="--y:7"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">1</i><i class="c04" style="--w:1"></i><i class="c24">A</i><i class="c24">1</i><i class="c24">2</i><i class="c04" style="--w:1"></i><i class="c74 w2">宿</i><i class="c74 w2">霧</i><i class="c74 w2">薄</i><i class="c74 w2">荷</i><i class="c74 w2">島</i><i class="c04" style="--w:1"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">6</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">5</i><i class="c74">,</i><i class="c74">9</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c04" style="--w:2"></i></div><div class="rw" style="--y:8"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">1</i><i class="c04" style="--w:1"></i><i class="c24">A</i><i class="c24">1</i><i class="c24">3</i><i class="c04" style="--w:1"></i><i class="c74 w2">石</i><i class="c74 w2">垣</i><i class="c74 w2">島</i><i class="c74 w2">三</i><i class="c74 w2">日</i><i class="c04" style="--w:1"></i><i class="c64">3</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">5</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">2</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c10 w2">日</i></div><div class="rw" style="--y:9"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">1</i><i class="c04" style="--w:1"></i><i class="c24">A</i><i class="c24">1</i><i class="c24">4</i><i class="c04" style="--w:1"></i><i class="c74 w2">長</i><i class="c74 w2">灘</i><i class="c74 w2">島</i><i class="c74 w2">五</i><i class="c74 w2">日</i><i class="c04" style="--w:1"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">8</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">1</i><i class="c74">,</i><i class="c74">6</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c04" style="--w:2"></i></div><div class="rw" style="--y:10"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">2</i><i class="c04" style="--w:1"></i><i class="c24">B</i><i class="c24">2</i><i class="c24">1</i><i class="c04" style="--w:1"></i><i class="c74 w2">合</i><i class="c74 w2">歡</i><i class="c74 w2">群</i><i class="c74 w2">峰</i><i class="c74 w2">三</i><i class="c04" style="--w:1"></i><i class="c64">3</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c24">6</i><i class="c24">,</i><i class="c24">8</i><i class="c24">0</i><i class="c24">0</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:11"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">2</i><i class="c04" style="--w:1"></i><i class="c24">B</i><i class="c24">2</i><i class="c24">2</i><i class="c04" style="--w:1"></i><i class="c74 w2">阿</i><i class="c74 w2">里</i><i class="c74 w2">山</i><i class="c74 w2">二</i><i class="c74 w2">日</i><i class="c04" style="--w:1"></i><i class="c64">2</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">5</i><i class="c04" style="--w:1"></i><i class="c24">4</i><i class="c24">,</i><i class="c24">2</i><i class="c24">0</i><i class="c24">0</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:12"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">2</i><i class="c04" style="--w:1"></i><i class="c24">B</i><i class="c24">2</i><i class="c24">3</i><i class="c04" style="--w:1"></i><i class="c74 w2">尼</i><i class="c74 w2">泊</i><i class="c74 w2">爾</i><i class="c74">A</i><i class="c74">B</i><i class="c04" style="--w:3"></i><i class="c64">9</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">2</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c74">4</i><i class="c74">8</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:5"></i></div><div class="rw" style="--y:13"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">2</i><i class="c04" style="--w:1"></i><i class="c24">B</i><i class="c24">2</i><i class="c24">4</i><i class="c04" style="--w:1"></i><i class="c74 w2">太</i><i class="c74 w2">魯</i><i class="c74 w2">閣</i><i class="c74 w2">錐</i><i class="c74 w2">麓</i><i class="c04" style="--w:1"></i><i class="c64">2</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">6</i><i class="c04" style="--w:1"></i><i class="c24">5</i><i class="c24">,</i><i class="c24">6</i><i class="c24">0</i><i class="c24">0</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:14"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">3</i><i class="c04" style="--w:1"></i><i class="c24">C</i><i class="c24">3</i><i class="c24">1</i><i class="c04" style="--w:1"></i><i class="c74 w2">別</i><i class="c74 w2">府</i><i class="c74 w2">湯</i><i class="c74 w2">巡</i><i class="c74 w2">五</i><i class="c04" style="--w:1"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">7</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">6</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:3"></i><i class="c10 w2">日</i></div><div class="rw" style="--y:15"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">3</i><i class="c04" style="--w:1"></i><i class="c24">C</i><i class="c24">3</i><i class="c24">2</i><i class="c04" style="--w:1"></i><i class="c74 w2">礁</i><i class="c74 w2">溪</i><i class="c74 w2">湯</i><i class="c74 w2">屋</i><i class="c74 w2">一</i><i class="c04" style="--w:1"></i><i class="c64">1</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c24">1</i><i class="c24">,</i><i class="c24">9</i><i class="c24">8</i><i class="c24">0</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:16"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">3</i><i class="c04" style="--w:1"></i><i class="c24">C</i><i class="c24">3</i><i class="c24">3</i><i class="c04" style="--w:1"></i><i class="c74 w2">草</i><i class="c74 w2">津</i><i class="c74 w2">白</i><i class="c74 w2">根</i><i class="c74 w2">五</i><i class="c04" style="--w:1"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">9</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">3</i><i class="c74">,</i><i class="c74">4</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:3"></i><i class="c10 w2">日</i></div><div class="rw" style="--y:17"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">3</i><i class="c04" style="--w:1"></i><i class="c24">C</i><i class="c24">3</i><i class="c24">4</i><i class="c04" style="--w:1"></i><i class="c74 w2">谷</i><i class="c74 w2">關</i><i class="c74 w2">泡</i><i class="c74 w2">湯</i><i class="c74 w2">二</i><i class="c04" style="--w:1"></i><i class="c64">2</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">5</i><i class="c04" style="--w:1"></i><i class="c24">3</i><i class="c24">,</i><i class="c24">9</i><i class="c24">0</i><i class="c24">0</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:18"><i class="c04" style="--w:40"></i></div><div class="rw thin" style="--y:19"><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i></div><div class="rw" style="--y:20"><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c64 w2">＝</i><i class="c64 w2">看</i><i class="c64 w2">得</i><i class="c64 w2">到</i><i class="c64 w2">海</i><i class="c64 w2">　</i><i class="c64 w2">日</i><i class="c64 w2">＝</i><i class="c64 w2">日</i><i class="c64 w2">本</i><i class="c64 w2">線</i><i class="c04" style="--w:15"></i></div><div class="rw" style="--y:21"><i class="c04" style="--w:1"></i><i class="c64 w2">團</i><i class="c64 w2">費</i><i class="c64 w2">為</i><i class="c64 w2">每</i><i class="c64 w2">人</i><i class="c64 w2">新</i><i class="c64 w2">臺</i><i class="c64 w2">幣</i><i class="c64 w2">，</i><i class="c64 w2">含</i><i class="c64 w2">稅</i><i class="c64 w2">與</i><i class="c64 w2">燃</i><i class="c64 w2">油</i><i class="c04" style="--w:11"></i></div><div class="rw" style="--y:22"><i class="c00" style="--w:40"></i></div><div class="rw" style="--y:23"><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i></div><div class="rw" style="--y:24"><i class="c01"></i><i class="c01">1</i><i class="c01">0</i><i class="c01">0</i><i class="c01"></i><i class="c01 w2">目</i><i class="c01 w2">錄</i><i class="c01"></i><i class="c02"></i><i class="c02">3</i><i class="c02">4</i><i class="c02">1</i><i class="c02"></i><i class="c02 w2">特</i><i class="c02 w2">價</i><i class="c02"></i><i class="c00"></i><i class="c30">8</i><i class="c30">8</i><i class="c30">8</i><i class="c00"></i><i class="c30 w2">目</i><i class="c30 w2">前</i><i class="c00"></i><i class="c06"></i><i class="c06">1</i><i class="c06">9</i><i class="c06">9</i><i class="c06"></i><i class="c06 w2">本</i><i class="c06 w2">社</i><i class="c06"></i></div><div class="rw" style="--y:25"><i class="c00" style="--w:1"></i><i class="c70 w2">紅</i><i class="c70"></i><i class="c70">R</i><i class="c70">E</i><i class="c70">D</i><i class="c00" style="--w:4"></i><i class="c70 w2">綠</i><i class="c70"></i><i class="c70">G</i><i class="c70">R</i><i class="c70">N</i><i class="c00" style="--w:4"></i><i class="c30 w2">現</i><i class="c30 w2">在</i><i class="c30 w2">這</i><i class="c30 w2">頁</i><i class="c00" style="--w:2"></i><i class="c70 w2">青</i><i class="c70"></i><i class="c70">C</i><i class="c70">Y</i><i class="c70">N</i><i class="c00" style="--w:3"></i></div></div><div class="tt"><svg class="gx" style="--x:1;--y:4;--w:40;--h:1" viewBox="0 0 80 3" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="2" height="3" fill="#00FFFF"/><rect x="2" y="0" width="2" height="3" fill="#00FFFF"/><rect x="4" y="0" width="2" height="3" fill="#00FFFF"/><rect x="6" y="0" width="2" height="3" fill="#00FFFF"/><rect x="8" y="0" width="2" height="3" fill="#00FFFF"/><rect x="10" y="0" width="2" height="3" fill="#00FFFF"/><rect x="12" y="0" width="2" height="3" fill="#00FFFF"/><rect x="14" y="0" width="2" height="3" fill="#00FFFF"/><rect x="16" y="0" width="2" height="3" fill="#00FFFF"/><rect x="18" y="0" width="2" height="3" fill="#00FFFF"/><rect x="20" y="0" width="2" height="3" fill="#00FFFF"/><rect x="22" y="0" width="2" height="3" fill="#00FFFF"/><rect x="24" y="0" width="2" height="3" fill="#00FFFF"/><rect x="26" y="0" width="2" height="3" fill="#00FFFF"/><rect x="28" y="0" width="2" height="3" fill="#00FFFF"/><rect x="30" y="0" width="2" height="3" fill="#00FFFF"/><rect x="32" y="0" width="2" height="3" fill="#00FFFF"/><rect x="34" y="0" width="2" height="3" fill="#00FFFF"/><rect x="36" y="0" width="2" height="3" fill="#00FFFF"/><rect x="38" y="0" width="2" height="3" fill="#00FFFF"/><rect x="40" y="0" width="2" height="3" fill="#00FFFF"/><rect x="42" y="0" width="2" height="3" fill="#00FFFF"/><rect x="44" y="0" width="2" height="3" fill="#00FFFF"/><rect x="46" y="0" width="2" height="3" fill="#00FFFF"/><rect x="48" y="0" width="2" height="3" fill="#00FFFF"/><rect x="50" y="0" width="2" height="3" fill="#00FFFF"/><rect x="52" y="0" width="2" height="3" fill="#00FFFF"/><rect x="54" y="0" width="2" height="3" fill="#00FFFF"/><rect x="56" y="0" width="2" height="3" fill="#00FFFF"/><rect x="58" y="0" width="2" height="3" fill="#00FFFF"/><rect x="60" y="0" width="2" height="3" fill="#00FFFF"/><rect x="62" y="0" width="2" height="3" fill="#00FFFF"/><rect x="64" y="0" width="2" height="3" fill="#00FFFF"/><rect x="66" y="0" width="2" height="3" fill="#00FFFF"/><rect x="68" y="0" width="2" height="3" fill="#00FFFF"/><rect x="70" y="0" width="2" height="3" fill="#00FFFF"/><rect x="72" y="0" width="2" height="3" fill="#00FFFF"/><rect x="74" y="0" width="2" height="3" fill="#00FFFF"/><rect x="76" y="0" width="2" height="3" fill="#00FFFF"/><rect x="78" y="0" width="2" height="3" fill="#00FFFF"/><use href="#x3" x="2" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="6" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="10" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="14" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="18" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="22" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="26" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="30" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="34" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="38" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="42" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="46" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="50" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="54" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="58" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="62" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="66" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="70" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="74" y="0" width="2" height="3" fill="#000000"/><use href="#x3" x="78" y="0" width="2" height="3" fill="#000000"/></svg><div class="rw" style="--y:1"><i class="c06">P</i><i class="c06">8</i><i class="c06">8</i><i class="c06">9</i><i class="c00" style="--w:1"></i><i class="c30 w2">晚</i><i class="c30 w2">鳥</i><i class="c30 w2">假</i><i class="c30 w2">期</i><i class="c00" style="--w:1"></i><i class="c50">2</i><i class="c50">/</i><i class="c50">2</i><i class="c00" style="--w:3"></i><i class="c70">F</i><i class="c70">R</i><i class="c70">I</i><i class="c70"></i><i class="c70">1</i><i class="c70">4</i><i class="c70"></i><i class="c70">F</i><i class="c70">E</i><i class="c70">B</i><i class="c00" style="--w:2"></i><i class="c70 ck">2</i><i class="c70 ck">1</i><i class="c70 ck">:</i><i class="c70 ck">4</i><i class="c70 ck">7</i><i class="c70 ck">:</i><i class="c70 ck">3</i><i class="c70 ck">3</i></div><div class="rw dh" style="--y:2"><i class="c04"></i><i class="c04"></i><i class="c34 w2">全</i><i class="c34 w2">部</i><i class="c34 w2">團</i><i class="c34 w2">表</i><i class="c04"></i><i class="c64">2</i><i class="c64">/</i><i class="c64">2</i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i><i class="c04"></i></div><div class="rw" style="--y:4"><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i><i class="cv"></i></div><div class="rw" style="--y:5"><i class="c04" style="--w:1"></i><i class="c64 w2">頁</i><i class="c64 w2">　</i><i class="c64 w2">團</i><i class="c64 w2">號</i><i class="c64"></i><i class="c64 w2">行</i><i class="c64 w2">程</i><i class="c64 w2">　</i><i class="c64 w2">　</i><i class="c64 w2">　</i><i class="c64 w2">　</i><i class="c64 w2">天</i><i class="c64"></i><i class="c64 w2">出</i><i class="c64 w2">發</i><i class="c64"></i><i class="c64 w2">團</i><i class="c64 w2">費</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:6"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">4</i><i class="c04" style="--w:1"></i><i class="c24">D</i><i class="c24">4</i><i class="c24">1</i><i class="c04" style="--w:1"></i><i class="c74 w2">東</i><i class="c74 w2">京</i><i class="c74 w2">自</i><i class="c74 w2">由</i><i class="c74 w2">行</i><i class="c04" style="--w:1"></i><i class="c64">4</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">6</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:3"></i><i class="c10 w2">日</i></div><div class="rw" style="--y:7"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">4</i><i class="c04" style="--w:1"></i><i class="c24">D</i><i class="c24">4</i><i class="c24">2</i><i class="c04" style="--w:1"></i><i class="c74 w2">首</i><i class="c74 w2">爾</i><i class="c74 w2">購</i><i class="c74 w2">物</i><i class="c74 w2">三</i><i class="c04" style="--w:1"></i><i class="c64">3</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">5</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">1</i><i class="c74">,</i><i class="c74">9</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:5"></i></div><div class="rw" style="--y:8"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">4</i><i class="c04" style="--w:1"></i><i class="c24">D</i><i class="c24">4</i><i class="c24">3</i><i class="c04" style="--w:1"></i><i class="c74 w2">港</i><i class="c74 w2">澳</i><i class="c74 w2">三</i><i class="c74 w2">日</i><i class="c04" style="--w:3"></i><i class="c64">3</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">6</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">3</i><i class="c74">,</i><i class="c74">4</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:5"></i></div><div class="rw" style="--y:9"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">4</i><i class="c04" style="--w:1"></i><i class="c24">D</i><i class="c24">4</i><i class="c24">4</i><i class="c04" style="--w:1"></i><i class="c74 w2">曼</i><i class="c74 w2">谷</i><i class="c74 w2">五</i><i class="c74 w2">日</i><i class="c04" style="--w:3"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">8</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">4</i><i class="c74">,</i><i class="c74">6</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:5"></i></div><div class="rw" style="--y:10"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">5</i><i class="c04" style="--w:1"></i><i class="c24">E</i><i class="c24">5</i><i class="c24">1</i><i class="c04" style="--w:1"></i><i class="c74 w2">沖</i><i class="c74 w2">繩</i><i class="c74 w2">郵</i><i class="c74 w2">輪</i><i class="c74 w2">四</i><i class="c04" style="--w:1"></i><i class="c64">4</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c74">1</i><i class="c74">9</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c10 w2">日</i></div><div class="rw" style="--y:11"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">5</i><i class="c04" style="--w:1"></i><i class="c24">E</i><i class="c24">5</i><i class="c24">2</i><i class="c04" style="--w:1"></i><i class="c74 w2">石</i><i class="c74 w2">垣</i><i class="c74 w2">宮</i><i class="c74 w2">古</i><i class="c74 w2">五</i><i class="c04" style="--w:1"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">7</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">4</i><i class="c74">,</i><i class="c74">2</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c10 w2">日</i></div><div class="rw" style="--y:12"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">5</i><i class="c04" style="--w:1"></i><i class="c24">E</i><i class="c24">5</i><i class="c24">3</i><i class="c04" style="--w:1"></i><i class="c74 w2">基</i><i class="c74 w2">隆</i><i class="c74 w2">出</i><i class="c74 w2">發</i><i class="c74 w2">二</i><i class="c04" style="--w:1"></i><i class="c64">2</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">5</i><i class="c04" style="--w:1"></i><i class="c24">6</i><i class="c24">,</i><i class="c24">9</i><i class="c24">0</i><i class="c24">0</i><i class="c04" style="--w:2"></i><i class="c64 w2">海</i><i class="c04" style="--w:2"></i></div><div class="rw" style="--y:13"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">5</i><i class="c04" style="--w:1"></i><i class="c24">E</i><i class="c24">5</i><i class="c24">4</i><i class="c04" style="--w:1"></i><i class="c74 w2">下</i><i class="c74 w2">龍</i><i class="c74 w2">灣</i><i class="c74 w2">六</i><i class="c74 w2">日</i><i class="c04" style="--w:1"></i><i class="c64">6</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">2</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">8</i><i class="c74">,</i><i class="c74">9</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c04" style="--w:2"></i></div><div class="rw" style="--y:14"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">6</i><i class="c04" style="--w:1"></i><i class="c24">F</i><i class="c24">6</i><i class="c24">1</i><i class="c04" style="--w:1"></i><i class="c74 w2">河</i><i class="c74 w2">津</i><i class="c74 w2">櫻</i><i class="c74 w2">四</i><i class="c74 w2">日</i><i class="c04" style="--w:1"></i><i class="c64">4</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">5</i><i class="c74">,</i><i class="c74">6</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:3"></i><i class="c10 w2">日</i></div><div class="rw" style="--y:15"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">6</i><i class="c04" style="--w:1"></i><i class="c24">F</i><i class="c24">6</i><i class="c24">2</i><i class="c04" style="--w:1"></i><i class="c74 w2">武</i><i class="c74 w2">陵</i><i class="c74 w2">農</i><i class="c74 w2">場</i><i class="c74 w2">二</i><i class="c04" style="--w:1"></i><i class="c64">2</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">1</i><i class="c74">5</i><i class="c04" style="--w:1"></i><i class="c24">5</i><i class="c24">,</i><i class="c24">4</i><i class="c24">0</i><i class="c24">0</i><i class="c04" style="--w:6"></i></div><div class="rw" style="--y:16"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">6</i><i class="c04" style="--w:1"></i><i class="c24">F</i><i class="c24">6</i><i class="c24">3</i><i class="c04" style="--w:1"></i><i class="c74 w2">首</i><i class="c74 w2">爾</i><i class="c74 w2">鎮</i><i class="c74 w2">海</i><i class="c74 w2">四</i><i class="c04" style="--w:1"></i><i class="c64">4</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">2</i><i class="c74">2</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">2</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:5"></i></div><div class="rw" style="--y:17"><i class="c04" style="--w:1"></i><i class="c34">3</i><i class="c34">4</i><i class="c34">6</i><i class="c04" style="--w:1"></i><i class="c24">F</i><i class="c24">6</i><i class="c24">4</i><i class="c04" style="--w:1"></i><i class="c74 w2">京</i><i class="c74 w2">都</i><i class="c74 w2">嵐</i><i class="c74 w2">山</i><i class="c74 w2">五</i><i class="c04" style="--w:1"></i><i class="c64">5</i><i class="c64">D</i><i class="c04" style="--w:1"></i><i class="c74">0</i><i class="c74">2</i><i class="c74">/</i><i class="c74">2</i><i class="c74">4</i><i class="c04" style="--w:1"></i><i class="c74">2</i><i class="c74">9</i><i class="c74">,</i><i class="c74">8</i><i class="c74">0</i><i class="c74">0</i><i class="c04" style="--w:3"></i><i class="c10 w2">日</i></div><div class="rw" style="--y:18"><i class="c04" style="--w:40"></i></div><div class="rw thin" style="--y:19"><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i><i class="c00"></i></div><div class="rw" style="--y:20"><i class="c04" style="--w:1"></i><i class="c64 w2">海</i><i class="c64 w2">＝</i><i class="c64 w2">看</i><i class="c64 w2">得</i><i class="c64 w2">到</i><i class="c64 w2">海</i><i class="c64 w2">　</i><i class="c64 w2">日</i><i class="c64 w2">＝</i><i class="c64 w2">日</i><i class="c64 w2">本</i><i class="c64 w2">線</i><i class="c04" style="--w:15"></i></div><div class="rw" style="--y:21"><i class="c04" style="--w:1"></i><i class="c64 w2">團</i><i class="c64 w2">費</i><i class="c64 w2">為</i><i class="c64 w2">每</i><i class="c64 w2">人</i><i class="c64 w2">新</i><i class="c64 w2">臺</i><i class="c64 w2">幣</i><i class="c64 w2">，</i><i class="c64 w2">含</i><i class="c64 w2">稅</i><i class="c64 w2">與</i><i class="c64 w2">燃</i><i class="c64 w2">油</i><i class="c04" style="--w:11"></i></div><div class="rw" style="--y:22"><i class="c00" style="--w:40"></i></div><div class="rw" style="--y:23"><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i><i class="c07"></i></div><div class="rw" style="--y:24"><i class="c01"></i><i class="c01">1</i><i class="c01">0</i><i class="c01">0</i><i class="c01"></i><i class="c01 w2">目</i><i class="c01 w2">錄</i><i class="c01"></i><i class="c02"></i><i class="c02">3</i><i class="c02">4</i><i class="c02">1</i><i class="c02"></i><i class="c02 w2">特</i><i class="c02 w2">價</i><i class="c02"></i><i class="c00"></i><i class="c30">8</i><i class="c30">8</i><i class="c30">8</i><i class="c00"></i><i class="c30 w2">目</i><i class="c30 w2">前</i><i class="c00"></i><i class="c06"></i><i class="c06">1</i><i class="c06">9</i><i class="c06">9</i><i class="c06"></i><i class="c06 w2">本</i><i class="c06 w2">社</i><i class="c06"></i></div><div class="rw" style="--y:25"><i class="c00" style="--w:1"></i><i class="c70 w2">紅</i><i class="c70"></i><i class="c70">R</i><i class="c70">E</i><i class="c70">D</i><i class="c00" style="--w:4"></i><i class="c70 w2">綠</i><i class="c70"></i><i class="c70">G</i><i class="c70">R</i><i class="c70">N</i><i class="c00" style="--w:4"></i><i class="c30 w2">現</i><i class="c30 w2">在</i><i class="c30 w2">這</i><i class="c30 w2">頁</i><i class="c00" style="--w:2"></i><i class="c70 w2">青</i><i class="c70"></i><i class="c70">C</i><i class="c70">Y</i><i class="c70">N</i><i class="c00" style="--w:3"></i></div></div></div><nav class="tail">P889 附錄：全部團表共 2 張子頁，每 7 秒自動翻頁。</nav>
+</main>
+<script>
+(function(){
+ var RM=matchMedia('(prefers-reduced-motion:reduce)');
+ // ── ambient：表頭即時時鐘（每秒硬跳，無補間；每頁 8 格，逐格寫入）──
+ function two(n){return (n<10?'0':'')+n}
+ var ck=[].slice.call(document.querySelectorAll('i.ck'));
+ function tick(){
+  var d=new Date(),s=two(d.getHours())+':'+two(d.getMinutes())+':'+two(d.getSeconds());
+  for(var i=0;i<ck.length;i++) ck[i].textContent=s[i%8];
+ }
+ if(ck.length){tick();setInterval(tick,1000);}
+
+ // ── 子頁輪播 + 簽名動效 vbi-rowfill ──
+ document.querySelectorAll('.pg[data-carousel]').forEach(function(pg){
+  var scr=[].slice.call(pg.querySelectorAll('.tt'));
+  if(scr.length<2){pg.classList.add('js');return;}
+  pg.classList.add('js');
+  var cur=0,held=false,timer=null;
+  scr.forEach(function(s,i){s.classList.toggle('on',i===0)});
+  function garble(el){
+   if(RM.matches) return;
+   var y=2+Math.floor(Math.random()*20);
+   var d=document.createElement('div');
+   d.className='grb';d.style.setProperty('--y',y+1);
+   var h='';
+   for(var k=0;k<40;k++){h+='<i class="c'+(1+Math.floor(Math.random()*7))+(Math.random()<0.6?0:4)+'">'+
+     '█▒░▓'[Math.floor(Math.random()*4)]+'</i>';}
+   d.innerHTML=h;el.appendChild(d);
+   setTimeout(function(){d.remove()},380);
+  }
+  function go(n){
+   if(n===cur) return;
+   var old=scr[cur],nu=scr[n];
+   old.classList.add('under');nu.classList.add('on');
+   nu.classList.remove('vbi');void nu.offsetWidth;
+   if(!RM.matches){nu.classList.add('vbi');garble(nu);}
+   var done=function(){old.classList.remove('on','under');nu.classList.remove('vbi');};
+   if(RM.matches){old.classList.remove('on','under');}
+   else setTimeout(done,760);
+   cur=n;
+   pg.querySelectorAll('[data-sub]').forEach(function(t){t.textContent=String(n+1)});
+  }
+  function next(){go((cur+1)%scr.length)}
+  function start(){stop();timer=setInterval(next,7000)}
+  function stop(){if(timer){clearInterval(timer);timer=null}}
+  start();
+  var hb=pg.parentNode.querySelector('[data-hold]');
+  if(hb){hb.hidden=false;hb.addEventListener('click',function(){
+   held=!held;hb.setAttribute('aria-pressed',held?'true':'false');
+   hb.textContent=held?'HOLD 已停 · 按此恢復輪播':'HOLD 停止輪播';
+   if(held)stop();else start();
+  });}
+  pg.parentNode.querySelectorAll('[data-goto]').forEach(function(b){
+   b.hidden=false;
+   b.addEventListener('click',function(){go(+b.getAttribute('data-goto')-1);if(!held)start();});
+  });
+ });
+
+ // ── input-driven：FASTEXT 鍵與數字鍵盤反相回饋（<100ms）──
+ document.addEventListener('keydown',function(e){
+  var m={r:'k1',g:'k2',y:'k3',c:'k4'};
+  var k=m[e.key.toLowerCase()];
+  if(k&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
+   var el=document.getElementById(k);
+   if(el&&el.dataset.href){e.preventDefault();location.href=el.dataset.href;}
+  }
+ });
+})();
+
+(function(){
+var DEALS=[{"c":"A11","n":"帛琉洛克群島","sub":"水母湖＋牛奶湖","d":4,"p":17800,"dep":"02/14","s":3,"sea":1,"jp":0,"pg":341,"th":"海"},{"c":"A12","n":"宿霧薄荷島","sub":"眼鏡猴＋巧克力山","d":5,"p":15900,"dep":"02/16","s":7,"sea":1,"jp":0,"pg":341,"th":"海"},{"c":"A13","n":"石垣島三日","sub":"川平灣玻璃船","d":3,"p":12800,"dep":"02/15","s":2,"sea":1,"jp":1,"pg":341,"th":"海"},{"c":"A14","n":"長灘島五日","sub":"白沙灘＋螃蟹船","d":5,"p":21600,"dep":"02/18","s":5,"sea":1,"jp":0,"pg":341,"th":"海"},{"c":"B21","n":"合歡群峰三日","sub":"松雪樓住一晚","d":3,"p":6800,"dep":"02/14","s":9,"sea":0,"jp":0,"pg":342,"th":"山"},{"c":"B22","n":"阿里山二日","sub":"祝山日出小火車","d":2,"p":4200,"dep":"02/15","s":12,"sea":0,"jp":0,"pg":342,"th":"山"},{"c":"B23","n":"尼泊爾ABC","sub":"安納普納基地營","d":9,"p":48800,"dep":"02/20","s":2,"sea":0,"jp":0,"pg":342,"th":"山"},{"c":"B24","n":"太魯閣錐麓","sub":"古道全程＋燕子口","d":2,"p":5600,"dep":"02/16","s":6,"sea":0,"jp":0,"pg":342,"th":"山"},{"c":"C31","n":"別府湯巡五日","sub":"地獄八湯＋砂湯","d":5,"p":26800,"dep":"02/17","s":4,"sea":0,"jp":1,"pg":343,"th":"湯"},{"c":"C32","n":"礁溪湯屋一日","sub":"含來回車資與午膳","d":1,"p":1980,"dep":"02/14","s":20,"sea":0,"jp":0,"pg":343,"th":"湯"},{"c":"C33","n":"草津白根五日","sub":"湯揉表演＋滑雪","d":5,"p":23400,"dep":"02/19","s":3,"sea":0,"jp":1,"pg":343,"th":"湯"},{"c":"C34","n":"谷關泡湯二日","sub":"捎來步道＋湯屋","d":2,"p":3900,"dep":"02/15","s":8,"sea":0,"jp":0,"pg":343,"th":"湯"},{"c":"D41","n":"東京自由行","sub":"含成田來回與四晚","d":4,"p":16800,"dep":"02/14","s":6,"sea":0,"jp":1,"pg":344,"th":"城"},{"c":"D42","n":"首爾購物三日","sub":"明洞＋東大門","d":3,"p":11900,"dep":"02/15","s":10,"sea":0,"jp":0,"pg":344,"th":"城"},{"c":"D43","n":"港澳三日","sub":"太平山＋大三巴","d":3,"p":13400,"dep":"02/16","s":4,"sea":0,"jp":0,"pg":344,"th":"城"},{"c":"D44","n":"曼谷五日","sub":"大城遺跡＋水門町","d":5,"p":14600,"dep":"02/18","s":9,"sea":0,"jp":0,"pg":344,"th":"城"},{"c":"E51","n":"沖繩郵輪四日","sub":"基隆上船・免簽","d":4,"p":19800,"dep":"02/14","s":5,"sea":1,"jp":1,"pg":345,"th":"船"},{"c":"E52","n":"石垣宮古五日","sub":"兩島各停一整天","d":5,"p":24200,"dep":"02/17","s":3,"sea":1,"jp":1,"pg":345,"th":"船"},{"c":"E53","n":"基隆出發二日","sub":"公海航行・不上岸","d":2,"p":6900,"dep":"02/15","s":14,"sea":1,"jp":0,"pg":345,"th":"船"},{"c":"E54","n":"下龍灣六日","sub":"海上過夜船屋","d":6,"p":28900,"dep":"02/20","s":2,"sea":1,"jp":0,"pg":345,"th":"船"},{"c":"F61","n":"河津櫻四日","sub":"伊豆半島＋纜車","d":4,"p":25600,"dep":"02/14","s":4,"sea":0,"jp":1,"pg":346,"th":"櫻"},{"c":"F62","n":"武陵農場二日","sub":"紅粉佳人・入園證","d":2,"p":5400,"dep":"02/15","s":11,"sea":0,"jp":0,"pg":346,"th":"櫻"},{"c":"F63","n":"首爾鎮海四日","sub":"余佐川橋畔夜櫻","d":4,"p":22800,"dep":"02/22","s":6,"sea":0,"jp":0,"pg":346,"th":"櫻"},{"c":"F64","n":"京都嵐山五日","sub":"哲學之道＋渡月橋","d":5,"p":29800,"dep":"02/24","s":3,"sea":0,"jp":1,"pg":346,"th":"櫻"}];
+var TH={"341":"海島","342":"山線健行","343":"溫泉湯屋","344":"城市購物","345":"郵輪搭船","346":"賞櫻花季"};
+var BRIEFS=[{"who":"陳太太一家四位","txt":["二月十六以前出發","四天以內","每人 20,000 以內","要看得到海"],"f":{"maxDay":4,"maxP":20000,"byDate":"02/16","sea":1}},{"who":"林先生兩位","txt":["二月十五以前出發","兩天以內","每人 7,000 以內","不限主題"],"f":{"maxDay":2,"maxP":7000,"byDate":"02/15"}},{"who":"吳小姐一位","txt":["不限出發日","五天以上","每人 30,000 以內","要日本"],"f":{"minDay":5,"maxP":30000,"jp":1}}];
+var RM=matchMedia('(prefers-reduced-motion:reduce)');
+var G=document.getElementById('game'); if(!G) return;
+var rows={},sig=null;
+function build(){
+ G.innerHTML='';
+ sig=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ sig.setAttribute('id','sigil');sig.setAttribute('class','gx');
+ sig.setAttribute('viewBox','0 0 12 18');sig.setAttribute('preserveAspectRatio','none');
+ sig.setAttribute('aria-hidden','true');
+ sig.style.setProperty('--x',31);sig.style.setProperty('--y',12);
+ sig.style.setProperty('--w',6);sig.style.setProperty('--h',6);
+ G.appendChild(sig);
+ for(var y=0;y<25;y++){ if(y===2) continue;
+  var d=document.createElement('div');
+  d.className='rw'+(y===1?' dh':'');
+  d.style.setProperty('--y',y+1);
+  G.appendChild(d);rows[y]=d;
+ }
+}
+function W(c){return c.charCodeAt(0)>0x2000?2:1}
+function rbg(y){return (y>=4&&y<=20)?4:0;}
+function compose(ops,rb){
+ var g=new Array(40).fill(null),i,o,x,ch,a,w;
+ for(i=0;i<ops.length;i++){ o=ops[i];
+  if(o.fill!==undefined){ for(x=o.x;x<o.x+o.fill&&x<40;x++) g[x]={c:' ',f:0,b:o.b,w:1}; continue; }
+  x=o.x;a=Array.from(String(o.s));
+  for(var j=0;j<a.length;j++){ if(x>=40)break; ch=a[j];w=W(ch);
+   g[x]={c:ch,f:o.f,b:o.b===undefined?rb:o.b,w:w};
+   if(w===2){ if(x+1<40) g[x+1]={skip:1}; x+=2; } else x++;
+  }
+ }
+ var h='',gap=0;
+ function flush(){ if(gap){h+='<i class="c0'+rb+'" style="--w:'+gap+'"></i>';gap=0;} }
+ for(x=0;x<40;){ var c=g[x];
+  if(!c||c.skip){gap++;x++;continue;}
+  flush();
+  h+='<i class="c'+c.f+c.b+(c.w===2?' w2':'')+'">'+(c.c===' '?'':c.c)+'</i>';
+  x+=c.w;
+ }
+ flush(); return h;
+}
+function set(y,ops){ if(rows[y]) rows[y].innerHTML=compose(ops,rbg(y)); }
+function clear(y0,y1){ for(var y=y0;y<=y1;y++) set(y,[]); }
+function two(n){return (n<10?'0':'')+n}
+
+// ── 狀態 ──
+var S={brief:null,left:90,pg:null,sub:0,list:[],held:[],taken:{},mode:'idle',buf:'',msg:'',msgc:7,tuneT:0};
+var tick=null,rot=null,tune=null;
+
+function fits(d){
+ var f=S.brief.f;
+ if(f.maxDay&&d.d>f.maxDay) return '天數超過';
+ if(f.minDay&&d.d<f.minDay) return '天數不足';
+ if(f.maxP&&d.p>f.maxP) return '超出預算';
+ if(f.byDate&&d.dep>f.byDate) return '出發日太晚';
+ if(f.sea&&!d.sea) return '看不到海';
+ if(f.jp&&!d.jp) return '不是日本線';
+ return null;
+}
+function hash(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function drawSigil(seed){
+ var s=seed>>>0,out='',C=[3,6,2,5];
+ function rnd(){s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;}
+ for(var cy=0;cy<6;cy++)for(var cx=0;cx<3;cx++){
+  var m=1+Math.floor(rnd()*63),col=C[Math.floor(rnd()*4)];
+  var mir=((m&1)<<1)|((m&2)>>1)|((m&4)<<1)|((m&8)>>1)|((m&16)<<1)|((m&32)>>1);
+  out+='<use href="#x'+m+'" x="'+(cx*2)+'" y="'+(cy*3)+'" width="2" height="3" fill="'+
+       ['#000','#F00','#0F0','#FF0','#00F','#F0F','#0FF','#FFF'][col]+'"/>';
+  out+='<use href="#x'+mir+'" x="'+((5-cx)*2)+'" y="'+(cy*3)+'" width="2" height="3" fill="'+
+       ['#000','#F00','#0F0','#FF0','#00F','#F0F','#0FF','#FFF'][col]+'"/>';
+ }
+ sig.innerHTML=out; sig.classList.add('on');
+}
+
+// ── 繪製 ──
+function head(){
+ var p=S.pg?('P'+S.pg):'P888';
+ set(0,[{x:0,s:p,f:0,b:6},{x:5,s:'晚鳥假期',f:3},{x:14,s:S.pg?(S.sub+1)+'/4':'--',f:5},
+        {x:20,s:'FRI 14 FEB',f:7},{x:32,s:clockStr(),f:7}]);
+}
+function clockStr(){var d=new Date();return two(d.getHours())+':'+two(d.getMinutes())+':'+two(d.getSeconds());}
+function title(){
+ var t=S.pg&&TH[S.pg]?TH[S.pg]:'抓　頁';
+ set(1,[{x:0,fill:40,b:4},{x:2,s:t,f:3,b:4},{x:2+t.length*2+1,s:S.pg?String(S.pg):'888',f:6,b:4}]);
+}
+function briefBox(){
+ set(3,[{x:0,fill:40,b:3}]);
+ set(4,[{x:1,s:'委託單',f:6},{x:8,s:S.brief.who,f:7}]);
+ for(var i=0;i<4;i++) set(5+i,[{x:1,s:'·',f:2},{x:3,s:S.brief.txt[i],f:7}]);
+ set(9,[{x:0,fill:40,b:0}]); rows[9].className='rw thin';
+}
+function body(){
+ clear(10,16);
+ if(S.mode==='tuning'){
+  set(10,[{x:1,s:'尋頁中 '+S.buf+' …',f:3}]);
+  set(12,[{x:1,s:'圖文電視一次只播一頁，',f:6}]);
+  set(13,[{x:1,s:'你要的那一頁還沒輪到。',f:6}]);
+  return;
+ }
+ if(S.mode==='idx'){
+  set(10,[{x:1,s:'P340 索引',f:3}]);
+  var k=0;
+  for(var p in TH){ set(11+k,[{x:2,s:p,f:6},{x:7,s:TH[p],f:7},{x:22,s:'4 團',f:2}]); k++; }
+  return;
+ }
+ if(!S.pg){
+  set(10,[{x:1,s:'按數字鍵輸入三位數頁碼',f:7}]);
+  set(12,[{x:1,s:'341 342 343 344 345 346',f:3}]);
+  set(13,[{x:1,s:'340 是索引，會告訴你哪一頁',f:6}]);
+  set(14,[{x:1,s:'放什麼主題。',f:6}]);
+  return;
+ }
+ var d=S.list[S.sub];
+ if(!d){ set(10,[{x:1,s:'本頁無資料',f:1,b:0}]); return; }
+ set(10,[{x:1,s:'P'+S.pg,f:6},{x:6,s:TH[S.pg],f:7},{x:18,s:'子頁 '+(S.sub+1)+'/4',f:3}]);
+ var tk=S.taken[d.c];
+ set(12,[{x:1,s:d.c,f:3},{x:5,s:d.n,f:tk?2:7},{x:33,s:'餘'+d.s,f:d.s<=3?1:2,b:d.s<=3?0:4}]);
+ set(13,[{x:5,s:d.sub,f:6}]);
+ set(14,[{x:5,s:d.d+'天',f:2},{x:10,s:d.dep,f:3},{x:18,s:'NT$'+d.p,f:7},{x:30,s:d.sea?'有海':'',f:6}]);
+ var why=fits(d);
+ if(tk) set(15,[{x:5,s:'已經收下了',f:2}]);
+ else if(why) set(15,[{x:5,s:'不符：'+why,f:1,b:0}]);
+ else set(15,[{x:5,s:'符合委託單　按綠鍵收下',f:2}]);
+}
+function foot(){
+ set(17,[{x:0,fill:40,b:0}]); rows[17].className='rw thin';
+ set(18,[{x:1,s:'已收下',f:6},{x:9,s:S.held.length+'/3',f:S.held.length===3?2:3}]);
+ var ops=[],x=1;
+ for(var i=0;i<3;i++){
+  var h=S.held[i];
+  ops.push({x:x,s:h?h.c:'---',f:h?2:6});
+  if(h) ops.push({x:x+4,s:h.n.slice(0,4),f:7});
+  x+=13;
+ }
+ set(19,ops);
+ var bar=[];
+ for(var j=0;j<3;j++) bar.push({x:1+j*13,fill:12,b:S.held[j]?2:0});
+ set(20,[]);
+ set(21,[{x:1,s:'剩',f:6},{x:3,s:two(Math.floor(S.left/60))+':'+two(S.left%60),f:S.left<=15?1:7},
+         {x:10,s:'輸入 '+(S.buf.padEnd?S.buf.padEnd(3,'_'):(S.buf+'___').slice(0,3)),f:3},
+         {x:20,s:S.msg,f:S.msgc}]);
+ if(S.left<=15&&S.mode!=='over'&&S.mode!=='win') rows[21].className='rw fl'; else rows[21].className='rw';
+}
+function paint(){head();title();briefBox();body();foot();}
+
+function say(m,c){S.msg=m;S.msgc=c||7;foot();}
+
+function stopAll(){ if(rot){clearInterval(rot);rot=null;} if(tune){clearTimeout(tune);tune=null;} }
+function rowfill(){
+ if(RM.matches) return;
+ G.classList.remove('vbi'); void G.offsetWidth; G.classList.add('vbi');
+ setTimeout(function(){G.classList.remove('vbi');},760);
+}
+function tuneTo(p){
+ stopAll(); S.mode='tuning'; paint(); rowfill();
+ var wait=1300+Math.floor(Math.random()*700);
+ tune=setTimeout(function(){
+  if(p===340){ S.mode='idx'; S.pg=null; S.buf=''; paint(); rowfill(); return; }
+  S.pg=p; S.sub=0; S.list=DEALS.filter(function(d){return d.pg===p;});
+  S.mode='page'; S.buf=''; paint(); rowfill();
+  rot=setInterval(function(){ S.sub=(S.sub+1)%Math.max(1,S.list.length); paint(); rowfill(); },4200);
+ },wait);
+}
+function digit(n){
+ if(S.mode==='idle'||S.mode==='win'||S.mode==='over') return;
+ S.buf=(S.buf+n).slice(-3); foot();
+ if(S.buf.length===3){
+  var p=parseInt(S.buf,10);
+  if(p===340||TH[p]) tuneTo(p);
+  else { say('沒有這一頁',1); S.buf=''; }
+ }
+}
+function take(){
+ if(S.mode!=='page') { say('還沒有頁面',1); return; }
+ var d=S.list[S.sub]; if(!d) return;
+ if(S.taken[d.c]){ say('已收過了',4); return; }
+ var why=fits(d);
+ if(why){ S.left=Math.max(0,S.left-10); say('退件 −10 秒',1); paint(); if(S.left===0) lose(); return; }
+ S.taken[d.c]=1; S.held.push(d); say('收下 '+d.c,2); paint();
+ if(S.held.length===3) win();
+}
+function win(){
+ stopAll(); if(tick){clearInterval(tick);tick=null;} S.mode='win';
+ var tot=S.held.reduce(function(a,b){return a+b.p;},0);
+ var code=S.held.map(function(d){return d.c;}).join('');
+ var hv=hash(code+S.brief.who+S.left);
+ var no='W'+('00000'+(hv%99991)).slice(-5);
+ var lv = S.left>=40?['老手訂位員','四十秒以上還有剩，這一段廣告你只用了一半',2]
+        : S.left>=20?['熟手','趕在廣告結束前收完，客人不會發現你在找',3]
+        : ['末班','再慢一秒就要重播了',1];
+ clear(10,21); sig.classList.remove('on');
+ set(3,[{x:0,fill:40,b:2}]);
+ set(4,[{x:1,s:'訂位回條',f:0,b:2},{x:10,s:'BOOKING SLIP',f:0,b:2}]);
+ clear(5,9);
+ set(5,[{x:1,s:'編號',f:6},{x:6,s:no,f:7},{x:20,s:'受理',f:6},{x:25,s:'林國榮',f:7}]);
+ set(6,[{x:1,s:'委託',f:6},{x:6,s:S.brief.who,f:7}]);
+ set(7,[{x:0,fill:40,b:0}]); rows[7].className='rw thin';
+ for(var i=0;i<3;i++){ var d=S.held[i];
+  set(8+i*2,[{x:1,s:d.c,f:3},{x:5,s:d.n,f:7},{x:26,s:'NT$'+d.p,f:2}]);
+  set(9+i*2,[{x:5,s:'P'+d.pg+' '+d.d+'天 '+d.dep+' 出發',f:6}]);
+ }
+ set(14,[{x:0,fill:40,b:0}]); rows[14].className='rw thin';
+ set(15,[{x:1,s:'合計',f:6},{x:6,s:'NT$'+tot,f:3},{x:18,s:'剩餘',f:6},{x:23,s:two(Math.floor(S.left/60))+':'+two(S.left%60),f:7}]);
+ set(16,[{x:1,s:'判詞',f:6},{x:6,s:lv[0],f:lv[2],b:lv[2]===1?0:4}]);
+ set(17,[{x:1,s:lv[1],f:7}]);
+ set(19,[{x:1,s:'訂金每人 3,000 · 電話 2425-3417',f:6}]);
+ set(20,[]);
+ set(21,[{x:1,s:'按黃鍵再抓一單',f:3}]);
+ drawSigil(hv);
+ head();title();
+ btn.start.textContent='再抓一單'; btn.start.disabled=false;
+ history.replaceState(null,'','?b='+code.toLowerCase());
+}
+function lose(){
+ stopAll(); if(tick){clearInterval(tick);tick=null;} S.mode='over';
+ clear(10,21);
+ set(10,[{x:1,s:'這一段廣告播完了',f:1,b:0}]);
+ set(12,[{x:1,s:'你收下 '+S.held.length+' 個，還差 '+(3-S.held.length)+' 個。',f:7}]);
+ set(13,[{x:1,s:'下次先按 340 看索引，',f:6}]);
+ set(14,[{x:1,s:'再決定要等哪一頁。',f:6}]);
+ set(21,[{x:1,s:'按黃鍵重來',f:3}]);
+ btn.start.textContent='重來一次'; btn.start.disabled=false;
+}
+function start(){
+ stopAll(); if(tick){clearInterval(tick);tick=null;}
+ sig.classList.remove('on');
+ for(var y=0;y<25;y++) if(rows[y]) rows[y].className='rw'+(y===1?' dh':'');
+ S.brief=BRIEFS[Math.floor(Math.random()*BRIEFS.length)];
+ S.left=90;S.pg=null;S.sub=0;S.list=[];S.held=[];S.taken={};S.mode='wait';S.buf='';S.msg='';S.msgc=7;
+ set(22,[{x:0,fill:40,b:7}]);
+ fastextRow();
+ paint(); rowfill();
+ btn.start.textContent='重新開始'; 
+ tick=setInterval(function(){ S.left--; if(S.left<=0){S.left=0;foot();lose();} else foot(); },1000);
+}
+function fastextRow(){
+ var K=[['100','目錄',1,'index.html'],['341','特價',2,'deals.html'],['888','目前',3,null],['199','本社',6,'about.html']];
+ var o1=[],o2=[];
+ for(var i=0;i<4;i++){ var k=K[i],on=!k[3];
+  o1.push({x:i*10,fill:10,b:on?0:k[2]});
+  o1.push({x:i*10+1,s:k[0],f:on?k[2]:0,b:on?0:k[2]});
+  o1.push({x:i*10+5,s:k[1],f:on?k[2]:0,b:on?0:k[2]});
+  o2.push({x:i*10+1,s:on?'現在這頁':['紅 RED','綠 GRN','黃 YLW','青 CYN'][i],f:on?k[2]:7});
+ }
+ set(23,o1); set(24,o2);
+}
+// ── 遙控器 ──
+var btn={};
+build(); 
+(function(){
+ var host=document.getElementById('remote');
+ var h='';
+ for(var n=1;n<=9;n++) h+='<button class="num" data-d="'+n+'">'+n+'</button>';
+ h+='<button class="num" data-d="0">0</button>';
+ h+='<button class="ylw" id="b-idx">340 索引</button>';
+ h+='<button class="red" id="b-clr">清除</button>';
+ h+='<button class="grn" id="b-take">綠鍵　收下</button>';
+ h+='<button class="ylw" id="b-start">開始</button>';
+ h+='<button id="b-help">說明</button>';
+ host.innerHTML=h;
+ host.querySelectorAll('[data-d]').forEach(function(b){
+  b.addEventListener('click',function(){digit(b.getAttribute('data-d'));});
+ });
+ btn.start=document.getElementById('b-start');
+ btn.start.addEventListener('click',start);
+ document.getElementById('b-take').addEventListener('click',take);
+ document.getElementById('b-idx').addEventListener('click',function(){ if(S.mode!=='idle') tuneTo(340); });
+ document.getElementById('b-clr').addEventListener('click',function(){S.buf='';foot();});
+ document.getElementById('b-help').addEventListener('click',function(){
+  if(S.mode==='idle') return;
+  clear(10,16);
+  set(10,[{x:1,s:'一　看委託單四個條件',f:7}]);
+  set(11,[{x:1,s:'二　輸入三位數頁碼，等它播到',f:7}]);
+  set(12,[{x:1,s:'三　綠鍵收下三個都符合的團',f:7}]);
+  set(14,[{x:1,s:'340 是索引。收錯扣十秒。',f:3}]);
+ });
+})();
+// 鍵盤（攔在共用快捷鍵之前）
+document.addEventListener('keydown',function(e){
+ if(S.mode==='idle') return;
+ if(e.metaKey||e.ctrlKey||e.altKey) return;
+ if(e.key>='0'&&e.key<='9'){e.stopImmediatePropagation();e.preventDefault();digit(e.key);
+  var b=document.querySelector('[data-d="'+e.key+'"]');if(b){b.classList.add('dn');setTimeout(function(){b.classList.remove('dn')},90);}return;}
+ if(e.key==='Enter'||e.key===' '){ if(document.activeElement&&document.activeElement.tagName==='BUTTON') return;
+  e.stopImmediatePropagation();e.preventDefault();take();return;}
+ if(e.key==='g'||e.key==='G'){e.stopImmediatePropagation();e.preventDefault();take();}
+},true);
+// 開場：待機畫面
+S.mode='idle';
+(function idle(){
+ set(0,[{x:0,s:'P888',f:0,b:6},{x:5,s:'晚鳥假期',f:3},{x:14,s:'1/1',f:5},
+        {x:20,s:'FRI 14 FEB',f:7},{x:32,s:clockStr(),f:7}]);
+ setInterval(function(){ if(rows[0]) set(0,[{x:0,s:S.pg?'P'+S.pg:'P888',f:0,b:6},{x:5,s:'晚鳥假期',f:3},
+   {x:14,s:S.pg?(S.sub+1)+'/4':'1/1',f:5},{x:20,s:'FRI 14 FEB',f:7},{x:32,s:clockStr(),f:7}]); },1000);
+ set(1,[{x:0,fill:40,b:4},{x:2,s:'抓　頁',f:3,b:4},{x:11,s:'CATCH THE PAGE',f:6,b:4}]);
+ set(3,[{x:0,fill:40,b:3}]);
+ set(4,[{x:1,s:'規則三句話',f:6}]);
+ set(6,[{x:1,s:'一　看委託單上的四個條件。',f:7}]);
+ set(8,[{x:1,s:'二　按數字鍵輸入三位數頁碼，',f:7}]);
+ set(9,[{x:1,s:'　　等它播到；子頁自己翻。',f:7}]);
+ set(11,[{x:1,s:'三　九十秒內用綠鍵收下三個',f:7}]);
+ set(12,[{x:1,s:'　　都符合的團。收錯扣十秒。',f:7}]);
+ set(14,[{x:0,fill:40,b:0}]); rows[14].className='rw thin';
+ set(15,[{x:1,s:'二十四個團散在 341–346 六個頁',f:3}]);
+ set(16,[{x:1,s:'碼、各四張子頁裡。340 是索引。',f:3}]);
+ set(18,[{x:1,s:'這個遊戲唯一的成本是「等」。',f:6}]);
+ set(21,[{x:0,fill:40,b:2},{x:1,s:'按下方綠鍵「開始」即開播',f:0,b:2}]);
+ set(22,[{x:0,fill:40,b:7}]);
+ fastextRow();
+})();
+})();
+</script>
+</body>
+</html>

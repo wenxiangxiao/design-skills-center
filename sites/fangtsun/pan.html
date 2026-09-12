@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>六六方｜方寸釦廠</title>
+<meta name="description" content="六六方是方寸釦廠排卡的老練習：與釘卡師傅何清和輪流在三十六格的扣卡上釘扣，圍出材質相間的方就得分。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23F2F0E9'/%3E%3Cg fill='%2317171B'%3E%3Crect width='8' height='8'/%3E%3Crect x='16' width='8' height='8'/%3E%3Crect y='16' width='8' height='8'/%3E%3Crect x='16' y='16' width='8' height='8'/%3E%3C/g%3E%3Ccircle cx='12' cy='12' r='4' fill='%23B08A2E'/%3E%3Crect x='1' y='1' width='22' height='22' fill='none' stroke='%2317171B' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700&family=Noto+Sans+TC:wght@400;500;900&display=swap" rel="stylesheet">
+<style>
+/* 方寸釦廠 — 維也納分離派 共用樣式。格是唯一的單位。 */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--u:24px;--t:24px;--wpct:92vw;--wmax:1128px;
+--wall:min(var(--wpct),var(--wmax));
+--w:#F2F0E9;--k:#17171B;--g:#1E6E63;--au:#B08A2E;--sh:#C9C4B4;
+--f:"Noto Sans TC",system-ui,sans-serif;--l:"Jost","Noto Sans TC",sans-serif}
+@supports (width:round(down,10px,3px)){:root{--wall:round(down,min(var(--wpct),var(--wmax)),var(--u))}}
+@media(max-width:840px){:root{--u:20px;--t:22px}}
+@media(max-width:560px){:root{--u:16px;--t:21px;--wpct:94vw}}
+html{background:var(--k);-webkit-text-size-adjust:100%}
+body{background:var(--w);color:var(--k);font-family:var(--f);font-size:15px;line-height:1.95;
+font-weight:400;text-rendering:optimizeLegibility}
+svg{display:block}
+a{color:var(--g);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--au);outline-offset:2px}
+.wrap{width:var(--wall);margin:0 auto}
+.hid{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* — 特徵 2：黑白棋盤格帶 Gitterwerk — */
+.chk{--c:calc(var(--u)*2);height:var(--u);background-color:var(--w);
+background-image:linear-gradient(45deg,var(--k) 25%,transparent 25%,transparent 75%,var(--k) 75%),
+linear-gradient(45deg,var(--k) 25%,transparent 25%,transparent 75%,var(--k) 75%);
+background-size:var(--c) var(--c);background-position:0 0,var(--u) var(--u);
+transition:background-color .3s steps(2)}
+.chk.jump{background-color:var(--au)}
+.chk.h2{height:calc(var(--u)*2)}
+.chk.inv{background-color:var(--k);background-image:linear-gradient(45deg,var(--w) 25%,transparent 25%,transparent 75%,var(--w) 75%),linear-gradient(45deg,var(--w) 25%,transparent 25%,transparent 75%,var(--w) 75%)}
+
+/* — 頁首與 inlay-square 嵌方導覽 — */
+.hd{width:var(--wall);margin:0 auto;display:flex;align-items:flex-end;
+gap:var(--u);padding:calc(var(--u)*1.25) 0 calc(var(--u)*.75)}
+.mark{width:calc(var(--u)*2.5);height:calc(var(--u)*2.5);flex:none}
+.bn{flex:1;min-width:0}
+.bn b{display:block;font-weight:900;font-size:calc(var(--t)*.95);letter-spacing:.3em;line-height:1.05}
+.bn em{display:block;font-style:normal;font-family:var(--l);font-weight:400;
+font-size:calc(var(--t)*.42);letter-spacing:.34em;color:var(--g);margin-top:5px;text-transform:uppercase}
+.inlay{display:grid;grid-template-columns:repeat(4,calc(var(--u)*2.4));flex:none}
+.cel{position:relative;aspect-ratio:1;display:grid;place-items:center;
+text-decoration:none;color:inherit;isolation:isolate}
+.cel:nth-child(odd){background:var(--k);color:var(--w)}
+.cel:nth-child(even){background:var(--w);color:var(--k);box-shadow:inset 0 0 0 2px var(--k)}
+.cel i{position:absolute;inset:20%;background:var(--au);z-index:-1;
+transform:scale(0);transition:transform .12s steps(3)}
+.cel:hover i,.cel:focus-visible i{transform:scale(.46)}
+.cel[aria-current=page] i{transform:scale(1)}
+.cel[aria-current=page]{color:var(--k)}
+.cel em{font-style:normal;font-size:calc(var(--t)*.52);font-weight:500;letter-spacing:.1em}
+.navnote{width:var(--wall);margin:0 auto;font-family:var(--l);font-size:calc(var(--t)*.4);
+letter-spacing:.26em;color:var(--g);text-align:right;padding-bottom:calc(var(--u)*.4)}
+
+/* — 特徵 3：塞進方格的方體字 — */
+.sqline{display:grid;grid-auto-flow:column;justify-content:start;line-height:1}
+.sqline b{display:grid;place-items:center;aspect-ratio:1;width:var(--cw,calc(var(--u)*2));
+font-weight:900;font-size:calc(var(--cw,calc(var(--u)*2))*.84);letter-spacing:0}
+.sqline b.o{background:var(--k);color:var(--w)}
+.lat{font-family:var(--l);font-weight:500;text-transform:uppercase;letter-spacing:.4em}
+
+/* — 特徵 4：留白即結構。標題與段落 — */
+h1,h2,h3{font-weight:900;letter-spacing:.14em;line-height:1.35}
+h2{font-size:calc(var(--t)*.95);margin-bottom:calc(var(--u)*.6)}
+h3{font-size:calc(var(--t)*.66);letter-spacing:.2em}
+.sec{padding:calc(var(--u)*2) 0}
+.rule{height:3px;background:var(--k);width:100%}
+.kicker{font-family:var(--l);font-size:calc(var(--t)*.42);letter-spacing:.36em;
+text-transform:uppercase;color:var(--g);display:block;margin-bottom:calc(var(--u)*.4)}
+p{max-width:34em}
+p+p{margin-top:calc(var(--u)*.6)}
+.tiny{font-size:calc(var(--t)*.52);line-height:1.8;color:#3B3B40}
+.num{font-family:var(--l);font-variant-numeric:tabular-nums}
+
+/* — 表格：格紙上的資訊 — */
+table{border-collapse:collapse;width:100%;font-size:calc(var(--t)*.58)}
+th,td{border:2px solid var(--k);padding:calc(var(--u)*.32) calc(var(--u)*.42);text-align:left;vertical-align:top}
+th{background:var(--k);color:var(--w);font-weight:500;letter-spacing:.16em;white-space:nowrap}
+tbody tr:nth-child(even) td{background:#E8E5DC}
+td.n{font-family:var(--l);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+
+/* — 扣的圖版：方中圓 — */
+.plate{width:100%;aspect-ratio:1;background:var(--w);box-shadow:inset 0 0 0 3px var(--k);
+position:relative;display:grid;place-items:center;isolation:isolate;
+border:0;padding:0;cursor:pointer;overflow:hidden}
+.plate:hover{background:var(--w)}
+.plate svg{width:74%;height:74%}
+.plate .gold{position:absolute;left:3px;top:3px;width:var(--u);height:var(--u);
+background:var(--au);transform:scale(0);transform-origin:0 0;transition:transform .11s steps(3)}
+.plate:hover .gold,.plate:focus-visible .gold{transform:scale(1)}
+
+/* — 按鈕：方的，無圓角，無模糊陰影 — */
+button,.btn{font:inherit;font-weight:500;letter-spacing:.16em;color:var(--k);background:var(--w);
+border:3px solid var(--k);padding:calc(var(--u)*.4) calc(var(--u)*.8);cursor:pointer;
+text-decoration:none;display:inline-grid;place-items:center;
+transition:background-color .1s steps(2),color .1s steps(2)}
+button:hover,.btn:hover{background:var(--au)}
+button[disabled]{cursor:not-allowed;color:#8C8A84;border-color:#8C8A84;background:var(--w)}
+button[disabled]:hover{background:var(--w)}
+.btn.dark,button.dark{background:var(--k);color:var(--w)}
+.btn.dark:hover,button.dark:hover{background:var(--g)}
+
+/* — 特徵 5：月桂與金 — */
+.lau{width:calc(var(--u)*1.4);height:calc(var(--u)*1.4);color:var(--au);flex:none}
+
+/* — popover：扣的規格卡（Baseline 2024，不支援時直接內嵌於文件流） — */
+[popover]{border:0;padding:calc(var(--u)*1);background:var(--w);color:var(--k);
+box-shadow:inset 0 0 0 3px var(--k);width:min(92vw,calc(var(--u)*20));margin-top:calc(var(--u)*.5)}
+@supports selector(:popover-open){
+[popover]{position:fixed;inset:0;margin:auto;height:fit-content;opacity:0;transform:scale(.94);
+transition:opacity .2s,transform .2s steps(4),overlay .2s allow-discrete,display .2s allow-discrete}
+[popover]:popover-open{opacity:1;transform:scale(1)}
+@starting-style{[popover]:popover-open{opacity:0;transform:scale(.94)}}
+[popover]::backdrop{background:rgba(23,23,27,.6)}}
+@supports not (transition-behavior:allow-discrete){[popover]{transition:none;opacity:1;transform:none}}
+.pop-x{position:absolute;top:0;right:0;width:calc(var(--u)*1.6);height:calc(var(--u)*1.6);
+border:0;border-left:3px solid var(--k);border-bottom:3px solid var(--k);padding:0;background:var(--k);color:var(--w)}
+.pop-x:hover{background:var(--au);color:var(--k)}
+
+/* — 轉場動效：棋盤格推移 — */
+.rv{animation:rv .5s steps(8) both}
+@keyframes rv{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* — 頁尾 — */
+footer{background:var(--g);color:var(--w);margin-top:calc(var(--u)*2)}
+footer a{color:var(--w)}
+footer .wrap{padding:calc(var(--u)*1.6) 0 calc(var(--u)*1.2)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:calc(var(--u)*1)}
+.fgrid h3{font-size:calc(var(--t)*.5);letter-spacing:.3em;margin-bottom:calc(var(--u)*.4)}
+.fgrid p,.fgrid li{font-size:calc(var(--t)*.55);line-height:1.85}
+.fgrid ul{list-style:none}
+.fnote{margin-top:calc(var(--u)*1);font-size:calc(var(--t)*.5);opacity:.85}
+
+/* — 量化讀數（簽名動效的儀錶） — */
+.gauge{position:fixed;right:0;top:0;z-index:40;background:var(--k);color:var(--w);
+font-family:var(--l);font-size:11px;letter-spacing:.2em;padding:6px 9px;pointer-events:none}
+@media(max-width:560px){.gauge{display:none}}
+
+@media(max-width:430px){
+.hd{gap:calc(var(--u)*.6);padding:calc(var(--u)*.9) 0 calc(var(--u)*.6)}
+.mark{width:calc(var(--u)*2);height:calc(var(--u)*2)}
+.bn em{display:none}
+.bn b{font-size:16px;letter-spacing:.16em}
+.inlay{grid-template-columns:repeat(4,calc(var(--u)*2))}
+.cel em{font-size:11px;letter-spacing:.02em}
+.navnote{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+*,*::before,*::after{animation:none!important;transition-duration:.001s!important}}
+/* 六六方 */
+.game{display:grid;grid-template-columns:minmax(0,calc(var(--u)*19)) minmax(0,1fr);
+gap:calc(var(--u)*1.5);align-items:start}
+.boardwrap{position:static}
+.boardbox{position:relative}
+.bd{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;
+background:var(--k);padding:3px;width:100%}
+.cl{aspect-ratio:1;display:grid;place-items:center;background:#DAD6CB;border:0;padding:0;
+cursor:pointer;position:relative;transition:background-color .09s steps(2)}
+.cl:hover{background:#CFCABC}
+.cl.ok::after{content:"";position:absolute;width:34%;height:34%;background:var(--au)}
+.cl.ok:hover{background:#CFCABC}
+.cl[disabled]{cursor:default;border:0;color:var(--k)}
+.cl.pg,.cl.pg[disabled],.cl.pg:hover{background:var(--au)}
+.cl.pk,.cl.pk[disabled],.cl.pk:hover{background:var(--w)}
+.cl svg{width:84%;height:84%;transform:scale(1);transition:transform .17s steps(4)}
+@starting-style{.cl svg{transform:scale(.15)}}
+.qlayer{position:absolute;inset:3px;display:grid;grid-template-columns:repeat(6,1fr);
+grid-template-rows:repeat(6,1fr);gap:2px;pointer-events:none}
+.qlayer i{place-self:center;width:calc(var(--u)*1.1);height:calc(var(--u)*1.1);display:grid;
+place-items:center;background:var(--k)}
+.qlayer i svg{width:80%;height:80%;color:var(--au)}
+.qlayer i.mine{background:var(--au)}
+.qlayer i.mine svg{color:var(--k)}
+
+.side{display:grid;gap:calc(var(--u)*.8);align-content:start}
+.score{display:grid;grid-template-columns:1fr 1fr;border:3px solid var(--k)}
+.score div{padding:calc(var(--u)*.6)}
+.score div+div{border-left:3px solid var(--k)}
+.score div.me{background:var(--au)}
+.score div.ma{background:var(--k);color:var(--w)}
+.score b{display:block;font-family:var(--l);font-size:calc(var(--t)*.42);letter-spacing:.24em}
+.score span{display:block;font-family:var(--l);font-size:calc(var(--t)*1.6);
+font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+.turn{border:3px solid var(--k);padding:calc(var(--u)*.55) calc(var(--u)*.7);
+font-size:calc(var(--t)*.55);min-height:calc(var(--u)*3.2);line-height:1.7}
+.turn.wait{background:var(--k);color:var(--w)}
+.turn.bad{background:var(--au)}
+
+.picker{display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--u)*.4)}
+.pk{border:3px solid var(--k);background:var(--w);padding:calc(var(--u)*.25);display:grid;
+gap:3px;justify-items:center;cursor:pointer}
+.pk svg{width:100%;height:auto;aspect-ratio:1}
+.pk span{font-family:var(--l);font-size:calc(var(--t)*.38);letter-spacing:.06em}
+.pk[aria-pressed=true]{background:var(--au)}
+.pk:hover{background:var(--au)}
+.pk[disabled]{opacity:.4;cursor:not-allowed;background:var(--w)}
+
+.rules{border:3px solid var(--k);padding:calc(var(--u)*.7)}
+.rules ol{margin:0 0 0 1.2em;font-size:calc(var(--t)*.55);line-height:1.8}
+.rules h3{margin-bottom:calc(var(--u)*.35)}
+.acts{display:flex;gap:calc(var(--u)*.4);flex-wrap:wrap}
+
+/* 結果：display 的離散轉場（transition-behavior:allow-discrete） */
+.result{display:none;opacity:0;transform:translateY(calc(var(--u)*-.6));
+transition:display .3s allow-discrete,opacity .3s,transform .3s steps(4)}
+.result.on{display:block;opacity:1;transform:translateY(0)}
+@starting-style{.result.on{opacity:0;transform:translateY(calc(var(--u)*-.6))}}
+@supports not (transition-behavior:allow-discrete){.result{opacity:1;transform:none;transition:none}}
+.result .box{border:3px solid var(--k);padding:calc(var(--u)*1.2)}
+.result .box.win{background:var(--au)}
+.result h2{margin-bottom:calc(var(--u)*.5)}
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:calc(var(--u)*.8);margin:calc(var(--u)*.8) 0}
+.rgrid div b{display:block;font-family:var(--l);font-size:calc(var(--t)*.4);letter-spacing:.22em;color:#3B3B40}
+.result .box.win .rgrid div b{color:#4A3C12}
+.rgrid div span{display:block;font-family:var(--l);font-size:calc(var(--t)*1.1);font-weight:500;line-height:1.2}
+.code{font-family:var(--l);font-size:calc(var(--t)*.5);word-break:break-all;background:var(--k);
+color:var(--w);padding:calc(var(--u)*.4) calc(var(--u)*.5);display:block}
+.saidbox{display:flex;gap:calc(var(--u)*.8);align-items:flex-start;margin-top:calc(var(--u)*.6)}
+.saidbox p{font-size:calc(var(--t)*.62);line-height:1.85}
+
+.readonly{border:3px solid var(--g);padding:calc(var(--u)*.6);margin-bottom:calc(var(--u)*1);
+font-size:calc(var(--t)*.55)}
+
+@media(max-width:900px){
+.game{grid-template-columns:1fr}
+.picker{grid-template-columns:repeat(8,1fr)}
+.rgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+.picker{grid-template-columns:repeat(4,1fr)}
+.qlayer i{width:calc(var(--u)*1);height:calc(var(--u)*1)}
+}
+</style>
+</head>
+<body>
+<svg class="hid" aria-hidden="true" focusable="false"><defs>
+<clipPath id="cc"><circle cx="12" cy="12" r="9"/></clipPath>
+<symbol id="f-shell" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="#F2F0E9" stroke="#17171B" stroke-width="1.8"/><g fill="#17171B"><rect x="5.8" y="5.8" width="2.6" height="2.6"/><rect x="15.6" y="5.8" width="2.6" height="2.6"/><rect x="5.8" y="15.6" width="2.6" height="2.6"/><rect x="15.6" y="15.6" width="2.6" height="2.6"/></g></symbol>
+<symbol id="f-coco" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="#F2F0E9" stroke="#17171B" stroke-width="1.8"/><g fill="#17171B"><rect x="6.6" y="6.6" width="2.6" height="2.6"/><rect x="10.7" y="10.7" width="2.6" height="2.6"/><rect x="14.8" y="14.8" width="2.6" height="2.6"/></g></symbol>
+<symbol id="f-horn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="#F2F0E9" stroke="#17171B" stroke-width="1.8"/><rect x="3" y="3" width="9" height="18" fill="#17171B" clip-path="url(#cc)"/></symbol>
+<symbol id="f-bake" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="#17171B" stroke="#17171B" stroke-width="1.8"/></symbol>
+<symbol id="h-2" viewBox="0 0 24 24"><g fill="#F2F0E9" stroke="#17171B" stroke-width="1.3"><circle cx="8.6" cy="12" r="1.9"/><circle cx="15.4" cy="12" r="1.9"/></g></symbol>
+<symbol id="h-4" viewBox="0 0 24 24"><g fill="#F2F0E9" stroke="#17171B" stroke-width="1.3"><circle cx="8.8" cy="8.8" r="1.7"/><circle cx="15.2" cy="8.8" r="1.7"/><circle cx="8.8" cy="15.2" r="1.7"/><circle cx="15.2" cy="15.2" r="1.7"/></g></symbol>
+<symbol id="h-s" viewBox="0 0 24 24"><rect x="9.2" y="9.2" width="5.6" height="5.6" fill="#F2F0E9" stroke="#17171B" stroke-width="1.3"/></symbol>
+<symbol id="lau" viewBox="0 0 24 24"><g fill="currentColor"><rect x="11" y="2" width="2" height="20"/><rect x="5.5" y="5" width="3" height="3"/><rect x="7" y="9" width="3" height="3"/><rect x="8.5" y="13" width="3" height="3"/><rect x="15.5" y="7" width="3" height="3"/><rect x="14" y="11" width="3" height="3"/><rect x="12.5" y="15" width="3" height="3"/><rect x="8.5" y="19.5" width="2" height="2"/><rect x="13.5" y="19.5" width="2" height="2"/><rect x="11" y="22" width="2" height="2"/></g></symbol>
+<symbol id="mark" viewBox="0 0 24 24"><rect width="24" height="24" fill="#F2F0E9"/><g fill="#17171B"><rect x="0" y="0" width="8" height="8"/><rect x="16" y="0" width="8" height="8"/><rect x="0" y="16" width="8" height="8"/><rect x="16" y="16" width="8" height="8"/></g><circle cx="12" cy="12" r="4" fill="#B08A2E"/><rect x="1" y="1" width="22" height="22" fill="none" stroke="#17171B" stroke-width="2"/></symbol>
+</defs></svg>
+<header class="hd">
+<a class="mark" href="index.html" aria-label="方寸釦廠 首頁"><svg viewBox="0 0 24 24"><use href="#mark"/></svg></a>
+<div class="bn"><b>方寸釦廠</b><em>Fang-Tsun Button Works</em></div>
+<nav class="inlay" aria-label="主導覽">
+<a class="cel" href="index.html" data-k="index"><i></i><em>門面</em></a>
+<a class="cel" href="kou.html" data-k="kou"><i></i><em>扣籍</em></a>
+<a class="cel" href="pan.html" aria-current="page"><i></i><em>六六方</em></a>
+<a class="cel" href="chang.html" data-k="chang"><i></i><em>廠事</em></a>
+</nav>
+</header>
+<p class="navnote">現用的那一格被鑲上金</p>
+<div class="chk"></div>
+<div class="gauge" id="gz">牆寬 47 格 · 格 24PX</div>
+
+<main>
+<section class="wrap sec rv" aria-labelledby="h-pan">
+  <span class="kicker">Das Feldspiel</span>
+  <h1 id="h-pan">六六方</h1>
+  <p style="margin-bottom:calc(var(--u)*1.2)">廠裡排卡的老練習。一張卡三十六格，你跟釘卡師傅何清和輪流往上釘扣——你釘的格底是金的，他釘的是白的。誰先湊出五個「材質相間的方」就贏。贏的那張卡掛到門口的陳列窗。</p>
+
+  <div id="ro" class="readonly" hidden></div>
+
+  <noscript>
+    <div class="rules" style="margin-bottom:calc(var(--u)*1.2)">
+      <h3>這一頁的對局需要 JavaScript</h3>
+      <p style="font-size:calc(var(--u)*.55)">沒有 JavaScript 也玩得成，只是要用紙的：規則、八顆扣的材質與孔式、計分方式全部印在下面，畫一張六乘六的格子就能對打。廠裡本來就是這樣教學徒的。門口<a href="index.html">陳列窗</a>那張樣卡是靜態的，關掉 JavaScript 一樣看得見。</p>
+    </div>
+  </noscript>
+
+  <div class="game">
+    <div class="boardwrap">
+      <div class="boardbox">
+        <div class="bd" id="bd" role="grid" aria-label="六六方扣卡，六列六行"></div>
+        <div class="qlayer" id="ql" aria-hidden="true"></div>
+      </div>
+      <p class="tiny" style="margin-top:calc(var(--u)*.5)">金框小方＝可以釘的位置（先選一顆扣才會出現）。格上的墨方或金方＝一個已經成立的相間方，方裡那枚月桂是誰圍成的就歸誰。</p>
+    </div>
+
+    <div class="side">
+      <div class="score">
+        <div class="me"><b>DU / 你</b><span id="s0">0</span></div>
+        <div class="ma"><b>MEISTER / 何師傅</b><span id="s1">0</span></div>
+      </div>
+      <p class="turn" id="msg">先在下面揀一顆扣，再點卡上的空格。第一手隨便釘，怎麼都合法。</p>
+      <div class="picker" id="pick" role="group" aria-label="本季八扣，揀一顆"></div>
+      <div class="acts">
+        <button id="again" class="dark">重開一盤</button>
+        <button popovertarget="p-rule">規則</button>
+        <button popovertarget="p-why">為什麼是這個規則</button>
+      </div>
+
+      <div class="rules">
+        <h3>三句話</h3>
+        <ol>
+          <li>輪流從本季八顆扣裡揀一顆，釘在卡上的空格。</li>
+          <li>一顆扣跟它上下左右的鄰扣只能差一項：材質不同就得孔式相同，孔式不同就得材質相同（兩項都不同、兩項都相同，都不准）。</li>
+          <li>每圍出一個「同孔式、材質兩兩相間」的二乘二，就得一分；先得五分，或格滿時分高的，贏。</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="res" role="status" aria-live="polite">
+    <div class="box" id="resbox">
+      <span class="kicker" id="rkick">Ergebnis</span>
+      <h2 id="rtitle">收工</h2>
+      <div class="rgrid">
+        <div><b>你</b><span id="r0">0</span></div>
+        <div><b>何師傅</b><span id="r1">0</span></div>
+        <div><b>釘了幾格</b><span id="rf">0</span></div>
+        <div><b>相間方</b><span id="rq">0</span></div>
+      </div>
+      <div class="saidbox">
+        <svg class="lau" aria-hidden="true"><use href="#lau"/></svg>
+        <p id="rsaid"></p>
+      </div>
+      <p style="margin-top:calc(var(--u)*.8);font-size:calc(var(--u)*.5)">卡號 <b id="rno" class="num"></b>　　分享網址（同碼恆得同卡）</p>
+      <code class="code" id="rcode"></code>
+      <div class="acts" style="margin-top:calc(var(--u)*.8)">
+        <button id="hang" class="dark">掛到門口</button>
+        <button id="again2">再打一盤</button>
+      </div>
+      <p class="tiny" id="hangnote" style="margin-top:calc(var(--u)*.5)">門口的陳列窗只掛贏的卡。掛上去以後，這台裝置下次打開首頁看到的就是它。</p>
+    </div>
+  </div>
+</section>
+
+<div popover id="p-rule" class="spec" aria-label="六六方完整規則">
+<button class="pop-x" popovertarget="p-rule" popovertargetaction="hide">閉</button>
+<span class="kicker">Spielregeln</span>
+<h3>六六方・完整規則</h3>
+<p class="tiny">一、卡是六乘六，三十六格。你先手，釘的格底是金；何師傅後手，格底是白。</p>
+<p class="tiny">二、每一手從本季八顆扣裡揀一顆釘進空格。同一顆扣可以重複用，沒有數量限制。</p>
+<p class="tiny">三、鄰接規矩：新釘的扣與它正上、正下、正左、正右每一顆已釘的扣，都必須「恰好差一項」。八顆扣只有材質（貝／椰／角／膠木）與孔式（二孔／四孔／腳釘）兩項屬性，所以合法的鄰接只有兩種——同材質不同孔式，或同孔式不同材質。斜角不算鄰。</p>
+<p class="tiny">四、計分：任何一個二乘二，四格都釘滿、四顆孔式全同、且材質沿對角成相間（左上＝右下、右上＝左下、兩者不同色），就是一個相間方，算給釘下最後那一格的人一分。一手可能同時圍出兩個方。</p>
+<p class="tiny">五、無合法手的一方跳過。連續兩方都跳過，或格滿，或有人先到五分，收工。分高者贏，同分為平手。</p>
+<p class="tiny">六、線徑不參與規則，它只是扣本來的大小。何師傅的說法是：「大小是客人的事，材質跟孔是我們的事。」</p>
+</div>
+
+<div popover id="p-why" class="spec" aria-label="這個規則的來歷">
+<button class="pop-x" popovertarget="p-why" popovertargetaction="hide">閉</button>
+<span class="kicker">Herkunft</span>
+<h3>為什麼是這個規則</h3>
+<p class="tiny">釘卡的人一天要排幾百張卡，排到後來手比腦快，卡就會排成一團——同一區全是貝殼，或整排都是四孔。客人翻卡的時候看不出差別，就不會停下來。</p>
+<p class="tiny">「差一項」這條規矩是逼你把相近的東西擺在一起、但不准完全一樣。相鄰兩顆總有一項是共通的（所以看起來是同一家廠出的），總有一項是不同的（所以看得出是兩顆不同的扣）。這是方梅溪在民國五十年代自己想出來的排卡法，沒有寫在任何一本教科書上。</p>
+<p class="tiny">「相間方」是那張卡真正好看的地方：四顆同孔式的扣，材質沿對角交錯，就是一塊黑白相間的格子。廠裡的卡上通常會出現三到五個，太多會亂，一個都沒有的卡會被方頌宜退回去重排。</p>
+<p class="tiny">維也納一九〇二年的分離派第十四屆展場裡，Josef Hoffmann 把牆面切成黑白方格帶；同一年 Koloman Moser 為《Ver Sacrum》畫的裝飾帶也是同一件事。這家廠沒聽過他們，但排卡的人跟畫裝飾帶的人遇到的是同一個問題：怎麼在一片重複裡讓眼睛停下來。</p>
+</div>
+</main>
+
+<script>
+(function(){
+"use strict";
+var N=6;
+var MAT=[{n:"白蝶貝",s:"f-shell"},{n:"椰殼",s:"f-coco"},{n:"水牛角",s:"f-horn"},{n:"尿素膠木",s:"f-bake"}];
+var HOL=[{n:"二孔",s:"h-2"},{n:"四孔",s:"h-4"},{n:"腳釘",s:"h-s"}];
+var BTN=[
+ {i:0,m:0,h:0,no:"S-24-2",sc:0.82},
+ {i:1,m:0,h:1,no:"S-30-4",sc:0.93},
+ {i:2,m:1,h:0,no:"C-18-2",sc:0.70},
+ {i:3,m:1,h:1,no:"C-24-4",sc:0.82},
+ {i:4,m:2,h:0,no:"H-30-2",sc:0.93},
+ {i:5,m:2,h:2,no:"H-36-S",sc:1.00},
+ {i:6,m:3,h:1,no:"U-18-4",sc:0.70},
+ {i:7,m:3,h:2,no:"U-24-S",sc:0.82}
+];
+var SAID_WIN=[
+ "贏了。卡拿去掛，不用客氣——這裡的規矩就是這樣，我當學徒的時候也是這樣把師傅的卡換下來的。",
+ "圍得漂亮。你有先看鄰居再下手，這一點很多做了三年的人還做不到。",
+ "五分了。你這張卡如果拿去印，客人會停下來翻——那就是一張好卡。"
+];
+var SAID_LOSE=[
+ "還差一點。下次先想清楚你這一手把哪一格封死了，封死的格比沒圍到的方更痛。",
+ "我贏在你第三手那顆腳釘。腳釘的鄰居很挑，早放會綁住自己。",
+ "再來一盤。你剛剛有兩次可以圍方沒圍，那不是手氣，那是還沒看見。"
+];
+var SAID_DRAW=[
+ "平手的卡不掛。這不是刻薄，是因為門口只掛得下一張，總得有人比較好看。",
+ "同分。這種卡我看過很多張，通常是兩邊都太小心。"
+];
+
+function idx(r,c){return r*N+c;}
+function nbrs(r,c){var o=[];if(r>0)o.push([r-1,c]);if(r<N-1)o.push([r+1,c]);if(c>0)o.push([r,c-1]);if(c<N-1)o.push([r,c+1]);return o;}
+function why(b,o){
+ var dm=(o.m!==b.m)?1:0,dh=(o.h!==b.h)?1:0;
+ if(dm+dh===1)return null;
+ if(dm+dh===0)return "跟"+MAT[o.m].n+HOL[o.h].n+"一模一樣，兩項都沒差";
+ return "跟"+MAT[o.m].n+HOL[o.h].n+"差了兩項，材質跟孔式都不同";
+}
+function place(bd,r,c,b){
+ if(bd[idx(r,c)])return "這一格已經釘了扣";
+ var ns=nbrs(r,c);
+ for(var i=0;i<ns.length;i++){
+  var o=bd[idx(ns[i][0],ns[i][1])];if(!o)continue;
+  var w=why(b,o.b);if(w)return w;
+ }
+ return null;
+}
+function legalCells(bd,b){var L=[];for(var r=0;r<N;r++)for(var c=0;c<N;c++)if(!place(bd,r,c,b))L.push([r,c]);return L;}
+function anyLegal(bd){for(var k=0;k<BTN.length;k++)if(legalCells(bd,BTN[k]).length)return true;return false;}
+function allMoves(bd){var L=[];for(var r=0;r<N;r++)for(var c=0;c<N;c++)for(var k=0;k<BTN.length;k++)if(!place(bd,r,c,BTN[k]))L.push({r:r,c:c,b:BTN[k]});return L;}
+function squaresAt(bd,r,c){
+ var out=[],d=[[-1,-1],[-1,0],[0,-1],[0,0]];
+ for(var i=0;i<4;i++){
+  var R=r+d[i][0],C=c+d[i][1];
+  if(R<0||C<0||R>N-2||C>N-2)continue;
+  var q=[bd[idx(R,C)],bd[idx(R,C+1)],bd[idx(R+1,C)],bd[idx(R+1,C+1)]];
+  if(!q[0]||!q[1]||!q[2]||!q[3])continue;
+  var a=q[0].b,b2=q[1].b,c2=q[2].b,dd=q[3].b;
+  if(a.h===b2.h&&b2.h===c2.h&&c2.h===dd.h&&a.m===dd.m&&b2.m===c2.m&&a.m!==b2.m)out.push([R,C]);
+ }
+ return out;
+}
+function svgFor(b){
+ return '<svg viewBox="0 0 24 24" aria-hidden="true"><g style="transform:scale('+b.sc+');transform-origin:12px 12px"><use href="#'+MAT[b.m].s+'"/><use href="#'+HOL[b.h].s+'"/></g></svg>';
+}
+
+var bd,sc,turn,sel,over,marks,seen,ended;
+var elBd=document.getElementById("bd"),elQl=document.getElementById("ql"),elPick=document.getElementById("pick"),
+ elMsg=document.getElementById("msg"),elS0=document.getElementById("s0"),elS1=document.getElementById("s1"),
+ elRes=document.getElementById("res"),elRo=document.getElementById("ro");
+var reduce=matchMedia("(prefers-reduced-motion: reduce)");
+
+function buildPicker(){
+ var h="";
+ for(var k=0;k<BTN.length;k++){
+  var b=BTN[k];
+  h+='<button class="pk" data-b="'+k+'" aria-pressed="false" aria-label="揀 '+b.no+'，'+MAT[b.m].n+HOL[b.h].n+'">'+svgFor(b)+'<span>'+b.no+'</span></button>';
+ }
+ elPick.innerHTML=h;
+}
+function buildBoard(){
+ var h="";
+ for(var r=0;r<N;r++)for(var c=0;c<N;c++){
+  h+='<button class="cl" data-r="'+r+'" data-c="'+c+'" role="gridcell" aria-label="第'+(r+1)+'列第'+(c+1)+'行，空格"></button>';
+ }
+ elBd.innerHTML=h;
+}
+function paint(){
+ var cs=elBd.children;
+ for(var r=0;r<N;r++)for(var c=0;c<N;c++){
+  var el=cs[idx(r,c)],cell=bd[idx(r,c)];
+  el.className="cl";
+  if(cell){
+   el.classList.add(cell.w?"pk":"pg");
+   if(el.getAttribute("data-f")!==String(cell.b.i)+cell.w){el.innerHTML=svgFor(cell.b);el.setAttribute("data-f",String(cell.b.i)+cell.w);}
+   el.disabled=true;
+   el.setAttribute("aria-label","第"+(r+1)+"列第"+(c+1)+"行，"+(cell.w?"何師傅":"你")+"釘的 "+cell.b.no+"，"+MAT[cell.b.m].n+HOL[cell.b.h].n);
+  }else{
+   if(el.getAttribute("data-f")!==null){el.innerHTML="";el.removeAttribute("data-f");}
+   el.disabled=over||turn!==0;
+   el.setAttribute("aria-label","第"+(r+1)+"列第"+(c+1)+"行，空格");
+  }
+ }
+ if(sel!==null&&!over&&turn===0){
+  var L=legalCells(bd,BTN[sel]);
+  for(var i=0;i<L.length;i++)cs[idx(L[i][0],L[i][1])].classList.add("ok");
+ }
+ var q="";
+ for(var j=0;j<marks.length;j++){
+  var mk=marks[j];
+  q+='<i class="'+(mk.w?"":"mine")+'" style="grid-row:'+(mk.r+1)+' / span 2;grid-column:'+(mk.c+1)+' / span 2"><svg viewBox="0 0 24 24"><use href="#lau"/></svg></i>';
+ }
+ elQl.innerHTML=q;
+ elS0.textContent=sc[0];elS1.textContent=sc[1];
+ var pks=elPick.children;
+ for(var k=0;k<pks.length;k++){
+  pks[k].setAttribute("aria-pressed",String(k===sel));
+  pks[k].disabled=over||turn!==0;
+ }
+}
+function say(t,cls){elMsg.textContent=t;elMsg.className="turn"+(cls?" "+cls:"");}
+
+function commit(r,c,b,w){
+ bd[idx(r,c)]={b:b,w:w};
+ var got=squaresAt(bd,r,c),n=0;
+ for(var i=0;i<got.length;i++){
+  var key=got[i][0]+","+got[i][1];
+  if(seen[key])continue;
+  seen[key]=true;marks.push({r:got[i][0],c:got[i][1],w:w});n++;
+ }
+ sc[w]+=n;
+ return n;
+}
+function boardFull(){for(var i=0;i<N*N;i++)if(!bd[i])return false;return true;}
+
+function finish(){
+ over=true;ended=true;paint();
+ var filled=0;for(var i=0;i<N*N;i++)if(bd[i])filled++;
+ var win=sc[0]>sc[1],draw=sc[0]===sc[1];
+ var code=encode();
+ var no="F-"+pad(sum(code)%1000)+"-"+(win?"G":draw?"P":"K");
+ document.getElementById("r0").textContent=sc[0];
+ document.getElementById("r1").textContent=sc[1];
+ document.getElementById("rf").textContent=filled;
+ document.getElementById("rq").textContent=marks.length;
+ document.getElementById("rno").textContent=no;
+ document.getElementById("rcode").textContent=location.origin+location.pathname+"?k="+code;
+ var pool=win?SAID_WIN:draw?SAID_DRAW:SAID_LOSE;
+ document.getElementById("rsaid").textContent="何清和說："+pool[sum(code)%pool.length];
+ document.getElementById("rtitle").textContent=win?"你贏了這一盤":draw?"平手":"何師傅贏了這一盤";
+ document.getElementById("rkick").textContent=win?"Gewonnen":draw?"Unentschieden":"Verloren";
+ document.getElementById("resbox").className="box"+(win?" win":"");
+ var hb=document.getElementById("hang"),hn=document.getElementById("hangnote");
+ hb.disabled=!win;
+ hn.textContent=win?"按下去，首頁門口那面陳列窗就換成這張卡（存在這台裝置裡，下次打開還在）。":"門口的陳列窗只掛贏的卡。再打一盤。";
+ hb.setAttribute("data-no",no);
+ elRes.classList.add("on");
+ say(win?"收工。你的卡贏了，可以掛。":draw?"收工。同分。":"收工。何師傅這盤贏了。","");
+}
+function pad(n){n=String(n);while(n.length<3)n="0"+n;return n;}
+function sum(s){var t=0;for(var i=0;i<s.length;i++)t=(t*31+s.charCodeAt(i))%100000;return t;}
+function encode(){
+ var s="";
+ for(var i=0;i<N*N;i++){var c=bd[i];s+=c?String.fromCharCode(97+c.b.i*2+c.w):".";}
+ return s;
+}
+function decode(s){
+ if(!s||s.length!==N*N)return null;
+ var out=[];
+ for(var i=0;i<s.length;i++){
+  var ch=s.charAt(i);
+  if(ch==="."){out.push(null);continue;}
+  var v=ch.charCodeAt(0)-97;
+  if(v<0||v>15)return null;
+  out.push({b:BTN[v>>1],w:v&1});
+ }
+ return out;
+}
+
+function masterMove(){
+ var L=allMoves(bd);
+ if(!L.length){
+  if(!anyLegalFor(0)){finish();return;}
+  say("何師傅這一手沒地方下，跳過。換你。");
+  turn=0;paint();return;
+ }
+ var scored=[];
+ for(var i=0;i<L.length;i++){
+  var mv=L[i],save=bd[idx(mv.r,mv.c)];
+  bd[idx(mv.r,mv.c)]={b:mv.b,w:1};
+  var gain=squaresAt(bd,mv.r,mv.c).filter(function(p){return !seen[p[0]+","+p[1]];}).length;
+  var opp=allMoves(bd).length;
+  bd[idx(mv.r,mv.c)]=save;
+  scored.push({mv:mv,v:gain*40+opp*0.05+Math.random()*0.01});
+ }
+ scored.sort(function(a,b){return b.v-a.v;});
+ var pickd=scored[0].mv;
+ if(Math.random()<0.30)pickd=scored[Math.min(scored.length-1,1+Math.floor(Math.random()*3))].mv;
+ var n=commit(pickd.r,pickd.c,pickd.b,1);
+ if(sc[1]>=5){paint();finish();return;}
+ if(boardFull()){paint();finish();return;}
+ turn=0;
+ if(!anyLegalFor(0)){
+  if(!allMoves(bd).length){paint();finish();return;}
+  say("你這一手沒地方下，跳過，何師傅再走一手。");
+  paint();turn=1;setTimeout(masterMove,delay());return;
+ }
+ say("何師傅釘了 "+pickd.b.no+"（"+MAT[pickd.b.m].n+HOL[pickd.b.h].n+"）在第"+(pickd.r+1)+"列第"+(pickd.c+1)+"行"+(n?"，圍到 "+n+" 個方。":"。")+" 換你。");
+ paint();
+}
+function anyLegalFor(){return allMoves(bd).length>0;}
+function delay(){return reduce.matches?0:460;}
+
+function reset(fromCode){
+ bd=new Array(N*N).fill(null);sc=[0,0];turn=0;sel=null;over=false;marks=[];seen={};ended=false;
+ elRes.classList.remove("on");
+ if(fromCode){
+  var d=decode(fromCode);
+  if(d){
+   bd=d;over=true;
+   for(var r=0;r<N-1;r++)for(var c=0;c<N-1;c++){
+    var q=[bd[idx(r,c)],bd[idx(r,c+1)],bd[idx(r+1,c)],bd[idx(r+1,c+1)]];
+    if(!q[0]||!q[1]||!q[2]||!q[3])continue;
+    var a=q[0].b,b2=q[1].b,c2=q[2].b,dd=q[3].b;
+    if(a.h===b2.h&&b2.h===c2.h&&c2.h===dd.h&&a.m===dd.m&&b2.m===c2.m&&a.m!==b2.m)marks.push({r:r,c:c,w:q[3].w});
+   }
+   elRo.hidden=false;
+   elRo.innerHTML='這是別人分享的一張卡（卡號後綴不重算，僅還原盤面）。按「重開一盤」就能自己打一盤。';
+   say("看卡模式。按「重開一盤」開始。");
+   paint();return;
+  }
+ }
+ say("先在下面揀一顆扣，再點卡上的空格。第一手隨便釘，怎麼都合法。");
+ paint();
+}
+
+elPick.addEventListener("click",function(e){
+ var b=e.target.closest(".pk");if(!b||b.disabled)return;
+ sel=parseInt(b.getAttribute("data-b"),10);
+ var bt=BTN[sel],L=legalCells(bd,bt);
+ if(!L.length)say("這一顆現在沒有地方放得下（"+MAT[bt.m].n+HOL[bt.h].n+"）。換一顆。","bad");
+ else say("手上是 "+bt.no+"（"+MAT[bt.m].n+HOL[bt.h].n+"）。卡上有 "+L.length+" 格放得下，金色小方就是。","");
+ paint();
+});
+elBd.addEventListener("click",function(e){
+ var el=e.target.closest(".cl");if(!el||el.disabled||over||turn!==0)return;
+ if(sel===null){say("先揀一顆扣。","bad");return;}
+ var r=parseInt(el.getAttribute("data-r"),10),c=parseInt(el.getAttribute("data-c"),10),b=BTN[sel];
+ var bad=place(bd,r,c,b);
+ if(bad){say("放不下：這一格的鄰居"+bad+"。","bad");return;}
+ var n=commit(r,c,b,0);
+ say(n?"釘上了，圍到 "+n+" 個相間方。":"釘上了。","");
+ if(sc[0]>=5){paint();finish();return;}
+ if(boardFull()){paint();finish();return;}
+ turn=1;paint();
+ if(!allMoves(bd).length){finish();return;}
+ setTimeout(masterMove,delay());
+});
+document.getElementById("again").addEventListener("click",function(){elRo.hidden=true;reset(null);});
+document.getElementById("again2").addEventListener("click",function(){elRo.hidden=true;reset(null);window.scrollTo(0,0);});
+document.getElementById("hang").addEventListener("click",function(){
+ var html="";
+ for(var i=0;i<N*N;i++){
+  var c=bd[i];
+  html+=c?'<b class="'+(c.w?"pk":"pg")+'">'+svgFor(c.b)+'</b>':'<b class="e"></b>';
+ }
+ var filled=0;for(var j=0;j<N*N;j++)if(bd[j])filled++;
+ try{
+  localStorage.setItem("fangtsun.card",JSON.stringify({html:html,no:this.getAttribute("data-no"),
+   filled:filled,sq:marks.length,you:sc[0],master:sc[1]}));
+  this.textContent="已經掛上去了";this.disabled=true;
+  document.getElementById("hangnote").textContent="掛好了。回門面看看——陳列窗換成你的卡了。";
+ }catch(err){
+  document.getElementById("hangnote").textContent="這台裝置不讓網站存東西，所以掛不上去。卡號跟分享網址還是可以留著。";
+ }
+});
+
+buildPicker();buildBoard();
+var qs=(location.search.match(/[?&]k=([a-p.]{36})/)||[])[1];
+reset(qs||null);
+})();
+</script>
+<div class="chk h2 inv"></div>
+<footer>
+<div class="wrap">
+<div class="fgrid">
+<div>
+<h3>方寸釦廠</h3>
+<p>桃園市大溪區和平路 118 巷 7 號<br>電話 03-388-2140<br>傳真 03-388-2147</p>
+</div>
+<div>
+<h3>工廠開放</h3>
+<p>週二至週六 09:00–17:30<br>週三下午整理扣籍，不接受參觀<br>週日、週一及國定假日休</p>
+</div>
+<div>
+<h3>訂製門檻</h3>
+<p>現行扣最低訂量 5 籮（720 顆）<br>新開模最低訂量 30 籮，開模費 NT$ 6,800<br>樣卡免費，寄送工本 NT$ 60</p>
+</div>
+<div>
+<h3>全部頁面</h3>
+<ul>
+<li><a href="index.html">門面</a>｜白牆、門楣與本季八扣</li>
+<li><a href="kou.html">扣籍</a>｜二十四顆扣的規格與工序</li>
+<li><a href="pan.html">六六方</a>｜與釘卡師傅對局</li>
+<li><a href="chang.html">廠事</a>｜沿革、格的規矩與訂製委託</li>
+</ul>
+</div>
+</div>
+<p class="fnote">本站為網頁設計風格範例站，方寸釦廠、其人員、價目與沿革皆為虛構示意，非實際營業之商號。風格規格書見 <a href="SKILL.md">SKILL.md</a>。</p>
+</div>
+</footer>
+<script>
+(function(){
+var r=document.documentElement,g=document.getElementById('gz'),b=document.querySelector('.chk'),last=-1,t=0;
+function m(){
+ var u=parseFloat(getComputedStyle(r).getPropertyValue('--u'))||24;
+ var w=document.querySelector('.wrap');if(!w)return;
+ var n=Math.round(w.getBoundingClientRect().width/u);
+ if(n===last)return;
+ if(last>=0&&b){b.classList.add('jump');clearTimeout(t);t=setTimeout(function(){b.classList.remove('jump');},260);}
+ last=n;
+ if(g)g.textContent='牆寬 '+n+' 格 · 格 '+Math.round(u)+'PX';
+}
+m();
+var p=false;
+addEventListener('resize',function(){if(p)return;p=true;requestAnimationFrame(function(){p=false;m();});},{passive:true});
+})();
+</script>
+</body></html>

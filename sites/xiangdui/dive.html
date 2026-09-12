@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>上機・抽一套籤｜相對・編隊跳傘會</title>
+<meta name="description" content="抽一套五格的籤，看二十秒，三十五秒內照順序認出來。空中沒有上下，籤會轉。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F0F1EE'/%3E%3Crect x='0' y='3' width='64' height='8' fill='%23E1E4E0'/%3E%3Crect x='8' y='18' width='32' height='32' fill='%23121512' transform='rotate(-22.5 24 34)'/%3E%3Crect x='48' y='46' width='12' height='12' fill='%23CE2B1F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+@media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}
+::view-transition-group(mark),::view-transition-group(navrail){animation-duration:620ms;
+  animation-timing-function:cubic-bezier(.22,.9,.24,1)}
+@keyframes vt-in{from{clip-path:polygon(-40% 0,-40% 0,-10% 100%,-10% 100%);opacity:1}
+  to{clip-path:polygon(-40% 0,150% 0,150% 100%,-10% 100%);opacity:1}}
+@keyframes vt-out{to{opacity:0}}
+::view-transition-new(root){animation:vt-in 620ms cubic-bezier(.22,.9,.24,1) both}
+::view-transition-old(root){animation:vt-out 200ms linear both}
+.nav{view-transition-name:navrail}
+.mark{view-transition-name:mark}
+/* ── 至上主義：白是空間，不是底色 ─────────────────────── */
+:root{
+  --void:#F0F1EE;      /* 虛空白（冷白，非純白） */
+  --void2:#E1E4E0;     /* 第二白：白上白的塊面 */
+  --ink:#121512;       /* 黑：主重量 */
+  --red:#CE2B1F;       /* 朱紅：唯一動作色 */
+  --blue:#24378F;      /* 群青：只給客觀量（編號、時刻、數字） */
+  --grey:#A7ABA5;      /* 冷灰：停用態 */
+  --fam:22.5deg;       /* 斜角族基本角 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--void);color:var(--ink);
+  font-family:"Noto Sans TC","Archivo",system-ui,sans-serif;
+  font-weight:400;line-height:1.75;font-size:16px;
+  overflow-x:hidden;
+}
+::selection{background:var(--red);color:var(--void)}
+a{color:var(--ink);text-decoration:none}
+.wrap{width:min(1180px,92vw);margin:0 auto}
+
+/* 全站零圓角、零模糊陰影、零漸層 —— 這是規格不是偏好 */
+*,*::before,*::after{border-radius:0!important;box-shadow:none!important}
+
+/* ── 字 ─────────────────────────────────────────── */
+.lat{font-family:"Archivo",sans-serif;font-variant-numeric:tabular-nums}
+.tag{font-family:"Archivo",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.2em;text-transform:uppercase;line-height:1.2}
+.num{font-family:"Archivo",sans-serif;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:.02em;color:var(--blue)}
+h1,h2,h3{font-weight:900;letter-spacing:-.02em;line-height:1.06}
+h2{font-size:clamp(26px,4.2vw,44px);margin:0 0 6px}
+h3{font-size:clamp(18px,2.4vw,24px);margin:0 0 4px}
+p{max-width:62ch}
+.lead{font-size:clamp(16px,1.5vw,19px);line-height:1.85}
+.muted{color:#4A4F49}
+
+/* ── 導覽：level-off 打平 ───────────────────────────── */
+.nav{position:fixed;right:26px;top:26px;z-index:60;display:block}
+.nav ol{list-style:none;display:flex;flex-direction:column;gap:13px}
+.nav a{display:block;position:relative;width:168px;height:26px;
+  background:var(--ink);rotate:calc(var(--fam)*-1);
+  transition:rotate 260ms cubic-bezier(.22,.9,.24,1),background 90ms linear}
+.nav a:hover{background:var(--red)}
+.nav a[aria-current="page"]{rotate:0deg;background:var(--ink)}
+.nav a[aria-current="page"]::after{content:"";position:absolute;
+  right:-19px;top:7px;width:12px;height:12px;background:var(--red)}
+.nav a span{position:absolute;left:11px;top:4px;color:var(--void);
+  font-family:"Archivo",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.nav a b{position:absolute;right:11px;top:3px;color:var(--void);
+  font-weight:900;font-size:13px;letter-spacing:.04em}
+.nav a:focus-visible{outline:none}
+.nav a:focus-visible::before{content:"";position:absolute;inset:-9px;
+  border:3px solid var(--red)}
+
+/* ── 頁尾 ───────────────────────────────────────── */
+footer{margin-top:110px;background:var(--ink);color:var(--void);padding:52px 0 40px}
+footer a{color:var(--void);border-bottom:2px solid var(--red)}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:34px}
+footer h4{font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  font-family:"Archivo",sans-serif;font-weight:700;margin-bottom:14px;color:#9AA09A}
+footer li{list-style:none;margin-bottom:9px}
+footer .fine{margin-top:38px;padding-top:20px;border-top:3px solid #2C312C;
+  font-size:13px;color:#9AA09A;line-height:1.9}
+
+/* ── 通用塊 ─────────────────────────────────────── */
+.sec{margin-top:96px}
+.rule{height:0;border-top:3px solid var(--ink);margin:0 0 26px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:38px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:11px 12px;border-bottom:2px solid var(--ink)}
+th{font-family:"Archivo",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;border-bottom-width:3px}
+td.n{font-family:"Archivo",sans-serif;font-variant-numeric:tabular-nums;color:var(--blue);font-weight:700}
+
+.btn{display:inline-block;background:var(--ink);color:var(--void);
+  font-family:"Archivo",sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.16em;text-transform:uppercase;padding:14px 26px;border:none;
+  cursor:pointer;transition:background 90ms linear,translate 90ms linear}
+.btn:hover{background:var(--red)}
+.btn:focus-visible{outline:4px solid var(--red);outline-offset:4px}
+.btn[disabled]{background:var(--grey);cursor:not-allowed}
+.btn.red{background:var(--red)}
+.btn.red:hover{background:var(--ink)}
+
+/* ── 虛空 ───────────────────────────────────────── */
+.void{position:relative;width:100%;aspect-ratio:1200/700;margin:0 auto;
+  overflow:visible}
+.voidinner{position:absolute;inset:0;
+  translate:0 0;
+  transition:translate 700ms cubic-bezier(.22,.9,.24,1)}
+.plane{position:absolute;left:var(--x);top:var(--y);
+  width:var(--w);translate:-50% -50%;cursor:pointer;
+  background:none;border:none;padding:0;font:inherit;color:inherit;text-align:left}
+.drift{display:block;animation:drift var(--dur,60s) ease-in-out infinite alternate;
+  animation-delay:var(--dly,0s)}
+@keyframes drift{from{translate:0 0}to{translate:var(--dx,8px) var(--dy,-11px)}}
+.plane svg{display:block;width:100%;height:auto;overflow:visible}
+.plane .shade{opacity:0;transition:opacity 90ms linear}
+.plane:hover .shade,.plane:focus-visible .shade,.plane.on .shade{opacity:1}
+.plane:focus-visible{outline:none}
+.plane .lbl{position:absolute;left:var(--lx,102%);top:var(--ly,0);width:max-content;
+  max-width:min(30ch,46vw);pointer-events:none}
+.plane .lbl .k{font-family:"Archivo",sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--blue);display:block}
+.plane .lbl .v{font-weight:700;font-size:clamp(12px,1.15vw,15px);line-height:1.4;display:block}
+.plane .lbl .r{font-family:"Archivo",sans-serif;font-size:11px;letter-spacing:.06em;
+  color:#6C716B;font-variant-numeric:tabular-nums;display:block;
+  opacity:0;transition:opacity 90ms linear}
+.plane:hover .lbl .r,.plane:focus-visible .lbl .r,.plane.on .lbl .r{opacity:1}
+.plane.on .lbl .v{color:var(--red)}
+.frameread{font-family:"Archivo",sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--blue);
+  display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+.frameread b{color:var(--red)}
+
+/* ── 隊形卡 ─────────────────────────────────────── */
+.card{position:relative;background:none;border:none;padding:0;cursor:pointer;
+  display:block;width:100%;text-align:left;color:inherit;font:inherit}
+.card svg{display:block;width:100%;height:auto}
+.card .cap{display:flex;justify-content:space-between;align-items:baseline;
+  margin-top:8px;border-top:3px solid var(--ink);padding-top:7px}
+.card .cap .cn{font-weight:900;font-size:17px;letter-spacing:.02em}
+.card .cap .ce{font-family:"Archivo",sans-serif;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:#6C716B}
+.card:focus-visible{outline:none}
+.card:focus-visible .cap{border-top-color:var(--red)}
+.card:focus-visible::after{content:"";position:absolute;inset:-10px;border:3px solid var(--red)}
+
+@media (prefers-reduced-motion:reduce){
+  .drift{animation:none}
+  .voidinner{transition:none}
+  .nav a{transition:none}
+  *{scroll-behavior:auto}
+}
+@media (max-width:900px){
+  .nav{position:static;padding:16px 0 0}
+  .nav ol{flex-direction:row;gap:8px}
+  .nav a{width:auto;flex:1;height:34px;rotate:0deg}
+  .nav a[aria-current="page"]{background:var(--red)}
+  .nav a[aria-current="page"]::after{right:8px;top:11px;width:10px;height:10px;background:var(--void)}
+  .nav a span{top:9px}
+  .nav a b{display:none}
+  .grid3{grid-template-columns:repeat(2,1fr)}
+  footer .cols{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .void{aspect-ratio:640/920}
+  .plane{left:var(--mx,var(--x));top:var(--my,var(--y));width:var(--mw,var(--w))}
+  .plane .lbl{left:var(--mlx,var(--lx,102%));top:var(--mly,var(--ly,0));max-width:44vw}
+  .grid2,.grid3{grid-template-columns:1fr}
+  footer .cols{grid-template-columns:1fr}
+  .sec{margin-top:62px}
+}
+
+.phead{display:grid;grid-template-columns:132px 1fr;gap:30px;align-items:start}
+.markbox{display:block;width:132px;height:132px;background:var(--ink);rotate:-22.5deg}
+.rules{margin:14px 0 0 0;padding:0;list-style:none;counter-reset:r}
+.rules li{counter-increment:r;position:relative;padding-left:38px;margin-bottom:7px;
+  font-size:16px;font-weight:700}
+.rules li::before{content:counter(r);position:absolute;left:0;top:3px;width:24px;height:24px;
+  background:var(--ink);color:var(--void);font-family:"Archivo",sans-serif;font-weight:700;
+  font-size:12px;text-align:center;line-height:24px}
+.hud{display:flex;gap:34px;align-items:flex-end;flex-wrap:wrap;padding-bottom:14px}
+.hudl{display:flex;flex-direction:column;gap:2px}
+.hk{font-family:"Archivo",sans-serif;font-weight:700;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:#6C716B}
+.hudl b{font-size:26px;font-weight:900;letter-spacing:-.01em}
+.hudact{margin-left:auto;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:#CE2B1F}
+.clockbar{height:14px;background:var(--void2);margin-bottom:26px}
+.clockbar span{display:block;height:100%;width:0;background:var(--red)}
+.slots{list-style:none;display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap}
+.slot{flex:1;min-width:88px;border-top:3px solid var(--ink);padding-top:8px;
+  display:flex;flex-direction:column;gap:2px}
+.slot .si{font-family:"Archivo",sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.2em;color:#6C716B}
+.slot .sv{font-weight:900;font-size:20px}
+.slot.ok{border-top-color:#E8B21E}
+.slot.ok .sv{color:#8A6A0C}
+.slot.now{border-top-color:var(--red)}
+.slot.now .sv{color:var(--red)}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.cell{position:relative;background:none;border:none;padding:0;color:inherit;font:inherit;
+  text-align:left;display:block;width:100%}
+button.cell{cursor:pointer}
+.cell svg{display:block;width:100%;height:auto;
+  transition:rotate 300ms cubic-bezier(.22,.9,.24,1)}
+.cell .ci{position:absolute;left:0;top:0;font-family:"Archivo",sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:.1em;color:var(--blue);z-index:2}
+.cell .cn{display:block;border-top:3px solid var(--ink);margin-top:4px;padding-top:6px;
+  font-weight:900;font-size:15px}
+button.cell:hover .cn{border-top-color:var(--red);color:var(--red)}
+button.cell:focus-visible{outline:none}
+button.cell:focus-visible::after{content:"";position:absolute;inset:-8px;border:3px solid var(--red)}
+.cell.hit{background:#E8B21E}
+.cell.bad{background:var(--red)}
+.cell.bad .cn,.cell.hit .cn{border-top-color:var(--void)}
+.study{display:grid;grid-template-columns:320px 1fr;gap:36px;align-items:center;
+  min-height:340px}
+.studyart svg{display:block;width:100%;height:auto}
+.result{margin-top:56px}
+.rgrid{display:grid;grid-template-columns:230px 1fr;gap:36px;align-items:start}
+.rseal svg{display:block;width:100%;height:auto;background:var(--void)}
+@media (prefers-reduced-motion:reduce){.cell svg{transition:none}}
+@media (max-width:900px){
+  .phead{grid-template-columns:88px 1fr;gap:20px}
+  .markbox{width:88px;height:88px}
+  .hudact{margin-left:0;width:100%}
+  .study{grid-template-columns:1fr;gap:18px}
+  .rgrid{grid-template-columns:1fr}
+  .rseal{max-width:220px}
+}
+@media (max-width:640px){
+  .board{gap:12px}
+  .cell .cn{font-size:12px}
+  .hud{gap:20px}
+  .hudl b{font-size:21px}
+}
+
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="主導覽"><ol><li><a href="index.html"><span>VOID</span><b>虛空</b></a></li><li><a href="pool.html"><span>POOL</span><b>籤池</b></a></li><li><a href="dive.html" aria-current="page"><span>DIVE</span><b>上機</b></a></li><li><a href="join.html"><span>JOIN</span><b>入隊</b></a></li></ol></nav>
+<main>
+<section class="wrap" style="padding-top:26px">
+<div class="phead">
+<span class="mark markbox" aria-hidden="true"></span>
+<div>
+<p class="tag" style="color:var(--blue)">03　DIVE　上機</p>
+<h2>抽一套籤，看二十秒，三十五秒內認出來</h2>
+<ol class="rules">
+<li>抽一套五格的籤，你有 <span class="lat">20</span> 秒把它看完。</li>
+<li>蓋牌上機，<span class="lat">35</span> 秒內照順序把五格點出來——每成一格，九張牌就重轉、重排一次。</li>
+<li>點錯扣 <span class="lat">3</span> 秒。</li>
+</ol>
+<p class="muted" style="font-size:14px;margin-top:12px">牌會轉，是因為空中沒有上下。你要認的不是那張圖，是四個人之間的關係。滑鼠、觸控、鍵盤 <span class="lat">1–9</span> 都可以點。</p>
+</div>
+</div>
+</section>
+
+<section class="wrap sec" id="game">
+<div class="rule"></div>
+<div class="hud">
+<div class="hudl">
+<span class="hk">階段</span><b id="phase">未上機</b>
+</div>
+<div class="hudl">
+<span class="hk">剩餘</span><b id="clock" class="lat">—</b>
+</div>
+<div class="hudl">
+<span class="hk">已成</span><b id="scoreN" class="lat">0／5</b>
+</div>
+<div class="hudl">
+<span class="hk">誤點</span><b id="missN" class="lat">0</b>
+</div>
+<div class="hudact">
+<label class="chk"><input type="checkbox" id="noTimer"><span>練習模式（不計時、不扣秒）</span></label>
+<button class="btn red" type="button" id="go">抽一套籤</button>
+</div>
+</div>
+<div class="clockbar"><span id="clockfill"></span></div>
+
+<ol class="slots" id="slots"><li class="slot" data-s="0"><span class="si lat">1</span><span class="sv">—</span></li><li class="slot" data-s="1"><span class="si lat">2</span><span class="sv">—</span></li><li class="slot" data-s="2"><span class="si lat">3</span><span class="sv">—</span></li><li class="slot" data-s="3"><span class="si lat">4</span><span class="sv">—</span></li><li class="slot" data-s="4"><span class="si lat">5</span><span class="sv">—</span></li></ol>
+
+<div class="stage" id="stage">
+<div class="study" id="study" hidden>
+<div class="studyart" id="studyart"></div>
+<div class="studymeta"><p class="tag" style="color:var(--blue)">第 <span id="studyIdx">1</span> 格</p><h3 id="studyName">—</h3><p id="studyDesc" class="muted" style="font-size:14px"></p></div>
+</div>
+<div class="board" id="board">
+<div class="cell" data-k="0"><span class="ci lat">1</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(22.5)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-58.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(58.0,0.0) rotate(90)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,58.0) rotate(180)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-58.0,0.0) rotate(270)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="22.0" y="-36.0" width="14" height="14" fill="var(--red)"/><rect x="22.0" y="22.0" width="14" height="14" fill="var(--red)"/><rect x="-36.0" y="22.0" width="14" height="14" fill="var(--red)"/><rect x="-36.0" y="-36.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">A　星</span></div>
+<div class="cell" data-k="1"><span class="ci lat">2</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(135)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-62.0) rotate(90)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(62.0,0.0) rotate(180)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,62.0) rotate(270)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-62.0,0.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="24.0" y="-38.0" width="14" height="14" fill="var(--red)"/><rect x="24.0" y="24.0" width="14" height="14" fill="var(--red)"/><rect x="-38.0" y="24.0" width="14" height="14" fill="var(--red)"/><rect x="-38.0" y="-38.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">B　環</span></div>
+<div class="cell" data-k="2"><span class="ci lat">3</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(247.5)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-105.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,-35.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,35.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,105.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="-7.0" y="-77.0" width="14" height="14" fill="var(--red)"/><rect x="-7.0" y="-7.0" width="14" height="14" fill="var(--red)"/><rect x="-7.0" y="63.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">C　節</span></div>
+<div class="cell" data-k="3"><span class="ci lat">4</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(0)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(-42.0,-38.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-42.0,38.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(42.0,-38.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(42.0,38.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="-49.0" y="-7.0" width="14" height="14" fill="var(--red)"/><rect x="35.0" y="-7.0" width="14" height="14" fill="var(--red)"/><rect x="-7.0" y="-45.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">D　側</span></div>
+<div class="cell" data-k="4"><span class="ci lat">5</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(112.5)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-70.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-70.0,20.0) rotate(45)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,20.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(70.0,20.0) rotate(315)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="-7.0" y="-32.0" width="14" height="14" fill="var(--red)"/><rect x="-42.0" y="13.0" width="14" height="14" fill="var(--red)"/><rect x="28.0" y="13.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">E　楔</span></div>
+<div class="cell" data-k="5"><span class="ci lat">6</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(225)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-72.0) rotate(45)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(72.0,0.0) rotate(135)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,72.0) rotate(225)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-72.0,0.0) rotate(315)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="29.0" y="-43.0" width="14" height="14" fill="var(--red)"/><rect x="29.0" y="29.0" width="14" height="14" fill="var(--red)"/><rect x="-43.0" y="29.0" width="14" height="14" fill="var(--red)"/><rect x="-43.0" y="-43.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">F　鑽</span></div>
+<div class="cell" data-k="6"><span class="ci lat">7</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(337.5)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-50.0) rotate(45)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,20.0) rotate(45)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-62.0,-15.0) rotate(315)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(62.0,-15.0) rotate(315)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="-7.0" y="-22.0" width="14" height="14" fill="var(--red)"/><rect x="-38.0" y="-39.5" width="14" height="14" fill="var(--red)"/><rect x="24.0" y="-39.5" width="14" height="14" fill="var(--red)"/></svg><span class="cn">G　鏢</span></div>
+<div class="cell" data-k="7"><span class="ci lat">8</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(90)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(0.0,-64.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,64.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(-64.0,0.0) rotate(90)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(64.0,0.0) rotate(90)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="-39.0" y="-39.0" width="14" height="14" fill="var(--red)"/><rect x="25.0" y="-39.0" width="14" height="14" fill="var(--red)"/><rect x="-39.0" y="25.0" width="14" height="14" fill="var(--red)"/><rect x="25.0" y="25.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">H　桿</span></div>
+<div class="cell" data-k="8"><span class="ci lat">9</span><svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="rotate(202.5)"><rect x="-560" y="-262" width="1120" height="66" fill="var(--void2)"/><rect x="150" y="152" width="96" height="96" fill="var(--void2)"/></g><g transform="translate(-60.0,20.0) rotate(315)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,-14.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(60.0,20.0) rotate(45)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><g transform="translate(0.0,96.0) rotate(0)"><rect x="-7.5" y="-43" width="15" height="86" fill="var(--ink)"/><rect x="-7.5" y="-67" width="15" height="15" fill="var(--ink)"/></g><rect x="-37.0" y="-4.0" width="14" height="14" fill="var(--red)"/><rect x="23.0" y="-4.0" width="14" height="14" fill="var(--red)"/><rect x="-7.0" y="34.0" width="14" height="14" fill="var(--red)"/></svg><span class="cn">J　開</span></div>
+</div>
+</div>
+<p class="muted" style="font-size:13px;margin-top:14px">尚未上機時，這九張牌全部轉在 <span class="lat">0°</span>、照籤池順序排列——那是紙上的樣子，不是空中的樣子。</p>
+
+<div class="result" id="result" hidden>
+<div class="rule"></div>
+<div class="rgrid">
+<div class="rseal" id="rseal"></div>
+<div>
+<p class="tag" style="color:var(--blue)">跳次章 · <span id="rcode" class="lat">—</span></p>
+<h2 id="rverdict">—</h2>
+<p id="rline" class="lead"></p>
+<table style="margin-top:18px">
+<tbody id="rtable"></tbody>
+</table>
+<p style="margin-top:20px">
+<button class="btn" type="button" id="again">再抽一套</button>
+<button class="btn" type="button" id="copyLink" style="background:var(--blue)">複製這一套籤的連結</button>
+</p>
+<p class="muted" style="font-size:13px;margin-top:10px" id="copyNote"></p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="wrap sec">
+<div class="rule"></div>
+<h2>這一關在量什麼</h2>
+<div class="grid3" style="margin-top:22px">
+<div><h3>亂點過不了</h3><p>不看籤直接亂點（試過的不再點）模擬兩萬輪：平均只成 <span class="num">1.49</span>／5 格，一格都不成的佔 <span class="num">11.2</span>%，五格全成的只有 <span class="num">0.8</span>%。完全不排除重覆的亂點更低，平均 <span class="num">0.96</span> 格。</p></div>
+<div><h3>看過籤就過得了</h3><p>這一關不是在考手速。以每格辨認 <span class="lat">2.2–4.5</span> 秒、兩成機率先點錯一次模擬，平均 <span class="num">4.98</span> 格。難的是第四、第五格——因為牌又轉了一次。</p></div>
+<div><h3>最容易抓錯的一對</h3><p><span class="lat">A</span> 星與 <span class="lat">B</span> 環：四個人的位置幾乎一樣，只有每個人自己轉了九十度。這是籤池裡唯一一對「結構讀數相近、朝向全異」的籤，判官也是靠朝向分它們。</p></div>
+</div>
+</section>
+
+<noscript>
+<section class="wrap sec"><div class="rule"></div>
+<h2>沒有 JavaScript 也讀得完</h2>
+<p class="lead">上機需要一支計時器，所以這一關要開啟 JavaScript 才玩得動。九式的完整圖、握點、結構讀數與說明全部印在<a href="pool.html" style="border-bottom:3px solid var(--red)">籤池</a>那一頁，不需要 JavaScript；上面那九張牌也是建置階段就畫好的靜態圖。</p>
+</section>
+</noscript>
+</main>
+<footer>
+<div class="wrap">
+<div class="cols">
+<div>
+<h4>相對・編隊跳傘會</h4>
+<p style="font-weight:700;font-size:15px;line-height:1.9">屏東縣潮州鎮潮南路 78 號・潮州跳傘場<br>
+<span class="lat">08-788-4113</span>　週四–週日 <span class="lat">07:00–17:00</span><br>
+地面風速超過 <span class="lat">7 m/s</span> 或雲底低於 <span class="lat">5,000 ft</span> 當日停跳</p>
+</div>
+<div><h4>頁面</h4><ul>
+<li><a href="index.html">01　虛空</a></li>
+<li><a href="pool.html">02　籤池</a></li>
+<li><a href="dive.html">03　上機</a></li>
+<li><a href="join.html">04　入隊</a></li>
+</ul></div>
+<div><h4>本館</h4><ul>
+<li><a href="../../index.html">回 Design Skills Center</a></li>
+<li><a href="SKILL.md">下載 SKILL.md（風格規格書）</a></li>
+<li><a href="README.md">README</a></li>
+</ul></div>
+</div>
+<p class="fine">本站為 Design Skills Center 的風格範例站。俱樂部名稱、人名、電話、地址、價目、籤池紀錄與所有數字皆為<strong style="color:#E1E4E0">虛構示意</strong>，不對應任何真實機構；跳傘為高風險運動，本站不構成任何訓練或安全建議。<br>
+本站由 <strong style="color:#E1E4E0">Claude Opus 5</strong> 設計與建置（排程 Agent 自動執行，2026-08-27）。風格：至上主義 Suprematism。</p>
+</div>
+</footer>
+<script>
+/* ── 相對・編隊跳傘會 ─ 構成引擎（全站唯一圖像來源） ──────────────
+   原始形只有六種：正方 / 長條 / 正圓 / 十字 / 三角 / 直線。
+   角度只能取自斜角族 22.5° 的整數倍。任兩塊之間必留白隙。 */
+var ANG=[0,22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5];
+function fnv(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h>>>0}
+function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function snap(d){return ANG[Math.round(((d%360)+360)%360/22.5)%16]}
+
+/* 一名跳傘員 = 一條長條（身）＋一枚小方（頭），兩者永不相接。 */
+var BL=86,BW=15,HD=15,GAP=9;
+function jumper(x,y,a,fill){
+  var g='<g transform="translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+a+')">';
+  g+='<rect x="'+(-BW/2)+'" y="'+(-BL/2)+'" width="'+BW+'" height="'+BL+'" fill="'+fill+'"/>';
+  g+='<rect x="'+(-HD/2)+'" y="'+(-BL/2-GAP-HD)+'" width="'+HD+'" height="'+HD+'" fill="'+fill+'"/>';
+  return g+'</g>';
+}
+/* 九式籤池：每人 [x,y,角]，握點 g=[i,j]（以間隙中的朱紅小方表示，不相接） */
+var FORMS=[
+ {c:'A',n:'星',e:'STAR',j:[[0,-58,0],[58,0,90],[0,58,180],[-58,0,270]],g:[[0,1],[1,2],[2,3],[3,0]],
+  d:'四人各握左右鄰者的臂與腿，圍成一枚封閉的環。四個身位以九十度旋轉對稱，是籤池裡唯一每人朝向都不同的一式。'},
+ {c:'B',n:'環',e:'DONUT',j:[[0,-62,90],[62,0,180],[0,62,270],[-62,0,0]],g:[[0,1],[1,2],[2,3],[3,0]],
+  d:'與星同為四人成環，差別只在每個人自己轉了九十度——握的是前一人的小腿而不是臂。位置幾乎一樣，朝向全部不同，這一對是新人最常抓錯的。'},
+ {c:'C',n:'節',e:'CATERPILLAR',j:[[0,-105,0],[0,-35,0],[0,35,0],[0,105,0]],g:[[0,1],[1,2],[2,3]],
+  d:'四人同向前後串成一列，各握前一人的腿。三個握點，是籤池裡握點最少的一式，也是最容易被氣流拉長的一式。'},
+ {c:'D',n:'側',e:'SIDEBODY',j:[[-42,-38,0],[-42,38,0],[42,-38,0],[42,38,0]],g:[[0,1],[2,3],[0,2]],
+  d:'兩對側掛並排成一個方陣，四人同向。左右兩對各自成立，中間只靠一個握點連著——那個握點鬆掉，籤就散成兩塊。'},
+ {c:'E',n:'楔',e:'WEDGE',j:[[0,-70,0],[-70,20,45],[0,20,0],[70,20,315]],g:[[0,2],[1,2],[2,3]],
+  d:'一人在前、三人成排在後，兩翼各偏四十五度。中央那一位同時握住三個人，他一動整面楔就變形。'},
+ {c:'F',n:'鑽',e:'ZIRCON',j:[[0,-72,45],[72,0,135],[0,72,225],[-72,0,315]],g:[[0,1],[1,2],[2,3],[3,0]],
+  d:'四人繞中心成菱，每人自己也偏四十五度，於是整面籤沒有一條邊是水平或垂直的。空中最好認、紙上最難畫的一式。'},
+ {c:'G',n:'鏢',e:'MEEKER',j:[[0,-50,45],[0,20,45],[-62,-15,315],[62,-15,315]],g:[[0,1],[0,2],[0,3]],
+  d:'一人居中握住其餘三人，三個握點全部集中在同一個人身上。他是唯一不能失速的人。'},
+ {c:'H',n:'桿',e:'BIPOLE',j:[[0,-64,0],[0,64,0],[-64,0,90],[64,0,90]],g:[[0,2],[0,3],[1,2],[1,3]],
+  d:'兩人縱、兩人橫，交錯成一個沒有中心的十字。四個握點兩兩對稱，是籤池裡最穩、掉高度最慢的一式。'},
+ {c:'J',n:'開',e:'OPEN',j:[[-60,20,315],[0,-14,0],[60,20,45],[0,96,0]],g:[[0,1],[1,2],[1,3]],
+  d:'三人成扇、一人在尾，扇面兩翼各外開四十五度。籤池裡沒有 I——字母 I 在空中喊出來太像數字一，全世界的籤池都跳過它。'}
+];
+var FIDX={};FORMS.forEach(function(f,i){FIDX[f.c]=i});
+
+/* 把一式畫成一張至上主義構成。rot = 整面籤的全域旋轉（度）。
+   白上白的基準面（第二白）永遠在半徑 194 以外，因此與任何身位都不相接。 */
+function formSVG(f,rot,opt){
+  opt=opt||{};rot=rot||0;
+  var ink=opt.ink||'var(--ink)',red=opt.red||'var(--red)',w2=opt.w2||'var(--void2)';
+  var r=rot*Math.PI/180,cs=Math.cos(r),sn=Math.sin(r);
+  var P=f.j.map(function(p){return[p[0]*cs-p[1]*sn,p[0]*sn+p[1]*cs,snap(p[2]+rot)]});
+  var s='<svg viewBox="-230 -230 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+  if(opt.base!==false){
+    var br=(opt.baseRot==null)?snap(rot+67.5):snap(opt.baseRot);
+    s+='<g transform="rotate('+br+')">';
+    s+='<rect x="-560" y="-262" width="1120" height="66" fill="'+w2+'"/>';
+    s+='<rect x="150" y="152" width="96" height="96" fill="'+w2+'"/>';
+    s+='</g>';
+  }
+  P.forEach(function(p){s+=jumper(p[0],p[1],p[2],ink)});
+  f.g.forEach(function(gp){
+    var a=P[gp[0]],b=P[gp[1]];
+    s+='<rect x="'+((a[0]+b[0])/2-7).toFixed(1)+'" y="'+((a[1]+b[1])/2-7).toFixed(1)+'" width="14" height="14" fill="'+red+'"/>';
+  });
+  return s+'</svg>';
+}
+/* 姿態不變的結構讀數：兩兩身位距離與夾角，與整面籤轉到哪個方向無關 */
+function invariant(f){
+  var d=[],j=f.j;
+  for(var i=0;i<4;i++)for(var k=i+1;k<4;k++){
+    d.push(Math.round(Math.hypot(j[i][0]-j[k][0],j[i][1]-j[k][1])));
+  }
+  d.sort(function(a,b){return a-b});
+  return d;
+}
+/* 抽籤：五格，相鄰不重覆（真實籤池規則） */
+function drawSeq(seed,n){
+  var r=mul(seed),out=[],last=-1;
+  for(var i=0;i<(n||5);i++){var k;do{k=Math.floor(r()*FORMS.length)}while(k===last);out.push(k);last=k}
+  return out;
+}
+
+/* 跳次章：由籤序與成績決定性生成的一枚至上主義構成（同碼恆得同章） */
+function sealSVG(code,score,miss){
+  var h=fnv(code+'|'+score+'|'+miss),r=mul(h),s='';
+  var n=4+Math.floor(r()*4); /* 4–7 塊，含一塊主重量 */
+  s='<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+  var bg=snap(r()*360);
+  s+='<g transform="rotate('+bg+' 100 100)"><rect x="-120" y="6" width="440" height="30" fill="var(--void2)"/></g>';
+  var mw=68+Math.floor(r()*34),ma=snap(r()*360);
+  s+='<rect x="'+(100-mw/2)+'" y="'+(100-mw/2)+'" width="'+mw+'" height="'+mw+'" fill="var(--ink)" transform="rotate('+ma+' 100 100)"/>';
+  for(var i=0;i<n;i++){
+    var kind=Math.floor(r()*6),a=snap(r()*360),d=mw/2+16+r()*54,th=r()*Math.PI*2;
+    var cx=100+Math.cos(th)*d,cy=100+Math.sin(th)*d;
+    var fill=(i===0&&score>0)?'var(--red)':(i===1?'var(--blue)':'var(--ink)');
+    if(kind===0){var w=10+r()*16;s+='<rect x="'+(cx-w/2).toFixed(1)+'" y="'+(cy-w/2).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'" fill="'+fill+'" transform="rotate('+a+' '+cx.toFixed(1)+' '+cy.toFixed(1)+')"/>';}
+    else if(kind===1){var L=34+r()*46;s+='<rect x="'+(cx-L/2).toFixed(1)+'" y="'+(cy-4).toFixed(1)+'" width="'+L.toFixed(1)+'" height="8" fill="'+fill+'" transform="rotate('+a+' '+cx.toFixed(1)+' '+cy.toFixed(1)+')"/>';}
+    else if(kind===2){var rr=6+r()*11;s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+rr.toFixed(1)+'" fill="'+fill+'"/>';}
+    else if(kind===3){var L2=22+r()*20;s+='<g transform="rotate('+a+' '+cx.toFixed(1)+' '+cy.toFixed(1)+')"><rect x="'+(cx-L2/2).toFixed(1)+'" y="'+(cy-3).toFixed(1)+'" width="'+L2.toFixed(1)+'" height="6" fill="'+fill+'"/><rect x="'+(cx-3).toFixed(1)+'" y="'+(cy-L2/2).toFixed(1)+'" width="6" height="'+L2.toFixed(1)+'" fill="'+fill+'"/></g>';}
+    else if(kind===4){var T=16+r()*16;s+='<path d="M'+cx.toFixed(1)+' '+(cy-T).toFixed(1)+'L'+(cx+T*0.92).toFixed(1)+' '+(cy+T*0.7).toFixed(1)+'L'+(cx-T*0.92).toFixed(1)+' '+(cy+T*0.7).toFixed(1)+'Z" fill="'+fill+'" transform="rotate('+a+' '+cx.toFixed(1)+' '+cy.toFixed(1)+')"/>';}
+    else{var L3=40+r()*46;s+='<rect x="'+(cx-L3/2).toFixed(1)+'" y="'+(cy-1.5).toFixed(1)+'" width="'+L3.toFixed(1)+'" height="3" fill="'+fill+'" transform="rotate('+a+' '+cx.toFixed(1)+' '+cy.toFixed(1)+')"/>';}
+  }
+  return s+'</svg>';
+}
+/* 相對方位讀數：以 from 為原點，report to 的方位與身位距離 */
+function bearing(fx,fy,tx,ty){
+  var dx=tx-fx,dy=ty-fy,d=Math.hypot(dx,dy);
+  var a=Math.round(Math.atan2(dx,-dy)*180/Math.PI);
+  if(a<0)a+=360;
+  return{a:a,d:d};
+}
+
+/* ── 上機：抽籤 → 看籤 20s → 三十五秒認籤 → 判詞與跳次章 ───────── */
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var board=$('board'),slots=$('slots'),study=$('study'),stage=$('stage');
+  var elPhase=$('phase'),elClock=$('clock'),elScore=$('scoreN'),elMiss=$('missN');
+  var elFill=$('clockfill'),elGo=$('go'),elNoTimer=$('noTimer'),elResult=$('result');
+  var STUDY=20,WORK=35,PEN=3;
+  var st={mode:'idle',seed:0,seq:[],round:0,score:0,miss:0,order:[],rots:[],t0:0,left:0,raf:0,elapsed:0};
+
+  function seedRots(seed,round){
+    var r=mul(seed+round*7919),o=[],ro=[],i;
+    for(i=0;i<FORMS.length;i++)o.push(i);
+    for(i=o.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=o[i];o[i]=o[j];o[j]=t}
+    for(i=0;i<FORMS.length;i++)ro.push(ANG[Math.floor(r()*16)]);
+    return{order:o,rots:ro};
+  }
+  function paintBoard(){
+    var h='';
+    st.order.forEach(function(k,pos){
+      var f=FORMS[k];
+      h+='<button class="cell" type="button" data-k="'+k+'" data-pos="'+pos+'" aria-label="第 '+(pos+1)+' 張">'+
+         '<span class="ci lat">'+(pos+1)+'</span>'+
+         formSVG(f,st.rots[pos],{baseRot:ANG[(pos*5+3)%16]})+
+         '<span class="cn">'+(st.mode==='board'?'？':f.c+'　'+f.n)+'</span></button>';
+    });
+    board.innerHTML=h;
+  }
+  function paintSlots(){
+    [].slice.call(slots.children).forEach(function(li,i){
+      li.className='slot'+(i<st.score?' ok':(i===st.score&&st.mode==='board'?' now':''));
+      li.querySelector('.sv').textContent=(i<st.score)?FORMS[st.seq[i]].c+'　'+FORMS[st.seq[i]].n:
+        (st.mode==='study'?'—':(i===st.score&&st.mode==='board'?'現在這一格':'—'));
+    });
+    elScore.textContent=st.score+'／5';elMiss.textContent=st.miss;
+  }
+  function tick(){
+    var now=performance.now();
+    st.left=st.dur-(now-st.t0)/1000-st.pen;
+    st.elapsed=(now-st.t0)/1000;
+    if(elNoTimer.checked&&st.mode==='board'){elClock.textContent='不計時';elFill.style.width='100%';
+      st.raf=requestAnimationFrame(tick);return}
+    if(st.left<=0){st.left=0;render();
+      if(st.mode==='study'){toBoard()}else{finish()}return}
+    render();st.raf=requestAnimationFrame(tick);
+  }
+  function render(){
+    elClock.textContent=st.left.toFixed(1)+' 秒';
+    elFill.style.width=Math.max(0,Math.min(100,st.left/st.dur*100)).toFixed(2)+'%';
+    if(st.mode==='study'){
+      var idx=Math.min(4,Math.floor((STUDY-st.left)/(STUDY/5)));
+      if(idx!==st.sIdx){st.sIdx=idx;var f=FORMS[st.seq[idx]];
+        $('studyart').innerHTML=formSVG(f,0,{baseRot:ANG[(idx*5+1)%16]});
+        $('studyIdx').textContent=idx+1;
+        $('studyName').textContent=f.c+'　'+f.n+' / '+f.e;
+        $('studyDesc').textContent=f.d;}
+    }
+  }
+  function start(seed){
+    st.seed=seed>>>0;st.seq=drawSeq(st.seed);st.round=0;st.score=0;st.miss=0;st.pen=0;st.sIdx=-1;
+    elResult.hidden=true;st.mode='study';st.dur=STUDY;st.t0=performance.now();
+    study.hidden=false;board.style.display='none';elPhase.textContent='看籤';
+    elGo.textContent='跳過，直接上機';
+    paintSlots();render();cancelAnimationFrame(st.raf);st.raf=requestAnimationFrame(tick);
+  }
+  function toBoard(){
+    cancelAnimationFrame(st.raf);
+    st.mode='board';st.dur=WORK;st.pen=0;st.t0=performance.now();
+    study.hidden=true;board.style.display='';elPhase.textContent='上機';
+    elGo.textContent='收工';
+    var s=seedRots(st.seed,st.round);st.order=s.order;st.rots=s.rots;
+    paintBoard();paintSlots();render();st.raf=requestAnimationFrame(tick);
+  }
+  function pick(pos){
+    if(st.mode!=='board')return;
+    var cell=board.children[pos],k=+cell.dataset.k;
+    if(k===st.seq[st.score]){
+      cell.classList.add('hit');cell.querySelector('.cn').textContent=FORMS[k].c+'　'+FORMS[k].n;
+      st.score++;st.round++;paintSlots();
+      if(st.score>=5){finish();return}
+      setTimeout(function(){
+        var s=seedRots(st.seed,st.round);st.order=s.order;st.rots=s.rots;paintBoard();
+      },240);
+    }else{
+      st.miss++;if(!elNoTimer.checked)st.pen+=PEN;
+      cell.classList.add('bad');
+      setTimeout(function(){cell.classList.remove('bad')},260);
+      paintSlots();
+    }
+  }
+  var VERDICT=[
+   ['這一跳沒有成','籤是轉的，你記的是圖不是結構。回籤池那一頁，把每一式的六個結構讀數看一遍——那六個數才是判官在讀的東西。'],
+   ['這一跳沒有成','第一格成了，第二格就找不到人。九張牌重排一次，位置記憶就整個作廢——這是刻意的。'],
+   ['兩格','一半不到。空中不會等你想起來——想起來的時候已經到分離高度了。'],
+   ['三格','過得去。判官會給三格，隊長會問你第四格猶豫在哪裡。'],
+   ['四格','四格以上。差的那一格通常是 A 星與 B 環——位置一樣，朝向全不一樣。'],
+   ['整套籤都在你腦子裡','五格全成。這就是為什麼隊要在地面把整套籤走十遍：上了機沒有紙可以翻。']
+  ];
+  function finish(){
+    cancelAnimationFrame(st.raf);st.mode='done';elPhase.textContent='收工';elGo.textContent='再抽一套';
+    [].slice.call(board.children).forEach(function(c){
+      c.querySelector('.cn').textContent=FORMS[+c.dataset.k].c+'　'+FORMS[+c.dataset.k].n;
+      c.disabled=true;});
+    var code=st.seed.toString(36).toUpperCase();
+    var v=VERDICT[st.score];
+    $('rcode').textContent='RW-'+code+'-'+st.score+st.miss;
+    $('rverdict').textContent=v[0];
+    $('rline').textContent=v[1];
+    $('rseal').innerHTML=sealSVG(code,st.score,st.miss);
+    var used=elNoTimer.checked?'—':(Math.min(WORK,st.elapsed)).toFixed(1)+' 秒';
+    $('rtable').innerHTML=
+      '<tr><td>抽到的籤</td><td class="lat" style="letter-spacing:.3em;font-weight:700">'+st.seq.map(function(k){return FORMS[k].c}).join('')+'</td></tr>'+
+      '<tr><td>成格</td><td class="n">'+st.score+'／5</td></tr>'+
+      '<tr><td>誤點</td><td class="n">'+st.miss+'（扣 '+(elNoTimer.checked?0:st.miss*PEN)+' 秒）</td></tr>'+
+      '<tr><td>作業時間</td><td class="n">'+used+'</td></tr>'+
+      '<tr><td>牌重排次數</td><td class="n">'+st.round+'</td></tr>';
+    elResult.hidden=false;
+    paintSlots();
+    try{history.replaceState(null,'','?d='+code)}catch(e){}
+  }
+  board.addEventListener('click',function(e){
+    var c=e.target.closest('button.cell');if(!c)return;pick(+c.dataset.pos);
+  });
+  document.addEventListener('keydown',function(e){
+    if(st.mode!=='board')return;
+    var n=parseInt(e.key,10);
+    if(n>=1&&n<=9){e.preventDefault();pick(n-1)}
+  });
+  elGo.addEventListener('click',function(){
+    if(st.mode==='study'){toBoard();return}
+    if(st.mode==='board'){finish();return}
+    start((Math.random()*4294967295)>>>0);
+  });
+  $('again').addEventListener('click',function(){start((Math.random()*4294967295)>>>0)});
+  $('copyLink').addEventListener('click',function(){
+    var url=location.origin+location.pathname+'?d='+st.seed.toString(36).toUpperCase();
+    var note=$('copyNote');
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){note.textContent='已複製：'+url},
+        function(){note.textContent=url});
+    }else{note.textContent=url}
+  });
+  /* ?d= 還原同一套籤 */
+  var m=(location.search.match(/[?&]d=([0-9A-Za-z]+)/)||[])[1];
+  if(m){var sd=parseInt(m,36)>>>0;if(sd){start(sd);}}
+})();
+
+</script>
+</body>
+</html>

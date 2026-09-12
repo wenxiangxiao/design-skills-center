@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>幾塊認得出｜新寶鳥站</title>
+<meta name="description" content="一個九十秒的遊戲：紙上一次多印一塊版，你要在幾塊之前說出這是哪一種鳥。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23D8A33A%22%2F%3E%3Cellipse%20cx%3D%2215%22%20cy%3D%2219%22%20rx%3D%2210%22%20ry%3D%225%22%20fill%3D%22%2333261A%22%2F%3E%3Cpath%20d%3D%22M13%2017L21%205L27%208L16%2020Z%22%20fill%3D%22%231D6F68%22%2F%3E%3Cpath%20d%3D%22M6%2019L1%2024L9%2023Z%22%20fill%3D%22%23CE4F27%22%2F%3E%3Ccircle%20cx%3D%2221%22%20cy%3D%2216.5%22%20r%3D%221.7%22%20fill%3D%22%23FAF4E4%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}
+:root{
+--field:#D8A33A;--paper:#E7DFC6;--wht:#FAF4E4;--teal:#1D6F68;--persim:#CE4F27;--ink:#33261A;
+--op-ty:#194718;--op-oy:#AE3209;--op-ot:#172210;--op-ky:#2B1806;
+--rule:2px solid var(--ink);--hair:1px solid var(--ink);
+--f-lat:'Jost',system-ui,sans-serif;--f-han:'Noto Sans TC','Jost',sans-serif;
+}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--field);color:var(--ink);
+font-family:var(--f-han);font-size:16px;line-height:1.72;letter-spacing:.01em;
+font-feature-settings:"palt" 1}
+h1,h2,h3,h4{font-weight:700;line-height:1.12;margin:0;letter-spacing:-.01em}
+a{color:var(--ink);text-underline-offset:3px;text-decoration-thickness:1px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--persim);outline-offset:2px}
+p{margin:0 0 .85em}
+.lat{font-family:var(--f-lat);font-weight:500;letter-spacing:.06em}
+.num{font-family:var(--f-lat);font-weight:500;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* ===== 版：一色一張 svg，於 HTML 層疊印 ===== */
+.fig{position:relative;isolation:isolate;background:var(--paper);overflow:hidden}
+.fig.on-field{background:var(--field)}
+.fig .pl{position:absolute;inset:0;width:100%;height:100%;
+transform:translate(var(--rx),var(--ry));animation:drift 19s ease-in-out infinite alternate}
+.fig .pl:nth-child(2){animation-duration:23s}
+.fig .pl:nth-child(3){animation-duration:17s}
+.fig .pl:nth-child(4){animation-duration:21s}
+@keyframes drift{from{transform:translate(var(--rx),var(--ry))}to{transform:translate(calc(var(--rx) * -1 - .7px),calc(var(--ry) * -1 + .8px))}}
+.fig:hover .pl:last-child,.fig:focus-within .pl:last-child{transform:translate(calc(var(--rx) + 3px),calc(var(--ry) + 2px));animation:none;transition:transform 90ms linear}
+.fig.wiping .pl:last-child{animation:squeegee 260ms steps(4) 1}
+@keyframes squeegee{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+/* ===== 刮刀轉場 ===== */
+.sweep{animation:sweep 480ms steps(6) 1 both}
+@keyframes sweep{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+/* ===== 刊頭 ===== */
+.top{border-bottom:var(--rule);background:var(--field)}
+.topin{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:16px 0 12px}
+.mark{display:flex;align-items:center;gap:12px;text-decoration:none}
+.mark .lg{width:46px;height:36px;flex:none}
+.mark b{display:block;font-size:21px;font-weight:900;letter-spacing:.04em;line-height:1}
+.mark span{display:block;font-family:var(--f-lat);font-size:10.5px;font-weight:500;letter-spacing:.22em;margin-top:4px}
+/* ===== plate-ply 版數導覽 ===== */
+nav.ply{display:flex;flex-wrap:wrap;gap:0;border:var(--rule);background:var(--paper)}
+nav.ply a{display:flex;align-items:center;gap:9px;padding:7px 12px 7px 8px;text-decoration:none;border-right:var(--hair);min-width:0}
+nav.ply a:last-child{border-right:0}
+nav.ply .ic{width:38px;height:29px;flex:none;position:relative;isolation:isolate;background:var(--paper);overflow:hidden}
+nav.ply .ic .pl{position:absolute;inset:0;width:100%;height:100%}
+nav.ply .tx{font-size:13px;font-weight:700;line-height:1.15;white-space:nowrap}
+nav.ply .tx i{display:block;font-family:var(--f-lat);font-style:normal;font-size:9px;font-weight:500;letter-spacing:.13em;opacity:.72}
+nav.ply a[aria-current=page]{background:var(--field)}
+nav.ply a[aria-current=page] .ic{background:var(--field);width:50px;height:38px}
+nav.ply a[aria-current=page] .tx{font-size:14px}
+nav.ply a[aria-current=page] .tx i:after{content:" · 5 版"}
+/* ===== 潮位條（真實時刻驅動）===== */
+.tide{border-bottom:var(--rule);background:var(--paper);overflow:hidden}
+.tidein{display:flex;align-items:center;gap:18px;padding:7px 0;font-size:13px}
+.tidetrack{position:relative;flex:1;height:22px;background:var(--wht);border:var(--hair);overflow:hidden;min-width:120px}
+.tidefill{position:absolute;left:0;bottom:0;width:100%;background:var(--teal);height:40%;transition:height 3.5s linear}
+.tidemark{position:absolute;top:0;bottom:0;width:2px;background:var(--persim)}
+/* ===== 區塊 ===== */
+section{border-bottom:var(--rule)}
+.sechead{display:flex;align-items:baseline;gap:14px;padding:26px 0 6px}
+.sechead h2{font-size:clamp(21px,3vw,30px)}
+.sechead .node{flex:1;height:0;border-top:var(--hair);position:relative;top:-4px}
+.sechead .node:after{content:"";position:absolute;right:0;top:-4px;width:9px;height:9px;background:var(--persim);border-radius:50%}
+.sechead .en{font-family:var(--f-lat);font-size:11px;letter-spacing:.2em;font-weight:500}
+.panel{background:var(--paper);border:var(--rule);padding:22px}
+.lede{font-size:17px;max-width:62ch}
+.small{font-size:13.5px;line-height:1.7}
+.cap{font-family:var(--f-lat);font-size:10.5px;letter-spacing:.2em;font-weight:600;text-transform:uppercase}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:var(--hair);padding:7px 9px;text-align:left;vertical-align:top}
+th{font-size:11px;letter-spacing:.14em;font-family:var(--f-lat);font-weight:600;text-transform:uppercase;white-space:nowrap}
+.btn{font-family:var(--f-han);font-size:14px;font-weight:700;padding:9px 16px;background:var(--persim);color:var(--wht);
+border:var(--rule);cursor:pointer;line-height:1.2}
+.btn.g{background:var(--paper);color:var(--ink)}
+.btn:disabled{background:var(--paper);color:#8b7f6e;cursor:not-allowed}
+.btn:active{transform:translate(1px,1px)}
+/* ===== 首頁：加版直開場 ===== */
+.open{display:grid;grid-template-columns:1.32fr 1fr;gap:0;border-bottom:var(--rule)}
+.plate{position:relative;border-right:var(--rule);background:var(--paper);padding:0}
+.plate .fig{aspect-ratio:100/76}
+.platebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:var(--rule);padding:12px 18px;background:var(--field)}
+.plyread{font-family:var(--f-lat);font-size:34px;font-weight:700;line-height:.9}
+.plyread s{font-size:12px;letter-spacing:.18em;font-weight:600;text-decoration:none;display:block}
+.today{padding:20px 22px;background:var(--paper);display:flex;flex-direction:column;gap:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:14px}
+.kv dt{font-family:var(--f-lat);font-size:10.5px;letter-spacing:.16em;font-weight:600;padding-top:5px;white-space:nowrap}
+.kv dd{margin:0;border-bottom:var(--hair);padding:3px 0}
+.walls{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.walls.five{grid-template-columns:repeat(5,1fr)}
+.vtop{display:grid;grid-template-columns:1fr 1fr;gap:0;border:var(--rule);background:var(--paper);margin-bottom:26px}
+.vtop>div{padding:18px 20px}
+.vtop>div:first-child{border-right:var(--rule)}
+.wall{border-right:var(--rule);padding:18px;background:var(--paper)}
+.wall:last-child{border-right:0}
+.wall .fig{aspect-ratio:100/76;margin-bottom:12px;border:var(--hair)}
+/* ===== 印房：五塊版 ===== */
+.inks{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:var(--rule);background:var(--paper)}
+.ink{padding:14px;border-right:var(--hair)}
+.ink:last-child{border-right:0}
+.chip{height:44px;border:var(--hair);margin-bottom:9px}
+.ops{display:flex;flex-wrap:wrap;gap:0;border:var(--rule);border-top:0}
+.op{flex:1 1 120px;padding:10px 12px;border-right:var(--hair);background:var(--paper)}
+.op i{display:block;height:26px;margin-bottom:7px;font-style:normal}
+/* ===== 鳥籍：subgrid 對齊 ===== */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:16px;
+grid-template-rows:auto}
+.card{display:grid;grid-row:span 7;grid-template-rows:subgrid;gap:0;border:var(--rule);background:var(--paper)}
+.card .fig{aspect-ratio:100/76;border-bottom:var(--rule)}
+.card .r{padding:6px 11px;border-bottom:var(--hair);font-size:13px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .r:last-child{border-bottom:0}
+.card .nm{font-size:17px;font-weight:700;padding:9px 11px 6px}
+.card .nm em{display:block;font-family:var(--f-lat);font-style:italic;font-size:11.5px;font-weight:400;opacity:.78;letter-spacing:.01em}
+.card .r b{font-family:var(--f-lat);font-weight:600}
+.mos{display:flex;gap:1.5px}
+.mos i{width:8px;height:13px;background:var(--wht);border:1px solid var(--ink);display:block}
+.mos i.on{background:var(--persim)}
+@supports not (grid-template-rows:subgrid){
+ .card{grid-row:auto;grid-template-rows:none}
+ .card .nm{min-height:62px}
+ .card .note{min-height:78px}
+}
+.card details{border-top:var(--hair)}
+.card summary{cursor:pointer;padding:7px 11px;font-size:12px;font-family:var(--f-lat);letter-spacing:.12em;font-weight:600}
+.card details[open] summary{background:var(--field)}
+.card .plies{padding:4px 11px 11px;font-size:12.5px}
+.card .plies li{margin:0 0 2px}
+.filters{display:flex;flex-wrap:wrap;gap:7px;padding:14px 0 18px}
+.filters button{font-size:12.5px;font-weight:700;padding:6px 11px;background:var(--paper);border:var(--hair);cursor:pointer;font-family:var(--f-han)}
+.filters button[aria-pressed=true]{background:var(--ink);color:var(--field)}
+/* ===== 幾塊認得出 ===== */
+.game{display:grid;grid-template-columns:1.25fr 1fr;border:var(--rule);background:var(--paper)}
+.gfig{border-right:var(--rule)}
+.gfig .fig{aspect-ratio:100/76}
+.gside{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts button{font-family:var(--f-han);font-size:14px;font-weight:700;padding:10px 8px;background:var(--wht);border:var(--rule);cursor:pointer}
+.opts button:hover{background:var(--field)}
+.opts button.ok{background:var(--teal);color:var(--wht)}
+.opts button.no{background:var(--persim);color:var(--wht)}
+.tally{display:flex;gap:5px;flex-wrap:wrap}
+.tally i{width:15px;height:15px;border:var(--hair);background:var(--wht);display:block}
+.tally i.used{background:var(--ink)}
+.score{border:var(--rule);background:var(--paper);padding:20px;margin-top:18px}
+/* ===== 表單 ===== */
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-family:var(--f-lat);font-size:10.5px;letter-spacing:.16em;font-weight:600}
+.fld input,.fld select,.fld textarea{font-family:var(--f-han);font-size:15px;padding:8px 10px;background:var(--wht);border:var(--rule);color:var(--ink)}
+.fld .err{font-size:12px;color:var(--persim);font-weight:700;min-height:1.2em}
+.stamp{display:flex;gap:16px;align-items:center;border:var(--rule);background:var(--paper);padding:16px;margin-top:14px}
+.stamp .fig{width:96px;height:96px;flex:none;border:var(--hair)}
+/* ===== 頁尾 ===== */
+footer{background:var(--ink);color:var(--paper);border-top:var(--rule)}
+footer a{color:var(--field)}
+.footin{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px;padding:28px 0}
+.plybar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #5a4a35;padding:14px 0;font-size:13px}
+.plybar button{font-family:var(--f-lat);font-size:17px;font-weight:700;width:32px;height:32px;background:var(--field);border:2px solid var(--paper);color:var(--ink);cursor:pointer;line-height:1}
+.plybar output{font-family:var(--f-lat);font-size:20px;font-weight:700;min-width:2ch;text-align:center}
+/* ===== RWD ===== */
+@media(max-width:900px){
+ .open,.game{grid-template-columns:1fr}
+ .plate,.gfig{border-right:0;border-bottom:var(--rule)}
+ .walls,.walls.five{grid-template-columns:1fr}
+ .vtop{grid-template-columns:1fr}
+ .vtop>div:first-child{border-right:0;border-bottom:var(--rule)}
+ .wall{border-right:0;border-bottom:var(--hair)}
+ .inks{grid-template-columns:repeat(2,1fr)}
+ .ink{border-bottom:var(--hair)}
+ .footin{grid-template-columns:1fr 1fr}
+ .topin{flex-wrap:wrap}
+ nav.ply{width:100%}
+ nav.ply a{flex:1 1 auto;justify-content:flex-start}
+}
+@media(max-width:560px){
+ body{font-size:15px}
+ .wrap{padding:0 14px}
+ .form,.opts,.footin{grid-template-columns:1fr}
+ .inks{grid-template-columns:1fr}
+ nav.ply .tx i{display:none}
+ nav.ply a{padding:6px 8px;gap:6px;flex:1 1 46%;border-bottom:var(--hair)}
+ nav.ply a:nth-child(2n){border-right:0}
+ nav.ply a:nth-child(n+3){border-bottom:0}
+ nav.ply .ic{width:30px;height:24px}
+ nav.ply a[aria-current=page] .ic{width:40px;height:31px}
+ .roster{grid-template-columns:1fr}
+ .panel{padding:15px}
+ .stamp{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+ .fig .pl,.fig.wiping .pl:last-child{animation:none!important}
+ .sweep{animation:none!important;clip-path:none!important}
+ .tidefill{transition:none}
+ .fig:hover .pl:last-child,.fig:focus-within .pl:last-child{transition:none}
+ .btn:active{transform:none}
+}
+.mark .lg svg{display:block;width:100%;height:100%}
+.atomic{display:block;width:100%;height:34px;margin:6px 0 2px;color:var(--ink)}
+.atomic .a1{fill:currentColor}.atomic .a2{fill:var(--persim)}
+.atomic .a3{fill:var(--teal)}.atomic .a4{fill:var(--paper)}
+footer .atomic{color:var(--paper)}footer .atomic .a3{fill:var(--field)}
+footer .atomic{margin:10px 0 0;opacity:.95}
+@media(max-width:560px){.atomic{height:26px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap topin">
+<a class="mark" href="index.html"><span class="lg"><svg viewBox="12.18 10.16 65.18 49.54" role="img" aria-label="新寶鳥站站徽——一隻五塊版的燕鴴"><g fill="#1D6F68"><path d="M12.18 10.16L77.36 10.16L77.36 59.7L12.18 59.7Z"/></g><g fill="#FAF4E4"><path d="M42 36.88L53.8 23.62L69.4 14.26L63.16 25.18L52.24 37.66L44 42.34ZM41 39.22L32.74 46.24L24.16 48.58L30.4 42.73L40.54 41.56Z"/></g><g fill="#D8A33A"><path d="M30.44 41.09A15.6 5.93 -4 0 1 61.56 38.91A15.6 5.93 -4 0 1 30.44 41.09ZM54.27 35.32A4.99 4.99 0 0 1 64.25 35.32A4.99 4.99 0 0 1 54.27 35.32ZM31.18 36L16.18 31L21.88 38.5L16.18 45L31.18 43.4Z"/></g><g fill="#1D6F68"><path d="M64.32 35.45A5.09 5.09 0 0 1 54.2 34.39Z"/></g><g fill="#CE4F27"><path d="M63.47 34.99L70.19 37.49L63.04 38.05Z"/></g><g fill="#33261A"><path d="M64.41 39.8A7.12 7.12 0 0 1 52.61 39.8L54.81 38.32A4.46 4.46 0 0 0 62.21 38.32ZM60.01 33.72A1.45 1.45 0 0 1 62.91 33.72A1.45 1.45 0 0 1 60.01 33.72Z"/></g></svg></span><span><b>新寶鳥站</b><span>SINPO BIRD STATION</span></span></a>
+<nav class="ply" aria-label="主要導覽"><a href="index.html"><span class="ic"><svg class="pl" viewBox="12.18 10.16 65.18 49.54" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M30.44 41.09A15.6 5.93 -4 0 1 61.56 38.91A15.6 5.93 -4 0 1 30.44 41.09ZM54.27 35.32A4.99 4.99 0 0 1 64.25 35.32A4.99 4.99 0 0 1 54.27 35.32Z"/></svg></span><span class="tx">今天的板子<i>TODAY</i></span></a><a href="birds.html"><span class="ic"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg></span><span class="tx">鳥籍<i>ROSTER</i></span></a><a href="ply.html" aria-current="page"><span class="ic"><svg class="pl" viewBox="15.4 11.8 83.97 63.82" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:0px;--ry:0px;fill:#1D6F68;mix-blend-mode:multiply"><path d="M13.4 9.8L101.37 9.8L101.37 77.62L13.4 77.62Z"/></svg><svg class="pl" viewBox="15.4 11.8 83.97 63.82" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:0px;--ry:0px;fill:#FAF4E4;mix-blend-mode:normal"><path d="M24.13 46.01A18.05 9.98 -8 0 1 59.87 40.99A18.05 9.98 -8 0 1 24.13 46.01ZM50.78 33.36L49.86 32.88L49.33 32.55L49.15 32.51L49.16 32.86L49.07 33.46L48.84 33.82L48.79 33.72L49.15 33.29L49.93 32.69L51.11 32L52.65 31.29L54.54 30.56L56.77 29.82L59.31 29.09L58.17 24.09L55.42 24.65L52.94 25.23L50.71 25.84L48.74 26.49L46.99 27.21L45.44 28.03L44.05 29.05L42.87 30.43L42.08 32.29L42.03 34.43L42.68 36.34L43.73 37.89L45.02 39.18L46.52 40.34ZM56.94 23.45A6.12 5.32 -8 0 1 69.06 21.75A6.12 5.32 -8 0 1 56.94 23.45Z"/></svg><svg class="pl" viewBox="15.4 11.8 83.97 63.82" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-0.5px;--ry:-0.6px;fill:#33261A;mix-blend-mode:multiply"><path d="M67.26 20.6L80.32 24L88.32 23.6L90.82 27.2L87.32 31L80.32 30L74.32 27L67.26 24.8Z"/></svg></span><span class="tx">幾塊認得出<i>HOW FEW</i></span></a><a href="visit.html"><span class="ic"><svg class="pl" viewBox="7.05 6.26 92.15 70.04" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:0px;--ry:0px;fill:#1D6F68;mix-blend-mode:multiply"><path d="M5.05 4.26L101.2 4.26L101.2 78.3L5.05 78.3Z"/></svg><svg class="pl" viewBox="7.05 6.26 92.15 70.04" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:0px;--ry:0px;fill:#FAF4E4;mix-blend-mode:normal"><path d="M26.93 37.21A17.16 9.36 -6 0 1 61.07 33.63A17.16 9.36 -6 0 1 26.93 37.21Z"/></svg></span><span class="tx">參觀與繫放<i>VISIT</i></span></a></nav>
+</div></header>
+<div class="tide"><div class="wrap tidein">
+<span class="cap">潮位</span>
+<span class="num" data-tide="h">—</span>
+<span data-tide="dir">—</span>
+<div class="tidetrack" aria-hidden="true"><div class="tidefill"></div></div>
+<span class="small">露灘 <b class="num" data-tide="bare">—</b>　下一次高潮 <b class="num" data-tide="hi">—</b>　低潮 <b class="num" data-tide="lo">—</b></span>
+</div></div>
+<main><div class="wrap">
+<div class="sechead"><h2>幾塊認得出</h2><span class="node"></span><span class="en">HOW FEW PLATES</span></div>
+<p class="lede" data-sweep>版房的規矩只有一條：<b>能少一塊就少一塊</b>。這裡把那條規矩交給你。<br>
+一、紙上先印一塊版，認得出來就直接說牠是誰。二、認不出來就再印一塊，最多印到站裡的定稿。三、五題，比的不是對幾題，是你總共花掉幾塊版。</p>
+
+<div class="game" id="game">
+ <div class="gfig"><div class="fig" id="gbox" style="aspect-ratio:100/76"></div></div>
+ <div class="gside">
+  <p class="cap">第 <span class="num" id="gq">1</span> / 5 題　已印 <span class="num" id="gn">1</span> 塊　本輪累計 <span class="num" id="gt">0</span> 塊</p>
+  <div class="tally" id="gtally" aria-hidden="true"></div>
+  <button class="btn" type="button" id="gmore">再印一塊版</button>
+  <p class="small" id="gmsg">看得出來牠是誰嗎？看不出來就再印一塊——但每一塊都算在你頭上。</p>
+  <div class="opts" id="gopts"></div>
+  <button class="btn g" type="button" id="gnext" hidden>下一題</button>
+ </div>
+</div>
+<div id="gscore"></div>
+
+<div class="panel" style="margin:26px 0">
+ <h3 style="font-size:20px;margin-bottom:10px">示範：大杓鷸從第一塊到第七塊</h3>
+ <div style="display:flex;gap:8px;flex-wrap:wrap"><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">1</p></div><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">2</p></div><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-0.5px;--ry:-0.6px;fill:#33261A;mix-blend-mode:multiply"><path d="M70.31 29.5L72.99 29.89L75.67 30.59L78.34 31.58L80.99 32.87L83.64 34.45L86.28 36.33L88.9 38.51L91.52 40.99L94.12 43.76L96.72 46.83L96.7 47.18L94.1 44.42L91.48 41.96L88.86 39.79L86.22 37.92L83.57 36.35L80.92 35.08L78.25 34.1L75.57 33.42L72.88 33.03L70.19 32.94Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">3</p></div><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-0.5px;--ry:-0.6px;fill:#33261A;mix-blend-mode:multiply"><path d="M70.31 29.5L72.99 29.89L75.67 30.59L78.34 31.58L80.99 32.87L83.64 34.45L86.28 36.33L88.9 38.51L91.52 40.99L94.12 43.76L96.72 46.83L96.7 47.18L94.1 44.42L91.48 41.96L88.86 39.79L86.22 37.92L83.57 36.35L80.92 35.08L78.25 34.1L75.57 33.42L72.88 33.03L70.19 32.94ZM38.9 54.15L41.1 54.15L41.1 70.15L44.3 70.15L44.3 72.13L36.3 72.13L36.3 70.15L38.9 70.15ZM46.9 54.15L49.1 54.15L49.1 69.51L52.3 69.51L52.3 71.49L44.3 71.49L44.3 69.51L46.9 69.51Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">4</p></div><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-1.1px;--ry:1.2px;fill:#1D6F68;mix-blend-mode:multiply"><path d="M25.33 45.92C24.86 43.87,28.1 39.53,32.27 37.13C36.45 34.73,41.41 33.59,46.22 33.91C51.03 34.24,55.84 36.72,56.31 38.76C56.78 40.81,52.91 42.42,48.58 44.14C44.24 45.86,39.29 47,34.64 47.36C29.99 47.71,25.8 47.96,25.33 45.92Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-0.5px;--ry:-0.6px;fill:#33261A;mix-blend-mode:multiply"><path d="M70.31 29.5L72.99 29.89L75.67 30.59L78.34 31.58L80.99 32.87L83.64 34.45L86.28 36.33L88.9 38.51L91.52 40.99L94.12 43.76L96.72 46.83L96.7 47.18L94.1 44.42L91.48 41.96L88.86 39.79L86.22 37.92L83.57 36.35L80.92 35.08L78.25 34.1L75.57 33.42L72.88 33.03L70.19 32.94ZM38.9 54.15L41.1 54.15L41.1 70.15L44.3 70.15L44.3 72.13L36.3 72.13L36.3 70.15L38.9 70.15ZM46.9 54.15L49.1 54.15L49.1 69.51L52.3 69.51L52.3 71.49L44.3 71.49L44.3 69.51L46.9 69.51Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">5</p></div><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-1.1px;--ry:1.2px;fill:#1D6F68;mix-blend-mode:multiply"><path d="M25.33 45.92C24.86 43.87,28.1 39.53,32.27 37.13C36.45 34.73,41.41 33.59,46.22 33.91C51.03 34.24,55.84 36.72,56.31 38.76C56.78 40.81,52.91 42.42,48.58 44.14C44.24 45.86,39.29 47,34.64 47.36C29.99 47.71,25.8 47.96,25.33 45.92Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-0.5px;--ry:-0.6px;fill:#33261A;mix-blend-mode:multiply"><path d="M70.31 29.5L72.99 29.89L75.67 30.59L78.34 31.58L80.99 32.87L83.64 34.45L86.28 36.33L88.9 38.51L91.52 40.99L94.12 43.76L96.72 46.83L96.7 47.18L94.1 44.42L91.48 41.96L88.86 39.79L86.22 37.92L83.57 36.35L80.92 35.08L78.25 34.1L75.57 33.42L72.88 33.03L70.19 32.94ZM38.9 54.15L41.1 54.15L41.1 70.15L44.3 70.15L44.3 72.13L36.3 72.13L36.3 70.15L38.9 70.15ZM46.9 54.15L49.1 54.15L49.1 69.51L52.3 69.51L52.3 71.49L44.3 71.49L44.3 69.51L46.9 69.51ZM65.35 28.61A1.55 1.55 0 0 1 68.45 28.61A1.55 1.55 0 0 1 65.35 28.61Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">6</p></div><div style="flex:1 1 90px"><div class="fig" style="aspect-ratio:100/76;border:1px solid #33261A"><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:0px;--ry:0px;fill:#FAF4E4;mix-blend-mode:normal"><path d="M28.13 49.6A13.78 4.88 -4 0 1 55.63 47.68A13.78 4.88 -4 0 1 28.13 49.6Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:1.3px;--ry:-0.9px;fill:#D8A33A;mix-blend-mode:multiply"><path d="M20.81 45.78A23.32 12.72 -6 0 1 67.19 40.9A23.32 12.72 -6 0 1 20.81 45.78ZM56.51 30.62A7.63 7.63 0 0 1 71.77 30.62A7.63 7.63 0 0 1 56.51 30.62Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-1.1px;--ry:1.2px;fill:#1D6F68;mix-blend-mode:multiply"><path d="M25.33 45.92C24.86 43.87,28.1 39.53,32.27 37.13C36.45 34.73,41.41 33.59,46.22 33.91C51.03 34.24,55.84 36.72,56.31 38.76C56.78 40.81,52.91 42.42,48.58 44.14C44.24 45.86,39.29 47,34.64 47.36C29.99 47.71,25.8 47.96,25.33 45.92Z"/></svg><svg class="pl" viewBox="6.46 -4.46 108.11 82.17" aria-hidden="true" preserveAspectRatio="xMidYMid meet" style="--rx:-0.5px;--ry:-0.6px;fill:#33261A;mix-blend-mode:multiply"><path d="M70.31 29.5L72.99 29.89L75.67 30.59L78.34 31.58L80.99 32.87L83.64 34.45L86.28 36.33L88.9 38.51L91.52 40.99L94.12 43.76L96.72 46.83L96.7 47.18L94.1 44.42L91.48 41.96L88.86 39.79L86.22 37.92L83.57 36.35L80.92 35.08L78.25 34.1L75.57 33.42L72.88 33.03L70.19 32.94ZM38.9 54.15L41.1 54.15L41.1 70.15L44.3 70.15L44.3 72.13L36.3 72.13L36.3 70.15L38.9 70.15ZM46.9 54.15L49.1 54.15L49.1 69.51L52.3 69.51L52.3 71.49L44.3 71.49L44.3 69.51L46.9 69.51ZM65.35 28.61A1.55 1.55 0 0 1 68.45 28.61A1.55 1.55 0 0 1 65.35 28.61Z"/></svg></div><p class="num small" style="text-align:center;margin:4px 0 0">7</p></div></div>
+ <p class="small" style="margin-top:12px">多數人在第三塊——那條下彎的喙落版的時候——就說得出來了。剩下的四塊是給牠好看的，不是給你認的。這就是這個流派的主張：<b>辨識在極端約減之後仍然成立</b>；一旦成立，剩下的每一塊版都要自己說明它為什麼值 260 元。</p>
+</div>
+<noscript><div class="panel">這一題需要 JavaScript。上面那排大杓鷸是同一支引擎在建置階段印好的靜態圖，沒有 JavaScript 也看得到完整的加版過程；<a href="birds.html">鳥籍</a>裡二十四種鳥的拆版清單同樣不需要 JavaScript。</div></noscript>
+</div></main>
+<footer>
+<div class="wrap"><svg class="atomic" viewBox="0 0 600 34" preserveAspectRatio="none" aria-hidden="true">
+<path class="a1" d="M0 17h600v1H0Z"/>
+<path class="a2" d="M66 15.44L79 17L66 18.56ZM67.1 15.9L75.19 26.19L64.9 18.1ZM67.56 17L66 30L64.44 17ZM67.1 18.1L56.81 26.19L64.9 15.9ZM66 18.56L53 17L66 15.44ZM64.9 18.1L56.81 7.81L67.1 15.9ZM64.44 17L66 4L67.56 17ZM64.9 15.9L75.19 7.81L67.1 18.1Z"/>
+<path class="a3" d="M189.46 23.98A17.6 17.6 0 0 1 222.54 23.98L217.65 25.76A12.4 12.4 0 0 0 194.35 25.76Z"/>
+<path class="a4" d="M313.37 20.53C312.87 18.19,316.36 13.36,320.85 10.77C325.34 8.18,330.66 7.04,335.82 7.58C340.97 8.12,346.13 11.12,346.63 13.47C347.13 15.81,342.97 17.51,338.31 19.32C333.66 21.13,328.34 22.26,323.35 22.5C318.36 22.75,313.87 22.88,313.37 20.53Z"/>
+<path class="a1" d="M440.29 18.16L476.29 9.16L475.71 6.84L439.71 15.84ZM475.62 9.14L511.62 21.14L512.38 18.86L476.38 6.86Z"/>
+<circle class="a1" cx="440" cy="17" r="4.6"/><circle class="a2" cx="476" cy="8" r="6.4"/><circle class="a3" cx="512" cy="20" r="4.6"/>
+<path class="a1" d="M560 15.92L569 17L560 18.08ZM560.94 16.46L564.5 24.79L559.06 17.54ZM560.94 17.54L555.5 24.79L559.06 16.46ZM560 18.08L551 17L560 15.92ZM559.06 17.54L555.5 9.21L560.94 16.46ZM559.06 16.46L564.5 9.21L560.94 17.54Z"/>
+</svg>
+<div class="plybar">
+<span class="cap">本站印到第</span>
+<button type="button" data-plydown aria-label="少印一塊版">−</button>
+<output data-plyout class="num">10</output>
+<button type="button" data-plyup aria-label="多印一塊版">＋</button>
+<span class="cap">塊版</span>
+<span class="small" style="flex:1;min-width:220px">改動這個數字，全站每一張圖（含站徽）會當場重印成那個塊數。一塊版＝網版檯上多刮一次、多晾 45 分鐘、多 260 元。</span>
+</div>
+<div class="footin">
+<div>
+<p class="small"><b>新寶鳥站</b>（彰化縣芳苑鄉新寶村・新寶海堤 3.2K 堤外木棧道盡頭）<br>週三至週日 06:00–17:00｜週一、二休站<br>04-898-3172｜站長 王秉澄</p>
+<p class="small">本站的解說牌、月報與海報都在站內的網版檯上自印，五塊版，一版一色。網站照同一套規矩做。</p>
+</div>
+<div class="small"><p class="cap">頁面</p><p><a href="index.html">今天的板子</a><br><a href="birds.html">鳥籍</a><br><a href="ply.html">幾塊認得出</a><br><a href="visit.html">參觀與繫放</a></p></div>
+<div class="small"><p class="cap">風格規格書</p><p><a href="SKILL.md">SKILL.md</a>　<a href="README.md">README.md</a></p>
+<p>本站為 Design Skills Center 館藏範例站，全部人名、電話、價目與繫放紀錄皆為虛構示意；潮汐為 M2 半日潮示意模型，不可用於實際出海。</p></div>
+</div>
+</div>
+</footer>
+<script>/* ===== 新寶鳥站 · 版數約減引擎 (ply-reduction engine) =====
+   一個對象 = 一份「有序的版清單」。render(spec, n) 只印前 n 塊。
+   四塊版：0 柿橘 P1 / 1 孔雀綠 P2 / 2 芥末 P3 / 3 胡桃墨 P4
+   每塊版有固定套印偏移，重疊處由 HTML 層 mix-blend-mode:multiply 生出第三色。 */
+/* 五塊版：0 打底白（不透明，最底）／1 芥末／2 孔雀綠／3 柿橘／4 胡桃墨（最上）
+   1–4 為透明彩墨，於 HTML 層以 mix-blend-mode:multiply 疊印；0 為不透明白，normal。 */
+var INK = ['#FAF4E4', '#D8A33A', '#1D6F68', '#CE4F27', '#33261A'];
+var BLEND = ['normal', 'multiply', 'multiply', 'multiply', 'multiply'];
+var REG = [[0, 0], [1.3, -0.9], [-1.1, 1.2], [0.9, 1.0], [-0.5, -0.6]];
+var W = 0, Y = 1, T = 2, O = 3, K = 4;
+
+function rad(a) { return a * Math.PI / 180; }
+function rot(x, y, cx, cy, a) {
+  var s = Math.sin(rad(a)), c = Math.cos(rad(a)), dx = x - cx, dy = y - cy;
+  return [cx + dx * c - dy * s, cy + dx * s + dy * c];
+}
+function f(n) { return Math.round(n * 100) / 100; }
+function poly(pts) {
+  var d = 'M' + pts.map(function (p) { return f(p[0]) + ' ' + f(p[1]); }).join('L');
+  return d + 'Z';
+}
+/* 橢圓（可旋轉）—— 以兩段圓弧構成，烘進 path，不用 transform */
+function ellD(cx, cy, rx, ry, a) {
+  a = a || 0;
+  var p0 = rot(cx - rx, cy, cx, cy, a), p1 = rot(cx + rx, cy, cx, cy, a);
+  return 'M' + f(p0[0]) + ' ' + f(p0[1]) +
+    'A' + f(rx) + ' ' + f(ry) + ' ' + f(a) + ' 0 1 ' + f(p1[0]) + ' ' + f(p1[1]) +
+    'A' + f(rx) + ' ' + f(ry) + ' ' + f(a) + ' 0 1 ' + f(p0[0]) + ' ' + f(p0[1]) + 'Z';
+}
+/* 半圓：圓心 cx,cy 半徑 r，直徑邊朝 a 方向 */
+function halfD(cx, cy, r, a) {
+  var p0 = rot(cx - r, cy, cx, cy, a), p1 = rot(cx + r, cy, cx, cy, a);
+  return 'M' + f(p0[0]) + ' ' + f(p0[1]) + 'A' + f(r) + ' ' + f(r) + ' 0 0 1 ' + f(p1[0]) + ' ' + f(p1[1]) + 'Z';
+}
+/* 粗桿：平頭，絕不圓角 */
+function barD(x1, y1, x2, y2, w) {
+  var dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L * w / 2, ny = dx / L * w / 2;
+  return poly([[x1 + nx, y1 + ny], [x2 + nx, y2 + ny], [x2 - nx, y2 - ny], [x1 - nx, y1 - ny]]);
+}
+/* 迴力鏢／弧帶：環狀扇形，外緣 r+w/2 內緣 r-w/2 */
+function arcD(cx, cy, r, a0, a1, w) {
+  var ro = r + w / 2, ri = r - w / 2, big = Math.abs(a1 - a0) > 180 ? 1 : 0, sw = a1 > a0 ? 1 : 0;
+  var o0 = rot(cx + ro, cy, cx, cy, a0), o1 = rot(cx + ro, cy, cx, cy, a1);
+  var i1 = rot(cx + ri, cy, cx, cy, a1), i0 = rot(cx + ri, cy, cx, cy, a0);
+  return 'M' + f(o0[0]) + ' ' + f(o0[1]) + 'A' + f(ro) + ' ' + f(ro) + ' 0 ' + big + ' ' + sw + ' ' + f(o1[0]) + ' ' + f(o1[1]) +
+    'L' + f(i1[0]) + ' ' + f(i1[1]) + 'A' + f(ri) + ' ' + f(ri) + ' 0 ' + big + ' ' + (1 - sw) + ' ' + f(i0[0]) + ' ' + f(i0[1]) + 'Z';
+}
+/* 腎形（amoeba）：中軸彎折的閉合貝茲 */
+function beanD(cx, cy, rx, ry, a, bend) {
+  bend = bend == null ? 0.45 : bend;
+  var pts = [[-rx, 0], [-rx * 0.45, -ry], [rx * 0.45, -ry], [rx, 0], [rx * 0.45, ry * (1 - bend)], [-rx * 0.45, ry * (1 - bend)]];
+  pts = pts.map(function (p) { return rot(cx + p[0], cy + p[1], cx, cy, a); });
+  var d = 'M' + f(pts[0][0]) + ' ' + f(pts[0][1]);
+  for (var i = 0; i < pts.length; i++) {
+    var p = pts[i], q = pts[(i + 1) % pts.length], r2 = pts[(i + 2) % pts.length], o = pts[(i - 1 + pts.length) % pts.length];
+    var c1 = [p[0] + (q[0] - o[0]) / 5, p[1] + (q[1] - o[1]) / 5], c2 = [q[0] - (r2[0] - p[0]) / 5, q[1] - (r2[1] - p[1]) / 5];
+    d += 'C' + f(c1[0]) + ' ' + f(c1[1]) + ',' + f(c2[0]) + ' ' + f(c2[1]) + ',' + f(q[0]) + ' ' + f(q[1]);
+  }
+  return d + 'Z';
+}
+/* 尖楔（喙、尾、翼尖）*/
+function wedgeD(x, y, len, w, a) {
+  var p = [[x, y - w / 2], [x + len, y], [x, y + w / 2]].map(function (q) { return rot(q[0], q[1], x, y, a); });
+  return poly(p);
+}
+/* 下彎／上翹的喙：弧帶但收尖 */
+function billD(x, y, len, a, curve, w) {
+  var n = 10, out = [], inn = [];
+  for (var i = 0; i <= n; i++) {
+    var t = i / n, ww = w * (1 - t) + 0.35;
+    var px = x + len * t, py = y + curve * len * t * t;
+    var pr = rot(px, py - ww / 2, x, y, a), pl = rot(px, py + ww / 2, x, y, a);
+    out.push(pr); inn.unshift(pl);
+  }
+  return poly(out.concat(inn));
+}
+/* 帶狀曲線（頸、彎帶）：二次貝茲取樣後左右法向外擴，平頭收尾 */
+function bandD(p0, c, p1, w0, w1) {
+  var n = 14, L = [], R = [];
+  for (var i = 0; i <= n; i++) {
+    var t = i / n, mt = 1 - t;
+    var x = mt * mt * p0[0] + 2 * mt * t * c[0] + t * t * p1[0];
+    var y = mt * mt * p0[1] + 2 * mt * t * c[1] + t * t * p1[1];
+    var dx = 2 * mt * (c[0] - p0[0]) + 2 * t * (p1[0] - c[0]);
+    var dy = 2 * mt * (c[1] - p0[1]) + 2 * t * (p1[1] - c[1]);
+    var m = Math.hypot(dx, dy) || 1, w = (w0 + (w1 - w0) * t) / 2;
+    L.push([x - dy / m * w, y + dx / m * w]); R.unshift([x + dy / m * w, y - dx / m * w]);
+  }
+  return poly(L.concat(R));
+}
+function shapeD(s) {
+  switch (s.t) {
+    case 'ell': return ellD(s.x, s.y, s.rx, s.ry, s.a || 0);
+    case 'cir': return ellD(s.x, s.y, s.r, s.r, 0);
+    case 'half': return halfD(s.x, s.y, s.r, s.a || 0);
+    case 'bar': return barD(s.x1, s.y1, s.x2, s.y2, s.w);
+    case 'arc': return arcD(s.x, s.y, s.r, s.a0, s.a1, s.w);
+    case 'bean': return beanD(s.x, s.y, s.rx, s.ry, s.a || 0, s.bend);
+    case 'wedge': return wedgeD(s.x, s.y, s.len, s.w, s.a || 0);
+    case 'bill': return billD(s.x, s.y, s.len, s.a || 0, s.curve || 0, s.w);
+    case 'band': return bandD(s.p0, s.c, s.p1, s.w0, s.w1);
+    case 'poly': return poly(s.pts);
+    case 'multi': return s.ds.map(poly).join('');
+  }
+  return '';
+}
+/* 把有序版清單分派到四塊版，輸出四張疊起來的 <svg> */
+/* 依全部版算出外框，讓每一種鳥都填滿自己的框（真實體長另以數字標示） */
+function bboxOf(s) {
+  switch (s.t) {
+    case 'ell': var m = Math.max(s.rx, s.ry); return [s.x - m, s.y - m, s.x + m, s.y + m];
+    case 'cir': return [s.x - s.r, s.y - s.r, s.x + s.r, s.y + s.r];
+    case 'half': return [s.x - s.r, s.y - s.r, s.x + s.r, s.y + s.r];
+    case 'bar': return [Math.min(s.x1, s.x2) - s.w, Math.min(s.y1, s.y2) - s.w, Math.max(s.x1, s.x2) + s.w, Math.max(s.y1, s.y2) + s.w];
+    case 'arc': var R = s.r + s.w / 2; return [s.x - R, s.y - R, s.x + R, s.y + R];
+    case 'bean': var b = Math.max(s.rx, s.ry); return [s.x - b, s.y - b, s.x + b, s.y + b];
+    case 'wedge': var q = s.len + s.w; return [s.x - q, s.y - q, s.x + q, s.y + q];
+    case 'bill': var u = s.len + s.w; return [s.x - u, s.y - u, s.x + u, s.y + u];
+    case 'band': return ptsBox([s.p0, s.c, s.p1]).map(function (v, i) { return i < 2 ? v - s.w0 : v + s.w0; });
+    case 'poly': return ptsBox(s.pts);
+    case 'multi': var r0 = ptsBox(s.ds[0]), r1 = ptsBox(s.ds[1] || s.ds[0]);
+      return [Math.min(r0[0], r1[0]), Math.min(r0[1], r1[1]), Math.max(r0[2], r1[2]), Math.max(r0[3], r1[3])];
+  }
+  return [50, 38, 50, 38];
+}
+function ptsBox(p) {
+  var a = 1e9, b = 1e9, c = -1e9, d = -1e9;
+  for (var i = 0; i < p.length; i++) { a = Math.min(a, p[i][0]); b = Math.min(b, p[i][1]); c = Math.max(c, p[i][0]); d = Math.max(d, p[i][1]); }
+  return [a, b, c, d];
+}
+function viewOf(parts) {
+  var a = 1e9, b = 1e9, c = -1e9, d = -1e9;
+  for (var i = 0; i < parts.length; i++) {
+    if (parts[i].k === 'field' || parts[i].k === 'water') continue;
+    var r = bboxOf(parts[i]);
+    a = Math.min(a, r[0]); b = Math.min(b, r[1]); c = Math.max(c, r[2]); d = Math.max(d, r[3]);
+  }
+  var w = c - a, h = d - b, pad = Math.max(w, h) * 0.07;
+  a -= pad; b -= pad; w += pad * 2; h += pad * 2;
+  var ar = 100 / 76;
+  if (w / h < ar) { var nw = h * ar; a -= (nw - w) / 2; w = nw; } else { var nh = w / ar; b -= (nh - h) / 2; h = nh; }
+  return f(a) + ' ' + f(b) + ' ' + f(w) + ' ' + f(h);
+}
+function plyFigure(parts, n, opt) {
+  opt = opt || {};
+  var vb = opt.vb || viewOf(parts);
+  var use = parts.slice(0, Math.max(1, Math.min(n, parts.length)));
+  var vbn = vb.split(' ').map(Number);
+  use = use.map(function (q) {
+    if (q.k !== 'field') return q;
+    return { k: 'field', p: q.p, t: 'poly', pts: [[vbn[0] - 2, vbn[1] - 2], [vbn[0] + vbn[2] + 2, vbn[1] - 2], [vbn[0] + vbn[2] + 2, vbn[1] + vbn[3] + 2], [vbn[0] - 2, vbn[1] + vbn[3] + 2]] };
+  });
+  var layers = [[], [], [], [], []], bg = [[], [], [], [], []];
+  for (var i = 0; i < use.length; i++) (use[i].k === 'field' ? bg : layers)[use[i].p].push(shapeD(use[i]));
+  var out = '';
+  for (var k = 0; k < 5; k++) {
+    if (!bg[k].length) continue;
+    out += '<svg class="pl" viewBox="' + vb + '" aria-hidden="true" preserveAspectRatio="' +
+      (opt.par || 'xMidYMid meet') + '" style="--rx:0px;--ry:0px;fill:' + INK[k] + ';mix-blend-mode:' + BLEND[k] + '">' +
+      '<path d="' + bg[k].join('') + '"/></svg>';
+  }
+  for (var k = 0; k < 5; k++) {
+    if (!layers[k].length) continue;
+    out += '<svg class="pl" viewBox="' + vb + '" aria-hidden="true" preserveAspectRatio="' +
+      (opt.par || 'xMidYMid meet') + '" style="--rx:' + REG[k][0] + 'px;--ry:' + REG[k][1] + 'px;fill:' + INK[k] + ';mix-blend-mode:' + BLEND[k] + '">' +
+      '<path d="' + layers[k].join('') + '"/></svg>';
+  }
+  return out;
+}
+</script>
+<script>/* ===== 新寶鳥站 · 鳥籍資料與約減文法 =====
+   每一種鳥＝一份有序的版清單。清單順序＝師傅上版的順序＝辨識度的順序。 */
+function fieldPart(p) { return { k: 'field', p: p, t: 'poly', pts: [[-120, -120], [220, -120], [220, 200], [-120, 200]] }; }
+function mk(list, promote) {
+  if (promote) {
+    for (var i = promote.length - 1; i >= 0; i--) {
+      var k = promote[i];
+      for (var j = 0; j < list.length; j++) if (list[j].k === k) { var it = list.splice(j, 1)[0]; list.unshift(it); break; }
+    }
+  }
+  return list;
+}
+/* 鷸鴴類：地面、長腳、以喙定種 */
+function wader(o) {
+  var s = o.s || 1, leg = o.leg || 14, bcx = 44, bcy = 70 - leg - 11 * s;
+  var hx = bcx + 19 * s, hy = bcy - 12 * s - (o.neck || 0), hr = 7.2 * s;
+  var L = [
+    { k: 'body', p: o.bp, t: 'ell', x: bcx, y: bcy, rx: 22 * s, ry: 12 * s, a: -6 },
+    { k: 'head', p: o.hp, t: 'cir', x: hx, y: hy, r: hr },
+    { k: 'bill', p: o.lp, t: 'bill', x: hx + hr * 0.8, y: hy + 0.6, len: o.bill || 16, a: o.billA || 4, curve: o.curve || 0, w: 3.1 },
+    { k: 'wing', p: o.wp, t: 'bean', x: bcx - 3 * s, y: bcy - 1, rx: 15 * s, ry: 6.6 * s, a: -13, bend: 0.5 },
+    { k: 'eye', p: o.ep, t: 'cir', x: hx + 2.6 * s, y: hy - 1.9 * s, r: 1.55 }
+  ];
+  L.splice(3, 0, { k: 'legs', p: o.lp, t: 'multi', ds: [legPts(bcx - 4, bcy + 10.2 * s, 0, 0, leg + 1, o.legW || 2.2), legPts(bcx + 4, bcy + 10.2 * s, 0, 0, (leg + 1) * 0.96, o.legW || 2.2)] });
+  if (o.mark) L.push(o.mark(bcx, bcy, hx, hy, hr, s, o));
+  return fin(L, o);
+}
+function fin(L, o) { L = mk(L, o.promote); if (o.field != null) L.unshift(fieldPart(o.field)); return L; }
+function legPts(x1, y, x2, y2, len, w) {
+  return [[x1 - w / 2, y], [x1 + w / 2, y], [x1 + w / 2, y + len], [x1 - w / 2 + 5.4, y + len], [x1 - w / 2 + 5.4, y + len + w * 0.9], [x1 - w / 2 - 2.6, y + len + w * 0.9], [x1 - w / 2 - 2.6, y + len], [x1 - w / 2, y + len]];
+}
+function twoLegs(xa, xb, y, len, w) {
+  var a = legPts(xa, y, 0, 0, len, w), b = legPts(xb, y, 0, 0, len * 0.97, w);
+  return { k: 'legs', t: 'multi', ds: [a, b] };
+}
+/* 鷺科：S 頸、匕首喙、極長腳 */
+function heron(o) {
+  var s = o.s || 1, leg = o.leg || 22, bcx = 42, bcy = 70 - leg - 10 * s;
+  var hx = bcx + 20 * s + (o.reach || 0), hy = bcy - 22 * s, hr = 5.6 * s;
+  var L = [
+    { k: 'body', p: o.bp, t: 'ell', x: bcx, y: bcy, rx: 19 * s, ry: 10.5 * s, a: -8 },
+    { k: 'neck', p: o.bp, t: 'band', p0: [bcx + 7 * s, bcy - 7 * s], c: [bcx - 3 * s, (bcy + hy) / 2 - 2], p1: [hx - hr * 0.8, hy + hr * 0.75], w0: 8.6 * s, w1: 5.4 * s },
+    { k: 'head', p: o.hp, t: 'ell', x: hx, y: hy, rx: hr * 1.15, ry: hr, a: -8 },
+    o.spoon ? { k: 'bill', p: o.lp, t: 'poly', pts: [[hx + hr * 0.8, hy - 2], [hx + hr + 12, hy + 1.4], [hx + hr + 20, hy + 1], [hx + hr + 22.5, hy + 4.6], [hx + hr + 19, hy + 8.4], [hx + hr + 12, hy + 7.4], [hx + hr + 6, hy + 4.4], [hx + hr * 0.8, hy + 2.2]] } : { k: 'bill', p: o.lp, t: 'wedge', x: hx + hr * 0.9, y: hy + 0.4, len: o.bill || 17, w: 3.6, a: o.billA || 6 },
+    { k: 'legs', p: o.lp, t: 'multi', ds: [legPts(bcx - 4, bcy + 9 * s, 0, 0, leg, 2.1), legPts(bcx + 4, bcy + 9 * s, 0, 0, leg * 0.96, 2.1)] },
+    { k: 'wing', p: o.wp, t: 'bean', x: bcx - 2, y: bcy, rx: 13.5 * s, ry: 6.2 * s, a: -10, bend: 0.55 },
+    { k: 'eye', p: o.ep, t: 'cir', x: hx + 1.8, y: hy - 1.5, r: 1.5 }
+  ];
+  if (o.crest) L.push({ k: 'crest', p: o.cp, t: 'bar', x1: hx - hr * 0.9, y1: hy - hr * 0.6, x2: hx - hr * 2.6 - 7, y2: hy - hr * 0.6 - 3.4, w: 1.7 });
+  if (o.mark) L.push(o.mark(bcx, bcy, hx, hy, hr, s, o));
+  return fin(L, o);
+}
+/* 雁鴨：浮在水線上，無腳 */
+function duck(o) {
+  var s = o.s || 1, bcx = 45, bcy = 44;
+  var hx = bcx + 20 * s, hy = bcy - 13 * s, hr = 8 * s;
+  var L = [
+    { k: 'body', p: o.bp, t: 'ell', x: bcx, y: bcy, rx: 25 * s, ry: 12.5 * s, a: -4 },
+    { k: 'head', p: o.hp, t: 'cir', x: hx, y: hy, r: hr },
+    { k: 'bill', p: o.lp, t: o.spoon ? 'ell' : 'wedge', x: hx + hr * 0.85 + (o.spoon ? 6 : 0), y: hy + 2.4, len: o.bill || 13, w: 5.2, a: 8, rx: 8.5, ry: 3.4 },
+    { k: 'tail', p: o.bp, t: 'wedge', x: bcx - 24 * s, y: bcy - 2, len: o.tail || 14, w: 7, a: 180 - (o.tailA || 14) },
+    { k: 'wing', p: o.wp, t: 'bean', x: bcx - 2, y: bcy + 0.5, rx: 16 * s, ry: 6.4 * s, a: -9, bend: 0.5 },
+    { k: 'water', p: 2, t: 'bar', x1: 4, y1: bcy + 11 * s, x2: 96, y2: bcy + 11 * s, w: 3.2 },
+    { k: 'eye', p: o.ep, t: 'cir', x: hx + 2.4, y: hy - 2, r: 1.55 }
+  ];
+  if (o.mark) L.push(o.mark(bcx, bcy, hx, hy, hr, s, o));
+  return fin(L, o);
+}
+/* 鷗與燕鷗：飛行側面、長翼、叉尾 */
+function tern(o) {
+  var s = o.s || 1, bcx = 46, bcy = 40;
+  var hx = bcx + 17 * s, hy = bcy - 6 * s, hr = 6.4 * s;
+  var L = [
+    { k: 'body', p: o.bp, t: 'ell', x: bcx, y: bcy, rx: 20 * s, ry: 7.6 * s, a: -4 },
+    { k: 'wing', p: o.wp, t: 'poly', pts: [[bcx - 4, bcy - 4 * s], [bcx + 10 * s, bcy - 21 * s], [bcx + 30 * s, bcy - 33 * s], [bcx + 22 * s, bcy - 19 * s], [bcx + 8 * s, bcy - 3 * s], [bcx - 2, bcy + 3 * s]] },
+    { k: 'wing2', p: o.wp, t: 'poly', pts: [[bcx - 5, bcy - 1 * s], [bcx - 17 * s, bcy + 8 * s], [bcx - 28 * s, bcy + 11 * s], [bcx - 20 * s, bcy + 3.5 * s], [bcx - 7 * s, bcy + 2 * s]] },
+    { k: 'head', p: o.hp, t: 'cir', x: hx, y: hy, r: hr },
+    { k: 'cap', p: o.cp, t: 'half', x: hx, y: hy - 0.4, r: hr * 1.02, a: 186 },
+    { k: 'bill', p: o.lp, t: 'wedge', x: hx + hr * 0.8, y: hy + 1.2, len: o.bill || 12, w: 3.1, a: o.billA || 12 },
+    { k: 'tail', p: o.bp, t: 'poly', pts: [[bcx - 19 * s, bcy - 4], [bcx - 19 * s - (o.tail || 17), bcy - 9], [bcx - 19 * s - (o.tail || 17) * 0.62, bcy - 1.5], [bcx - 19 * s - (o.tail || 17), bcy + 5], [bcx - 19 * s, bcy + 3.4]] },
+    { k: 'eye', p: o.ep, t: 'cir', x: hx + 2.2, y: hy - 1.6, r: 1.45 }
+  ];
+  if (o.mark) L.push(o.mark(bcx, bcy, hx, hy, hr, s, o));
+  return fin(L, o);
+}
+/* 猛禽：寬翼、鉤喙、橫帶尾 */
+function raptor(o) {
+  var s = o.s || 1, bcx = 47, bcy = 40;
+  var hx = bcx + 17 * s, hy = bcy - 9 * s, hr = 7 * s;
+  var L = [
+    { k: 'body', p: o.bp, t: 'ell', x: bcx, y: bcy, rx: 18 * s, ry: 9.4 * s, a: -8 },
+    { k: 'wing', p: o.wp, t: 'poly', pts: [[bcx - 6, bcy - 7], [bcx - 26 * s, bcy - 24 * s], [bcx - 42 * s, bcy - 27 * s], [bcx - 38 * s, bcy - 17 * s], [bcx - 18 * s, bcy - 6], [bcx - 6, bcy + 2]] },
+    { k: 'wing2', p: o.wp, t: 'poly', pts: [[bcx + 4, bcy - 6], [bcx + 22 * s, bcy - 22 * s], [bcx + 37 * s, bcy - 24 * s], [bcx + 33 * s, bcy - 14 * s], [bcx + 15 * s, bcy - 4], [bcx + 4, bcy + 3]] },
+    { k: 'head', p: o.hp, t: 'cir', x: hx, y: hy, r: hr },
+    { k: 'bill', p: o.lp, t: 'poly', pts: [[hx + hr * 0.6, hy - 1.2], [hx + hr + 7, hy - 0.4], [hx + hr + 5.4, hy + 5.2], [hx + hr + 3.2, hy + 1.6], [hx + hr * 0.6, hy + 2.6]] },
+    { k: 'tail', p: o.bp, t: 'poly', pts: [[bcx - 15 * s, bcy + 3], [bcx - 15 * s - 20, bcy + 12], [bcx - 15 * s - 18, bcy + 17], [bcx - 13 * s, bcy + 9]] },
+    { k: 'eye', p: o.ep, t: 'cir', x: hx + 2.4, y: hy - 1.8, r: 1.6 }
+  ];
+  if (o.mark) L.push(o.mark(bcx, bcy, hx, hy, hr, s, o));
+  return fin(L, o);
+}
+/* 記號工廠 */
+function mCollar(p) { return function (bx, by, hx, hy, hr, s) { return { k: 'mark', p: p, t: 'arc', x: hx - hr * 0.15, y: hy + hr * 0.1, r: hr * 1.16, a0: 34, a1: 146, w: 3.4 * s }; }; }
+function mBreast(p) { return function (bx, by, hx, hy, hr, s) { return { k: 'mark', p: p, t: 'arc', x: bx + 15 * s, y: by + 1 * s, r: 8.6 * s, a0: 312, a1: 48, w: 4.4 * s }; }; }
+function mEyeline(p) { return function (bx, by, hx, hy, hr, s) { return { k: 'mark', p: p, t: 'bar', x1: hx - hr, y1: hy - 1.4, x2: hx + hr * 0.9, y2: hy - 1.4, w: 3.2 }; }; }
+function mBelly(p) { return function (bx, by, hx, hy, hr, s) { return { k: 'mark', p: p, t: 'ell', x: bx - 2 * s, y: by + 5 * s, rx: 13 * s, ry: 4.6 * s, a: -4 }; }; }
+function mSpeculum(p) { return function (bx, by, hx, hy, hr, s) { return { k: 'mark', p: p, t: 'bar', x1: bx - 13 * s, y1: by + 1.5, x2: bx + 1 * s, y2: by - 0.5, w: 3.8 }; }; }
+</script>
+<script>/* 24 種：新寶濕地鳥籍。months 為出現月份（1–12）。 */
+var BIRDS = [
+{id:'tashao', zh:'大杓鷸', en:'Eurasian Curlew', sci:'Numenius arquata', fam:'鷸科', len:55, st:'冬候鳥', mo:[9,10,11,12,1,2,3,4], hide:'A',
+ note:'嘴比頭長兩倍半。認牠不必看羽色——那條往下彎的線就夠了。', ring:'T-1180',
+ b:function(){return wader({s:1.06,leg:15,bill:27,curve:.55,billA:2,bp:Y,hp:Y,lp:K,wp:T,ep:K,mark:mBelly(W)});}},
+{id:'tiongshao', zh:'中杓鷸', en:'Whimbrel', sci:'Numenius phaeopus', fam:'鷸科', len:43, st:'過境鳥', mo:[3,4,5,8,9,10], hide:'A',
+ note:'和大杓鷸同一個彎法，短了三分之一；頭頂那兩道墨線是唯一的分野。', ring:'T-1204',
+ b:function(){return wader({s:.94,leg:13,bill:18,curve:.45,billA:2,bp:Y,hp:Y,lp:K,wp:T,ep:K,mark:mEyeline(K)});}},
+{id:'hekpak', zh:'黑腹濱鷸', en:'Dunlin', sci:'Calidris alpina', fam:'鷸科', len:21, st:'冬候鳥', mo:[10,11,12,1,2,3,4], hide:'B',
+ note:'一千隻一起轉身，灘上就換一次顏色。腹下那塊黑是夏天才印的版。', ring:'T-2231',
+ b:function(){return wader({s:.72,leg:9,bill:12,curve:.3,bp:Y,hp:Y,lp:K,wp:T,ep:K,mark:mBelly(K)});}},
+{id:'tshengtsiok', zh:'青足鷸', en:'Common Greenshank', sci:'Tringa nebularia', fam:'鷸科', len:32, st:'冬候鳥', mo:[9,10,11,12,1,2,3,4], hide:'A',
+ note:'退潮時最吵的一種。腳是青的，所以那塊版就是綠版。', ring:'T-1362',
+ b:function(){return wader({field:Y,s:.85,leg:14,bill:16,curve:.06,bp:W,hp:W,lp:T,wp:T,ep:K, promote:['body','head','legs']});}},
+{id:'huansek', zh:'翻石鷸', en:'Ruddy Turnstone', sci:'Arenaria interpres', fam:'鷸科', len:23, st:'過境鳥', mo:[4,5,9,10,11], hide:'C',
+ note:'牠真的在翻石頭。橘背加黑胸帶，兩塊版就認得出來。', ring:'T-2410',
+ b:function(){return wader({s:.75,leg:8,bill:9,curve:.02,bp:O,hp:K,lp:O,wp:K,ep:Y,mark:mBreast(K), promote:['body','head','mark']});}},
+{id:'huanking', zh:'東方環頸鴴', en:'Kentish Plover', sci:'Anarhynchus alexandrinus', fam:'鴴科', len:17, st:'留鳥', mo:[1,2,3,4,5,6,7,8,9,10,11,12], hide:'C',
+ note:'在乾沙上跑三步、停、再跑三步。牠的巢就是一個腳印大的凹。', ring:'T-3007',
+ b:function(){return wader({s:.66,leg:8,bill:7,bp:Y,hp:W,lp:K,wp:T,ep:K,mark:mCollar(K)});}},
+{id:'bongkoo', zh:'蒙古鴴', en:'Lesser Sand Plover', sci:'Anarhynchus mongolus', fam:'鴴科', len:20, st:'過境鳥', mo:[4,5,8,9,10], hide:'B',
+ note:'春天過境時胸前那條橘帶最濃，秋天回來就只剩灰。', ring:'T-3115',
+ b:function(){return wader({s:.74,leg:9,bill:9,bp:Y,hp:W,lp:K,wp:T,ep:K,mark:mBreast(O), promote:['body','head','mark']});}},
+{id:'siohuan', zh:'小環頸鴴', en:'Little Ringed Plover', sci:'Charadrius dubius', fam:'鴴科', len:16, st:'留鳥', mo:[1,2,3,4,5,6,7,8,9,10,11,12], hide:'C',
+ note:'眼圈是黃的——一塊芥末版的事，但少了它就變成另一種鴴。', ring:'T-3220',
+ b:function(){return wader({s:.63,leg:8,bill:6,bp:Y,hp:W,lp:O,wp:T,ep:K,mark:mEyeline(Y)});}},
+{id:'kotsio', zh:'高蹺鴴', en:'Black-winged Stilt', sci:'Himantopus himantopus', fam:'反嘴鷸科', len:37, st:'留鳥', mo:[1,2,3,4,5,6,7,8,9,10,11,12], hide:'A',
+ note:'腳佔了體長的一半。畫牠只要三塊版：白身、黑翼、兩根紅腳。', ring:'T-4102',
+ b:function(){return wader({field:T,s:.78,leg:26,legW:1.8,bill:13,bp:W,hp:W,lp:O,wp:K,ep:K, promote:['body','head','legs']});}},
+{id:'huantshui', zh:'反嘴鴴', en:'Pied Avocet', sci:'Recurvirostra avosetta', fam:'反嘴鷸科', len:43, st:'冬候鳥', mo:[11,12,1,2,3], hide:'A',
+ note:'嘴往上翹，掃水像掃地。全館唯一一種要把弧度印反的鳥。', ring:'T-4210',
+ b:function(){return wader({field:Y,s:.86,leg:16,bill:22,curve:-.5,billA:-4,bp:W,hp:W,lp:K,wp:K,ep:K,mark:mCollar(K)});}},
+{id:'ianhing', zh:'燕鴴', en:'Oriental Pratincole', sci:'Glareola maldivarum', fam:'燕鴴科', len:25, st:'夏候鳥', mo:[4,5,6,7,8,9], hide:'C',
+ note:'本站的站徽。旱田裡的燕子——牠不涉水，牠在天上吃蟲。喉下那圈墨線是牠的名牌。', ring:'T-5001',
+ b:function(){return tern({s:.78,bill:7,billA:8,tail:15,bp:Y,hp:Y,cp:T,lp:O,wp:T,ep:K,mark:mCollar(K), promote:['body','head','mark']});}},
+{id:'peibin', zh:'黑面琵鷺', en:'Black-faced Spoonbill', sci:'Platalea minor', fam:'䴉科', len:76, st:'冬候鳥', mo:[10,11,12,1,2,3,4], hide:'A',
+ note:'嘴是一支飯匙，睡覺時整支塞進背羽裡，於是牠變成一顆白球。', ring:'T-6001',
+ b:function(){return heron({field:T,s:.95,leg:17,spoon:1,reach:2,bp:W,hp:W,lp:K,wp:W,ep:K});}},
+{id:'taipeh', zh:'大白鷺', en:'Great Egret', sci:'Ardea alba', fam:'鷺科', len:90, st:'冬候鳥', mo:[9,10,11,12,1,2,3,4], hide:'A',
+ note:'頸子折成 S 是收起來的樣子，伸直的那一瞬間你來不及印。', ring:'T-7011',
+ b:function(){return heron({field:T,s:.98,leg:24,bill:20,bp:W,hp:W,lp:Y,wp:W,ep:K});}},
+{id:'siopeh', zh:'小白鷺', en:'Little Egret', sci:'Egretta garzetta', fam:'鷺科', len:61, st:'留鳥', mo:[1,2,3,4,5,6,7,8,9,10,11,12], hide:'B',
+ note:'黑嘴、黑腳、黃腳趾。繁殖期後腦杓長出兩根辮子，那是第八塊版。', ring:'T-7104',
+ b:function(){return heron({field:Y,s:.8,leg:20,bill:16,crest:1,cp:W,bp:W,hp:W,lp:K,wp:W,ep:Y});}},
+{id:'ngthau', zh:'黃頭鷺', en:'Eastern Cattle Egret', sci:'Bubulcus coromandus', fam:'鷺科', len:50, st:'夏候鳥', mo:[4,5,6,7,8,9,10], hide:'C',
+ note:'跟著耕耘機走的那一群。夏天頭頸染成橙黃，冬天就變回一張白紙。', ring:'T-7220',
+ b:function(){return heron({field:T,s:.76,leg:14,bill:13,bp:W,hp:Y,lp:Y,wp:W,ep:K});}},
+{id:'ialoo', zh:'夜鷺', en:'Black-crowned Night Heron', sci:'Nycticorax nycticorax', fam:'鷺科', len:58, st:'留鳥', mo:[1,2,3,4,5,6,7,8,9,10,11,12], hide:'B',
+ note:'脖子縮起來像一顆蹲著的石頭。天黑才上工，紅眼睛是那時候才看得到的。', ring:'T-7301',
+ b:function(){return heron({field:Y,s:.86,leg:11,bill:14,reach:-7,crest:1,cp:W,bp:W,hp:K,lp:K,wp:T,ep:O});}},
+{id:'tshongloo', zh:'蒼鷺', en:'Grey Heron', sci:'Ardea cinerea', fam:'鷺科', len:93, st:'冬候鳥', mo:[9,10,11,12,1,2,3], hide:'A',
+ note:'退潮線上站最久的一種，一個小時不動。牠不是在等，牠就是那樣站著。', ring:'T-7402',
+ b:function(){return heron({s:1.0,leg:24,bill:19,crest:1,cp:K,bp:T,hp:W,lp:Y,wp:T,ep:K});}},
+{id:'sioian', zh:'小燕鷗', en:'Little Tern', sci:'Sternula albifrons', fam:'鷗科', len:24, st:'夏候鳥', mo:[4,5,6,7,8], hide:'C',
+ note:'在沙洲上生蛋，蛋長得跟礫石一樣。牠會為了一個腳步聲盤旋二十分鐘。', ring:'T-8010',
+ b:function(){return tern({field:T,s:.7,bill:12,billA:16,tail:16,bp:W,hp:W,cp:K,lp:Y,wp:T,ep:K,mark:mEyeline(W)});}},
+{id:'pehsit', zh:'白翅黑燕鷗', en:'White-winged Tern', sci:'Chlidonias leucopterus', fam:'鷗科', len:23, st:'過境鳥', mo:[4,5,9,10], hide:'B',
+ note:'夏羽是一隻黑鳥配一對白翅——正版與負版同時印在一張紙上。', ring:'T-8102',
+ b:function(){return tern({field:T,s:.72,bill:9,billA:12,tail:12,bp:K,hp:K,cp:K,lp:O,wp:W,ep:W});}},
+{id:'angtshui', zh:'紅嘴鷗', en:'Black-headed Gull', sci:'Chroicocephalus ridibundus', fam:'鷗科', len:40, st:'冬候鳥', mo:[11,12,1,2,3], hide:'A',
+ note:'冬天頭是白的，只在耳後留一個墨點——牠的名字要到春天才對。', ring:'T-8201',
+ b:function(){return tern({field:T,s:.95,bill:11,billA:10,tail:14,bp:W,hp:W,cp:T,lp:O,wp:T,ep:K,mark:mEyeline(K)});}},
+{id:'tsiambue', zh:'尖尾鴨', en:'Northern Pintail', sci:'Anas acuta', fam:'雁鴨科', len:60, st:'冬候鳥', mo:[10,11,12,1,2,3], hide:'A',
+ note:'尾巴是一根針。頸側那條白線從水面一路劃到頭頂。', ring:'T-9011',
+ b:function(){return duck({s:.9,bill:13,tail:23,tailA:24,bp:Y,hp:K,lp:T,wp:T,ep:W,mark:mCollar(W), promote:['body','head','tail']});}},
+{id:'pibue', zh:'琵嘴鴨', en:'Northern Shoveler', sci:'Spatula clypeata', fam:'雁鴨科', len:50, st:'冬候鳥', mo:[10,11,12,1,2,3], hide:'B',
+ note:'嘴大得不合比例，濾水像一支掃把。畫牠的時候要先畫嘴。', ring:'T-9104',
+ b:function(){return duck({s:.86,spoon:1,bill:15,tail:12,bp:O,hp:T,lp:K,wp:T,ep:Y,mark:mBelly(W)});}},
+{id:'tehko', zh:'東方澤鵟', en:'Eastern Marsh Harrier', sci:'Circus spilonotus', fam:'鷹科', len:52, st:'冬候鳥', mo:[10,11,12,1,2,3], hide:'B',
+ note:'翅膀舉成一個淺淺的 V，貼著蘆葦頂低飛。整片灘的鳥同時抬頭，就是牠來了。', ring:'T-9501',
+ b:function(){return raptor({s:.9,bp:K,hp:Y,lp:K,wp:T,ep:Y});}},
+{id:'hiying', zh:'魚鷹', en:'Osprey', sci:'Pandion haliaetus', fam:'鷹科', len:57, st:'冬候鳥', mo:[10,11,12,1,2,3,4], hide:'A',
+ note:'停在電桿上，胸口那片白從堤上就看得見。入水前會先在空中定住兩秒。', ring:'T-9602',
+ b:function(){return raptor({field:Y,s:1.0,bp:K,hp:W,lp:K,wp:K,ep:Y,mark:mEyeline(K)});}}
+];
+</script>
+<script>/* ===== 新寶鳥站 · 執行階段 =====
+   1) 全站塊數預算（signature：加版重印）
+   2) 潮位（真實時刻驅動，示意模型）
+   3) 刮刀轉場 */
+(function () {
+  var LS = 'sinpo.ply';
+  var maxPly = 10;
+  function getPly() {
+    try { var v = parseInt(localStorage.getItem(LS), 10); if (v >= 1 && v <= maxPly) return v; } catch (e) { }
+    return maxPly;
+  }
+  var PLY = getPly();
+  function figHTML(id, n) {
+    var b = BIRD_BY_ID[id]; if (!b) return '';
+    var parts = b.parts || (b.parts = b.b());
+    return plyFigure(parts, n, {});
+  }
+  function paint(root, wipe) {
+    var els = (root || document).querySelectorAll('[data-bird]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i], id = el.getAttribute('data-bird');
+      var lim = el.hasAttribute('data-fix') ? parseInt(el.getAttribute('data-fix'), 10) : PLY;
+      var b = BIRD_BY_ID[id]; if (!b) continue;
+      var parts = b.parts || (b.parts = b.b());
+      var n = Math.min(lim, parts.length);
+      if (el.getAttribute('data-n') === String(n)) continue;
+      el.setAttribute('data-n', n);
+      el.innerHTML = plyFigure(parts, n, {});
+      if (wipe) { el.classList.remove('wiping'); void el.offsetWidth; el.classList.add('wiping'); }
+    }
+  }
+  window.SINPO = {
+    get ply() { return PLY; },
+    max: maxPly,
+    setPly: function (n, wipe) {
+      PLY = Math.max(1, Math.min(maxPly, n));
+      try { localStorage.setItem(LS, PLY); } catch (e) { }
+      var o = document.querySelectorAll('[data-plyout]');
+      for (var i = 0; i < o.length; i++) o[i].textContent = PLY;
+      paint(null, wipe !== false);
+    },
+    paint: paint, fig: figHTML,
+    rm: function () { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  };
+  /* ---- 潮位：M2 半日潮示意模型 ---- */
+  var M2 = 44712000, EPOCH = Date.UTC(2026, 0, 1, 19, 42), HI = 4.15, LO = 0.05;
+  function tideAt(t) {
+    var ph = ((t - EPOCH) % M2 + M2) % M2 / M2;
+    var h = (HI + LO) / 2 + (HI - LO) / 2 * Math.cos(2 * Math.PI * ph);
+    return { h: h, ph: ph, rising: Math.sin(2 * Math.PI * ph) < 0 };
+  }
+  function hhmm(t) { var d = new Date(t); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function tick() {
+    var now = Date.now(), s = tideAt(now);
+    var bare = Math.round((HI - s.h) / (HI - LO) * 100);
+    var nextHi = EPOCH + Math.ceil((now - EPOCH) / M2) * M2;
+    var nextLo = EPOCH + (Math.floor((now - EPOCH - M2 / 2) / M2) + 1) * M2 + M2 / 2;
+    var set = function (k, v) { var e = document.querySelectorAll('[data-tide=' + k + ']'); for (var i = 0; i < e.length; i++) e[i].textContent = v; };
+    set('h', s.h.toFixed(2) + ' m');
+    set('dir', s.rising ? '漲潮中' : '退潮中');
+    set('bare', bare + '%');
+    set('hi', hhmm(nextHi)); set('lo', hhmm(nextLo));
+    set('wall', bare < 30 ? 'A 潮溝牆' : bare > 70 ? 'C 防風林牆' : 'B 泥灘牆');
+    set('why', bare < 30 ? '水推到堤邊，鳥也被推過來。' : bare > 70 ? '灘拉得太遠，水鳥看不清楚；轉去看林子裡的。' : '泥灘剛露、蟹和螺都出來，這是一天裡最好的一個半小時。');
+    var f = document.querySelectorAll('.tidefill');
+    for (var i = 0; i < f.length; i++) f[i].style.height = (6 + (s.h / HI) * 88) + '%';
+  }
+  function ready() {
+    SINPO.setPly(PLY, false);
+    tick(); setInterval(tick, 15000);
+    var m = document.querySelectorAll('[data-sweep]');
+    if (!SINPO.rm())
+      for (var j = 0; j < m.length; j++) m[j].classList.add('sweep');
+  }
+  var BIRD_BY_ID = {};
+  for (var q = 0; q < BIRDS.length; q++) { BIRDS[q].parts = BIRDS[q].b(); BIRD_BY_ID[BIRDS[q].id] = BIRDS[q]; }
+  window.BIRD_BY_ID = BIRD_BY_ID;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready); else ready();
+})();
+</script>
+<script>
+(function(){var d=document.querySelector('[data-plydown]'),u=document.querySelector('[data-plyup]');
+if(d)d.addEventListener('click',function(){SINPO.setPly(SINPO.ply-1)});
+if(u)u.addEventListener('click',function(){SINPO.setPly(SINPO.ply+1)});})();
+</script>
+<script>
+(function(){
+ var qn=5,rounds=[],cur=0,used=0,n=1,answered=false,tot=0;
+ var box=document.getElementById('gbox'),opts=document.getElementById('gopts'),msg=document.getElementById('gmsg');
+ var more=document.getElementById('gmore'),next=document.getElementById('gnext'),tally=document.getElementById('gtally');
+ function fnv(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+ function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+ var seed=(location.search.match(/[?&]g=([A-Za-z0-9]{1,12})/)||[])[1]||Math.random().toString(36).slice(2,8);
+ var rnd=mul(fnv('sinpo:'+seed));
+ var pool=BIRDS.slice();
+ for(var i=pool.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t}
+ rounds=pool.slice(0,qn);
+ function choices(b){
+  var same=BIRDS.filter(function(x){return x.fam===b.fam&&x.id!==b.id});
+  var other=BIRDS.filter(function(x){return x.fam!==b.fam});
+  var out=[b];
+  while(out.length<6&&same.length){out.push(same.splice(Math.floor(rnd()*same.length),1)[0])}
+  while(out.length<6){out.push(other.splice(Math.floor(rnd()*other.length),1)[0])}
+  for(var i=out.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=out[i];out[i]=out[j];out[j]=t}
+  return out;
+ }
+ function drawFig(wipe){
+  var b=rounds[cur];box.setAttribute('data-n',n);box.innerHTML=SINPO.fig(b.id,n);
+  if(wipe&&!SINPO.rm()){box.classList.remove('wiping');void box.offsetWidth;box.classList.add('wiping')}
+  document.getElementById('gn').textContent=n;
+  document.getElementById('gq').textContent=cur+1;
+  document.getElementById('gt').textContent=tot+n-1;
+  var b2=rounds[cur],mx=b2.parts.length;
+  more.disabled=(n>=mx)||answered;
+  if(n>=mx&&!answered)msg.textContent='這是站裡的定稿——'+mx+'塊，沒有第'+(mx+1)+'塊了。挑一個名字。';
+  var h='';for(var i=1;i<=mx;i++)h+='<i class="'+(i<=n?'used':'')+'"></i>';tally.innerHTML=h;
+ }
+ function round(){
+  answered=false;n=1;next.hidden=true;
+  var b=rounds[cur],cs=choices(b);
+  opts.innerHTML=cs.map(function(x){return '<button type="button" data-id="'+x.id+'">'+x.zh+'</button>'}).join('');
+  msg.textContent='看得出來牠是誰嗎？看不出來就再印一塊——但每一塊都算在你頭上。';
+  drawFig(false);
+ }
+ opts.addEventListener('click',function(e){
+  var t=e.target.closest('button');if(!t||answered)return;
+  answered=true;more.disabled=true;
+  var b=rounds[cur],ok=t.getAttribute('data-id')===b.id;
+  b.__used=n;b.__ok=ok;
+  var bs=opts.querySelectorAll('button');
+  for(var i=0;i<bs.length;i++){var id=bs[i].getAttribute('data-id');
+   if(id===b.id)bs[i].className='ok';else if(bs[i]===t)bs[i].className='no';}
+  n=b.parts.length;drawFig(true);
+  msg.innerHTML=(ok?'<b>是牠。</b>你用了 '+b.__used+' 塊。':'<b>不是。</b>這是'+b.zh+'，你用了 '+b.__used+' 塊還是沒認出來。')+
+   '　站裡的定稿是 '+b.parts.length+' 塊。<br>'+b.note;
+  tot+=b.__used;next.hidden=false;next.focus();
+ });
+ more.addEventListener('click',function(){var mx=rounds[cur].parts.length;if(n<mx){n++;drawFig(true)}});
+ next.addEventListener('click',function(){
+  cur++;
+  if(cur<qn){round();document.getElementById('gt').textContent=tot}
+  else finish();
+ });
+ function finish(){
+  document.getElementById('game').style.display='none';
+  var right=rounds.filter(function(b){return b.__ok});
+  var best=right.slice().sort(function(a,b){return a.__used-b.__used})[0];
+  var avg=Math.max(1,Math.round(tot/qn));
+  var rows=rounds.map(function(b){return '<tr><td>'+b.zh+'</td><td class="num">'+b.__used+'</td><td class="num">'+b.parts.length+'</td><td>'+(b.__ok?'認出':'沒認出')+'</td><td class="small">'+(b.__ok?(b.__used<=3?'三塊以內——你認的是形狀，不是羽色。':b.__used<b.parts.length?'比定稿少 '+(b.parts.length-b.__used)+' 塊。':'印到定稿才確定。'):'—')+'</td></tr>'}).join('');
+  var verdict=tot<=14?'你比版房省。這一輪的版費 NT$'+(tot*260)+'，站裡印同樣五種要 NT$'+(rounds.reduce(function(s,b){return s+b.parts.length},0)*260)+'。':
+   tot<=22?'差不多就是版房的水準。':'你把五種鳥都印到快定稿了——那不算輸，只是這一疊紙比較貴。';
+  var h='<div class="score" data-sweep><div class="sechead" style="padding-top:0"><h2>結果單</h2><span class="node"></span><span class="en">PRESS RECORD '+seed.toUpperCase()+'</span></div>'+
+   '<p class="lede" style="font-size:16px">五題花掉 <b class="num">'+tot+'</b> 塊版，認出 <b class="num">'+right.length+'</b> 種。換算成版房的帳：多刮 '+tot+' 次刀、多晾 '+(tot*45)+' 分鐘、材料連工資 <b class="num">NT$'+(tot*260)+'</b>。'+verdict+'</p>'+
+   '<table><tr><th>鳥</th><th>你用的塊數</th><th>站裡定稿</th><th>結果</th><th>備註</th></tr>'+rows+'</table>';
+  if(best){
+   h+='<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-top:18px">'+
+    '<div style="flex:0 0 260px"><div class="fig" style="aspect-ratio:100/76;border:2px solid #33261A">'+SINPO.fig(best.id,best.__used)+'</div>'+
+    '<p class="small" style="margin-top:6px">你的最省版海報：<b>'+best.zh+'</b>，'+best.__used+' 塊版。</p></div>'+
+    '<div style="flex:1 1 260px"><p class="small">這張圖不是縮圖，它就是完整的成品——這個流派的主張是，一旦辨識成立，被拿掉的東西就不是損失。你可以把這個塊數套到整個網站：每一張圖（包含站徽與頁籤上的小圖）都會當場重印成 '+avg+' 塊版。</p>'+
+    '<p><button class="btn" type="button" id="gapply">全站照 '+avg+' 塊版重印</button> <button class="btn g" type="button" id="gagain">再來一輪</button></p>'+
+    '<p class="small">這一輪的題目編號 <b class="num">'+seed.toUpperCase()+'</b>，把 <span class="num">?g='+seed+'</span> 加在網址後面可以重跑同一組題目。</p></div></div>';
+  }
+  h+='</div>';
+  document.getElementById('gscore').innerHTML=h;
+  if(!SINPO.rm())document.querySelector('#gscore .score').classList.add('sweep');
+  var ap=document.getElementById('gapply');if(ap)ap.addEventListener('click',function(){SINPO.setPly(avg);this.textContent='已套用：全站 '+avg+' 塊版'});
+  var ag=document.getElementById('gagain');if(ag)ag.addEventListener('click',function(){location.search='?g='+Math.random().toString(36).slice(2,8)});
+  document.getElementById('gscore').scrollIntoView({block:'start',behavior:SINPO.rm()?'auto':'smooth'});
+ }
+ round();
+})();
+</script>
+</body></html>

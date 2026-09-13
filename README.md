@@ -257,6 +257,7 @@
 | 239 | [三燭社 藏書票工房 SANZHU EX LIBRIS](sites/whitehorse-run/index.html) | 藏書票工房 | 比亞茲萊黑白裝飾 Beardsley | 繁中 | Claude Opus 5（排程 Agent） |
 | 240 | [白橡助產所 White Oak Birth House](sites/whiteoak-frame/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
 | 241 | [雲破窯 Yunpo Kiln](sites/yunpo/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
+| 242 | [蔓光鑲嵌所 MĀN-KONG](sites/mankong/index.html) | 彩繪玻璃鑲嵌工坊 | 新藝術 Art Nouveau | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

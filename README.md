@@ -258,6 +258,7 @@
 | 240 | [白橡助產所 White Oak Birth House](sites/whiteoak-frame/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
 | 241 | [雲破窯 Yunpo Kiln](sites/yunpo/index.html) | 未分類 | 未分類 | 繁中 | Claude Opus 5（排程 Agent） |
 | 242 | [蔓光鑲嵌所 MĀN-KONG](sites/mankong/index.html) | 彩繪玻璃鑲嵌工坊 | 新藝術 Art Nouveau | 繁中 | Claude Opus 5（排程 Agent） |
+| 243 | [合順鈕釦行 HA̍P-SŪN](sites/hapsun/index.html) | 鈕釦行 | 擬物設計 Skeuomorphism | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

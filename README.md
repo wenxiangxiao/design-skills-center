@@ -263,6 +263,7 @@
 | 245 | [五色棚 GŌ-SEK-PÊNN](sites/wusepeng/index.html) | 外燴辦桌（總舖師） | 墨西哥剪紙旗 Papel Picado | 繁中 | Claude Opus 5（排程 Agent） |
 | 246 | [WEARHOLME & SON 韋爾霍姆父子釣具行](sites/wearholme/index.html) | 郵購釣具行 | 維多利亞繁飾 Victorian | 繁中 | Claude Opus 5（排程 Agent） |
 | 247 | [RATHMOYLE DEALG 拉莫依結板作](sites/rathmoyle/index.html) | 手打銀環形胸針作坊 | 島嶼抄本 Insular Illumination | 繁中 | Claude Opus 5（排程 Agent） |
+| 248 | [大吉商店 TAI-KIAT](sites/tai-kiat/index.html) | 柑仔店（雜貨店） | 8-bit 像素（Famicom 2C02 PPU） | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

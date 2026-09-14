@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>換尪仔標 — 大吉商店｜十二生肖一套</title>
+<meta name="description" content="一張換一張、不補錢、對方只收他沒有的。三個囡仔各肯換三次，你手上永遠十二張——換到重複的就等於少一格。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23000000'/%3E%3Crect x='1' y='1' width='14' height='14' fill='%23D82800'/%3E%3Crect x='2' y='6' width='12' height='2' fill='%23FCFCFC'/%3E%3Crect x='7' y='2' width='2' height='5' fill='%23FCFCFC'/%3E%3Crect x='6' y='8' width='2' height='2' fill='%23FCFCFC'/%3E%3Crect x='5' y='10' width='2' height='2' fill='%23FCFCFC'/%3E%3Crect x='4' y='12' width='2' height='3' fill='%23FCFCFC'/%3E%3Crect x='8' y='8' width='2' height='2' fill='%23FCFCFC'/%3E%3Crect x='9' y='10' width='2' height='2' fill='%23FCFCFC'/%3E%3Crect x='10' y='12' width='2' height='3' fill='%23FCFCFC'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* 大吉商店 — 全站樣式。所有尺寸都以 --u（一個 PPU 像素）為單位，
+   版面再由 CSS zoom 整數倍放大：NES 的畫面沒有 reflow，只有整數倍縮放。 */
+:root{
+  --z:1; --u:1px;
+  --sky:#5C94FC;  /* $22 backdrop：所有值 0 的像素 */
+  --ink:#000000;  /* $0F */
+  --red:#D82800;  /* $16 */
+  --grn:#00A800;  /* $1A */
+  --gold:#F8B800; /* $28 */
+  --wht:#FCFCFC;  /* $30 */
+  --orn:#EA9E22;  /* $27 */
+  --blu:#155FD9;  /* $11 */
+  --gry:#666666;  /* $00 */
+  --dim:#ADADAD;  /* $10 */
+}
+@media (min-width:560px){ :root{ --z:2 } }
+@media (min-width:1180px){ :root{ --z:3 } }
+/* 不支援 zoom（Firefox 126 以前）時：把 PPU 像素直接放大，版面完全一致 */
+@supports not (zoom: 2){
+  :root{ --u: calc(1px * var(--z)); }
+  .wrap{ zoom:1; }
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; background:var(--sky); }
+body{
+  font-family:"Noto Sans TC","PingFang TC","Heiti TC",sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:none;
+}
+.wrap{
+  zoom:var(--z);
+  width:100%;
+  max-width:calc(var(--u) * 272);
+  margin:0 auto;
+  padding:calc(var(--u) * 8) calc(var(--u) * 8) calc(var(--u) * 24);
+}
+img,canvas{ image-rendering:pixelated; image-rendering:crisp-edges; }
+
+/* ---- 畫面區：永遠 256×240，只做整數倍放大 ---- */
+.screen{
+  width:calc(var(--u) * 256);
+  height:calc(var(--u) * 240);
+  margin:0 auto;
+  border:calc(var(--u) * 4) solid var(--ink);
+  background:var(--ink);
+}
+.screen canvas{ display:block; width:calc(var(--u) * 256); height:calc(var(--u) * 240); }
+.shot{ margin:0 0 calc(var(--u) * 8); }
+.caption{
+  font-family:"Silkscreen",monospace;
+  font-size:calc(var(--u) * 8); line-height:calc(var(--u) * 12);
+  color:var(--ink); background:var(--gold);
+  border:calc(var(--u) * 2) solid var(--ink);
+  padding:calc(var(--u) * 3) calc(var(--u) * 4);
+  margin:0 auto calc(var(--u) * 8);
+  width:calc(var(--u) * 256);
+}
+.caption b{ font-family:"Noto Sans TC",sans-serif; font-weight:900; }
+
+/* ---- 訊息窗：黑底＋白框（紅白機對話框） ---- */
+.win{
+  background:var(--ink); color:var(--wht);
+  border:calc(var(--u) * 2) solid var(--wht);
+  outline:calc(var(--u) * 2) solid var(--ink);
+  padding:calc(var(--u) * 8);
+  margin:0 0 calc(var(--u) * 10);
+}
+.win h2{
+  font-size:calc(var(--u) * 12); line-height:calc(var(--u) * 16);
+  font-weight:900; margin:0 0 calc(var(--u) * 6);
+  color:var(--gold); letter-spacing:0;
+}
+.win h3{
+  font-size:calc(var(--u) * 10); line-height:calc(var(--u) * 14);
+  font-weight:900; margin:calc(var(--u) * 8) 0 calc(var(--u) * 4);
+  color:var(--wht);
+}
+.win p, .win li, .win td, .win th, .win dd, .win dt{
+  font-size:calc(var(--u) * 9); line-height:calc(var(--u) * 15);
+  margin:0 0 calc(var(--u) * 6);
+}
+.win ul,.win ol{ margin:0 0 calc(var(--u) * 6); padding-left:calc(var(--u) * 14); }
+.win a{ color:var(--gold); }
+.win a:hover,.win a:focus{ background:var(--gold); color:var(--ink); outline:none; }
+.win.bright{ background:var(--wht); color:var(--ink); border-color:var(--ink); outline-color:var(--wht); }
+.win.bright h2{ color:var(--red); }
+.win.bright h3{ color:var(--ink); }
+.win.bright a{ color:var(--blu); }
+.win.bright a:hover,.win.bright a:focus{ background:var(--blu); color:var(--wht); }
+.mono{ font-family:"Silkscreen",monospace; }
+.num{ font-family:"Silkscreen",monospace; font-size:calc(var(--u) * 8); }
+
+/* ---- 導覽：chr-bank 換圖庫 ---- */
+#chrbank{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:calc(var(--u) * 4);
+  margin:0 0 calc(var(--u) * 10);
+}
+a.bank{
+  display:flex; align-items:center; gap:calc(var(--u) * 4);
+  text-decoration:none; color:var(--ink);
+  background:var(--wht);
+  border:calc(var(--u) * 2) solid var(--ink);
+  padding:calc(var(--u) * 4);
+  flex-wrap:wrap;
+}
+a.bank .bankico{ width:calc(var(--u) * 16); height:calc(var(--u) * 16); flex:0 0 auto; display:block; }
+a.bank .banklab{ display:block; }
+a.bank .banklab b{ display:block; font-size:calc(var(--u) * 10); font-weight:900; line-height:calc(var(--u) * 12); }
+a.bank .banklab i{ display:block; font-style:normal; font-family:"Silkscreen",monospace; font-size:calc(var(--u) * 6); color:var(--gry); }
+a.bank .bankstate{
+  display:block; width:100%; font-style:normal;
+  font-size:calc(var(--u) * 7); line-height:calc(var(--u) * 10);
+  color:var(--gry);
+}
+a.bank.on{ background:var(--gold); color:var(--ink); }
+a.bank.on .bankstate{ color:var(--ink); font-weight:900; }
+a.bank:hover,a.bank:focus{ background:var(--blu); color:var(--wht); outline:none; }
+a.bank:hover .banklab i,a.bank:focus .banklab i,
+a.bank:hover .bankstate,a.bank:focus .bankstate{ color:var(--wht); }
+
+/* ---- 表格 ---- */
+table{ border-collapse:collapse; width:100%; }
+th,td{
+  border:calc(var(--u) * 1) solid currentColor;
+  padding:calc(var(--u) * 3) calc(var(--u) * 4);
+  text-align:left; vertical-align:top;
+  font-size:calc(var(--u) * 9); line-height:calc(var(--u) * 13);
+}
+th{ font-weight:900; background:rgba(255,255,255,.12); }
+.win.bright th{ background:var(--gold); }
+td.r,th.r{ text-align:right; font-family:"Silkscreen",monospace; }
+
+/* ---- 按鈕（像素框，不用圓角、不用模糊陰影） ---- */
+button,.btn{
+  font-family:"Noto Sans TC",sans-serif; font-weight:900;
+  font-size:calc(var(--u) * 9); line-height:calc(var(--u) * 13);
+  color:var(--ink); background:var(--wht);
+  border:calc(var(--u) * 2) solid var(--ink);
+  padding:calc(var(--u) * 3) calc(var(--u) * 6);
+  cursor:pointer;
+}
+button:hover,button:focus{ background:var(--gold); outline:none; }
+button:active{ background:var(--red); color:var(--wht); }
+button[disabled]{ background:var(--dim); color:var(--gry); cursor:not-allowed; }
+button.sel{ background:var(--red); color:var(--wht); }
+
+/* ---- 換尪仔標 ---- */
+.kids{ display:grid; grid-template-columns:1fr; gap:calc(var(--u) * 6); }
+@media (min-width:560px){ .kids{ grid-template-columns:repeat(3,1fr); } }
+.kid{ border:calc(var(--u) * 2) solid var(--wht); padding:calc(var(--u) * 5); }
+.kid h3{ margin-top:0; }
+.kid .say{ color:var(--gold); font-size:calc(var(--u) * 8); line-height:calc(var(--u) * 13); min-height:calc(var(--u) * 26); }
+.cards{ display:flex; flex-wrap:wrap; gap:calc(var(--u) * 3); margin:calc(var(--u) * 4) 0; }
+.cards button{ padding:calc(var(--u) * 2) calc(var(--u) * 4); font-size:calc(var(--u) * 8); }
+.mine{ display:flex; flex-wrap:wrap; gap:calc(var(--u) * 3); }
+.log{ max-height:calc(var(--u) * 120); overflow:auto; }
+.log li{ font-size:calc(var(--u) * 8); line-height:calc(var(--u) * 13); }
+
+/* ---- 頁尾 ---- */
+footer.foot{
+  background:var(--ink); color:var(--dim);
+  border-top:calc(var(--u) * 2) solid var(--wht);
+  padding:calc(var(--u) * 8);
+  font-size:calc(var(--u) * 8); line-height:calc(var(--u) * 13);
+}
+footer.foot a{ color:var(--gold); }
+footer.foot nav a{ margin-right:calc(var(--u) * 8); }
+.sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.live{
+  background:var(--wht); color:var(--ink);
+  border:calc(var(--u) * 2) solid var(--ink);
+  padding:calc(var(--u) * 4);
+  font-size:calc(var(--u) * 8); line-height:calc(var(--u) * 12);
+  margin:0 auto calc(var(--u) * 8); width:calc(var(--u) * 256);
+}
+.note{ color:var(--dim); font-size:calc(var(--u) * 8); }
+.fic{ background:var(--red); color:var(--wht); padding:calc(var(--u)*2) calc(var(--u)*4); font-weight:900; font-size:calc(var(--u)*8); display:inline-block; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1 class="sr">大吉商店 — 換尪仔標</h1>
+<div class="shot">
+  <div class="screen"><canvas id="ppu" width="256" height="240" aria-label="尪仔標簿：十二生肖十二格，已入手的格子有圖，未入手的只有網點"></canvas></div>
+</div>
+<p class="live" id="menkoout" role="status" aria-live="polite">簿仔還沒開始。</p>
+<p class="caption"><b>櫃台抽屜裡那疊尪仔標，一張一元。</b>十二生肖一套，你手上一共十二張。<span id="padstat"></span></p>
+
+<section class="win">
+<h2>規矩三句</h2>
+<ol>
+<li>一張換一張，不補錢；你只能拿出你有的，對方只收<strong>他架上沒有的</strong>。</li>
+<li>每個囡仔跟你換三次就走人。</li>
+<li>你手上永遠是十二張——所以換到重複的，就等於少一格。</li>
+</ol>
+<p class="note">解法不只一種。換到走投無路時，按「珠姨重發一副」重來。</p>
+</section>
+
+<section class="win">
+<h2>你的簿仔</h2>
+<p id="minestat">—</p>
+<div class="mine" id="mine"></div>
+<p style="margin-top:calc(var(--u) * 8)"><button id="reset" type="button">珠姨重發一副</button></p>
+</section>
+
+<section class="win">
+<h2>店門口三個囡仔</h2>
+<div class="kids" id="kids"></div>
+</section>
+
+<section class="win bright">
+<h2>經過</h2>
+<ul class="log" id="log"><li>（還沒換過）</li></ul>
+</section>
+
+<noscript><p class="win">沒有 JavaScript 時不能換牌，但十二生肖尪仔標的全部圖樣、規矩與說明都是靜態文字，讀得完整。</p></noscript>
+
+<nav id="chrbank" aria-label="主導覽"><a class="bank" href="index.html"><canvas class="bankico" width="16" height="16" aria-hidden="true"></canvas><span class="banklab"><b>店面</b><i>SHOPFRONT</i></span><em class="bankstate">圖庫未載入</em></a><a class="bank" href="hoe.html"><canvas class="bankico" width="16" height="16" aria-hidden="true"></canvas><span class="banklab"><b>貨架</b><i>GOODS</i></span><em class="bankstate">圖庫未載入</em></a><a class="bank on" href="piau.html" aria-current="page"><canvas class="bankico" width="16" height="16" aria-hidden="true"></canvas><span class="banklab"><b>換尪仔標</b><i>MENKO</i></span><em class="bankstate">圖庫已載入</em></a><a class="bank" href="tiam.html"><canvas class="bankico" width="16" height="16" aria-hidden="true"></canvas><span class="banklab"><b>店誌</b><i>STORE BOOK</i></span><em class="bankstate">圖庫未載入</em></a></nav>
+<footer class="foot">
+<p><strong>大吉商店</strong>（柑仔店）・臺南市新化區中正路 337 號・06-590-2837・每日 06:20–21:40・農曆初二、十六下午三點後才開（拜拜）。頭家 陳金水、陳美珠。代收乾洗、代寄郵局包裹、公賣局菸酒。</p>
+<p class="note">本站為設計風格示範站，店號、人名、電話、地址與價目皆為虛構。風格規格書：<a href="SKILL.md">SKILL.md</a>　建置說明：<a href="README.md">README.md</a>　藝廊：<a href="../../index.html">Design Skills Center</a></p>
+<nav aria-label="頁尾導覽"><a href="index.html">店面</a><a href="hoe.html">貨架</a><a href="piau.html">換尪仔標</a><a href="tiam.html">店誌</a></nav>
+</footer>
+</div>
+<script>
+/* ===========================================================================
+   福源商店 — 2C02 PPU 圖塊渲染器
+   一顆虛擬 PPU：圖樣表(2bpp) / 名稱表 / 屬性表 / 調色盤 / OAM 精靈評估
+   無任何瀏覽器 API 依賴，可在 node 直接跑（供離線驗圖）
+   =========================================================================== */
+(function (root) {
+  'use strict';
+
+  /* --- 2C02 母盤（64 格，其中 $0D/$1D/$2D/$3D 與 $x E/$x F 為黑，實際 54 色） --- */
+  var MASTER = [
+    '#666666','#002A88','#1412A7','#3B00A4','#5C007E','#6E0040','#6C0600','#561D00',
+    '#333500','#0B4800','#005200','#004F08','#00404D','#000000','#000000','#000000',
+    '#ADADAD','#155FD9','#4240FF','#7527FE','#A01ACC','#B71E7B','#B53120','#994E00',
+    '#6B6D00','#388700','#0C9300','#008F32','#007C8D','#000000','#000000','#000000',
+    '#FFFEFF','#64B0FF','#9290FF','#C676FF','#F36AFF','#FE6ECC','#FE8170','#EA9E22',
+    '#BCBE00','#88D800','#5CE430','#45E082','#48CDDE','#4F4F4F','#000000','#000000',
+    '#FFFEFF','#C0DFFF','#D3D2FF','#E8C8FF','#FBC2FF','#FEC4EA','#FECCC5','#F7D8A5',
+    '#E4E594','#CFEF96','#BDF4AB','#B3F3CC','#B5EBF2','#B8B8B8','#000000','#000000'
+  ];
+  var RGB = MASTER.map(function (h) {
+    return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  });
+
+  var W = 256, H = 240, NTW = 64, NTH = 30;
+
+  /* --- 圖塊：8 列字串，字元 '.'/'0'=值0（透明／底色）、'1''2''3'=子調色盤第 1/2/3 色 --- */
+  function T(rows) {
+    var a = new Uint8Array(64);
+    for (var y = 0; y < 8; y++) {
+      var r = rows[y] || '........';
+      for (var x = 0; x < 8; x++) {
+        var c = r.charAt(x);
+        a[y * 8 + x] = (c === '1') ? 1 : (c === '2') ? 2 : (c === '3') ? 3 : 0;
+      }
+    }
+    return a;
+  }
+
+  /* --- 圖樣表：最多 256 塊（真機一庫的上限），超過即拋錯 --- */
+  function PatternTable() {
+    this.tiles = [];
+    this.index = {};
+  }
+  PatternTable.prototype.add = function (name, rows) {
+    if (this.index[name] !== undefined) return this.index[name];
+    if (this.tiles.length >= 256) throw new Error('圖樣表超過 256 塊：' + name);
+    var i = this.tiles.length;
+    this.tiles.push(T(rows));
+    this.index[name] = i;
+    return i;
+  };
+  PatternTable.prototype.addRaw = function (name, arr) {
+    if (this.index[name] !== undefined) return this.index[name];
+    if (this.tiles.length >= 256) throw new Error('圖樣表超過 256 塊：' + name);
+    var i = this.tiles.length;
+    this.tiles.push(arr);
+    this.index[name] = i;
+    return i;
+  };
+  PatternTable.prototype.id = function (name) {
+    var i = this.index[name];
+    if (i === undefined) throw new Error('圖塊不存在：' + name);
+    return i;
+  };
+
+  /* --- 由 16 列 ×16 字元的字面圖切成 2×2 共四塊 --- */
+  PatternTable.prototype.add16 = function (name, rows16) {
+    var ids = [];
+    for (var by = 0; by < 2; by++) {
+      for (var bx = 0; bx < 2; bx++) {
+        var sub = [];
+        for (var y = 0; y < 8; y++) {
+          sub.push((rows16[by * 8 + y] || '').substr(bx * 8, 8));
+        }
+        ids.push(this.add(name + '_' + by + bx, sub));
+      }
+    }
+    return ids;
+  };
+
+  /* --- 畫面：兩張並排的名稱表（供水平捲動），屬性表以 16×16 為單位 --- */
+  function Screen(pt) {
+    this.pt = pt;
+    this.nt = new Uint16Array(NTW * NTH);       // 64×30 圖塊
+    this.at = new Uint8Array((NTW / 2) * (NTH / 2 | 0) + 32); // 32×15 屬性方塊
+    this.backdrop = 0x22;
+    this.bgPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+    this.spPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+    this.oam = [];
+    this.splitY = 24;   // 狀態列高度：以上不捲動
+    this.scrollX = 0;
+  }
+  Screen.prototype.setTile = function (tx, ty, id) {
+    if (tx < 0 || tx >= NTW || ty < 0 || ty >= NTH) return;
+    this.nt[ty * NTW + tx] = id;
+  };
+  Screen.prototype.getTile = function (tx, ty) { return this.nt[ty * NTW + tx]; };
+  /* 屬性：顏色屬於位置——(tx>>1, ty>>1) 這個 16×16 方塊指派一組子調色盤 */
+  Screen.prototype.setAttr = function (bx, by, sub) {
+    if (bx < 0 || bx >= 32 || by < 0 || by >= 15) return;
+    this.at[by * 32 + bx] = sub & 3;
+  };
+  Screen.prototype.getAttr = function (bx, by) { return this.at[by * 32 + bx] & 3; };
+  /* 以圖塊座標填一塊矩形的屬性（會自動吃到整個 16×16 方塊——這正是屬性衝突的成因） */
+  Screen.prototype.attrRect = function (tx, ty, w, h, sub) {
+    for (var y = ty >> 1; y <= (ty + h - 1) >> 1; y++)
+      for (var x = tx >> 1; x <= (tx + w - 1) >> 1; x++) this.setAttr(x, y, sub);
+  };
+  Screen.prototype.fill = function (tx, ty, w, h, id) {
+    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) this.setTile(tx + x, ty + y, id);
+  };
+
+  /* --- 文字：5×7 點陣字，即時合成為 8×8 圖塊並登記進圖樣表 --- */
+  var FONT = {
+    ' ': ['00000', '00000', '00000', '00000', '00000', '00000', '00000'],
+    'A': ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+    'B': ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+    'C': ['01110', '10001', '10000', '10000', '10000', '10001', '01110'],
+    'D': ['11110', '10001', '10001', '10001', '10001', '10001', '11110'],
+    'E': ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+    'F': ['11111', '10000', '10000', '11110', '10000', '10000', '10000'],
+    'G': ['01110', '10001', '10000', '10111', '10001', '10001', '01111'],
+    'H': ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
+    'I': ['01110', '00100', '00100', '00100', '00100', '00100', '01110'],
+    'J': ['00111', '00010', '00010', '00010', '00010', '10010', '01100'],
+    'K': ['10001', '10010', '10100', '11000', '10100', '10010', '10001'],
+    'L': ['10000', '10000', '10000', '10000', '10000', '10000', '11111'],
+    'M': ['10001', '11011', '10101', '10101', '10001', '10001', '10001'],
+    'N': ['10001', '11001', '10101', '10011', '10001', '10001', '10001'],
+    'O': ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+    'P': ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
+    'Q': ['01110', '10001', '10001', '10001', '10101', '10010', '01101'],
+    'R': ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+    'S': ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
+    'T': ['11111', '00100', '00100', '00100', '00100', '00100', '00100'],
+    'U': ['10001', '10001', '10001', '10001', '10001', '10001', '01110'],
+    'V': ['10001', '10001', '10001', '10001', '10001', '01010', '00100'],
+    'W': ['10001', '10001', '10001', '10101', '10101', '11011', '10001'],
+    'X': ['10001', '10001', '01010', '00100', '01010', '10001', '10001'],
+    'Y': ['10001', '10001', '01010', '00100', '00100', '00100', '00100'],
+    'Z': ['11111', '00001', '00010', '00100', '01000', '10000', '11111'],
+    '0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+    '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+    '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
+    '3': ['11111', '00010', '00100', '00010', '00001', '10001', '01110'],
+    '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+    '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
+    '6': ['00110', '01000', '10000', '11110', '10001', '10001', '01110'],
+    '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+    '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+    '9': ['01110', '10001', '10001', '01111', '00001', '00010', '01100'],
+    '.': ['00000', '00000', '00000', '00000', '00000', '01100', '01100'],
+    ',': ['00000', '00000', '00000', '00000', '01100', '01100', '01000'],
+    ':': ['00000', '01100', '01100', '00000', '01100', '01100', '00000'],
+    '-': ['00000', '00000', '00000', '11111', '00000', '00000', '00000'],
+    '/': ['00001', '00010', '00010', '00100', '01000', '01000', '10000'],
+    '(': ['00010', '00100', '01000', '01000', '01000', '00100', '00010'],
+    ')': ['01000', '00100', '00010', '00010', '00010', '00100', '01000'],
+    '!': ['00100', '00100', '00100', '00100', '00100', '00000', '00100'],
+    '?': ['01110', '10001', '00001', '00010', '00100', '00000', '00100'],
+    '+': ['00000', '00100', '00100', '11111', '00100', '00100', '00000'],
+    '=': ['00000', '00000', '11111', '00000', '11111', '00000', '00000'],
+    '*': ['00000', '10101', '01110', '11111', '01110', '10101', '00000'],
+    '#': ['01010', '11111', '01010', '01010', '01010', '11111', '01010'],
+    '$': ['00100', '01111', '10100', '01110', '00101', '11110', '00100'],
+    '%': ['11001', '11010', '00010', '00100', '01000', '01011', '10011'],
+    "'": ['00100', '00100', '01000', '00000', '00000', '00000', '00000'],
+    '>': ['01000', '00100', '00010', '00001', '00010', '00100', '01000'],
+    '<': ['00010', '00100', '01000', '10000', '01000', '00100', '00010']
+  };
+
+  /* 把一個字元合成為 8×8 圖塊（v 為前景值，bg 為底值，5×7 置於左上，右 1 欄下 1 列為底） */
+  function glyphTile(ch, v, bg) {
+    var b = (bg === undefined) ? '.' : String(bg);
+    var g = FONT[ch] || FONT['?'];
+    var rows = [];
+    for (var y = 0; y < 7; y++) {
+      var s = '';
+      for (var x = 0; x < 5; x++) s += (g[y].charAt(x) === '1') ? String(v) : b;
+      rows.push(s + b + b + b);
+    }
+    rows.push(b + b + b + b + b + b + b + b);
+    return rows;
+  }
+
+  /* 在畫面上寫一行字（一個字元一塊圖塊）；bg 省略＝透明（露出 backdrop） */
+  function writeText(scr, tx, ty, text, v, bg) {
+    v = (v === undefined) ? 3 : v;
+    var bgk = (bg === undefined) ? 'x' : bg;
+    text = String(text).toUpperCase();
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      var key = 'F' + v + bgk + '_' + ch.charCodeAt(0);
+      var id = scr.pt.index[key];
+      if (id === undefined) id = scr.pt.add(key, glyphTile(ch, v, bg));
+      scr.setTile(tx + i, ty, id);
+    }
+    return tx + text.length;
+  }
+
+  /* --- 渲染 ---
+     背景：逐掃描線；狀態列（y < splitY）不套用捲動——真機的掃描線分割
+     精靈：逐掃描線評估，同一線最多 8 個；每幀輪替評估起點（真機的 OAM 輪替 → 閃爍）
+  */
+  function render(scr, frame, out, opts) {
+    opts = opts || {};
+    var noFlickerRotate = !!opts.noFlickerRotate;
+    var pt = scr.pt.tiles;
+    var bd = RGB[scr.backdrop & 0x3f];
+    var overflow = [];
+
+    for (var y = 0; y < H; y++) {
+      var sx = (y < scr.splitY) ? 0 : (scr.scrollX | 0);
+      var ty = (y >> 3), fy = y & 7;
+      var rowBase = ty * NTW;
+      var startCol = sx >> 3, fineX = sx & 7;
+      var o = (y * W) * 4;
+      for (var col = 0; col <= 32; col++) {
+        var tx = (startCol + col) % NTW;
+        var id = scr.nt[rowBase + tx];
+        var tile = pt[id];
+        var sub = scr.at[(ty >> 1) * 32 + (tx >> 1)] & 3;
+        var pal = scr.bgPal[sub];
+        var x0 = col * 8 - fineX;
+        for (var c = 0; c < 8; c++) {
+          var px = x0 + c;
+          if (px < 0) continue;
+          if (px >= W) break;
+          var v = tile ? tile[fy * 8 + c] : 0;
+          var rgb = (v === 0) ? bd : RGB[pal[v - 1] & 0x3f];
+          var oo = (y * W + px) * 4;
+          out[oo] = rgb[0]; out[oo + 1] = rgb[1]; out[oo + 2] = rgb[2]; out[oo + 3] = 255;
+        }
+      }
+
+      /* 精靈評估 */
+      var oam = scr.oam, n = oam.length;
+      if (n) {
+        var rot = noFlickerRotate ? 0 : (frame % (n || 1));
+        var found = 0, over = 0;
+        for (var k = 0; k < n; k++) {
+          var sp = oam[(k + rot) % n];
+          if (sp.hide) continue;
+          var hgt = sp.h || 8;
+          if (y < sp.y || y >= sp.y + hgt) continue;
+          if (found >= 8) { over++; continue; }
+          found++;
+          var r = y - sp.y;
+          if (sp.fv) r = hgt - 1 - r;
+          var tid = sp.t + ((r >= 8) ? ((sp.wide ? 2 : 1)) : 0);
+          var stile = pt[tid];
+          var rr = r & 7;
+          var spal = scr.spPal[sp.p & 3];
+          for (var sc = 0; sc < 8; sc++) {
+            var sxx = sp.x + (sp.fh ? (7 - sc) : sc);
+            if (sxx < 0 || sxx >= W) continue;
+            var sv = stile ? stile[rr * 8 + sc] : 0;
+            if (sv === 0) continue;
+            var srgb = RGB[spal[sv - 1] & 0x3f];
+            var so = (y * W + sxx) * 4;
+            out[so] = srgb[0]; out[so + 1] = srgb[1]; out[so + 2] = srgb[2]; out[so + 3] = 255;
+          }
+        }
+        if (over > 0) overflow.push([y, over]);
+      }
+    }
+    return overflow;
+  }
+
+  var api = {
+    MASTER: MASTER, RGB: RGB, W: W, H: H, NTW: NTW, NTH: NTH,
+    T: T, PatternTable: PatternTable, Screen: Screen,
+    writeText: writeText, glyphTile: glyphTile, FONT: FONT, render: render
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.PPU = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ===========================================================================
+   大吉商店 — 圖塊庫與畫面構成
+   全站所有圖像（店面、貨架、冰櫃、零食、尪仔標、logo、favicon）都從這裡出來。
+   每一塊圖只有四個值：0=底色（backdrop）、1/2/3=該 16×16 屬性方塊的子調色盤三色。
+   =========================================================================== */
+(function (root) {
+  'use strict';
+  var P = root.PPU || (typeof require !== 'undefined' ? require('./engine.js') : null);
+
+  /* ---------- 通用：以矩形／斜線組出大字（比手打字串可靠） ---------- */
+  function Grid(w, h) {
+    this.w = w; this.h = h;
+    this.d = [];
+    for (var y = 0; y < h; y++) this.d.push(new Array(w).fill('.'));
+  }
+  Grid.prototype.rect = function (x0, y0, x1, y1, v) {
+    for (var y = Math.max(0, y0); y <= Math.min(this.h - 1, y1); y++)
+      for (var x = Math.max(0, x0); x <= Math.min(this.w - 1, x1); x++) this.d[y][x] = v;
+    return this;
+  };
+  Grid.prototype.diag = function (x0, y0, x1, y1, th, v) {
+    var n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (var i = 0; i <= n; i++) {
+      var x = Math.round(x0 + (x1 - x0) * i / n), y = Math.round(y0 + (y1 - y0) * i / n);
+      this.rect(x, y, x + th - 1, y, v);
+    }
+    return this;
+  };
+  Grid.prototype.rows = function () { return this.d.map(function (r) { return r.join(''); }); };
+
+  /* 把任意 w×h（皆為 8 的倍數）字面圖切成圖塊，回傳二維 id 陣列 */
+  function addBig(pt, name, rows, w, h) {
+    var out = [];
+    for (var by = 0; by < h / 8; by++) {
+      var line = [];
+      for (var bx = 0; bx < w / 8; bx++) {
+        var sub = [];
+        for (var y = 0; y < 8; y++) sub.push((rows[by * 8 + y] || '').substr(bx * 8, 8));
+        line.push(pt.add(name + '_' + by + '_' + bx, sub));
+      }
+      out.push(line);
+    }
+    return out;
+  }
+  function blitBig(scr, ids, tx, ty) {
+    for (var y = 0; y < ids.length; y++)
+      for (var x = 0; x < ids[y].length; x++) scr.setTile(tx + x, ty + y, ids[y][x]);
+  }
+
+  /* ---------- 招牌漢字：大 / 吉（24×24，以筆畫矩形組成）
+     bg＝招牌底色值、ink＝筆畫值。招牌是紅底白字，所以預設 bg='2' ink='3' ---------- */
+  function glyphTai(bg, ink) {
+    bg = bg || '2'; ink = ink || '3';
+    var g = new Grid(24, 24);
+    g.rect(0, 0, 23, 23, bg);
+    g.rect(10, 1, 13, 9, ink);          // 丨
+    g.rect(2, 7, 21, 9, ink);           // 一
+    g.diag(11, 9, 2, 22, 3, ink);       // 丿
+    g.diag(13, 9, 21, 22, 3, ink);      // 乀
+    return g.rows();
+  }
+  function glyphKiat(bg, ink) {
+    bg = bg || '2'; ink = ink || '3';
+    var g = new Grid(24, 24);
+    g.rect(0, 0, 23, 23, bg);
+    g.rect(2, 1, 21, 3, ink);           // 士 上橫（長）
+    g.rect(10, 3, 13, 7, ink);          // 士 丨
+    g.rect(6, 7, 17, 9, ink);           // 士 下橫（短）
+    g.rect(4, 12, 19, 14, ink);         // 口 上
+    g.rect(4, 12, 6, 22, ink);          // 口 左
+    g.rect(17, 12, 19, 22, ink);        // 口 右
+    g.rect(4, 20, 19, 22, ink);         // 口 下
+    return g.rows();
+  }
+
+  /* ---------- 背景圖塊 ---------- */
+  var TILES = {
+    blank: ['........', '........', '........', '........', '........', '........', '........', '........'],
+    solid: ['11111111', '11111111', '11111111', '11111111', '11111111', '11111111', '11111111', '11111111'],
+    solid2: ['22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222'],
+    solid3: ['33333333', '33333333', '33333333', '33333333', '33333333', '33333333', '33333333', '33333333'],
+    /* 磚牆：兩列錯開的磚，1=磚縫 2=磚面 */
+    brick: ['11111111', '22212221', '22212221', '11111111', '21222122', '21222122', '11111111', '22212221'],
+    /* 磨石子地：2 為地色，1 為石粒 */
+    floor: ['22222222', '21222212', '22222222', '22122222', '22222222', '22221222', '12222222', '22222222'],
+    /* 騎樓地磚接縫 */
+    floorL: ['11111111', '22222222', '21222212', '22222222', '22122222', '22222222', '22221222', '22222222'],
+    /* 鐵捲門：橫向浪板 */
+    shut: ['11111111', '22222222', '22222222', '33333333', '11111111', '22222222', '22222222', '33333333'],
+    shutEdge: ['11111111', '12222221', '12222221', '13333331', '11111111', '12222221', '12222221', '13333331'],
+    shutBar: ['11111111', '11111111', '22222222', '22222222', '11111111', '11111111', '........', '........'],
+    /* 招牌框：1 黑框 2 招牌底 */
+    sgTop: ['11111111', '11111111', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222'],
+    sgBot: ['22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '11111111', '11111111'],
+    sgL: ['11222222', '11222222', '11222222', '11222222', '11222222', '11222222', '11222222', '11222222'],
+    sgR: ['22222211', '22222211', '22222211', '22222211', '22222211', '22222211', '22222211', '22222211'],
+    sgTL: ['11111111', '11111111', '11222222', '11222222', '11222222', '11222222', '11222222', '11222222'],
+    sgTR: ['11111111', '11111111', '22222211', '22222211', '22222211', '22222211', '22222211', '22222211'],
+    sgBL: ['11222222', '11222222', '11222222', '11222222', '11222222', '11222222', '11111111', '11111111'],
+    sgBR: ['22222211', '22222211', '22222211', '22222211', '22222211', '22222211', '11111111', '11111111'],
+    sgFill: ['22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222'],
+    /* 騎樓柱 */
+    colTop: ['11111111', '12222221', '12222221', '11111111', '.122221.', '.122221.', '.122221.', '.122221.'],
+    colMid: ['.122221.', '.122321.', '.122321.', '.122321.', '.122321.', '.122321.', '.122321.', '.122321.'],
+    colBot: ['.122321.', '.122321.', '.122321.', '11111111', '12222221', '12222221', '12222221', '11111111'],
+    /* 橫樑 */
+    beam: ['11111111', '22222222', '33333333', '22222222', '22222222', '11111111', '........', '........'],
+    /* 遮陽棚：斜條紋 */
+    awnA: ['11111111', '22233322', '22233322', '22233322', '22233322', '22233322', '22233322', '11111111'],
+    awnB: ['11111111', '33322233', '33322233', '33322233', '33322233', '33322233', '33322233', '11111111'],
+    awnLip: ['11111111', '11111111', '.1....1.', '.1....1.', '........', '........', '........', '........'],
+    /* 層板 */
+    shelf: ['11111111', '22222222', '33333333', '11111111', '........', '........', '........', '........'],
+    shelfLeg: ['..1111..', '..1221..', '..1221..', '..1221..', '..1221..', '..1221..', '..1221..', '..1111..'],
+    /* 玻璃罐（上下兩塊） */
+    jarTop: ['..1111..', '.111111.', '.122221.', '.111111.', '.133331.', '.133331.', '.133331.', '.133331.'],
+    jarBot: ['.133331.', '.133331.', '.132231.', '.132231.', '.133331.', '.133331.', '.111111.', '........'],
+    /* 零食包 */
+    pktA: ['11111111', '12222221', '12322321', '12222221', '12232321', '12222221', '12222221', '11111111'],
+    pktB: ['11111111', '13333331', '13222331', '13333331', '13233331', '13333331', '13333331', '11111111'],
+    /* 玻璃瓶 */
+    botTop: ['...11...', '...11...', '..1111..', '..1221..', '.111111.', '.122221.', '.123321.', '.123321.'],
+    botBot: ['.123321.', '.123321.', '.123321.', '.122221.', '.122221.', '.111111.', '........', '........'],
+    /* 冰櫃 */
+    frzTop: ['11111111', '13333331', '13333331', '11111111', '22222222', '22222222', '22222222', '22222222'],
+    frzTopL: ['11111111', '13333331', '13333331', '11111111', '12222222', '12222222', '12222222', '12222222'],
+    frzTopR: ['11111111', '13333331', '13333331', '11111111', '22222221', '22222221', '22222221', '22222221'],
+    frzBody: ['22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222', '22222222'],
+    frzL: ['12222222', '12222222', '12222222', '12222222', '12222222', '12222222', '12222222', '12222222'],
+    frzR: ['22222221', '22222221', '22222221', '22222221', '22222221', '22222221', '22222221', '22222221'],
+    frzGlass: ['22222222', '23333332', '23222232', '23222232', '23222232', '23222232', '23333332', '22222222'],
+    frzBot: ['22222222', '22222222', '11111111', '.1....1.', '.1....1.', '11....11', '........', '........'],
+    /* 抽當紙：一整面小格 */
+    tang: ['11111111', '12121212', '11111111', '21212121', '11111111', '12121212', '11111111', '21212121'],
+    tangTop: ['11111111', '13333331', '11111111', '12121212', '11111111', '21212121', '11111111', '12121212'],
+    /* 木箱 */
+    crate: ['11111111', '12222221', '12111121', '12122121', '12122121', '12111121', '12222221', '11111111'],
+    /* 燈泡與電線 */
+    wire: ['........', '........', '...11...', '...11...', '...11...', '...11...', '...11...', '...11...'],
+    bulb: ['...11...', '..1111..', '.133331.', '.133331.', '.133331.', '..1331..', '..1111..', '...11...'],
+    /* 雲 */
+    cloudL: ['........', '...333..', '..33333.', '.3333333', '33333333', '.333333.', '........', '........'],
+    cloudR: ['........', '.333....', '33333...', '3333333.', '33333333', '.333333.', '........', '........'],
+    /* 門牌 */
+    plate: ['11111111', '12222221', '12222221', '12222221', '12222221', '12222221', '12222221', '11111111'],
+    /* 紅磚騎樓地 */
+    kerb: ['33333333', '11111111', '22222222', '22222222', '11111111', '22222222', '22222222', '11111111'],
+    /* 貨架格線（內頁用） */
+    cell: ['11111111', '1......1', '1......1', '1......1', '1......1', '1......1', '1......1', '11111111'],
+    cellHi: ['11111111', '13333331', '13333331', '13333331', '13333331', '13333331', '13333331', '11111111'],
+    /* 櫃台 */
+    counter: ['11111111', '33333333', '22222222', '22222222', '22222222', '11111111', '22222222', '22222222'],
+    /* 紙箱堆 */
+    boxT: ['11111111', '12222221', '12222221', '11111111', '12222221', '12222221', '12222221', '11111111'],
+    /* 冰棒櫃把手 */
+    handle: ['........', '........', '11111111', '13333331', '11111111', '........', '........', '........']
+  };
+
+  /* ---------- 精靈圖塊（8×8） ---------- */
+  var SPR = {
+    cursor: ['11......', '121.....', '12211...', '122211..', '1222211.', '12211111', '121.....', '11......'],
+    ice: ['..1111..', '.133331.', '.133331.', '.132231.', '.133331.', '..1111..', '...11...', '...11...'],
+    noodle: ['11111111', '12222221', '12333321', '12322321', '12333321', '12222221', '11111111', '........'],
+    soda: ['..1111..', '..1331..', '.111111.', '.133331.', '.132231.', '.133331.', '.111111.', '........'],
+    candy: ['.1....1.', '11.11.11', '1.1111.1', '11333311', '11333311', '1.1111.1', '11.11.11', '.1....1.'],
+    gum: ['11111111', '13131311', '11111111', '13131311', '11111111', '........', '........', '........'],
+    plum: ['..1111..', '.133331.', '13322331', '13322331', '.133331.', '..1111..', '........', '........'],
+    rice: ['...11...', '..1331..', '.133331.', '13333331', '.133331.', '..1331..', '...11...', '........'],
+    sqid: ['.111111.', '13222231', '13233231', '13222231', '.1.1.1.1', '1.1.1.1.', '........', '........'],
+    peanut: ['..1111..', '.132231.', '.133331.', '..1331..', '.133331.', '.132231.', '..1111..', '........'],
+    lolly: ['..1111..', '.133331.', '13233231', '.133331.', '..1111..', '...11...', '...11...', '...11...'],
+    biscuit: ['.111111.', '13131311', '11313131', '13131311', '11313131', '.111111.', '........', '........'],
+    coin: ['..1111..', '.132231.', '13211231', '13211231', '13211231', '.132231.', '..1111..', '........'],
+    moth: ['........', '.1....1.', '133..331', '13322331', '.133331.', '..1111..', '........', '........'],
+    /* 貓（16×16 → 四塊） */
+    catTL: ['..11....', '.1221...', '.12221..', '.122221.', '.1222221', '.1222222', '.1223322', '.1222222'],
+    catTR: ['....11..', '...1221.', '..12221.', '.122221.', '1222221.', '2222221.', '2233221.', '2222221.'],
+    catBL: ['.1222222', '.1222222', '.1222222', '..122222', '..122222', '...11111', '...1..1.', '...11.11'],
+    catBR: ['2222221.', '2222221.', '2222221.', '222221..', '222221..', '11111...', '.1..1...', '11.11...']
+  };
+
+  /* ---------- 十二生肖尪仔標（16×16 頭像） ---------- */
+  var ZODIAC = [
+    ['鼠', 'RAT', [
+      '................', '..111......111..', '.12221....12221.', '.12321....12321.',
+      '.12221....12221.', '..12211111221...', '.12222222222211.', '1222222222222221',
+      '1213222222222221', '1222222222222221', '.12222222222221.', '..122222222221..',
+      '...1122222211...', '.....111111.....', '................', '................'
+    ]],
+    ['牛', 'OX', [
+      '.11..........11.', '1221........1221', '1231........1231', '1221111111111221',
+      '.12222222222221.', '.12232222232221.', '.12222222222221.', '.12222222222221.',
+      '..122222222221..', '..122111111221..', '..122133331221..', '..122111111221..',
+      '...1222222221...', '....11111111....', '................', '................'
+    ]],
+    ['虎', 'TIGER', [
+      '................', '.11..........11.', '1221........1221', '1221111111111221',
+      '.12222222222221.', '.12211111111221.', '.12232222232221.', '.12222222222221.',
+      '.12211122211221.', '.12222222222221.', '..122111111221..', '..122133331221..',
+      '..122111111221..', '...1222222221...', '....11111111....', '................'
+    ]],
+    ['兔', 'RABBIT', [
+      '...11....11.....', '..1221..1221....', '..1231..1231....', '..1231..1231....',
+      '..1231..1231....', '..12211111221...', '...1222222221...', '..122222222221..',
+      '.12232222232221.', '.12222222222221.', '.12222222222221.', '..122111111221..',
+      '..122133331221..', '...1222222221...', '....11111111....', '................'
+    ]],
+    ['龍', 'DRAGON', [
+      '......11........', '.....1221.......', '....12221.......', '...1222221......',
+      '..122222221.....', '.12232222221....', '112222222221....', '1222222222211...',
+      '.12222222222211.', '..1221111112221.', '.1221......1221.', '11..........1221',
+      '..........12221.', '.........122221.', '.........11111..', '................'
+    ]],
+    ['蛇', 'SNAKE', [
+      '................', '....11111.......', '..112222211.....', '.12233222221....',
+      '.1221....1221...', '.1221....1221...', '..1221..1221....', '...12211221.....',
+      '....122221......', '...12222221.....', '..1221..1221....', '.1221....1221...',
+      '.1221.....1221..', '..1221111112211.', '...111111111111.', '................'
+    ]],
+    ['馬', 'HORSE', [
+      '.11.............', '1221............', '1221111.........', '.12222211.......',
+      '.12232222111....', '.122222222221...', '..1222222222211.', '...122222222221.',
+      '...122222222221.', '...122111111221.', '...122133331221.', '...122111111221.',
+      '....1222222221..', '.....11111111...', '................', '................'
+    ]],
+    ['羊', 'GOAT', [
+      '..11........11..', '.1221......1221.', '.1231......1231.', '.12211111111221.',
+      '..122222222221..', '..123222222321..', '..122222222221..', '..122222222221..',
+      '...1222222221...', '...1221111221...', '...1221331221...', '...1221111221...',
+      '....12222221....', '.....111111.....', '................', '................'
+    ]],
+    ['猴', 'MONKEY', [
+      '..11........11..', '.1221......1221.', '.12211111111221.', '.12222222222221.',
+      '..133333333331..', '..131333333131..', '..133333333331..', '..133311113331..',
+      '..133333333331..', '...1333333331...', '...1331111331...', '....13333331....',
+      '.....133331.....', '......1111......', '................', '................'
+    ]],
+    ['雞', 'ROOSTER', [
+      '......11.11.....', '.....1221221....', '.....12222221...', '....1222222221..',
+      '...122222222221.', '...122322222211.', '..1222222222211.', '..12222222221...',
+      '..1222222221....', '...122222211....', '...1222221......', '....122221......',
+      '....12221.......', '....11221.......', '......11........', '................'
+    ]],
+    ['狗', 'DOG', [
+      '.11..........11.', '1221........1221', '1221111111111221', '1223222222232221',
+      '1222222222222221', '1222222222222221', '1222222222222221', '.12222222222221.',
+      '..122222222221..', '..122111111221..', '..122133331221..', '..122111111221..',
+      '...1222222221...', '....11111111....', '................', '................'
+    ]],
+    ['豬', 'PIG', [
+      '................', '.11..........11.', '1221........1221', '1221111111111221',
+      '.12222222222221.', '.12232222232221.', '.12222222222221.', '.12222222222221.',
+      '..122222222221..', '..121111111121..', '..121333333121..', '..121313131121..',
+      '..121111111121..', '...1222222221...', '....11111111....', '................'
+    ]]
+  ];
+
+  /* ---------- 導覽圖庫：四頁各一塊 16×16，外加「未換庫」佔位圖塊 ---------- */
+  var NAVICON = {
+    nav_shop: [
+      '................', '..1111111111....', '.122222222221...', '.133223322331...',
+      '.122222222221...', '.111111111111...', '.122222222221...', '.122111111221...',
+      '.122133331221...', '.122133331221...', '.122133331221...', '.122133331221...',
+      '.122111111221...', '.111111111111...', '................', '................'
+    ],
+    nav_shelf: [
+      '................', '.11111111111111.', '.13333333333331.', '.11111111111111.',
+      '.12222222222221.', '.12232232232221.', '.11111111111111.', '.13333333333331.',
+      '.11111111111111.', '.12222222222221.', '.12232232232221.', '.11111111111111.',
+      '.13333333333331.', '.11111111111111.', '................', '................'
+    ],
+    nav_menko: [
+      '................', '....111111......', '..1133333311....', '.133333333331...',
+      '13333322333331..', '13333222233331..', '13332222222331..', '13322222222231..',
+      '13333222233331..', '13333222233331..', '13333322333331..', '.133333333331...',
+      '..1133333311....', '....111111......', '................', '................'
+    ],
+    nav_book: [
+      '................', '..11111111111...', '..13333333331...', '..13222222231...',
+      '..13222222231...', '..13111111131...', '..13222222231...', '..13222222231...',
+      '..13111111131...', '..13222222231...', '..13222222231...', '..13333333331...',
+      '..11111111111...', '................', '................', '................'
+    ],
+    /* 未換庫：圖樣表裡沒有它的圖，畫出來就是這個 */
+    nav_blank: [
+      '1..1..1..1..1..1', '..1..1..1..1..1.', '.1..1..1..1..1..', '1..1..1..1..1..1',
+      '..1..1..1..1..1.', '.1..1..1..1..1..', '1..1..1..1..1..1', '..1..1..1..1..1.',
+      '.1..1..1..1..1..', '1..1..1..1..1..1', '..1..1..1..1..1.', '.1..1..1..1..1..',
+      '1..1..1..1..1..1', '..1..1..1..1..1.', '.1..1..1..1..1..', '1..1..1..1..1..1'
+    ]
+  };
+
+  /* =========================================================================
+     圖樣表建置
+     ========================================================================= */
+  function buildPattern(pt, opts) {
+    opts = opts || {};
+    for (var k in TILES) if (Object.prototype.hasOwnProperty.call(TILES, k)) pt.add(k, TILES[k]);
+    var out = { sign: {}, spr: {}, zod: [] };
+    if (opts.sign !== false) {
+      out.sign.tai = addBig(pt, 'g_tai', glyphTai(), 24, 24);
+      out.sign.kiat = addBig(pt, 'g_kiat', glyphKiat(), 24, 24);
+    }
+    for (var s in SPR) if (Object.prototype.hasOwnProperty.call(SPR, s)) out.spr[s] = pt.add('s_' + s, SPR[s]);
+    if (opts.zodiac) {
+      for (var i = 0; i < ZODIAC.length; i++) {
+        var z = ZODIAC[i];
+        /* 尪仔標是實體紙牌：把透明處填成牌面（值 3），不讓 backdrop 透出來 */
+        var rows = z[2].map(function (r) { return r.replace(/\./g, '3'); });
+        out.zod.push({ zh: z[0], en: z[1], ids: addBig(pt, 'z' + i, rows, 16, 16) });
+      }
+    }
+    return out;
+  }
+
+  /* 貨架上的貨：以 8×8 為一件，12 種 */
+  var GOODS = [
+    ['s_ice', '枝仔冰', 5], ['s_noodle', '王子麵', 5], ['s_soda', '彈珠汽水', 10],
+    ['s_candy', '牛奶糖', 5], ['s_gum', '泡泡糖', 1], ['s_plum', '鹹酸甜', 5],
+    ['s_rice', '米香', 10], ['s_sqid', '魷魚絲', 10], ['s_peanut', '花生糖', 5],
+    ['s_lolly', '棒棒糖', 3], ['s_biscuit', '營養餅', 10], ['s_coin', '金幣巧克力', 5]
+  ];
+
+  /* =========================================================================
+     畫面一：店面（nametable-first）
+     ========================================================================= */
+  function buildShopFront(P2, A) {
+    var pt = new P2.PatternTable();
+    var A2 = buildPattern(pt, { sign: true });
+    var s = new P2.Screen(pt);
+    var t = pt.index;
+
+    s.backdrop = 0x22;                         /* 天色：所有值 0 的像素 */
+    s.bgPal = [
+      [0x0F, 0x16, 0x30],                      /* 0 黑／朱／白 —— 狀態列、招牌 */
+      [0x0F, 0x1A, 0x28],                      /* 1 黑／草綠／金黃 —— 貨架、遮陽棚 */
+      [0x0F, 0x27, 0x30],                      /* 2 黑／磚橙／白 —— 磚牆、木料 */
+      [0x0F, 0x11, 0x30]                       /* 3 黑／深藍／白 —— 冰櫃、鐵捲門 */
+    ];
+    s.spPal = [
+      [0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]
+    ];
+
+    /* --- 狀態列（y 0–23，不隨捲動） --- */
+    s.fill(0, 0, 32, 3, t.solid);
+    s.attrRect(0, 0, 32, 4, 0);
+    P2.writeText(s, 1, 0, 'TAI-KIAT KAM-A-TIAM   NO.337', 3, 1);
+    P2.writeText(s, 1, 1, '06:20-21:40   TEL 06-590-2837', 3, 1);
+    P2.writeText(s, 1, 2, 'CHUNG-CHENG RD  SIN-HUA TAINAN', 2, 1);
+
+    /* --- 天空與雲 --- */
+    s.setTile(3, 4, t.cloudL); s.setTile(4, 4, t.cloudR);
+    s.setTile(26, 5, t.cloudL); s.setTile(27, 5, t.cloudR);
+    s.attrRect(2, 4, 4, 2, 0); s.attrRect(26, 4, 4, 2, 0);
+
+    /* --- 招牌（tx 4–27, ty 4–8） --- */
+    var x0 = 4, y0 = 4, w = 24, h = 5, i, j;
+    s.fill(x0, y0, w, h, t.sgFill);
+    for (i = 0; i < w; i++) { s.setTile(x0 + i, y0, t.sgTop); s.setTile(x0 + i, y0 + h - 1, t.sgBot); }
+    for (j = 0; j < h; j++) { s.setTile(x0, y0 + j, t.sgL); s.setTile(x0 + w - 1, y0 + j, t.sgR); }
+    s.setTile(x0, y0, t.sgTL); s.setTile(x0 + w - 1, y0, t.sgTR);
+    s.setTile(x0, y0 + h - 1, t.sgBL); s.setTile(x0 + w - 1, y0 + h - 1, t.sgBR);
+    s.attrRect(x0, y0, w, h, 0);
+    blitBig(s, A2.sign.tai, 6, 5);
+    blitBig(s, A2.sign.kiat, 10, 5);
+    P2.writeText(s, 14, 6, 'TAI-KIAT', 3, 2);
+    P2.writeText(s, 14, 7, 'KAM-A-TIAM', 3, 2);
+
+    /* --- 遮陽棚（ty 9–10） --- */
+    for (i = 2; i < 30; i++) s.setTile(i, 9, (i % 2) ? t.awnA : t.awnB);
+    for (i = 2; i < 30; i++) s.setTile(i, 10, t.awnLip);
+    s.attrRect(2, 9, 28, 2, 1);
+
+    /* --- 騎樓柱 --- */
+    for (j = 11; j <= 25; j++) { s.setTile(1, j, t.colMid); s.setTile(30, j, t.colMid); }
+    s.setTile(1, 11, t.colTop); s.setTile(30, 11, t.colTop);
+    s.setTile(1, 25, t.colBot); s.setTile(30, 25, t.colBot);
+    s.attrRect(0, 10, 2, 16, 1); s.attrRect(30, 10, 2, 16, 1);
+
+    /* --- 左側磚牆 --- */
+    s.fill(2, 11, 4, 12, t.brick);
+    s.attrRect(2, 10, 4, 14, 2);
+
+    /* --- 抽當紙牆（掛在左牆上，tx 2–5, ty 14–19；正好吃滿三列屬性方塊） --- */
+    s.fill(2, 14, 4, 1, t.tangTop);
+    s.fill(2, 15, 4, 5, t.tang);
+    s.attrRect(2, 14, 4, 6, 0);
+
+    /* --- 鐵捲門（tx 6–17, ty 11–15，捲到一半） --- */
+    s.fill(6, 11, 12, 1, t.shutBar);
+    s.fill(6, 12, 12, 4, t.shut);
+    for (j = 11; j < 16; j++) { s.setTile(6, j, t.shutEdge); s.setTile(17, j, t.shutEdge); }
+    s.attrRect(6, 10, 12, 6, 3);
+
+    /* --- 門內：貨架三層（tx 6–17, ty 16–22） --- */
+    s.fill(6, 16, 12, 7, t.solid);          /* 店內暗處 */
+    s.attrRect(6, 16, 12, 8, 1);
+    var gset = ['s_noodle', 's_candy', 's_plum', 's_rice', 's_peanut', 's_biscuit', 's_gum', 's_sqid'];
+    for (var row = 0; row < 3; row++) {
+      var sy = 17 + row * 2;
+      s.fill(7, sy, 10, 1, t.shelf);
+      for (i = 0; i < 10; i++) s.setTile(7 + i, sy - 1, t[gset[(i + row * 3) % gset.length]]);
+    }
+    s.setTile(6, 22, t.shelfLeg); s.setTile(17, 22, t.shelfLeg);
+
+    /* --- 右牆與木箱（tx 18–29, ty 11–15） --- */
+    s.fill(18, 11, 12, 5, t.brick);
+    s.attrRect(18, 10, 12, 6, 2);
+    for (i = 0; i < 3; i++) { s.setTile(25 + i, 14, t.crate); s.setTile(25 + i, 13, t.crate); }
+    s.attrRect(24, 12, 4, 4, 2);
+
+    /* --- 冰櫃（tx 18–29, ty 16–21） --- */
+    s.fill(18, 16, 12, 1, t.frzTop);
+    s.setTile(18, 16, t.frzTopL); s.setTile(29, 16, t.frzTopR);
+    s.fill(18, 17, 12, 4, t.frzBody);
+    for (j = 17; j < 21; j++) { s.setTile(18, j, t.frzL); s.setTile(29, j, t.frzR); }
+    for (i = 20; i < 28; i++) s.setTile(i, 18, t.frzGlass);
+    s.fill(18, 21, 12, 1, t.frzBot);
+    s.setTile(23, 16, t.handle);
+    s.attrRect(18, 16, 12, 6, 3);
+    P2.writeText(s, 19, 19, 'ICE 5 YUAN', 3, 2);
+
+    /* --- 燈泡與電線 --- */
+    s.setTile(12, 11, t.wire); s.setTile(12, 12, t.bulb);
+    s.attrRect(12, 10, 2, 4, 1);
+
+    /* --- 地面 --- */
+    s.fill(0, 23, 32, 1, t.kerb);
+    s.fill(0, 24, 32, 6, t.floor);
+    for (i = 0; i < 32; i += 4) s.setTile(i, 26, t.floorL);
+    s.attrRect(0, 22, 32, 8, 2);
+
+    return { screen: s, art: A2, pt: pt };
+  }
+
+  /* =========================================================================
+     畫面二：貨架（屬性方塊示範用）
+     tx 8–23 ／ ty 8–23 是一面 8×8 個 16×16 屬性方塊的格架
+     ========================================================================= */
+  function buildShelfWall(P2) {
+    var pt = new P2.PatternTable();
+    var A2 = buildPattern(pt, { sign: false });
+    var s = new P2.Screen(pt);
+    var t = pt.index;
+    s.backdrop = 0x22;
+    s.bgPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+    s.spPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+
+    s.fill(0, 0, 32, 3, t.solid);
+    s.attrRect(0, 0, 32, 4, 0);
+    P2.writeText(s, 1, 0, 'GOODS SHELF   20 X 12 ITEMS', 3, 1);
+    P2.writeText(s, 1, 1, 'ARROWS/PAD MOVE   Z SWAP PAL', 2, 1);
+    P2.writeText(s, 1, 2, 'COLOUR BELONGS TO THE BLOCK', 3, 1);
+
+    /* 騎樓下的貨架：天色為底，木層板 + 20×12 件貨 */
+    s.fill(0, 3, 32, 1, t.beam);
+    s.attrRect(0, 2, 32, 2, 2);
+    for (var j = 0; j < 16; j++) for (var i = 0; i < 20; i++) {
+      var g = GOODS[(i * 5 + j * 7) % GOODS.length][0];
+      s.setTile(6 + i, 4 + j, t[g]);
+    }
+    /* 兩側立板與上下層板 */
+    for (j = 3; j < 21; j++) { s.setTile(5, j, t.shelfLeg); s.setTile(26, j, t.shelfLeg); }
+    s.fill(5, 3, 22, 1, t.shelf);
+    s.fill(5, 20, 22, 1, t.shelf);
+    s.attrRect(4, 2, 2, 20, 2); s.attrRect(26, 2, 2, 20, 2);
+    /* 預設屬性：每一塊 16×16 都指派一組子調色盤（10×8 個方塊） */
+    for (var by = 0; by < 8; by++) for (var bx = 0; bx < 10; bx++) {
+      s.setAttr(3 + bx, 2 + by, (bx + by) % 4);
+    }
+    /* 地面 */
+    s.fill(0, 21, 32, 1, t.kerb);
+    s.fill(0, 22, 32, 8, t.floor);
+    for (i = 0; i < 32; i += 4) s.setTile(i, 24, t.floorL);
+    s.attrRect(0, 20, 32, 10, 2);
+    return { screen: s, art: A2, pt: pt, goods: GOODS };
+  }
+
+  /* =========================================================================
+     畫面三：尪仔標簿（12 格）
+     ========================================================================= */
+  function buildMenkoBoard(P2) {
+    var pt = new P2.PatternTable();
+    var A2 = buildPattern(pt, { sign: false, zodiac: true });
+    var s = new P2.Screen(pt);
+    var t = pt.index;
+    s.backdrop = 0x22;
+    s.bgPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+    s.spPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+
+    s.fill(0, 0, 32, 3, t.solid);
+    s.attrRect(0, 0, 32, 4, 0);
+    P2.writeText(s, 1, 0, 'MENKO BOOK   12 ZODIAC CARDS', 3, 1);
+    P2.writeText(s, 1, 1, 'TRADE ONE FOR ONE  3 EACH KID', 2, 1);
+    P2.writeText(s, 1, 2, 'ARROWS/PAD: PICK   Z: OFFER', 3, 1);
+
+    /* 簿仔底：牛皮紙板 */
+    s.fill(0, 3, 32, 27, t.solid2);
+    s.attrRect(0, 2, 32, 28, 2);
+    /* 12 格：4 欄 ×3 列，每格 4×4 圖塊＝正好 2×2 個 16×16 屬性方塊 */
+    var slots = [];
+    for (var r = 0; r < 3; r++) {
+      for (var c = 0; c < 4; c++) {
+        var idx = r * 4 + c;
+        /* 卡片一律對齊偶數圖塊座標，因此每張卡正好 2×2 個 16×16 屬性方塊 */
+        var tx = 2 + c * 8, ty = 4 + r * 6;
+        s.fill(tx, ty, 4, 4, t.solid3);
+        blitBig(s, A2.zod[idx].ids, tx + 1, ty + 1);
+        s.attrRect(tx, ty, 4, 4, idx % 4);
+        P2.writeText(s, tx, ty + 4, ('  ' + (idx + 1)).slice(-2) + ' ' + A2.zod[idx].en.slice(0, 3), 3, 2);
+        s.attrRect(tx, ty + 4, 6, 2, 2);
+        slots.push({ idx: idx, tx: tx, ty: ty, sub: idx % 4 });
+      }
+    }
+    var blankIds = addBig(pt, 'mblank', NAVICON.nav_blank, 16, 16);
+    return {
+      screen: s, art: A2, pt: pt, slots: slots, blankIds: blankIds,
+      /* 未入手的格子：牌面空著，只留一塊「未入手」的網點 */
+      setSlot: function (i, owned) {
+        var sl = slots[i];
+        s.fill(sl.tx, sl.ty, 4, 4, t.solid3);
+        blitBig(s, owned ? A2.zod[i].ids : blankIds, sl.tx + 1, sl.ty + 1);
+        s.attrRect(sl.tx, sl.ty, 4, 4, owned ? (i % 4) : 2);
+      }
+    };
+  }
+
+  /* =========================================================================
+     畫面四：櫃台（店誌）
+     ========================================================================= */
+  function buildCounter(P2) {
+    var pt = new P2.PatternTable();
+    var A2 = buildPattern(pt, { sign: true });
+    var s = new P2.Screen(pt);
+    var t = pt.index;
+    s.backdrop = 0x22;
+    s.bgPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+    s.spPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+
+    s.fill(0, 0, 32, 3, t.solid);
+    s.attrRect(0, 0, 32, 4, 0);
+    P2.writeText(s, 1, 0, 'COUNTER   TAI-KIAT KAM-A-TIAM', 3, 1);
+    P2.writeText(s, 1, 1, 'CHEN CHIN-SHUI / CHEN MEI-CHU', 2, 1);
+    P2.writeText(s, 1, 2, 'ONE PATTERN TABLE  256 TILES', 3, 1);
+
+    /* 後牆 */
+    s.fill(0, 3, 32, 14, t.brick);
+    s.attrRect(0, 2, 32, 16, 2);
+
+    /* 牆上小招牌：紅底白字「大吉」 */
+    var px = 11, py = 4, pw = 10, ph = 5, i, j;
+    s.fill(px, py, pw, ph, t.sgFill);
+    for (i = 0; i < pw; i++) { s.setTile(px + i, py, t.sgTop); s.setTile(px + i, py + ph - 1, t.sgBot); }
+    for (j = 0; j < ph; j++) { s.setTile(px, py + j, t.sgL); s.setTile(px + pw - 1, py + j, t.sgR); }
+    s.setTile(px, py, t.sgTL); s.setTile(px + pw - 1, py, t.sgTR);
+    s.setTile(px, py + ph - 1, t.sgBL); s.setTile(px + pw - 1, py + ph - 1, t.sgBR);
+    s.attrRect(px, py, pw, ph, 0);
+    blitBig(s, A2.sign.tai, px + 1, py + 1);
+    blitBig(s, A2.sign.kiat, px + 5, py + 1);
+
+    /* 後牆貨架兩層 */
+    var gset = ['s_candy', 's_plum', 's_rice', 's_peanut', 's_biscuit', 's_gum', 's_sqid', 's_noodle'];
+    for (var row = 0; row < 2; row++) {
+      var sy = 12 + row * 2;
+      s.fill(2, sy, 28, 1, t.shelf);
+      for (i = 0; i < 28; i++) s.setTile(2 + i, sy - 1, t[gset[(i + row * 3) % gset.length]]);
+    }
+    s.attrRect(2, 10, 28, 4, 1);
+
+    /* 櫃台（玻璃糖罐排一列） */
+    for (i = 0; i < 7; i++) { s.setTile(3 + i * 4, 15, t.jarTop); s.setTile(3 + i * 4, 16, t.jarBot); }
+    s.attrRect(2, 14, 28, 4, 0);
+    s.fill(0, 17, 32, 1, t.counter);
+    s.fill(0, 18, 32, 3, t.boxT);
+    s.attrRect(0, 16, 32, 6, 2);
+
+    /* 地面 */
+    s.fill(0, 21, 32, 1, t.kerb);
+    s.fill(0, 22, 32, 8, t.floor);
+    for (i = 0; i < 32; i += 4) s.setTile(i, 24, t.floorL);
+    s.attrRect(0, 20, 32, 10, 2);
+    return { screen: s, art: A2, pt: pt };
+  }
+
+  var api = {
+    TILES: TILES, SPR: SPR, ZODIAC: ZODIAC, NAVICON: NAVICON, GOODS: GOODS,
+    Grid: Grid, addBig: addBig, blitBig: blitBig,
+    glyphTai: glyphTai, glyphKiat: glyphKiat,
+    buildPattern: buildPattern,
+    buildShopFront: buildShopFront, buildShelfWall: buildShelfWall,
+    buildMenkoBoard: buildMenkoBoard, buildCounter: buildCounter
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.ART = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ===========================================================================
+   大吉商店 — 共用執行期：畫面掛載、輸入（鍵盤＋Gamepad API）、換頁捲動、導覽圖庫
+   =========================================================================== */
+(function (root) {
+  'use strict';
+  var P = root.PPU, A = root.ART;
+
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
+
+  /* ---------- 輸入：鍵盤永遠可用，實體手掣（Gamepad API）為加分路徑 ---------- */
+  var kb = { u: 0, d: 0, l: 0, r: 0, a: 0, b: 0, st: 0 };
+  var keys = { u: 0, d: 0, l: 0, r: 0, a: 0, b: 0, st: 0 };
+  var padSeen = false, padName = '';
+  var KEYMAP = {
+    ArrowUp: 'u', ArrowDown: 'd', ArrowLeft: 'l', ArrowRight: 'r',
+    KeyW: 'u', KeyS: 'd', KeyA: 'l', KeyD: 'r',
+    KeyZ: 'a', KeyX: 'b', Enter: 'st', Space: 'a'
+  };
+  var edge = { u: 0, d: 0, l: 0, r: 0, a: 0, b: 0, st: 0 }, prev = {};
+  function bindKeys(el) {
+    function on(e, v) {
+      var k = KEYMAP[e.code];
+      if (!k) return;
+      var ae = document.activeElement;
+      if (ae && (/INPUT|TEXTAREA|SELECT/.test(ae.tagName) || (ae.tagName === 'A' && e.code === 'Space'))) return;
+      kb[k] = v;
+      if (e.code.indexOf('Arrow') === 0 || e.code === 'Space') e.preventDefault();
+    }
+    (el || window).addEventListener('keydown', function (e) { on(e, 1); });
+    (el || window).addEventListener('keyup', function (e) { on(e, 0); });
+  }
+  /* 每幀重建按鍵狀態：鍵盤為底，實體手掣（Gamepad API）疊加上去 */
+  function readInput() {
+    for (var k in kb) keys[k] = kb[k];
+    if (!navigator.getGamepads) return;
+    var gps;
+    try { gps = navigator.getGamepads(); } catch (e) { return; }
+    for (var i = 0; i < gps.length; i++) {
+      var g = gps[i];
+      if (!g || !g.connected) continue;
+      if (!padSeen) { padSeen = true; padName = g.id; announcePad(); }
+      var ax = g.axes[0] || 0, ay = g.axes[1] || 0, b = g.buttons || [];
+      var bp = function (n) { return (b[n] && (b[n].pressed || b[n].value > 0.5)) ? 1 : 0; };
+      keys.l = keys.l || (ax < -0.45 ? 1 : 0) || bp(14);
+      keys.r = keys.r || (ax > 0.45 ? 1 : 0) || bp(15);
+      keys.u = keys.u || (ay < -0.45 ? 1 : 0) || bp(12);
+      keys.d = keys.d || (ay > 0.45 ? 1 : 0) || bp(13);
+      keys.a = keys.a || bp(0) || bp(2);
+      keys.b = keys.b || bp(1) || bp(3);
+      keys.st = keys.st || bp(9);
+      break;
+    }
+  }
+  function announcePad() {
+    var el = document.getElementById('padstat');
+    if (el) el.textContent = '手掣已接上：' + (padName || '未知裝置') + '（十字鍵移動、A 鈕確定）';
+  }
+  window.addEventListener('gamepadconnected', function (e) {
+    padSeen = true; padName = e.gamepad && e.gamepad.id; announcePad();
+  });
+
+  /* ---------- 掛載一個畫面 ---------- */
+  function mount(built, opts) {
+    opts = opts || {};
+    var cv = document.getElementById(opts.canvas || 'ppu');
+    if (!cv) return null;
+    var ctx = cv.getContext('2d', { alpha: false });
+    if (ctx.imageSmoothingEnabled !== undefined) ctx.imageSmoothingEnabled = false;
+    var img = ctx.createImageData(P.W, P.H);
+    var scr = built.screen;
+    continueStreet(scr, built);
+    var frame = 0, lastOv = '';
+    var readout = document.getElementById('scanout');
+
+    function step() {
+      readInput();
+      for (var k in keys) { edge[k] = (keys[k] && !prev[k]) ? 1 : 0; prev[k] = keys[k]; }
+      if (opts.update) opts.update(frame, keys, edge, scr, built);
+      var ov = P.render(scr, reduce ? 0 : frame, img.data, { noFlickerRotate: reduce });
+      ctx.putImageData(img, 0, 0);
+      if (readout) {
+        var total = 0, rows = ov.length, mx = 0;
+        for (var i = 0; i < ov.length; i++) { total += ov[i][1]; if (ov[i][1] > mx) mx = ov[i][1]; }
+        var txt = rows
+          ? ('掃描線超額：' + rows + ' 條線各多出最多 ' + mx + ' 個精靈'
+            + (reduce ? '，已固定丟棄排在後面的，' : '，每幀輪流丟不同的，所以它們在閃，')
+            + '被丟掉的內容在下方清單裡一個不少。')
+          : '掃描線正常：每一條線上的精靈都不超過八個。';
+        if (txt !== lastOv) { readout.textContent = txt; lastOv = txt; }
+      }
+      frame++;
+      raf = requestAnimationFrame(step);
+    }
+    /* 減少動態時照樣每幀重繪（0.6ms／幀），但環境動效凍結、精靈不輪替、轉場直接切換，
+       所以畫面是靜的而輸入仍在 <100ms 內回應。 */
+    var raf = requestAnimationFrame(step);
+    return { ctx: ctx, img: img, scr: scr, built: built };
+  }
+
+  /* 右半張名稱表：街道繼續往下一間走（換頁捲動時看得到） */
+  function continueStreet(scr, built) {
+    var t = built.pt.index;
+    for (var tx = 32; tx < 64; tx++) {
+      for (var ty = 22; ty < 30; ty++) scr.setTile(tx, ty, t.floor);
+      scr.setTile(tx, 21, t.kerb);
+      if (tx % 6 === 0) { scr.setTile(tx, 19, t.wire); scr.setTile(tx, 20, t.crate); }
+    }
+    for (var bx = 16; bx < 32; bx++) for (var by = 10; by < 15; by++) scr.setAttr(bx, by, 2);
+    for (bx = 16; bx < 32; bx++) for (by = 0; by < 2; by++) scr.setAttr(bx, by, 0);
+    /* 狀態列在右半張也要是黑底，否則捲動時上方會破 */
+    for (tx = 32; tx < 64; tx++) for (ty = 0; ty < 3; ty++) scr.setTile(tx, ty, t.solid);
+  }
+
+  /* ---------- 導覽：chr-bank 換圖庫 ---------- */
+  var NAVPAGE = [
+    ['index.html', '店面', 'SHOPFRONT', 'nav_shop'],
+    ['hoe.html', '貨架', 'GOODS', 'nav_shelf'],
+    ['piau.html', '換尪仔標', 'MENKO', 'nav_menko'],
+    ['tiam.html', '店誌', 'STORE BOOK', 'nav_book']
+  ];
+  /* 導覽的 HTML 是靜態寫死的（無 JavaScript 也在）；這裡只負責把圖塊畫上去 */
+  function drawNav() {
+    var list = document.querySelectorAll('#chrbank a.bank');
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i], on = a.classList.contains('on');
+      var c = a.querySelector('canvas.bankico');
+      if (!c) continue;
+      c.width = 16; c.height = 16;
+      paintIcon(c, on ? (NAVPAGE[i] && NAVPAGE[i][3]) : null, i);
+    }
+  }
+  /* 未現用頁：圖樣表裡根本沒有它的圖，畫出來就是未換庫的佔位圖塊 */
+  function paintIcon(cv, name, idx) {
+    var ctx = cv.getContext('2d');
+    if (ctx.imageSmoothingEnabled !== undefined) ctx.imageSmoothingEnabled = false;
+    var pt = new P.PatternTable();
+    var A2 = A.buildPattern(pt, { sign: false });
+    var ids = A.addBig(pt, 'ic', name ? A.NAVICON[name] : A.NAVICON.nav_blank, 16, 16);
+    var s = new P.Screen(pt);
+    s.backdrop = name ? 0x0F : 0x00;
+    s.bgPal = [[0x0F, 0x16, 0x30], [0x0F, 0x1A, 0x28], [0x0F, 0x27, 0x30], [0x0F, 0x11, 0x30]];
+    s.splitY = 0;
+    A.blitBig(s, ids, 0, 0);
+    s.attrRect(0, 0, 2, 2, name ? (idx % 4) : 2);
+    var img = ctx.createImageData(P.W, P.H);
+    P.render(s, 0, img.data, { noFlickerRotate: true });
+    var small = ctx.createImageData(16, 16);
+    for (var y = 0; y < 16; y++) for (var x = 0; x < 16; x++) {
+      var so = (y * P.W + x) * 4, oo = (y * 16 + x) * 4;
+      small.data[oo] = img.data[so]; small.data[oo + 1] = img.data[so + 1];
+      small.data[oo + 2] = img.data[so + 2]; small.data[oo + 3] = 255;
+    }
+    ctx.putImageData(small, 0, 0);
+  }
+
+  /* ---------- 換頁：捲動出場／入場（狀態列以掃描線分割固定不動） ---------- */
+  function hookTransition(mounted) {
+    if (!mounted) return;
+    var scr = mounted.scr;
+    try {
+      if (sessionStorage.getItem('tk_scroll') === '1' && !reduce) {
+        sessionStorage.removeItem('tk_scroll');
+        var t0 = performance.now();
+        (function inAnim(now) {
+          var k = Math.min(1, (performance.now() - t0) / 380);
+          scr.scrollX = Math.round(256 * (1 - ease(k)));
+          if (k < 1) requestAnimationFrame(inAnim); else scr.scrollX = 0;
+        })();
+      } else { sessionStorage.removeItem('tk_scroll'); }
+    } catch (e) { }
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest ? e.target.closest('a.bank') : null;
+      if (!a) return;
+      if (a.classList.contains('on')) return;
+      if (reduce) { try { sessionStorage.removeItem('tk_scroll'); } catch (er) { } return; }
+      e.preventDefault();
+      try { sessionStorage.setItem('tk_scroll', '1'); } catch (er) { }
+      var t0 = performance.now();
+      (function outAnim() {
+        var k = Math.min(1, (performance.now() - t0) / 340);
+        scr.scrollX = Math.round(256 * ease(k));
+        if (k < 1) requestAnimationFrame(outAnim); else location.href = a.href;
+      })();
+    });
+  }
+  function ease(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
+
+  root.KAT = {
+    reduce: reduce, keys: keys, edge: edge, bindKeys: bindKeys, mount: mount,
+    drawNav: drawNav, hookTransition: hookTransition, NAVPAGE: NAVPAGE,
+    hasPad: function () { return padSeen; }
+  };
+})(window);
+
+</script>
+<script>
+(function(){
+
+var built = ART.buildMenkoBoard(PPU);
+var A = built.art, scr = built.screen;
+var NAMES = ART.ZODIAC.map(function(z){return z[0];});
+/* 手上一共 12 張：八種各一，其中 1／5／7／10 各多一張；缺 3、6、9、11 四格 */
+var start = [1,2,1,0,1,2,0,2,1,0,2,0];
+var KIDSDEF = [
+  {n:'阿源', d:'隔壁釘子店的，講話快', have:[3,9,0,5], max:3,
+   say:['你這張我找足三年。','好啦好啦，換換換。','我要走了，阿母在叫。']},
+  {n:'惠美', d:'對面美髮店的，會挑', have:[6,2,1,4], max:3,
+   say:['這張邊角摺到了餒。','算你厲害，拿去。','我的還比較漂亮。']},
+  {n:'阿坤', d:'同班的，什麼都換', have:[11,10,7,6], max:3,
+   say:['換啦換啦。','你不要騙我喔。','唉唷，虧本了。']}
+];
+var mine, kids, picked=null, traded=0, logEl=document.getElementById('log');
+function reset(){
+  mine = start.slice();
+  kids = KIDSDEF.map(function(k){ return {def:k, have:k.have.slice(), left:k.max, line:''}; });
+  picked=null; traded=0;
+  logEl.innerHTML='<li>（還沒換過）</li>';
+  redrawAll();
+  say('簿仔攤開了。缺的四格是：'+missing().map(function(i){return NAMES[i];}).join('、')+'。');
+}
+function missing(){ var m=[]; for(var i=0;i<12;i++) if(!mine[i]) m.push(i); return m; }
+function dupes(){ var d=[]; for(var i=0;i<12;i++) if(mine[i]>1) d.push(i); return d; }
+function say(t){ document.getElementById('menkoout').textContent=t; }
+function log(t){
+  if (logEl.children.length===1 && logEl.children[0].textContent.indexOf('還沒')>=0) logEl.innerHTML='';
+  var li=document.createElement('li'); li.textContent=t; logEl.appendChild(li);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+function redrawBoard(){ for (var i=0;i<12;i++) built.setSlot(i, mine[i]>0); }
+function redrawAll(){
+  redrawBoard();
+  var mineEl=document.getElementById('mine'); mineEl.innerHTML='';
+  for (var i=0;i<12;i++){
+    if (!mine[i]) continue;
+    var b=document.createElement('button');
+    b.type='button';
+    b.textContent=(i+1)+' '+NAMES[i]+(mine[i]>1?(' ×'+mine[i]):'');
+    b.className=(picked===i?'sel':'');
+    b.setAttribute('aria-pressed', picked===i?'true':'false');
+    (function(idx){ b.onclick=function(){ picked=(picked===idx?null:idx); redrawAll();
+      say(picked===null?'先揀一張你要拿出去的。':('你揀了「'+NAMES[picked]+'」。現在點對方架上一張他沒有的。')); }; })(i);
+    mineEl.appendChild(b);
+  }
+  var ms=missing();
+  document.getElementById('minestat').textContent =
+    '手上 '+mine.reduce(function(a,b){return a+b;},0)+' 張，齊了 '+(12-ms.length)+' 格'
+    + (ms.length? ('，還缺：'+ms.map(function(i){return NAMES[i];}).join('、')) : '——整套齊了。')
+    + '　重複的：'+(dupes().length? dupes().map(function(i){return NAMES[i];}).join('、') : '沒有');
+  var kEl=document.getElementById('kids'); kEl.innerHTML='';
+  kids.forEach(function(k,ki){
+    var d=document.createElement('div'); d.className='kid';
+    var h=document.createElement('h3'); h.textContent=k.def.n+'（還肯換 '+k.left+' 次）';
+    var p=document.createElement('p'); p.textContent=k.def.d; p.style.fontSize='calc(var(--u) * 8)';
+    var cc=document.createElement('div'); cc.className='cards';
+    k.have.forEach(function(ci,pos){
+      var b=document.createElement('button'); b.type='button';
+      b.textContent=(ci+1)+' '+NAMES[ci];
+      if (k.left<=0) b.disabled=true;
+      b.onclick=function(){ trade(ki,pos); };
+      cc.appendChild(b);
+    });
+    var s=document.createElement('p'); s.className='say'; s.textContent=k.line;
+    d.appendChild(h); d.appendChild(p); d.appendChild(cc); d.appendChild(s);
+    kEl.appendChild(d);
+  });
+}
+function trade(ki,pos){
+  var k=kids[ki];
+  if (picked===null){ say('先在「你的簿仔」裡揀一張要拿出去的。'); return; }
+  if (k.left<=0){ say(k.def.n+'已經走了。'); return; }
+  if (k.have.indexOf(picked)>=0){
+    k.line='我已經有這張了啦。';
+    say(k.def.n+'已經有「'+NAMES[picked]+'」，他不收。'); redrawAll(); return;
+  }
+  var got=k.have[pos];
+  k.have.splice(pos,1);
+  k.have.push(picked);
+  mine[picked]--; mine[got]++;
+  k.left--; traded++;
+  k.line=k.def.say[Math.min(k.def.say.length-1, k.def.max-k.left-1)];
+  log('第 '+traded+' 次：拿「'+NAMES[picked]+'」跟 '+k.def.n+' 換「'+NAMES[got]+'」'+(mine[got]>1?'（重複了）':''));
+  picked=null;
+  redrawAll();
+  var ms=missing();
+  if (!ms.length){
+    say('整套齊了！十二格全滿，總共換了 '+traded+' 次。珠姨說：這疊是水伯民國七十五年進的，剩最後一盒。');
+    log('★ 十二生肖成套。');
+  } else {
+    var alive=kids.filter(function(x){return x.left>0;}).length;
+    if (!alive) say('三個囡仔都走了。還缺 '+ms.length+' 格：'+ms.map(function(i){return NAMES[i];}).join('、')+'。按「珠姨重發一副」再來一次。');
+    else say('換到「'+NAMES[got]+'」。還缺 '+ms.length+' 格：'+ms.map(function(i){return NAMES[i];}).join('、')+'。');
+  }
+}
+document.getElementById('reset').onclick=reset;
+
+/* 畫面：簿仔 + 游標精靈 */
+var curS={x:16,y:40,t:A.spr.cursor,p:0};
+scr.oam.push(curS);
+var sel=0;
+var mounted = KAT.mount(built, {
+  update:function(f,k,e){
+    if (e.l && sel%4>0) sel--;
+    if (e.r && sel%4<3) sel++;
+    if (e.u && sel>3) sel-=4;
+    if (e.d && sel<8) sel+=4;
+    var sl=built.slots[sel];
+    curS.x=sl.tx*8-6; curS.y=sl.ty*8+10;
+    if (e.a){
+      if (mine[sel]>0){ picked=(picked===sel?null:sel); redrawAll();
+        say(picked===null?'放回去了。':('你揀了「'+NAMES[sel]+'」。'));
+      } else say('「'+NAMES[sel]+'」你還沒有。');
+    }
+    if (e.l||e.r||e.u||e.d){
+      say('游標在第 '+(sel+1)+' 格「'+NAMES[sel]+'」：'+(mine[sel]? ('有 '+mine[sel]+' 張') : '還沒入手')+'。A 鈕（Z 鍵）揀起來。');
+    }
+    /* 環境動效：牌面在燈下的微微反光——每 48 幀一格，兩塊屬性方塊輪流 */
+    if (!KAT.reduce){
+      var g=(f>>5)%12, s2=built.slots[g];
+      scr.attrRect(s2.tx, s2.ty, 4, 4, ((f>>5)%2) ? (g%4) : ((g+1)%4));
+    }
+  }
+});
+KAT.bindKeys();
+KAT.drawNav();
+KAT.hookTransition(mounted);
+reset();
+
+})();
+</script>
+</body>
+</html>

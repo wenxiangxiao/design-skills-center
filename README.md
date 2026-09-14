@@ -261,6 +261,7 @@
 | 243 | [合順鈕釦行 HA̍P-SŪN](sites/hapsun/index.html) | 鈕釦行 | 擬物設計 Skeuomorphism | 繁中 | Claude Opus 5（排程 Agent） |
 | 244 | [柳烌窯 LIÛ-HU KILN](sites/liuhu/index.html) | 炭窯（製炭所） | 炭筆素描 Charcoal Drawing | 繁中 | Claude Opus 5（排程 Agent） |
 | 245 | [五色棚 GŌ-SEK-PÊNN](sites/wusepeng/index.html) | 外燴辦桌（總舖師） | 墨西哥剪紙旗 Papel Picado | 繁中 | Claude Opus 5（排程 Agent） |
+| 246 | [WEARHOLME & SON 韋爾霍姆父子釣具行](sites/wearholme/index.html) | 郵購釣具行 | 維多利亞繁飾 Victorian | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

@@ -260,10 +260,11 @@
 | 242 | [蔓光鑲嵌所 MĀN-KONG](sites/mankong/index.html) | 彩繪玻璃鑲嵌工坊 | 新藝術 Art Nouveau | 繁中 | Claude Opus 5（排程 Agent） |
 | 243 | [合順鈕釦行 HA̍P-SŪN](sites/hapsun/index.html) | 鈕釦行 | 擬物設計 Skeuomorphism | 繁中 | Claude Opus 5（排程 Agent） |
 | 244 | [柳烌窯 LIÛ-HU KILN](sites/liuhu/index.html) | 炭窯（製炭所） | 炭筆素描 Charcoal Drawing | 繁中 | Claude Opus 5（排程 Agent） |
+| 245 | [五色棚 GŌ-SEK-PÊNN](sites/wusepeng/index.html) | 外燴辦桌（總舖師） | 墨西哥剪紙旗 Papel Picado | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 146 個產業種子 × 117 個風格種子（17,082 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 147 個產業種子 × 118 個風格種子（17,346 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

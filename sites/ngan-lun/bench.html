@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>排字檯 — 銀輪旱冰場</title>
+<meta name="description" content="用一張賽璐珞轉印紙親手排一塊 TONITE 招牌：放低、搓印、定稿，撕不回。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23F3F1EA%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2211%22%20fill%3D%22%2317161A%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%224%22%20fill%3D%22%23F3F1EA%22%2F%3E%3Cpath%20d%3D%22M16%205v3M16%2024v3M5%2016h3M24%2016h3%22%20stroke%3D%22%23FF4B1F%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+TC:wght@500;900&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<style>
+:root{
+ --pad:#F3F1EA; --pad2:#EAE7DD; --blue:#A9CDE8; --blue2:#6FA8D2;
+ --ink:#17161A; --marker:#26201C; --flo:#FF4B1F; --cyan:#00A7C4; --must:#F2B705;
+ --carrier:#2E5FA3; --tone:#17161A;
+ --rule:26px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+ background:var(--pad);
+ background-image:repeating-linear-gradient(to bottom,transparent 0 calc(var(--rule) - 1px),var(--blue) calc(var(--rule) - 1px) var(--rule));
+ background-position:0 0;
+ color:var(--ink);
+ font:400 15px/var(--rule) 'Courier Prime','Noto Sans TC',ui-monospace,monospace;
+ letter-spacing:.01em;
+}
+.pad{max-width:1080px;margin:0 auto;padding:0 28px;position:relative}
+.pad::before,.pad::after{content:'';position:absolute;top:0;bottom:0;width:1px;background:var(--blue2);opacity:.55}
+.pad::before{left:14px}.pad::after{right:14px}
+/* 裁切記號（非重現藍，印不出來） */
+.crop{position:fixed;width:16px;height:16px;pointer-events:none;z-index:2}
+.crop i{position:absolute;background:var(--blue2)}
+.crop i:first-child{left:0;top:7px;width:16px;height:1px}
+.crop i:last-child{left:7px;top:0;width:1px;height:16px}
+.crop.tl{left:6px;top:6px}.crop.tr{right:6px;top:6px}.crop.bl{left:6px;bottom:6px}.crop.br{right:6px;bottom:6px}
+
+/* ===== 轉印字 ===== */
+.tl{display:inline-block}
+.t{
+ display:inline-block;position:relative;
+ font-family:'Rubik Mono One','Noto Sans TC',sans-serif;font-weight:400;
+ transform:rotate(var(--r,0deg)) translateY(var(--dy,0px));
+ padding:.20em .02em;margin:-.20em -.02em;   /* 遮罩盒比字身大一圈，字母上下唔會俾遮罩切到 */
+ -webkit-mask-image:var(--m);mask-image:var(--m);
+ mask-composite:var(--mc);
+ -webkit-mask-size:100% 100%;mask-size:100% 100%;
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ -webkit-mask-position:0 0;mask-position:0 0;
+ transition:-webkit-mask-size 80ms linear,mask-size 80ms linear,-webkit-mask-position 80ms linear,mask-position 80ms linear;
+}
+.sp{display:inline-block;width:.42em}
+/* 2 輸入動效：hover／focus ＝ 用指甲再壓一下，洞縮小、字更完整 */
+.tl:hover .t,.tl:focus-visible .t{-webkit-mask-size:124% 124%;mask-size:124% 124%;-webkit-mask-position:-12% -12%;mask-position:-12% -12%}
+/* 1 環境動效：未貼牢的角，持續浮動 */
+.lifted{animation:lift var(--ld,8s) ease-in-out infinite alternate}
+@keyframes lift{from{transform:rotate(var(--r,0deg)) translateY(var(--dy,0px))}
+ to{transform:rotate(calc(var(--r,0deg) + .55deg)) translateY(calc(var(--dy,0px) - .9px))}}
+/* 4 簽名動效：替字 */
+.t[data-sub]{color:transparent}
+.t[data-sub]::before{content:attr(data-sub);position:absolute;left:0;top:0;width:100%;text-align:center;color:var(--ink);transform:rotate(var(--sr,0deg)) scaleX(var(--sx,1))}
+
+/* ===== 漢字：麥克筆描字，無缺角 ===== */
+.hl{display:inline-block}
+.hz{display:inline-block;font-family:'Noto Sans TC',sans-serif;font-weight:900;color:var(--marker);
+ transform:rotate(var(--r,0deg)) translateY(var(--dy,0px))}
+
+/* ===== 版面 ===== */
+header.mast{padding:30px 0 0;view-transition-name:mast}
+.mast .sign{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0 18px}
+.mast .sign .tl{font-size:clamp(34px,7.4vw,74px);line-height:1.02;color:var(--ink)}
+.mast .sign .hl{font-size:clamp(24px,4.4vw,40px);line-height:1.1}
+.mast .sub{margin-top:8px;font-size:13px;color:var(--ink)}
+.mast .sub b{color:var(--flo);font-weight:700}
+
+nav.set{margin:22px 0 0;padding:0 0 30px;position:relative;view-transition-name:nav}
+nav.set ul{list-style:none;display:flex;flex-wrap:wrap;gap:0 30px;position:relative;z-index:1}
+nav.set li{position:relative;padding:10px 0 14px}
+nav.set a{text-decoration:none;color:var(--ink);display:inline-block}
+nav.set a .tl{font-size:17px}
+nav.set a .hl{font-size:14px;margin-left:7px}
+/* 鉛筆對位線：現用頁那一格貼齊線（實線、字不歪），其餘手放、歪出線外（虛線） */
+nav.set li::after{content:'';position:absolute;left:0;right:0;bottom:10px;height:1px;
+ background:repeating-linear-gradient(to right,var(--blue2) 0 4px,transparent 4px 9px)}
+nav.set li.on::after{background:var(--blue2)}
+nav.set li.off a{transform:rotate(var(--nr)) translateY(var(--nd))}
+nav.set li.on a{transform:none}
+
+main{padding-bottom:64px}
+section{margin:0 0 54px;position:relative}
+h2{font:400 clamp(22px,3.6vw,34px)/1.12 'Rubik Mono One',sans-serif;margin:0 0 4px}
+h2 .hl{font-size:.62em}
+h3{font:900 17px/1.4 'Noto Sans TC',sans-serif;color:var(--marker);margin:26px 0 6px}
+p{max-width:62ch;margin:0 0 var(--rule)}
+a.lnk{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--flo)}
+a.lnk:hover{background:var(--must)}
+.note{color:var(--blue2);font-size:12.5px;line-height:1.5;padding-left:11px;border-left:2px solid var(--blue)}
+b.flo{color:var(--flo)}b.cy{color:var(--cyan)}b.mu{color:var(--must)}
+
+/* 資料表：打字機打的 */
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:0 0 var(--rule)}
+caption{text-align:left;font:900 15px/1.5 'Noto Sans TC',sans-serif;color:var(--marker);padding:0 0 6px}
+th,td{border-bottom:1px solid var(--ink);padding:6px 10px 5px;text-align:left;vertical-align:top}
+thead th{border-bottom:3px solid var(--ink);font-weight:700}
+tbody tr:nth-child(2n) td{background:var(--pad2)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+
+.slab{border:3px solid var(--ink);padding:18px 20px 20px;background:var(--pad);margin:0 0 var(--rule)}
+.slab.flo{border-color:var(--flo)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:22px 28px}
+.off1{margin-left:8%}
+.off2{margin-left:18%}
+ul.rules{list-style:none;counter-reset:r}
+ul.rules li{counter-increment:r;padding:5px 0 5px 46px;position:relative;border-bottom:1px solid var(--blue)}
+ul.rules li::before{content:counter(r,decimal-leading-zero);position:absolute;left:0;top:5px;
+ font:400 15px/1.5 'Rubik Mono One',sans-serif;color:var(--flo)}
+
+/* 紙條：這張紙還剩幾個字母 */
+.strip{position:relative;border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);
+ padding:12px 0;margin:0 0 42px;background:var(--pad)}
+.strip .hd{font:900 13px/1.5 'Noto Sans TC',sans-serif;color:var(--marker);margin-bottom:6px}
+.inv{display:flex;flex-wrap:wrap;gap:4px}
+.inv b{display:inline-block;min-width:31px;text-align:center;border:1px solid var(--ink);padding:2px 3px;
+ font:400 11px/1.35 'Courier Prime',monospace;background:var(--pad)}
+.inv b i{display:block;font-style:normal;font-family:'Rubik Mono One',sans-serif;font-size:13px}
+.inv b.out{background:var(--ink);color:var(--pad)}
+.inv b.out i{color:var(--flo)}
+button{font:400 14px/1.2 'Courier Prime','Noto Sans TC',monospace;background:var(--pad);color:var(--ink);
+ border:2px solid var(--ink);padding:8px 14px;cursor:pointer}
+button:hover{background:var(--must)}
+button:focus-visible,a:focus-visible,#stage:focus-visible{outline:3px solid var(--flo);outline-offset:2px}
+button[disabled]{opacity:.45;cursor:not-allowed}
+
+footer{border-top:3px solid var(--ink);padding:22px 0 60px;font-size:13px}
+footer .cols{gap:14px 28px}
+footer a{color:var(--ink)}
+
+svg.ill{display:block;width:100%;height:auto;border:2px solid var(--ink);background:var(--pad)}
+
+/* 大張的紙 */
+.sheetbig{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px 10px;border:2px solid var(--carrier);padding:12px;background:var(--pad)}
+.sheetbig b.cell{display:block;border-bottom:1px solid var(--blue)}
+.sheetbig i{font:400 19px/1.15 'Rubik Mono One',sans-serif;font-style:normal;color:var(--carrier);display:inline-block}
+.sheetbig em{font:400 11px/1 'Courier Prime',monospace;font-style:normal;color:var(--blue2);float:right;padding-top:6px}
+.sheetbig u{display:block;text-decoration:none;line-height:8px;padding:3px 0 4px}
+.sheetbig s{display:inline-block;width:5px;height:5px;margin:0 2px 2px 0;text-decoration:none;vertical-align:top}
+.sheetbig s.y{background:var(--carrier)}
+.sheetbig s.n{border:1px solid var(--blue2);width:3px;height:3px}
+.sheetbig b.out i{color:var(--flo)}
+.corr{display:grid;grid-template-columns:1fr 1fr;gap:26px 30px;align-items:start}
+.setline{margin:0 0 14px}
+.setline .tl{font-size:clamp(20px,3.5vw,31px);line-height:1.12;display:block}
+.setline .note{display:block;margin-top:1px}
+@media (max-width:760px){.corr{grid-template-columns:1fr}}
+
+/* ===== 排字檯 ===== */
+.bench{border:3px solid var(--ink);background:var(--pad);padding:0;user-select:none;touch-action:none}
+.bench .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-bottom:3px solid var(--ink);padding:10px 14px;font-size:13px}
+#stage{position:relative;height:270px;background:var(--pad);overflow:hidden;cursor:crosshair}
+#guide{position:absolute;left:5%;right:5%;top:var(--gy,186px);height:1px;background:var(--blue2)}
+#guide::before{content:'鉛筆線・印不出來的';position:absolute;left:0;top:-19px;font:400 11px/1 'Courier Prime','Noto Sans TC',monospace;color:var(--blue2)}
+.pc{position:absolute;top:calc(var(--gy,186px) - 0.96em);padding:.18em .03em;font-family:'Rubik Mono One',sans-serif;font-size:74px;line-height:1;color:var(--ink);
+ -webkit-mask-image:var(--m);mask-image:var(--m);mask-composite:var(--mc);
+ -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.pc.ghost{color:var(--blue2);-webkit-mask-image:none;mask-image:none;opacity:.75}
+.pc.live{color:var(--ink)}
+#cov{position:absolute;font:400 11px/1.3 'Courier Prime','Noto Sans TC',monospace;color:var(--blue2);pointer-events:none}
+.rcpt{border:3px solid var(--ink);padding:16px 18px;margin-top:var(--rule)}
+.rcpt dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:13.5px;margin:10px 0 0}
+.rcpt input{width:100%;font:400 12.5px/1.5 'Courier Prime',monospace;border:2px solid var(--ink);background:var(--pad);padding:6px 8px;color:var(--ink)}
+.rcpt dt{color:var(--marker);font-weight:700;font-family:'Noto Sans TC',sans-serif}
+#final{font-size:clamp(30px,7vw,64px);line-height:1.05;margin:6px 0 2px;min-height:1.1em}
+
+/* ===== 3 轉場動效：換頁＝換一張紙 ===== */
+@view-transition{navigation:auto}
+::view-transition-old(mast),::view-transition-old(nav){animation:peel .22s ease-in forwards}
+::view-transition-new(mast),::view-transition-new(nav){animation:press .26s steps(4,jump-none) forwards}
+@keyframes peel{to{transform:translateY(-9px);opacity:0}}
+@keyframes press{from{transform:translateY(5px);opacity:0}to{transform:none;opacity:1}}
+::view-transition-old(root){animation:peel .2s ease-in forwards}
+::view-transition-new(root){animation:press .24s steps(4,jump-none) forwards}
+/* 簽名動效的 VT：舊字離紙、新字搓落 */
+.vtg{view-transition-name:var(--vtn)}
+::view-transition-old(*){mix-blend-mode:normal}
+
+@media (max-width:760px){
+ .off1,.off2{margin-left:0}
+ .pad{padding:0 18px}
+ .pad::before{left:8px}.pad::after{right:8px}
+}
+@media (max-width:560px){
+ body{font-size:14px}
+ nav.set ul{gap:0 18px}
+ nav.set a .hl{display:none}
+ .mast .sign{gap:0 12px}
+ #stage{height:220px}
+ .pc{font-size:52px}
+ #stage{--gy:150px}
+ table{font-size:12.5px}
+ th,td{padding:5px 6px}
+ .inv b{min-width:27px}
+}
+@media (prefers-reduced-motion:reduce){
+ .lifted{animation:none}
+ .t{transition:none}
+ ::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
+@media print{ .strip,nav.set{display:none} body{background-image:none} }
+
+.g55{--m:radial-gradient(circle at 99.6% 83.7%,#0000 0 4.9%,#000 5.8%),radial-gradient(circle at 81.5% 21.4%,#0000 0 9.2%,#000 10.1%);--mc:intersect,intersect}
+.g56{--m:radial-gradient(circle at 98.0% 85.5%,#0000 0 10.5%,#000 11.4%),radial-gradient(circle at 98.7% 80.6%,#0000 0 9.4%,#000 10.3%);--mc:intersect,intersect}
+.g57{--m:radial-gradient(circle at 20.4% 99.4%,#0000 0 7.8%,#000 8.7%),radial-gradient(circle at 92.5% 4.4%,#0000 0 10.4%,#000 11.3%);--mc:intersect,intersect}
+.g58{--m:radial-gradient(circle at 94.8% 80.4%,#0000 0 3.3%,#000 4.2%),radial-gradient(circle at 97.3% 2.5%,#0000 0 3.2%,#000 4.1%);--mc:intersect,intersect}
+.g59{--m:radial-gradient(circle at 78.5% 84.6%,#0000 0 8.6%,#000 9.5%),radial-gradient(circle at 83.3% 97.7%,#0000 0 9.1%,#000 10.0%);--mc:intersect,intersect}
+.g60{--m:radial-gradient(circle at 7.7% 99.8%,#0000 0 4.3%,#000 5.2%),radial-gradient(circle at 89.5% 82.0%,#0000 0 10.5%,#000 11.4%);--mc:intersect,intersect}
+.g61{--m:radial-gradient(circle at 21.4% 78.8%,#0000 0 7.8%,#000 8.7%),radial-gradient(circle at 92.6% 1.8%,#0000 0 8.8%,#000 9.7%);--mc:intersect,intersect}
+.g62{--m:radial-gradient(circle at 81.4% 87.4%,#0000 0 6.2%,#000 7.1%),radial-gradient(circle at 21.7% 95.7%,#0000 0 8.6%,#000 9.5%);--mc:intersect,intersect}
+.g63{--m:radial-gradient(circle at 83.5% 90.1%,#0000 0 7.4%,#000 8.3%),radial-gradient(circle at 13.5% 93.6%,#0000 0 8.5%,#000 9.4%),radial-gradient(circle at 18.7% 6.1%,#0000 0 3.5%,#000 4.4%);--mc:intersect,intersect,intersect}
+.g64{--m:radial-gradient(circle at 84.7% 82.9%,#0000 0 9.3%,#000 10.2%),radial-gradient(circle at 13.0% 94.7%,#0000 0 10.8%,#000 11.7%),radial-gradient(circle at 8.0% 4.7%,#0000 0 6.8%,#000 7.7%);--mc:intersect,intersect,intersect}
+.g65{--m:radial-gradient(circle at 82.6% 21.6%,#0000 0 10.9%,#000 11.8%),radial-gradient(circle at 13.1% 4.1%,#0000 0 5.8%,#000 6.7%),radial-gradient(circle at 87.7% 20.9%,#0000 0 6.5%,#000 7.4%);--mc:intersect,intersect,intersect}
+.g66{--m:radial-gradient(circle at 12.0% 86.5%,#0000 0 4.0%,#000 4.9%),radial-gradient(circle at 6.8% 21.3%,#0000 0 5.0%,#000 5.9%),radial-gradient(circle at 18.9% 86.6%,#0000 0 6.7%,#000 7.6%);--mc:intersect,intersect,intersect}
+.g67{--m:radial-gradient(circle at 15.3% 9.7%,#0000 0 9.7%,#000 10.6%),radial-gradient(circle at 90.1% 20.8%,#0000 0 10.2%,#000 11.1%),radial-gradient(circle at 95.1% 87.9%,#0000 0 4.8%,#000 5.7%);--mc:intersect,intersect,intersect}
+.g68{--m:radial-gradient(circle at 93.8% 12.1%,#0000 0 9.9%,#000 10.8%),radial-gradient(circle at 23.8% 6.3%,#0000 0 4.9%,#000 5.8%),radial-gradient(circle at 93.9% 80.2%,#0000 0 10.3%,#000 11.2%);--mc:intersect,intersect,intersect}
+.g69{--m:radial-gradient(circle at 15.3% 86.0%,#0000 0 8.4%,#000 9.3%),radial-gradient(circle at 96.6% 89.6%,#0000 0 4.6%,#000 5.5%),radial-gradient(circle at 21.0% 79.2%,#0000 0 4.6%,#000 5.5%);--mc:intersect,intersect,intersect}
+.g70{--m:radial-gradient(circle at 77.5% 5.5%,#0000 0 3.2%,#000 4.1%),radial-gradient(circle at 6.9% 8.9%,#0000 0 9.8%,#000 10.7%),radial-gradient(circle at 81.6% 17.0%,#0000 0 10.8%,#000 11.7%);--mc:intersect,intersect,intersect}
+.g71{--m:radial-gradient(circle at 1.7% 19.3%,#0000 0 10.1%,#000 11.0%),radial-gradient(circle at 97.0% 5.0%,#0000 0 5.7%,#000 6.6%),radial-gradient(circle at 87.1% 90.9%,#0000 0 9.2%,#000 10.1%);--mc:intersect,intersect,intersect}
+.g72{--m:radial-gradient(circle at 77.7% 84.2%,#0000 0 8.6%,#000 9.5%),radial-gradient(circle at 80.9% 95.7%,#0000 0 9.7%,#000 10.6%),radial-gradient(circle at 77.2% 6.1%,#0000 0 3.7%,#000 4.6%);--mc:intersect,intersect,intersect}
+.g73{--m:radial-gradient(circle at 5.3% 12.8%,#0000 0 10.1%,#000 11.0%),radial-gradient(circle at 92.0% 4.7%,#0000 0 10.4%,#000 11.3%),radial-gradient(circle at 96.0% 80.4%,#0000 0 7.0%,#000 7.9%);--mc:intersect,intersect,intersect}
+.g74{--m:radial-gradient(circle at 5.9% 96.5%,#0000 0 9.7%,#000 10.6%),radial-gradient(circle at 14.9% 18.5%,#0000 0 5.2%,#000 6.1%),radial-gradient(circle at 76.0% 4.0%,#0000 0 10.0%,#000 10.9%);--mc:intersect,intersect,intersect}
+.g75{--m:radial-gradient(circle at 81.1% 0.5%,#0000 0 3.7%,#000 4.6%),radial-gradient(circle at 6.5% 0.1%,#0000 0 8.5%,#000 9.4%);--mc:intersect,intersect}
+.g76{--m:radial-gradient(circle at 19.0% 95.2%,#0000 0 7.6%,#000 8.5%),radial-gradient(circle at 0.2% 6.5%,#0000 0 5.2%,#000 6.1%),radial-gradient(circle at 6.0% 84.1%,#0000 0 4.4%,#000 5.3%);--mc:intersect,intersect,intersect}
+.g77{--m:radial-gradient(circle at 7.2% 15.7%,#0000 0 8.9%,#000 9.8%),radial-gradient(circle at 84.3% 2.4%,#0000 0 9.3%,#000 10.2%);--mc:intersect,intersect}
+.g78{--m:radial-gradient(circle at 86.0% 17.9%,#0000 0 10.2%,#000 11.1%),radial-gradient(circle at 3.6% 95.0%,#0000 0 5.7%,#000 6.6%),radial-gradient(circle at 77.1% 17.0%,#0000 0 7.0%,#000 7.9%);--mc:intersect,intersect,intersect}
+.g79{--m:radial-gradient(circle at 79.6% 12.6%,#0000 0 5.0%,#000 5.9%),radial-gradient(circle at 10.5% 6.6%,#0000 0 7.1%,#000 8.0%),radial-gradient(circle at 8.8% 20.7%,#0000 0 4.7%,#000 5.6%);--mc:intersect,intersect,intersect}
+.g80{--m:radial-gradient(circle at 79.1% 83.8%,#0000 0 8.9%,#000 9.8%),radial-gradient(circle at 99.3% 78.2%,#0000 0 6.1%,#000 7.0%);--mc:intersect,intersect}
+.g81{--m:radial-gradient(circle at 81.3% 17.5%,#0000 0 7.7%,#000 8.6%),radial-gradient(circle at 95.9% 15.7%,#0000 0 4.6%,#000 5.5%),radial-gradient(circle at 0.6% 88.6%,#0000 0 3.7%,#000 4.6%);--mc:intersect,intersect,intersect}
+.g82{--m:radial-gradient(circle at 6.3% 79.1%,#0000 0 10.9%,#000 11.8%),radial-gradient(circle at 20.5% 95.6%,#0000 0 8.6%,#000 9.5%);--mc:intersect,intersect}
+.g83{--m:radial-gradient(circle at 19.7% 99.7%,#0000 0 3.2%,#000 4.1%),radial-gradient(circle at 8.3% 15.3%,#0000 0 5.2%,#000 6.1%);--mc:intersect,intersect}
+.g84{--m:radial-gradient(circle at 23.4% 4.3%,#0000 0 6.4%,#000 7.3%),radial-gradient(circle at 23.0% 0.4%,#0000 0 7.2%,#000 8.1%),radial-gradient(circle at 94.7% 21.3%,#0000 0 8.7%,#000 9.6%);--mc:intersect,intersect,intersect}
+.g85{--m:radial-gradient(circle at 76.0% 5.2%,#0000 0 6.6%,#000 7.5%),radial-gradient(circle at 78.8% 12.8%,#0000 0 5.5%,#000 6.4%),radial-gradient(circle at 22.6% 92.0%,#0000 0 7.9%,#000 8.8%);--mc:intersect,intersect,intersect}
+.g86{--m:radial-gradient(circle at 4.4% 4.8%,#0000 0 6.0%,#000 6.9%),radial-gradient(circle at 99.0% 4.9%,#0000 0 6.8%,#000 7.7%),radial-gradient(circle at 7.1% 17.8%,#0000 0 8.5%,#000 9.4%);--mc:intersect,intersect,intersect}
+.g87{--m:radial-gradient(circle at 0.1% 1.2%,#0000 0 4.7%,#000 5.6%),radial-gradient(circle at 99.3% 86.2%,#0000 0 3.6%,#000 4.5%),radial-gradient(circle at 99.9% 0.1%,#0000 0 9.9%,#000 10.8%);--mc:intersect,intersect,intersect}
+.g88{--m:radial-gradient(circle at 84.8% 0.6%,#0000 0 5.3%,#000 6.2%),radial-gradient(circle at 3.1% 95.9%,#0000 0 6.6%,#000 7.5%),radial-gradient(circle at 88.2% 99.6%,#0000 0 5.4%,#000 6.3%);--mc:intersect,intersect,intersect}
+.g89{--m:radial-gradient(circle at 84.4% 12.4%,#0000 0 3.9%,#000 4.8%),radial-gradient(circle at 97.7% 95.3%,#0000 0 4.2%,#000 5.1%),radial-gradient(circle at 79.9% 98.0%,#0000 0 4.6%,#000 5.5%);--mc:intersect,intersect,intersect}
+.g90{--m:radial-gradient(circle at 10.2% 82.7%,#0000 0 5.6%,#000 6.5%),radial-gradient(circle at 88.1% 80.0%,#0000 0 4.2%,#000 5.1%),radial-gradient(circle at 23.0% 12.2%,#0000 0 10.5%,#000 11.4%);--mc:intersect,intersect,intersect}
+.g91{--m:radial-gradient(circle at 93.4% 96.4%,#0000 0 10.5%,#000 11.4%),radial-gradient(circle at 21.7% 96.2%,#0000 0 6.9%,#000 7.8%),radial-gradient(circle at 91.7% 89.2%,#0000 0 7.0%,#000 7.9%);--mc:intersect,intersect,intersect}
+.g92{--m:radial-gradient(circle at 81.6% 18.5%,#0000 0 3.6%,#000 4.5%),radial-gradient(circle at 11.7% 96.3%,#0000 0 6.7%,#000 7.6%),radial-gradient(circle at 91.7% 13.4%,#0000 0 7.1%,#000 8.0%);--mc:intersect,intersect,intersect}
+.g93{--m:radial-gradient(circle at 86.3% 10.8%,#0000 0 5.6%,#000 6.5%),radial-gradient(circle at 90.8% 21.4%,#0000 0 9.6%,#000 10.5%),radial-gradient(circle at 15.4% 16.6%,#0000 0 10.8%,#000 11.7%);--mc:intersect,intersect,intersect}
+.g94{--m:radial-gradient(circle at 13.0% 15.4%,#0000 0 7.8%,#000 8.7%),radial-gradient(circle at 12.9% 85.2%,#0000 0 4.2%,#000 5.1%),radial-gradient(circle at 1.8% 10.1%,#0000 0 3.1%,#000 4.0%);--mc:intersect,intersect,intersect}
+.g95{--m:radial-gradient(circle at 76.4% 88.0%,#0000 0 4.1%,#000 5.0%),radial-gradient(circle at 99.8% 20.7%,#0000 0 9.3%,#000 10.2%),radial-gradient(circle at 78.4% 10.2%,#0000 0 9.6%,#000 10.5%);--mc:intersect,intersect,intersect}
+.g96{--m:radial-gradient(circle at 91.2% 5.4%,#0000 0 6.5%,#000 7.4%),radial-gradient(circle at 12.1% 10.8%,#0000 0 6.8%,#000 7.7%),radial-gradient(circle at 0.1% 10.9%,#0000 0 7.2%,#000 8.1%);--mc:intersect,intersect,intersect}
+.g97{--m:radial-gradient(circle at 4.6% 90.9%,#0000 0 9.3%,#000 10.2%),radial-gradient(circle at 92.1% 81.1%,#0000 0 7.8%,#000 8.7%);--mc:intersect,intersect}
+.g98{--m:radial-gradient(circle at 82.4% 8.5%,#0000 0 4.4%,#000 5.3%),radial-gradient(circle at 21.2% 15.6%,#0000 0 5.1%,#000 6.0%);--mc:intersect,intersect}
+.g99{--m:radial-gradient(circle at 22.6% 11.2%,#0000 0 4.8%,#000 5.7%),radial-gradient(circle at 17.9% 4.2%,#0000 0 4.8%,#000 5.7%);--mc:intersect,intersect}
+.g100{--m:radial-gradient(circle at 7.5% 81.4%,#0000 0 7.2%,#000 8.1%),radial-gradient(circle at 8.2% 85.7%,#0000 0 8.8%,#000 9.7%);--mc:intersect,intersect}
+.g101{--m:radial-gradient(circle at 20.6% 0.4%,#0000 0 10.7%,#000 11.6%),radial-gradient(circle at 22.7% 17.8%,#0000 0 4.6%,#000 5.5%);--mc:intersect,intersect}
+.g102{--m:radial-gradient(circle at 82.4% 98.1%,#0000 0 9.9%,#000 10.8%),radial-gradient(circle at 18.8% 98.2%,#0000 0 9.6%,#000 10.5%),radial-gradient(circle at 17.9% 84.0%,#0000 0 9.1%,#000 10.0%);--mc:intersect,intersect,intersect}
+.g103{--m:radial-gradient(circle at 18.4% 87.2%,#0000 0 4.4%,#000 5.3%),radial-gradient(circle at 82.0% 18.5%,#0000 0 9.5%,#000 10.4%),radial-gradient(circle at 11.3% 20.5%,#0000 0 7.7%,#000 8.6%);--mc:intersect,intersect,intersect}
+.g104{--m:radial-gradient(circle at 88.4% 5.4%,#0000 0 3.7%,#000 4.6%),radial-gradient(circle at 92.9% 89.8%,#0000 0 10.2%,#000 11.1%),radial-gradient(circle at 2.7% 87.6%,#0000 0 9.2%,#000 10.1%);--mc:intersect,intersect,intersect}
+.g105{--m:radial-gradient(circle at 2.6% 19.6%,#0000 0 5.0%,#000 5.9%),radial-gradient(circle at 76.1% 92.3%,#0000 0 8.3%,#000 9.2%),radial-gradient(circle at 24.0% 11.2%,#0000 0 5.8%,#000 6.7%);--mc:intersect,intersect,intersect}
+.g106{--m:radial-gradient(circle at 8.5% 88.3%,#0000 0 7.9%,#000 8.8%),radial-gradient(circle at 84.8% 0.6%,#0000 0 10.2%,#000 11.1%),radial-gradient(circle at 3.3% 19.1%,#0000 0 9.4%,#000 10.3%);--mc:intersect,intersect,intersect}
+</style>
+</head>
+<body data-page="bench">
+<i class="crop tl"><i></i><i></i></i><i class="crop tr"><i></i><i></i></i><i class="crop bl"><i></i><i></i></i><i class="crop br"><i></i><i></i></i>
+<div class="pad">
+<header class="mast">
+ <div class="sign"><span class="tl" aria-label="SILVERWHEEL"><span class="t g74 lifted" style="--r:-0.27deg;--dy:-1.16px;--ld:7.1s">S</span><span class="t g75" style="--r:0.31deg;--dy:-1.10px;--ld:8.9s">I</span><span class="t g76" style="--r:0.01deg;--dy:0.70px;--ld:10.7s">L</span><span class="t g77" style="--r:0.41deg;--dy:-0.72px;--ld:9.6s">V</span><span class="t g78" style="--r:1.16deg;--dy:-0.73px;--ld:11.4s">E</span><span class="t g79" style="--r:-0.84deg;--dy:-0.21px;--ld:8.9s">R</span><span class="t g80" style="--r:0.56deg;--dy:-0.98px;--ld:6.9s">W</span><span class="t g81" style="--r:0.56deg;--dy:1.05px;--ld:9.8s">H</span><span class="t g82 lifted" style="--r:-0.47deg;--dy:0.37px;--ld:9.9s">E</span><span class="t g83" style="--r:-0.56deg;--dy:-0.96px;--ld:8.5s">E</span><span class="t g84" style="--r:0.15deg;--dy:0.68px;--ld:7.4s">L</span></span><span class="hl"><span class="hz" style="--r:0.19deg;--dy:-0.60px">銀</span><span class="hz" style="--r:0.50deg;--dy:-0.43px">輪</span><span class="hz" style="--r:-0.88deg;--dy:-0.79px">旱</span><span class="hz" style="--r:1.13deg;--dy:-0.26px">冰</span><span class="hz" style="--r:-0.88deg;--dy:-0.20px">場</span></span></div>
+ <p class="sub">九龍 觀塘 開源道 45 號 建生工業大廈 3 樓　電話 <b>3-891447</b>　平日 4:00pm–11:00pm／週六日及公眾假期 10:00am 開場</p>
+</header>
+<nav class="set" aria-label="主導覽"><ul><li class="off" style="--nr:1.84deg;--nd:1.87px"><a href="index.html"><span class="tl" aria-label="HOME"><span class="t g85" style="--r:-1.02deg;--dy:0.44px;--ld:10.7s">H</span><span class="t g86" style="--r:-0.24deg;--dy:0.04px;--ld:7.3s">O</span><span class="t g87" style="--r:-0.09deg;--dy:-0.06px;--ld:11.1s">M</span><span class="t g88" style="--r:0.53deg;--dy:-0.84px;--ld:7.8s">E</span></span><span class="hl"><span class="hz" style="--r:-1.10deg;--dy:1.09px">首</span><span class="hz" style="--r:0.22deg;--dy:0.70px">頁</span></span></a></li><li class="off" style="--nr:1.27deg;--nd:-1.58px"><a href="sessions.html"><span class="tl" aria-label="SESSIONS"><span class="t g89" style="--r:-1.08deg;--dy:-0.33px;--ld:8.1s">S</span><span class="t g90" style="--r:0.44deg;--dy:-0.41px;--ld:11.0s">E</span><span class="t g91" style="--r:0.70deg;--dy:0.35px;--ld:7.9s">S</span><span class="t g92" style="--r:0.47deg;--dy:-0.03px;--ld:9.2s">S</span><span class="t g93 lifted" style="--r:-0.99deg;--dy:-0.52px;--ld:9.7s">I</span><span class="t g94" style="--r:-0.50deg;--dy:0.56px;--ld:10.1s">O</span><span class="t g95" style="--r:-0.07deg;--dy:-0.43px;--ld:9.8s">N</span><span class="t g96" style="--r:-0.55deg;--dy:0.72px;--ld:10.2s">S</span></span><span class="hl"><span class="hz" style="--r:-0.71deg;--dy:0.69px">場</span><span class="hz" style="--r:-0.50deg;--dy:-0.20px">次</span><span class="hz" style="--r:-0.93deg;--dy:0.93px">收</span><span class="hz" style="--r:-1.13deg;--dy:0.90px">費</span></span></a></li><li class="on" aria-current="page" style="--nr:-1.74deg;--nd:0.23px"><a href="bench.html"><span class="tl" aria-label="BENCH"><span class="t g97" style="--r:-0.09deg;--dy:0.19px;--ld:7.7s">B</span><span class="t g98" style="--r:0.18deg;--dy:-0.14px;--ld:7.1s">E</span><span class="t g99 lifted" style="--r:0.25deg;--dy:0.09px;--ld:9.9s">N</span><span class="t g100" style="--r:0.14deg;--dy:0.10px;--ld:11.0s">C</span><span class="t g101" style="--r:0.12deg;--dy:-0.16px;--ld:9.5s">H</span></span><span class="hl"><span class="hz" style="--r:-1.14deg;--dy:-0.84px">排</span><span class="hz" style="--r:-0.82deg;--dy:-0.01px">字</span><span class="hz" style="--r:0.63deg;--dy:-0.04px">檯</span></span></a></li><li class="off" style="--nr:1.66deg;--nd:-0.65px"><a href="sheet.html"><span class="tl" aria-label="SHEET"><span class="t g102" style="--r:0.25deg;--dy:-0.56px;--ld:7.7s">S</span><span class="t g103" style="--r:0.67deg;--dy:0.18px;--ld:9.7s">H</span><span class="t g104 lifted" style="--r:0.60deg;--dy:-0.02px;--ld:11.3s">E</span><span class="t g105" style="--r:0.49deg;--dy:-0.22px;--ld:7.0s">E</span><span class="t g106" style="--r:0.79deg;--dy:-0.28px;--ld:9.7s">T</span></span><span class="hl"><span class="hz" style="--r:-0.58deg;--dy:-0.58px">這</span><span class="hz" style="--r:-0.61deg;--dy:-0.75px">張</span><span class="hz" style="--r:-0.43deg;--dy:0.82px">紙</span></span></a></li></ul></nav>
+<main>
+
+<section>
+ <h2><span class="tl" aria-label="THE BENCH"><span class="t g55" data-ch="T" style="--r:0.30deg;--dy:1.58px;--ld:10.2s">T</span><span class="t g56" data-ch="H" style="--r:-0.28deg;--dy:-0.67px;--ld:7.7s">H</span><span class="t g57" data-ch="E" style="--r:0.60deg;--dy:-0.47px;--ld:9.1s">E</span><span class="sp"> </span><span class="t g58" data-ch="B" style="--r:0.64deg;--dy:1.43px;--ld:8.3s">B</span><span class="t g59" data-ch="E" style="--r:0.54deg;--dy:0.78px;--ld:9.4s">E</span><span class="t g60" data-ch="N" style="--r:0.49deg;--dy:-0.39px;--ld:6.8s">N</span><span class="t g61 lifted" data-ch="C" style="--r:-0.36deg;--dy:-0.89px;--ld:7.0s">C</span><span class="t g62" data-ch="H" style="--r:0.05deg;--dy:-1.27px;--ld:6.8s">H</span></span> <span class="hl"><span class="hz" style="--r:0.66deg;--dy:-0.39px">排</span><span class="hz" style="--r:-0.60deg;--dy:-1.01px">字</span><span class="hz" style="--r:0.92deg;--dy:1.03px">檯</span></span></h2>
+ <p>明哥今晚要排一塊 <b class="flo">TONITE</b> 掛喺售票處上面。佢出咗去食飯，張紙同壓桿喺檯面。</p>
+ <div class="slab flo">
+  <h3 style="margin-top:0">三句規矩</h3>
+  <ol style="padding-left:20px;font-size:14.5px">
+   <li>字母對住鉛筆線，撳一下放低——放低嗰個位就係字距，唔改得。</li>
+   <li>撳住搓。搓到嘅地方先離得開紙，冇搓到嗰幾格就係缺角。</li>
+   <li>放手就定咗。撕唔返、揭唔起，六個字母排完就收工。</li>
+  </ol>
+  <p class="note" style="margin-top:10px">滑鼠、觸控、鍵盤都玩得：方向鍵移位、Enter 放低、撳住空白鍵搓、放開空白鍵定稿。</p>
+ </div>
+ <div class="bench">
+  <div class="bar"><span id="hint">第 1／6 個字母 <b>T</b>：喺鉛筆線上撳一下放低佢。</span></div>
+  <div id="stage" role="application" aria-label="排字檯：放低字母並搓印" aria-describedby="hint">
+   <div id="guide"></div><div id="cov"></div>
+  </div>
+ </div>
+ <noscript><p class="note" style="margin-top:10px">排字檯需要 JavaScript。沒有它的時候，<a class="lnk" href="sheet.html">〈這張紙〉</a>那一頁把同一套規則（搓印覆蓋、缺角、裂、字距）全部寫成文字與圖表，一個字不少。</p></noscript>
+
+ <div class="rcpt" id="rcpt" hidden>
+  <h3 style="margin-top:0"><span class="hl"><span class="hz" style="--r:-0.92deg;--dy:-0.64px">你</span><span class="hz" style="--r:1.21deg;--dy:-0.43px">排</span><span class="hz" style="--r:-0.92deg;--dy:-0.70px">嘅</span><span class="hz" style="--r:0.61deg;--dy:-0.58px">牌</span></span></h3>
+  <div id="final" class="tl"></div>
+  <dl id="rout"></dl>
+  <p style="margin:16px 0 8px"><label for="share" class="note" style="display:block">這塊牌的網址（貼給人看同一塊）</label>
+   <input id="share" readonly value=""></p>
+  <button id="again" type="button">拎多一張紙，再排一次</button>
+ </div>
+</section>
+
+<section class="off1">
+ <h2><span class="tl" aria-label="WHY IT BREAKS"><span class="t g63" data-ch="W" style="--r:-1.22deg;--dy:-0.33px;--ld:7.7s">W</span><span class="t g64" data-ch="H" style="--r:-1.47deg;--dy:-0.30px;--ld:11.1s">H</span><span class="t g65" data-ch="Y" style="--r:-0.38deg;--dy:0.02px;--ld:8.1s">Y</span><span class="sp"> </span><span class="t g66" data-ch="I" style="--r:-1.11deg;--dy:-0.20px;--ld:8.0s">I</span><span class="t g67" data-ch="T" style="--r:-0.78deg;--dy:0.14px;--ld:6.6s">T</span><span class="sp"> </span><span class="t g68" data-ch="B" style="--r:-0.87deg;--dy:-0.41px;--ld:8.7s">B</span><span class="t g69" data-ch="R" style="--r:-0.71deg;--dy:-0.16px;--ld:10.0s">R</span><span class="t g70" data-ch="E" style="--r:-0.95deg;--dy:0.55px;--ld:7.5s">E</span><span class="t g71" data-ch="A" style="--r:-1.27deg;--dy:0.71px;--ld:9.9s">A</span><span class="t g72" data-ch="K" style="--r:-1.47deg;--dy:-0.42px;--ld:8.3s">K</span><span class="t g73" data-ch="S" style="--r:1.28deg;--dy:-0.01px;--ld:9.6s">S</span></span> <span class="hl"><span class="hz" style="--r:0.67deg;--dy:0.02px">點</span><span class="hz" style="--r:0.21deg;--dy:0.37px">解</span><span class="hz" style="--r:-0.42deg;--dy:0.82px">會</span><span class="hz" style="--r:0.01deg;--dy:-0.54px">缺</span><span class="hz" style="--r:0.16deg;--dy:-0.04px">角</span></span></h2>
+ <p>轉印字係一層乾嘅墨膜黐喺載體片上面。你搓嘅時候，被壓到嘅地方會離開載體片、黐落紙面；冇壓到嘅地方就跟住載體片一齊被揭走。所以缺角唔係隨機嘅——佢係你冇搓到嗰幾格。</p>
+ <p>本站把字母分成 8×10 共八十格，逐格記你搓過幾多。一格搓到 55% 以下就變成一個洞，洞嘅大小同「差幾多」成正比；一格搓過 260% 就係搓爛，成個字母出現一條裂。</p>
+ <svg class="ill" viewBox="0 0 560 200" role="img" aria-label="轉印工具比較圖：圓頭壓桿、指甲、原子筆蓋，以及三者在同一個字母上的搓印覆蓋分佈。">
+<defs>
+<pattern id="t20" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="1.0" fill="#17161A"/></pattern>
+<pattern id="t40" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="1.55" fill="#17161A"/></pattern>
+<pattern id="t60" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="2.1" fill="#17161A"/></pattern>
+<pattern id="t20c" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="1.0" fill="#00A7C4"/></pattern>
+<pattern id="t40f" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3.5" cy="3.5" r="1.55" fill="#FF4B1F"/></pattern>
+</defs>
+<rect width="560" height="200" fill="#F3F1EA"/>
+<g stroke="#17161A" stroke-width="4" fill="none"><path d="M30 150 h500"/></g>
+<g><rect x="44" y="52" width="16" height="86" fill="url(#t40)" stroke="#17161A" stroke-width="4"/><circle cx="52" cy="146" r="9" fill="#17161A"/>
+<text x="26" y="42" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="14" fill="#17161A">壓桿</text></g>
+<g><path d="M176 60 q30 14 30 46 q0 30 -26 40 l-22 0 q-14 -22 -14 -44 q0 -30 18 -42 z" fill="url(#t20)" stroke="#17161A" stroke-width="4"/>
+<path d="M166 132 q22 10 42 0" fill="none" stroke="#17161A" stroke-width="4"/>
+<text x="150" y="42" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="14" fill="#17161A">指甲</text></g>
+<g><path d="M290 56 h22 v70 l-11 20 l-11 -20 z" fill="url(#t60)" stroke="#17161A" stroke-width="4"/>
+<text x="266" y="42" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="14" fill="#17161A">筆蓋</text></g>
+<g transform="translate(378,44)">
+ <rect width="150" height="100" fill="none" stroke="#17161A" stroke-width="4"/>
+ <rect x="0" y="0" width="30" height="33.3" fill="none"/><rect x="30" y="0" width="30" height="33.3" fill="none"/><rect x="60" y="0" width="30" height="33.3" fill="url(#t60)"/><rect x="90" y="0" width="30" height="33.3" fill="url(#t60)"/><rect x="120" y="0" width="30" height="33.3" fill="none"/><rect x="0" y="33.3" width="30" height="33.3" fill="url(#t60)"/><rect x="30" y="33.3" width="30" height="33.3" fill="url(#t60)"/><rect x="60" y="33.3" width="30" height="33.3" fill="url(#t60)"/><rect x="90" y="33.3" width="30" height="33.3" fill="url(#t60)"/><rect x="120" y="33.3" width="30" height="33.3" fill="url(#t60)"/><rect x="0" y="66.6" width="30" height="33.3" fill="url(#t60)"/><rect x="30" y="66.6" width="30" height="33.3" fill="url(#t60)"/><rect x="60" y="66.6" width="30" height="33.3" fill="url(#t60)"/><rect x="90" y="66.6" width="30" height="33.3" fill="none"/><rect x="120" y="66.6" width="30" height="33.3" fill="none"/>
+ <g stroke="#17161A" stroke-width="1" fill="none"><path d="M30 0 v100"/><path d="M60 0 v100"/><path d="M90 0 v100"/><path d="M120 0 v100"/><path d="M0 33.3 h150"/><path d="M0 66.6 h150"/></g>
+ <text x="0" y="-8" font-family="'Courier Prime',monospace" font-size="12" fill="#6FA8D2">覆蓋格 8×10（示意 5×3）</text>
+</g>
+</svg>
+ <p class="note" style="margin-top:8px">同一個字母，用壓桿、指甲同筆蓋搓出嚟嘅覆蓋分佈唔同。右邊係覆蓋格示意。</p>
+ <h3>關於取樣</h3>
+ <p>你搓得快嘅時候，瀏覽器一幀只俾一個 <code>pointermove</code>，中間嗰段路會唔見咗。本站用 <code>PointerEvent.getCoalescedEvents()</code> 攞返一幀入面全部子取樣點，所以搓得快唔會「跳格」。Safari 18.2 之前冇呢個方法——嗰時就退返用兩點之間直線內插，覆蓋會粗少少，但玩法同判定完全一樣。</p>
+</section>
+
+</main>
+<div class="strip"><div>
+  <div class="hd">呢張紙 — 賽璐珞轉印紙 No.741 · 大寫 48pt · 一九八一年 三月入貨</div>
+  <div class="inv" id="inv"></div>
+  <p class="note" id="outlist" style="margin:8px 0 10px">呢張紙仲係原封不動。</p>
+  <button id="newsheet" type="button">貼一張新紙</button>
+  <noscript><p class="note" style="margin-top:8px">冇 JavaScript 嘅時候，每一個字母都係完好嘅——紙永遠係新嘅。</p></noscript>
+  </div></div>
+<footer>
+ <div class="cols">
+  <div><b>銀輪旱冰場</b><br>九龍觀塘開源道 45 號<br>建生工業大廈 3 樓（原順興製衣廠）<br>電話 3-891447</div>
+  <div>場主 陳明（明哥）<br>教滑 阿珊（星期二、四 5:00pm）<br>售票 蘇太<br>唱碟 阿 Ken（每晚 8:00pm）</div>
+  <div>一九八一年三月開場。全場招牌、價目、規矩板<br>由明哥用一張 No.741 轉印紙自己排。<br>本站全部文案、人名、電話、價目為虛構示意。</div>
+  <div><a class="lnk" href="SKILL.md">SKILL.md 風格規格書</a><br><a class="lnk" href="README.md">README</a><br><a class="lnk" href="../../index.html">← 返回 Design Skills Center</a></div>
+ </div>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var SHEET={A:15,B:6,C:5,D:11,E:26,F:6,G:6,H:14,I:9,J:2,K:7,L:15,M:3,N:10,O:11,P:6,Q:2,R:12,S:8,T:20,U:3,V:3,W:3,X:2,Y:5,Z:2,"0":6,"1":7,"2":5,"3":6,"4":6,"5":4,"6":4,"7":6,"8":7,"9":4,"-":9,".":9,":":6,"&":3,"$":6,"/":4};
+/* 一九八一年三月開場之後，明哥已經用呢張紙排過嘅招牌 */
+var DONE="SILVERWHEEL ROLLER DISCO|ADULT $18 STUDENT $8|SKATE ANTI-CLOCKWISE ONLY|NO FOOD NO DRINKS|DJ KEN 8PM NITELY|LOCKER $20";
+var SUB={W:["M",180,0],M:["W",180,0],O:["0",0,0],"0":["O",0,0],I:["1",0,0],"1":["I",0,0],N:["Z",90,0],Z:["N",90,0],U:["C",-90,0],C:["U",-90,0],S:["5",0,0],"5":["S",0,0],"9":["6",180,0],"6":["9",180,0],"2":["Z",0,0],V:["A",180,0],E:["3",0,1],"3":["E",0,1]};
+var KEY="ngan-lun.sheet.v3";
+var PAGE=(document.body.getAttribute("data-page")||"x");
+var st={pages:{},play:{}};
+function seedTally(){var u={};for(var i=0;i<DONE.length;i++){var c=DONE[i];if(SHEET[c]!==undefined)u[c]=(u[c]||0)+1}return u}
+var SEED=seedTally();
+function load(){try{var s=localStorage.getItem(KEY);if(s){var o=JSON.parse(s);if(o&&o.pages)return o}}catch(e){}return{pages:{},play:{}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+st=load();
+function usedBy(skip){var u={};function add(o){for(var k in o)u[k]=(u[k]||0)+o[k]}
+ if(!st.fresh)add(SEED);for(var p in st.pages){if(p!==skip)add(st.pages[p])}add(st.play||{});return u}
+function leftAll(){var u=usedBy(null),r={};for(var c in SHEET)r[c]=Math.max(0,SHEET[c]-(u[c]||0));return r}
+window.NL={SHEET:SHEET,SUB:SUB,leftAll:leftAll,
+ spendPlay:function(c,n){st.play=st.play||{};st.play[c]=(st.play[c]||0)+(n||1);save();paint();},
+ reset:function(){st={pages:{},play:{},fresh:1};save();}};
+
+/* ---- 4 簽名動效：紙上冇咗嘅字母，全站即時換上倒轉／替代字 ---- */
+function apply(){
+ var base=usedBy(PAGE),mine={},changed=[];
+ var list=document.querySelectorAll(".t[data-ch]");
+ for(var i=0;i<list.length;i++){
+  var el=list[i],c=el.getAttribute("data-ch");
+  if(SHEET[c]===undefined)continue;
+  var avail=SHEET[c]-(base[c]||0)-(mine[c]||0);
+  if(avail>0){mine[c]=(mine[c]||0)+1;if(el.getAttribute("data-sub"))changed.push([el,null]);continue}
+  var s=SUB[c];
+  if(s){ if(el.getAttribute("data-sub")!==s[0])changed.push([el,s]); }
+ }
+ st.pages[PAGE]=mine;save();
+ function commit(){for(var j=0;j<changed.length;j++){var el=changed[j][0],s=changed[j][1];
+   if(s){el.setAttribute("data-sub",s[0]);el.style.setProperty("--sx",s[2]?"-1":"1");el.style.setProperty("--sr",s[1]+"deg")}
+   else{el.removeAttribute("data-sub")}}}
+ var rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ if(changed.length&&document.startViewTransition&&!rm){
+  var n=Math.min(changed.length,14);
+  for(var j=0;j<n;j++)changed[j][0].style.viewTransitionName="sw"+j;
+  try{var vt=document.startViewTransition(commit);
+   vt.finished.then(function(){for(var j2=0;j2<n;j2++)changed[j2][0].style.viewTransitionName=""},function(){});
+  }catch(e){commit()}
+ }else commit();
+ paint();
+}
+/* ---- 紙條 ---- */
+function paint(){
+ var box=document.getElementById("inv");if(!box)return;
+ var L=leftAll(),h="",ks=Object.keys(SHEET),outs=[];
+ for(var i=0;i<ks.length;i++){var c=ks[i],l=L[c],lab=(c==="&"?"&amp;":c);
+  if(!l)outs.push(c);
+  h+='<b class="'+(l?"":"out")+'"><i>'+lab+'</i>'+l+'</b>';}
+ box.innerHTML=h;
+ var big=document.getElementById("sheetbig");
+ if(big){var h2="";for(var m=0;m<ks.length;m++){var cc=ks[m],ll=L[cc],tt=SHEET[cc],lb=(cc==="&"?"&amp;":cc);
+  h2+='<b class="cell'+(ll?"":" out")+'"><i>'+lb+'</i><u aria-hidden="true">';
+  for(var q=0;q<tt;q++)h2+='<s class="'+(q<ll?"y":"n")+'"></s>';
+  h2+='</u><em>'+ll+'</em></b>'}
+  big.innerHTML=h2}
+ var o=document.getElementById("outlist");
+ if(o)o.innerHTML=outs.length?("紙上已經用完："+outs.map(function(c){var s=SUB[c];
+   return (c==="&"?"&amp;":c)+(s?"（改用"+(s[2]?"反過來的 ":(s[1]?"轉 "+s[1]+"° 的 ":""))+s[0]+"）":"（沒有替代法，只能不排）")}).join("、")):"這張紙還是原封不動。";
+}
+function boot(){
+ apply();
+ var r=document.getElementById("newsheet");
+ if(r)r.addEventListener("click",function(){
+   window.NL.reset();
+   var l=document.querySelectorAll(".t[data-sub]");
+   for(var i=0;i<l.length;i++)l[i].removeAttribute("data-sub");
+   apply();
+ });
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var WORD="TONITE", GX=8, GY=10;
+var stage=document.getElementById("stage"); if(!stage)return;
+var guide=document.getElementById("guide"), cov=document.getElementById("cov");
+var st={i:0,phase:"place",items:[],ghost:null,gx:0,drag:false,t0:0};
+var FS=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pcfs"))||74;
+function px(){return stage.clientWidth}
+function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h>>>0}
+function rng(sd){var s=(sd>>>0)||1;return function(){s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+
+/* 覆蓋格 → 遮罩：洞唔係亂生嘅，係你冇搓到嗰幾格 */
+function maskFromCells(cells,seedKey){
+ var r=rng(fnv(seedKey)),L=[],over=0,holes=0;
+ for(var i=0;i<cells.length;i++){
+  var c=Math.min(1,cells[i]); if(cells[i]>2.6)over++;
+  if(c<0.55){
+   holes++;
+   var gx=i%GX, gy=(i/GX)|0;
+   var cx=((gx+0.15+r()*0.7)/GX*100), cy=((gy+0.15+r()*0.7)/GY*100);
+   var rad=2.4+(0.55-c)*13;
+   L.push("radial-gradient(circle at "+cx.toFixed(1)+"% "+cy.toFixed(1)+"%,#0000 0 "+rad.toFixed(1)+"%,#000 "+(rad+0.9).toFixed(1)+"%)");
+  }
+ }
+ var crack=0;
+ if(over>=6){crack=1;var a=(64+r()*62).toFixed(0),p=34+r()*32;
+  L.push("linear-gradient("+a+"deg,#000 0 "+p.toFixed(1)+"%,#0000 "+p.toFixed(1)+"% "+(p+0.5).toFixed(2)+"%,#000 "+(p+0.5).toFixed(2)+"%)");}
+ if(!L.length)L.push("linear-gradient(#000,#000)");
+ return {img:L.join(","),comp:L.map(function(){return "intersect"}).join(","),holes:holes,over:over,crack:crack};
+}
+function meanCov(cells){var s=0;for(var i=0;i<cells.length;i++)s+=Math.min(1,cells[i]);return s/cells.length}
+function sideCov(cells){var l=0,r=0;for(var i=0;i<cells.length;i++){var gx=i%GX;(gx<GX/2?l:r);if(gx<GX/2)l+=Math.min(1,cells[i]);else r+=Math.min(1,cells[i])}return (r-l)/(cells.length/2)}
+
+function subOf(ch){var L=window.NL?window.NL.leftAll():null;if(!L)return null;
+ if(L[ch]>0)return null;var s=window.NL.SUB[ch];return s||null}
+
+function makeEl(ch,x,cls){
+ var e=document.createElement("span");
+ e.className="pc "+(cls||"");
+ var s=subOf(ch);
+ e.textContent=s?s[0]:ch;
+ if(s)e.style.transform="rotate("+s[1]+"deg)";
+ e.style.left=x+"px";
+ e.dataset.ch=ch;
+ stage.appendChild(e); return e;
+}
+function nextGhost(){
+ if(st.ghost)st.ghost.remove();
+ if(st.i>=WORD.length)return;
+ st.ghost=makeEl(WORD[st.i],st.gx,"ghost");
+ hint();
+}
+function hint(){
+ var h=document.getElementById("hint");
+ if(!h)return;
+ if(st.i>=WORD.length){h.textContent="收工。下面係你張牌。";return}
+ var s=subOf(WORD[st.i]);
+ h.innerHTML=(st.phase==="place"
+  ?("第 "+(st.i+1)+"／6 個字母 <b>"+WORD[st.i]+"</b>"+(s?("（紙上冇咗，改用"+(s[1]?"轉 "+s[1]+"° 的 ":"")+s[0]+"）"):"")+"：喺鉛筆線上撳一下放低佢。")
+  :"撳住喺個字母上面搓。放手就定咗，唔可以撕返。");
+}
+function metrics(){
+ var w=st.items.length?st.items[0].el.getBoundingClientRect().width:40;
+ return w;
+}
+function place(x){
+ if(st.i>=WORD.length)return;
+ var e=makeEl(WORD[st.i],x,"live");
+ var r=e.getBoundingClientRect(),sr=stage.getBoundingClientRect();
+ st.items.push({ch:WORD[st.i],x:x,el:e,cells:new Float32Array(GX*GY),box:{x:r.left-sr.left,y:r.top-sr.top,w:r.width,h:r.height},done:false});
+ if(st.ghost){st.ghost.remove();st.ghost=null}
+ st.phase="burnish"; st.t0=st.t0||Date.now(); hint(); showCov(0);
+}
+function showCov(q){
+ if(!cov)return;
+ var it=st.items[st.items.length-1]; if(!it){cov.textContent="";return}
+ cov.style.left=(it.box.x)+"px"; cov.style.top=(it.box.y-18)+"px";
+ cov.textContent="搓到 "+Math.round(q*100)+"%";
+}
+function rub(pts){
+ var it=st.items[st.items.length-1]; if(!it||it.done)return;
+ var b=it.box, cw=b.w/GX;
+ for(var i=1;i<pts.length;i++){
+  var a=pts[i-1],c=pts[i], d=Math.hypot(c.x-a.x,c.y-a.y), steps=Math.max(1,Math.ceil(d/2));
+  for(var s=0;s<steps;s++){
+   var t=s/steps, X=a.x+(c.x-a.x)*t, Y=a.y+(c.y-a.y)*t;
+   var gx=Math.floor((X-b.x)/b.w*GX), gy=Math.floor((Y-b.y)/b.h*GY);
+   if(gx<0||gy<0||gx>=GX||gy>=GY)continue;
+   it.cells[gy*GX+gx]+=(d/steps)/cw*0.6;
+  }
+ }
+ showCov(meanCov(it.cells));
+}
+function finish(){
+ var it=st.items[st.items.length-1]; if(!it||it.done)return;
+ it.done=true;
+ var q=meanCov(it.cells), m=maskFromCells(it.cells,it.ch+"@"+st.items.length);
+ it.q=q; it.holes=m.holes; it.over=m.over; it.crack=m.crack;
+ it.rot=Math.max(-3.5,Math.min(3.5,sideCov(it.cells)*3.4));
+ it.el.style.setProperty("--m",m.img); it.el.style.setProperty("--mc",m.comp);
+ var s=subOf(it.ch);
+ it.el.style.transform="rotate("+(it.rot+(s?s[1]:0)).toFixed(2)+"deg)";
+ it.sub=s?s[0]:null;
+ if(window.NL)window.NL.spendPlay(it.ch,1);
+ st.i++; st.phase="place";
+ st.gx=Math.min(px()-60,it.box.x+it.box.w+2);
+ if(st.i>=WORD.length){done()}else{nextGhost()}
+ if(cov)cov.textContent="";
+}
+/* --- 指標 --- */
+var lastPt=null;
+stage.addEventListener("pointermove",function(ev){
+ var sr=stage.getBoundingClientRect();
+ if(st.phase==="place"){
+  st.gx=Math.max(0,Math.min(px()-40,ev.clientX-sr.left-20));
+  if(st.ghost)st.ghost.style.left=st.gx+"px";
+  return;
+ }
+ if(!st.drag)return;
+ var pts=[],list=(ev.getCoalescedEvents?ev.getCoalescedEvents():[ev]);
+ if(lastPt)pts.push(lastPt);
+ for(var i=0;i<list.length;i++)pts.push({x:list[i].clientX-sr.left,y:list[i].clientY-sr.top});
+ lastPt=pts[pts.length-1];
+ if(pts.length>1)rub(pts);
+});
+stage.addEventListener("pointerdown",function(ev){
+ ev.preventDefault();
+ var sr=stage.getBoundingClientRect();
+ if(st.phase==="place"){st.gx=Math.max(0,Math.min(px()-40,ev.clientX-sr.left-20));place(st.gx);
+  lastPt={x:ev.clientX-sr.left,y:ev.clientY-sr.top};st.drag=true;stage.setPointerCapture(ev.pointerId);return}
+ st.drag=true;lastPt={x:ev.clientX-sr.left,y:ev.clientY-sr.top};stage.setPointerCapture(ev.pointerId);
+});
+function up(){if(st.drag){st.drag=false;lastPt=null;if(st.phase==="burnish")finish()}}
+stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",up);
+stage.addEventListener("pointerleave",up);
+/* --- 鍵盤：完整可玩 --- */
+var auto=0,raf=0,lastT=0;
+function tick(t){
+ if(!auto){raf=0;return}
+ var it=st.items[st.items.length-1];
+ if(it&&!it.done){
+  var dt=(t-(lastT||t))/1000; lastT=t;
+  for(var i=0;i<it.cells.length;i++)it.cells[i]+=dt*0.72;
+  showCov(meanCov(it.cells));
+ }
+ raf=requestAnimationFrame(tick);
+}
+stage.setAttribute("tabindex","0");
+stage.addEventListener("keydown",function(ev){
+ if(st.i>=WORD.length)return;
+ if(st.phase==="place"){
+  if(ev.key==="ArrowLeft"){st.gx=Math.max(0,st.gx-8);if(st.ghost)st.ghost.style.left=st.gx+"px";ev.preventDefault()}
+  else if(ev.key==="ArrowRight"){st.gx=Math.min(px()-40,st.gx+8);if(st.ghost)st.ghost.style.left=st.gx+"px";ev.preventDefault()}
+  else if(ev.key==="Enter"||ev.key===" "){place(st.gx);ev.preventDefault()}
+ }else{
+  if((ev.key===" "||ev.key==="Enter")&&!auto){auto=1;lastT=0;raf=requestAnimationFrame(tick);ev.preventDefault()}
+ }
+});
+stage.addEventListener("keyup",function(ev){
+ if(auto&&(ev.key===" "||ev.key==="Enter")){auto=0;if(raf)cancelAnimationFrame(raf);raf=0;finish();ev.preventDefault()}
+});
+/* --- 收工 --- */
+function done(){
+ var out=document.getElementById("rcpt"); if(!out)return;
+ var fin=document.getElementById("final"); fin.innerHTML="";
+ var gaps=[],tot=0,cracks=0,subs=[];
+ for(var i=0;i<st.items.length;i++){
+  var it=st.items[i];
+  var sp=document.createElement("span");
+  sp.className="t";
+  sp.textContent=it.sub||it.ch;
+  sp.style.setProperty("--m",it.el.style.getPropertyValue("--m"));
+  sp.style.setProperty("--mc",it.el.style.getPropertyValue("--mc"));
+  sp.style.setProperty("--r",it.rot.toFixed(2)+"deg");
+  if(it.sub)sp.style.setProperty("--sr",(window.NL.SUB[it.ch]||[0,0])[1]+"deg");
+  fin.appendChild(sp);
+  tot+=it.holes; cracks+=it.crack; if(it.sub)subs.push(it.ch+"→"+it.sub);
+  if(i>0){gaps.push((it.box.x-(st.items[i-1].box.x+st.items[i-1].box.w))/st.items[i-1].box.w)}
+ }
+ var mx=Math.max.apply(null,gaps),mn=Math.min.apply(null,gaps);
+ var qs=st.items.map(function(x){return x.q});
+ var avg=qs.reduce(function(a,b){return a+b},0)/qs.length;
+ var worst=Math.max.apply(null,st.items.map(function(x){return Math.abs(x.rot)}));
+ var secs=Math.round((Date.now()-st.t0)/1000);
+ var say;
+ if(cracks>=2)say="「你搓爛咗兩個。轉印紙唔係擦膠，搓夠就得，唔使用力。」";
+ else if(tot>=26)say="「未夠力。你睇下個角——冇落紙嘅地方就係你冇搓到嗰幾格。」";
+ else if(mx-mn>0.55)say="「字係乾淨嘅，不過你排嘅字距一隻眼睇得出。落字之前用鉛筆點返個位。」";
+ else say="「得。呢塊可以掛喺售票處上面。」";
+ document.getElementById("rout").innerHTML=
+  "<dt>用時</dt><dd>"+secs+" 秒</dd>"+
+  "<dt>平均搓印</dt><dd>"+Math.round(avg*100)+"%</dd>"+
+  "<dt>缺角</dt><dd>"+tot+" 處</dd>"+
+  "<dt>搓裂</dt><dd>"+cracks+" 個字母</dd>"+
+  "<dt>字距</dt><dd>最闊 "+mx.toFixed(2)+" 個字身、最窄 "+mn.toFixed(2)+" 個字身</dd>"+
+  "<dt>最歪</dt><dd>"+worst.toFixed(1)+"°</dd>"+
+  "<dt>紙上取用</dt><dd>"+st.items.map(function(x){return x.ch}).join("、")+(subs.length?("　（"+subs.join("、")+"）"):"")+"</dd>"+
+  "<dt>明哥</dt><dd>"+say+"</dd>";
+ var code=st.items.map(function(it){
+   return ("00"+Math.round(Math.max(0,Math.min(1295,it.box.x))).toString(36)).slice(-2)+
+          ("0"+Math.round(it.q*35).toString(36)).slice(-1)}).join("");
+ var a=document.getElementById("share");
+ a.value=location.origin+location.pathname+"?set="+code;
+ out.hidden=false; out.scrollIntoView({block:"nearest"});
+}
+/* --- 重排 --- */
+var again=document.getElementById("again");
+if(again)again.addEventListener("click",function(){
+ for(var i=0;i<st.items.length;i++)st.items[i].el.remove();
+ if(st.ghost){st.ghost.remove();st.ghost=null}
+ st={i:0,phase:"place",items:[],ghost:null,gx:0,drag:false,t0:0};
+ document.getElementById("rcpt").hidden=true;
+ nextGhost();stage.focus();
+});
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",nextGhost);else nextGhost();
+})();
+</script>
+</body>
+</html>

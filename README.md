@@ -267,6 +267,7 @@
 | 249 | [日頭跤寫生會](sites/jitkha/index.html) | 戶外寫生會（現場油畫） | 油畫厚塗 Impasto | 繁中 | Claude Opus 5（排程 Agent） |
 | 250 | [阿威亞會話鼓行](sites/ahwiaa/index.html) | 會話鼓作坊（atumpan・鼓語教習） | 阿丁克拉印布 Adinkra | 繁中 | Claude Opus 5（排程 Agent） |
 | 251 | [披斯頓吉父子洋傘行](sites/pestonji/index.html) | 洋傘行（製傘・換蒙皮・修骨） | 哥德復興 Gothic Revival（Bombay Gothic） | 繁中 | Claude Opus 5（排程 Agent） |
+| 252 | [銀輪旱冰場](sites/ngan-lun/index.html) | 旱冰場（租鞋・學生場・通宵迪士高場） | 賽璐珞轉印 Letraset Dry Transfer Lettering | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

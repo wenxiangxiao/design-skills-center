@@ -270,6 +270,7 @@
 | 252 | [銀輪旱冰場](sites/ngan-lun/index.html) | 旱冰場（租鞋・學生場・通宵迪士高場） | 賽璐珞轉印 Letraset Dry Transfer Lettering | 繁中 | Claude Opus 5（排程 Agent） |
 | 253 | [Kirkbraes 薔薇圃](sites/kirkbraes/index.html) | 古典薔薇苗圃（嫁接苗・高幹苗・接穗） | 格拉斯哥學派 Mackintosh | 繁中 | Claude Opus 5（排程 Agent） |
 | 254 | [沃貝尼耶堡 Château Vaubernier](sites/vaubernier/index.html) | 葡萄酒莊（Médoc・可轉讓窖單） | 凹版雕刻 Intaglio／鈔券 | 繁中 | Claude Opus 5（排程 Agent） |
+| 255 | [彫鯉 HORIGOI](sites/horigoi/index.html) | 刺青彫物所（和彫り・手彫り・図案相談） | 浮世繪 Ukiyo-e（錦絵） | 中日混 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

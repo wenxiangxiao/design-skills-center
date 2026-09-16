@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>絹印工坊 El Taller｜YAGRUMA</title>
+<meta name="description" content="YAGRUMA 亞格魯馬巡迴放映隊（虛構）：古巴 Villa Clara 省 Manicaragua 的流動電影隊兼絹印海報工坊。三罐墨、一張甘蔗紙，其餘顏色一律疊印出來。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23E9DCBC%22%2F%3E%3Cpath%20d%3D%22M24.25%2015.51L23.59%2016.24L22.63%2016.69L21.55%2016.88L20.51%2016.9L17.72%2013.83L17.24%2013.61L17.01%2013.86L17.71%2018.23L17.03%2019.02L16.21%2019.74L15.25%2020.19L14.26%2020.24L13.36%2019.84L12.63%2019.07L12.12%2018.09L11.78%2017.11L14.08%2013.23L13.72%2013.15L13.27%2013.08L9.66%2014.86L8.69%2014.46L7.75%2013.9L7.03%2013.13L6.68%2012.2L6.78%2011.22L7.29%2010.29L8.06%209.51L8.89%208.87L13.2%209.83L12.73%209.22L13.11%209L10.37%206.16L10.45%205.12L10.7%204.05L11.2%203.12L11.98%202.51L12.94%202.3L13.98%202.49L14.97%202.98L15.82%203.58L16.32%207.02L16.56%208.01L17.01%207.61L18.86%204.15L19.88%203.91L20.97%203.81L22.01%204L22.84%204.55L23.33%205.4L23.47%206.45L23.31%207.54L23.01%208.54L19.35%2010.21L19.29%2010.58L19.95%2010.91L23.4%2011.6L23.94%2012.49L24.38%2013.5L24.51%2014.55Z%22%20fill%3D%22%238AA627%22%2F%3E%3Cpath%20d%3D%22M14.4%2012L17.6%2012L18.6%2030L13.4%2030Z%22%20fill%3D%22%2317130E%22%2F%3E%3Cpath%20d%3D%22M2%2026L11%2021.5L11%2030L2%2030Z%22%20fill%3D%22%23DD5B21%22%2F%3E%3Cpath%20d%3D%22M30%2026L21%2021.5L21%2030L30%2030Z%22%20fill%3D%22%23DD5B21%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titan+One&family=Archivo:wght@500;700&family=Noto+Sans+TC:wght@400;700&display=swap">
+<script>document.documentElement.className+=' js';</script>
+<style>
+/* ══ YAGRUMA · 古巴絹印海報 Cartel Cubano ══════════════════════════
+   顏色定律：CSS 裡只准出現五個色值——紙面、紙上網目的谷，加上三罐墨；
+   第四、第五、第六個顏色不准宣告，一律 multiply 疊出來。
+   紙有兩階（紙面與網目的谷），墨有三罐——樣式表裡只准出現這五個值。
+   第六個值就是第四罐墨，而這間工坊沒有那罐墨。 */
+@property --reg{syntax:'<number>';inherits:true;initial-value:1}
+@property --dx{syntax:'<number>';inherits:false;initial-value:0}
+@property --dy{syntax:'<number>';inherits:false;initial-value:0}
+
+:root{
+  --cana:#E9DCBC; --cana-s:#DFD0AA;
+  --naranja:#DD5B21; --verde:#8AA627; --negro:#17130E;
+  --f-cartel:"Titan One",system-ui,sans-serif;
+  --f-rotulo:"Archivo",system-ui,sans-serif;
+  --f-texto:"Noto Sans TC",system-ui,sans-serif;
+  --gut:clamp(14px,3vw,30px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--cana);color:var(--negro);
+  font:400 16px/1.78 var(--f-texto);
+  /* 甘蔗紙：絹網目（兩軸 1px/4px 硬邊）+ 纖維斑，零漸層過渡 */
+  background-image:
+    repeating-linear-gradient(90deg,var(--cana-s) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(0deg,var(--cana-s) 0 1px,transparent 1px 4px);
+  background-blend-mode:normal;
+  overflow-x:clip;   /* 不用 hidden：hidden 會建立捲動容器而讓 position:sticky 失效 */
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+::selection{background:var(--naranja);color:var(--negro)}
+a{color:inherit;text-decoration:none;border-bottom:3px solid var(--naranja)}
+a:hover{background:var(--naranja);color:var(--negro);border-bottom-color:var(--negro)}
+a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{
+  outline:4px solid var(--naranja);outline-offset:2px}
+h1,h2,h3{font-weight:400;line-height:.94;letter-spacing:-.02em}
+.cartel-t{font-family:var(--f-cartel);text-transform:uppercase}
+.rot{font-family:var(--f-rotulo);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--gut)}
+
+/* ── 版：三塊分色網版疊在同一張紙上 ───────────────────────────── */
+.hoja{position:relative;isolation:isolate;
+  background-color:var(--cana);
+  background-image:
+    repeating-linear-gradient(90deg,var(--cana-s) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(0deg,var(--cana-s) 0 1px,transparent 1px 4px)}
+.plancha{mix-blend-mode:multiply;
+  transform:translate(calc((var(--rx) + var(--ox)*(1 - var(--reg)) + var(--dx))*1px),
+                      calc((var(--ry) + var(--oy)*(1 - var(--reg)) + var(--dy))*1px));
+  will-change:transform}
+/* --rx/--ry＝這台手工套印機永遠修不掉的殘餘偏移（成品上一直都在）
+   --ox/--oy＝分版時把三塊版拉開的量，正好是殘餘偏移的十倍，所以拉開看到的
+   歪法與成品上的歪法是同一個方向 */
+.p1{--rx:0;--ry:0;--ox:0;--oy:0;color:var(--naranja)}
+.p2{--rx:3.5;--ry:-2.2;--ox:35;--oy:-22;color:var(--verde)}
+.p3{--rx:-2.8;--ry:3.1;--ox:-28;--oy:31;color:var(--negro)}
+.p1 svg{fill:var(--naranja)} .p2 svg{fill:var(--verde)} .p3 svg{fill:var(--negro)}
+.plancha svg{display:block;overflow:visible}
+.plancha svg *{stroke:none}                /* 特徵 2：零描邊，形的邊界就是色的邊界 */
+.abs{position:absolute;inset:0}
+/* 環境動效：手工套版的漂移（三塊各自不同相位） */
+@keyframes deriva{0%{--dx:0;--dy:0}25%{--dx:.7;--dy:-.5}50%{--dx:-.4;--dy:.8}75%{--dx:.5;--dy:.4}100%{--dx:0;--dy:0}}
+.p1{animation:deriva 13s linear infinite}
+.p2{animation:deriva 17s linear infinite reverse}
+.p3{animation:deriva 21s linear infinite}
+/* 轉場動效：刮刀推墨（由左至右刮出來） */
+@keyframes rasero{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.raser{animation:rasero .52s cubic-bezier(.2,.7,.3,1) both}
+
+/* ── 刊頭 ─────────────────────────────────────────────────────── */
+.masthead{border-bottom:5px solid var(--negro);padding:14px 0 12px;position:relative;z-index:3}
+.mast-in{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.mast-logo{width:52px;height:52px;flex:none}
+.mast-name{font-family:var(--f-cartel);font-size:clamp(22px,4.2vw,34px);color:var(--negro);letter-spacing:-.03em}
+.mast-sub{font:700 11px/1.5 var(--f-rotulo);letter-spacing:.18em;text-transform:uppercase;color:var(--negro)}
+.mast-dato{margin-left:auto;font:500 12px/1.5 var(--f-rotulo);text-align:right;letter-spacing:.04em}
+
+/* ── 導覽：pass-count 版數（現用頁＝三版都上了，疊成第四色） ──── */
+.nav{border-bottom:5px solid var(--negro);background:transparent}
+.nav ul{display:grid;grid-template-columns:repeat(4,1fr);list-style:none}
+.nav li+li{border-left:3px solid var(--negro)}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border:0;
+  font:700 13px/1.2 var(--f-rotulo);letter-spacing:.09em;text-transform:uppercase}
+.nav a:hover{background:transparent;color:var(--negro)}
+.nav .pc{flex:none;width:26px;height:26px;display:block}
+.nav .es{font:500 10px/1 var(--f-rotulo);letter-spacing:.14em;color:var(--negro);display:block}
+.nav .zh{display:block;font-family:var(--f-texto);font-weight:700;letter-spacing:.02em;font-size:14px}
+@media(max-width:560px){.nav a{flex-direction:column;gap:4px;padding:9px 4px;text-align:center}
+  .nav .es{display:none}.nav .pc{width:20px;height:20px}}
+
+/* ── 通用區塊 ─────────────────────────────────────────────────── */
+section{padding:clamp(30px,5vw,58px) 0;border-bottom:3px solid var(--negro)}
+.kick{font:700 11px/1 var(--f-rotulo);letter-spacing:.22em;text-transform:uppercase;color:var(--negro);margin-bottom:12px}
+.h2{font-family:var(--f-cartel);font-size:clamp(28px,5.4vw,54px);text-transform:uppercase;letter-spacing:-.035em;margin-bottom:6px}
+.lead{max-width:62ch;font-size:17px}
+.grid2{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(18px,3vw,40px)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2.2vw,26px)}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+.caja{border:4px solid var(--negro);padding:16px 18px}
+.caja h3{font-family:var(--f-rotulo);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:15px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:9px 10px;border-bottom:3px solid var(--negro);vertical-align:top}
+th{font:700 11px/1.3 var(--f-rotulo);letter-spacing:.14em;text-transform:uppercase;background:transparent}
+tbody tr:hover{background:var(--cana-s)}
+.num{font-family:var(--f-rotulo);font-weight:700;font-variant-numeric:tabular-nums}
+dl.datos{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px}
+@media(max-width:560px){table{font-size:13.5px}th,td{padding:7px 6px}
+  th{font-size:10px;letter-spacing:.08em}}
+dl.datos dt{font:700 11px/1.7 var(--f-rotulo);letter-spacing:.13em;text-transform:uppercase;color:var(--negro)}
+.foot{padding:26px 0 40px;font-size:13.5px}
+.foot ul{list-style:none;display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:12px}
+.aviso{font-size:12.5px;color:var(--negro);font-family:var(--f-rotulo);font-weight:500;letter-spacing:.04em}
+.btn{display:inline-block;border:4px solid var(--negro);background:transparent;cursor:pointer;
+  font:700 13px/1 var(--f-rotulo);letter-spacing:.12em;text-transform:uppercase;padding:13px 18px;color:var(--negro)}
+.btn:hover{background:var(--naranja);color:var(--negro)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn[disabled]:hover{background:transparent;color:var(--negro)}
+
+/* 有 JS 時首屏才是「未套準」；無 JS 一律保持套準，所有字都讀得到 */
+.js .hoja[data-reg]{--reg:0}
+@media(prefers-reduced-motion:reduce){
+  .p1,.p2,.p3{animation:none!important}
+  .raser{animation:none!important}
+  .js .hoja[data-reg]{--reg:1}
+}
+</style>
+</head>
+<body>
+<header class="masthead"><div class="wrap"><div class="mast-in">
+<svg class="mast-logo" viewBox="0 0 64 64" role="img" aria-label="YAGRUMA 隊徽"><rect width="64" height="64" fill="#E9DCBC"/><g style="isolation:isolate"><path d="M37 52L55 18L9 18L27 52Z" fill="#DD5B21" style="mix-blend-mode:multiply"/><path d="M46.74 27.23L45.74 28.59L44.2 29.52L42.4 30.01L40.63 30.23L35.3 25.37L35.06 26.08L34.35 26.01L36.13 32.95L35.11 34.4L33.83 35.77L32.3 36.7L30.63 36.94L29.03 36.42L27.67 35.24L26.64 33.67L25.89 32.06L28.49 26.03L28.09 25.52L27.94 24.8L21.92 28.62L20.22 28.1L18.52 27.31L17.16 26.13L16.42 24.62L16.42 22.94L17.12 21.28L18.29 19.82L19.59 18.61L26.16 19.22L27.09 18.93L26.8 18.13L21.64 13.76L21.6 11.99L21.84 10.13L22.53 8.47L23.74 7.3L25.34 6.78L27.14 6.94L28.89 7.6L30.44 8.46L31.9 15.47L32.45 15.77L33.18 14.89L35.68 8.91L37.36 8.33L39.2 7.98L40.99 8.13L42.48 8.91L43.47 10.28L43.87 12.03L43.78 13.9L43.45 15.64L38.32 18.81L38.2 19.56L38.32 20.21L44.64 20.76L45.71 22.18L46.61 23.82L47.02 25.57Z" fill="#8AA627" style="mix-blend-mode:multiply"/><path d="M29.4 24L34.6 24L36.4 56L27.6 56Z" fill="#17130E" style="mix-blend-mode:multiply"/></g></svg>
+<div><div class="mast-sub">CINE MÓVIL · TALLER DE CARTELES</div>
+<div class="mast-name">YAGRUMA</div></div>
+<div class="mast-dato">亞格魯馬巡迴放映隊<br>Calle Martí 214, Manicaragua, Villa Clara<br>+53 42 49-1106</div>
+</div></div></header>
+<nav class="nav" aria-label="主導覽"><div class="wrap"><ul><li><a href="./index.html"><svg class="pc" viewBox="0 0 26 26" aria-hidden="true" focusable="false" style="isolation:isolate"><rect width="26" height="26" fill="#E9DCBC"/><rect x="2" y="2" width="15" height="15" fill="#DD5B21" style="mix-blend-mode:multiply"/></svg><span><span class="es">EL CARTEL</span><span class="zh">本週海報</span></span></a></li><li><a href="./pedida.html"><svg class="pc" viewBox="0 0 26 26" aria-hidden="true" focusable="false" style="isolation:isolate"><rect width="26" height="26" fill="#E9DCBC"/><rect x="2" y="2" width="15" height="15" fill="#DD5B21" style="mix-blend-mode:multiply"/></svg><span><span class="es">LA PEDIDA</span><span class="zh">點戲單</span></span></a></li><li><a href="./taller.html" aria-current="page"><svg class="pc" viewBox="0 0 26 26" aria-hidden="true" focusable="false" style="isolation:isolate"><rect width="26" height="26" fill="#E9DCBC"/><rect x="2" y="2" width="15" height="15" fill="#DD5B21" style="mix-blend-mode:multiply"/><rect x="6" y="5" width="15" height="15" fill="#8AA627" style="mix-blend-mode:multiply"/><rect x="9" y="9" width="15" height="15" fill="#17130E" style="mix-blend-mode:multiply"/></svg><span><span class="es">EL TALLER</span><span class="zh">絹印工坊</span></span></a></li><li><a href="./ruta.html"><svg class="pc" viewBox="0 0 26 26" aria-hidden="true" focusable="false" style="isolation:isolate"><rect width="26" height="26" fill="#E9DCBC"/><rect x="2" y="2" width="15" height="15" fill="#DD5B21" style="mix-blend-mode:multiply"/></svg><span><span class="es">LA RUTA</span><span class="zh">出車路線</span></span></a></li></ul></div></nav>
+<main><style>
+.paso{display:grid;grid-template-columns:52px 1fr;gap:16px;border-top:3px solid var(--negro);padding:14px 0}
+.paso:last-child{border-bottom:3px solid var(--negro)}
+.paso .n{font-family:var(--f-cartel);font-size:34px;line-height:.8;color:var(--negro)}
+.paso h3{font:700 15px/1.3 var(--f-rotulo);letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px}
+.regla{border:4px solid var(--negro);margin-top:22px}
+.regla-h{display:flex;gap:12px;align-items:baseline;padding:12px 16px;border-bottom:3px solid var(--negro)}
+.regla-h .n{font-family:var(--f-cartel);font-size:26px;line-height:1;color:var(--negro)}
+.regla-h h3{font-family:var(--f-cartel);font-size:clamp(19px,3vw,30px);text-transform:uppercase;letter-spacing:-.03em;line-height:1}
+.regla-b{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:760px){.regla-b{grid-template-columns:1fr}}
+.regla-b>div{padding:14px 16px}
+.regla-b>div+div{border-left:3px solid var(--negro)}
+@media(max-width:760px){.regla-b>div+div{border-left:0;border-top:3px solid var(--negro)}}
+.regla code{display:block;white-space:pre;overflow-x:auto;background:var(--cana-s);
+  border-left:5px solid var(--naranja);padding:10px 12px;margin-top:10px;
+  font:500 12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}
+.mues{display:flex;gap:0;flex-wrap:wrap;margin-top:6px}
+.mues figure{flex:1 1 92px}
+.mues .sw{height:62px;isolation:isolate;position:relative;background:var(--cana);
+  border:3px solid var(--negro);border-right-width:0}
+.mues figure:last-child .sw{border-right-width:3px}
+.mues .sw i{position:absolute;inset:0;mix-blend-mode:multiply;display:block}
+.mues figcaption{font:700 9.5px/1.4 var(--f-rotulo);letter-spacing:.09em;text-transform:uppercase;padding:5px 2px}
+.ink-n{background:var(--naranja)}.ink-v{background:var(--verde)}.ink-g{background:var(--negro)}
+.demo{background:var(--cana);border:3px solid var(--negro);padding:12px;isolation:isolate;position:relative}
+.demo svg{display:block;width:100%;height:auto}
+.mal{position:relative}
+.mal::after{content:"NO";position:absolute;right:8px;top:6px;font:700 11px/1 var(--f-rotulo);
+  letter-spacing:.14em;color:var(--negro)}
+.prohib{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin-top:10px}
+.prohib div{border:3px solid var(--negro);border-right-width:0;border-bottom-width:0;padding:10px;
+  min-height:76px;position:relative;font:700 10.5px/1.4 var(--f-rotulo);letter-spacing:.09em;text-transform:uppercase}
+.prohib div:nth-child(2n){border-right-width:3px}
+.prohib div:nth-last-child(-n+2){border-bottom-width:3px}
+.prohib div::before{content:"";position:absolute;left:8px;right:8px;top:50%;height:5px;background:var(--naranja);
+  transform:rotate(-19deg)}
+.mordido{font-family:var(--f-cartel);text-transform:uppercase;font-size:clamp(26px,5.5vw,52px);
+  line-height:.84;letter-spacing:-.075em;word-spacing:-.08em;margin-top:8px}
+.mordido span{display:inline-block}
+.mordido span:nth-child(2){transform:translateY(.055em) scaleY(1.1)}
+.mordido span:nth-child(3){transform:translateY(-.03em) rotate(-2.4deg)}
+.mordido span:nth-child(5){transform:scaleX(.86)}
+.suelto{font-family:var(--f-cartel);text-transform:uppercase;font-size:clamp(26px,5.5vw,52px);
+  line-height:1.15;letter-spacing:.06em;opacity:.55}
+</style>
+<section>
+<div class="wrap">
+<div class="kick">EL TALLER · 絹印工坊</div>
+<h2 class="h2">TRES LATAS,<br>UN PAPEL</h2>
+<p class="lead">工坊在放映隊的院子後面，兩張桌子、三塊木框、一把橡膠刮刀、三罐墨。海報不是宣傳品，它是村裡唯一一張告訴大家「這週五晚上有事做」的紙。所以它必須在二十公尺外、在下午四點的太陽底下、被一個不識字的人一眼認出來——這就是為什麼它只能是大剪影、大字、三個顏色。</p>
+
+<div class="grid2" style="margin-top:28px">
+<div>
+<div class="kick">CÓMO SE HACE · 五道工序</div>
+<div class="paso"><div class="n">1</div><div><h3>EL ORIGINAL｜原稿</h3><p>Mirta 把片名與圖直接畫在三張描圖紙上，一張一色。畫的時候就要決定哪一塊形歸哪一塊版——因為形沒有輪廓線，一個形不能被兩塊版共有，否則邊會糊。</p></div></div><div class="paso"><div class="n">2</div><div><h3>LA EMULSIÓN｜曬版</h3><p>三塊 43T 尼龍網、木框 70×50，塗感光膠，正午拿到院子裡曬十一分鐘。陰天曬十六分。曬過頭的版洗不開，細的地方會塞死。</p></div></div><div class="paso"><div class="n">3</div><div><h3>EL REGISTRO｜對版</h3><p>把橘版放平當基準，綠版與黑版對著它推。推到最後永遠差那麼一點——這台架子用了二十三年，綠版固定往右上跑 3.5 與 2.2 個點，黑版往左下跑 2.8 與 3.1。</p></div></div><div class="paso"><div class="n">4</div><div><h3>EL RASERO｜刮印</h3><p>橘、綠、黑，一色一刮，一刮一張。刮完一色要等四十分鐘乾透才能上下一色，所以一張三色海報要做一整天。</p></div></div><div class="paso"><div class="n">5</div><div><h3>EL CONTEO｜點數</h3><p>印三十五張，挑掉糊掉的通常剩三十一二張。前二十張當天貼出去，剩下的擺在工坊賣，一張六十比索。</p></div></div>
+</div>
+<div class="caja">
+<h3>Precios · 價目</h3>
+<table><tbody><tr><td class="rot" style="letter-spacing:.05em">本週海報</td><td class="num" style="white-space:nowrap">60 CUP</td></tr><tr><td colspan="2" style="border-bottom-width:3px;font-size:13.5px;padding-top:0">三色，35 張限量，週五上午可取</td></tr><tr><td class="rot" style="letter-spacing:.05em">三張一組</td><td class="num" style="white-space:nowrap">150 CUP</td></tr><tr><td colspan="2" style="border-bottom-width:3px;font-size:13.5px;padding-top:0">自己挑，可跨週</td></tr><tr><td class="rot" style="letter-spacing:.05em">舊版重刷</td><td class="num" style="white-space:nowrap">90 CUP</td></tr><tr><td colspan="2" style="border-bottom-width:3px;font-size:13.5px;padding-top:0">要重新對版，最少十天</td></tr><tr><td class="rot" style="letter-spacing:.05em">自己的稿</td><td class="num" style="white-space:nowrap">340 CUP</td></tr><tr><td colspan="2" style="border-bottom-width:3px;font-size:13.5px;padding-top:0">三色以內、A2 以內，含製版與 40 張</td></tr><tr><td class="rot" style="letter-spacing:.05em">包場放映</td><td class="num" style="white-space:nowrap">1 200 CUP</td></tr><tr><td colspan="2" style="border-bottom-width:3px;font-size:13.5px;padding-top:0">含車、發電機、放映師與一張場次海報</td></tr><tr><td class="rot" style="letter-spacing:.05em">換片捲</td><td class="num" style="white-space:nowrap">—</td></tr><tr><td colspan="2" style="border-bottom-width:3px;font-size:13.5px;padding-top:0">一捲 18 分鐘，片與片之間也要換一次</td></tr></tbody></table>
+<p style="margin-top:12px;font-size:14px">郵購請寄 Calle Martí 214, Manicaragua, Villa Clara，或打 +53 42 49-1106 找 Mirta。捲筒寄，島內七到十二天。</p>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+<div class="kick">LAS CINCO REGLAS · 五條規矩</div>
+<h2 class="h2">SI QUITAS UNA,<br>YA NO ES ESTO</h2>
+<p class="lead">這五條不是風格建議，是這間工坊的物理條件。拿掉任何一條，印出來的東西就不是古巴絹印海報了——它會變成別的東西，可能還很好看，但不是這個。</p>
+
+<div class="regla">
+<div class="regla-h"><span class="n">1</span><h3>TRES LATAS｜三罐墨，其餘全部疊出來</h3></div>
+<div class="regla-b">
+<div><p>一張海報只有三個專色加一張紙的顏色。第四、第五、第六個顏色不是調出來的，是兩塊版壓在同一個地方疊出來的。這條規矩的檢查方法很機械：把樣式表裡出現的色值列舉出來，只准有五個——紙面 #E9DCBC、紙上網目的谷 #DFD0AA，加上三罐墨。第六個值就是第四罐墨，而我們沒有那罐墨。</p>
+<div class="mues">
+<figure><span class="sw"></span><figcaption>Papel<br>#E9DCBC</figcaption></figure>
+<figure><span class="sw"><i class="ink-n"></i></span><figcaption>Naranja<br>#DD5B21</figcaption></figure>
+<figure><span class="sw"><i class="ink-v"></i></span><figcaption>Verde<br>#8AA627</figcaption></figure>
+<figure><span class="sw"><i class="ink-g"></i></span><figcaption>Negro<br>#17130E</figcaption></figure>
+<figure><span class="sw"><i class="ink-n"></i><i class="ink-v"></i></span><figcaption>N×V<br>#6D3304</figcaption></figure>
+<figure><span class="sw"><i class="ink-n"></i><i class="ink-g"></i></span><figcaption>N×G<br>#120601</figcaption></figure>
+<figure><span class="sw"><i class="ink-v"></i><i class="ink-g"></i></span><figcaption>V×G<br>#0B0B02</figcaption></figure>
+<figure><span class="sw"><i class="ink-n"></i><i class="ink-v"></i><i class="ink-g"></i></span><figcaption>三色<br>#0A0400</figcaption></figure>
+</div>
+<p style="margin-top:10px;font-size:14px">上面那八格裡，只有第二到第四格是墨（第一格是紙）。後四格是把前面幾格疊起來壓出來的——樣式表裡沒有它們的色碼。</p>
+</div>
+<div><p>做法是把每一塊版包成一個 <b>multiply</b> 圖層，並且用 <b>isolation:isolate</b> 把混色關在這張紙裡面，不讓它跟頁面背景亂疊。</p>
+<code>.hoja{ isolation:isolate;
+       background:#E9DCBC }
+.plancha{ mix-blend-mode:multiply }
+.p1{ color:#DD5B21 }   /* naranja */
+.p2{ color:#8AA627 }   /* verde   */
+.p3{ color:#17130E }   /* negro   */</code></div>
+</div></div>
+
+<div class="regla">
+<div class="regla-h"><span class="n">2</span><h3>SIN CONTORNO｜沒有輪廓線的剪形</h3></div>
+<div class="regla-b">
+<div><p>所有的形都是實心平色剪影，零描邊。形的邊界就是顏色的邊界。一加輪廓線，它立刻變成木刻、變成漫畫、變成別的流派——因為輪廓線意味著「先有線再填色」，而絹印是先有色塊，線是後來才有的東西（而且線也是色塊，只是很窄）。</p>
+<div class="demo" style="margin-top:10px">
+<svg viewBox="0 0 320 120" role="img" aria-label="左：無描邊的實心剪形（對）；右：加了描邊的同一個形（錯）">
+<g style="isolation:isolate">
+<path d="M112.53 75.13L109.79 78.88L105.55 81.42L100.59 82.78L95.74 83.39L83.28 72.93L80.88 72.73L79.12 73.21L83.36 90.85L80.56 94.86L77.04 98.61L72.82 101.17L68.23 101.84L63.82 100.39L60.09 97.15L57.26 92.85L55.19 88.43L62.55 71.54L61.54 70.06L60.49 68.77L44.27 78.96L39.59 77.54L34.94 75.35L31.2 72.11L29.14 67.96L29.15 63.32L31.09 58.77L34.3 54.76L37.87 51.42L55.92 53.11L59.32 52.64L59.53 51.11L43.5 38.1L43.41 33.22L44.05 28.11L45.97 23.56L49.28 20.32L53.7 18.9L58.62 19.33L63.44 21.14L67.71 23.51L71.72 43.2L73.41 41.62L75.41 40.3L82.12 24.74L86.74 23.15L91.79 22.18L96.71 22.6L100.82 24.75L103.53 28.51L104.65 33.33L104.41 38.46L103.48 43.26L85.61 53.29L88.91 54.07L88.47 55.95L106.75 57.34L109.7 61.24L112.18 65.75L113.31 70.56Z" fill="#8AA627" style="mix-blend-mode:multiply"/>
+<path d="M69 60L75 60L77 112L67 112Z" fill="#17130E" style="mix-blend-mode:multiply"/>
+</g>
+<g style="isolation:isolate">
+<path d="M272.53 75.13L269.79 78.88L265.55 81.42L260.59 82.78L255.74 83.39L243.28 72.93L240.88 72.73L239.12 73.21L243.36 90.85L240.56 94.86L237.04 98.61L232.82 101.17L228.23 101.84L223.82 100.39L220.09 97.15L217.26 92.85L215.19 88.43L222.55 71.54L221.54 70.06L220.49 68.77L204.27 78.96L199.59 77.54L194.94 75.35L191.2 72.11L189.14 67.96L189.15 63.32L191.09 58.77L194.3 54.76L197.87 51.42L215.92 53.11L219.32 52.64L219.53 51.11L203.5 38.1L203.41 33.22L204.05 28.11L205.97 23.56L209.28 20.32L213.7 18.9L218.62 19.33L223.44 21.14L227.71 23.51L231.72 43.2L233.41 41.62L235.41 40.3L242.12 24.74L246.74 23.15L251.79 22.18L256.71 22.6L260.82 24.75L263.53 28.51L264.65 33.33L264.41 38.46L263.48 43.26L245.61 53.29L248.91 54.07L248.47 55.95L266.75 57.34L269.7 61.24L272.18 65.75L273.31 70.56Z" fill="#8AA627" stroke="#17130E" stroke-width="3" style="mix-blend-mode:multiply"/>
+<path d="M229 60L235 60L237 112L227 112Z" fill="#17130E" stroke="#17130E" stroke-width="3" style="mix-blend-mode:multiply"/>
+</g>
+</svg>
+</div>
+<p style="margin-top:8px;font-size:13.5px">左邊是對的，右邊是錯的。錯的那一片你會開始覺得它是插畫；對的那一片你只會覺得它是一片葉子。</p>
+</div>
+<div><p>在 SVG 裡這件事要寫死，不能靠自律——把整塊版底下所有元素的 stroke 一律關掉，這樣任何人後來加進來的圖都不可能帶線。</p>
+<code>.plancha svg *{ stroke:none }
+
+/* 形只用直線與圓弧接成： */
+&lt;path d="M0 0 L40 0 A20 20 0 0 1 40 40 Z"/&gt;
+/* 不要： */
+&lt;path stroke="#17130E" stroke-width="3" .../&gt;</code>
+<p style="margin-top:10px;font-size:14px">附帶結果：兩個形之間如果要有「線」，那條線其實是第三個形——一條很窄的實心長方形。這也是為什麼這個流派的線看起來永遠比插畫的線重。</p></div>
+</div></div>
+
+<div class="regla">
+<div class="regla-h"><span class="n">3</span><h3>EL REGISTRO｜固定的套印偏移與單色月牙</h3></div>
+<div class="regla-b">
+<div><p>手工套版對不準。這台架子的綠版固定往右上跑 3.5 與 2.2 個點，黑版往左下跑 2.8 與 3.1 個點——二十三年都是這樣，修不掉，也不必修。它的結果是：任何一塊疊色的邊緣，一定露著一條只有單色的月牙。那條月牙是這張紙是人印的證據。</p>
+<div class="demo" style="margin-top:10px">
+<svg viewBox="0 0 320 110" role="img" aria-label="疊色邊緣露出的單色月牙">
+<g style="isolation:isolate">
+<circle cx="86" cy="55" r="40" fill="#DD5B21" style="mix-blend-mode:multiply"/>
+<circle cx="99" cy="47" r="40" fill="#8AA627" style="mix-blend-mode:multiply"/>
+</g>
+<g style="isolation:isolate">
+<circle cx="230" cy="55" r="40" fill="#DD5B21" style="mix-blend-mode:multiply"/>
+<circle cx="230" cy="55" r="40" fill="#8AA627" style="mix-blend-mode:multiply"/>
+</g>
+</svg>
+</div>
+<p style="margin-top:8px;font-size:13.5px">左邊有月牙（真的）。右邊完美重合，看起來像電腦做的——這個流派裡它才是錯的那一個。</p>
+</div>
+<div><p>把偏移量寫成變數，全站共用，並且讓它可以被一個 0 到 1 的數推回去。這樣「分版」與「套準」是同一條式子的兩端。</p>
+<code>@property --reg{ syntax:'&lt;number&gt;';
+  inherits:true; initial-value:1 }
+
+.plancha{ transform:translate(
+  calc((var(--rx)+var(--ox)*(1 - var(--reg)))*1px),
+  calc((var(--ry)+var(--oy)*(1 - var(--reg)))*1px)) }
+.p2{ --rx:3.5; --ry:-2.2; --ox:35; --oy:-22 }
+.p3{ --rx:-2.8; --ry:3.1; --ox:-28; --oy:31 }</code>
+<p style="margin-top:10px;font-size:14px">拉開的量正好是殘餘偏移的十倍，所以把版拉開時看到的歪法，跟成品上那個歪法是同一個方向。</p></div>
+</div></div>
+
+<div class="regla">
+<div class="regla-h"><span class="n">4</span><h3>PLANO ABSOLUTO｜絕對平色</h3></div>
+<div class="regla-b">
+<div><p>一塊色就是一塊色，從頭到尾同一個值。絹印不會漸層（那是噴槍的事），不做網點（那是製版相機的事），不打陰影（那要多一塊版而且沒人會為了陰影多花一罐墨）。整張海報的空間感全部靠「誰蓋住誰」與「誰比較大」。</p>
+<div class="prohib">
+<div>Degradado 漸層</div><div>Trama 網點</div>
+<div>Sombra borrosa 模糊陰影</div><div>Brillo 發光</div>
+<div>Gris intermedio 中間灰</div><div>Esquina redonda 大圓角</div>
+</div>
+<p style="margin-top:10px;font-size:14px">要一個灰？沒有灰這罐墨。灰只能是綠壓黑，或者把黑的形做小一點、讓紙露出來。</p>
+</div>
+<div><p>這條規矩最容易破功的地方是陰影。想要層次就把形錯開，不要打陰影。</p>
+<code>/* 對 */
+.caja{ border:4px solid #17130E }
+/* 錯 */
+.caja{ box-shadow:0 8px 24px rgba(0,0,0,.2);
+       border-radius:16px;
+       background:linear-gradient(...) }</code>
+<p style="margin-top:10px;font-size:14px">附註：連「按下去的硬陰影」也不要——那是紙盒與網頁的語言，不是絲網的。這裡的按鈕就是一個四像素的實框，按下去換成整塊反色。</p></div>
+</div></div>
+
+<div class="regla">
+<div class="regla-h"><span class="n">5</span><h3>LETRAS MORDIDAS｜咬合的手繪展示字</h3></div>
+<div class="regla-b">
+<div><p>片名是被「畫」出來的，不是被「排」出來的。所以字與字會互相咬進去（負字距）、會被壓扁拉長、會為了填滿一塊空白而歪一點。字腔是封死的——看起來像被剪刀剪下來的整塊。而正文用的是完全相反的另一套字：規矩、窄、只負責說清楚事情。這個對比越大越好。</p>
+<div class="mordido" aria-hidden="true"><span>A</span><span>G</span><span>U</span><span>A</span> <span>DE</span> <span>POZO</span></div>
+<div class="suelto mal" aria-hidden="true">AGUA DE POZO</div>
+<p style="margin-top:8px;font-size:13.5px">上面那行是對的（咬在一起、逐字微調）；下面那行只是把同一個字體照預設排出來——它立刻變成一張投影片。</p>
+</div>
+<div><p>做法：負字距 + 逐字的微幅縮放與旋轉。不要用在正文，只用在展示字。</p>
+<code>.cartel-t{
+  font-family:"Titan One";
+  text-transform:uppercase;
+  letter-spacing:-.055em;
+  word-spacing:-.06em;
+  line-height:.84 }
+.cartel-t span:nth-child(2){
+  transform:translateY(.055em) scaleY(1.1) }
+.cartel-t span:nth-child(3){
+  transform:rotate(-2.4deg) }</code>
+<p style="margin-top:10px;font-size:14px">西班牙文全大寫是這個流派的常態——因為手繪大寫比手繪小寫快，而且二十公尺外讀得到。</p></div>
+</div></div>
+
+</div>
+</section>
+</main>
+<footer class="foot"><div class="wrap">
+<div class="grid2">
+<div>
+<div class="kick">YAGRUMA · CINE MÓVIL Y TALLER</div>
+<dl class="datos">
+<dt>工坊</dt><dd>Calle Martí 214, Manicaragua, Villa Clara, Cuba｜+53 42 49-1106</dd>
+<dt>開門</dt><dd>週二至週六 08:00–13:00、15:00–18:30；週日隨車出勤，週一休</dd>
+<dt>人</dt><dd>Idalberto Peñalver（放映與機器）／Mirta Casanova（製版與刮印）／Osmany Betancourt（車與發電機）</dd>
+<dt>價目</dt><dd>放映免費（村委會出柴油）｜海報一張 60 CUP、三張 150 CUP｜舊版重刷 90 CUP｜包場放映 1 200 CUP</dd>
+<dt>車</dt><dd>1953 年 GMC 平頭卡車一輛、16 公釐放映機兩台、2.5 千瓦發電機一具、6×4 公尺白布一面</dd>
+</dl>
+</div>
+<div>
+<div class="kick">IR A</div>
+<ul><li><a href="./index.html">本週海報 EL CARTEL</a></li><li><a href="./pedida.html">點戲單 LA PEDIDA</a></li><li><a href="./taller.html">絹印工坊 EL TALLER</a></li><li><a href="./ruta.html">出車路線 LA RUTA</a></li>
+<li><a href="./README.md">README</a></li><li><a href="./SKILL.md">SKILL.md</a></li>
+<li><a href="../../index.html">← 回 Design Skills Center</a></li></ul>
+<p class="aviso" style="margin-top:16px">本站為 Design Skills Center 的風格範例站，商號、人名、片名、地址、電話、價目與所有片單皆為虛構示意。</p>
+</div></div>
+</div></footer>
+
+<script>
+(function(){
+ var hojas=[].slice.call(document.querySelectorAll('.hoja[data-reg]'));
+ if(!hojas.length)return;
+ var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var v=reduce?100:0;
+ var slider=document.getElementById('reg'),out=document.getElementById('reg-out');
+ function sg(n){return (n>=0?'+':'−')+Math.abs(n).toFixed(1);}
+ function fmt(p){var k=(100-p)/100;
+   return (p<=0?'分版 0%':'套準 '+Math.round(p)+'%')
+    +'　v2 '+sg(3.5+35*k)+','+sg(-2.2-22*k)+'　v3 '+sg(-2.8-28*k)+','+sg(3.1+31*k);}
+ function set(p,quiet){
+   v=Math.max(0,Math.min(100,p));
+   for(var i=0;i<hojas.length;i++)hojas[i].style.setProperty('--reg',(v/100).toFixed(4));
+   if(slider&&!quiet)slider.value=Math.round(v);
+   if(out)out.textContent=fmt(v);
+   try{sessionStorage.setItem('yag-reg',Math.round(v));}catch(e){}
+ }
+ var saved=null;try{saved=sessionStorage.getItem('yag-reg');}catch(e){}
+ set(saved!==null&&saved!==''?+saved:v);
+ if(slider)slider.addEventListener('input',function(){set(+slider.value,true);});
+ for(var j=0;j<hojas.length;j++)(function(h){
+   var down=false,x0=0,v0=0;
+   h.addEventListener('pointerdown',function(e){
+     if(e.target.closest&&e.target.closest('a,button,input'))return;
+     down=true;x0=e.clientX;v0=v;try{h.setPointerCapture(e.pointerId);}catch(err){}
+   });
+   h.addEventListener('pointermove',function(e){
+     if(!down)return;
+     set(v0+(e.clientX-x0)/h.getBoundingClientRect().width*200);
+   });
+   h.addEventListener('pointerup',function(){down=false;});
+   h.addEventListener('pointercancel',function(){down=false;});
+ })(hojas[j]);
+})();
+</script>
+</body></html>

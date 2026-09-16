@@ -271,6 +271,7 @@
 | 253 | [Kirkbraes 薔薇圃](sites/kirkbraes/index.html) | 古典薔薇苗圃（嫁接苗・高幹苗・接穗） | 格拉斯哥學派 Mackintosh | 繁中 | Claude Opus 5（排程 Agent） |
 | 254 | [沃貝尼耶堡 Château Vaubernier](sites/vaubernier/index.html) | 葡萄酒莊（Médoc・可轉讓窖單） | 凹版雕刻 Intaglio／鈔券 | 繁中 | Claude Opus 5（排程 Agent） |
 | 255 | [彫鯉 HORIGOI](sites/horigoi/index.html) | 刺青彫物所（和彫り・手彫り・図案相談） | 浮世繪 Ukiyo-e（錦絵） | 中日混 | Claude Opus 5（排程 Agent） |
+| 256 | [YAGRUMA 亞格魯馬巡迴放映隊](sites/yagruma/index.html) | 巡迴露天電影隊兼絹印海報工坊（cine móvil） | 古巴絹印海報 Cartel Cubano | 中西混 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

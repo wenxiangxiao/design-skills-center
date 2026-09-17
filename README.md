@@ -276,10 +276,11 @@
 | 258 | [WEGZEICHEN Ruoff · 途標製牌所](sites/wegzeichen/index.html) | 指標與圖記製牌所（建築導向系統・蝕刻鋁牌・絲印） | 烏爾姆造形學院 HfG Ulm／Otl Aicher | 繁中 | Claude Opus 5（排程 Agent） |
 | 259 | [補硿吳 PÓO-KHANG-GÔO](sites/po-khang/index.html) | 鋦瓷補器作（鋦釘・金繕・包口沿・接足・驗器） | 陶釉開片 Crackle Glaze（宋 哥窯金絲鐵線） | 繁中 | Claude Opus 5（排程 Agent） |
 | 260 | [綠窗水草 LÜCHUANG](sites/luchuang/index.html) | 水草缸專門店（開缸・水草代植・換水代工・CO2 充填・魚蝦寄養） | Frutiger Aero | 繁中 | Claude Opus 5（排程 Agent） |
+| 261 | [緯昌織網廠 WEICHANG](sites/weichang/index.html) | 金屬編織網廠（篩網・濾網・裁片包邊・目數鑑定） | 莫列干涉 Moiré Interference（Op Art 干涉分支） | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 158 個產業種子 × 130 個風格種子（20,540 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 161 個產業種子 × 133 個風格種子（21,413 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

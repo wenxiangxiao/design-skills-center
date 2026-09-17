@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>認養台 — 綠窗水草</title>
+<meta name="description" content="台北大安區的水草缸專門店：開缸、水草代植、換水代工、二氧化碳充填、魚蝦寄養。本站為網頁設計風格示範站，以 Frutiger Aero 風格建置。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23CFEEFB%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2314567E%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22url(%23w)%22%2F%3E%3Cpath%20d%3D%22M0%2025q8-4%2016-1t16-2v10H0Z%22%20fill%3D%22%23E6DCC4%22%2F%3E%3Cpath%20d%3D%22M11%2026V12q0-4%204-6-1%206%201%208v12Z%22%20fill%3D%22%236FBF3E%22%2F%3E%3Cpath%20d%3D%22M19%2026V16q0-3%204-5-2%205%200%207v8Z%22%20fill%3D%22%232F7D2A%22%2F%3E%3Ccircle%20cx%3D%2223%22%20cy%3D%228%22%20r%3D%223%22%20fill%3D%22%23fff%22%20fill-opacity%3D%22.8%22%2F%3E%3Cpath%20d%3D%22M2%205h28%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   綠窗水草 — Frutiger Aero
+   全站唯一的材料軸：濕 / 乾。
+   .wet  水裡的東西：有高光、會隨光源位移（Snell）、越深位移越多
+   .dry  玻璃外與空氣中的東西：永不位移、永不變亮、長文一律放這裡
+   =========================================================== */
+:root{
+  --sky-0:#F2FAFF; --sky-1:#DFF3FF; --sky-2:#9FD8F2; --aqua:#2E86C1; --deep:#0F4C75;
+  --deep-2:#0A3550; --leaf:#6FBF3E; --leaf-d:#2F7D2A; --moss:#1F6B4A;
+  --sand:#E6DCC4; --sand-d:#C2B594; --ink:#0D2231; --ink-2:#3C5A6E;
+  --white:#FFFFFF; --alu:#C9D4DA; --alu-d:#8FA2AD;
+  --lx:50; --ly:-6;                 /* 燈的位置（容器百分比座標） */
+  --az:270deg; --near:.62; --inc:0deg;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font-size:16px;line-height:1.75;
+  font-family:"Mukta","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  background:linear-gradient(180deg,var(--sky-0) 0,var(--sky-1) 24%,var(--sky-2) 62%,#6FC2E4 100%) fixed;}
+h1,h2,h3{margin:0;font-weight:700;line-height:1.2;letter-spacing:-.005em}
+a{color:#0B5E93}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #0B5E93;outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+a.sr:focus{position:fixed;left:10px;top:10px;z-index:99;width:auto;height:auto;clip-path:none;
+  background:var(--white);color:var(--ink);padding:10px 16px;font-weight:700;border:2px solid var(--aqua)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:rgba(255,255,255,.72);padding:1px 5px;word-break:break-all}
+
+/* ---------- 乾：玻璃外與空氣中。永不位移、永不變亮。長文一律放這裡 ---------- */
+.dry{--depth:0px}
+.dry::before,.dry::after{content:none}
+/* ---------- 濕：高光永遠朝光，強度隨距離 ---------- */
+.wet{position:relative;overflow:hidden;isolation:isolate}
+.wet::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(58% 52% at calc(50% + 32% * cos(var(--az))) calc(50% + 32% * sin(var(--az))),
+    rgba(255,255,255,calc(.30 + .62*var(--near))) 0%, rgba(255,255,255,calc(.14 + .34*var(--near))) 34%,
+    rgba(255,255,255,0) 68%);}
+/* 穿過去的光在背光側染出一道回色（caustic） */
+.wet::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(64% 58% at calc(50% - 30% * cos(var(--az))) calc(50% - 30% * sin(var(--az))),
+    rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 62%);}
+@supports (rotate: atan2(1,1)) and (width: hypot(1px,1px)){
+  .wet,.lean,.shift{
+    --az:calc(atan2(calc(var(--ly) - var(--cy)), calc(var(--lx) - var(--cx))));
+    --near:clamp(0, calc((84 - hypot(calc(var(--lx) - var(--cx)), calc(var(--ly) - var(--cy)))) / 84), 1);
+    --inc:clamp(-62deg, atan2(calc(var(--lx) - var(--cx)), calc(var(--cy) - var(--ly))), 62deg);
+  }
+}
+/* ---------- 簽名動效：折射位移（Snell, n=1.33）----------
+   水裡的東西不是「變亮」而是「錯開」：位移 = 深度 × tan(asin(sin(入射角)/1.33))
+   深度越深錯得越多；玻璃外的（--depth:0）永遠不動。            */
+.shift{--depth:0px;
+  transform:translateX(calc(var(--depth) * tan(asin(calc(sin(var(--inc)) / 1.33)))));
+  transition:transform .12s linear}
+.d1{--depth:9px}.d2{--depth:17px}.d3{--depth:27px}
+.lean{transform-box:fill-box;transform-origin:50% 100%;
+  transform:rotate(clamp(-9deg,calc(var(--inc) * .17),9deg));transition:transform .5s cubic-bezier(.3,.7,.3,1)}
+@media (prefers-reduced-motion: reduce){
+  .shift,.lean{transition:none}
+}
+
+/* ---------- 缸 ---------- */
+.tank{position:relative;width:100%;max-width:1060px;margin:0 auto;aspect-ratio:3/2;
+  container-type:inline-size;border-radius:2px;
+  box-shadow:0 26px 54px rgba(15,76,117,.30)}
+.tank>svg{position:absolute;inset:0;width:100%;height:100%}
+.tank .p{position:absolute}
+.glassbox{position:absolute;inset:0;z-index:6;pointer-events:none;
+  border:8px solid rgba(255,255,255,.34);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.72), inset 0 30px 60px rgba(255,255,255,.28),
+             inset 0 -26px 46px rgba(15,76,117,.26)}
+/* 燈：全站唯一的光源，它就在缸的正上方，而且它跟著你 */
+.lamp{position:absolute;top:-38px;height:30px;width:190px;z-index:8;
+  transform:translateX(-50%);left:calc(var(--lx) * 1%);
+  background:linear-gradient(180deg,#EDF3F6,#C9D4DA 42%,#9CAEB8);
+  border-radius:4px 4px 2px 2px;box-shadow:0 4px 0 rgba(15,76,117,.18)}
+.lamp b{position:absolute;left:8px;right:8px;bottom:-5px;height:5px;background:#FFF6D2;
+  box-shadow:0 0 22px 8px rgba(255,246,210,.85)}
+.cap{position:absolute;left:0;right:0;top:100%;height:34px;z-index:7;
+  background:linear-gradient(180deg,#2B3A44,#16222A);border-radius:0 0 3px 3px}
+
+/* 氣泡 */
+.bubs{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.bub{position:absolute;bottom:-6%;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.95),rgba(255,255,255,.14) 48%,rgba(255,255,255,.42) 76%,rgba(255,255,255,.08));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+  animation:rise linear infinite}
+@keyframes rise{
+  0%{transform:translate(0,0) scale(.86);opacity:0}
+  8%{opacity:.95}
+  30%{transform:translate(7px,-28%) scale(.94)}
+  60%{transform:translate(-6px,-58%) scale(1)}
+  92%{opacity:.9}
+  100%{transform:translate(4px,-104%) scale(1.06);opacity:0}}
+@media (prefers-reduced-motion: reduce){.bub{animation:none;opacity:.55;bottom:auto}}
+
+/* ---------- 一般元件：Aqua 玻璃鈕、面板 ---------- */
+.panel{position:relative;background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:22px 24px;margin:0 0 20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 14px 28px rgba(15,76,117,.16)}
+.panel h2{font-size:clamp(21px,3.2vw,31px);color:var(--deep)}
+.panel h2 i{display:block;font-style:normal;font-size:11.5px;letter-spacing:.26em;
+  color:var(--ink-2);font-weight:400;margin-top:4px}
+.panel.deep{background:linear-gradient(180deg,rgba(46,134,193,.94),rgba(15,76,117,.96));color:#EAF6FD;
+  border-color:rgba(255,255,255,.35)}
+.panel.deep h2{color:#FFFFFF}.panel.deep h2 i{color:#BEE3F5}
+.panel.deep a{color:#BFF0B0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.note{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.panel.deep .note{color:#CDE8F6}
+
+/* Aqua 鈕：本體＋一道上弦月高光（遮罩相減做出來的，不是畫一個白橢圓） */
+button,.btn{position:relative;font:inherit;font-weight:700;cursor:pointer;color:#06334F;
+  background:linear-gradient(180deg,#BEEBFF,#6CC6EE 48%,#2E86C1 49%,#1C6FA8);
+  border:1px solid rgba(255,255,255,.85);border-radius:999px;padding:11px 22px;
+  box-shadow:0 2px 0 rgba(255,255,255,.7) inset,0 6px 14px rgba(15,76,117,.26)}
+button::before{content:"";position:absolute;left:6%;right:6%;top:6%;height:46%;border-radius:999px;
+  background:rgba(255,255,255,.72);
+  -webkit-mask-image:radial-gradient(120% 150% at 50% -34%,#000 62%,transparent 63%),
+                      radial-gradient(150% 150% at 50% 190%,#000 62%,transparent 63%);
+          mask-image:radial-gradient(120% 150% at 50% -34%,#000 62%,transparent 63%),
+                      radial-gradient(150% 150% at 50% 190%,#000 62%,transparent 63%);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+button:hover{filter:brightness(1.06)}
+button[disabled]{background:linear-gradient(180deg,#E3EAEE,#C2CED4 49%,#A9B8C0);color:#6C7C86;cursor:not-allowed;box-shadow:none}
+button.on{background:linear-gradient(180deg,#D8FFB8,#8FDD4E 48%,#55B62A 49%,#3E9420);color:#123B06}
+button.no{background:linear-gradient(180deg,#F1F3F5,#D6DEE3 49%,#BCC8CF);color:#7A8A93}
+
+.rule{height:10px;margin:18px 0;border-radius:999px;
+  background:linear-gradient(90deg,var(--sky-1),var(--sky-2) 26%,var(--aqua) 52%,var(--leaf) 78%,var(--sky-1))}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid rgba(15,76,117,.18);padding:10px 8px;text-align:left;vertical-align:top}
+th{color:var(--deep);white-space:nowrap}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.panel.deep th,.panel.deep td{border-color:rgba(255,255,255,.26)}
+.panel.deep th{color:#CFF0FF}
+
+/* 導覽：吸盤導覽 sucker-set —— 現用的那一個與玻璃之間沒有東西 */
+.rail{position:sticky;top:0;z-index:40;backdrop-filter:blur(9px);
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(233,246,253,.72));
+  border-bottom:1px solid rgba(255,255,255,.9);box-shadow:0 8px 20px rgba(15,76,117,.14)}
+.rail ul{list-style:none;margin:0 auto;padding:10px 14px;max-width:1120px;display:flex;gap:12px}
+.rail li{flex:1}
+.rail a{position:relative;display:block;text-align:center;text-decoration:none;font-weight:700;font-size:15px;
+  color:#31596F;padding:13px 6px 12px;border-radius:999px;
+  background:radial-gradient(70% 62% at 50% 26%,rgba(255,255,255,.96),rgba(214,233,243,.86) 62%,rgba(178,209,226,.9));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 4px 10px rgba(15,76,117,.16)}
+.rail a i{display:block;font-style:normal;font-size:10px;letter-spacing:.2em;font-weight:400;color:#5C7F92}
+/* 未選：吸盤與玻璃之間還有一層水膜與氣泡 */
+.rail a::after{content:"";position:absolute;left:18%;right:18%;top:22%;height:44%;border-radius:999px;
+  background:radial-gradient(circle at 26% 34%,rgba(255,255,255,.95),rgba(255,255,255,.08) 52%),
+             radial-gradient(circle at 72% 62%,rgba(255,255,255,.8),rgba(255,255,255,.06) 46%);
+  pointer-events:none}
+/* 現用：吸住了——中間的空氣被擠光，整片貼平、變深、邊緣多一圈被壓出去的水 */
+.rail a[aria-current=page]{color:#08405F;
+  background:radial-gradient(72% 66% at 50% 34%,#9FD8F2,#4FA6D4 66%,#2E86C1);
+  box-shadow:0 0 0 3px rgba(255,255,255,.9) inset,0 1px 3px rgba(15,76,117,.4)}
+.rail a[aria-current=page] i{color:#0A4C70}
+.rail a[aria-current=page]::after{background:none}
+
+footer{margin-top:44px;background:linear-gradient(180deg,rgba(15,76,117,.94),rgba(10,53,80,.97));color:#DCEEF8;padding:26px 0 44px}
+footer .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;font-size:13.5px}
+footer b{color:#BFF0B0}
+footer a{color:#BFF0B0}
+.sec{padding:30px 0 6px}
+
+/* 認養台 */
+.crits{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.crit{position:relative;border-radius:14px;padding:12px 12px 14px;text-align:left;font:inherit;
+  border:1px solid rgba(255,255,255,.9);cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(222,242,252,.86));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 8px 16px rgba(15,76,117,.14)}
+.crit::before{display:none}
+.crit b{display:block;font-size:14.5px;color:var(--deep)}
+.crit span{display:block;font-size:11.5px;color:var(--ink-2);letter-spacing:.04em}
+.crit em{display:block;font-style:normal;font-size:12.5px;margin-top:6px;color:#8A4A22}
+.crit[aria-disabled="true"]{background:linear-gradient(180deg,#F2F5F7,#DFE6EA);cursor:not-allowed;color:#4A5C66}
+.crit[aria-disabled="true"] b{color:#40606F}
+.crit[data-ok="1"]{background:linear-gradient(180deg,#F4FFEA,#CFF3AE);border-color:#9FDC70}
+.crit[aria-pressed="true"]{outline:3px solid #2E86C1;outline-offset:2px}
+.bill dt{color:var(--deep);font-weight:700;float:left;clear:left;width:7.6em}
+.bill dd{margin:0 0 5px 8em}
+
+@media (max-width:560px){
+  body{font-size:15px}
+  .rail a{font-size:12.5px;padding:11px 3px}
+  .rail a i{display:none}
+  .tank .sm{display:none}
+  .lamp{width:130px;top:-30px;height:24px}
+  .bill dt{float:none;width:auto}.bill dd{margin-left:0;margin-bottom:10px}
+}
+
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:sink .32s ease-in both}
+::view-transition-new(root){animation:surface .34s cubic-bezier(.2,.8,.4,1) both}
+@keyframes sink{to{opacity:0;transform:scale(.985) translateY(10px)}}
+@keyframes surface{from{opacity:0;transform:scale(1.012) translateY(-10px)}}
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-old(root),::view-transition-new(root),
+  ::view-transition-old(bag),::view-transition-new(bag){animation:none}
+  *{transition:none !important}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">跳到內容</a>
+<nav class="rail" aria-label="主導覽"><ul><li><a href="index.html">缸面<i>THE TANK</i></a></li><li><a href="shui.html">水與光<i>WATER & LIGHT</i></a></li><li><a href="yang.html" aria-current="page">認養台<i>ADOPTION BENCH</i></a></li><li><a href="dian.html">店與價<i>SHOP & PRICES</i></a></li></ul></nav>
+<main id="main">
+
+<div class="sec wrap">
+  <div class="panel">
+    <h2>認養台<i>THE ADOPTION BENCH</i></h2>
+    <p>草會分株、蝦會生、螺一定會變多。缸底這些多出來的，店裡不賣，只送。
+    但送得出去的前提是<b>你的缸接得住</b>——所以湘婷會先問三個問題。</p>
+    <p><b>規矩三句：</b>一、回答三個問題（缸多大、開多久、有沒有會吃小東西的魚）。
+    二、檯上十二件會自己亮起來，合不起來的那幾件會告訴你為什麼。
+    三、挑一件，填一張認養單，帶走一個袋號和一句照顧的話。</p>
+  </div>
+
+  <div class="cols" style="align-items:start">
+    <div class="panel deep">
+      <h2>三個問題<i>THREE QUESTIONS</i></h2>
+      <fieldset style="border:0;padding:0;margin:0 0 16px">
+    <legend style="font-weight:700;color:#0F4C75;padding:0 0 8px">你的缸多大？</legend>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <button type="button" class="q q-L" data-k="L" data-v="20">20 公分以下（小缸、養蝦缸）</button><button type="button" class="q q-L" data-k="L" data-v="30">30 到 45 公分</button><button type="button" class="q q-L" data-k="L" data-v="60">60 公分以上</button>
+    </div></fieldset><fieldset style="border:0;padding:0;margin:0 0 16px">
+    <legend style="font-weight:700;color:#0F4C75;padding:0 0 8px">這缸開多久了？</legend>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <button type="button" class="q q-W" data-k="W" data-v="1">兩個星期以內（還在養水）</button><button type="button" class="q q-W" data-k="W" data-v="6">一到三個月</button><button type="button" class="q q-W" data-k="W" data-v="24">半年以上，很穩</button>
+    </div></fieldset><fieldset style="border:0;padding:0;margin:0 0 16px">
+    <legend style="font-weight:700;color:#0F4C75;padding:0 0 8px">缸裡有沒有會吃小東西的魚？</legend>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <button type="button" class="q q-F" data-k="F" data-v="y">有（燈魚、孔雀魚、鬥魚…）</button><button type="button" class="q q-F" data-k="F" data-v="n">沒有，只有蝦或只有草</button><button type="button" class="q q-F" data-k="F" data-v="u">不確定</button>
+    </div></fieldset>
+      <p class="note" id="out">三個問題都回答了，檯上才會亮。</p>
+    </div>
+    <div>
+      <div class="panel">
+        <h2>檯上這十二件<i>TWELVE SPARE LIVES</i></h2>
+        <div class="crits" style="margin-top:12px"><button type="button" class="crit" data-id="a" aria-pressed="false">
+      <b>小豆芽（黑殼蝦幼體）</b><span>Neocaridina fry</span><em class="rz"></em></button><button type="button" class="crit" data-id="b" aria-pressed="false">
+      <b>莫絲分株（一小團）</b><span>Java moss</span><em class="rz"></em></button><button type="button" class="crit" data-id="c" aria-pressed="false">
+      <b>小榕（側芽兩片葉）</b><span>Anubias nana</span><em class="rz"></em></button><button type="button" class="crit" data-id="d" aria-pressed="false">
+      <b>大和藻蝦（成體一隻）</b><span>Amano shrimp</span><em class="rz"></em></button><button type="button" class="crit" data-id="e" aria-pressed="false">
+      <b>蘋果螺（幼螺三顆）</b><span>Ramshorn snail</span><em class="rz"></em></button><button type="button" class="crit" data-id="f" aria-pressed="false">
+      <b>小精靈（除藻魚一尾）</b><span>Otocinclus</span><em class="rz"></em></button><button type="button" class="crit" data-id="g" aria-pressed="false">
+      <b>水蘊草（一把）</b><span>Egeria densa</span><em class="rz"></em></button><button type="button" class="crit" data-id="h" aria-pressed="false">
+      <b>黑殼蝦（成蝦五隻）</b><span>Neocaridina</span><em class="rz"></em></button><button type="button" class="crit" data-id="i" aria-pressed="false">
+      <b>孔雀魚（三尾，都是公的）</b><span>Guppy</span><em class="rz"></em></button><button type="button" class="crit" data-id="j" aria-pressed="false">
+      <b>珍珠草（剪下的頂芽十支）</b><span>Micranthemum</span><em class="rz"></em></button><button type="button" class="crit" data-id="k" aria-pressed="false">
+      <b>鼠魚（青銅鼠一尾）</b><span>Corydoras aeneus</span><em class="rz"></em></button><button type="button" class="crit" data-id="l" aria-pressed="false">
+      <b>浮萍（一小撮）</b><span>Duckweed</span><em class="rz"></em></button></div>
+        <p style="margin-top:16px"><button id="go" type="button" disabled>填認養單</button>
+        <button class="lamp-btn" type="button">把燈推過去一次</button></p>
+      </div>
+      <div id="bag" hidden tabindex="-1" style="view-transition-name:bag"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>條件表（完整靜態表）<i>THE WHOLE TABLE, NO SCRIPT NEEDED</i></h2>
+    <p class="note">沒有 JavaScript 也用得完：下表就是檯上那十二件的全部條件與照顧方式，照著自己對一遍就知道能帶走哪幾件。</p>
+    <table><thead><tr><th>品項</th><th>學名／俗名</th><th class="n">缸長</th><th class="n">缸齡</th><th>魚</th><th>照顧</th></tr></thead>
+    <tbody><tr><th>小豆芽（黑殼蝦幼體）</th><td>Neocaridina fry</td>
+    <td class="n">20 cm 以上</td>
+    <td class="n">滿 8 週</td>
+    <td>缸裡不能有魚</td>
+    <td>前兩週不要換水超過四分之一。</td></tr><tr><th>莫絲分株（一小團）</th><td>Java moss</td>
+    <td class="n">不限</td>
+    <td class="n">不限</td>
+    <td>——</td>
+    <td>綁在石頭上，別壓在底床裡，它會爛。</td></tr><tr><th>小榕（側芽兩片葉）</th><td>Anubias nana</td>
+    <td class="n">20 cm 以上</td>
+    <td class="n">滿 2 週</td>
+    <td>——</td>
+    <td>根莖不能埋，埋了就黑。</td></tr><tr><th>大和藻蝦（成體一隻）</th><td>Amano shrimp</td>
+    <td class="n">30 cm 以上</td>
+    <td class="n">滿 4 週</td>
+    <td>——</td>
+    <td>牠會爬出缸外，記得蓋子留一道縫就好。</td></tr><tr><th>蘋果螺（幼螺三顆）</th><td>Ramshorn snail</td>
+    <td class="n">20 cm 以上</td>
+    <td class="n">滿 2 週</td>
+    <td>——</td>
+    <td>牠會變多。真的會變多。</td></tr><tr><th>小精靈（除藻魚一尾）</th><td>Otocinclus</td>
+    <td class="n">45 cm 以上</td>
+    <td class="n">滿 12 週</td>
+    <td>——</td>
+    <td>缸裡要有一片長了褐藻的玻璃留給牠。</td></tr><tr><th>水蘊草（一把）</th><td>Egeria densa</td>
+    <td class="n">不限</td>
+    <td class="n">不限</td>
+    <td>——</td>
+    <td>長太快就剪掉，不用客氣。</td></tr><tr><th>黑殼蝦（成蝦五隻）</th><td>Neocaridina</td>
+    <td class="n">30 cm 以上</td>
+    <td class="n">滿 4 週</td>
+    <td>——</td>
+    <td>不要跟溫度計一起放進去，牠會躲進去出不來。</td></tr><tr><th>孔雀魚（三尾，都是公的）</th><td>Guppy</td>
+    <td class="n">45 cm 以上</td>
+    <td class="n">滿 6 週</td>
+    <td>——</td>
+    <td>全公的才不會變成三十尾。</td></tr><tr><th>珍珠草（剪下的頂芽十支）</th><td>Micranthemum</td>
+    <td class="n">45 cm 以上</td>
+    <td class="n">滿 6 週</td>
+    <td>——</td>
+    <td>一支一支插，不要整把塞。</td></tr><tr><th>鼠魚（青銅鼠一尾）</th><td>Corydoras aeneus</td>
+    <td class="n">60 cm 以上</td>
+    <td class="n">滿 12 週</td>
+    <td>——</td>
+    <td>底床要細砂，粗石會磨壞牠的鬍子。</td></tr><tr><th>浮萍（一小撮）</th><td>Duckweed</td>
+    <td class="n">不限</td>
+    <td class="n">不限</td>
+    <td>——</td>
+    <td>你會後悔。湘婷說她有警告過你。</td></tr></tbody></table>
+  </div>
+</div>
+</main>
+<footer><div class="wrap">
+<div><b>綠窗水草　LÜCHUANG AQUASCAPE</b><br>水草缸專門店・創於 2006 年<br>台北市大安區樂利路 31 號 1 樓</div>
+<div><b>電話</b> (02) 2733-6108<br><b>營業</b> 14:00–22:00<br>週三公休</div>
+<div><b>店裡的人</b><br>邱柏宏（店長）<br>陳湘婷（水草代植）<br>林子軒（工讀）</div>
+<div class="note" style="color:#CDE8F6">本站為網頁設計風格示範站。店名、人名、地址、電話、價目與所有敘述皆為虛構，不對應任何真實商號。<br>
+<a href="SKILL.md">SKILL.md 風格規格書</a>　·　<a href="README.md">README</a></div>
+</div></footer>
+<script>
+(function(){
+  var lits=[].slice.call(document.querySelectorAll('.lit')),rects=[];
+  function measure(){rects=lits.map(function(el){return el.getBoundingClientRect()})}
+  function put(x,y){for(var i=0;i<lits.length;i++){var r=rects[i];if(!r||!r.width)continue;
+    lits[i].style.setProperty('--lx',((x-r.left)/r.width*100).toFixed(1));
+    lits[i].style.setProperty('--ly',((y-r.top)/r.height*100).toFixed(1));}}
+  measure();
+  addEventListener('resize',measure,{passive:true});
+  addEventListener('scroll',measure,{passive:true});
+  addEventListener('load',measure);
+  var px=0,py=0,pend=0;
+  addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;
+    if(!pend){pend=requestAnimationFrame(function(){pend=0;put(px,py)})}},{passive:true});
+  var quiet=matchMedia('(prefers-reduced-motion: reduce)');
+  window.sweepLight=function(){
+    measure();
+    if(quiet.matches){put(innerWidth*0.5,-40);return;}
+    var t0=performance.now(),D=2200;
+    (function step(t){var k=Math.min(1,(t-t0)/D);
+      var e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+      put(innerWidth*(-0.12+1.24*e), -40);
+      if(k<1)requestAnimationFrame(step);})(t0);
+  };
+  [].forEach.call(document.querySelectorAll('.lamp-btn'),function(b){
+    b.addEventListener('click',function(){window.sweepLight()});});
+  setTimeout(function(){window.sweepLight()},380);
+})();
+(function(){
+  var CRIT=[{"id":"a","n":"小豆芽（黑殼蝦幼體）","en":"Neocaridina fry","need":{"minL":20,"minWeeks":8,"fish":false},"why":"牠只有三公釐，缸裡只要有一條稍大的魚就會不見。","care":"前兩週不要換水超過四分之一。"},{"id":"b","n":"莫絲分株（一小團）","en":"Java moss","need":{"minL":0,"minWeeks":0,"fish":null},"why":"","care":"綁在石頭上，別壓在底床裡，它會爛。"},{"id":"c","n":"小榕（側芽兩片葉）","en":"Anubias nana","need":{"minL":20,"minWeeks":2,"fish":null},"why":"","care":"根莖不能埋，埋了就黑。"},{"id":"d","n":"大和藻蝦（成體一隻）","en":"Amano shrimp","need":{"minL":30,"minWeeks":4,"fish":null},"why":"","care":"牠會爬出缸外，記得蓋子留一道縫就好。"},{"id":"e","n":"蘋果螺（幼螺三顆）","en":"Ramshorn snail","need":{"minL":20,"minWeeks":2,"fish":null},"why":"","care":"牠會變多。真的會變多。"},{"id":"f","n":"小精靈（除藻魚一尾）","en":"Otocinclus","need":{"minL":45,"minWeeks":12,"fish":null},"why":"新缸沒有足夠的褐藻，牠會餓死。","care":"缸裡要有一片長了褐藻的玻璃留給牠。"},{"id":"g","n":"水蘊草（一把）","en":"Egeria densa","need":{"minL":0,"minWeeks":0,"fish":null},"why":"","care":"長太快就剪掉，不用客氣。"},{"id":"h","n":"黑殼蝦（成蝦五隻）","en":"Neocaridina","need":{"minL":30,"minWeeks":4,"fish":null},"why":"","care":"不要跟溫度計一起放進去，牠會躲進去出不來。"},{"id":"i","n":"孔雀魚（三尾，都是公的）","en":"Guppy","need":{"minL":45,"minWeeks":6,"fish":null},"why":"","care":"全公的才不會變成三十尾。"},{"id":"j","n":"珍珠草（剪下的頂芽十支）","en":"Micranthemum","need":{"minL":45,"minWeeks":6,"fish":null},"why":"這株要強光與二氧化碳，小缸撐不住。","care":"一支一支插，不要整把塞。"},{"id":"k","n":"鼠魚（青銅鼠一尾）","en":"Corydoras aeneus","need":{"minL":60,"minWeeks":12,"fish":null},"why":"牠是群居的，也需要一塊沒有石頭的沙地翻。","care":"底床要細砂，粗石會磨壞牠的鬍子。"},{"id":"l","n":"浮萍（一小撮）","en":"Duckweed","need":{"minL":0,"minWeeks":0,"fish":null},"why":"","care":"你會後悔。湘婷說她有警告過你。"}], LINES=["湘婷把袋子打了個結，多灌了半袋空氣。","柏宏說：這一件不用錢，但你要回來告訴我牠活得怎麼樣。","子軒在袋子上用奇異筆寫了日期，說超過兩小時就要開袋。","湘婷從寄養缸那排撈的，她說這一批是上禮拜自己冒出來的。"];
+  var ans={L:null,W:null,F:null}, pick=null;
+  var out=document.getElementById('out'), go=document.getElementById('go'), bag=document.getElementById('bag');
+  function verdict(c){
+    var L=+ans.L, W=+ans.W, F=ans.F;
+    if(L===null||isNaN(L)||ans.W===null||!F) return {ok:0,msg:''};
+    if(c.need.minL && L < c.need.minL) return {ok:0,msg:'缸不夠大：至少要 '+c.need.minL+' 公分。'+(c.why||'')};
+    if(c.need.minWeeks && W < c.need.minWeeks) return {ok:0,msg:'缸還太新：要滿 '+c.need.minWeeks+' 週。'+(c.why||'')};
+    if(c.need.fish===false){
+      if(F==='y') return {ok:0,msg:'你缸裡有魚。'+(c.why||'')};
+      if(F==='u') return {ok:0,msg:'不確定就當作有。'+(c.why||'')};
+    }
+    return {ok:1,msg:'合得起來。'};
+  }
+  function paint(){
+    var done = ans.L && ans.W && ans.F;
+    [].forEach.call(document.querySelectorAll('.crit'),function(el){
+      var c=CRIT.filter(function(x){return x.id===el.dataset.id})[0], v=verdict(c);
+      el.dataset.ok = done ? (v.ok?'1':'0') : '';
+      // 不用 disabled：不合的那幾件仍然可以被鍵盤讀到（理由就寫在卡上）
+      el.setAttribute('aria-disabled', done && !v.ok ? 'true' : 'false');
+      el.querySelector('.rz').textContent = done ? v.msg : '';
+      el.setAttribute('aria-pressed', pick===c.id ? 'true':'false');
+      if(!v.ok && pick===c.id) pick=null;
+    });
+    ['L','W','F'].forEach(function(k){
+      [].forEach.call(document.querySelectorAll('.q-'+k),function(b){
+        var on = ans[k]===b.dataset.v; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on?'true':'false');});
+    });
+    out.textContent = !done ? '三個問題都回答了，檯上才會亮。'
+      : '合得起來的有 '+document.querySelectorAll('.crit[data-ok="1"]').length+' 件。挑一件。';
+    go.disabled = !(done && pick);
+  }
+  [].forEach.call(document.querySelectorAll('.q'),function(b){
+    b.setAttribute('aria-pressed','false');
+    b.onclick=function(){ans[b.dataset.k]=b.dataset.v;bag.hidden=true;paint()};});
+  [].forEach.call(document.querySelectorAll('.crit'),function(el){
+    el.onclick=function(){ if(el.dataset.ok!=='1'){ if(el.dataset.ok==='0') out.textContent='這一件合不起來：'+el.querySelector('.rz').textContent; return;} pick=el.dataset.id; bag.hidden=true; paint(); };});
+  go.onclick=function(){
+    var c=CRIT.filter(function(x){return x.id===pick})[0]; if(!c)return;
+    var s=ans.L+ans.W+ans.F+c.id,h=0; for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;
+    var no='LC-'+(100+(h%899));
+    var url=location.pathname+'?yang='+ans.L+'.'+ans.W+'.'+ans.F+'.'+c.id;
+    try{history.replaceState(null,'',url)}catch(e){}
+    function fill(){
+      bag.innerHTML='<div class="panel" style="margin:0"><h2>認養單<i>ADOPTION SLIP '+no+'</i></h2>'
+        +'<dl class="bill"><dt>帶走的是</dt><dd>'+c.n+'（'+c.en+'）</dd>'
+        +'<dt>你的缸</dt><dd>'+ans.L+' 公分以上・'+(ans.W==='1'?'兩週內':(ans.W==='6'?'一到三個月':'半年以上'))
+        +'・'+(ans.F==='n'?'沒有會吃小東西的魚':(ans.F==='y'?'有魚':'不確定有沒有魚'))+'</dd>'
+        +'<dt>價</dt><dd>不用錢。這一件是缸底自己多出來的。</dd>'
+        +'<dt>照顧</dt><dd>'+c.care+'</dd>'
+        +'<dt>袋號</dt><dd>'+no+'</dd>'
+        +'<dt>櫃檯</dt><dd>'+LINES[h%LINES.length]+'</dd>'
+        +'<dt>帶走這張單</dt><dd><code>'+location.origin+url+'</code></dd></dl></div>';
+    }
+    if(document.startViewTransition){document.startViewTransition(fill)}else{fill()}
+    bag.hidden=false; bag.focus();
+    if(window.sweepLight)window.sweepLight();
+  };
+  var q=(location.search.match(/yang=(\d+)\.(\d+)\.([ynu])\.([a-l])/)||[]);
+  if(q.length===5 && ['20','30','60'].indexOf(q[1])>=0 && ['1','6','24'].indexOf(q[2])>=0){
+    ans.L=q[1];ans.W=q[2];ans.F=q[3];pick=q[4];
+  }
+  paint();
+})();</script>
+<noscript><p class="wrap note">沒有 JavaScript 時，燈停在缸的正上方：高光、折射位移與草的朝向都仍然存在，只是那盞燈不跟著你走。缸上、水中與砂上的每一個字都是靜態 HTML，一個字也不會少。</p></noscript>
+</body>
+</html>

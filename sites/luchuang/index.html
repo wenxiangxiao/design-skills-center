@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>綠窗水草 LÜCHUANG AQUASCAPE — 水草缸專門店</title>
+<meta name="description" content="台北大安區的水草缸專門店：開缸、水草代植、換水代工、二氧化碳充填、魚蝦寄養。本站為網頁設計風格示範站，以 Frutiger Aero 風格建置。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23CFEEFB%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2314567E%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22url(%23w)%22%2F%3E%3Cpath%20d%3D%22M0%2025q8-4%2016-1t16-2v10H0Z%22%20fill%3D%22%23E6DCC4%22%2F%3E%3Cpath%20d%3D%22M11%2026V12q0-4%204-6-1%206%201%208v12Z%22%20fill%3D%22%236FBF3E%22%2F%3E%3Cpath%20d%3D%22M19%2026V16q0-3%204-5-2%205%200%207v8Z%22%20fill%3D%22%232F7D2A%22%2F%3E%3Ccircle%20cx%3D%2223%22%20cy%3D%228%22%20r%3D%223%22%20fill%3D%22%23fff%22%20fill-opacity%3D%22.8%22%2F%3E%3Cpath%20d%3D%22M2%205h28%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   綠窗水草 — Frutiger Aero
+   全站唯一的材料軸：濕 / 乾。
+   .wet  水裡的東西：有高光、會隨光源位移（Snell）、越深位移越多
+   .dry  玻璃外與空氣中的東西：永不位移、永不變亮、長文一律放這裡
+   =========================================================== */
+:root{
+  --sky-0:#F2FAFF; --sky-1:#DFF3FF; --sky-2:#9FD8F2; --aqua:#2E86C1; --deep:#0F4C75;
+  --deep-2:#0A3550; --leaf:#6FBF3E; --leaf-d:#2F7D2A; --moss:#1F6B4A;
+  --sand:#E6DCC4; --sand-d:#C2B594; --ink:#0D2231; --ink-2:#3C5A6E;
+  --white:#FFFFFF; --alu:#C9D4DA; --alu-d:#8FA2AD;
+  --lx:50; --ly:-6;                 /* 燈的位置（容器百分比座標） */
+  --az:270deg; --near:.62; --inc:0deg;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font-size:16px;line-height:1.75;
+  font-family:"Mukta","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  background:linear-gradient(180deg,var(--sky-0) 0,var(--sky-1) 24%,var(--sky-2) 62%,#6FC2E4 100%) fixed;}
+h1,h2,h3{margin:0;font-weight:700;line-height:1.2;letter-spacing:-.005em}
+a{color:#0B5E93}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #0B5E93;outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+a.sr:focus{position:fixed;left:10px;top:10px;z-index:99;width:auto;height:auto;clip-path:none;
+  background:var(--white);color:var(--ink);padding:10px 16px;font-weight:700;border:2px solid var(--aqua)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:rgba(255,255,255,.72);padding:1px 5px;word-break:break-all}
+
+/* ---------- 乾：玻璃外與空氣中。永不位移、永不變亮。長文一律放這裡 ---------- */
+.dry{--depth:0px}
+.dry::before,.dry::after{content:none}
+/* ---------- 濕：高光永遠朝光，強度隨距離 ---------- */
+.wet{position:relative;overflow:hidden;isolation:isolate}
+.wet::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(58% 52% at calc(50% + 32% * cos(var(--az))) calc(50% + 32% * sin(var(--az))),
+    rgba(255,255,255,calc(.30 + .62*var(--near))) 0%, rgba(255,255,255,calc(.14 + .34*var(--near))) 34%,
+    rgba(255,255,255,0) 68%);}
+/* 穿過去的光在背光側染出一道回色（caustic） */
+.wet::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(64% 58% at calc(50% - 30% * cos(var(--az))) calc(50% - 30% * sin(var(--az))),
+    rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 62%);}
+@supports (rotate: atan2(1,1)) and (width: hypot(1px,1px)){
+  .wet,.lean,.shift{
+    --az:calc(atan2(calc(var(--ly) - var(--cy)), calc(var(--lx) - var(--cx))));
+    --near:clamp(0, calc((84 - hypot(calc(var(--lx) - var(--cx)), calc(var(--ly) - var(--cy)))) / 84), 1);
+    --inc:clamp(-62deg, atan2(calc(var(--lx) - var(--cx)), calc(var(--cy) - var(--ly))), 62deg);
+  }
+}
+/* ---------- 簽名動效：折射位移（Snell, n=1.33）----------
+   水裡的東西不是「變亮」而是「錯開」：位移 = 深度 × tan(asin(sin(入射角)/1.33))
+   深度越深錯得越多；玻璃外的（--depth:0）永遠不動。            */
+.shift{--depth:0px;
+  transform:translateX(calc(var(--depth) * tan(asin(calc(sin(var(--inc)) / 1.33)))));
+  transition:transform .12s linear}
+.d1{--depth:9px}.d2{--depth:17px}.d3{--depth:27px}
+.lean{transform-box:fill-box;transform-origin:50% 100%;
+  transform:rotate(clamp(-9deg,calc(var(--inc) * .17),9deg));transition:transform .5s cubic-bezier(.3,.7,.3,1)}
+@media (prefers-reduced-motion: reduce){
+  .shift,.lean{transition:none}
+}
+
+/* ---------- 缸 ---------- */
+.tank{position:relative;width:100%;max-width:1060px;margin:0 auto;aspect-ratio:3/2;
+  container-type:inline-size;border-radius:2px;
+  box-shadow:0 26px 54px rgba(15,76,117,.30)}
+.tank>svg{position:absolute;inset:0;width:100%;height:100%}
+.tank .p{position:absolute}
+.glassbox{position:absolute;inset:0;z-index:6;pointer-events:none;
+  border:8px solid rgba(255,255,255,.34);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.72), inset 0 30px 60px rgba(255,255,255,.28),
+             inset 0 -26px 46px rgba(15,76,117,.26)}
+/* 燈：全站唯一的光源，它就在缸的正上方，而且它跟著你 */
+.lamp{position:absolute;top:-38px;height:30px;width:190px;z-index:8;
+  transform:translateX(-50%);left:calc(var(--lx) * 1%);
+  background:linear-gradient(180deg,#EDF3F6,#C9D4DA 42%,#9CAEB8);
+  border-radius:4px 4px 2px 2px;box-shadow:0 4px 0 rgba(15,76,117,.18)}
+.lamp b{position:absolute;left:8px;right:8px;bottom:-5px;height:5px;background:#FFF6D2;
+  box-shadow:0 0 22px 8px rgba(255,246,210,.85)}
+.cap{position:absolute;left:0;right:0;top:100%;height:34px;z-index:7;
+  background:linear-gradient(180deg,#2B3A44,#16222A);border-radius:0 0 3px 3px}
+
+/* 氣泡 */
+.bubs{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.bub{position:absolute;bottom:-6%;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.95),rgba(255,255,255,.14) 48%,rgba(255,255,255,.42) 76%,rgba(255,255,255,.08));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+  animation:rise linear infinite}
+@keyframes rise{
+  0%{transform:translate(0,0) scale(.86);opacity:0}
+  8%{opacity:.95}
+  30%{transform:translate(7px,-28%) scale(.94)}
+  60%{transform:translate(-6px,-58%) scale(1)}
+  92%{opacity:.9}
+  100%{transform:translate(4px,-104%) scale(1.06);opacity:0}}
+@media (prefers-reduced-motion: reduce){.bub{animation:none;opacity:.55;bottom:auto}}
+
+/* ---------- 一般元件：Aqua 玻璃鈕、面板 ---------- */
+.panel{position:relative;background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:22px 24px;margin:0 0 20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 14px 28px rgba(15,76,117,.16)}
+.panel h2{font-size:clamp(21px,3.2vw,31px);color:var(--deep)}
+.panel h2 i{display:block;font-style:normal;font-size:11.5px;letter-spacing:.26em;
+  color:var(--ink-2);font-weight:400;margin-top:4px}
+.panel.deep{background:linear-gradient(180deg,rgba(46,134,193,.94),rgba(15,76,117,.96));color:#EAF6FD;
+  border-color:rgba(255,255,255,.35)}
+.panel.deep h2{color:#FFFFFF}.panel.deep h2 i{color:#BEE3F5}
+.panel.deep a{color:#BFF0B0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.note{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.panel.deep .note{color:#CDE8F6}
+
+/* Aqua 鈕：本體＋一道上弦月高光（遮罩相減做出來的，不是畫一個白橢圓） */
+button,.btn{position:relative;font:inherit;font-weight:700;cursor:pointer;color:#06334F;
+  background:linear-gradient(180deg,#BEEBFF,#6CC6EE 48%,#2E86C1 49%,#1C6FA8);
+  border:1px solid rgba(255,255,255,.85);border-radius:999px;padding:11px 22px;
+  box-shadow:0 2px 0 rgba(255,255,255,.7) inset,0 6px 14px rgba(15,76,117,.26)}
+button::before{content:"";position:absolute;left:6%;right:6%;top:6%;height:46%;border-radius:999px;
+  background:rgba(255,255,255,.72);
+  -webkit-mask-image:radial-gradient(120% 150% at 50% -34%,#000 62%,transparent 63%),
+                      radial-gradient(150% 150% at 50% 190%,#000 62%,transparent 63%);
+          mask-image:radial-gradient(120% 150% at 50% -34%,#000 62%,transparent 63%),
+                      radial-gradient(150% 150% at 50% 190%,#000 62%,transparent 63%);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+button:hover{filter:brightness(1.06)}
+button[disabled]{background:linear-gradient(180deg,#E3EAEE,#C2CED4 49%,#A9B8C0);color:#6C7C86;cursor:not-allowed;box-shadow:none}
+button.on{background:linear-gradient(180deg,#D8FFB8,#8FDD4E 48%,#55B62A 49%,#3E9420);color:#123B06}
+button.no{background:linear-gradient(180deg,#F1F3F5,#D6DEE3 49%,#BCC8CF);color:#7A8A93}
+
+.rule{height:10px;margin:18px 0;border-radius:999px;
+  background:linear-gradient(90deg,var(--sky-1),var(--sky-2) 26%,var(--aqua) 52%,var(--leaf) 78%,var(--sky-1))}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid rgba(15,76,117,.18);padding:10px 8px;text-align:left;vertical-align:top}
+th{color:var(--deep);white-space:nowrap}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.panel.deep th,.panel.deep td{border-color:rgba(255,255,255,.26)}
+.panel.deep th{color:#CFF0FF}
+
+/* 導覽：吸盤導覽 sucker-set —— 現用的那一個與玻璃之間沒有東西 */
+.rail{position:sticky;top:0;z-index:40;backdrop-filter:blur(9px);
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(233,246,253,.72));
+  border-bottom:1px solid rgba(255,255,255,.9);box-shadow:0 8px 20px rgba(15,76,117,.14)}
+.rail ul{list-style:none;margin:0 auto;padding:10px 14px;max-width:1120px;display:flex;gap:12px}
+.rail li{flex:1}
+.rail a{position:relative;display:block;text-align:center;text-decoration:none;font-weight:700;font-size:15px;
+  color:#31596F;padding:13px 6px 12px;border-radius:999px;
+  background:radial-gradient(70% 62% at 50% 26%,rgba(255,255,255,.96),rgba(214,233,243,.86) 62%,rgba(178,209,226,.9));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 4px 10px rgba(15,76,117,.16)}
+.rail a i{display:block;font-style:normal;font-size:10px;letter-spacing:.2em;font-weight:400;color:#5C7F92}
+/* 未選：吸盤與玻璃之間還有一層水膜與氣泡 */
+.rail a::after{content:"";position:absolute;left:18%;right:18%;top:22%;height:44%;border-radius:999px;
+  background:radial-gradient(circle at 26% 34%,rgba(255,255,255,.95),rgba(255,255,255,.08) 52%),
+             radial-gradient(circle at 72% 62%,rgba(255,255,255,.8),rgba(255,255,255,.06) 46%);
+  pointer-events:none}
+/* 現用：吸住了——中間的空氣被擠光，整片貼平、變深、邊緣多一圈被壓出去的水 */
+.rail a[aria-current=page]{color:#08405F;
+  background:radial-gradient(72% 66% at 50% 34%,#9FD8F2,#4FA6D4 66%,#2E86C1);
+  box-shadow:0 0 0 3px rgba(255,255,255,.9) inset,0 1px 3px rgba(15,76,117,.4)}
+.rail a[aria-current=page] i{color:#0A4C70}
+.rail a[aria-current=page]::after{background:none}
+
+footer{margin-top:44px;background:linear-gradient(180deg,rgba(15,76,117,.94),rgba(10,53,80,.97));color:#DCEEF8;padding:26px 0 44px}
+footer .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;font-size:13.5px}
+footer b{color:#BFF0B0}
+footer a{color:#BFF0B0}
+.sec{padding:30px 0 6px}
+
+/* 認養台 */
+.crits{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.crit{position:relative;border-radius:14px;padding:12px 12px 14px;text-align:left;font:inherit;
+  border:1px solid rgba(255,255,255,.9);cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(222,242,252,.86));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 8px 16px rgba(15,76,117,.14)}
+.crit::before{display:none}
+.crit b{display:block;font-size:14.5px;color:var(--deep)}
+.crit span{display:block;font-size:11.5px;color:var(--ink-2);letter-spacing:.04em}
+.crit em{display:block;font-style:normal;font-size:12.5px;margin-top:6px;color:#8A4A22}
+.crit[aria-disabled="true"]{background:linear-gradient(180deg,#F2F5F7,#DFE6EA);cursor:not-allowed;color:#4A5C66}
+.crit[aria-disabled="true"] b{color:#40606F}
+.crit[data-ok="1"]{background:linear-gradient(180deg,#F4FFEA,#CFF3AE);border-color:#9FDC70}
+.crit[aria-pressed="true"]{outline:3px solid #2E86C1;outline-offset:2px}
+.bill dt{color:var(--deep);font-weight:700;float:left;clear:left;width:7.6em}
+.bill dd{margin:0 0 5px 8em}
+
+@media (max-width:560px){
+  body{font-size:15px}
+  .rail a{font-size:12.5px;padding:11px 3px}
+  .rail a i{display:none}
+  .tank .sm{display:none}
+  .lamp{width:130px;top:-30px;height:24px}
+  .bill dt{float:none;width:auto}.bill dd{margin-left:0;margin-bottom:10px}
+}
+
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:sink .32s ease-in both}
+::view-transition-new(root){animation:surface .34s cubic-bezier(.2,.8,.4,1) both}
+@keyframes sink{to{opacity:0;transform:scale(.985) translateY(10px)}}
+@keyframes surface{from{opacity:0;transform:scale(1.012) translateY(-10px)}}
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-old(root),::view-transition-new(root),
+  ::view-transition-old(bag),::view-transition-new(bag){animation:none}
+  *{transition:none !important}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">跳到內容</a>
+<nav class="rail" aria-label="主導覽"><ul><li><a href="index.html" aria-current="page">缸面<i>THE TANK</i></a></li><li><a href="shui.html">水與光<i>WATER & LIGHT</i></a></li><li><a href="yang.html">認養台<i>ADOPTION BENCH</i></a></li><li><a href="dian.html">店與價<i>SHOP & PRICES</i></a></li></ul></nav>
+<main id="main">
+
+<div class="sec wrap" style="padding-top:52px"><div class="tank lit" id="tank">
+<div class="lamp" aria-hidden="true"><b></b></div>
+<svg viewBox="0 0 1200 800" role="img" aria-label="一座六十公分的水草缸正面：上方是燈，水由淺到深，缸內有水草叢、三顆石頭與三尾魚，缸底是淺色細砂。缸上與水中的全部文字另以 HTML 在下方完整列出。">
+<defs>
+  <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#CFEEFB"/><stop offset=".24" stop-color="#8FCDEA"/>
+    <stop offset=".62" stop-color="#3D93C6"/><stop offset="1" stop-color="#14567E"/></linearGradient>
+  <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".45" stop-color="#FFFFFF" stop-opacity=".12"/>
+    <stop offset="1" stop-color="#0A3550" stop-opacity=".26"/></linearGradient>
+  <linearGradient id="sandg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#EFE7D2"/><stop offset="1" stop-color="#BCAE8B"/></linearGradient>
+</defs>
+<rect width="1200" height="800" fill="url(#water)"/><path d="M420 0h360l250 800H170Z" fill="#FFFFFF" fill-opacity=".10"/><path d="M520 0h160l96 800H424Z" fill="#FFFFFF" fill-opacity=".09"/><path d="M0 800V690q150-42 300-30t300 26 300-22 300-40v176Z" fill="url(#sandg)"/><path d="M0 690q150-42 300-30t300 26 300-22 300-40" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width="4"/><path d="M311.7 700L297.2 712.7L260.5 719L215.6 719.1L170.8 709.2L193.3 683.5L214.2 650.4L264.8 632.6L306.8 661.9Z" fill="#6E7A74"/><path d="M311.7 700L297.2 712.7L260.5 719L215.6 719.1L170.8 709.2" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="3"/><path d="M970.2 690L963.9 711.8L897 719.8L837.4 712.8L795.6 699.5L800.4 667.6L841.3 638.1L898.7 608L943.7 648.7Z" fill="#6E7A74"/><path d="M970.2 690L963.9 711.8L897 719.8L837.4 712.8L795.6 699.5" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="3"/><path d="M744.2 716L736.9 725.5L707.5 729.1L673.4 730.2L653.3 721.2L646.9 701.1L679.3 688.4L707.2 684.6L738.5 691.2Z" fill="#6E7A74"/><path d="M744.2 716L736.9 725.5L707.5 729.1L673.4 730.2L653.3 721.2" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="3"/><g transform="translate(160 706)"><g class="lean" style="--cx:13;--cy:88"><g transform="rotate(-24.4)"><path d="M-16.3 0L-14.3 -25.7L-11.8 -51.4L-8.6 -77L-4.7 -102.7L-0.3 -128.4L4.8 -154.1L10.6 -179.8L16.9 -205.5L23.9 -231.1L31.5 -256.8L39.7 -282.5L48.6 -308.2L50.4 -308.2L43.5 -282.5L37.3 -256.8L31.8 -231.1L27.1 -205.5L23.1 -179.8L19.9 -154.1L17.4 -128.4L15.7 -102.7L14.7 -77L14.5 -51.4L15 -25.7L16.3 0Z" fill="#5EA92F"/><path d="M0 0L49.5 -308.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4"/></g><g transform="rotate(-17.5)"><path d="M-16.9 0L-15.3 -24.9L-13.9 -49.9L-12.6 -74.8L-11.6 -99.7L-10.7 -124.7L-10.1 -149.6L-9.6 -174.6L-9.3 -199.5L-9.2 -224.4L-9.3 -249.4L-9.6 -274.3L-10.1 -299.2L-8.1 -299.2L-5.7 -274.3L-3.3 -249.4L-1 -224.4L1.2 -199.5L3.4 -174.6L5.5 -149.6L7.6 -124.7L9.6 -99.7L11.5 -74.8L13.4 -49.9L15.1 -24.9L16.9 0Z" fill="#6FBF3E"/><path d="M0 0L-9.1 -299.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.1"/></g><g transform="rotate(-6.2)"><path d="M-15.4 0L-13.8 -27L-12 -54L-10 -81L-7.8 -107.9L-5.5 -134.9L-2.9 -161.9L-0.2 -188.9L2.6 -215.9L5.7 -242.9L8.9 -269.9L12.3 -296.9L15.9 -323.8L17.7 -323.8L15.9 -296.9L14.4 -269.9L13.2 -242.9L12.3 -215.9L11.7 -188.9L11.3 -161.9L11.3 -134.9L11.5 -107.9L12.1 -81L12.9 -54L14 -27L15.4 0Z" fill="#4C8F26"/><path d="M0 0L16.8 -323.8" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.8"/></g><g transform="rotate(-8.7)"><path d="M-16.7 0L-15.3 -21.5L-14.7 -43.1L-14.8 -64.6L-15.6 -86.2L-17.1 -107.7L-19.3 -129.2L-22.2 -150.8L-25.7 -172.3L-30 -193.8L-35 -215.4L-40.8 -236.9L-47.2 -258.5L-45.3 -258.5L-36.9 -236.9L-29.1 -215.4L-21.9 -193.8L-15.3 -172.3L-9.3 -150.8L-3.9 -129.2L1 -107.7L5.3 -86.2L9 -64.6L12.1 -43.1L14.7 -21.5L16.7 0Z" fill="#5EA92F"/><path d="M0 0L-46.2 -258.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.1"/></g><g transform="rotate(-2.9)"><path d="M-14.7 0L-13.1 -20.4L-11.3 -40.7L-9.2 -61.1L-7 -81.5L-4.5 -101.8L-1.8 -122.2L1.1 -142.6L4.2 -162.9L7.6 -183.3L11.2 -203.7L15 -224L19 -244.4L20.7 -244.4L18.4 -224L16.4 -203.7L14.7 -183.3L13.4 -162.9L12.4 -142.6L11.7 -122.2L11.4 -101.8L11.4 -81.5L11.7 -61.1L12.4 -40.7L13.4 -20.4L14.7 0Z" fill="#6FBF3E"/><path d="M0 0L19.9 -244.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.6"/></g><g transform="rotate(2.3)"><path d="M-17.7 0L-16.1 -19.3L-14.9 -38.6L-14 -57.8L-13.6 -77.1L-13.5 -96.4L-13.8 -115.7L-14.5 -135L-15.5 -154.2L-16.9 -173.5L-18.7 -192.8L-20.9 -212.1L-23.5 -231.4L-21.5 -231.4L-16.8 -212.1L-12.5 -192.8L-8.3 -173.5L-4.5 -154.2L-0.8 -135L2.6 -115.7L5.7 -96.4L8.6 -77.1L11.2 -57.8L13.6 -38.6L15.8 -19.3L17.7 0Z" fill="#4C8F26"/><path d="M0 0L-22.5 -231.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.3"/></g><g transform="rotate(10.4)"><path d="M-16.9 0L-14.9 -23.4L-12.4 -46.9L-9.3 -70.3L-5.7 -93.7L-1.5 -117.1L3.3 -140.6L8.5 -164L14.4 -187.4L20.8 -210.8L27.7 -234.3L35.2 -257.7L43.3 -281.1L45.2 -281.1L39.1 -257.7L33.7 -234.3L29 -210.8L24.9 -187.4L21.5 -164L18.8 -140.6L16.8 -117.1L15.5 -93.7L14.8 -70.3L14.8 -46.9L15.5 -23.4L16.9 0Z" fill="#5EA92F"/><path d="M0 0L44.2 -281.1" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.1"/></g><g transform="rotate(17)"><path d="M-10 0L-8.8 -18.6L-7.1 -37.2L-5 -55.8L-2.4 -74.5L0.6 -93.1L4.1 -111.7L8 -130.3L12.3 -148.9L17.1 -167.5L22.3 -186.2L28 -204.8L34.1 -223.4L35.2 -223.4L30.3 -204.8L25.9 -186.2L21.9 -167.5L18.5 -148.9L15.6 -130.3L13.3 -111.7L11.4 -93.1L10.1 -74.5L9.3 -55.8L9 -37.2L9.2 -18.6L10 0Z" fill="#6FBF3E"/><path d="M0 0L34.7 -223.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.4"/></g><g transform="rotate(24.6)"><path d="M-15.2 0L-13.5 -21L-11.3 -41.9L-8.7 -62.9L-5.6 -83.9L-2.1 -104.9L1.9 -125.8L6.3 -146.8L11.1 -167.8L16.3 -188.7L22.1 -209.7L28.2 -230.7L34.8 -251.7L36.5 -251.7L31.7 -230.7L27.4 -209.7L23.7 -188.7L20.6 -167.8L18 -146.8L15.9 -125.8L14.5 -104.9L13.5 -83.9L13.1 -62.9L13.3 -41.9L14 -21L15.2 0Z" fill="#4C8F26"/><path d="M0 0L35.6 -251.7" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.7"/></g></g></g><g transform="translate(372 690)"><g class="lean" style="--cx:31;--cy:86"><g transform="rotate(-22.9)"><path d="M-10.6 0L-10 -27.8L-10.4 -55.6L-11.9 -83.4L-14.3 -111.2L-17.8 -139L-22.3 -166.8L-27.7 -194.6L-34.2 -222.4L-41.7 -250.2L-50.1 -278L-59.6 -305.8L-70.1 -333.6L-68.9 -333.6L-57.2 -305.8L-46.4 -278L-36.5 -250.2L-27.6 -222.4L-19.6 -194.6L-12.5 -166.8L-6.3 -139L-1.1 -111.2L3.2 -83.4L6.6 -55.6L9 -27.8L10.6 0Z" fill="#6FBF3E"/><path d="M0 0L-69.5 -333.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.6"/></g><g transform="rotate(-17.6)"><path d="M-14.5 0L-13.2 -23.5L-12.4 -47L-11.9 -70.5L-11.7 -94L-12 -117.5L-12.6 -140.9L-13.7 -164.4L-15.1 -187.9L-16.8 -211.4L-19 -234.9L-21.6 -258.4L-24.5 -281.9L-22.9 -281.9L-18.2 -258.4L-13.9 -234.9L-9.8 -211.4L-6 -187.9L-2.5 -164.4L0.8 -140.9L3.8 -117.5L6.5 -94L8.9 -70.5L11 -47L12.9 -23.5L14.5 0Z" fill="#8CD255"/><path d="M0 0L-23.7 -281.9" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.6"/></g><g transform="rotate(-12.9)"><path d="M-13.5 0L-12.5 -30.4L-12.2 -60.8L-12.6 -91.2L-13.7 -121.5L-15.5 -151.9L-18 -182.3L-21.1 -212.7L-25 -243.1L-29.6 -273.5L-34.9 -303.8L-40.8 -334.2L-47.5 -364.6L-46 -364.6L-37.7 -334.2L-30.1 -303.8L-23 -273.5L-16.5 -243.1L-10.7 -212.7L-5.4 -182.3L-0.8 -151.9L3.3 -121.5L6.8 -91.2L9.6 -60.8L11.9 -30.4L13.5 0Z" fill="#3F8A2A"/><path d="M0 0L-46.7 -364.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.3"/></g><g transform="rotate(-12.2)"><path d="M-14.4 0L-13.1 -26.5L-12.2 -53L-11.5 -79.6L-11.2 -106.1L-11.1 -132.6L-11.4 -159.1L-12 -185.7L-13 -212.2L-14.2 -238.7L-15.8 -265.2L-17.7 -291.8L-19.9 -318.3L-18.2 -318.3L-14.3 -291.8L-10.7 -265.2L-7.2 -238.7L-4 -212.2L-0.9 -185.7L1.9 -159.1L4.5 -132.6L6.9 -106.1L9.1 -79.6L11.1 -53L12.9 -26.5L14.4 0Z" fill="#6FBF3E"/><path d="M0 0L-19 -318.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.5"/></g><g transform="rotate(-3.9)"><path d="M-11.4 0L-10.3 -25.7L-9.3 -51.4L-8.5 -77.2L-7.8 -102.9L-7.2 -128.6L-6.8 -154.3L-6.5 -180L-6.3 -205.8L-6.2 -231.5L-6.3 -257.2L-6.5 -282.9L-6.8 -308.6L-5.5 -308.6L-3.9 -282.9L-2.3 -257.2L-0.7 -231.5L0.8 -205.8L2.3 -180L3.7 -154.3L5.1 -128.6L6.4 -102.9L7.7 -77.2L9 -51.4L10.2 -25.7L11.4 0Z" fill="#8CD255"/><path d="M0 0L-6.2 -308.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.8"/></g><g transform="rotate(2.6)"><path d="M-13.6 0L-12.4 -22L-11.5 -44L-11 -65.9L-10.9 -87.9L-11 -109.9L-11.6 -131.9L-12.4 -153.8L-13.6 -175.8L-15.2 -197.8L-17.1 -219.8L-19.3 -241.8L-21.9 -263.7L-20.4 -263.7L-16.2 -241.8L-12.3 -219.8L-8.6 -197.8L-5.2 -175.8L-2 -153.8L1 -131.9L3.7 -109.9L6.2 -87.9L8.4 -65.9L10.4 -44L12.1 -22L13.6 0Z" fill="#3F8A2A"/><path d="M0 0L-21.1 -263.7" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.3"/></g><g transform="rotate(2.4)"><path d="M-11.4 0L-10.3 -31.6L-9.4 -63.2L-8.6 -94.8L-8 -126.4L-7.5 -158L-7.1 -189.6L-6.9 -221.3L-6.8 -252.9L-6.9 -284.5L-7.1 -316.1L-7.5 -347.7L-8 -379.3L-6.7 -379.3L-4.9 -347.7L-3.1 -316.1L-1.4 -284.5L0.3 -252.9L1.9 -221.3L3.4 -189.6L4.9 -158L6.3 -126.4L7.7 -94.8L9 -63.2L10.2 -31.6L11.4 0Z" fill="#6FBF3E"/><path d="M0 0L-7.4 -379.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.8"/></g><g transform="rotate(12.2)"><path d="M-10.9 0L-9.8 -36.7L-8.7 -73.4L-7.7 -110.2L-6.7 -146.9L-5.7 -183.6L-4.8 -220.3L-3.8 -257.1L-2.9 -293.8L-2.1 -330.5L-1.2 -367.2L-0.4 -403.9L0.4 -440.7L1.6 -440.7L2.1 -403.9L2.6 -367.2L3.2 -330.5L3.9 -293.8L4.5 -257.1L5.3 -220.3L6.1 -183.6L6.9 -146.9L7.8 -110.2L8.8 -73.4L9.8 -36.7L10.9 0Z" fill="#8CD255"/><path d="M0 0L1 -440.7" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.7"/></g><g transform="rotate(12.1)"><path d="M-8.9 0L-8 -31.4L-7.3 -62.7L-6.8 -94.1L-6.3 -125.5L-5.9 -156.9L-5.7 -188.2L-5.6 -219.6L-5.7 -251L-5.8 -282.4L-6.1 -313.7L-6.5 -345.1L-7 -376.5L-6 -376.5L-4.4 -345.1L-2.9 -313.7L-1.5 -282.4L-0.1 -251L1.2 -219.6L2.5 -188.2L3.7 -156.9L4.8 -125.5L5.9 -94.1L7 -62.7L8 -31.4L8.9 0Z" fill="#3F8A2A"/><path d="M0 0L-6.5 -376.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.2"/></g><g transform="rotate(13.9)"><path d="M-10.3 0L-9.4 -21.5L-9 -42.9L-8.9 -64.4L-9.2 -85.8L-9.9 -107.3L-10.9 -128.7L-12.4 -150.2L-14.2 -171.6L-16.4 -193.1L-19 -214.5L-22 -236L-25.3 -257.4L-24.2 -257.4L-19.6 -236L-15.4 -214.5L-11.4 -193.1L-7.8 -171.6L-4.5 -150.2L-1.4 -128.7L1.3 -107.3L3.7 -85.8L5.8 -64.4L7.6 -42.9L9.1 -21.5L10.3 0Z" fill="#6FBF3E"/><path d="M0 0L-24.8 -257.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.5"/></g><g transform="rotate(18.7)"><path d="M-8.2 0L-7.4 -30.4L-6.6 -60.7L-5.7 -91.1L-4.9 -121.5L-4 -151.8L-3.2 -182.2L-2.3 -212.5L-1.4 -242.9L-0.6 -273.3L0.3 -303.6L1.2 -334L2.1 -364.4L3 -364.4L3.1 -334L3.2 -303.6L3.4 -273.3L3.7 -242.9L4 -212.5L4.4 -182.2L4.9 -151.8L5.4 -121.5L6 -91.1L6.7 -60.7L7.4 -30.4L8.2 0Z" fill="#8CD255"/><path d="M0 0L2.5 -364.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2"/></g></g></g><g transform="translate(640 724)"><g class="lean" style="--cx:53;--cy:90"><g transform="rotate(-22.7)"><path d="M-14.6 0L-13.1 -9.9L-11.6 -19.7L-10.1 -29.6L-8.6 -39.5L-7 -49.4L-5.4 -59.2L-3.8 -69.1L-2.2 -79L-0.6 -88.9L1 -98.7L2.7 -108.6L4.4 -118.5L6 -118.5L6 -108.6L6.2 -98.7L6.5 -88.9L6.9 -79L7.4 -69.1L8 -59.2L8.8 -49.4L9.7 -39.5L10.7 -29.6L11.9 -19.7L13.2 -9.9L14.6 0Z" fill="#2F7D2A"/><path d="M0 0L5.2 -118.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.6"/></g><g transform="rotate(-15.6)"><path d="M-11.4 0L-10.1 -16.2L-8.4 -32.4L-6.3 -48.6L-3.8 -64.8L-0.9 -81L2.3 -97.2L5.9 -113.4L10 -129.6L14.3 -145.8L19.1 -162L24.3 -178.2L29.8 -194.4L31.1 -194.4L26.9 -178.2L23.2 -162L19.9 -145.8L17.1 -129.6L14.8 -113.4L12.9 -97.2L11.5 -81L10.5 -64.8L10.1 -48.6L10.1 -32.4L10.5 -16.2L11.4 0Z" fill="#4C8F26"/><path d="M0 0L30.4 -194.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.8"/></g><g transform="rotate(-4.6)"><path d="M-11.8 0L-10.8 -10.1L-10.1 -20.2L-9.8 -30.3L-9.8 -40.4L-10.1 -50.5L-10.8 -60.6L-11.9 -70.7L-13.3 -80.8L-15 -90.9L-17.1 -101L-19.5 -111.1L-22.2 -121.2L-20.9 -121.2L-16.8 -111.1L-12.9 -101L-9.3 -90.9L-5.9 -80.8L-2.8 -70.7L0 -60.6L2.6 -50.5L5 -40.4L7.1 -30.3L8.9 -20.2L10.5 -10.1L11.8 0Z" fill="#2F7D2A"/><path d="M0 0L-21.6 -121.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.9"/></g><g transform="rotate(1.3)"><path d="M-19.7 0L-17.8 -11.1L-16.3 -22.2L-14.9 -33.3L-13.8 -44.5L-13 -55.6L-12.5 -66.7L-12.2 -77.8L-12.1 -88.9L-12.3 -100L-12.8 -111.1L-13.5 -122.3L-14.5 -133.4L-12.3 -133.4L-9 -122.3L-5.8 -111.1L-2.7 -100L0.2 -88.9L3 -77.8L5.8 -66.7L8.4 -55.6L10.9 -44.5L13.2 -33.3L15.5 -22.2L17.7 -11.1L19.7 0Z" fill="#4C8F26"/><path d="M0 0L-13.4 -133.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.8"/></g><g transform="rotate(3.6)"><path d="M-14.7 0L-13.3 -15.5L-11.9 -31L-10.7 -46.5L-9.6 -62L-8.6 -77.5L-7.7 -93L-6.9 -108.5L-6.2 -124L-5.6 -139.5L-5.1 -155L-4.7 -170.5L-4.4 -186L-2.7 -186L-1.3 -170.5L0.1 -155L1.6 -139.5L3 -124L4.4 -108.5L5.9 -93L7.3 -77.5L8.8 -62L10.3 -46.5L11.7 -31L13.2 -15.5L14.7 0Z" fill="#2F7D2A"/><path d="M0 0L-3.6 -186" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.6"/></g><g transform="rotate(18.3)"><path d="M-12.5 0L-11.4 -14.7L-10.7 -29.4L-10.4 -44.1L-10.4 -58.8L-10.9 -73.5L-11.6 -88.2L-12.8 -102.9L-14.3 -117.6L-16.2 -132.3L-18.5 -147L-21.1 -161.7L-24.1 -176.5L-22.7 -176.5L-18.2 -161.7L-14 -147L-10.1 -132.3L-6.5 -117.6L-3.1 -102.9L-0.1 -88.2L2.7 -73.5L5.2 -58.8L7.5 -44.1L9.4 -29.4L11.1 -14.7L12.5 0Z" fill="#4C8F26"/><path d="M0 0L-23.4 -176.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.1"/></g><g transform="rotate(21.2)"><path d="M-19.1 0L-17.3 -12.4L-15.8 -24.8L-14.5 -37.2L-13.4 -49.7L-12.7 -62.1L-12.1 -74.5L-11.9 -86.9L-11.8 -99.3L-12.1 -111.7L-12.5 -124.2L-13.3 -136.6L-14.3 -149L-12.1 -149L-8.9 -136.6L-5.8 -124.2L-2.8 -111.7L0.1 -99.3L2.9 -86.9L5.5 -74.5L8.1 -62.1L10.5 -49.7L12.8 -37.2L15 -24.8L17.1 -12.4L19.1 0Z" fill="#2F7D2A"/><path d="M0 0L-13.2 -149" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.7"/></g></g></g><g transform="translate(1010 700)"><g class="lean" style="--cx:84;--cy:87"><g transform="rotate(-19.6)"><path d="M-11.9 0L-10.8 -24.7L-9.6 -49.4L-8.5 -74.1L-7.5 -98.8L-6.5 -123.5L-5.5 -148.2L-4.6 -173L-3.7 -197.7L-2.9 -222.4L-2.1 -247.1L-1.4 -271.8L-0.7 -296.5L0.6 -296.5L1.3 -271.8L2.1 -247.1L2.9 -222.4L3.7 -197.7L4.6 -173L5.5 -148.2L6.5 -123.5L7.5 -98.8L8.5 -74.1L9.6 -49.4L10.8 -24.7L11.9 0Z" fill="#6FBF3E"/><path d="M0 0L0 -296.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.9"/></g><g transform="rotate(-16)"><path d="M-14.5 0L-12.8 -18.4L-10.5 -36.7L-7.7 -55.1L-4.3 -73.4L-0.4 -91.8L4.1 -110.1L9.1 -128.5L14.6 -146.9L20.8 -165.2L27.4 -183.6L34.6 -201.9L42.4 -220.3L44 -220.3L38 -201.9L32.6 -183.6L27.8 -165.2L23.7 -146.9L20.3 -128.5L17.5 -110.1L15.4 -91.8L13.9 -73.4L13.1 -55.1L12.9 -36.7L13.4 -18.4L14.5 0Z" fill="#57A72E"/><path d="M0 0L43.2 -220.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.6"/></g><g transform="rotate(-11.5)"><path d="M-10.6 0L-9.2 -24.2L-7.2 -48.5L-4.6 -72.7L-1.4 -97L2.5 -121.2L7 -145.5L12.1 -169.7L17.8 -194L24.1 -218.2L31.1 -242.5L38.7 -266.7L46.9 -291L48.1 -291L41.1 -266.7L34.8 -242.5L29.3 -218.2L24.4 -194L20.2 -169.7L16.8 -145.5L14 -121.2L11.9 -97L10.5 -72.7L9.8 -48.5L9.9 -24.2L10.6 0Z" fill="#8CD255"/><path d="M0 0L47.5 -291" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.6"/></g><g transform="rotate(-8.2)"><path d="M-9.4 0L-8.3 -26L-6.9 -52L-5.2 -78L-3.3 -104L-1.1 -130L1.5 -156L4.3 -182L7.4 -208L10.8 -234L14.4 -260L18.4 -285.9L22.6 -311.9L23.7 -311.9L20.6 -285.9L17.8 -260L15.3 -234L13.2 -208L11.5 -182L10.1 -156L9.1 -130L8.4 -104L8.1 -78L8.2 -52L8.6 -26L9.4 0Z" fill="#6FBF3E"/><path d="M0 0L23.2 -311.9" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.3"/></g><g transform="rotate(1.6)"><path d="M-13.5 0L-12.4 -24.3L-11.7 -48.6L-11.5 -72.9L-11.7 -97.1L-12.4 -121.4L-13.5 -145.7L-15.1 -170L-17.1 -194.3L-19.6 -218.6L-22.6 -242.9L-26 -267.1L-29.8 -291.4L-28.3 -291.4L-22.9 -267.1L-17.8 -242.9L-13.1 -218.6L-8.7 -194.3L-4.7 -170L-1 -145.7L2.3 -121.4L5.2 -97.1L7.8 -72.9L10.1 -48.6L12 -24.3L13.5 0Z" fill="#57A72E"/><path d="M0 0L-29.1 -291.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.3"/></g><g transform="rotate(5.6)"><path d="M-9.7 0L-9 -24.4L-8.8 -48.8L-9.3 -73.3L-10.3 -97.7L-11.8 -122.1L-13.9 -146.5L-16.6 -171L-19.8 -195.4L-23.6 -219.8L-27.9 -244.2L-32.8 -268.6L-38.3 -293.1L-37.2 -293.1L-30.6 -268.6L-24.5 -244.2L-18.9 -219.8L-13.8 -195.4L-9.1 -171L-5 -146.5L-1.3 -122.1L1.9 -97.7L4.6 -73.3L6.8 -48.8L8.5 -24.4L9.7 0Z" fill="#8CD255"/><path d="M0 0L-37.7 -293.1" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.4"/></g><g transform="rotate(2.9)"><path d="M-13.4 0L-12.2 -26.9L-11.2 -53.8L-10.4 -80.7L-9.9 -107.6L-9.6 -134.5L-9.5 -161.4L-9.7 -188.3L-10.1 -215.2L-10.7 -242.1L-11.6 -269L-12.7 -295.8L-14 -322.7L-12.5 -322.7L-9.6 -295.8L-6.8 -269L-4.2 -242.1L-1.7 -215.2L0.7 -188.3L2.9 -161.4L5 -134.5L6.9 -107.6L8.8 -80.7L10.5 -53.8L12 -26.9L13.4 0Z" fill="#6FBF3E"/><path d="M0 0L-13.3 -322.7" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.3"/></g><g transform="rotate(14.1)"><path d="M-9.9 0L-9.5 -30.9L-10.2 -61.7L-12 -92.6L-14.9 -123.4L-18.9 -154.3L-24 -185.1L-30.2 -216L-37.6 -246.8L-46.1 -277.7L-55.7 -308.5L-66.4 -339.4L-78.2 -370.2L-77.1 -370.2L-64.1 -339.4L-52.2 -308.5L-41.3 -277.7L-31.4 -246.8L-22.6 -216L-14.8 -185.1L-8.1 -154.3L-2.4 -123.4L2.2 -92.6L5.9 -61.7L8.4 -30.9L9.9 0Z" fill="#57A72E"/><path d="M0 0L-77.6 -370.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.4"/></g><g transform="rotate(19.9)"><path d="M-12.1 0L-11.1 -26.2L-10.4 -52.4L-10.2 -78.6L-10.3 -104.8L-10.8 -131L-11.7 -157.2L-13 -183.4L-14.6 -209.6L-16.7 -235.8L-19.1 -262.1L-21.9 -288.3L-25.1 -314.5L-23.7 -314.5L-19.1 -288.3L-14.8 -262.1L-10.8 -235.8L-7.1 -209.6L-3.6 -183.4L-0.5 -157.2L2.3 -131L4.9 -104.8L7.1 -78.6L9.1 -52.4L10.7 -26.2L12.1 0Z" fill="#8CD255"/><path d="M0 0L-24.4 -314.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3"/></g><g transform="rotate(25.4)"><path d="M-11.5 0L-10.2 -29.3L-8.6 -58.6L-6.7 -87.9L-4.5 -117.2L-1.9 -146.5L0.9 -175.8L4 -205.1L7.4 -234.4L11.1 -263.8L15.1 -293.1L19.4 -322.4L24 -351.7L25.3 -351.7L22 -322.4L19.1 -293.1L16.6 -263.8L14.5 -234.4L12.8 -205.1L11.5 -175.8L10.5 -146.5L9.9 -117.2L9.7 -87.9L9.9 -58.6L10.5 -29.3L11.5 0Z" fill="#6FBF3E"/><path d="M0 0L24.6 -351.7" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.8"/></g></g></g><g transform="translate(820 712)"><g class="lean" style="--cx:68;--cy:89"><g transform="rotate(-21.3)"><path d="M-21 0L-18.9 -7.8L-16.7 -15.5L-14.6 -23.3L-12.4 -31L-10.2 -38.8L-8 -46.6L-5.8 -54.3L-3.6 -62.1L-1.3 -69.8L0.9 -77.6L3.2 -85.4L5.5 -93.1L7.9 -93.1L8 -85.4L8.4 -77.6L8.9 -69.8L9.5 -62.1L10.4 -54.3L11.4 -46.6L12.5 -38.8L13.9 -31L15.4 -23.3L17.1 -15.5L19 -7.8L21 0Z" fill="#1F6B4A"/><path d="M0 0L6.7 -93.1" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="5.1"/></g><g transform="rotate(-13.3)"><path d="M-21.8 0L-19.5 -11.2L-16.8 -22.4L-13.8 -33.6L-10.5 -44.7L-6.8 -55.9L-2.9 -67.1L1.4 -78.3L6 -89.5L10.9 -100.7L16.2 -111.9L21.7 -123L27.6 -134.2L30.1 -134.2L26.8 -123L23.9 -111.9L21.5 -100.7L19.6 -89.5L18.2 -78.3L17.3 -67.1L16.8 -55.9L16.9 -44.7L17.4 -33.6L18.4 -22.4L19.9 -11.2L21.8 0Z" fill="#2F7D2A"/><path d="M0 0L28.9 -134.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="5.4"/></g><g transform="rotate(-5.2)"><path d="M-22.4 0L-20.1 -12.8L-17.7 -25.6L-15.3 -38.5L-12.7 -51.3L-10.1 -64.1L-7.5 -76.9L-4.7 -89.7L-1.9 -102.5L1 -115.4L4 -128.2L7.1 -141L10.2 -153.8L12.8 -153.8L12.2 -141L12 -128.2L11.9 -115.4L12.1 -102.5L12.5 -89.7L13.2 -76.9L14.1 -64.1L15.3 -51.3L16.7 -38.5L18.4 -25.6L20.2 -12.8L22.4 0Z" fill="#1F6B4A"/><path d="M0 0L11.5 -153.8" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="5.5"/></g><g transform="rotate(5.8)"><path d="M-14.7 0L-13.3 -11.6L-12 -23.2L-10.9 -34.9L-9.9 -46.5L-9.1 -58.1L-8.5 -69.7L-7.9 -81.3L-7.6 -92.9L-7.3 -104.6L-7.3 -116.2L-7.3 -127.8L-7.5 -139.4L-5.9 -139.4L-4 -127.8L-2.1 -116.2L-0.2 -104.6L1.6 -92.9L3.4 -81.3L5.1 -69.7L6.8 -58.1L8.4 -46.5L10.1 -34.9L11.6 -23.2L13.2 -11.6L14.7 0Z" fill="#2F7D2A"/><path d="M0 0L-6.7 -139.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.6"/></g><g transform="rotate(13.1)"><path d="M-12.7 0L-11.4 -9.9L-10.3 -19.7L-9.3 -29.6L-8.4 -39.5L-7.6 -49.4L-6.9 -59.2L-6.3 -69.1L-5.8 -79L-5.4 -88.9L-5.1 -98.7L-4.9 -108.6L-4.8 -118.5L-3.4 -118.5L-2 -108.6L-0.6 -98.7L0.8 -88.9L2.1 -79L3.5 -69.1L4.8 -59.2L6.2 -49.4L7.5 -39.5L8.8 -29.6L10.1 -19.7L11.4 -9.9L12.7 0Z" fill="#1F6B4A"/><path d="M0 0L-4.1 -118.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.1"/></g><g transform="rotate(24.3)"><path d="M-18.6 0L-16.9 -11.6L-15.5 -23.3L-14.4 -34.9L-13.7 -46.5L-13.2 -58.1L-13.1 -69.8L-13.4 -81.4L-13.9 -93L-14.8 -104.6L-15.9 -116.3L-17.4 -127.9L-19.3 -139.5L-17.2 -139.5L-13.2 -127.9L-9.4 -116.3L-5.7 -104.6L-2.3 -93L1 -81.4L4 -69.8L6.9 -58.1L9.6 -46.5L12.1 -34.9L14.5 -23.3L16.6 -11.6L18.6 0Z" fill="#2F7D2A"/><path d="M0 0L-18.2 -139.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="4.6"/></g></g></g><g transform="translate(884 636)"><g class="lean" style="--cx:74;--cy:79"><g transform="rotate(-17.4)"><path d="M-6.2 0L-5.7 -5.8L-5.3 -11.6L-5.1 -17.5L-5.1 -23.3L-5.2 -29.1L-5.5 -34.9L-6 -40.7L-6.6 -46.5L-7.4 -52.4L-8.4 -58.2L-9.6 -64L-10.9 -69.8L-10.2 -69.8L-8.1 -64L-6.2 -58.2L-4.4 -52.4L-2.7 -46.5L-1.2 -40.7L0.2 -34.9L1.5 -29.1L2.7 -23.3L3.8 -17.5L4.7 -11.6L5.5 -5.8L6.2 0Z" fill="#1F6B4A"/><path d="M0 0L-10.5 -69.8" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.5"/></g><g transform="rotate(-15.1)"><path d="M-9.2 0L-8.2 -5.2L-7.2 -10.4L-6.1 -15.6L-4.9 -20.8L-3.7 -26L-2.4 -31.3L-1 -36.5L0.4 -41.7L1.9 -46.9L3.5 -52.1L5.2 -57.3L6.9 -62.5L7.9 -62.5L7.3 -57.3L6.8 -52.1L6.4 -46.9L6.2 -41.7L6.1 -36.5L6.1 -31.3L6.3 -26L6.6 -20.8L7 -15.6L7.6 -10.4L8.3 -5.2L9.2 0Z" fill="#2F7D2A"/><path d="M0 0L7.4 -62.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.3"/></g><g transform="rotate(-6.7)"><path d="M-7.3 0L-6.5 -6.9L-5.5 -13.8L-4.4 -20.7L-3.1 -27.5L-1.6 -34.4L0 -41.3L1.7 -48.2L3.6 -55.1L5.7 -62L7.9 -68.9L10.3 -75.8L12.8 -82.6L13.7 -82.6L12 -75.8L10.5 -68.9L9.2 -62L8.2 -55.1L7.3 -48.2L6.7 -41.3L6.2 -34.4L6 -27.5L6 -20.7L6.2 -13.8L6.6 -6.9L7.3 0Z" fill="#1F6B4A"/><path d="M0 0L13.3 -82.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.8"/></g><g transform="rotate(-6.2)"><path d="M-8.5 0L-7.8 -7.3L-7.2 -14.6L-6.7 -21.8L-6.5 -29.1L-6.4 -36.4L-6.5 -43.7L-6.8 -50.9L-7.2 -58.2L-7.8 -65.5L-8.6 -72.8L-9.6 -80L-10.7 -87.3L-9.7 -87.3L-7.6 -80L-5.6 -72.8L-3.7 -65.5L-1.9 -58.2L-0.2 -50.9L1.4 -43.7L2.9 -36.4L4.2 -29.1L5.5 -21.8L6.6 -14.6L7.6 -7.3L8.5 0Z" fill="#2F7D2A"/><path d="M0 0L-10.2 -87.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.1"/></g><g transform="rotate(0.2)"><path d="M-8.2 0L-7.3 -8L-6.4 -15.9L-5.3 -23.9L-4.2 -31.8L-3 -39.8L-1.7 -47.7L-0.3 -55.7L1.2 -63.6L2.8 -71.6L4.4 -79.5L6.2 -87.5L8 -95.4L8.9 -95.4L8 -87.5L7.3 -79.5L6.7 -71.6L6.3 -63.6L6 -55.7L5.9 -47.7L5.9 -39.8L6.1 -31.8L6.4 -23.9L6.8 -15.9L7.4 -8L8.2 0Z" fill="#1F6B4A"/><path d="M0 0L8.5 -95.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2"/></g><g transform="rotate(9.2)"><path d="M-6 0L-5.5 -6.6L-5.2 -13.3L-5 -19.9L-5 -26.5L-5.2 -33.1L-5.6 -39.8L-6.1 -46.4L-6.9 -53L-7.8 -59.7L-8.8 -66.3L-10.1 -72.9L-11.5 -79.5L-10.8 -79.5L-8.7 -72.9L-6.7 -66.3L-4.8 -59.7L-3.1 -53L-1.5 -46.4L0 -39.8L1.3 -33.1L2.5 -26.5L3.6 -19.9L4.5 -13.3L5.4 -6.6L6 0Z" fill="#2F7D2A"/><path d="M0 0L-11.2 -79.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.5"/></g><g transform="rotate(16)"><path d="M-7.5 0L-6.7 -8L-5.7 -15.9L-4.5 -23.9L-3.2 -31.8L-1.7 -39.8L0 -47.7L1.8 -55.7L3.8 -63.6L5.9 -71.6L8.2 -79.5L10.7 -87.5L13.3 -95.4L14.2 -95.4L12.4 -87.5L10.9 -79.5L9.6 -71.6L8.5 -63.6L7.6 -55.7L6.9 -47.7L6.5 -39.8L6.3 -31.8L6.3 -23.9L6.5 -15.9L6.9 -8L7.5 0Z" fill="#1F6B4A"/><path d="M0 0L13.8 -95.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.9"/></g><g transform="rotate(18)"><path d="M-5.8 0L-5.2 -6L-4.4 -12L-3.6 -18.1L-2.6 -24.1L-1.6 -30.1L-0.4 -36.1L0.9 -42.2L2.3 -48.2L3.7 -54.2L5.3 -60.2L7 -66.3L8.8 -72.3L9.5 -72.3L8.4 -66.3L7.4 -60.2L6.6 -54.2L5.9 -48.2L5.4 -42.2L5 -36.1L4.8 -30.1L4.7 -24.1L4.7 -18.1L4.9 -12L5.3 -6L5.8 0Z" fill="#2F7D2A"/><path d="M0 0L9.2 -72.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/></g></g></g><g transform="translate(470 330) scale(1.25 1.25)">
+    <path d="M0 0c16-13 46-13 62 0-16 13-46 13-62 0Z" fill="#F3A03A"/>
+    <path d="M0 0c-13-9-20-11-22-1 2 10 9 9 22 1Z" fill="#F3A03A" fill-opacity=".8"/>
+    <path d="M8 -5c14-6 32-6 44 0-12 5-30 5-44 0Z" fill="rgba(255,255,255,.44)"/>
+    <circle cx="50" cy="-1.4" r="2.6" fill="#0D2231"/></g><g transform="translate(760 258) scale(-0.95 0.95)">
+    <path d="M0 0c16-13 46-13 62 0-16 13-46 13-62 0Z" fill="#E4643A"/>
+    <path d="M0 0c-13-9-20-11-22-1 2 10 9 9 22 1Z" fill="#E4643A" fill-opacity=".8"/>
+    <path d="M8 -5c14-6 32-6 44 0-12 5-30 5-44 0Z" fill="rgba(255,255,255,.44)"/>
+    <circle cx="50" cy="-1.4" r="2.6" fill="#0D2231"/></g><g transform="translate(596 470) scale(0.8 0.8)">
+    <path d="M0 0c16-13 46-13 62 0-16 13-46 13-62 0Z" fill="#F3C64A"/>
+    <path d="M0 0c-13-9-20-11-22-1 2 10 9 9 22 1Z" fill="#F3C64A" fill-opacity=".8"/>
+    <path d="M8 -5c14-6 32-6 44 0-12 5-30 5-44 0Z" fill="rgba(255,255,255,.44)"/>
+    <circle cx="50" cy="-1.4" r="2.6" fill="#0D2231"/></g><rect x="0" y="0" width="1200" height="800" fill="url(#haze)"/><path d="M0 54h1200" stroke="#FFFFFF" stroke-opacity=".78" stroke-width="7"/><path d="M0 62h1200" stroke="#FFFFFF" stroke-opacity=".30" stroke-width="3"/><path d="M0 44h1200" stroke="#E8F6D8" stroke-opacity=".40" stroke-width="5" stroke-dasharray="46 13 9 21 68 15"/></svg>
+<div class="bubs" aria-hidden="true"><div class="bub" style="left:71.6%;width:5.2px;height:5.2px;animation-duration:7.4s;animation-delay:-2.8s"></div><div class="bub" style="left:88.4%;width:14.5px;height:14.5px;animation-duration:6.8s;animation-delay:-5.6s"></div><div class="bub" style="left:75.4%;width:8.4px;height:8.4px;animation-duration:5.5s;animation-delay:-4.7s"></div><div class="bub" style="left:86.7%;width:11.3px;height:11.3px;animation-duration:6.5s;animation-delay:0s"></div><div class="bub" style="left:84.3%;width:14.3px;height:14.3px;animation-duration:9.2s;animation-delay:-3.3s"></div><div class="bub" style="left:73.1%;width:7.2px;height:7.2px;animation-duration:5.7s;animation-delay:-0.8s"></div><div class="bub" style="left:89.9%;width:13.7px;height:13.7px;animation-duration:9.3s;animation-delay:-8.5s"></div><div class="bub" style="left:74.9%;width:13.7px;height:13.7px;animation-duration:7s;animation-delay:-4.8s"></div><div class="bub" style="left:78.9%;width:14.2px;height:14.2px;animation-duration:5.3s;animation-delay:-4.5s"></div><div class="bub" style="left:86.5%;width:14.3px;height:14.3px;animation-duration:8.7s;animation-delay:-8.6s"></div><div class="bub" style="left:86.1%;width:5.2px;height:5.2px;animation-duration:8.8s;animation-delay:-5.5s"></div><div class="bub" style="left:75.4%;width:14.3px;height:14.3px;animation-duration:7.8s;animation-delay:-3.2s"></div><div class="bub" style="left:77.4%;width:11.5px;height:11.5px;animation-duration:7s;animation-delay:-1.9s"></div><div class="bub" style="left:76%;width:13.7px;height:13.7px;animation-duration:8.2s;animation-delay:-8s"></div><div class="bub" style="left:89.7%;width:16.9px;height:16.9px;animation-duration:7.8s;animation-delay:-0.2s"></div><div class="bub" style="left:90.6%;width:13.2px;height:13.2px;animation-duration:7.5s;animation-delay:-2.1s"></div><div class="bub" style="left:73%;width:7.5px;height:7.5px;animation-duration:4.8s;animation-delay:-2.2s"></div><div class="bub" style="left:80%;width:16px;height:16px;animation-duration:6.6s;animation-delay:-2.2s"></div><div class="bub" style="left:75.3%;width:15.3px;height:15.3px;animation-duration:5.1s;animation-delay:-3.4s"></div><div class="bub" style="left:75.3%;width:13px;height:13px;animation-duration:8s;animation-delay:-7.7s"></div><div class="bub" style="left:79.7%;width:10.2px;height:10.2px;animation-duration:8s;animation-delay:-4.2s"></div><div class="bub" style="left:85.5%;width:13px;height:13px;animation-duration:7.6s;animation-delay:-6.7s"></div><div class="bub" style="left:79.7%;width:11.4px;height:11.4px;animation-duration:7.7s;animation-delay:-5.4s"></div><div class="bub" style="left:77.7%;width:8.6px;height:8.6px;animation-duration:7.9s;animation-delay:-4s"></div><div class="bub" style="left:82.1%;width:11.6px;height:11.6px;animation-duration:4.4s;animation-delay:-2.1s"></div><div class="bub" style="left:87.1%;width:12.7px;height:12.7px;animation-duration:7s;animation-delay:-6.6s"></div></div>
+<div class="p dry shift" style="left:3.4%;top:6.5%;width:26%;--cx:16;--cy:11;
+  background:rgba(255,255,255,.92);border:1px solid #fff;border-radius:10px;padding:9px 12px;
+  box-shadow:0 5px 12px rgba(10,53,80,.2);z-index:7">
+  <div style="font-size:1.62cqw;letter-spacing:.2em;color:#5C7F92">OPEN　貼在玻璃外側</div>
+  <div style="font-size:2.5cqw;font-weight:700;color:#0D2231">14:00–22:00</div>
+  <div class="sm" style="font-size:1.75cqw;color:#3C5A6E">週三公休</div></div>
+<div class="p dry shift" style="right:3.4%;top:6.5%;width:26%;--cx:84;--cy:11;text-align:right;
+  background:rgba(255,255,255,.92);border:1px solid #fff;border-radius:10px;padding:9px 12px;
+  box-shadow:0 5px 12px rgba(10,53,80,.2);z-index:7">
+  <div style="font-size:1.62cqw;letter-spacing:.2em;color:#5C7F92">TEL　貼在玻璃外側</div>
+  <div style="font-size:2.5cqw;font-weight:700;color:#0D2231">(02) 2733-6108</div>
+  <div class="sm" style="font-size:1.75cqw;color:#3C5A6E">水草缸專門店・2006 年</div></div>
+<div class="p wet shift d1" style="left:26%;top:13.5%;width:48%;--cx:50;--cy:19;text-align:center;
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(190,231,250,.72));
+  border-radius:14px;padding:10px 14px;border:1px solid rgba(255,255,255,.9);z-index:4">
+  <div style="font-size:4.4cqw;font-weight:700;color:#0B3C5D;line-height:1.1">綠窗水草</div>
+  <div style="font-size:1.85cqw;letter-spacing:.24em;color:#1C6FA8">LÜCHUANG AQUASCAPE</div></div>
+<div class="p wet shift d2" style="left:9.5%;top:30%;width:27%;--cx:23;--cy:35;background:linear-gradient(180deg,rgba(255,255,255,.93),rgba(214,239,250,.86));border-radius:12px;padding:8px 12px;border:1px solid rgba(255,255,255,.95);z-index:4;box-shadow:0 6px 14px rgba(10,53,80,.22)"><div style="font-size:2.05cqw;font-weight:700;color:#0F4C75;line-height:1.3">60 公分開缸</div><div class="sm" style="font-size:1.75cqw;color:#2E86C1">NT$ 12,800 起</div></div><div class="p wet shift d2" style="left:62%;top:22%;width:27%;--cx:75.5;--cy:27;background:linear-gradient(180deg,rgba(255,255,255,.93),rgba(214,239,250,.86));border-radius:12px;padding:8px 12px;border:1px solid rgba(255,255,255,.95);z-index:4;box-shadow:0 6px 14px rgba(10,53,80,.22)"><div style="font-size:2.05cqw;font-weight:700;color:#0F4C75;line-height:1.3">水草代植</div><div class="sm" style="font-size:1.75cqw;color:#2E86C1">NT$ 60 起／株</div></div><div class="p wet shift d2" style="left:40.5%;top:45%;width:27%;--cx:54;--cy:50;background:linear-gradient(180deg,rgba(255,255,255,.93),rgba(214,239,250,.86));border-radius:12px;padding:8px 12px;border:1px solid rgba(255,255,255,.95);z-index:4;box-shadow:0 6px 14px rgba(10,53,80,.22)"><div style="font-size:2.05cqw;font-weight:700;color:#0F4C75;line-height:1.3">換水代工</div><div class="sm" style="font-size:1.75cqw;color:#2E86C1">NT$ 450／次</div></div>
+<div class="p shift d3 sm" style="left:16%;top:87%;width:68%;--cx:50;--cy:90;text-align:center;
+  color:#2E4B5C;font-size:1.95cqw;text-shadow:0 1px 0 rgba(255,255,255,.7)">
+  台北市大安區樂利路 31 號 1 樓　·　壓在砂上，所以它偏藍、對比也低——水把紅光吃掉了</div>
+<div class="glassbox"></div>
+<div class="cap"></div>
+</div></div>
+<div class="wrap" style="margin-top:58px">
+  <div class="panel">
+    <h2>這一屏的字分在三個深度上<i>THREE DEPTHS, ONE PANE</i></h2>
+    <p>首頁不是一張圖，是一個<b>有厚度的透明體</b>。上面的每一件事都待在它真正該待的那一層：</p>
+    <ul>
+      <li><b>玻璃外側（乾）</b>——營業時間、電話。貼紙貼在缸外，所以它<b>永遠不動、永遠不反光</b>。這一站規定：<b>任何必須被讀到的長文一律是乾的。</b></li>
+      <li><b>水中（濕）</b>——店名與三行價目。它們有高光，而且會隨光錯開。</li>
+      <li><b>壓在砂上（最深）</b>——地址。它偏藍、對比也低，因為三十公分的水把紅光吃掉了。</li>
+    </ul>
+    <p>把指標移一移：<b>缸外的東西不動，缸裡的東西會整體錯開，越深的錯得越多。</b>
+    這不是視差——是折射。位移量是用 <code>tan(asin(sin(入射角)/1.33))</code> 算出來的，1.33 是水的折射率。</p>
+    <p><button class="lamp-btn" type="button">把燈推過去一次</button></p>
+    <p class="note">燈就在缸的正上方，它是這一站唯一的光源。打開「減少動態效果」時燈會直接停在正中間——高光、折射位移、草的朝向全都還在，只是不動。</p>
+  </div>
+
+  <div class="cols">
+    <div class="panel deep">
+      <h2>為什麼要分濕和乾<i>WHY IT MATTERS</i></h2>
+      <p>大部分做這個風格的人會把整個版面都做成濕的：每一塊都發亮、每一塊都有反光、每一塊都在呼吸。
+      結果是<b>字變得難讀，而且畫面沒有深度</b>——全部都是前景。</p>
+      <p>水族店比誰都清楚這件事：<b>缸裡的東西好看，缸外的東西才好讀。</b>
+      標價牌貼在玻璃上不是因為懶，是因為貼在水裡會晃、會歪、會被藻蓋住。</p>
+      <p>所以這個風格真正的規矩不是「加光澤」，是<b>決定哪一塊該濕</b>。<a href="shui.html">水與光那一頁把五條規矩寫完了。</a></p>
+    </div>
+    <div class="panel">
+      <h2>今天缸底多出來的東西<i>SPARE LIVES</i></h2>
+      <p>草會分株、蝦會生、螺一定會變多。這些多出來的，店裡不賣，只送——但要送得出去，你的缸得接得住。</p>
+      <p>湘婷會先問你三個問題，然後告訴你哪幾件合得起來、哪幾件不行，以及不行的理由。</p>
+      <p><a href="yang.html">到認養台去 →</a></p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>工與價（完整靜態表）<i>EVERY FACT, PLAINLY</i></h2>
+    <table><caption class="sr">工項、內容、價格與所需時間</caption>
+    <thead><tr><th>工項</th><th>內容</th><th class="n">價</th><th class="n">時間</th></tr></thead>
+    <tbody><tr><th>60 公分開缸</th><td>含底床、造景、水草、設備調校</td><td class="n">NT$ 12,800 起</td><td class="n">施工 1 天＋養水 3 週</td></tr><tr><th>水草代植</th><td>一株起，含修剪與定位</td><td class="n">NT$ 60 起／株</td><td class="n">當場</td></tr><tr><th>換水代工</th><td>三分之一換水、擦缸、洗棉</td><td class="n">NT$ 450／次</td><td class="n">30 分鐘</td></tr><tr><th>二氧化碳充填</th><td>3 公升鋼瓶</td><td class="n">NT$ 350</td><td class="n">當天</td></tr><tr><th>魚蝦寄養</th><td>一缸一天，最少七天</td><td class="n">NT$ 40／天</td><td class="n">——</td></tr><tr><th>到府除藻診斷</th><td>看水、看光、看肥，開一張單</td><td class="n">NT$ 800／次</td><td class="n">約 40 分鐘</td></tr></tbody></table>
+    <p class="note" style="margin-top:14px">綠窗水草　LÜCHUANG AQUASCAPE　·　水草缸專門店　·　台北市大安區樂利路 31 號 1 樓　·　電話 (02) 2733-6108　·
+    14:00–22:00　·　週三公休　·　創於 2006 年。價格為新台幣。
+    <b>本站所有店名、人名、地址、電話與價目皆為虛構示意。</b></p>
+  </div>
+</div>
+</main>
+<footer><div class="wrap">
+<div><b>綠窗水草　LÜCHUANG AQUASCAPE</b><br>水草缸專門店・創於 2006 年<br>台北市大安區樂利路 31 號 1 樓</div>
+<div><b>電話</b> (02) 2733-6108<br><b>營業</b> 14:00–22:00<br>週三公休</div>
+<div><b>店裡的人</b><br>邱柏宏（店長）<br>陳湘婷（水草代植）<br>林子軒（工讀）</div>
+<div class="note" style="color:#CDE8F6">本站為網頁設計風格示範站。店名、人名、地址、電話、價目與所有敘述皆為虛構，不對應任何真實商號。<br>
+<a href="SKILL.md">SKILL.md 風格規格書</a>　·　<a href="README.md">README</a></div>
+</div></footer>
+<script>
+(function(){
+  var lits=[].slice.call(document.querySelectorAll('.lit')),rects=[];
+  function measure(){rects=lits.map(function(el){return el.getBoundingClientRect()})}
+  function put(x,y){for(var i=0;i<lits.length;i++){var r=rects[i];if(!r||!r.width)continue;
+    lits[i].style.setProperty('--lx',((x-r.left)/r.width*100).toFixed(1));
+    lits[i].style.setProperty('--ly',((y-r.top)/r.height*100).toFixed(1));}}
+  measure();
+  addEventListener('resize',measure,{passive:true});
+  addEventListener('scroll',measure,{passive:true});
+  addEventListener('load',measure);
+  var px=0,py=0,pend=0;
+  addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;
+    if(!pend){pend=requestAnimationFrame(function(){pend=0;put(px,py)})}},{passive:true});
+  var quiet=matchMedia('(prefers-reduced-motion: reduce)');
+  window.sweepLight=function(){
+    measure();
+    if(quiet.matches){put(innerWidth*0.5,-40);return;}
+    var t0=performance.now(),D=2200;
+    (function step(t){var k=Math.min(1,(t-t0)/D);
+      var e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+      put(innerWidth*(-0.12+1.24*e), -40);
+      if(k<1)requestAnimationFrame(step);})(t0);
+  };
+  [].forEach.call(document.querySelectorAll('.lamp-btn'),function(b){
+    b.addEventListener('click',function(){window.sweepLight()});});
+  setTimeout(function(){window.sweepLight()},380);
+})();</script>
+<noscript><p class="wrap note">沒有 JavaScript 時，燈停在缸的正上方：高光、折射位移與草的朝向都仍然存在，只是那盞燈不跟著你走。缸上、水中與砂上的每一個字都是靜態 HTML，一個字也不會少。</p></noscript>
+</body>
+</html>

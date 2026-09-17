@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>水與光 — 綠窗水草</title>
+<meta name="description" content="台北大安區的水草缸專門店：開缸、水草代植、換水代工、二氧化碳充填、魚蝦寄養。本站為網頁設計風格示範站，以 Frutiger Aero 風格建置。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23CFEEFB%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2314567E%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22url(%23w)%22%2F%3E%3Cpath%20d%3D%22M0%2025q8-4%2016-1t16-2v10H0Z%22%20fill%3D%22%23E6DCC4%22%2F%3E%3Cpath%20d%3D%22M11%2026V12q0-4%204-6-1%206%201%208v12Z%22%20fill%3D%22%236FBF3E%22%2F%3E%3Cpath%20d%3D%22M19%2026V16q0-3%204-5-2%205%200%207v8Z%22%20fill%3D%22%232F7D2A%22%2F%3E%3Ccircle%20cx%3D%2223%22%20cy%3D%228%22%20r%3D%223%22%20fill%3D%22%23fff%22%20fill-opacity%3D%22.8%22%2F%3E%3Cpath%20d%3D%22M2%205h28%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   綠窗水草 — Frutiger Aero
+   全站唯一的材料軸：濕 / 乾。
+   .wet  水裡的東西：有高光、會隨光源位移（Snell）、越深位移越多
+   .dry  玻璃外與空氣中的東西：永不位移、永不變亮、長文一律放這裡
+   =========================================================== */
+:root{
+  --sky-0:#F2FAFF; --sky-1:#DFF3FF; --sky-2:#9FD8F2; --aqua:#2E86C1; --deep:#0F4C75;
+  --deep-2:#0A3550; --leaf:#6FBF3E; --leaf-d:#2F7D2A; --moss:#1F6B4A;
+  --sand:#E6DCC4; --sand-d:#C2B594; --ink:#0D2231; --ink-2:#3C5A6E;
+  --white:#FFFFFF; --alu:#C9D4DA; --alu-d:#8FA2AD;
+  --lx:50; --ly:-6;                 /* 燈的位置（容器百分比座標） */
+  --az:270deg; --near:.62; --inc:0deg;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font-size:16px;line-height:1.75;
+  font-family:"Mukta","Noto Sans TC",system-ui,-apple-system,sans-serif;
+  background:linear-gradient(180deg,var(--sky-0) 0,var(--sky-1) 24%,var(--sky-2) 62%,#6FC2E4 100%) fixed;}
+h1,h2,h3{margin:0;font-weight:700;line-height:1.2;letter-spacing:-.005em}
+a{color:#0B5E93}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #0B5E93;outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+a.sr:focus{position:fixed;left:10px;top:10px;z-index:99;width:auto;height:auto;clip-path:none;
+  background:var(--white);color:var(--ink);padding:10px 16px;font-weight:700;border:2px solid var(--aqua)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;background:rgba(255,255,255,.72);padding:1px 5px;word-break:break-all}
+
+/* ---------- 乾：玻璃外與空氣中。永不位移、永不變亮。長文一律放這裡 ---------- */
+.dry{--depth:0px}
+.dry::before,.dry::after{content:none}
+/* ---------- 濕：高光永遠朝光，強度隨距離 ---------- */
+.wet{position:relative;overflow:hidden;isolation:isolate}
+.wet::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(58% 52% at calc(50% + 32% * cos(var(--az))) calc(50% + 32% * sin(var(--az))),
+    rgba(255,255,255,calc(.30 + .62*var(--near))) 0%, rgba(255,255,255,calc(.14 + .34*var(--near))) 34%,
+    rgba(255,255,255,0) 68%);}
+/* 穿過去的光在背光側染出一道回色（caustic） */
+.wet::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(64% 58% at calc(50% - 30% * cos(var(--az))) calc(50% - 30% * sin(var(--az))),
+    rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 62%);}
+@supports (rotate: atan2(1,1)) and (width: hypot(1px,1px)){
+  .wet,.lean,.shift{
+    --az:calc(atan2(calc(var(--ly) - var(--cy)), calc(var(--lx) - var(--cx))));
+    --near:clamp(0, calc((84 - hypot(calc(var(--lx) - var(--cx)), calc(var(--ly) - var(--cy)))) / 84), 1);
+    --inc:clamp(-62deg, atan2(calc(var(--lx) - var(--cx)), calc(var(--cy) - var(--ly))), 62deg);
+  }
+}
+/* ---------- 簽名動效：折射位移（Snell, n=1.33）----------
+   水裡的東西不是「變亮」而是「錯開」：位移 = 深度 × tan(asin(sin(入射角)/1.33))
+   深度越深錯得越多；玻璃外的（--depth:0）永遠不動。            */
+.shift{--depth:0px;
+  transform:translateX(calc(var(--depth) * tan(asin(calc(sin(var(--inc)) / 1.33)))));
+  transition:transform .12s linear}
+.d1{--depth:9px}.d2{--depth:17px}.d3{--depth:27px}
+.lean{transform-box:fill-box;transform-origin:50% 100%;
+  transform:rotate(clamp(-9deg,calc(var(--inc) * .17),9deg));transition:transform .5s cubic-bezier(.3,.7,.3,1)}
+@media (prefers-reduced-motion: reduce){
+  .shift,.lean{transition:none}
+}
+
+/* ---------- 缸 ---------- */
+.tank{position:relative;width:100%;max-width:1060px;margin:0 auto;aspect-ratio:3/2;
+  container-type:inline-size;border-radius:2px;
+  box-shadow:0 26px 54px rgba(15,76,117,.30)}
+.tank>svg{position:absolute;inset:0;width:100%;height:100%}
+.tank .p{position:absolute}
+.glassbox{position:absolute;inset:0;z-index:6;pointer-events:none;
+  border:8px solid rgba(255,255,255,.34);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.72), inset 0 30px 60px rgba(255,255,255,.28),
+             inset 0 -26px 46px rgba(15,76,117,.26)}
+/* 燈：全站唯一的光源，它就在缸的正上方，而且它跟著你 */
+.lamp{position:absolute;top:-38px;height:30px;width:190px;z-index:8;
+  transform:translateX(-50%);left:calc(var(--lx) * 1%);
+  background:linear-gradient(180deg,#EDF3F6,#C9D4DA 42%,#9CAEB8);
+  border-radius:4px 4px 2px 2px;box-shadow:0 4px 0 rgba(15,76,117,.18)}
+.lamp b{position:absolute;left:8px;right:8px;bottom:-5px;height:5px;background:#FFF6D2;
+  box-shadow:0 0 22px 8px rgba(255,246,210,.85)}
+.cap{position:absolute;left:0;right:0;top:100%;height:34px;z-index:7;
+  background:linear-gradient(180deg,#2B3A44,#16222A);border-radius:0 0 3px 3px}
+
+/* 氣泡 */
+.bubs{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.bub{position:absolute;bottom:-6%;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.95),rgba(255,255,255,.14) 48%,rgba(255,255,255,.42) 76%,rgba(255,255,255,.08));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+  animation:rise linear infinite}
+@keyframes rise{
+  0%{transform:translate(0,0) scale(.86);opacity:0}
+  8%{opacity:.95}
+  30%{transform:translate(7px,-28%) scale(.94)}
+  60%{transform:translate(-6px,-58%) scale(1)}
+  92%{opacity:.9}
+  100%{transform:translate(4px,-104%) scale(1.06);opacity:0}}
+@media (prefers-reduced-motion: reduce){.bub{animation:none;opacity:.55;bottom:auto}}
+
+/* ---------- 一般元件：Aqua 玻璃鈕、面板 ---------- */
+.panel{position:relative;background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:22px 24px;margin:0 0 20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 14px 28px rgba(15,76,117,.16)}
+.panel h2{font-size:clamp(21px,3.2vw,31px);color:var(--deep)}
+.panel h2 i{display:block;font-style:normal;font-size:11.5px;letter-spacing:.26em;
+  color:var(--ink-2);font-weight:400;margin-top:4px}
+.panel.deep{background:linear-gradient(180deg,rgba(46,134,193,.94),rgba(15,76,117,.96));color:#EAF6FD;
+  border-color:rgba(255,255,255,.35)}
+.panel.deep h2{color:#FFFFFF}.panel.deep h2 i{color:#BEE3F5}
+.panel.deep a{color:#BFF0B0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.note{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.panel.deep .note{color:#CDE8F6}
+
+/* Aqua 鈕：本體＋一道上弦月高光（遮罩相減做出來的，不是畫一個白橢圓） */
+button,.btn{position:relative;font:inherit;font-weight:700;cursor:pointer;color:#06334F;
+  background:linear-gradient(180deg,#BEEBFF,#6CC6EE 48%,#2E86C1 49%,#1C6FA8);
+  border:1px solid rgba(255,255,255,.85);border-radius:999px;padding:11px 22px;
+  box-shadow:0 2px 0 rgba(255,255,255,.7) inset,0 6px 14px rgba(15,76,117,.26)}
+button::before{content:"";position:absolute;left:6%;right:6%;top:6%;height:46%;border-radius:999px;
+  background:rgba(255,255,255,.72);
+  -webkit-mask-image:radial-gradient(120% 150% at 50% -34%,#000 62%,transparent 63%),
+                      radial-gradient(150% 150% at 50% 190%,#000 62%,transparent 63%);
+          mask-image:radial-gradient(120% 150% at 50% -34%,#000 62%,transparent 63%),
+                      radial-gradient(150% 150% at 50% 190%,#000 62%,transparent 63%);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+button:hover{filter:brightness(1.06)}
+button[disabled]{background:linear-gradient(180deg,#E3EAEE,#C2CED4 49%,#A9B8C0);color:#6C7C86;cursor:not-allowed;box-shadow:none}
+button.on{background:linear-gradient(180deg,#D8FFB8,#8FDD4E 48%,#55B62A 49%,#3E9420);color:#123B06}
+button.no{background:linear-gradient(180deg,#F1F3F5,#D6DEE3 49%,#BCC8CF);color:#7A8A93}
+
+.rule{height:10px;margin:18px 0;border-radius:999px;
+  background:linear-gradient(90deg,var(--sky-1),var(--sky-2) 26%,var(--aqua) 52%,var(--leaf) 78%,var(--sky-1))}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid rgba(15,76,117,.18);padding:10px 8px;text-align:left;vertical-align:top}
+th{color:var(--deep);white-space:nowrap}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.panel.deep th,.panel.deep td{border-color:rgba(255,255,255,.26)}
+.panel.deep th{color:#CFF0FF}
+
+/* 導覽：吸盤導覽 sucker-set —— 現用的那一個與玻璃之間沒有東西 */
+.rail{position:sticky;top:0;z-index:40;backdrop-filter:blur(9px);
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(233,246,253,.72));
+  border-bottom:1px solid rgba(255,255,255,.9);box-shadow:0 8px 20px rgba(15,76,117,.14)}
+.rail ul{list-style:none;margin:0 auto;padding:10px 14px;max-width:1120px;display:flex;gap:12px}
+.rail li{flex:1}
+.rail a{position:relative;display:block;text-align:center;text-decoration:none;font-weight:700;font-size:15px;
+  color:#31596F;padding:13px 6px 12px;border-radius:999px;
+  background:radial-gradient(70% 62% at 50% 26%,rgba(255,255,255,.96),rgba(214,233,243,.86) 62%,rgba(178,209,226,.9));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 4px 10px rgba(15,76,117,.16)}
+.rail a i{display:block;font-style:normal;font-size:10px;letter-spacing:.2em;font-weight:400;color:#5C7F92}
+/* 未選：吸盤與玻璃之間還有一層水膜與氣泡 */
+.rail a::after{content:"";position:absolute;left:18%;right:18%;top:22%;height:44%;border-radius:999px;
+  background:radial-gradient(circle at 26% 34%,rgba(255,255,255,.95),rgba(255,255,255,.08) 52%),
+             radial-gradient(circle at 72% 62%,rgba(255,255,255,.8),rgba(255,255,255,.06) 46%);
+  pointer-events:none}
+/* 現用：吸住了——中間的空氣被擠光，整片貼平、變深、邊緣多一圈被壓出去的水 */
+.rail a[aria-current=page]{color:#08405F;
+  background:radial-gradient(72% 66% at 50% 34%,#9FD8F2,#4FA6D4 66%,#2E86C1);
+  box-shadow:0 0 0 3px rgba(255,255,255,.9) inset,0 1px 3px rgba(15,76,117,.4)}
+.rail a[aria-current=page] i{color:#0A4C70}
+.rail a[aria-current=page]::after{background:none}
+
+footer{margin-top:44px;background:linear-gradient(180deg,rgba(15,76,117,.94),rgba(10,53,80,.97));color:#DCEEF8;padding:26px 0 44px}
+footer .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;font-size:13.5px}
+footer b{color:#BFF0B0}
+footer a{color:#BFF0B0}
+.sec{padding:30px 0 6px}
+
+/* 認養台 */
+.crits{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.crit{position:relative;border-radius:14px;padding:12px 12px 14px;text-align:left;font:inherit;
+  border:1px solid rgba(255,255,255,.9);cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(222,242,252,.86));
+  box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 8px 16px rgba(15,76,117,.14)}
+.crit::before{display:none}
+.crit b{display:block;font-size:14.5px;color:var(--deep)}
+.crit span{display:block;font-size:11.5px;color:var(--ink-2);letter-spacing:.04em}
+.crit em{display:block;font-style:normal;font-size:12.5px;margin-top:6px;color:#8A4A22}
+.crit[aria-disabled="true"]{background:linear-gradient(180deg,#F2F5F7,#DFE6EA);cursor:not-allowed;color:#4A5C66}
+.crit[aria-disabled="true"] b{color:#40606F}
+.crit[data-ok="1"]{background:linear-gradient(180deg,#F4FFEA,#CFF3AE);border-color:#9FDC70}
+.crit[aria-pressed="true"]{outline:3px solid #2E86C1;outline-offset:2px}
+.bill dt{color:var(--deep);font-weight:700;float:left;clear:left;width:7.6em}
+.bill dd{margin:0 0 5px 8em}
+
+@media (max-width:560px){
+  body{font-size:15px}
+  .rail a{font-size:12.5px;padding:11px 3px}
+  .rail a i{display:none}
+  .tank .sm{display:none}
+  .lamp{width:130px;top:-30px;height:24px}
+  .bill dt{float:none;width:auto}.bill dd{margin-left:0;margin-bottom:10px}
+}
+
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:sink .32s ease-in both}
+::view-transition-new(root){animation:surface .34s cubic-bezier(.2,.8,.4,1) both}
+@keyframes sink{to{opacity:0;transform:scale(.985) translateY(10px)}}
+@keyframes surface{from{opacity:0;transform:scale(1.012) translateY(-10px)}}
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-old(root),::view-transition-new(root),
+  ::view-transition-old(bag),::view-transition-new(bag){animation:none}
+  *{transition:none !important}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">跳到內容</a>
+<nav class="rail" aria-label="主導覽"><ul><li><a href="index.html">缸面<i>THE TANK</i></a></li><li><a href="shui.html" aria-current="page">水與光<i>WATER & LIGHT</i></a></li><li><a href="yang.html">認養台<i>ADOPTION BENCH</i></a></li><li><a href="dian.html">店與價<i>SHOP & PRICES</i></a></li></ul></nav>
+<main id="main">
+
+<div class="sec wrap">
+  <div class="panel">
+    <h2>五條規矩<i>FIVE RULES THAT MAKE IT THIS STYLE</i></h2>
+    <p class="note">把任何一條拿掉，它就不是這個風格了。每一條下面都有一塊可以直接動手驗的實物。</p>
+    <div class="rule"></div>
+  </div>
+
+  <div class="panel lit" id="d1">
+    <h2>一．只有一個光源，而且全站共用<i>ONE LIGHT, SHARED BY EVERYTHING</i></h2>
+    <p>這是最多人做壞的一條。三顆按鈕各自畫一個白色橢圓在正上方，看起來就像三顆貼紙；
+    正確的做法是<b>先決定燈在哪裡，再讓每一個面自己算出它的高光該在哪一側</b>。</p>
+    <div class="cols" style="margin-top:12px">
+      <div class="wet" style="--cx:14;--cy:50;height:120px;border-radius:18px;
+        background:linear-gradient(180deg,#BEEBFF,#2E86C1)"></div>
+      <div class="wet" style="--cx:50;--cy:50;height:120px;border-radius:18px;
+        background:linear-gradient(180deg,#D8FFB8,#3E9420)"></div>
+      <div class="wet" style="--cx:86;--cy:50;height:120px;border-radius:18px;
+        background:linear-gradient(180deg,#FFE6B8,#D2861C)"></div>
+    </div>
+    <p class="note" style="margin-top:10px">三塊的高光角度不一樣，因為它們離燈的方向不一樣；強度也不一樣，因為離燈的距離不一樣。
+    這兩件事都是 <code>atan2()</code> 與 <code>hypot()</code> 在 CSS 裡算的，沒有 JavaScript 在算幾何。</p>
+    <p><button class="lamp-btn" type="button">把燈推過去一次</button></p>
+  </div>
+
+  <div class="panel deep lit" id="d2">
+    <h2>二．濕的會位移，乾的不會<i>REFRACTION, NOT PARALLAX</i></h2>
+    <p>底下四塊的顏色、大小、圓角、陰影完全一樣。差別只有一個：它們在水面下多深。</p>
+    <div class="cols" style="margin-top:12px">
+      <div class="shift" style="position:relative;--cx:50;--cy:50;width:100%;height:96px;border-radius:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(150,214,242,.9));
+      border:1px solid rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:#0F4C75">乾<span class="sr">深度 0（玻璃外）</span></div>
+      <div class="shift d1" style="position:relative;--cx:50;--cy:50;width:100%;height:96px;border-radius:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(150,214,242,.9));
+      border:1px solid rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:#0F4C75">淺<span class="sr">深度 9</span></div>
+      <div class="shift d2" style="position:relative;--cx:50;--cy:50;width:100%;height:96px;border-radius:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(150,214,242,.9));
+      border:1px solid rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:#0F4C75">中<span class="sr">深度 17</span></div>
+      <div class="shift d3" style="position:relative;--cx:50;--cy:50;width:100%;height:96px;border-radius:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(150,214,242,.9));
+      border:1px solid rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:#0F4C75">深</div>
+    </div>
+    <p class="note" style="margin-top:10px">移動指標。第一塊完全不動；後面三塊越深錯得越多。
+    位移量不是隨便設的係數，是把入射角代進 Snell 定律（n = 1.33）算出來的折射偏移。
+    這一站把它當<b>簽名動效</b>：全館沒有第二個站的東西是這樣動的。</p>
+  </div>
+
+  <div class="panel lit" id="d3">
+    <h2>三．水會吃掉紅色<i>DEPTH EATS RED FIRST</i></h2>
+    <p>水對長波的吸收比短波快，所以越深的東西越偏青、對比越低。這件事不是濾鏡，是<b>調色盤規則</b>：
+    同一個顏色在不同深度必須用不同的色票，而且那組色票是算出來的，不是憑感覺調的。</p>
+    <div style="display:flex;gap:0;margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.9)">
+      <div style="flex:1;height:78px;background:#E8623A;display:flex;align-items:flex-end;justify-content:center;
+        color:#fff;font-size:11.5px;padding-bottom:5px">0 cm</div><div style="flex:1;height:78px;background:#CE6446;display:flex;align-items:flex-end;justify-content:center;
+        color:#fff;font-size:11.5px;padding-bottom:5px">10 cm</div><div style="flex:1;height:78px;background:#AF6754;display:flex;align-items:flex-end;justify-content:center;
+        color:#fff;font-size:11.5px;padding-bottom:5px">20 cm</div><div style="flex:1;height:78px;background:#8D6A60;display:flex;align-items:flex-end;justify-content:center;
+        color:#fff;font-size:11.5px;padding-bottom:5px">30 cm</div><div style="flex:1;height:78px;background:#6C6C69;display:flex;align-items:flex-end;justify-content:center;
+        color:#fff;font-size:11.5px;padding-bottom:5px">40 cm</div><div style="flex:1;height:78px;background:#4E6C70;display:flex;align-items:flex-end;justify-content:center;
+        color:#fff;font-size:11.5px;padding-bottom:5px">50 cm</div>
+    </div>
+    <p class="note" style="margin-top:8px">同一顆橘色的魚，從貼著玻璃游到五十公分深，就是這六格。紅走得最快。</p>
+  </div>
+
+  <div class="panel lit" id="d4">
+    <h2>四．光澤是切出來的，不是畫上去的<i>THE GLOSS IS A MASK, NOT A SHAPE</i></h2>
+    <p>Aqua 鈕上面那一道上弦月不是一個白色橢圓——它是<b>一個圓減去另一個圓</b>剩下的部分
+    （<code>mask-composite: exclude</code>）。所以它的兩端會自然收成尖的，而且鈕變寬變窄時月牙會跟著變形，不會走鐘。</p>
+    <p style="margin-top:14px"><button type="button">一顆鈕</button>　<button type="button" class="on">選起來的鈕</button>　<button type="button" disabled>按不下去的鈕</button></p>
+    <p class="note">把瀏覽器縮到很窄再看一次：月牙的比例不會跑掉。這就是用遮罩做而不是用圖形做的差別。</p>
+  </div>
+
+  <div class="panel deep">
+    <h2>五．有機的東西要真的朝著光<i>LIVING THINGS LEAN</i></h2>
+    <p>這個風格裡一定有一片葉子、一株草、一滴水。它們不是裝飾貼圖——<b>它們必須知道燈在哪裡</b>。
+    缸裡每一叢草的傾角都是從同一組光源變數算出來的；燈推到左邊，整缸草會慢慢倒向左邊。</p>
+    <p>做不到這一點的時候，寧可不要放草。一株朝著錯誤方向的草會讓整個畫面立刻變成貼圖拼貼。</p>
+    <div style="margin-top:14px">
+      <div class="tankmini lit" style="position:relative;height:190px;border-radius:12px;overflow:hidden;
+        background:linear-gradient(180deg,#8FCDEA,#14567E)">
+        <svg viewBox="0 0 600 190" style="position:absolute;inset:0;width:100%;height:100%" role="img" aria-label="三叢水草，葉子朝著光源彎">
+          <path d="M0 190V158q150-22 300-8t300-12v52Z" fill="#E6DCC4"/>
+          <g transform="translate(120 168)"><g class="lean" style="--cx:20;--cy:88"><g transform="rotate(-22)"><path d="M-10.8 0L-9.8 -10.5L-9 -21L-8.4 -31.5L-8 -42.1L-7.7 -52.6L-7.7 -63.1L-7.8 -73.6L-8.2 -84.1L-8.7 -94.6L-9.4 -105.2L-10.3 -115.7L-11.4 -126.2L-10.2 -126.2L-7.8 -115.7L-5.6 -105.2L-3.4 -94.6L-1.4 -84.1L0.5 -73.6L2.3 -63.1L4 -52.6L5.6 -42.1L7.1 -31.5L8.4 -21L9.7 -10.5L10.8 0Z" fill="#6FBF3E"/><path d="M0 0L-10.8 -126.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.7"/></g><g transform="rotate(-17.8)"><path d="M-12.3 0L-11 -9.8L-9.6 -19.5L-8 -29.3L-6.3 -39L-4.4 -48.8L-2.4 -58.5L-0.3 -68.3L2 -78L4.4 -87.8L6.9 -97.5L9.6 -107.3L12.4 -117L13.8 -117L12.4 -107.3L11.3 -97.5L10.4 -87.8L9.7 -78L9.2 -68.3L9 -58.5L9 -48.8L9.2 -39L9.6 -29.3L10.3 -19.5L11.2 -9.8L12.3 0Z" fill="#4C8F26"/><path d="M0 0L13.1 -117" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3"/></g><g transform="rotate(-9.2)"><path d="M-10.9 0L-10 -10.5L-9.3 -21.1L-9 -31.6L-9.1 -42.2L-9.4 -52.7L-10.1 -63.2L-11.1 -73.8L-12.4 -84.3L-14 -94.8L-15.9 -105.4L-18.2 -115.9L-20.8 -126.5L-19.6 -126.5L-15.7 -115.9L-12.1 -105.4L-8.7 -94.8L-5.6 -84.3L-2.7 -73.8L0 -63.2L2.4 -52.7L4.6 -42.2L6.5 -31.6L8.2 -21.1L9.7 -10.5L10.9 0Z" fill="#6FBF3E"/><path d="M0 0L-20.2 -126.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.7"/></g><g transform="rotate(-5.4)"><path d="M-11.2 0L-10 -10L-8.7 -19.9L-7.1 -29.9L-5.4 -39.8L-3.6 -49.8L-1.6 -59.8L0.6 -69.7L2.9 -79.7L5.4 -89.6L8 -99.6L10.8 -109.5L13.8 -119.5L15.1 -119.5L13.4 -109.5L12 -99.6L10.9 -89.6L9.9 -79.7L9.2 -69.7L8.8 -59.8L8.6 -49.8L8.7 -39.8L8.9 -29.9L9.5 -19.9L10.2 -10L11.2 0Z" fill="#4C8F26"/><path d="M0 0L14.4 -119.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.8"/></g><g transform="rotate(-0.3)"><path d="M-10.2 0L-9.2 -9.5L-8.4 -19.1L-7.6 -28.6L-6.9 -38.2L-6.4 -47.7L-6 -57.2L-5.6 -66.8L-5.4 -76.3L-5.3 -85.9L-5.3 -95.4L-5.4 -104.9L-5.6 -114.5L-4.4 -114.5L-3 -104.9L-1.7 -95.4L-0.3 -85.9L1 -76.3L2.2 -66.8L3.5 -57.2L4.7 -47.7L5.8 -38.2L7 -28.6L8.1 -19.1L9.2 -9.5L10.2 0Z" fill="#6FBF3E"/><path d="M0 0L-5 -114.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.5"/></g><g transform="rotate(12.1)"><path d="M-7.4 0L-6.7 -8.2L-6.1 -16.4L-5.5 -24.6L-5 -32.8L-4.6 -41L-4.3 -49.2L-4.1 -57.5L-3.9 -65.7L-3.8 -73.9L-3.8 -82.1L-3.9 -90.3L-4 -98.5L-3.2 -98.5L-2.2 -90.3L-1.2 -82.1L-0.2 -73.9L0.7 -65.7L1.6 -57.5L2.5 -49.2L3.4 -41L4.2 -32.8L5.1 -24.6L5.9 -16.4L6.6 -8.2L7.4 0Z" fill="#4C8F26"/><path d="M0 0L-3.6 -98.5" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.8"/></g><g transform="rotate(13.9)"><path d="M-7.9 0L-7.2 -8.5L-6.5 -17L-5.9 -25.5L-5.3 -34L-4.8 -42.5L-4.4 -51L-4 -59.5L-3.7 -68L-3.5 -76.5L-3.4 -84.9L-3.3 -93.4L-3.3 -101.9L-2.4 -101.9L-1.4 -93.4L-0.5 -84.9L0.4 -76.5L1.2 -68L2.1 -59.5L3 -51L3.8 -42.5L4.7 -34L5.5 -25.5L6.3 -17L7.1 -8.5L7.9 0Z" fill="#6FBF3E"/><path d="M0 0L-2.8 -101.9" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.9"/></g><g transform="rotate(22.7)"><path d="M-8.3 0L-7.4 -6.7L-6.2 -13.4L-4.9 -20.1L-3.4 -26.8L-1.6 -33.4L0.3 -40.1L2.4 -46.8L4.7 -53.5L7.3 -60.2L10 -66.9L12.9 -73.6L16 -80.3L17 -80.3L14.8 -73.6L12.9 -66.9L11.3 -60.2L9.9 -53.5L8.8 -46.8L8 -40.1L7.4 -33.4L7 -26.8L7 -20.1L7.2 -13.4L7.6 -6.7L8.3 0Z" fill="#4C8F26"/><path d="M0 0L16.5 -80.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2"/></g></g></g>
+          <g transform="translate(300 162)"><g class="lean" style="--cx:50;--cy:85"><g transform="rotate(-23.4)"><path d="M-10.3 0L-9.1 -8.2L-7.7 -16.3L-6.1 -24.5L-4.3 -32.6L-2.2 -40.8L0.2 -48.9L2.7 -57.1L5.5 -65.2L8.5 -73.4L11.8 -81.5L15.3 -89.7L19 -97.8L20.2 -97.8L17.6 -89.7L15.4 -81.5L13.5 -73.4L11.9 -65.2L10.6 -57.1L9.6 -48.9L9 -40.8L8.6 -32.6L8.6 -24.5L8.8 -16.3L9.4 -8.2L10.3 0Z" fill="#8CD255"/><path d="M0 0L19.6 -97.8" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.5"/></g><g transform="rotate(-19.9)"><path d="M-10.9 0L-9.8 -11L-8.8 -22L-7.8 -33.1L-6.9 -44.1L-6 -55.1L-5.2 -66.1L-4.5 -77.1L-3.8 -88.2L-3.1 -99.2L-2.5 -110.2L-2 -121.2L-1.5 -132.2L-0.2 -132.2L0.5 -121.2L1.3 -110.2L2.2 -99.2L3 -88.2L3.9 -77.1L4.8 -66.1L5.8 -55.1L6.7 -44.1L7.7 -33.1L8.7 -22L9.8 -11L10.9 0Z" fill="#3F8A2A"/><path d="M0 0L-0.8 -132.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.7"/></g><g transform="rotate(-12.7)"><path d="M-8.9 0L-7.8 -11.4L-6.5 -22.8L-4.8 -34.1L-2.9 -45.5L-0.6 -56.9L2 -68.3L4.9 -79.7L8.1 -91L11.6 -102.4L15.4 -113.8L19.5 -125.2L24 -136.6L25 -136.6L21.6 -125.2L18.6 -113.8L15.9 -102.4L13.6 -91L11.7 -79.7L10.2 -68.3L9.1 -56.9L8.3 -45.5L7.9 -34.1L7.8 -22.8L8.2 -11.4L8.9 0Z" fill="#8CD255"/><path d="M0 0L24.5 -136.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.2"/></g><g transform="rotate(-4.2)"><path d="M-10.3 0L-9.2 -9.4L-8.2 -18.7L-7.1 -28.1L-5.9 -37.4L-4.7 -46.8L-3.5 -56.2L-2.3 -65.5L-1.1 -74.9L0.2 -84.2L1.5 -93.6L2.9 -103L4.3 -112.3L5.4 -112.3L5.3 -103L5.2 -93.6L5.2 -84.2L5.4 -74.9L5.6 -65.5L6 -56.2L6.4 -46.8L7 -37.4L7.7 -28.1L8.4 -18.7L9.3 -9.4L10.3 0Z" fill="#3F8A2A"/><path d="M0 0L4.9 -112.3" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.5"/></g><g transform="rotate(1.6)"><path d="M-10.1 0L-8.9 -11.6L-7.3 -23.1L-5.4 -34.7L-3.2 -46.2L-0.6 -57.8L2.4 -69.3L5.7 -80.9L9.3 -92.4L13.3 -104L17.7 -115.5L22.4 -127.1L27.5 -138.6L28.6 -138.6L24.7 -127.1L21.3 -115.5L18.2 -104L15.6 -92.4L13.4 -80.9L11.7 -69.3L10.3 -57.8L9.4 -46.2L8.9 -34.7L8.9 -23.1L9.3 -11.6L10.1 0Z" fill="#8CD255"/><path d="M0 0L28.1 -138.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.5"/></g><g transform="rotate(7.6)"><path d="M-9.8 0L-8.6 -12.8L-7 -25.6L-5.1 -38.4L-2.7 -51.2L0.1 -64L3.2 -76.8L6.8 -89.6L10.8 -102.4L15.1 -115.2L19.9 -128L25 -140.8L30.6 -153.6L31.7 -153.6L27.3 -140.8L23.4 -128L19.9 -115.2L16.9 -102.4L14.4 -89.6L12.3 -76.8L10.7 -64L9.6 -51.2L9 -38.4L8.8 -25.6L9.1 -12.8L9.8 0Z" fill="#3F8A2A"/><path d="M0 0L31.1 -153.6" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.4"/></g><g transform="rotate(10.4)"><path d="M-7.9 0L-7.2 -11.5L-6.7 -23L-6.4 -34.5L-6.4 -46L-6.5 -57.4L-6.9 -68.9L-7.4 -80.4L-8.2 -91.9L-9.1 -103.4L-10.3 -114.9L-11.7 -126.4L-13.3 -137.9L-12.4 -137.9L-9.9 -126.4L-7.5 -114.9L-5.3 -103.4L-3.2 -91.9L-1.3 -80.4L0.4 -68.9L2 -57.4L3.5 -46L4.8 -34.5L6 -23L7 -11.5L7.9 0Z" fill="#8CD255"/><path d="M0 0L-12.8 -137.9" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.9"/></g><g transform="rotate(13)"><path d="M-6.1 0L-5.4 -13.4L-4.7 -26.8L-4 -40.3L-3.2 -53.7L-2.3 -67.1L-1.4 -80.5L-0.4 -93.9L0.7 -107.3L1.8 -120.8L2.9 -134.2L4.1 -147.6L5.4 -161L6.1 -161L5.5 -147.6L5.1 -134.2L4.7 -120.8L4.5 -107.3L4.3 -93.9L4.2 -80.5L4.3 -67.1L4.4 -53.7L4.7 -40.3L5 -26.8L5.5 -13.4L6.1 0Z" fill="#3F8A2A"/><path d="M0 0L5.8 -161" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.5"/></g><g transform="rotate(23.1)"><path d="M-7.7 0L-7.1 -9.6L-6.8 -19.2L-6.9 -28.8L-7.3 -38.4L-8 -48L-9.1 -57.5L-10.5 -67.1L-12.2 -76.7L-14.2 -86.3L-16.6 -95.9L-19.4 -105.5L-22.4 -115.1L-21.6 -115.1L-17.6 -105.5L-13.9 -95.9L-10.5 -86.3L-7.4 -76.7L-4.5 -67.1L-1.9 -57.5L0.4 -48L2.4 -38.4L4.1 -28.8L5.6 -19.2L6.8 -9.6L7.7 0Z" fill="#8CD255"/><path d="M0 0L-22 -115.1" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.9"/></g></g></g>
+          <g transform="translate(470 170)"><g class="lean" style="--cx:78;--cy:89"><g transform="rotate(-22.6)"><path d="M-12.2 0L-11 -6.8L-9.9 -13.5L-8.9 -20.3L-8.1 -27.1L-7.3 -33.8L-6.6 -40.6L-6 -47.4L-5.5 -54.2L-5.1 -60.9L-4.8 -67.7L-4.6 -74.5L-4.5 -81.2L-3.1 -81.2L-1.8 -74.5L-0.5 -67.7L0.8 -60.9L2.1 -54.2L3.4 -47.4L4.7 -40.6L5.9 -33.8L7.2 -27.1L8.5 -20.3L9.7 -13.5L11 -6.8L12.2 0Z" fill="#2F7D2A"/><path d="M0 0L-3.8 -81.2" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3"/></g><g transform="rotate(-10.7)"><path d="M-13 0L-11.7 -7.4L-10.3 -14.8L-8.8 -22.3L-7.3 -29.7L-5.8 -37.1L-4.1 -44.5L-2.5 -51.9L-0.7 -59.3L1.1 -66.8L2.9 -74.2L4.8 -81.6L6.8 -89L8.3 -89L7.8 -81.6L7.5 -74.2L7.4 -66.8L7.4 -59.3L7.6 -51.9L7.9 -44.5L8.4 -37.1L9 -29.7L9.8 -22.3L10.7 -14.8L11.8 -7.4L13 0Z" fill="#1F6B4A"/><path d="M0 0L7.5 -89" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3.2"/></g><g transform="rotate(-9.2)"><path d="M-8.3 0L-7.5 -5.4L-6.9 -10.8L-6.4 -16.2L-6.1 -21.6L-5.9 -27L-5.9 -32.4L-6 -37.8L-6.2 -43.2L-6.6 -48.6L-7.2 -54L-7.9 -59.4L-8.7 -64.8L-7.7 -64.8L-6 -59.4L-4.2 -54L-2.6 -48.6L-1.1 -43.2L0.4 -37.8L1.8 -32.4L3.1 -27L4.3 -21.6L5.4 -16.2L6.4 -10.8L7.4 -5.4L8.3 0Z" fill="#2F7D2A"/><path d="M0 0L-8.2 -64.8" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2"/></g><g transform="rotate(3.9)"><path d="M-9.6 0L-8.7 -5.1L-7.8 -10.1L-6.9 -15.2L-6 -20.3L-5.2 -25.4L-4.4 -30.4L-3.6 -35.5L-2.8 -40.6L-2.1 -45.7L-1.4 -50.7L-0.8 -55.8L-0.2 -60.9L0.9 -60.9L1.4 -55.8L2 -50.7L2.6 -45.7L3.2 -40.6L3.8 -35.5L4.6 -30.4L5.3 -25.4L6.1 -20.3L6.9 -15.2L7.8 -10.1L8.7 -5.1L9.6 0Z" fill="#1F6B4A"/><path d="M0 0L0.4 -60.9" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.4"/></g><g transform="rotate(6.6)"><path d="M-10.7 0L-9.7 -5.1L-8.7 -10.2L-7.7 -15.3L-6.8 -20.5L-6 -25.6L-5.2 -30.7L-4.4 -35.8L-3.7 -40.9L-3.1 -46L-2.5 -51.2L-2 -56.3L-1.5 -61.4L-0.3 -61.4L0.5 -56.3L1.3 -51.2L2.1 -46L3 -40.9L3.8 -35.8L4.7 -30.7L5.7 -25.6L6.6 -20.5L7.6 -15.3L8.6 -10.2L9.7 -5.1L10.7 0Z" fill="#2F7D2A"/><path d="M0 0L-0.9 -61.4" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="2.6"/></g><g transform="rotate(15.9)"><path d="M-7.7 0L-6.9 -5.2L-6 -10.5L-5 -15.7L-4 -20.9L-2.9 -26.1L-1.7 -31.4L-0.4 -36.6L0.9 -41.8L2.3 -47L3.8 -52.3L5.4 -57.5L7 -62.7L7.9 -62.7L7.2 -57.5L6.6 -52.3L6.1 -47L5.7 -41.8L5.5 -36.6L5.4 -31.4L5.5 -26.1L5.6 -20.9L5.9 -15.7L6.4 -10.5L7 -5.2L7.7 0Z" fill="#1F6B4A"/><path d="M0 0L7.5 -62.7" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.9"/></g><g transform="rotate(17.5)"><path d="M-12.1 0L-10.8 -5.2L-9.4 -10.5L-7.9 -15.7L-6.2 -20.9L-4.4 -26.2L-2.5 -31.4L-0.4 -36.6L1.8 -41.9L4.1 -47.1L6.5 -52.3L9.1 -57.6L11.8 -62.8L13.2 -62.8L11.9 -57.6L10.8 -52.3L10 -47.1L9.3 -41.9L8.9 -36.6L8.7 -31.4L8.7 -26.2L9 -20.9L9.4 -15.7L10.1 -10.5L11 -5.2L12.1 0Z" fill="#2F7D2A"/><path d="M0 0L12.5 -62.8" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="3"/></g></g></g>
+        </svg>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px">「減少動態效果」開啟時草不會再擺動，但它們仍然是朝著光的——降級掉的是過渡，不是資訊。</p>
+  </div>
+
+  <div class="panel">
+    <h2>不准做的事<i>DON'T</i></h2>
+    <ul>
+      <li>不要對角漸層。光從上面來，所以漸層只能是<b>垂直</b>的。</li>
+      <li>不要紫藍漸層、不要彩虹漸層。這個風格的色相只有<b>天空、水、草</b>三族。</li>
+      <li>不要對介面元件用模糊陰影堆疊。模糊只能用在<b>水面以下</b>（那是景深），介面本身要硬邊。</li>
+      <li>不要用一張水滴照片。水滴要自己畫，而且它的高光必須跟其他所有東西指同一個方向。</li>
+      <li>不要把長文放在濕的那一層。會晃的東西不能拿來讀。</li>
+    </ul>
+  </div>
+</div>
+</main>
+<footer><div class="wrap">
+<div><b>綠窗水草　LÜCHUANG AQUASCAPE</b><br>水草缸專門店・創於 2006 年<br>台北市大安區樂利路 31 號 1 樓</div>
+<div><b>電話</b> (02) 2733-6108<br><b>營業</b> 14:00–22:00<br>週三公休</div>
+<div><b>店裡的人</b><br>邱柏宏（店長）<br>陳湘婷（水草代植）<br>林子軒（工讀）</div>
+<div class="note" style="color:#CDE8F6">本站為網頁設計風格示範站。店名、人名、地址、電話、價目與所有敘述皆為虛構，不對應任何真實商號。<br>
+<a href="SKILL.md">SKILL.md 風格規格書</a>　·　<a href="README.md">README</a></div>
+</div></footer>
+<script>
+(function(){
+  var lits=[].slice.call(document.querySelectorAll('.lit')),rects=[];
+  function measure(){rects=lits.map(function(el){return el.getBoundingClientRect()})}
+  function put(x,y){for(var i=0;i<lits.length;i++){var r=rects[i];if(!r||!r.width)continue;
+    lits[i].style.setProperty('--lx',((x-r.left)/r.width*100).toFixed(1));
+    lits[i].style.setProperty('--ly',((y-r.top)/r.height*100).toFixed(1));}}
+  measure();
+  addEventListener('resize',measure,{passive:true});
+  addEventListener('scroll',measure,{passive:true});
+  addEventListener('load',measure);
+  var px=0,py=0,pend=0;
+  addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;
+    if(!pend){pend=requestAnimationFrame(function(){pend=0;put(px,py)})}},{passive:true});
+  var quiet=matchMedia('(prefers-reduced-motion: reduce)');
+  window.sweepLight=function(){
+    measure();
+    if(quiet.matches){put(innerWidth*0.5,-40);return;}
+    var t0=performance.now(),D=2200;
+    (function step(t){var k=Math.min(1,(t-t0)/D);
+      var e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+      put(innerWidth*(-0.12+1.24*e), -40);
+      if(k<1)requestAnimationFrame(step);})(t0);
+  };
+  [].forEach.call(document.querySelectorAll('.lamp-btn'),function(b){
+    b.addEventListener('click',function(){window.sweepLight()});});
+  setTimeout(function(){window.sweepLight()},380);
+})();</script>
+<noscript><p class="wrap note">沒有 JavaScript 時，燈停在缸的正上方：高光、折射位移與草的朝向都仍然存在，只是那盞燈不跟著你走。缸上、水中與砂上的每一個字都是靜態 HTML，一個字也不會少。</p></noscript>
+</body>
+</html>

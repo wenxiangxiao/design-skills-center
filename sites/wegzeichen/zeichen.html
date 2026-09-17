@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="zh-Hant" data-lvl="3">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>圖記庫｜WEGZEICHEN Ruoff · 途標製牌所 Ulm</title>
+<meta name="description" content="二十八個圖記，全部畫在同一個 20×20 模組格陣上，筆畫只走 0、45、90 度。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect width='20' height='20' fill='%23F2F3EF'/%3E%3Cg fill='none' stroke='%232E6B52' stroke-width='2.4' stroke-linejoin='round'%3E%3Cpolyline points='4,17 4,8 10,2 16,8 16,17'/%3E%3Cpolyline points='7,13 13,13'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#F2F3EF; --silber:#D7DAD5; --silber2:#C4C8C2;
+  --blau:#6E9FC4; --gruen:#8CBB6A; --orange:#E3862B; --violett:#8A6FA5; --tann:#2E6B52;
+  --schrift:#2B322E; --ink:var(--schrift);
+  --D:12;                       /* 觀看距離 D，公尺。全站唯一的版面變數 */
+  --sc:1;                       /* 螢幕縮尺 */
+  --capmm:calc(var(--D) * 5);   /* 手冊公式：字高 h(mm) = D(m) × 5（牌腳標的是這個） */
+  --cap:calc(clamp(18px, calc((14 + var(--D) * 1.15) * 1px), 72px) * var(--sc));
+  --fs:calc(var(--cap) / .73);  /* Archivo 的 cap/em ≈ .73 */
+  --M:calc(var(--cap) / 5);     /* 模組 M = 字高 ÷ 5 */
+  color-scheme:light;
+}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+html{background:var(--silber)}
+body{
+  background:var(--silber); color:var(--schrift);
+  font-family:Archivo,'Noto Sans TC',system-ui,sans-serif;
+  font-variation-settings:'wght' 400,'wdth' 100;
+  font-size:17px; line-height:1.5; -webkit-text-size-adjust:100%;
+  padding-right:34px;
+}
+h1,h2,h3{font-weight:400;line-height:1.1}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ── 導覽：一面 1:1 的方向牌，不是品牌列 ───────────────── */
+.leit{position:sticky;top:0;z-index:40;background:var(--paper);border-bottom:4px solid var(--tann)}
+.leit-in{max-width:1180px;margin:0 auto;padding:10px 24px;display:flex;flex-wrap:wrap;gap:0 28px;align-items:center}
+.leit a,.leit .hier{display:flex;align-items:center;gap:9px;text-decoration:none;padding:7px 0;
+  font-variation-settings:'wght' 600,'wdth' 88;font-size:15px;letter-spacing:.02em}
+.leit svg{width:22px;height:22px;flex:0 0 22px}
+.leit a .zh{border-bottom:2px solid transparent}
+.leit a:hover .zh,.leit a:focus-visible .zh{border-bottom-color:var(--orange)}
+.leit .hier{--ink:var(--tann);color:var(--tann)}
+.leit .de{font-variation-settings:'wght' 400,'wdth' 70;font-size:12px;opacity:.72;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── 觀看距離尺：全站唯一控制器（簽名動效）──────────────── */
+.dist{background:var(--tann);color:var(--paper)}
+.dist-in{max-width:1180px;margin:0 auto;padding:9px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dist label{font-variation-settings:'wght' 600,'wdth' 76;font-size:12px;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.dist input[type=range]{flex:1 1 200px;min-width:150px;accent-color:var(--orange);height:22px}
+.dist output{font-variation-settings:'wght' 700,'wdth' 110;font-size:17px;min-width:5.2em;font-variant-numeric:tabular-nums}
+.dist .derived{font-variation-settings:'wght' 400,'wdth' 70;font-size:12px;letter-spacing:.05em;opacity:.88;font-variant-numeric:tabular-nums}
+
+/* ── 牌面 ────────────────────────────────────────────── */
+.tafel{background:var(--paper);font-size:var(--fs);line-height:1;
+  padding:2cap; border:0}
+.tafel-kopf{display:flex;justify-content:space-between;align-items:flex-end;gap:1cap;
+  padding-bottom:1cap;border-bottom:calc(var(--M) * 1) solid var(--schrift);margin-bottom:1cap}
+.tafel-marke{font-variation-settings:'wght' 700,'wdth' 104;letter-spacing:.03em;
+  font-size:min(1em,7.5vw);min-width:0;overflow:hidden;white-space:nowrap}
+.tafel-sub{font-size:max(11px,calc(var(--fs) * .3));font-variation-settings:'wght' 400,'wdth' 72;
+  letter-spacing:.1em;text-transform:uppercase;line-height:1.3;text-align:right}
+.zeile{display:grid;grid-template-columns:2cap 1fr 2cap;align-items:center;gap:1cap;
+  height:3cap;text-decoration:none;color:inherit}
+.zeile + .zeile{border-top:calc(var(--M) * .5) solid var(--silber2)}
+.zeile use,.zeile svg{width:2cap;height:2cap;display:block}
+.zeile .txt{display:flex;flex-direction:column;gap:.18cap;min-width:0}
+.zeile .t1{font-variation-settings:'wght' 600,'wdth' 100;letter-spacing:.01em;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.zeile .t2{font-size:max(12px,calc(var(--fs) * .40));font-variation-settings:'wght' 400,'wdth' 72;
+  letter-spacing:.11em;text-transform:uppercase;opacity:.74}
+.zeile .t3{font-size:max(11px,calc(var(--fs) * .34));font-variation-settings:'wght' 400,'wdth' 84;opacity:.68;line-height:1.35}
+.zeile:hover .t1,.zeile:focus-visible .t1{text-decoration:underline;text-underline-offset:.22cap;
+  text-decoration-thickness:calc(var(--M) * .6)}
+.tafel-fuss{margin-top:1cap;padding-top:1cap;border-top:calc(var(--M) * 1) solid var(--schrift);
+  display:flex;flex-wrap:wrap;gap:.4cap 2cap;font-size:max(11px,calc(var(--fs) * .26));
+  font-variation-settings:'wght' 500,'wdth' 70;letter-spacing:.1em;text-transform:uppercase;
+  font-variant-numeric:tabular-nums}
+
+/* 資訊預算：距離一遠，規範就不准這面牌帶這些欄位 */
+[data-lvl="3"] .t3{display:none}
+[data-lvl="2"] .t3,[data-lvl="2"] .t2{display:none}
+[data-lvl="1"] .t3,[data-lvl="1"] .t2,[data-lvl="1"] .tafel-fuss,[data-lvl="1"] .tafel-sub{display:none}
+
+@supports not (height:1cap){
+  .tafel{padding:1.46em}
+  .zeile{height:2.19em;grid-template-columns:1.46em 1fr 1.46em;gap:.73em}
+  .zeile use,.zeile svg{width:1.46em;height:1.46em}
+  .tafel-kopf,.tafel-fuss{gap:.73em}
+}
+
+/* ── 分類色鑰（首屏就把 1972 色階攤開）─────────────────── */
+.schluessel{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:2px}
+.schluessel > div{background:var(--paper);padding:10px 12px 12px}
+.schluessel i{display:block;height:24px;margin-bottom:8px}
+.schluessel b{display:block;font-variation-settings:'wght' 600,'wdth' 70;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--tann)}
+.schluessel span{font-size:14px;font-variation-settings:'wght' 500,'wdth' 96}
+@media (max-width:560px){.schluessel{grid-template-columns:repeat(5,1fr)}
+  .schluessel > div{padding:6px 4px 8px}.schluessel i{height:16px;margin-bottom:5px}
+  .schluessel b{font-size:9px;letter-spacing:.05em}.schluessel span{font-size:11px}}
+
+/* ── 色帶時鐘（環境動效，真實時鐘驅動，不需輸入）──────── */
+.uhr{background:var(--paper);border-top:4px solid var(--tann);padding:12px 24px}
+.uhr-in{max-width:1132px;margin:0 auto}
+.uhr-kopf{display:flex;justify-content:space-between;gap:12px;font-size:12px;letter-spacing:.09em;
+  text-transform:uppercase;font-variation-settings:'wght' 600,'wdth' 74;margin-bottom:7px}
+.uhr-band{position:relative;display:grid;grid-template-columns:repeat(5,1fr);height:26px}
+.uhr-band span{display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.08em;
+  color:var(--paper);font-variation-settings:'wght' 600,'wdth' 70}
+.uhr-band span:nth-child(1){background:var(--blau)}
+.uhr-band span:nth-child(2){background:var(--gruen)}
+.uhr-band span:nth-child(3){background:var(--orange)}
+.uhr-band span:nth-child(4){background:var(--violett)}
+.uhr-band span:nth-child(5){background:var(--tann)}
+.uhr-zeiger{position:absolute;top:-5px;bottom:-5px;width:6px;background:var(--paper);
+  border-left:2px solid var(--schrift);border-right:2px solid var(--schrift);
+  left:calc(var(--t,0) * 100%);transform:translateX(-50%);transition:left 900ms linear}
+
+/* ── 模組尺（環境動效之二：捲動驅動）───────────────────── */
+.mskala{position:fixed;top:0;right:0;bottom:0;width:34px;background:var(--paper);
+  border-left:2px solid var(--silber2);z-index:30;overflow:hidden}
+.mskala i{position:absolute;right:0;width:11px;height:2px;background:var(--silber2)}
+.mskala i.b{width:22px;background:var(--schrift)}
+.mskala .lauf{position:absolute;left:0;right:0;height:14px;background:var(--orange);top:0}
+.mskala .txt{position:absolute;bottom:10px;left:50%;transform:translateX(-50%) rotate(180deg);
+  writing-mode:vertical-rl;font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  font-variation-settings:'wght' 600,'wdth' 68;color:var(--schrift)}
+@supports (animation-timeline:scroll()){
+  .mskala .lauf{animation:laufen linear both;animation-timeline:scroll(root block);
+    animation-range:0% 100%}
+  @keyframes laufen{from{top:0}to{top:calc(100% - 14px)}}
+}
+
+/* ── 一般內容 ────────────────────────────────────────── */
+.block{background:var(--paper);padding:34px 0;margin-top:22px}
+.block > .wrap > h2{font-variation-settings:'wght' 700,'wdth' 92;font-size:clamp(26px,3.6vw,42px);
+  letter-spacing:-.005em;margin-bottom:6px}
+.block > .wrap > .kicker{font-variation-settings:'wght' 600,'wdth' 68;font-size:12px;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--tann);margin-bottom:20px}
+.lead{max-width:62ch;font-size:19px;line-height:1.62;margin-bottom:22px}
+p{max-width:66ch;margin-bottom:12px}
+.raster{display:grid;gap:2px;background:var(--silber2)}
+.raster > *{background:var(--paper);padding:16px 18px}
+.c2{grid-template-columns:repeat(2,1fr)}
+.c3{grid-template-columns:repeat(3,1fr)}
+.c4{grid-template-columns:repeat(4,1fr)}
+dl.fakt{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-variant-numeric:tabular-nums}
+dl.fakt dt{font-variation-settings:'wght' 600,'wdth' 70;font-size:12px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--tann);padding-top:3px;white-space:nowrap}
+dl.fakt dd{font-variation-settings:'wght' 400,'wdth' 100}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 12px;border-bottom:2px solid var(--silber);font-size:15px}
+th{font-variation-settings:'wght' 600,'wdth' 72;font-size:12px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--tann);border-bottom-color:var(--schrift)}
+td.n{text-align:right}
+.balken{height:14px;display:flex}
+.balken i{flex:1}
+.hinweis{border-left:6px solid var(--orange);padding:10px 0 10px 16px;max-width:62ch;font-size:15px}
+.zitat{font-size:clamp(20px,2.6vw,28px);line-height:1.34;font-variation-settings:'wght' 500,'wdth' 92;
+  max-width:24ch;border-top:4px solid var(--schrift);padding-top:14px}
+.zitat cite{display:block;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-style:normal;
+  font-variation-settings:'wght' 600,'wdth' 68;margin-top:12px;color:var(--tann)}
+
+/* ── 圖記庫 ──────────────────────────────────────────── */
+.bestand{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:2px;background:var(--silber2)}
+.pk{background:var(--paper);padding:12px;display:block;position:relative}
+.pk figure{position:relative;aspect-ratio:1;background:#fff}
+.pk svg.zeichen{width:100%;height:100%;display:block;position:relative;z-index:2}
+.pk .gitter{position:absolute;inset:0;z-index:1;opacity:0;transition:none}
+.pk:hover .gitter,.pk:focus-within .gitter{opacity:1}
+.pk figcaption{margin-top:9px;font-size:14px;font-variation-settings:'wght' 600,'wdth' 92}
+.pk .de{font-size:11px;letter-spacing:.09em;text-transform:uppercase;opacity:.7;
+  font-variation-settings:'wght' 400,'wdth' 68}
+.pk .bd{height:6px;margin-top:8px}
+.pk button{position:absolute;inset:0;opacity:0;border:0;background:none;cursor:pointer;z-index:3}
+.pk button:focus-visible{opacity:1;outline:3px solid var(--orange);outline-offset:-3px}
+
+/* ── 委製檯 ──────────────────────────────────────────── */
+.bank{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px;background:var(--silber2)}
+.bank > section{background:var(--paper);padding:20px}
+.pos{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;
+  padding:9px 0;border-bottom:2px solid var(--silber)}
+.pos select,.pos input[type=text]{font:inherit;font-size:15px;padding:6px 8px;background:#fff;
+  border:2px solid var(--silber2);color:inherit;min-width:0;width:100%}
+.pos select:focus-visible,.pos input:focus-visible{outline:3px solid var(--orange);outline-offset:0}
+.pos .nr{font-variation-settings:'wght' 700,'wdth' 70;font-size:12px;color:var(--tann);width:2.2em}
+.pos svg{width:26px;height:26px}
+.knopf{font:inherit;font-variation-settings:'wght' 700,'wdth' 84;font-size:14px;letter-spacing:.11em;
+  text-transform:uppercase;background:var(--tann);color:var(--paper);border:0;padding:12px 22px;cursor:pointer}
+.knopf.zweit{background:var(--paper);color:var(--tann);box-shadow:inset 0 0 0 3px var(--tann)}
+.knopf:hover{background:var(--orange);color:var(--paper)}
+.knopf.zweit:hover{box-shadow:inset 0 0 0 3px var(--orange)}
+.vorschau{background:var(--paper);padding:18px;overflow:auto}
+.schein{background:#fff;padding:16px;font-variant-numeric:tabular-nums;font-size:14px}
+.schein h3{font-variation-settings:'wght' 700,'wdth' 78;font-size:13px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tann);border-bottom:3px solid var(--tann);padding-bottom:6px;margin-bottom:10px}
+.schein dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px}
+.schein dt{font-variation-settings:'wght' 500,'wdth' 70;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;opacity:.75;white-space:nowrap}
+.schein dd{text-align:right;font-variation-settings:'wght' 600,'wdth' 100}
+.schein .summe{margin-top:10px;padding-top:8px;border-top:3px solid var(--schrift);display:flex;
+  justify-content:space-between;font-variation-settings:'wght' 700,'wdth' 104;font-size:19px}
+
+/* ── 頁尾 ────────────────────────────────────────────── */
+footer{background:var(--tann);color:var(--paper);margin-top:22px;padding:34px 0 46px}
+footer a{color:var(--paper)}
+footer h2{font-variation-settings:'wght' 700,'wdth' 88;font-size:24px;margin-bottom:14px}
+footer .kl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  font-variation-settings:'wght' 600,'wdth' 68;opacity:.8;margin-bottom:5px}
+footer .raster > *{background:var(--tann);padding:0 18px 0 0}
+footer .raster{background:none;gap:22px}
+.register{margin-top:26px;border-top:2px solid rgba(242,243,239,.34);padding-top:14px;font-size:14px}
+.register li{list-style:none;padding:5px 0;border-bottom:1px solid rgba(242,243,239,.18)}
+.register b{font-variation-settings:'wght' 700,'wdth' 74;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;display:block;opacity:.8}
+
+/* ── 轉場：牌依箭頭方向被推走 ─────────────────────────── */
+body{transition:transform 170ms linear(0,.28 22%,.34 46%,1),opacity 170ms linear}
+body.geht{opacity:.4}
+body.geht.d-n{transform:translateY(-46px)}
+body.geht.d-s{transform:translateY(46px)}
+body.geht.d-e{transform:translateX(46px)}
+body.geht.d-w{transform:translateX(-46px)}
+body.kommt{transition:none}
+
+@media (max-width:900px){
+  .bank,.c4,.c3{grid-template-columns:1fr 1fr}
+  :root{--sc:.8}
+}
+@media (max-width:560px){
+  body{padding-right:22px;font-size:16px}
+  .mskala{width:22px}.mskala .txt{display:none}
+  .wrap,.leit-in,.dist-in{padding-left:14px;padding-right:14px}
+  :root{--sc:.62}
+  .block table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  dl.fakt{grid-template-columns:1fr;gap:2px 0}
+  dl.fakt dd{margin-bottom:8px}
+  .zitat{max-width:none}
+  .bank,.c4,.c3,.c2{grid-template-columns:1fr}
+  .leit-in{gap:0 16px}
+  .leit a,.leit .hier{font-size:13px;gap:6px}
+  .leit svg{width:18px;height:18px;flex-basis:18px}
+  .leit .de{display:none}
+  .bestand{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+  .pos{grid-template-columns:auto 1fr;gap:6px}
+  .dist output{font-size:15px}
+  .tafel-kopf{flex-direction:column;align-items:flex-start}
+  .tafel-sub{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important}
+  .uhr-zeiger{transition:none}
+  body.geht{transform:none;opacity:1}
+}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false"><symbol id="pk-eingang" viewBox="0 0 20 20"><polyline points="8,2 17,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="17,2 17,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="8,18 17,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,10 13,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="9,6 13,10 9,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-ausgang" viewBox="0 0 20 20"><polyline points="12,2 3,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="3,2 3,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="3,18 12,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,10 18,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="14,6 18,10 14,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-treppe" viewBox="0 0 20 20"><polyline points="2,18 2,14 7,14 7,10 12,10 12,6 17,6 17,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-aufzug" viewBox="0 0 20 20"><polyline points="3,2 17,2 17,18 3,18 3,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,14 7,6" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="4,9 7,6 10,9" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="13,6 13,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,11 13,14 16,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-wcHerr" viewBox="0 0 20 20"><circle cx="10" cy="3.5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="10,7 10,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,8 6,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,8 14,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,12 7,15 7,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,12 13,15 13,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-wcDame" viewBox="0 0 20 20"><circle cx="10" cy="3.5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="10,5.7 10,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,7 4,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,7 16,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="4,13 16,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="8,13 8,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,13 12,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-barrier" viewBox="0 0 20 20"><circle cx="6" cy="3.5" r="2.2" style="fill:var(--ink,#2B322E)"/><circle cx="8" cy="14.5" r="3.60" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2"/><polyline points="6,7 6,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,11 13,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="13,11 13,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="13,14 16,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,8 10,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-wasser" viewBox="0 0 20 20"><polyline points="6,13 6,4" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,4 10,4" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,4 12,6 12,9" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="3,12 3,15 6,18 14,18 17,15 17,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-umkleide" viewBox="0 0 20 20"><polyline points="10,3 10,6" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,6 3,13 17,13 10,6" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="3,13 3,17 17,17 17,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-auskunft" viewBox="0 0 20 20"><circle cx="10" cy="3.5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="10,7 10,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,8 6,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,8 14,4" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,12 7,15 7,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,12 13,15 13,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-schwimm" viewBox="0 0 20 20"><circle cx="13" cy="7" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="10,9 16,9" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,9 5,4" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="16,9 19,6" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,16 5,13 8,16 11,13 14,16 17,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-springen" viewBox="0 0 20 20"><circle cx="6" cy="5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="8,7 12,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="8,7 4,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="8,7 12,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,11 17,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,11 16,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,18 10,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-turnen" viewBox="0 0 20 20"><circle cx="10" cy="8.5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="2,3 18,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,3 6,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="14,3 14,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,7 10,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="14,7 10,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,11 10,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,14 7,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,14 13,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-laufen" viewBox="0 0 20 20"><circle cx="13" cy="4" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="12,7 9,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,7 16,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,7 8,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="9,10 13,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="13,14 13,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="9,10 5,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,14 2,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-rudern" viewBox="0 0 20 20"><circle cx="11" cy="5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="11,8 11,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="11,9 5,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="11,9 17,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,17 18,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,13 18,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-bogen" viewBox="0 0 20 20"><circle cx="7" cy="4" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="7,7 7,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,8 14,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,8 12,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,12 4,15 4,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,12 10,15 10,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,3 15,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,3 17,5 17,13 15,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-heben" viewBox="0 0 20 20"><circle cx="10" cy="8" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="2,2 18,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="3,0 3,4" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="17,0 17,4" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,10 6,6 6,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,10 14,6 14,2" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,10 10,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,14 7,17 7,19" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,14 13,17 13,19" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-rad" viewBox="0 0 20 20"><circle cx="4" cy="15" r="2.60" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2"/><circle cx="16" cy="15" r="2.60" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2"/><circle cx="10" cy="4" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="4,15 10,15 7,12 13,12 16,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,12 7,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="13,12 13,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,10 10,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,7 13,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="7,10 10,13 10,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-messen" viewBox="0 0 20 20"><polyline points="2,10 18,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,7 2,10 5,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,7 18,10 15,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,14 5,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,14 10,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,14 15,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,4 2,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="18,4 18,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-aetzen" viewBox="0 0 20 20"><polyline points="2,9 18,9 15,12 5,12 2,9" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,12 5,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,12 15,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,17 15,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="8,4 8,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="11,3 11,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="14,4 14,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-sieb" viewBox="0 0 20 20"><polyline points="5,3 15,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,3 5,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,3 15,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,11 15,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,9 12,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,14 18,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,17 18,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-schneid" viewBox="0 0 20 20"><polyline points="4,11 12,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,3 15,6 7,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,15 18,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,18 18,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-montage" viewBox="0 0 20 20"><circle cx="6" cy="3.5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="6,7 6,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,8 11,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="11,8 16,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,12 3,15 3,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,12 9,15 9,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="13,11 19,11 19,15 13,15 13,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-liefer" viewBox="0 0 20 20"><circle cx="6" cy="16" r="2.4" style="fill:var(--ink,#2B322E)"/><circle cx="15" cy="16" r="2.4" style="fill:var(--ink,#2B322E)"/><polyline points="2,16 2,6 12,6 12,16" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,10 15,10 18,13 18,16" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,18 18,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-hilfe" viewBox="0 0 20 20"><polyline points="3,3 17,3 17,17 3,17 3,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="10,6 10,14" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,10 14,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-sammel" viewBox="0 0 20 20"><polyline points="7,7 13,7 13,13 7,13 7,7" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,2 5,5" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,2 5,5 2,5" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="18,2 15,5" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,2 15,5 18,5" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,18 5,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="5,18 5,15 2,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="18,18 15,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="15,18 15,15 18,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-rutsch" viewBox="0 0 20 20"><circle cx="4" cy="5" r="2.2" style="fill:var(--ink,#2B322E)"/><polyline points="6,7 12,13" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,7 10,3" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="6,7 2,11" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,13 17,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="12,13 16,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/><polyline points="2,18 18,18" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-sperre" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.00" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2"/><polyline points="4,10 16,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-n" viewBox="0 0 20 20"><polyline points="10,3 10,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="10,3 5,8 10,3 15,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-ne" viewBox="0 0 20 20"><polyline points="5,15 15,5" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="15,5 8,5 15,5 15,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-e" viewBox="0 0 20 20"><polyline points="3,10 17,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="17,10 12,5 17,10 12,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-se" viewBox="0 0 20 20"><polyline points="5,5 15,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="15,15 8,15 15,15 15,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-s" viewBox="0 0 20 20"><polyline points="10,3 10,17" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="10,17 5,12 10,17 15,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-sw" viewBox="0 0 20 20"><polyline points="15,5 5,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="5,15 12,15 5,15 5,8" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-w" viewBox="0 0 20 20"><polyline points="3,10 17,10" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="3,10 8,5 3,10 8,15" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="ar-nw" viewBox="0 0 20 20"><polyline points="15,15 5,5" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt"/><polyline points="5,5 12,5 5,5 5,12" fill="none" style="stroke:var(--ink,#2B322E)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/></symbol><symbol id="pk-hier" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" style="fill:var(--ink,#2B322E)"/></symbol><symbol id="gitter20" viewBox="0 0 20 20"><line x1="0" y1="0" x2="0" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="0" x2="20" y2="0" stroke="#C4C8C2" stroke-width=".18"/><line x1="2" y1="0" x2="2" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="2" x2="20" y2="2" stroke="#C4C8C2" stroke-width=".18"/><line x1="4" y1="0" x2="4" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="4" x2="20" y2="4" stroke="#C4C8C2" stroke-width=".18"/><line x1="6" y1="0" x2="6" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="6" x2="20" y2="6" stroke="#C4C8C2" stroke-width=".18"/><line x1="8" y1="0" x2="8" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="8" x2="20" y2="8" stroke="#C4C8C2" stroke-width=".18"/><line x1="10" y1="0" x2="10" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="10" x2="20" y2="10" stroke="#C4C8C2" stroke-width=".18"/><line x1="12" y1="0" x2="12" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="12" x2="20" y2="12" stroke="#C4C8C2" stroke-width=".18"/><line x1="14" y1="0" x2="14" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="14" x2="20" y2="14" stroke="#C4C8C2" stroke-width=".18"/><line x1="16" y1="0" x2="16" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="16" x2="20" y2="16" stroke="#C4C8C2" stroke-width=".18"/><line x1="18" y1="0" x2="18" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="18" x2="20" y2="18" stroke="#C4C8C2" stroke-width=".18"/><line x1="20" y1="0" x2="20" y2="20" stroke="#C4C8C2" stroke-width=".18"/><line x1="0" y1="20" x2="20" y2="20" stroke="#C4C8C2" stroke-width=".18"/><path d="M0 0 L20 20 M20 0 L0 20 M10 0 V20 M0 10 H20" stroke="#E3862B" stroke-width=".3" fill="none"/></symbol></svg>
+<noscript><div style="background:#E3862B;color:#2B322E;padding:10px 24px;font-size:14px">
+本站在沒有 JavaScript 時照常可讀：牌面、二十八個圖記、手冊表格與價目都是靜態的。
+只有三件事停用——上方的觀看距離尺（版面固定在 12 m ／字高 60 mm ／模組 12 mm）、工坊色帶時鐘、以及委製檯的試算。
+被距離撤下的欄位內容，一律登記在每一頁的頁尾。</div></noscript>
+<div class="mskala" aria-hidden="true"><i class="b" style="top:0%"></i><i class="" style="top:5%"></i><i class="" style="top:10%"></i><i class="" style="top:15%"></i><i class="" style="top:20%"></i><i class="b" style="top:25%"></i><i class="" style="top:30%"></i><i class="" style="top:35%"></i><i class="" style="top:40%"></i><i class="" style="top:45%"></i><i class="b" style="top:50%"></i><i class="" style="top:55%"></i><i class="" style="top:60%"></i><i class="" style="top:65%"></i><i class="" style="top:70%"></i><i class="b" style="top:75%"></i><i class="" style="top:80%"></i><i class="" style="top:85%"></i><i class="" style="top:90%"></i><i class="" style="top:95%"></i><i class="b" style="top:100%"></i><div class="lauf"></div><div class="txt">Modul M</div></div><nav class="leit" aria-label="導向牌">
+<div class="leit-in">
+<a href="index.html" data-dir="w"><svg viewBox="0 0 20 20" aria-hidden="true" style="--ink:var(--tann)"><use href="#ar-w"/></svg><span><span class="zh">導向牌</span> <span class="de">Die Tafel</span></span></a>
+<span class="hier" aria-current="page"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#pk-hier"/></svg><span><span class="zh">圖記庫</span><span class="de"> · 你在這裡</span></span></span>
+<a href="system.html" data-dir="e"><svg viewBox="0 0 20 20" aria-hidden="true" style="--ink:var(--tann)"><use href="#ar-e"/></svg><span><span class="zh">系統手冊</span> <span class="de">Das System</span></span></a>
+<a href="bestellung.html" data-dir="s"><svg viewBox="0 0 20 20" aria-hidden="true" style="--ink:var(--tann)"><use href="#ar-s"/></svg><span><span class="zh">委製檯</span> <span class="de">Die Bestellbank</span></span></a>
+</div></nav>
+<div class="dist">
+  <div class="dist-in">
+    <label for="D">觀看距離 Betrachtungsabstand</label>
+    <input type="range" id="D" min="4" max="40" step="1" value="12">
+    <output for="D" id="Dout">12 m</output>
+    <span class="derived" id="Dder">牌上字高 60 mm · 模組 M 12 mm · 本距離最多 4 行 · 第 3 層欄位</span>
+  </div>
+</div>
+<main>
+<section class="block" style="padding-top:26px">
+  <div class="wrap">
+    <p class="kicker">Zeichenbestand · 圖記庫</p>
+    <h2>二十八個圖記，一副格陣。</h2>
+    <p class="lead">
+      本所的圖記不是一張一張畫出來的，是在同一個 20×20 的模組格陣上「接」出來的。
+      規矩只有三條：筆畫只能走 0 度、45 度、90 度；線寬永遠是 1M；轉角一律用同一個半徑的圓弧接。
+      把游標移到任何一個圖記上（或用鍵盤 Tab 過去），格陣與三條合法角度會立刻疊上來——那是它被畫出來的依據，不是裝飾。
+    </p>
+    <div class="raster c4" style="margin-top:8px;margin-bottom:26px">
+      <div><div class="balken" style="margin-bottom:8px"><i style="background:var(--blau)"></i></div>
+        <div style="font-variation-settings:'wght' 700,'wdth' 90">設施</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7">Einrichtung · 10 面</div></div>
+      <div><div class="balken" style="margin-bottom:8px"><i style="background:var(--gruen)"></i></div>
+        <div style="font-variation-settings:'wght' 700,'wdth' 90">運動</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7">Sport · 8 面</div></div>
+      <div><div class="balken" style="margin-bottom:8px"><i style="background:var(--orange)"></i></div>
+        <div style="font-variation-settings:'wght' 700,'wdth' 90">作業</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7">Betrieb · 6 面</div></div>
+      <div><div class="balken" style="margin-bottom:8px"><i style="background:var(--violett)"></i></div>
+        <div style="font-variation-settings:'wght' 700,'wdth' 90">提示</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7">Hinweis · 4 面</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" aria-label="設施">
+  <div class="wrap">
+    <p class="kicker">Einrichtung · 設施</p>
+    <div class="bestand">
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="入口 Eingang" style="--ink:var(--blau)"><use href="#pk-eingang"/></svg>
+        <button type="button" aria-label="入口 Eingang，6 段筆畫"></button>
+      </figure>
+      <figcaption>入口<span class="de" style="display:block">Eingang</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">6 段 · 0 圓 · Nr. 101</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="出口 Ausgang" style="--ink:var(--blau)"><use href="#pk-ausgang"/></svg>
+        <button type="button" aria-label="出口 Ausgang，6 段筆畫"></button>
+      </figure>
+      <figcaption>出口<span class="de" style="display:block">Ausgang</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">6 段 · 0 圓 · Nr. 102</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="樓梯 Treppe" style="--ink:var(--blau)"><use href="#pk-treppe"/></svg>
+        <button type="button" aria-label="樓梯 Treppe，7 段筆畫"></button>
+      </figure>
+      <figcaption>樓梯<span class="de" style="display:block">Treppe</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 0 圓 · Nr. 103</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="電梯 Aufzug" style="--ink:var(--blau)"><use href="#pk-aufzug"/></svg>
+        <button type="button" aria-label="電梯 Aufzug，10 段筆畫"></button>
+      </figure>
+      <figcaption>電梯<span class="de" style="display:block">Aufzug</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">10 段 · 0 圓 · Nr. 104</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="男廁 WC Herren" style="--ink:var(--blau)"><use href="#pk-wcHerr"/></svg>
+        <button type="button" aria-label="男廁 WC Herren，7 段筆畫"></button>
+      </figure>
+      <figcaption>男廁<span class="de" style="display:block">WC Herren</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 1 圓 · Nr. 105</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="女廁 WC Damen" style="--ink:var(--blau)"><use href="#pk-wcDame"/></svg>
+        <button type="button" aria-label="女廁 WC Damen，6 段筆畫"></button>
+      </figure>
+      <figcaption>女廁<span class="de" style="display:block">WC Damen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">6 段 · 1 圓 · Nr. 106</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="無障礙 Barrierefrei" style="--ink:var(--blau)"><use href="#pk-barrier"/></svg>
+        <button type="button" aria-label="無障礙 Barrierefrei，5 段筆畫"></button>
+      </figure>
+      <figcaption>無障礙<span class="de" style="display:block">Barrierefrei</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">5 段 · 2 圓 · Nr. 107</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="飲水 Trinkwasser" style="--ink:var(--blau)"><use href="#pk-wasser"/></svg>
+        <button type="button" aria-label="飲水 Trinkwasser，9 段筆畫"></button>
+      </figure>
+      <figcaption>飲水<span class="de" style="display:block">Trinkwasser</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">9 段 · 0 圓 · Nr. 108</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="更衣室 Umkleide" style="--ink:var(--blau)"><use href="#pk-umkleide"/></svg>
+        <button type="button" aria-label="更衣室 Umkleide，7 段筆畫"></button>
+      </figure>
+      <figcaption>更衣室<span class="de" style="display:block">Umkleide</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 0 圓 · Nr. 109</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="詢問處 Auskunft" style="--ink:var(--blau)"><use href="#pk-auskunft"/></svg>
+        <button type="button" aria-label="詢問處 Auskunft，7 段筆畫"></button>
+      </figure>
+      <figcaption>詢問處<span class="de" style="display:block">Auskunft</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 1 圓 · Nr. 110</div>
+      <div class="balken bd"><i style="background:var(--blau)"></i></div></div>
+    </div>
+  </div>
+</section>
+<section class="block" aria-label="運動">
+  <div class="wrap">
+    <p class="kicker">Sport · 運動</p>
+    <div class="bestand">
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="游泳 Schwimmen" style="--ink:var(--gruen)"><use href="#pk-schwimm"/></svg>
+        <button type="button" aria-label="游泳 Schwimmen，8 段筆畫"></button>
+      </figure>
+      <figcaption>游泳<span class="de" style="display:block">Schwimmen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">8 段 · 1 圓 · Nr. 111</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="跳水 Springen" style="--ink:var(--gruen)"><use href="#pk-springen"/></svg>
+        <button type="button" aria-label="跳水 Springen，6 段筆畫"></button>
+      </figure>
+      <figcaption>跳水<span class="de" style="display:block">Springen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">6 段 · 1 圓 · Nr. 112</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="體操 Turnen" style="--ink:var(--gruen)"><use href="#pk-turnen"/></svg>
+        <button type="button" aria-label="體操 Turnen，8 段筆畫"></button>
+      </figure>
+      <figcaption>體操<span class="de" style="display:block">Turnen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">8 段 · 1 圓 · Nr. 113</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="田徑 Leichtathletik" style="--ink:var(--gruen)"><use href="#pk-laufen"/></svg>
+        <button type="button" aria-label="田徑 Leichtathletik，7 段筆畫"></button>
+      </figure>
+      <figcaption>田徑<span class="de" style="display:block">Leichtathletik</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 1 圓 · Nr. 114</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="划船 Rudern" style="--ink:var(--gruen)"><use href="#pk-rudern"/></svg>
+        <button type="button" aria-label="划船 Rudern，5 段筆畫"></button>
+      </figure>
+      <figcaption>划船<span class="de" style="display:block">Rudern</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">5 段 · 1 圓 · Nr. 115</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="射箭 Bogenschiessen" style="--ink:var(--gruen)"><use href="#pk-bogen"/></svg>
+        <button type="button" aria-label="射箭 Bogenschiessen，11 段筆畫"></button>
+      </figure>
+      <figcaption>射箭<span class="de" style="display:block">Bogenschiessen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">11 段 · 1 圓 · Nr. 116</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="舉重 Gewichtheben" style="--ink:var(--gruen)"><use href="#pk-heben"/></svg>
+        <button type="button" aria-label="舉重 Gewichtheben，12 段筆畫"></button>
+      </figure>
+      <figcaption>舉重<span class="de" style="display:block">Gewichtheben</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">12 段 · 1 圓 · Nr. 117</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="自行車 Radfahren" style="--ink:var(--gruen)"><use href="#pk-rad"/></svg>
+        <button type="button" aria-label="自行車 Radfahren，10 段筆畫"></button>
+      </figure>
+      <figcaption>自行車<span class="de" style="display:block">Radfahren</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">10 段 · 3 圓 · Nr. 118</div>
+      <div class="balken bd"><i style="background:var(--gruen)"></i></div></div>
+    </div>
+  </div>
+</section>
+<section class="block" aria-label="作業">
+  <div class="wrap">
+    <p class="kicker">Betrieb · 作業</p>
+    <div class="bestand">
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="丈量 Messen" style="--ink:var(--orange)"><use href="#pk-messen"/></svg>
+        <button type="button" aria-label="丈量 Messen，10 段筆畫"></button>
+      </figure>
+      <figcaption>丈量<span class="de" style="display:block">Messen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">10 段 · 0 圓 · Nr. 119</div>
+      <div class="balken bd"><i style="background:var(--orange)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="蝕刻 Ätzen" style="--ink:var(--orange)"><use href="#pk-aetzen"/></svg>
+        <button type="button" aria-label="蝕刻 Ätzen，10 段筆畫"></button>
+      </figure>
+      <figcaption>蝕刻<span class="de" style="display:block">Ätzen</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">10 段 · 0 圓 · Nr. 120</div>
+      <div class="balken bd"><i style="background:var(--orange)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="絲印 Siebdruck" style="--ink:var(--orange)"><use href="#pk-sieb"/></svg>
+        <button type="button" aria-label="絲印 Siebdruck，7 段筆畫"></button>
+      </figure>
+      <figcaption>絲印<span class="de" style="display:block">Siebdruck</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 0 圓 · Nr. 121</div>
+      <div class="balken bd"><i style="background:var(--orange)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="裁切 Schneiden" style="--ink:var(--orange)"><use href="#pk-schneid"/></svg>
+        <button type="button" aria-label="裁切 Schneiden，5 段筆畫"></button>
+      </figure>
+      <figcaption>裁切<span class="de" style="display:block">Schneiden</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">5 段 · 0 圓 · Nr. 122</div>
+      <div class="balken bd"><i style="background:var(--orange)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="安裝 Montage" style="--ink:var(--orange)"><use href="#pk-montage"/></svg>
+        <button type="button" aria-label="安裝 Montage，11 段筆畫"></button>
+      </figure>
+      <figcaption>安裝<span class="de" style="display:block">Montage</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">11 段 · 1 圓 · Nr. 123</div>
+      <div class="balken bd"><i style="background:var(--orange)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="送貨 Lieferung" style="--ink:var(--orange)"><use href="#pk-liefer"/></svg>
+        <button type="button" aria-label="送貨 Lieferung，7 段筆畫"></button>
+      </figure>
+      <figcaption>送貨<span class="de" style="display:block">Lieferung</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">7 段 · 2 圓 · Nr. 124</div>
+      <div class="balken bd"><i style="background:var(--orange)"></i></div></div>
+    </div>
+  </div>
+</section>
+<section class="block" aria-label="提示">
+  <div class="wrap">
+    <p class="kicker">Hinweis · 提示</p>
+    <div class="bestand">
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="急救 Erste Hilfe" style="--ink:var(--violett)"><use href="#pk-hilfe"/></svg>
+        <button type="button" aria-label="急救 Erste Hilfe，6 段筆畫"></button>
+      </figure>
+      <figcaption>急救<span class="de" style="display:block">Erste Hilfe</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">6 段 · 0 圓 · Nr. 125</div>
+      <div class="balken bd"><i style="background:var(--violett)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="集合點 Sammelplatz" style="--ink:var(--violett)"><use href="#pk-sammel"/></svg>
+        <button type="button" aria-label="集合點 Sammelplatz，16 段筆畫"></button>
+      </figure>
+      <figcaption>集合點<span class="de" style="display:block">Sammelplatz</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">16 段 · 0 圓 · Nr. 126</div>
+      <div class="balken bd"><i style="background:var(--violett)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="地滑 Rutschgefahr" style="--ink:var(--violett)"><use href="#pk-rutsch"/></svg>
+        <button type="button" aria-label="地滑 Rutschgefahr，6 段筆畫"></button>
+      </figure>
+      <figcaption>地滑<span class="de" style="display:block">Rutschgefahr</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">6 段 · 1 圓 · Nr. 127</div>
+      <div class="balken bd"><i style="background:var(--violett)"></i></div></div>
+      <div class="pk"><figure>
+        <svg class="gitter" viewBox="0 0 20 20" aria-hidden="true"><use href="#gitter20"/></svg>
+        <svg class="zeichen" viewBox="0 0 20 20" role="img" aria-label="勿進 Kein Zutritt" style="--ink:var(--violett)"><use href="#pk-sperre"/></svg>
+        <button type="button" aria-label="勿進 Kein Zutritt，1 段筆畫"></button>
+      </figure>
+      <figcaption>勿進<span class="de" style="display:block">Kein Zutritt</span></figcaption>
+      <div style="font-size:11px;opacity:.6;margin-top:3px;font-variant-numeric:tabular-nums">1 段 · 1 圓 · Nr. 128</div>
+      <div class="balken bd"><i style="background:var(--violett)"></i></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <p class="kicker">Die drei Winkel · 三個合法角度</p>
+    <h2>不合法的角就是不合法。</h2>
+    <p class="lead">
+      這不是風格偏好，是本所可驗算的出圖條件。每一段筆畫的兩端點 (x₁,y₁)、(x₂,y₂) 必須滿足
+      Δx = 0（垂直）、Δy = 0（水平）、或 |Δx| = |Δy|（45 度）。不滿足的線段，製圖程式直接退件，不會被畫出來。
+      本頁二十八個圖記共 216 段筆畫，全部通過檢查。
+    </p>
+    <div class="raster c3" style="margin-top:8px">
+      <div><svg viewBox="0 0 20 20" style="width:100%;--ink:var(--tann)" aria-hidden="true"><polyline points="4,3 4,17" fill="none" stroke="var(--ink)" stroke-width="2"/><polyline points="10,3 10,17" fill="none" stroke="var(--ink)" stroke-width="2"/><polyline points="16,3 16,17" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>
+        <div style="margin-top:8px;font-variation-settings:'wght' 700,'wdth' 90">90°　Δx = 0</div><p style="font-size:14px">立柱、門框、行距線、牌邊。</p></div>
+      <div><svg viewBox="0 0 20 20" style="width:100%;--ink:var(--tann)" aria-hidden="true"><polyline points="3,4 17,4" fill="none" stroke="var(--ink)" stroke-width="2"/><polyline points="3,10 17,10" fill="none" stroke="var(--ink)" stroke-width="2"/><polyline points="3,16 17,16" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>
+        <div style="margin-top:8px;font-variation-settings:'wght' 700,'wdth' 90">0°　Δy = 0</div><p style="font-size:14px">地線、水面、橫槓、基線。</p></div>
+      <div><svg viewBox="0 0 20 20" style="width:100%;--ink:var(--orange)" aria-hidden="true"><polyline points="2,18 18,2" fill="none" stroke="var(--ink)" stroke-width="2"/><polyline points="2,10 10,2" fill="none" stroke="var(--ink)" stroke-width="2"/><polyline points="10,18 18,10" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>
+        <div style="margin-top:8px;font-variation-settings:'wght' 700,'wdth' 90">45°　|Δx| = |Δy|</div><p style="font-size:14px">四肢、箭頭、斜屋頂、刮刀。人之所以看起來在動，全靠這個角。</p></div>
+    </div>
+    <p class="hinweis" style="margin-top:22px">
+      二十八個圖記在這一頁只出現二十八次幾何——每一個都是一份 <code>&lt;symbol&gt;</code>，
+      頁面上所有的實例都是 <code>&lt;use&gt;</code>，顏色由各自的 <code>--ink</code> 自訂屬性穿過 shadow tree 傳進去。
+      改一次骨架，全站二十八處同時改。
+    </p>
+  </div>
+</section>
+</main><div class="uhr"><div class="uhr-in">
+  <div class="uhr-kopf"><span>工坊今日 · Werkstattag</span><span id="uhrTxt">08:00–17:00</span></div>
+  <div class="uhr-band" id="uhrBand" role="img" aria-label="工坊一日工序色帶：丈量、製版、蝕刻、絲印、安裝">
+    <span>丈量</span><span>製版</span><span>蝕刻</span><span>絲印</span><span>安裝</span>
+    <div class="uhr-zeiger" id="uhrZeiger" style="--t:.5"></div>
+  </div>
+</div></div>
+<footer>
+<div class="wrap">
+  <h2>WEGZEICHEN Ruoff GmbH</h2>
+  <div class="raster c3">
+    <div><div class="kl">Werkstatt 工坊</div>
+      Blaubeurer Straße 47<br>89077 Ulm, Baden-Württemberg<br>+49 731 55 04 12<br>werkstatt@wegzeichen-ulm.de</div>
+    <div><div class="kl">Öffnungszeiten 營業</div>
+      週一–週四 08:00–17:00<br>週五 08:00–13:00<br>每月第一個週六 09:00–12:00<br>（僅接丈量預約）</div>
+    <div><div class="kl">Das Haus 本所</div>
+      1971 年由 Hedwig Ruoff 創辦<br>現任所長 Marianne Ruoff-Zoller<br>蝕刻 Erwin Kächele · 絲印 Ute Bäurle<br>丈量與安裝 Jonas Weeber</div>
+  </div>
+  <ul class="register">
+    <li><b>本頁在目前距離被撤下的欄位 · Entfallene Felder</b>本站每一個尺寸都由觀看距離 D 推出。距離一遠，手冊就不准這面牌帶下面這些欄位——它們不是被縮小、也不是被收進摺疊選單，是這個距離的牌不准帶。內容照抄在這裡，資訊零損失：</li>
+    <li><b>第三層 說明文字</b>每一面牌的中文說明（例：「往一樓大廳，經更衣室左轉」）。距離 > 8 m 時依手冊第 4.2 條撤下。</li>
+    <li><b>第二層 德文品名</b>德文欄（Zeichenbestand、Bestellbank…）。距離 > 16 m 時撤下。</li>
+    <li><b>第一層 牌腳規格條</b>模組、材料、圖號。距離 > 28 m 時撤下——那個距離的牌只准帶圖記、名稱與箭頭。</li>
+  </ul>
+  <p style="margin-top:22px;font-size:13px;opacity:.82;max-width:70ch">
+    本站為 Design Skills Center 的風格範例站，品牌、人物、價格、案例與地址皆為虛構示意。
+    風格規格書：<a href="SKILL.md">SKILL.md</a>　說明：<a href="README.md">README.md</a>　藝廊：<a href="../../index.html">Design Skills Center</a>
+  </p>
+</div>
+</footer>
+<script>
+(function(){
+  var root=document.documentElement, rm=matchMedia('(prefers-reduced-motion: reduce)');
+  /* ── 簽名：觀看距離統治版面與資訊預算 ── */
+  var D=document.getElementById('D'), out=document.getElementById('Dout'), der=document.getElementById('Dder');
+  function budget(d){ return d<=8?4:d<=16?3:d<=28?2:1; }
+  function zeilen(d){ return d<=8?6:d<=16?4:d<=28?3:2; }
+  function setD(d,save){
+    d=Math.min(40,Math.max(4,d|0));
+    root.style.setProperty('--D',d);
+    root.setAttribute('data-lvl',budget(d));
+    var h=d*5, M=h/5;
+    if(out) out.textContent=d+' m';
+    if(der) der.textContent='牌上字高 '+h+' mm · 模組 M '+M+' mm · 本距離最多 '+zeilen(d)+' 行 · 第 '+budget(d)+' 層欄位';
+    if(save){ try{ sessionStorage.setItem('wz.D',d); }catch(e){} }
+    document.dispatchEvent(new CustomEvent('wz:D',{detail:d}));
+  }
+  var stored=null; try{ stored=sessionStorage.getItem('wz.D'); }catch(e){}
+  if(D){ if(stored){ D.value=stored; } setD(+D.value,false);
+    D.addEventListener('input',function(){ setD(+D.value,true); }); }
+
+  /* ── 轉場：牌依箭頭方向被推走 ── */
+  var dir=null; try{ dir=sessionStorage.getItem('wz.dir'); }catch(e){}
+  if(dir&&!rm.matches){
+    var opp={n:'s',s:'n',e:'w',w:'e'}[dir];
+    document.body.classList.add('kommt','geht','d-'+opp);
+    requestAnimationFrame(function(){
+      document.body.classList.remove('kommt');
+      void document.body.offsetWidth;            /* 強制重排，讓進場位移真的跑 */
+      document.body.classList.remove('geht','d-'+opp);
+    });
+  }
+  try{ sessionStorage.removeItem('wz.dir'); }catch(e){}
+  document.querySelectorAll('a[data-dir]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.button) return;
+      var d=a.getAttribute('data-dir'); try{ sessionStorage.setItem('wz.dir',d); }catch(err){}
+      if(rm.matches) return;
+      e.preventDefault();
+      document.body.classList.add('geht','d-'+d);
+      setTimeout(function(){ location.href=a.getAttribute('href'); },170);
+    });
+  });
+
+  /* ── 環境：色帶時鐘（真實時鐘，不需輸入）── */
+  var z=document.getElementById('uhrZeiger'), ut=document.getElementById('uhrTxt');
+  function uhr(){
+    if(!z) return;
+    var n=new Date(), m=n.getHours()*60+n.getMinutes(), a=8*60, b=17*60;
+    var t=Math.min(1,Math.max(0,(m-a)/(b-a)));
+    z.style.setProperty('--t',t.toFixed(4));
+    var stufen=['丈量','製版','蝕刻','絲印','安裝'];
+    if(ut) ut.textContent = (m<a||m>b)
+      ? '所已關門 · 現在 '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')
+      : '現在 '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+' · '+stufen[Math.min(4,Math.floor(t*5))]+'檯';
+  }
+  uhr(); setInterval(uhr, rm.matches?60000:1000);
+})();
+</script>
+</body></html>

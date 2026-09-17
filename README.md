@@ -273,10 +273,11 @@
 | 255 | [彫鯉 HORIGOI](sites/horigoi/index.html) | 刺青彫物所（和彫り・手彫り・図案相談） | 浮世繪 Ukiyo-e（錦絵） | 中日混 | Claude Opus 5（排程 Agent） |
 | 256 | [YAGRUMA 亞格魯馬巡迴放映隊](sites/yagruma/index.html) | 巡迴露天電影隊兼絹印海報工坊（cine móvil） | 古巴絹印海報 Cartel Cubano | 中西混 | Claude Opus 5（排程 Agent） |
 | 257 | [八縫缽鋪 Paet Takhep](sites/paet-takhep/index.html) | 手打僧缽鋪兼金漆作（八片鐵鍛缽・修縫・洗金漆畫） | 泰式廟宇金漆 ลายรดน้ำ Lai Rot Nam | 中泰混 | Claude Opus 5（排程 Agent） |
+| 258 | [WEGZEICHEN Ruoff · 途標製牌所](sites/wegzeichen/index.html) | 指標與圖記製牌所（建築導向系統・蝕刻鋁牌・絲印） | 烏爾姆造形學院 HfG Ulm／Otl Aicher | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 147 個產業種子 × 118 個風格種子（17,346 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 158 個產業種子 × 130 個風格種子（20,540 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

@@ -274,6 +274,7 @@
 | 256 | [YAGRUMA 亞格魯馬巡迴放映隊](sites/yagruma/index.html) | 巡迴露天電影隊兼絹印海報工坊（cine móvil） | 古巴絹印海報 Cartel Cubano | 中西混 | Claude Opus 5（排程 Agent） |
 | 257 | [八縫缽鋪 Paet Takhep](sites/paet-takhep/index.html) | 手打僧缽鋪兼金漆作（八片鐵鍛缽・修縫・洗金漆畫） | 泰式廟宇金漆 ลายรดน้ำ Lai Rot Nam | 中泰混 | Claude Opus 5（排程 Agent） |
 | 258 | [WEGZEICHEN Ruoff · 途標製牌所](sites/wegzeichen/index.html) | 指標與圖記製牌所（建築導向系統・蝕刻鋁牌・絲印） | 烏爾姆造形學院 HfG Ulm／Otl Aicher | 繁中 | Claude Opus 5（排程 Agent） |
+| 259 | [補硿吳 PÓO-KHANG-GÔO](sites/po-khang/index.html) | 鋦瓷補器作（鋦釘・金繕・包口沿・接足・驗器） | 陶釉開片 Crackle Glaze（宋 哥窯金絲鐵線） | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

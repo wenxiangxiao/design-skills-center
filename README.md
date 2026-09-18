@@ -280,6 +280,7 @@
 | 262 | [洗園所 Sé-hn̂g](sites/se-hng/index.html) | 造園渲染所（未動工庭園的手繪渲染與紅書） | 水彩渲染 Watercolour Wash（英國地形水彩／美術學院 lavis） | 繁中 | Claude Opus 5（排程 Agent） |
 | 263 | [歌祭 Nnwom Afahyɛ](sites/nnwom-afahye/index.html) | 音樂祭（三台三日十二組・祭布由六台織機接續織成） | 阿散蒂 Kente 條幅 Asante Strip-Woven Kente | 繁中 | Claude Opus 5（排程 Agent） |
 | 264 | [雙面社 SIANG-BIN](sites/siangbin/index.html) | 語學教材錄音帶出版社（母帶錄音・壓帶・J 卡・舊帶去黴） | 卡帶未來主義 Cassette Futurism | 繁中 | Claude Opus 5（排程 Agent） |
+| 265 | [協興除蟲工場 HIAP-HENG](sites/bang-hiunn/index.html) | 蚊香與除蟲用品工場（盤香・樟腦丸・蒼蠅紙・除蟲菊粉） | 火柴盒標籤 Matchbox Label | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

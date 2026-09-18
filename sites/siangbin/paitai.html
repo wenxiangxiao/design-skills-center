@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>排帶檯｜雙面社 SIANG-BIN</title>
+<meta name="description" content="排帶檯：十二課依序裝進一卷帶的 A、B 兩面，選殼、決定在第幾課之後換面，兩面都要裝得下而且 A 面空白不超過三分鐘，達成就印 J 卡。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23D8CDB5'/%3E%3Crect x='3.5' y='8' width='25' height='16' rx='2' fill='%2333332F'/%3E%3Ccircle cx='11' cy='16' r='3.6' fill='%23D8CDB5'/%3E%3Ccircle cx='21' cy='16' r='3.6' fill='%23D8CDB5'/%3E%3Ccircle cx='11' cy='16' r='1.5' fill='%2333332F'/%3E%3Ccircle cx='21' cy='16' r='1.5' fill='%2333332F'/%3E%3Crect x='9' y='25' width='14' height='3' fill='%23FFB02E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Saira:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --putty:#D8CDB5; --putty-hi:#E6DCC6; --putty-lo:#C0B496; --putty-deep:#A2957A;
+  --panel:#33332F; --panel-lo:#232320; --panel-hi:#46463F;
+  --amber:#FFB02E; --amber-dim:#5A4423; --amber-glow:#FFD07A;
+  --rec:#C64A25; --dymo:#8E2B2B; --dymo-ink:#F2EDE2;
+  --ink:#23211C; --ink-2:#5B5445; --lamp:#7FA86B;
+  --mm:1px; --cell:clamp(10px,1.05vw,13px);
+  --r-big:14px; --r-mid:9px; --r-small:5px;
+}
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100% }
+body{
+  margin:0; background:var(--putty-lo); color:var(--ink);
+  font-family:"Noto Sans TC","Saira",system-ui,sans-serif; font-size:16px; line-height:1.78;
+  font-weight:400;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(35,33,28,.035) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(0deg,rgba(35,33,28,.035) 0 1px,transparent 1px 3px);
+}
+/* ── 注塑件：所有的面都是模具出來的 ── */
+.shell{
+  background:var(--putty);
+  border-radius:var(--r-big); corner-shape:superellipse(2.2);
+  box-shadow:
+    inset 0 1px 0 var(--putty-hi),
+    inset 0 -1px 0 var(--putty-deep),
+    inset 1px 0 0 var(--putty-hi),
+    inset -1px 0 0 var(--putty-deep),
+    2px 3px 0 rgba(35,33,28,.22);
+  position:relative;
+}
+.pl::after{ /* 分模線：每一個注塑件都有一條，永遠在同一個高度 */
+  content:""; position:absolute; left:0; right:0; top:var(--pl,calc(100% - 9px)); height:2px;
+  background:linear-gradient(180deg,var(--putty-deep) 0 1px,var(--putty-hi) 1px 2px);
+  opacity:.55; pointer-events:none;
+}
+.recess{ /* 刻進殼裡：亮在下、暗在上 */
+  background:var(--putty-lo);
+  border-radius:var(--r-mid); corner-shape:superellipse(2.2);
+  box-shadow: inset 0 2px 0 var(--putty-deep), inset 0 -1px 0 var(--putty-hi);
+}
+.panel{
+  background:var(--panel); color:var(--dymo-ink);
+  border-radius:var(--r-mid); corner-shape:superellipse(2.2);
+  box-shadow: inset 0 1px 0 var(--panel-hi), inset 0 -2px 0 var(--panel-lo);
+}
+/* ── 絲印字：印在表面、平的 ── */
+.silk{
+  font-family:"Michroma","Saira",sans-serif; text-transform:uppercase;
+  letter-spacing:.16em; font-size:.62rem; color:var(--ink-2); line-height:1.5;
+}
+.panel .silk{color:#9C9686}
+/* ── 模刻字：刻進去、只有邊緣有光 ── */
+.moulded{
+  font-family:"Michroma","Saira",sans-serif; text-transform:uppercase; letter-spacing:.14em;
+  color:var(--putty-deep); text-shadow:0 1px 0 var(--putty-hi);
+}
+/* ── Dymo 壓印膠帶 ── */
+.dymo{
+  display:inline-block; background:var(--dymo); color:var(--dymo-ink);
+  font-family:"Saira",sans-serif; font-weight:600; letter-spacing:.22em; font-size:.68rem;
+  text-transform:uppercase; padding:.22em .7em .3em; border-radius:2px;
+  text-shadow:0 1px 0 rgba(0,0,0,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.35), 1px 1px 0 rgba(35,33,28,.25);
+  transform:rotate(-.5deg);
+}
+.dymo.b{transform:rotate(.7deg)}
+/* ── 琥珀顯示：全站唯一發光的東西 ── */
+.lit{ color:var(--amber); text-shadow:0 0 6px rgba(255,176,46,.5) }
+a{color:var(--ink); text-underline-offset:3px; text-decoration-thickness:2px; text-decoration-color:var(--rec)}
+a:hover{color:var(--rec)}
+:focus-visible{outline:3px solid var(--rec); outline-offset:2px}
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px}
+/* ── 刊頭 ── */
+.mast{padding:16px 0 10px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+.mast img{display:block;width:40px;height:40px}
+.mast h1{margin:0; font-size:1.02rem; font-family:"Michroma",sans-serif; letter-spacing:.1em; font-weight:400}
+.mast .sub{font-size:.72rem; color:var(--ink-2); letter-spacing:.05em}
+/* ── 斷舌導覽 ── */
+nav.tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:6px 0 22px}
+nav.tabs a{
+  --pl:calc(100% - 10px);
+  position:relative; display:block; text-decoration:none; padding:13px 12px 12px;
+  background:var(--putty); color:var(--ink);
+  border-radius:var(--r-mid); corner-shape:superellipse(2.2);
+  box-shadow: inset 0 1px 0 var(--putty-hi), inset 0 -2px 0 var(--putty-deep), 2px 2px 0 rgba(35,33,28,.18);
+}
+nav.tabs a .zh{display:block; font-size:.96rem; font-weight:500; letter-spacing:.04em}
+nav.tabs a .en{display:block; font-family:"Michroma",sans-serif; font-size:.54rem; letter-spacing:.14em; color:var(--ink-2); margin-top:3px}
+nav.tabs a .tab{ /* 完好的防錄舌 */
+  position:absolute; left:11px; top:0; width:15px; height:7px;
+  background:var(--putty-hi); box-shadow:inset 0 -1px 0 var(--putty-deep);
+  border-radius:0 0 2px 2px;
+}
+nav.tabs a[aria-current="page"]{ background:var(--putty-lo) }
+nav.tabs a[aria-current="page"] .tab{ /* 舌被折斷：殼上留一個透光的方口 */
+  background:var(--panel-lo);
+  box-shadow:inset 0 2px 0 var(--putty-deep), inset 1px 0 0 var(--putty-deep), inset -1px 0 0 var(--putty-hi);
+  border-radius:0;
+}
+nav.tabs a[aria-current="page"] .zh{color:var(--rec)}
+/* ── 內文 ── */
+main{padding-bottom:10px}
+section{margin:0 0 34px}
+h2{font-size:1.22rem; font-weight:500; letter-spacing:.06em; margin:0 0 4px}
+h3{font-size:.98rem; font-weight:500; letter-spacing:.05em; margin:22px 0 6px}
+p{margin:.5em 0 1em; max-width:66ch}
+.lede{font-size:1.02rem}
+table{border-collapse:collapse; width:100%; font-size:.86rem; background:var(--putty); border-radius:var(--r-small); corner-shape:superellipse(2.2); overflow:hidden}
+th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--putty-deep)}
+th{font-family:"Michroma",sans-serif; font-size:.56rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); background:var(--putty-lo); font-weight:400}
+tr:last-child td{border-bottom:0}
+td.num{font-family:"Saira",sans-serif; font-variant-numeric:tabular-nums}
+.grid{display:grid; gap:14px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{padding:16px 18px; --pl:calc(100% - 8px)}
+.card h4{margin:0 0 6px; font-size:.95rem; font-weight:500; letter-spacing:.04em}
+.card p{margin:0; font-size:.86rem; line-height:1.7}
+footer{margin-top:20px; padding:22px 0 42px; border-top:2px solid var(--putty-deep); font-size:.8rem; color:var(--ink-2)}
+footer .fnav a{margin-right:16px}
+.note{font-size:.76rem; color:var(--ink-2)}
+/* ── 機械鍵 ── */
+.key{
+  appearance:none; border:0; cursor:pointer; font:inherit;
+  background:var(--putty-hi); color:var(--ink);
+  padding:14px 8px 15px; min-width:56px;
+  border-radius:var(--r-small); corner-shape:superellipse(2.4);
+  box-shadow: inset 0 2px 0 #F1E9D6, inset 0 -3px 0 var(--putty-deep), 0 3px 0 var(--putty-deep), 2px 4px 0 rgba(35,33,28,.2);
+  font-family:"Michroma",sans-serif; font-size:.56rem; letter-spacing:.1em;
+  transition:transform 70ms linear, box-shadow 70ms linear;
+}
+.key:active,.key[data-down="1"]{
+  transform:translateY(3px);
+  box-shadow: inset 0 2px 0 #F1E9D6, inset 0 -1px 0 var(--putty-deep), 0 0 0 var(--putty-deep), 1px 1px 0 rgba(35,33,28,.2);
+}
+.key.rec{background:var(--rec); color:#FFF1E4; box-shadow: inset 0 2px 0 #E0714C, inset 0 -3px 0 #8E3116, 0 3px 0 #8E3116, 2px 4px 0 rgba(35,33,28,.2)}
+.key .gl{display:block; font-size:1.02rem; line-height:1; margin-bottom:5px; letter-spacing:0}
+/* ── 帶倉轉場 ── */
+.bay{ transform-origin:50% 0; animation:bay-shut 260ms cubic-bezier(.2,.7,.3,1) both }
+@keyframes bay-open{ to{ transform:perspective(900px) rotateX(-18deg) translateY(-10px); opacity:0 } }
+@keyframes bay-shut{ from{ transform:perspective(900px) rotateX(-16deg) translateY(-8px); opacity:.55 } to{ transform:none; opacity:1 } }
+@media (prefers-reduced-motion:reduce){
+  .bay{animation:none}
+  *,*::before,*::after{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+}
+@media (max-width:820px){ .g3{grid-template-columns:1fr 1fr} }
+@media (max-width:560px){
+  body{font-size:15px}
+  .g3,.g2{grid-template-columns:1fr}
+  nav.tabs{grid-template-columns:repeat(4,1fr); gap:6px}
+  nav.tabs a{padding:11px 6px 10px}
+  nav.tabs a .en{display:none}
+  nav.tabs a .zh{font-size:.8rem; letter-spacing:0}
+  table{font-size:.8rem} th,td{padding:7px 8px}
+  .mast h1{font-size:.9rem}
+}
+
+.bench{padding:18px}
+.benchgrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+.shellpick{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}
+.shellpick .key[aria-pressed="true"]{background:var(--amber);color:#2A2114;box-shadow:inset 0 2px 0 #FFD07A, inset 0 -3px 0 #A86F12, 0 1px 0 #A86F12, 1px 2px 0 rgba(35,33,28,.2);transform:translateY(2px)}
+.sides{display:flex;flex-direction:column;gap:12px}
+.side{padding:11px 13px 13px}
+.side .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.side .hd b{font-family:"Michroma",sans-serif;font-size:.62rem;letter-spacing:.2em;font-weight:400}
+.side .hd span{font-family:"Saira",sans-serif;font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--ink-2)}
+.meter{height:20px;margin-top:8px;background:#1A1A17;border-radius:3px;overflow:hidden;
+  box-shadow:inset 0 2px 0 #0E0E0C, 0 0 0 2px var(--putty-deep);display:flex}
+.meter i{display:block;height:100%;transition:width 120ms linear}
+.meter .used{background:var(--amber)}
+.meter .blank{background:var(--amber-dim)}
+.meter .over{background:var(--rec)}
+.side ul{list-style:none;margin:9px 0 0;padding:0;font-size:.8rem;line-height:1.6}
+.side ul li{display:flex;gap:8px;justify-content:space-between;border-bottom:1px solid var(--putty-deep);padding:2px 0}
+.side ul li:last-child{border-bottom:0}
+.side ul li em{font-style:normal;font-family:"Saira",sans-serif;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.lessons{list-style:none;margin:0;padding:0}
+.lessons li{position:relative}
+.lessons button{width:100%;text-align:left;appearance:none;border:0;background:var(--putty);cursor:pointer;
+  font:inherit;font-size:.84rem;padding:7px 12px;display:flex;justify-content:space-between;gap:10px;
+  border-bottom:1px solid var(--putty-deep)}
+.lessons button:hover{background:var(--putty-hi)}
+.lessons button em{font-style:normal;font-family:"Saira",sans-serif;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.lessons li.cut::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
+  background:repeating-linear-gradient(90deg,var(--rec) 0 9px,transparent 9px 15px);z-index:2}
+.lessons li.cut::before{content:"換面";position:absolute;right:8px;bottom:6px;z-index:3;
+  background:var(--rec);color:#FFF1E4;font-family:"Saira",sans-serif;font-size:.6rem;letter-spacing:.18em;padding:1px 6px 2px;border-radius:2px}
+.cutctl{display:flex;gap:8px;align-items:center;margin:20px 0 10px;flex-wrap:wrap}
+.cutctl input[type=range]{flex:1;min-width:150px;accent-color:var(--rec)}
+.verdict{padding:13px 15px;margin-top:14px;display:flex;gap:12px;align-items:flex-start}
+.verdict .lamp{margin-top:5px;flex:none}
+.verdict p{margin:0;font-size:.86rem}
+.jout{margin-top:14px;padding:14px}
+.jout svg{display:block;width:100%;height:auto}
+.rulebox{padding:14px 16px;margin:0 0 18px}
+.rulebox ol{margin:6px 0 0;padding-left:1.25em;font-size:.88rem;line-height:1.72}
+@media(max-width:820px){.benchgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+ <defs>
+  <!-- 注塑浮雕：高度圖 → 3×3 捲積核（divisor=1）→ 光照。全站沒有一條手畫的高光 -->
+  <filter id="mould" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.74 0.74" numOctaves="1" seed="476" result="n"/>
+    <feColorMatrix in="n" type="matrix" values=".34 .34 .34 0 0 .34 .34 .34 0 0 .34 .34 .34 0 0 0 0 0 0 1" result="h"/>
+    <feConvolveMatrix in="h" order="3" kernelMatrix="-2 -1 0 -1 1 1 0 1 2" divisor="1" bias="0" preserveAlpha="true" result="e"/>
+    <feColorMatrix in="e" type="matrix" values=".30 0 0 0 .79 0 .30 0 0 .79 0 0 .30 0 .79 0 0 0 0 1" result="g"/>
+    <feComposite in="g" in2="SourceGraphic" operator="in" result="grain"/>
+    <feBlend in="SourceGraphic" in2="grain" mode="multiply"/>
+  </filter>
+  <!-- 模刻字：高度由字的 alpha 來，光同樣由捲積核算，不寫任何 text-shadow -->
+  <filter id="engrave" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1.1" result="b"/>
+    <feColorMatrix in="b" type="matrix" values="0 0 0 .92 .05 0 0 0 .92 .05 0 0 0 .92 .05 0 0 0 0 1" result="h"/>
+    <feConvolveMatrix in="h" order="3" kernelMatrix="-2 -1 0 -1 1 1 0 1 2" divisor="1" preserveAlpha="true" result="e"/>
+    <feComposite in="e" in2="SourceAlpha" operator="in" result="lit"/>
+    <feBlend in="SourceGraphic" in2="lit" mode="multiply"/>
+  </filter>
+ </defs>
+</svg>
+<div class="wrap">
+<header class="mast">
+  <img src="assets/logo.svg" alt="雙面社標誌：一只卡帶殼，左盤小右盤大" width="40" height="40">
+  <div>
+    <h1>雙面社 SIANG-BIN</h1>
+    <div class="sub">語學教材錄音帶出版社・台北市中正區南昌路一段 92 號 2 樓・自一九八四年</div>
+  </div>
+  <span class="dymo" style="margin-left:auto">4.76 CM/S</span>
+</header>
+<nav class="tabs" aria-label="主導覽">
+  <a href="index.html"><span class="tab" aria-hidden="true"></span><span class="zh">帶位</span><span class="en">TAPE POSITION</span></a>
+  <a href="mulu.html"><span class="tab" aria-hidden="true"></span><span class="zh">帶目</span><span class="en">CATALOGUE</span></a>
+  <a href="atai.html"><span class="tab" aria-hidden="true"></span><span class="zh">壓帶房</span><span class="en">DUPLICATING</span></a>
+  <a href="paitai.html" aria-current="page"><span class="tab" aria-hidden="true"></span><span class="zh">排帶檯</span><span class="en">SIDE-LAYING</span></a>
+</nav>
+</div>
+
+<main class="bay">
+<section>
+  <h2>排帶檯</h2>
+  <p class="lede">壓帶前最後一個決定：《台語會話 第二輯》十二課，要用哪一種殼，以及在第幾課之後換面。這件事在本社是手排的——因為換面點決定學生每天要在哪裡按下停止鍵。</p>
+  <div class="rulebox panel">
+    <span class="silk">三條規矩</span>
+    <ol>
+      <li>選一種殼，一面的容量就定了：C-46 二十三分、C-60 三十分、C-90 四十五分。</li>
+      <li>十二課依序裝，課不可切開、不可跳號——你唯一能決定的是<strong>在第幾課之後換面</strong>。</li>
+      <li>兩面都要裝得下，而且 A 面結尾的空白不可超過三分鐘；達成就印 J 卡。</li>
+    </ol>
+  </div>
+</section>
+
+<section class="bench shell pl" style="--pl:calc(100% - 12px)">
+  <div class="benchgrid">
+    <div>
+      <span class="silk">SHELL &nbsp;殼</span>
+      <div class="shellpick" role="group" aria-label="選擇帶殼">
+        <button class="key" type="button" data-cap="1380" data-name="C-46" data-price="36" aria-pressed="false">C-46<span class="gl" aria-hidden="true" style="font-size:.6rem;margin:4px 0 0">23:00</span></button>
+        <button class="key" type="button" data-cap="1800" data-name="C-60" data-price="40" aria-pressed="false">C-60<span class="gl" aria-hidden="true" style="font-size:.6rem;margin:4px 0 0">30:00</span></button>
+        <button class="key" type="button" data-cap="2700" data-name="C-90" data-price="45" aria-pressed="true">C-90<span class="gl" aria-hidden="true" style="font-size:.6rem;margin:4px 0 0">45:00</span></button>
+      </div>
+      <span class="silk">PROGRAMME &nbsp;十二課（點一課＝在那一課之後換面）</span>
+      <ul class="lessons recess" id="lessons" style="overflow:hidden;margin-top:6px">
+        <li data-i="0"><button type="button" data-k="1"><span>01 相借問</span><em>04:12</em></button></li>
+        <li data-i="1"><button type="button" data-k="2"><span>02 講價</span><em>05:38</em></button></li>
+        <li data-i="2"><button type="button" data-k="3"><span>03 問路</span><em>03:55</em></button></li>
+        <li data-i="3"><button type="button" data-k="4"><span>04 看醫生</span><em>06:20</em></button></li>
+        <li data-i="4"><button type="button" data-k="5"><span>05 電話</span><em>04:47</em></button></li>
+        <li data-i="5"><button type="button" data-k="6"><span>06 坐車</span><em>05:05</em></button></li>
+        <li data-i="6"><button type="button" data-k="7"><span>07 節氣</span><em>07:14</em></button></li>
+        <li data-i="7"><button type="button" data-k="8"><span>08 親情稱呼</span><em>06:02</em></button></li>
+        <li data-i="8"><button type="button" data-k="9"><span>09 買菜</span><em>04:36</em></button></li>
+        <li data-i="9"><button type="button" data-k="10"><span>10 拜拜</span><em>08:10</em></button></li>
+        <li data-i="10"><button type="button" data-k="11"><span>11 借錢</span><em>03:28</em></button></li>
+        <li data-i="11"><button type="button" data-k="12"><span>12 送別</span><em>05:51</em></button></li>
+      </ul>
+      <div class="cutctl">
+        <button class="key" type="button" id="cutL" aria-label="換面點往前一課"><span class="gl" aria-hidden="true">◀</span>−</button>
+        <input type="range" id="cut" min="1" max="11" value="6" aria-label="換面點：第幾課之後換面">
+        <button class="key" type="button" id="cutR" aria-label="換面點往後一課"><span class="gl" aria-hidden="true">▶</span>＋</button>
+        <span class="silk" id="cutlbl">第 06 課之後換面</span>
+      </div>
+    </div>
+    <div class="sides">
+      <div class="side recess">
+        <div class="hd"><b>SIDE A</b><span id="aInfo">—</span></div>
+        <div class="meter" id="aMeter"><i class="used" style="width:0"></i><i class="blank" style="width:0"></i></div>
+        <ul id="aList"></ul>
+      </div>
+      <div class="side recess">
+        <div class="hd"><b>SIDE B</b><span id="bInfo">—</span></div>
+        <div class="meter" id="bMeter"><i class="used" style="width:0"></i><i class="blank" style="width:0"></i></div>
+        <ul id="bList"></ul>
+      </div>
+      <div class="verdict panel" id="verdict">
+        <span class="lamp" id="vl" aria-hidden="true"></span>
+        <p id="vtxt" aria-live="polite">選一種殼，再拖換面點。</p>
+      </div>
+      <button class="key rec" type="button" id="print" style="align-self:flex-start"><span class="gl" aria-hidden="true">▤</span>印 J 卡</button>
+    </div>
+  </div>
+  <div class="jout recess" id="jout" hidden>
+    <span class="silk">J-CARD PROOF &nbsp;工單校樣</span>
+    <svg viewBox="0 0 520 210" role="img" aria-labelledby="pt pd" style="margin-top:8px">
+      <title id="pt">J 卡校樣</title><desc id="pd" >印出本批的殼、A 面與 B 面課次、兩面空白長度與三百卷的總價。</desc>
+      <rect x="0" y="0" width="520" height="210" fill="#C0B496" rx="4" filter="url(#mould)"/>
+      <rect x="8" y="8" width="250" height="194" fill="#E6DCC6"/>
+      <rect x="262" y="8" width="250" height="194" fill="#E6DCC6"/>
+      <text x="20" y="30" font-family="Michroma, sans-serif" font-size="8" letter-spacing="2" fill="#5B5445">SIDE A</text>
+      <text x="274" y="30" font-family="Michroma, sans-serif" font-size="8" letter-spacing="2" fill="#5B5445">SIDE B</text>
+      <g id="jA"></g><g id="jB"></g>
+      <rect x="8" y="176" width="504" height="26" fill="#8E2B2B"/>
+      <text id="jFoot" x="20" y="194" font-family="Saira, sans-serif" font-size="11" letter-spacing=".06em" fill="#F2EDE2">—</text>
+    </svg>
+    <p class="note" style="margin-top:8px">校樣為虛構示意，實際壓帶以簽回的紙本工單為準。</p>
+  </div>
+</section>
+
+<section>
+  <h3>課次全表（靜態）</h3>
+  <p class="note">關掉 JavaScript 時排帶檯不會動，但下面這張表與上面的容量數字完整存在，拿紙筆一樣排得出來——這本來就是本社在電腦進門以前的做法。</p>
+  <table>
+    <thead><tr><th>課次</th><th>課名</th><th>長度</th><th>累計</th><th>帶長（4.76 cm/s）</th></tr></thead>
+    <tbody>
+      <tr><td class="num">01</td><td>相借問</td><td class="num">04:12</td><td class="num">04:12</td><td class="num">1,200 cm</td></tr>
+      <tr><td class="num">02</td><td>講價</td><td class="num">05:38</td><td class="num">09:50</td><td class="num">2,808 cm</td></tr>
+      <tr><td class="num">03</td><td>問路</td><td class="num">03:55</td><td class="num">13:45</td><td class="num">3,927 cm</td></tr>
+      <tr><td class="num">04</td><td>看醫生</td><td class="num">06:20</td><td class="num">20:05</td><td class="num">5,736 cm</td></tr>
+      <tr><td class="num">05</td><td>電話</td><td class="num">04:47</td><td class="num">24:52</td><td class="num">7,102 cm</td></tr>
+      <tr><td class="num">06</td><td>坐車</td><td class="num">05:05</td><td class="num">29:57</td><td class="num">8,554 cm</td></tr>
+      <tr><td class="num">07</td><td>節氣</td><td class="num">07:14</td><td class="num">37:11</td><td class="num">10,620 cm</td></tr>
+      <tr><td class="num">08</td><td>親情稱呼</td><td class="num">06:02</td><td class="num">43:13</td><td class="num">12,343 cm</td></tr>
+      <tr><td class="num">09</td><td>買菜</td><td class="num">04:36</td><td class="num">47:49</td><td class="num">13,656 cm</td></tr>
+      <tr><td class="num">10</td><td>拜拜</td><td class="num">08:10</td><td class="num">55:59</td><td class="num">15,989 cm</td></tr>
+      <tr><td class="num">11</td><td>借錢</td><td class="num">03:28</td><td class="num">59:27</td><td class="num">16,979 cm</td></tr>
+      <tr><td class="num">12</td><td>送別</td><td class="num">05:51</td><td class="num">65:18</td><td class="num">18,650 cm</td></tr>
+    </tbody>
+  </table>
+  <p class="note">全長 65:18。單面容量：C-46 23:00、C-60 30:00、C-90 45:00。單價（三百卷）：C-46 36 元、C-60 40 元、C-90 45 元。</p>
+</section>
+</main>
+
+<script>
+(function(){
+ "use strict";
+ var L=[["01","相借問",252],["02","講價",338],["03","問路",235],["04","看醫生",380],["05","電話",287],["06","坐車",305],["07","節氣",434],["08","親情稱呼",362],["09","買菜",276],["10","拜拜",490],["11","借錢",208],["12","送別",351]], V=4.76, MAXBLANK=180;
+ var cap=2700, shell="C-90", price=45, k=6;
+ var $=function(s){return document.getElementById(s)};
+ function mm(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+ function sum(a,b){var t=0;for(var i=a;i<b;i++)t+=L[i][2];return t}
+ function listHTML(a,b){var o="";for(var i=a;i<b;i++)o+='<li><span>'+L[i][0]+" "+L[i][1]+'</span><em>'+mm(L[i][2])+'</em></li>';return o||'<li><span>（空）</span><em>--:--</em></li>'}
+ function meter(el,used,capv){
+   var over=used>capv;
+   var u=Math.min(used,capv)/capv*100, bl=over?0:(capv-used)/capv*100;
+   var f=el.children;
+   f[0].className=over?"used over":"used"; f[0].style.width=(over?100:u).toFixed(2)+"%";
+   f[1].style.width=bl.toFixed(2)+"%";
+ }
+ function render(){
+   var A=sum(0,k), B=sum(k,12), bA=cap-A, bB=cap-B;
+   $("cut").value=k; $("cutlbl").textContent="第 "+String(k).padStart(2,"0")+" 課之後換面";
+   [].forEach.call(document.querySelectorAll("#lessons li"),function(li){ li.classList.toggle("cut", +li.dataset.i===k-1) });
+   $("aInfo").textContent=mm(A)+" ／ "+mm(cap)+(A<=cap?"　空白 "+mm(bA)+"（"+Math.round(bA*V).toLocaleString("en-US")+" cm）":"　超出 "+mm(-bA));
+   $("bInfo").textContent=mm(B)+" ／ "+mm(cap)+(B<=cap?"　空白 "+mm(bB):"　超出 "+mm(-bB));
+   meter($("aMeter"),A,cap); meter($("bMeter"),B,cap);
+   $("aList").innerHTML=listHTML(0,k); $("bList").innerHTML=listHTML(k,12);
+   var ok=(A<=cap)&&(B<=cap)&&(bA<=MAXBLANK), msg;
+   if(A>cap) msg="A 面裝不下，超出 "+mm(A-cap)+"。往前移換面點，或換更長的殼。";
+   else if(B>cap) msg="B 面裝不下，超出 "+mm(B-cap)+"。往後移換面點，或換更長的殼。";
+   else if(bA>MAXBLANK) msg="兩面都裝得下，但 A 面結尾空了 "+mm(bA)+"——超過三分鐘的空白，學生會以為機器壞了。往後移換面點。";
+   else msg="可以壓。"+shell+"，第 "+String(k).padStart(2,"0")+" 課之後換面，A 面空白 "+mm(bA)+"（"+Math.round(bA*V).toLocaleString("en-US")+" 公分）。三百卷 "+(price*300).toLocaleString("en-US")+" 元。";
+   $("vtxt").textContent=msg; $("vl").className="lamp"+(ok?" run":" on");
+   $("print").disabled=!ok; $("print").style.opacity=ok?1:.45;
+   if(!$("jout").hidden) paint(A,B,bA,bB);
+ }
+ function paint(A,B,bA,bB){
+   function rows(g,a,b,x){ var o="",y=50;
+     for(var i=a;i<b&&i<a+9;i++){ o+='<text x="'+x+'" y="'+y+'" font-family="Saira, sans-serif" font-size="11" fill="#23211C">'+L[i][0]+" "+L[i][1]+'</text>'; y+=15 }
+     return o }
+   $("jA").innerHTML=rows(0,0,k,20)+'<text x="20" y="168" font-family="Saira, sans-serif" font-size="10" fill="#8E2B2B">錄 '+mm(A)+"　空白 "+mm(bA)+"（"+Math.round(bA*V)+' cm）</text>';
+   $("jB").innerHTML=rows(0,k,12,274)+'<text x="274" y="168" font-family="Saira, sans-serif" font-size="10" fill="#8E2B2B">錄 '+mm(B)+"　空白 "+mm(bB)+'</text>';
+   $("jFoot").textContent="雙面社 SIANG-BIN ・ M-02 台語會話 第二輯 ・ "+shell+" ・ TYPE I ・ 4.76 cm/s ・ 300 卷 "+(price*300).toLocaleString("en-US")+" 元";
+ }
+ [].forEach.call(document.querySelectorAll(".shellpick .key"),function(btn){
+   btn.onclick=function(){
+     [].forEach.call(document.querySelectorAll(".shellpick .key"),function(b){b.setAttribute("aria-pressed","false")});
+     btn.setAttribute("aria-pressed","true");
+     cap=+btn.dataset.cap; shell=btn.dataset.name; price=+btn.dataset.price; render();
+   };
+ });
+ [].forEach.call(document.querySelectorAll("#lessons button"),function(b){ b.onclick=function(){ k=+b.dataset.k; if(k>11)k=11; render() } });
+ $("cut").oninput=function(){ k=+this.value; render() };
+ $("cutL").onclick=function(){ if(k>1){k--;render()} };
+ $("cutR").onclick=function(){ if(k<11){k++;render()} };
+ $("print").onclick=function(){ $("jout").hidden=false; render(); $("jout").scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}) };
+ render();
+})();
+</script>
+<footer>
+  <div class="fnav"><a href="index.html">帶位</a><a href="mulu.html">帶目</a><a href="atai.html">壓帶房</a><a href="paitai.html">排帶檯</a></div>
+  <p style="margin:10px 0 4px">雙面社 SIANG-BIN・台北市中正區南昌路一段 92 號 2 樓・(02) 2351-0476・週一至週五 09:30–18:30／週六 09:30–13:00・負責人 郭素鑾</p>
+  <p class="note">本站為設計風格示範站，社號、人名、價目、電話與地址皆為虛構。風格規格書見 <a href="SKILL.md">SKILL.md</a>。</p>
+</footer>
+</div>
+<script>
+(function(){
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+ var m=document.querySelector("main.bay"); if(!m||!document.body.closest) return;
+ document.addEventListener("click",function(e){
+   var a=e.target.closest?e.target.closest('a[href$=".html"]'):null;
+   if(!a||a.target||e.metaKey||e.ctrlKey||e.shiftKey||e.button!==0) return;
+   e.preventDefault();
+   m.style.animation="bay-open 200ms cubic-bezier(.4,0,.8,.4) both";
+   setTimeout(function(){ location.href=a.getAttribute("href") },185);
+ });
+})();
+</script>
+</body>
+</html>

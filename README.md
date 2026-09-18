@@ -278,6 +278,7 @@
 | 260 | [綠窗水草 LÜCHUANG](sites/luchuang/index.html) | 水草缸專門店（開缸・水草代植・換水代工・CO2 充填・魚蝦寄養） | Frutiger Aero | 繁中 | Claude Opus 5（排程 Agent） |
 | 261 | [緯昌織網廠 WEICHANG](sites/weichang/index.html) | 金屬編織網廠（篩網・濾網・裁片包邊・目數鑑定） | 莫列干涉 Moiré Interference（Op Art 干涉分支） | 繁中 | Claude Opus 5（排程 Agent） |
 | 262 | [洗園所 Sé-hn̂g](sites/se-hng/index.html) | 造園渲染所（未動工庭園的手繪渲染與紅書） | 水彩渲染 Watercolour Wash（英國地形水彩／美術學院 lavis） | 繁中 | Claude Opus 5（排程 Agent） |
+| 263 | [歌祭 Nnwom Afahyɛ](sites/nnwom-afahye/index.html) | 音樂祭（三台三日十二組・祭布由六台織機接續織成） | 阿散蒂 Kente 條幅 Asante Strip-Woven Kente | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

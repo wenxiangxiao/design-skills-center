@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今年的布｜NNWOM AFAHYƐ 歌祭</title>
+<meta name="description" content="阿散蒂 Kente 條幅風格的音樂祭官網：六條條幅縫成的首屏、六軸染線、跨縫錯位。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Crect width='12' height='12' fill='%230E0C09'/%3E%3Crect x='0' y='0' width='4' height='12' fill='%23F2B01E'/%3E%3Crect x='0' y='4' width='4' height='3' fill='%230E0C09'/%3E%3Crect x='4' y='2' width='4' height='3' fill='%23D22B1E'/%3E%3Crect x='4' y='8' width='4' height='3' fill='%230E7A45'/%3E%3Crect x='8' y='0' width='4' height='12' fill='%23F4EFE2'/%3E%3Crect x='8' y='6' width='4' height='3' fill='%230E0C09'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600&family=Noto+Sans+TC:wght@500;700&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --tuntum:#0E0C09; --sika:#F2B01E; --kokoo:#D22B1E;
+  --ahaban:#0E7A45; --bibiri:#173E86; --fitaa:#F4EFE2;
+  --pick:26px;            /* 一緯＝一列軌 */
+  --seam:3px;             /* 縫口寬 */
+  --band:3px;             /* 一條帶寬 */
+}
+html{background:var(--tuntum)}
+body{
+  background:var(--tuntum); color:var(--fitaa);
+  font-family:"Archivo","Noto Sans TC",sans-serif; font-weight:500;
+  font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--sika)}
+h1,h2,h3{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.01em;line-height:1.1}
+.tw{font-family:"Archivo Black",sans-serif;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── 特徵 2：經面＝縱帶；緯面＝橫帶。同一批線、同一組色，只有方向不同 ── */
+.warpface{background:repeating-linear-gradient(90deg,
+  var(--sika) 0 var(--band), var(--tuntum) var(--band) calc(var(--band)*2),
+  var(--kokoo) calc(var(--band)*2) calc(var(--band)*3), var(--tuntum) calc(var(--band)*3) calc(var(--band)*5));}
+.weftface{background:repeating-linear-gradient(0deg,
+  var(--fitaa) 0 var(--band), var(--ahaban) var(--band) calc(var(--band)*2));}
+
+/* ── 特徵 1：條幅與看得見的手縫線（針距不等，這是版面上唯一合法的線） ── */
+.seam{width:var(--seam);align-self:stretch;
+  background:repeating-linear-gradient(180deg,
+    var(--fitaa) 0 5px, var(--tuntum) 5px 9px,
+    var(--fitaa) 9px 12px, var(--tuntum) 12px 19px,
+    var(--fitaa) 19px 23px, var(--tuntum) 23px 28px);}
+
+/* ── 布：母網格；條幅：子網格（特徵 3 的錯位是整數，不是 magic number） ── */
+.cloth{display:grid;grid-auto-rows:var(--pick);gap:0;align-items:stretch;
+  grid-template-columns:repeat(6,minmax(0,1fr));}
+.cloth.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.strip{display:grid;grid-row:1/-1;grid-template-rows:subgrid;min-width:0;}
+.strip>.sp{display:block}
+@supports not (grid-template-rows:subgrid){
+  .strip{grid-template-rows:repeat(var(--rows,40),var(--pick))}
+}
+.strip{position:relative}
+.strip>*{position:relative}
+.strip>*::after{content:"";position:absolute;top:0;right:0;width:var(--seam);height:100%;z-index:4;
+  background:repeating-linear-gradient(180deg,
+    var(--fitaa) 0 5px,var(--tuntum) 5px 9px,var(--fitaa) 9px 12px,
+    var(--tuntum) 12px 19px,var(--fitaa) 19px 23px,var(--tuntum) 23px 28px);}
+.strip:last-child>*::after{display:none}
+.strip>.sp:not(.warpface)::after{display:none!important}  /* 沒有布的地方就沒有縫線——布的下緣因此是參差的 */
+
+/* 緯浮塊：一整塊被緯線蓋住的區域，紋路轉 90° */
+.blk{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  padding:4px 7px;text-align:center}
+.blk>.t{position:relative;z-index:2;display:inline-block;background:var(--pl,var(--tuntum));color:var(--tc,var(--fitaa));padding:2px 6px}
+.blk::before{content:"";position:absolute;inset:0;z-index:0;
+  background:repeating-linear-gradient(var(--dir,0deg),
+    var(--a,var(--sika)) 0 var(--band), var(--b,var(--tuntum)) var(--band) calc(var(--band)*2));}
+/* ── 簽名動效 grain-turn 轉紗：紋路方向以離散步階改織，中途沒有斜的中間態 ── */
+.blk.turn::before{animation:grain 2.4s steps(1,end) infinite}
+@keyframes grain{0%,49.99%{--dir:0deg}50%,100%{--dir:90deg}}
+@property --dir{syntax:"<angle>";inherits:true;initial-value:0deg}
+.blk:hover::before,.blk:focus-visible::before{--dir:90deg}
+
+.gr{background:var(--tuntum)}
+.lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.rule{height:var(--pick);display:flex;align-items:center}
+
+/* ── 導覽 shed-open 開口：現用頁那一束經線被分成上下兩層，中間空出梭子過得去的口 ── */
+.shed{position:sticky;top:0;z-index:40;background:var(--tuntum);
+  display:grid;grid-template-columns:repeat(4,1fr);border-bottom:3px solid var(--fitaa)}
+.hed{position:relative;display:block;padding:11px 12px 13px;text-decoration:none;color:var(--fitaa);
+  border-right:3px solid var(--fitaa);overflow:hidden}
+.hed:last-child{border-right:0}
+.hed .bundle{position:relative;height:22px;margin-bottom:7px}
+.hed .w{position:absolute;left:0;right:0;height:9px;transition:transform .12s steps(3,end);
+  background:repeating-linear-gradient(90deg,var(--fitaa) 0 2px,var(--tuntum) 2px 6px)}
+.hed .w.up{top:2px}.hed .w.dn{top:11px}
+.hed .sh{position:absolute;left:0;top:10px;width:16px;height:2px;background:var(--sika);visibility:hidden}
+.hed[aria-current="page"] .w.up{transform:translateY(-3px)}
+.hed[aria-current="page"] .w.dn{transform:translateY(3px)}
+.hed[aria-current="page"] .sh{visibility:visible;animation:pass 3.6s steps(12,end) infinite}
+@keyframes pass{0%{left:0}50%{left:calc(100% - 16px)}100%{left:0}}
+.hed:hover .w.up,.hed:focus-visible .w.up{transform:translateY(-3px)}
+.hed:hover .w.dn,.hed:focus-visible .w.dn{transform:translateY(3px)}
+.shed:has(.hed:hover) .hed:not(:hover) .w{transform:translateY(0)}
+.hed b{display:block;font-family:"Archivo Black",sans-serif;font-size:14px;letter-spacing:.1em}
+.hed i{display:block;font-style:normal;font-size:12px}
+.hed[aria-current="page"]{background:var(--sika);color:var(--tuntum)}
+.hed[aria-current="page"] .w{background:repeating-linear-gradient(90deg,var(--tuntum) 0 2px,var(--sika) 2px 6px)}
+.hed[aria-current="page"] .sh{background:var(--kokoo)}
+
+/* ── 轉場 sewn-on 上縫：進場時六條由上而下被縫下來，不是淡入 ── */
+.strip,.sewn{animation:sew .52s steps(9,end) both;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes sew{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* 版面 */
+.panel{border:3px solid var(--fitaa);background:var(--tuntum);margin:26px 0}
+.panel>h2{background:var(--fitaa);color:var(--tuntum);padding:7px 12px;font-size:15px;letter-spacing:.08em}
+.panel .bd{padding:16px 14px}
+.fact{display:grid;grid-template-columns:118px 1fr;gap:0 14px;padding:7px 0;border-bottom:3px solid var(--tuntum)}
+.fact dt{color:var(--sika);font-size:13px;letter-spacing:.06em}
+.fact dd{font-size:15px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:3px solid var(--fitaa);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:var(--fitaa);color:var(--tuntum);font-family:"Archivo Black",sans-serif;font-size:12px;letter-spacing:.08em}
+.foot{border-top:3px solid var(--fitaa);margin-top:34px;padding:20px 0 40px;font-size:13px}
+.foot a{margin-right:14px}
+.sm{font-size:12.5px}
+.kokoo{color:var(--kokoo)}.sika{color:var(--sika)}.ahaban{color:var(--ahaban)}
+:focus-visible{outline:3px solid var(--sika);outline-offset:2px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:8px;top:8px;z-index:99;background:var(--sika);color:var(--tuntum);padding:8px}
+
+/* 織序帶（ambient） */
+.loomrow{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.loomcol{background:var(--tuntum);border:3px solid var(--fitaa);min-width:0}
+.loomcol h3{font-size:12px;padding:4px 6px;background:var(--fitaa);color:var(--tuntum);letter-spacing:.06em}
+.tape{height:140px;overflow:hidden;display:flex;flex-direction:column-reverse}
+.tape i{display:block;height:7px;flex:0 0 7px}
+.tape i.new{animation:beat .4s steps(2,end) 1}
+@keyframes beat{0%{transform:scaleY(.2)}100%{transform:scaleY(1)}}
+.loomcol p{font-size:11.5px;padding:4px 6px;font-variant-numeric:tabular-nums}
+
+/* 織檯 */
+.bench{display:grid;grid-template-columns:200px 1fr 320px;gap:0;border:3px solid var(--fitaa)}
+.bench>div{border-right:3px solid var(--fitaa);min-width:0}
+.bench>div:last-child{border-right:0}
+.bh{background:var(--fitaa);color:var(--tuntum);padding:6px 10px;font-family:"Archivo Black",sans-serif;font-size:12px;letter-spacing:.08em}
+.rack{padding:8px}
+.rack label{display:flex;gap:8px;align-items:center;padding:4px 5px;cursor:pointer;border:3px solid var(--tuntum)}
+.rack label:hover{border-color:var(--sika)}
+.rack input{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
+.rack label:has(input:checked){border-color:var(--sika);background:var(--sika);color:var(--tuntum)}
+.sw{width:17px;height:17px;flex:0 0 17px}
+.rack .nm{font-size:12.5px;line-height:1.25}
+.rack .nm em{display:block;font-style:normal;font-size:11px}
+
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px}
+.mgrid label{border:3px solid var(--tuntum);padding:4px;cursor:pointer;text-align:center}
+.mgrid label:hover{border-color:var(--sika)}
+.mgrid label:has(input:checked){border-color:var(--sika)}
+.mgrid .mo{display:block;width:100%;height:auto}
+.mgrid span{display:block;font-size:10.5px;letter-spacing:.02em;margin-top:2px;line-height:1.2}
+.loomwrap{padding:10px;overflow-x:auto}
+.cellcol{display:grid;grid-template-rows:repeat(8,var(--pick));}
+.cellcol .cell{border:0;position:relative;background:var(--tuntum);padding:0;cursor:pointer;display:block;width:100%}
+.cellcol .cell.on{outline:3px solid var(--sika);outline-offset:-3px;z-index:3}
+.cellcol .cell .mo{width:100%;height:100%;display:block}
+.cellcol .cell.empty{background:repeating-linear-gradient(90deg,var(--fitaa) 0 2px,var(--tuntum) 2px 7px)}
+.say{padding:10px;font-size:14px}
+.say p{margin:0 0 7px}
+.say .nmtag{font-family:"Archivo Black",sans-serif;font-size:19px;color:var(--sika);letter-spacing:.04em}
+.btn{font:inherit;font-family:"Archivo Black",sans-serif;font-size:13px;letter-spacing:.08em;
+  background:var(--tuntum);color:var(--fitaa);border:3px solid var(--fitaa);padding:8px 14px;cursor:pointer}
+.btn:hover{background:var(--fitaa);color:var(--tuntum)}
+#sewbtn{pointer-events:none}
+.bench:has(.cell.on) .bh.armed{background:var(--sika)}
+
+@media (max-width:900px){
+  .bench{grid-template-columns:1fr}
+  .bench>div{border-right:0;border-bottom:3px solid var(--fitaa)}
+  .loomrow{grid-template-columns:repeat(3,1fr);gap:3px}
+}
+@media (max-width:560px){
+  :root{--pick:20px;--band:2.5px}
+  body{font-size:15px}
+  .cloth{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .strip.hide-s{display:none}
+  .hed i{display:none}
+  .hed b{font-size:12px}
+  .fact{grid-template-columns:1fr;gap:0}
+  .mgrid{grid-template-columns:repeat(4,1fr)}
+  .loomrow{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .hed[aria-current="page"] .sh{visibility:visible;left:calc(50% - 8px)}
+  .strip,.sewn{clip-path:none}
+  .blk.turn::before{--dir:90deg}
+}
+.hero{padding:0;margin:0}.hero .cloth{grid-template-rows:repeat(11,var(--pick)) minmax(var(--pick),auto) repeat(24,var(--pick))}</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="shed" aria-label="主導覽">
+<a class="hed" href="index.html" aria-current="page"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>NTOMA</b><i>今年的布</i></a>
+<a class="hed" href="dwom.html"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>NNWOM</b><i>節目</i></a>
+<a class="hed" href="kasa.html"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>KASA</b><i>布會說話</i></a>
+<a class="hed" href="nwene.html"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>NWENE</b><i>織這一條</i></a>
+</nav>
+<main id="main">
+<div class="hero"><div class="cloth"><div class="strip" style="--i:0;--rows:28"><div class="sp warpface" style="grid-row:span 2"></div><div class="blk" style="grid-row:span 4;--a:var(--sika);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--sika)"><span class="t" style="font-family:'Archivo Black',sans-serif;font-size:19px;line-height:1.04;letter-spacing:.02em">18–20<br>DEC<br>2026</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 2;--a:var(--kokoo);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">五・六・日 三夜</span></div><div class="sp warpface" style="grid-row:span 4"></div><div class="blk" style="grid-row:span 2;--a:var(--ahaban);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">入場 17:30</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 2;--a:var(--fitaa);--b:var(--bibiri);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:13px;line-height:1.3">KUMASI</span></div><div class="sp warpface" style="grid-row:span 6"></div></div>
+<div class="strip" style="--i:1;--rows:30"><div class="sp" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 3;--a:var(--kokoo);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11.5px;line-height:1.3">AMAKOM<br>HARPER RD</span></div><div class="sp warpface" style="grid-row:span 2"></div><div class="blk" style="grid-row:span 3;--a:var(--sika);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">Prempeh 會堂<br>前廣場</span></div><div class="sp warpface" style="grid-row:span 5"></div><div class="blk turn" style="grid-row:span 3;--a:var(--bibiri);--b:var(--fitaa);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">三台・十二組</span></div><div class="sp warpface" style="grid-row:span 4"></div><div class="blk" style="grid-row:span 3;--a:var(--sika);--b:var(--kokoo);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:13.5px;line-height:1.3">通票<br>GH₵ 180</span></div><div class="sp warpface" style="grid-row:span 4"></div></div>
+<div class="strip" style="--i:2;--rows:26"><div class="sp" style="grid-row:span 1"></div><div class="blk" style="grid-row:span 5;--a:var(--sika);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--sika)"><span class="t" style="font-family:'Archivo Black',sans-serif;font-size:26px;line-height:1.04;letter-spacing:.02em">NNWOM<br>AFAHYƐ</span></div><div class="sp warpface" style="grid-row:span 2"></div><div class="blk" style="grid-row:span 2;--a:var(--kokoo);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-family:'Archivo Black',sans-serif;font-size:22px;line-height:1.04;letter-spacing:.02em">歌祭</span></div><div class="sp warpface" style="grid-row:span 1"></div><div class="blk" style="grid-row:span 3;--a:var(--fitaa);--b:var(--ahaban);--pl:var(--fitaa);--tc:var(--tuntum)"><span class="t" style="font-size:12px;line-height:1.3">第六屆。祭布六條，前五條已經縫死，第六條空著。</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 2;--a:var(--ahaban);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11.5px;line-height:1.3">ASANTE · GHANA</span></div><div class="sp warpface" style="grid-row:span 7"></div></div>
+<div class="strip hide-s" style="--i:3;--rows:27"><div class="blk" style="grid-row:span 3;--a:var(--ahaban);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">ASAASE<br>地台</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 3;--a:var(--kokoo);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">MFRAMA<br>風台</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 3;--a:var(--bibiri);--b:var(--fitaa);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">ANADWO<br>夜台</span></div><div class="sp warpface" style="grid-row:span 5"></div><div class="blk" style="grid-row:span 2;--a:var(--sika);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:12.5px;line-height:1.3">單日 GH₵ 70</span></div><div class="sp warpface" style="grid-row:span 5"></div></div>
+<div class="strip hide-s" style="--i:4;--rows:27"><div class="sp" style="grid-row:span 5"></div><div class="blk turn" style="grid-row:span 4;--a:var(--sika);--b:var(--kokoo);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:13px;line-height:1.3">認織席次<br>GH₵ 40</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 3;--a:var(--fitaa);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11.5px;line-height:1.3">含一條 11 公分條幅的線材與縫工</span></div><div class="sp warpface" style="grid-row:span 4"></div><div class="blk" style="grid-row:span 2;--a:var(--ahaban);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11.5px;line-height:1.3">十五歲以下免費</span></div><div class="sp warpface" style="grid-row:span 6"></div></div>
+<div class="strip hide-s" style="--i:5;--rows:25"><div class="sp" style="grid-row:span 2"></div><div class="blk" style="grid-row:span 3;--a:var(--fitaa);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11.5px;line-height:1.3">+233<br>32 204 7719</span></div><div class="sp warpface" style="grid-row:span 4"></div><div class="blk" style="grid-row:span 2;--a:var(--sika);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11.5px;line-height:1.3">售票處 ADUM</span></div><div class="sp warpface" style="grid-row:span 3"></div><div class="blk" style="grid-row:span 2;--a:var(--kokoo);--b:var(--tuntum);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11px;line-height:1.3">Guggisberg Ave 21</span></div><div class="sp warpface" style="grid-row:span 2"></div><div class="blk" style="grid-row:span 2;--a:var(--bibiri);--b:var(--fitaa);--pl:var(--tuntum);--tc:var(--fitaa)"><span class="t" style="font-size:11px;line-height:1.3">一–六 09:00–17:30</span></div><div class="sp warpface" style="grid-row:span 5"></div></div></div></div>
+
+<div class="wrap">
+<div class="panel"><h2>這一屏是怎麼回事</h2><div class="bd">
+<p>上面那塊布由六條條幅縫成。每一條是 Bonwire 一台織機獨立織完的，所以六條的長度不一樣——布的下緣是參差的，因為六台機器停在不同的地方。六條的緯浮塊在高度上刻意互不對齊：<span class="sika">對齊了就是機器織的</span>，這一行不收。每一條只負責一件事，那件事有多長，那一條就織到哪裡。</p>
+<p class="sm" style="margin-top:8px">畫面窄的時候布會少幾條（只縫三條），但寫在上面的事一件也沒少——全部的事同時在下面這張〈營業事實〉表上。</p>
+</div></div>
+
+<div class="panel"><h2>營業事實</h2><div class="bd">
+<dl class="fact"><dt>祭名</dt><dd>NNWOM AFAHYƐ 歌祭（第六屆）</dd></dl>
+<dl class="fact"><dt>日期</dt><dd>2026 年 12 月 18 日（五）至 12 月 20 日（日）；每日 17:30 開場，夜台演至隔日 01:00</dd></dl>
+<dl class="fact"><dt>地點</dt><dd>迦納 Ashanti Region，Kumasi，Amakom，Harper Road，Prempeh 會堂前廣場</dd></dl>
+<dl class="fact"><dt>三台</dt><dd>ASAASE 地台（棕櫚酒吉他，露天草地）／MFRAMA 風台（highlife 大樂隊，會堂前階）／ANADWO 夜台（午夜之後，鼓與電子）</dd></dl>
+<dl class="fact"><dt>票價</dt><dd>三日通票 GH₵ 180；單日 GH₵ 70；十五歲以下免費</dd></dl>
+<dl class="fact"><dt>認織席次</dt><dd>GH₵ 40，含第六條條幅的一段線材與縫工。限 8 席，名額額滿為止。<a href="nwene.html">先在這裡試織一條</a></dd></dl>
+<dl class="fact"><dt>售票處</dt><dd>Kumasi，Adum，Guggisberg Avenue 21 號二樓；週一至週六 09:00–17:30，週日休</dd></dl>
+<dl class="fact"><dt>電話</dt><dd>+233 32 204 7719（祭務 Akua Serwaa）</dd></dl>
+<dl class="fact"><dt>縫工</dt><dd>Kwabena Owusu，三十一年，縫過的布 214 塊。祭布的最後一道縫在 12 月 20 日夜台結束後當場進行。</dd></dl>
+</div></div>
+
+<div class="panel"><h2>今日織序 · Bonwire 六台</h2><div class="bd">
+<p class="sm" style="margin-bottom:10px">六台織機每日 07:30 到 17:00 開工，週日休，平均 3.2 秒落一緯。下面是此刻各台已經織到第幾緯，以及最近落下的二十緯。這一段不需要你做任何事，它自己在走——每天來看都不一樣。</p>
+<div class="loomrow"><div class="loomcol"><h3>一號 · Yaw Mensah</h3><div class="tape" id="tape0"><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i></div><p id="cnt0">48,120 緯</p></div><div class="loomcol"><h3>二號 · Afia Boatemaa</h3><div class="tape" id="tape1"><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i></div><p id="cnt1">48,083 緯</p></div><div class="loomcol"><h3>三號 · Kofi Adu</h3><div class="tape" id="tape2"><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i></div><p id="cnt2">48,046 緯</p></div><div class="loomcol"><h3>四號 · Ama Nyarko</h3><div class="tape" id="tape3"><i style="background:var(--fitaa)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i></div><p id="cnt3">48,009 緯</p></div><div class="loomcol"><h3>五號 · Kwame Asante</h3><div class="tape" id="tape4"><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i><i style="background:var(--tuntum)"></i></div><p id="cnt4">47,972 緯</p></div><div class="loomcol"><h3>六號 · Abena Tiwaa</h3><div class="tape" id="tape5"><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--ahaban)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--kokoo)"></i><i style="background:var(--sika)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--fitaa)"></i><i style="background:var(--sika)"></i><i style="background:var(--tuntum)"></i><i style="background:var(--bibiri)"></i><i style="background:var(--tuntum)"></i></div><p id="cnt5">47,935 緯</p></div></div>
+<p class="sm" style="margin-top:10px">關掉 JavaScript 時這一段停在建置當下的數字，六台的緯序與配色仍然完整可讀。</p>
+</div></div>
+
+<div class="panel"><h2>五個拿掉就不是這個風格的東西</h2><div class="bd">
+<table><thead><tr><th style="width:30%">特徵</th><th>為什麼不能拿掉</th></tr></thead><tbody>
+<tr><td><b>1. 條幅與看得見的縫</b></td><td>版面不是排出來的，是縫出來的。九到十一公分的等寬直條，條與條之間是一道針距不等的手縫線——不是留白，也不是分隔線。</td></tr><tr><td><b>2. 同一批線，方向轉九十度</b></td><td>經面是縱帶，緯面是橫帶。兩者沒有明暗差、沒有第二種材質，差別只有紋路的方向。</td></tr><tr><td><b>3. 跨縫錯位是成品</b></td><td>相鄰條幅的緯塊刻意不對齊。對齊了就是機器織的，本行不收。</td></tr><tr><td><b>4. 六軸線，沒有第七色</b></td><td>架上只有六軸染好的線。畫面上的每一個顏色都必須是其中之一，不准調淡、不准加透明、不准混。</td></tr><tr><td><b>5. 每塊布有名字，名字是它最顯著的那個母題</b></td><td>布是拿來說話的。名字與它要說的話必須寫在版面上。</td></tr>
+</tbody></table>
+<p class="sm" style="margin-top:10px">每一項的做法與可直接複製的 CSS 片段寫在 <a href="SKILL.md">SKILL.md</a>；它們在站上長什麼樣子，見<a href="kasa.html">〈布會說話〉</a>。</p>
+</div></div>
+</div>
+<script>
+const LOOMS=[{"n":"一號","w":"Yaw Mensah","s":["sika","tuntum","kokoo","tuntum","sika","tuntum","ahaban","tuntum","sika","tuntum","fitaa","tuntum","kokoo"]},{"n":"二號","w":"Afia Boatemaa","s":["kokoo","tuntum","sika","sika","tuntum","bibiri","tuntum","kokoo","fitaa","tuntum","sika"]},{"n":"三號","w":"Kofi Adu","s":["ahaban","tuntum","sika","tuntum","ahaban","fitaa","tuntum","kokoo","tuntum","sika","tuntum","bibiri","tuntum","sika","tuntum","kokoo","fitaa"]},{"n":"四號","w":"Ama Nyarko","s":["fitaa","tuntum","kokoo","tuntum","sika","tuntum","sika","kokoo","tuntum","ahaban","tuntum","sika","tuntum"]},{"n":"五號","w":"Kwame Asante","s":["bibiri","tuntum","sika","tuntum","kokoo","sika","tuntum","fitaa","tuntum","sika","tuntum","ahaban","tuntum","kokoo","tuntum","sika","tuntum","bibiri","tuntum"]},{"n":"六號","w":"Abena Tiwaa","s":["sika","kokoo","tuntum","fitaa","tuntum","sika","tuntum","ahaban","tuntum","kokoo","tuntum","bibiri","tuntum","sika","fitaa","tuntum","sika"]}];
+const T0=Date.UTC(2026,8,1,7,30,0);      // 二〇二六年九月一日 開工
+const OPEN=7.5*3600e3, CLOSE=17*3600e3;  // 每日 07:30–17:00（GMT），週日休
+const SEC=3.2;                           // 一緯 3.2 秒
+function workedMs(now){
+  let ms=0, d=new Date(T0);
+  const day0=Math.floor(T0/86400e3), dayN=Math.floor(now/86400e3);
+  for(let k=day0;k<=dayN;k++){
+    const base=k*86400e3, wd=new Date(base).getUTCDay();
+    if(wd===0) continue;                 // 週日不開機
+    const s=Math.max(base+OPEN,T0), e=Math.min(base+CLOSE,now);
+    if(e>s) ms+=e-s;
+  }
+  return ms;
+}
+function picks(now,i){ return Math.max(0,Math.floor(workedMs(now)/1000/SEC) - i*37); }
+function paint(force){
+  const now=Date.now();
+  for(let i=0;i<6;i++){
+    const p=picks(now,i), col=document.getElementById('tape'+i);
+    if(!col) continue;
+    if(!force && col.dataset.p===String(p)) continue;
+    const prev=col.dataset.p; col.dataset.p=String(p);
+    const s=LOOMS[i].s, n=20, out=[];
+    for(let k=0;k<n;k++){ const idx=((p-k)%s.length+s.length)%s.length;
+      out.push('<i style="background:var(--'+s[idx]+')"'+(k===0&&prev!==undefined?' class="new"':'')+'></i>'); }
+    col.innerHTML=out.join('');
+    const c=document.getElementById('cnt'+i); if(c) c.textContent=p.toLocaleString('en-US')+' 緯';
+  }
+}
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  paint(true); setInterval(paint,800);
+}else{ paint(true); }
+</script>
+</main>
+<footer class="foot"><div class="wrap">
+<p class="tw" style="font-size:15px">NNWOM AFAHYƐ · 歌祭 · 第六屆</p>
+<p class="sm">迦納 Ashanti Region，Kumasi，Amakom，Harper Road，Prempeh 會堂前廣場｜售票處：Kumasi，Adum，Guggisberg Avenue 21 號二樓｜+233 32 204 7719｜週一至週六 09:00–17:30，週日休</p>
+<p style="margin-top:10px"><a href="index.html">NTOMA 今年的布</a><a href="dwom.html">NNWOM 節目</a><a href="kasa.html">KASA 布會說話</a><a href="nwene.html">NWENE 織這一條</a><a href="SKILL.md">SKILL.md</a><a href="README.md">README</a></p>
+<p class="sm" style="margin-top:10px">本站為網頁設計風格示範站。祭典、人名、票價、場次、電話與地址皆為虛構；緯塊母題名取自阿散蒂 kente／adinkra 的既有命名傳統，語意組合為本站為示範所設計，非民族誌紀錄。</p>
+<p class="sm">Design Skills Center · <a href="../../index.html">回藝廊</a></p>
+</div></footer>
+</body></html>

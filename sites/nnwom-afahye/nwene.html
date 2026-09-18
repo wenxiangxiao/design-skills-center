@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>織這一條｜NNWOM AFAHYƐ 歌祭</title>
+<meta name="description" content="接縫檯：織祭布的第六條。一塊緯塊說什麼，由它的鄰居決定；改一格，整塊布重唸一次。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Crect width='12' height='12' fill='%230E0C09'/%3E%3Crect x='0' y='0' width='4' height='12' fill='%23F2B01E'/%3E%3Crect x='0' y='4' width='4' height='3' fill='%230E0C09'/%3E%3Crect x='4' y='2' width='4' height='3' fill='%23D22B1E'/%3E%3Crect x='4' y='8' width='4' height='3' fill='%230E7A45'/%3E%3Crect x='8' y='0' width='4' height='12' fill='%23F4EFE2'/%3E%3Crect x='8' y='6' width='4' height='3' fill='%230E0C09'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600&family=Noto+Sans+TC:wght@500;700&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --tuntum:#0E0C09; --sika:#F2B01E; --kokoo:#D22B1E;
+  --ahaban:#0E7A45; --bibiri:#173E86; --fitaa:#F4EFE2;
+  --pick:26px;            /* 一緯＝一列軌 */
+  --seam:3px;             /* 縫口寬 */
+  --band:3px;             /* 一條帶寬 */
+}
+html{background:var(--tuntum)}
+body{
+  background:var(--tuntum); color:var(--fitaa);
+  font-family:"Archivo","Noto Sans TC",sans-serif; font-weight:500;
+  font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--sika)}
+h1,h2,h3{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.01em;line-height:1.1}
+.tw{font-family:"Archivo Black",sans-serif;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── 特徵 2：經面＝縱帶；緯面＝橫帶。同一批線、同一組色，只有方向不同 ── */
+.warpface{background:repeating-linear-gradient(90deg,
+  var(--sika) 0 var(--band), var(--tuntum) var(--band) calc(var(--band)*2),
+  var(--kokoo) calc(var(--band)*2) calc(var(--band)*3), var(--tuntum) calc(var(--band)*3) calc(var(--band)*5));}
+.weftface{background:repeating-linear-gradient(0deg,
+  var(--fitaa) 0 var(--band), var(--ahaban) var(--band) calc(var(--band)*2));}
+
+/* ── 特徵 1：條幅與看得見的手縫線（針距不等，這是版面上唯一合法的線） ── */
+.seam{width:var(--seam);align-self:stretch;
+  background:repeating-linear-gradient(180deg,
+    var(--fitaa) 0 5px, var(--tuntum) 5px 9px,
+    var(--fitaa) 9px 12px, var(--tuntum) 12px 19px,
+    var(--fitaa) 19px 23px, var(--tuntum) 23px 28px);}
+
+/* ── 布：母網格；條幅：子網格（特徵 3 的錯位是整數，不是 magic number） ── */
+.cloth{display:grid;grid-auto-rows:var(--pick);gap:0;align-items:stretch;
+  grid-template-columns:repeat(6,minmax(0,1fr));}
+.cloth.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.strip{display:grid;grid-row:1/-1;grid-template-rows:subgrid;min-width:0;}
+.strip>.sp{display:block}
+@supports not (grid-template-rows:subgrid){
+  .strip{grid-template-rows:repeat(var(--rows,40),var(--pick))}
+}
+.strip{position:relative}
+.strip>*{position:relative}
+.strip>*::after{content:"";position:absolute;top:0;right:0;width:var(--seam);height:100%;z-index:4;
+  background:repeating-linear-gradient(180deg,
+    var(--fitaa) 0 5px,var(--tuntum) 5px 9px,var(--fitaa) 9px 12px,
+    var(--tuntum) 12px 19px,var(--fitaa) 19px 23px,var(--tuntum) 23px 28px);}
+.strip:last-child>*::after{display:none}
+.strip>.sp:not(.warpface)::after{display:none!important}  /* 沒有布的地方就沒有縫線——布的下緣因此是參差的 */
+
+/* 緯浮塊：一整塊被緯線蓋住的區域，紋路轉 90° */
+.blk{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  padding:4px 7px;text-align:center}
+.blk>.t{position:relative;z-index:2;display:inline-block;background:var(--pl,var(--tuntum));color:var(--tc,var(--fitaa));padding:2px 6px}
+.blk::before{content:"";position:absolute;inset:0;z-index:0;
+  background:repeating-linear-gradient(var(--dir,0deg),
+    var(--a,var(--sika)) 0 var(--band), var(--b,var(--tuntum)) var(--band) calc(var(--band)*2));}
+/* ── 簽名動效 grain-turn 轉紗：紋路方向以離散步階改織，中途沒有斜的中間態 ── */
+.blk.turn::before{animation:grain 2.4s steps(1,end) infinite}
+@keyframes grain{0%,49.99%{--dir:0deg}50%,100%{--dir:90deg}}
+@property --dir{syntax:"<angle>";inherits:true;initial-value:0deg}
+.blk:hover::before,.blk:focus-visible::before{--dir:90deg}
+
+.gr{background:var(--tuntum)}
+.lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.rule{height:var(--pick);display:flex;align-items:center}
+
+/* ── 導覽 shed-open 開口：現用頁那一束經線被分成上下兩層，中間空出梭子過得去的口 ── */
+.shed{position:sticky;top:0;z-index:40;background:var(--tuntum);
+  display:grid;grid-template-columns:repeat(4,1fr);border-bottom:3px solid var(--fitaa)}
+.hed{position:relative;display:block;padding:11px 12px 13px;text-decoration:none;color:var(--fitaa);
+  border-right:3px solid var(--fitaa);overflow:hidden}
+.hed:last-child{border-right:0}
+.hed .bundle{position:relative;height:22px;margin-bottom:7px}
+.hed .w{position:absolute;left:0;right:0;height:9px;transition:transform .12s steps(3,end);
+  background:repeating-linear-gradient(90deg,var(--fitaa) 0 2px,var(--tuntum) 2px 6px)}
+.hed .w.up{top:2px}.hed .w.dn{top:11px}
+.hed .sh{position:absolute;left:0;top:10px;width:16px;height:2px;background:var(--sika);visibility:hidden}
+.hed[aria-current="page"] .w.up{transform:translateY(-3px)}
+.hed[aria-current="page"] .w.dn{transform:translateY(3px)}
+.hed[aria-current="page"] .sh{visibility:visible;animation:pass 3.6s steps(12,end) infinite}
+@keyframes pass{0%{left:0}50%{left:calc(100% - 16px)}100%{left:0}}
+.hed:hover .w.up,.hed:focus-visible .w.up{transform:translateY(-3px)}
+.hed:hover .w.dn,.hed:focus-visible .w.dn{transform:translateY(3px)}
+.shed:has(.hed:hover) .hed:not(:hover) .w{transform:translateY(0)}
+.hed b{display:block;font-family:"Archivo Black",sans-serif;font-size:14px;letter-spacing:.1em}
+.hed i{display:block;font-style:normal;font-size:12px}
+.hed[aria-current="page"]{background:var(--sika);color:var(--tuntum)}
+.hed[aria-current="page"] .w{background:repeating-linear-gradient(90deg,var(--tuntum) 0 2px,var(--sika) 2px 6px)}
+.hed[aria-current="page"] .sh{background:var(--kokoo)}
+
+/* ── 轉場 sewn-on 上縫：進場時六條由上而下被縫下來，不是淡入 ── */
+.strip,.sewn{animation:sew .52s steps(9,end) both;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes sew{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* 版面 */
+.panel{border:3px solid var(--fitaa);background:var(--tuntum);margin:26px 0}
+.panel>h2{background:var(--fitaa);color:var(--tuntum);padding:7px 12px;font-size:15px;letter-spacing:.08em}
+.panel .bd{padding:16px 14px}
+.fact{display:grid;grid-template-columns:118px 1fr;gap:0 14px;padding:7px 0;border-bottom:3px solid var(--tuntum)}
+.fact dt{color:var(--sika);font-size:13px;letter-spacing:.06em}
+.fact dd{font-size:15px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:3px solid var(--fitaa);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:var(--fitaa);color:var(--tuntum);font-family:"Archivo Black",sans-serif;font-size:12px;letter-spacing:.08em}
+.foot{border-top:3px solid var(--fitaa);margin-top:34px;padding:20px 0 40px;font-size:13px}
+.foot a{margin-right:14px}
+.sm{font-size:12.5px}
+.kokoo{color:var(--kokoo)}.sika{color:var(--sika)}.ahaban{color:var(--ahaban)}
+:focus-visible{outline:3px solid var(--sika);outline-offset:2px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:8px;top:8px;z-index:99;background:var(--sika);color:var(--tuntum);padding:8px}
+
+/* 織序帶（ambient） */
+.loomrow{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.loomcol{background:var(--tuntum);border:3px solid var(--fitaa);min-width:0}
+.loomcol h3{font-size:12px;padding:4px 6px;background:var(--fitaa);color:var(--tuntum);letter-spacing:.06em}
+.tape{height:140px;overflow:hidden;display:flex;flex-direction:column-reverse}
+.tape i{display:block;height:7px;flex:0 0 7px}
+.tape i.new{animation:beat .4s steps(2,end) 1}
+@keyframes beat{0%{transform:scaleY(.2)}100%{transform:scaleY(1)}}
+.loomcol p{font-size:11.5px;padding:4px 6px;font-variant-numeric:tabular-nums}
+
+/* 織檯 */
+.bench{display:grid;grid-template-columns:200px 1fr 320px;gap:0;border:3px solid var(--fitaa)}
+.bench>div{border-right:3px solid var(--fitaa);min-width:0}
+.bench>div:last-child{border-right:0}
+.bh{background:var(--fitaa);color:var(--tuntum);padding:6px 10px;font-family:"Archivo Black",sans-serif;font-size:12px;letter-spacing:.08em}
+.rack{padding:8px}
+.rack label{display:flex;gap:8px;align-items:center;padding:4px 5px;cursor:pointer;border:3px solid var(--tuntum)}
+.rack label:hover{border-color:var(--sika)}
+.rack input{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}
+.rack label:has(input:checked){border-color:var(--sika);background:var(--sika);color:var(--tuntum)}
+.sw{width:17px;height:17px;flex:0 0 17px}
+.rack .nm{font-size:12.5px;line-height:1.25}
+.rack .nm em{display:block;font-style:normal;font-size:11px}
+
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px}
+.mgrid label{border:3px solid var(--tuntum);padding:4px;cursor:pointer;text-align:center}
+.mgrid label:hover{border-color:var(--sika)}
+.mgrid label:has(input:checked){border-color:var(--sika)}
+.mgrid .mo{display:block;width:100%;height:auto}
+.mgrid span{display:block;font-size:10.5px;letter-spacing:.02em;margin-top:2px;line-height:1.2}
+.loomwrap{padding:10px;overflow-x:auto}
+.cellcol{display:grid;grid-template-rows:repeat(8,var(--pick));}
+.cellcol .cell{border:0;position:relative;background:var(--tuntum);padding:0;cursor:pointer;display:block;width:100%}
+.cellcol .cell.on{outline:3px solid var(--sika);outline-offset:-3px;z-index:3}
+.cellcol .cell .mo{width:100%;height:100%;display:block}
+.cellcol .cell.empty{background:repeating-linear-gradient(90deg,var(--fitaa) 0 2px,var(--tuntum) 2px 7px)}
+.say{padding:10px;font-size:14px}
+.say p{margin:0 0 7px}
+.say .nmtag{font-family:"Archivo Black",sans-serif;font-size:19px;color:var(--sika);letter-spacing:.04em}
+.btn{font:inherit;font-family:"Archivo Black",sans-serif;font-size:13px;letter-spacing:.08em;
+  background:var(--tuntum);color:var(--fitaa);border:3px solid var(--fitaa);padding:8px 14px;cursor:pointer}
+.btn:hover{background:var(--fitaa);color:var(--tuntum)}
+#sewbtn{pointer-events:none}
+.bench:has(.cell.on) .bh.armed{background:var(--sika)}
+
+@media (max-width:900px){
+  .bench{grid-template-columns:1fr}
+  .bench>div{border-right:0;border-bottom:3px solid var(--fitaa)}
+  .loomrow{grid-template-columns:repeat(3,1fr);gap:3px}
+}
+@media (max-width:560px){
+  :root{--pick:20px;--band:2.5px}
+  body{font-size:15px}
+  .cloth{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .strip.hide-s{display:none}
+  .hed i{display:none}
+  .hed b{font-size:12px}
+  .fact{grid-template-columns:1fr;gap:0}
+  .mgrid{grid-template-columns:repeat(4,1fr)}
+  .loomrow{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .hed[aria-current="page"] .sh{visibility:visible;left:calc(50% - 8px)}
+  .strip,.sewn{clip-path:none}
+  .blk.turn::before{--dir:90deg}
+}
+.loom{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(30,var(--pick));--pick:22px;position:relative}
+  .loom .strip{display:grid;grid-row:1/-1;grid-template-rows:subgrid;min-width:0}
+  @supports not (grid-template-rows:subgrid){.loom .strip{grid-template-rows:repeat(30,var(--pick))}}
+  .loom .strip{position:relative}
+  .loom .yr{position:absolute;top:-19px;font-size:10.5px;letter-spacing:.06em}
+  .pcell,.cell{position:relative}
+  .pcell svg,.cell svg{display:block;width:100%;height:100%}
+  .cell{border:0;padding:0;background:var(--tuntum);cursor:pointer;width:100%}
+  .cell.empty{background:repeating-linear-gradient(90deg,var(--fitaa) 0 2px,var(--tuntum) 2px 7px)}
+  .cell:hover{outline:3px solid var(--sika);outline-offset:-3px;z-index:5}
+  .strip.mine{outline:3px solid var(--sika);outline-offset:0}
+  .loom .strip>*::after{content:"";position:absolute;top:0;right:0;width:3px;height:100%;z-index:6;
+    background:repeating-linear-gradient(180deg,var(--fitaa) 0 5px,var(--tuntum) 5px 9px,var(--fitaa) 9px 12px,var(--tuntum) 12px 19px)}
+  .loom .strip:last-child>*::after{display:none}
+  .loom .yr::after{display:none!important}
+  #sewbtn{pointer-events:none;border-style:dashed}
+  .lay:has(.loom.live .cell.full ~ .cell.full ~ .cell.full ~ .cell.full ~ .cell.full ~ .cell.full ~ .cell.full ~ .cell.full) #sewbtn{pointer-events:auto;border-style:solid;background:var(--sika);color:var(--tuntum);border-color:var(--sika)}
+  @supports not selector(:has(*)){#sewbtn{pointer-events:auto;border-style:solid;background:var(--sika);color:var(--tuntum);border-color:var(--sika)}}
+  .rules{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:3px solid var(--fitaa);margin:16px 0}
+  .rules div{padding:10px 12px;border-right:3px solid var(--fitaa);font-size:13.5px}
+  .rules div:last-child{border-right:0}
+  .rules b{display:block;font-family:"Archivo Black",sans-serif;color:var(--sika);font-size:12px;margin-bottom:3px}
+  .cl{display:block;padding:2px 0;font-size:14px}
+  .cl b{display:inline-block;width:20px;color:var(--sika);font-family:"Archivo Black",sans-serif;font-size:11px}
+  .full{display:block;margin:6px 0;font-size:14.5px;line-height:1.7}
+  .lay{display:grid;grid-template-columns:232px 1fr 316px;border:3px solid var(--fitaa);margin-top:22px}
+  .lay>section{border-right:3px solid var(--fitaa);min-width:0}
+  .lay>section:last-child{border-right:0}
+  .loomwrap{padding:26px 12px 12px}
+  .acts{padding:10px 12px;border-top:3px solid var(--fitaa);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  @media(max-width:980px){.lay{grid-template-columns:1fr}.lay>section{border-right:0;border-bottom:3px solid var(--fitaa)}}
+  @media(max-width:560px){.loom{grid-template-columns:repeat(2,minmax(0,1fr));--pick:18px}.loom .strip.hide-m{display:none}.rules{grid-template-columns:1fr}.rules div{border-right:0;border-bottom:3px solid var(--fitaa)}.mgrid{grid-template-columns:repeat(4,1fr)}}</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="shed" aria-label="主導覽">
+<a class="hed" href="index.html"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>NTOMA</b><i>今年的布</i></a>
+<a class="hed" href="dwom.html"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>NNWOM</b><i>節目</i></a>
+<a class="hed" href="kasa.html"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>KASA</b><i>布會說話</i></a>
+<a class="hed" href="nwene.html" aria-current="page"><span class="bundle" aria-hidden="true"><span class="w up"></span><span class="sh"></span><span class="w dn"></span></span><b>NWENE</b><i>織這一條</i></a>
+</nav>
+<main id="main">
+<div class="wrap">
+<h1 style="font-size:30px;margin:26px 0 6px">織這一條 · NWENE</h1>
+<p class="sm" style="max-width:64ch">祭布到今年是六條。前五條（2021–2025）已經縫死了，動不了。<span class="sika">第六條空著</span>——八格，由認織席次的人織。你現在坐在縫工 Kwabena Owusu 的檯子前面。</p>
+
+<div class="rules">
+<div><b>一</b>從左邊的架上拿一塊緯塊，再挑一軸線。</div>
+<div><b>二</b>按中間那一條的空格，把它放進去。再按一次就取下來。</div>
+<div><b>三</b>一塊說什麼要看鄰居：<b style="display:inline;color:var(--sika)">左邊跨縫的那一格定主詞，上下的鄰居定語氣</b>。八格滿了就可以縫上去。</div>
+</div>
+
+<div class="lay">
+<section>
+  <div class="bh armed">手上拿的</div>
+  <div class="rack"><label><input type="radio" name="sp" value="tuntum"><span class="sw" style="background:#0E0C09;border:2px solid var(--fitaa)"></span><span class="nm">Tuntum<em>黑・成熟、已經過去的事、祖先</em></span></label><label><input type="radio" name="sp" value="sika" checked><span class="sw" style="background:#F2B01E;border:2px solid var(--fitaa)"></span><span class="nm">Sika<em>金・豐年、王室、收得回來的錢</em></span></label><label><input type="radio" name="sp" value="kokoo"><span class="sw" style="background:#D22B1E;border:2px solid var(--fitaa)"></span><span class="nm">Kɔkɔɔ<em>朱・血緣、動怒、非講不可的事</em></span></label><label><input type="radio" name="sp" value="ahaban"><span class="sw" style="background:#0E7A45;border:2px solid var(--fitaa)"></span><span class="nm">Ahaban<em>綠・新苗、第一次來的人</em></span></label><label><input type="radio" name="sp" value="bibiri"><span class="sw" style="background:#173E86;border:2px solid var(--fitaa)"></span><span class="nm">Bibiri<em>靛藍・和睦、把事情談成</em></span></label><label><input type="radio" name="sp" value="fitaa"><span class="sw" style="background:#F4EFE2;border:2px solid var(--fitaa)"></span><span class="nm">Fitaa<em>棉白・沒有染過的、還沒決定的</em></span></label></div>
+  <div class="bh armed">塊架 · 十二母題</div>
+  <div class="mgrid"><label title="Ahwepan 素織"><input type="radio" name="mo" value="ahwepan"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="8" width="12" height="2" fill="#F2B01E"/></svg><span>Ahwepan<br>素織</span></label><label title="Babadua 竹節"><input type="radio" name="mo" value="babadua"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="7" width="12" height="2" fill="#F2B01E"/><rect x="0" y="10" width="12" height="2" fill="#F2B01E"/></svg><span>Babadua<br>竹節</span></label><label title="Nkyimkyim 曲折"><input type="radio" name="mo" value="nkyimkyim" checked><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="3" fill="#F2B01E"/><rect x="3" y="3" width="3" height="3" fill="#F2B01E"/><rect x="6" y="6" width="3" height="3" fill="#F2B01E"/><rect x="9" y="9" width="3" height="3" fill="#F2B01E"/><rect x="9" y="0" width="3" height="3" fill="#F2B01E"/><rect x="0" y="9" width="3" height="3" fill="#F2B01E"/></svg><span>Nkyimkyim<br>曲折</span></label><label title="Nsoroma 星"><input type="radio" name="mo" value="nsoroma"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="2" height="2" fill="#F2B01E"/><rect x="5" y="2" width="2" height="2" fill="#F2B01E"/><rect x="9" y="1" width="2" height="2" fill="#F2B01E"/><rect x="3" y="5" width="2" height="2" fill="#F2B01E"/><rect x="7" y="6" width="2" height="2" fill="#F2B01E"/><rect x="1" y="9" width="2" height="2" fill="#F2B01E"/><rect x="5" y="9" width="2" height="2" fill="#F2B01E"/><rect x="9" y="9" width="2" height="2" fill="#F2B01E"/></svg><span>Nsoroma<br>星</span></label><label title="Akyempem 千盾"><input type="radio" name="mo" value="akyempem"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="2" fill="#F2B01E"/><rect x="4" y="0" width="3" height="2" fill="#F2B01E"/><rect x="8" y="0" width="3" height="2" fill="#F2B01E"/><rect x="2" y="4" width="3" height="2" fill="#F2B01E"/><rect x="6" y="4" width="3" height="2" fill="#F2B01E"/><rect x="10" y="4" width="3" height="2" fill="#F2B01E"/><rect x="0" y="8" width="3" height="2" fill="#F2B01E"/><rect x="4" y="8" width="3" height="2" fill="#F2B01E"/><rect x="8" y="8" width="3" height="2" fill="#F2B01E"/></svg><span>Akyempem<br>千盾</span></label><label title="Adwinasa 花盡"><input type="radio" name="mo" value="adwinasa"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#F2B01E"/><rect x="0" y="10" width="12" height="2" fill="#F2B01E"/><rect x="0" y="0" width="2" height="12" fill="#F2B01E"/><rect x="10" y="0" width="2" height="12" fill="#F2B01E"/><rect x="5" y="2" width="2" height="8" fill="#F2B01E"/><rect x="2" y="5" width="8" height="2" fill="#F2B01E"/></svg><span>Adwinasa<br>花盡</span></label><label title="Sika Futuro 金粉"><input type="radio" name="mo" value="sikafut"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="10" fill="#F2B01E"/></svg><span>Sika Futuro<br>金粉</span></label><label title="Emaa Da 未曾有"><input type="radio" name="mo" value="emaada"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="0" width="5" height="9" fill="#F2B01E"/><rect x="7" y="6" width="4" height="6" fill="#F2B01E"/><rect x="7" y="0" width="4" height="4" fill="#F2B01E"/></svg><span>Emaa Da<br>未曾有</span></label><label title="Owuo Atwedeɛ 梯"><input type="radio" name="mo" value="atwedee"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="2" y="0" width="2" height="12" fill="#F2B01E"/><rect x="8" y="0" width="2" height="12" fill="#F2B01E"/><rect x="4" y="1" width="4" height="2" fill="#F2B01E"/><rect x="4" y="4" width="4" height="2" fill="#F2B01E"/><rect x="4" y="7" width="4" height="2" fill="#F2B01E"/><rect x="4" y="10" width="4" height="2" fill="#F2B01E"/></svg><span>Owuo Atwedeɛ<br>梯</span></label><label title="Aban 城"><input type="radio" name="mo" value="aban"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="1" fill="#F2B01E"/><rect x="1" y="10" width="10" height="1" fill="#F2B01E"/><rect x="1" y="1" width="1" height="10" fill="#F2B01E"/><rect x="10" y="1" width="1" height="10" fill="#F2B01E"/><rect x="4" y="4" width="4" height="4" fill="#F2B01E"/></svg><span>Aban<br>城</span></label><label title="Toku Akra 托庫之魂"><input type="radio" name="mo" value="toku"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="6" height="6" fill="#F2B01E"/><rect x="6" y="6" width="6" height="6" fill="#F2B01E"/><rect x="7" y="1" width="4" height="4" fill="#F2B01E"/><rect x="1" y="7" width="4" height="4" fill="#F2B01E"/></svg><span>Toku Akra<br>托庫之魂</span></label><label title="Mframadan 風屋"><input type="radio" name="mo" value="mframadan"><svg class="mo" viewBox="0 0 12 12" width="60" height="60" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="2" height="12" fill="#F2B01E"/><rect x="5" y="0" width="2" height="12" fill="#F2B01E"/><rect x="10" y="0" width="2" height="12" fill="#F2B01E"/><rect x="0" y="5" width="12" height="2" fill="#F2B01E"/></svg><span>Mframadan<br>風屋</span></label></div>
+</section>
+<section>
+  <div class="bh">祭布 · 五條已縫，第六條在你手上　<span id="cntfill">0 / 8</span></div>
+  <div class="loomwrap"><div class="loom"><div class="strip past hide-m" style="--i:0;--rows:30"><div class="yr">2021</div><div class="sp" style="grid-row:span 5"></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="0" width="5" height="9" fill="#F2B01E"/><rect x="7" y="6" width="4" height="6" fill="#F2B01E"/><rect x="7" y="0" width="4" height="4" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="7" width="12" height="2" fill="#F2B01E"/><rect x="0" y="10" width="12" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="2" height="2" fill="#F2B01E"/><rect x="5" y="2" width="2" height="2" fill="#F2B01E"/><rect x="9" y="1" width="2" height="2" fill="#F2B01E"/><rect x="3" y="5" width="2" height="2" fill="#F2B01E"/><rect x="7" y="6" width="2" height="2" fill="#F2B01E"/><rect x="1" y="9" width="2" height="2" fill="#F2B01E"/><rect x="5" y="9" width="2" height="2" fill="#F2B01E"/><rect x="9" y="9" width="2" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="8" width="12" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="2" fill="#F2B01E"/><rect x="4" y="0" width="3" height="2" fill="#F2B01E"/><rect x="8" y="0" width="3" height="2" fill="#F2B01E"/><rect x="2" y="4" width="3" height="2" fill="#F2B01E"/><rect x="6" y="4" width="3" height="2" fill="#F2B01E"/><rect x="10" y="4" width="3" height="2" fill="#F2B01E"/><rect x="0" y="8" width="3" height="2" fill="#F2B01E"/><rect x="4" y="8" width="3" height="2" fill="#F2B01E"/><rect x="8" y="8" width="3" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="7" width="12" height="2" fill="#F2B01E"/><rect x="0" y="10" width="12" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="3" fill="#F2B01E"/><rect x="3" y="3" width="3" height="3" fill="#F2B01E"/><rect x="6" y="6" width="3" height="3" fill="#F2B01E"/><rect x="9" y="9" width="3" height="3" fill="#F2B01E"/><rect x="9" y="0" width="3" height="3" fill="#F2B01E"/><rect x="0" y="9" width="3" height="3" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="6" height="6" fill="#F2B01E"/><rect x="6" y="6" width="6" height="6" fill="#F2B01E"/><rect x="7" y="1" width="4" height="4" fill="#F2B01E"/><rect x="1" y="7" width="4" height="4" fill="#F2B01E"/></svg></div><div class="sp" style="grid-row:span 1"></div></div><div class="strip past hide-m" style="--i:1;--rows:30"><div class="yr">2022</div><div class="sp" style="grid-row:span 3"></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#D22B1E"/><rect x="0" y="4" width="12" height="2" fill="#D22B1E"/><rect x="0" y="7" width="12" height="2" fill="#D22B1E"/><rect x="0" y="10" width="12" height="2" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="1" fill="#D22B1E"/><rect x="1" y="10" width="10" height="1" fill="#D22B1E"/><rect x="1" y="1" width="1" height="10" fill="#D22B1E"/><rect x="10" y="1" width="1" height="10" fill="#D22B1E"/><rect x="4" y="4" width="4" height="4" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="10" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#D22B1E"/><rect x="0" y="4" width="12" height="2" fill="#D22B1E"/><rect x="0" y="8" width="12" height="2" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="2" height="2" fill="#D22B1E"/><rect x="5" y="2" width="2" height="2" fill="#D22B1E"/><rect x="9" y="1" width="2" height="2" fill="#D22B1E"/><rect x="3" y="5" width="2" height="2" fill="#D22B1E"/><rect x="7" y="6" width="2" height="2" fill="#D22B1E"/><rect x="1" y="9" width="2" height="2" fill="#D22B1E"/><rect x="5" y="9" width="2" height="2" fill="#D22B1E"/><rect x="9" y="9" width="2" height="2" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="2" y="0" width="2" height="12" fill="#D22B1E"/><rect x="8" y="0" width="2" height="12" fill="#D22B1E"/><rect x="4" y="1" width="4" height="2" fill="#D22B1E"/><rect x="4" y="4" width="4" height="2" fill="#D22B1E"/><rect x="4" y="7" width="4" height="2" fill="#D22B1E"/><rect x="4" y="10" width="4" height="2" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#D22B1E"/><rect x="0" y="4" width="12" height="2" fill="#D22B1E"/><rect x="0" y="7" width="12" height="2" fill="#D22B1E"/><rect x="0" y="10" width="12" height="2" fill="#D22B1E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="2" height="12" fill="#D22B1E"/><rect x="5" y="0" width="2" height="12" fill="#D22B1E"/><rect x="10" y="0" width="2" height="12" fill="#D22B1E"/><rect x="0" y="5" width="12" height="2" fill="#D22B1E"/></svg></div><div class="sp" style="grid-row:span 3"></div></div><div class="strip past hide-m" style="--i:2;--rows:30"><div class="yr">2023</div><div class="sp" style="grid-row:span 4"></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="3" fill="#0E7A45"/><rect x="3" y="3" width="3" height="3" fill="#0E7A45"/><rect x="6" y="6" width="3" height="3" fill="#0E7A45"/><rect x="9" y="9" width="3" height="3" fill="#0E7A45"/><rect x="9" y="0" width="3" height="3" fill="#0E7A45"/><rect x="0" y="9" width="3" height="3" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="2" height="2" fill="#0E7A45"/><rect x="5" y="2" width="2" height="2" fill="#0E7A45"/><rect x="9" y="1" width="2" height="2" fill="#0E7A45"/><rect x="3" y="5" width="2" height="2" fill="#0E7A45"/><rect x="7" y="6" width="2" height="2" fill="#0E7A45"/><rect x="1" y="9" width="2" height="2" fill="#0E7A45"/><rect x="5" y="9" width="2" height="2" fill="#0E7A45"/><rect x="9" y="9" width="2" height="2" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#0E7A45"/><rect x="0" y="4" width="12" height="2" fill="#0E7A45"/><rect x="0" y="8" width="12" height="2" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="6" height="6" fill="#0E7A45"/><rect x="6" y="6" width="6" height="6" fill="#0E7A45"/><rect x="7" y="1" width="4" height="4" fill="#0E7A45"/><rect x="1" y="7" width="4" height="4" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#0E7A45"/><rect x="0" y="4" width="12" height="2" fill="#0E7A45"/><rect x="0" y="7" width="12" height="2" fill="#0E7A45"/><rect x="0" y="10" width="12" height="2" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="2" fill="#0E7A45"/><rect x="4" y="0" width="3" height="2" fill="#0E7A45"/><rect x="8" y="0" width="3" height="2" fill="#0E7A45"/><rect x="2" y="4" width="3" height="2" fill="#0E7A45"/><rect x="6" y="4" width="3" height="2" fill="#0E7A45"/><rect x="10" y="4" width="3" height="2" fill="#0E7A45"/><rect x="0" y="8" width="3" height="2" fill="#0E7A45"/><rect x="4" y="8" width="3" height="2" fill="#0E7A45"/><rect x="8" y="8" width="3" height="2" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="10" fill="#0E7A45"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="1" fill="#0E7A45"/><rect x="1" y="10" width="10" height="1" fill="#0E7A45"/><rect x="1" y="1" width="1" height="10" fill="#0E7A45"/><rect x="10" y="1" width="1" height="10" fill="#0E7A45"/><rect x="4" y="4" width="4" height="4" fill="#0E7A45"/></svg></div><div class="sp" style="grid-row:span 2"></div></div><div class="strip past hide-m" style="--i:3;--rows:30"><div class="yr">2024</div><div class="sp" style="grid-row:span 2"></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="2" y="0" width="2" height="12" fill="#173E86"/><rect x="8" y="0" width="2" height="12" fill="#173E86"/><rect x="4" y="1" width="4" height="2" fill="#173E86"/><rect x="4" y="4" width="4" height="2" fill="#173E86"/><rect x="4" y="7" width="4" height="2" fill="#173E86"/><rect x="4" y="10" width="4" height="2" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="2" height="12" fill="#173E86"/><rect x="5" y="0" width="2" height="12" fill="#173E86"/><rect x="10" y="0" width="2" height="12" fill="#173E86"/><rect x="0" y="5" width="12" height="2" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#173E86"/><rect x="0" y="4" width="12" height="2" fill="#173E86"/><rect x="0" y="7" width="12" height="2" fill="#173E86"/><rect x="0" y="10" width="12" height="2" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="3" fill="#173E86"/><rect x="3" y="3" width="3" height="3" fill="#173E86"/><rect x="6" y="6" width="3" height="3" fill="#173E86"/><rect x="9" y="9" width="3" height="3" fill="#173E86"/><rect x="9" y="0" width="3" height="3" fill="#173E86"/><rect x="0" y="9" width="3" height="3" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#173E86"/><rect x="0" y="4" width="12" height="2" fill="#173E86"/><rect x="0" y="8" width="12" height="2" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="2" height="2" fill="#173E86"/><rect x="5" y="2" width="2" height="2" fill="#173E86"/><rect x="9" y="1" width="2" height="2" fill="#173E86"/><rect x="3" y="5" width="2" height="2" fill="#173E86"/><rect x="7" y="6" width="2" height="2" fill="#173E86"/><rect x="1" y="9" width="2" height="2" fill="#173E86"/><rect x="5" y="9" width="2" height="2" fill="#173E86"/><rect x="9" y="9" width="2" height="2" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="6" height="6" fill="#173E86"/><rect x="6" y="6" width="6" height="6" fill="#173E86"/><rect x="7" y="1" width="4" height="4" fill="#173E86"/><rect x="1" y="7" width="4" height="4" fill="#173E86"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="10" fill="#173E86"/></svg></div><div class="sp" style="grid-row:span 4"></div></div><div class="strip past" style="--i:4;--rows:30"><div class="yr">2025</div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="2" fill="#F2B01E"/><rect x="4" y="0" width="3" height="2" fill="#F2B01E"/><rect x="8" y="0" width="3" height="2" fill="#F2B01E"/><rect x="2" y="4" width="3" height="2" fill="#F2B01E"/><rect x="6" y="4" width="3" height="2" fill="#F2B01E"/><rect x="10" y="4" width="3" height="2" fill="#F2B01E"/><rect x="0" y="8" width="3" height="2" fill="#F2B01E"/><rect x="4" y="8" width="3" height="2" fill="#F2B01E"/><rect x="8" y="8" width="3" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="6" height="6" fill="#F2B01E"/><rect x="6" y="6" width="6" height="6" fill="#F2B01E"/><rect x="7" y="1" width="4" height="4" fill="#F2B01E"/><rect x="1" y="7" width="4" height="4" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="1" width="10" height="1" fill="#F2B01E"/><rect x="1" y="10" width="10" height="1" fill="#F2B01E"/><rect x="1" y="1" width="1" height="10" fill="#F2B01E"/><rect x="10" y="1" width="1" height="10" fill="#F2B01E"/><rect x="4" y="4" width="4" height="4" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="1" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="7" width="12" height="2" fill="#F2B01E"/><rect x="0" y="10" width="12" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="1" y="0" width="5" height="9" fill="#F2B01E"/><rect x="7" y="6" width="4" height="6" fill="#F2B01E"/><rect x="7" y="0" width="4" height="4" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="2" height="12" fill="#F2B01E"/><rect x="5" y="0" width="2" height="12" fill="#F2B01E"/><rect x="10" y="0" width="2" height="12" fill="#F2B01E"/><rect x="0" y="5" width="12" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="12" height="2" fill="#F2B01E"/><rect x="0" y="4" width="12" height="2" fill="#F2B01E"/><rect x="0" y="8" width="12" height="2" fill="#F2B01E"/></svg></div><div class="pcell" style="grid-row:span 3"><svg class="mo" viewBox="0 0 12 12" width="64" height="64" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="0" y="0" width="12" height="12" fill="#0E0C09"/><rect x="0" y="0" width="3" height="3" fill="#F2B01E"/><rect x="3" y="3" width="3" height="3" fill="#F2B01E"/><rect x="6" y="6" width="3" height="3" fill="#F2B01E"/><rect x="9" y="9" width="3" height="3" fill="#F2B01E"/><rect x="9" y="0" width="3" height="3" fill="#F2B01E"/><rect x="0" y="9" width="3" height="3" fill="#F2B01E"/></svg></div><div class="sp" style="grid-row:span 6"></div></div><div class="strip mine" style="--i:5;--rows:30"><div class="yr sika">2026・你</div><div class="sp" style="grid-row:span 1"></div><button type="button" class="cell empty" id="c0" style="grid-row:span 3" aria-label="第 1 格：空的。"></button><button type="button" class="cell empty" id="c1" style="grid-row:span 3" aria-label="第 2 格：空的。"></button><button type="button" class="cell empty" id="c2" style="grid-row:span 3" aria-label="第 3 格：空的。"></button><button type="button" class="cell empty" id="c3" style="grid-row:span 3" aria-label="第 4 格：空的。"></button><button type="button" class="cell empty" id="c4" style="grid-row:span 3" aria-label="第 5 格：空的。"></button><button type="button" class="cell empty" id="c5" style="grid-row:span 3" aria-label="第 6 格：空的。"></button><button type="button" class="cell empty" id="c6" style="grid-row:span 3" aria-label="第 7 格：空的。"></button><button type="button" class="cell empty" id="c7" style="grid-row:span 3" aria-label="第 8 格：空的。"></button><div class="sp" style="grid-row:span 5"></div></div></div></div>
+  <div class="acts">
+    <button type="button" class="btn" id="sewbtn" aria-disabled="true">縫上去（八格滿了才縫得動）</button>
+    <button type="button" class="btn" id="clrbtn">全部拆掉</button>
+    <span class="sm">手機上只顯示第五條與你這一條——跨縫的鄰居就是它。</span>
+  </div>
+</section>
+<section>
+  <div class="bh">這塊布在說什麼</div>
+  <div class="say">
+    <p class="nmtag" id="nmtag">——</p>
+    <p class="sm" id="nmzh">八格裡出現最多次的那一塊，決定這條布的名字。</p>
+    <hr style="border:0;border-top:3px solid var(--fitaa);margin:10px 0">
+    <div id="reading"><span class="sm">（還沒有放上任何一塊。左邊挑一塊，再按中間那一條的空格。）</span></div>
+    <p id="verdict" style="margin-top:10px"></p>
+  </div>
+</section>
+</div>
+
+<noscript><div class="panel"><h2>沒有 JavaScript 的時候</h2><div class="bd">
+<p>上面的檯子需要 JavaScript 才能把塊放進格子裡。線架與塊架仍然可以選（那是純 CSS 的），而全部十二種母題的語意寫在下面這張表上——這張表就是檯子在算的全部規則，沒有藏東西。</p>
+</div></div></noscript>
+
+<div class="panel"><h2>檯子在算什麼（全部規則就這張表）</h2><div class="bd">
+<p class="sm" style="margin-bottom:10px">一格的句子 ＝ <b class="sika">跨縫左鄰的主詞</b> ＋ <b class="sika">上鄰（沒有就下鄰）的語氣</b> ＋ <b class="sika">這一格自己的動詞</b>。所以同一塊母題放在不同的地方，講的不是同一句話——這塊布的意思不在任何一格上，在格與格的相鄰關係裡。改一格，整條重唸。</p>
+<table><thead><tr><th>母題</th><th>中</th><th>它自己的動詞</th><th>當左鄰時給的主詞</th><th>當上下鄰時給的語氣</th></tr></thead><tbody><tr><td class="tw">Ahwepan</td><td>素織</td><td>……讓開路。</td><td>先到的人</td><td>不出聲地</td></tr><tr><td class="tw">Babadua</td><td>竹節</td><td>……撐住台子。</td><td>搭台的人</td><td>一節一節地</td></tr><tr><td class="tw">Nkyimkyim</td><td>曲折</td><td>……改了道。</td><td>去年的路</td><td>彎過幾次才</td></tr><tr><td class="tw">Nsoroma</td><td>星</td><td>……守到天亮。</td><td>凌晨還沒走的人</td><td>一顆一顆地</td></tr><tr><td class="tw">Akyempem</td><td>千盾</td><td>……把雨擋下。</td><td>十二月的雨</td><td>排成一列地</td></tr><tr><td class="tw">Adwinasa</td><td>花盡</td><td>……把話說完。</td><td>王</td><td>再無餘地地</td></tr><tr><td class="tw">Sika Futuro</td><td>金粉</td><td>……把工錢付清。</td><td>去年欠的工錢</td><td>一次就</td></tr><tr><td class="tw">Emaa Da</td><td>未曾有</td><td>……頭一次發生。</td><td>這座廣場</td><td>從來沒有這樣地</td></tr><tr><td class="tw">Owuo Atwedeɛ</td><td>梯</td><td>……輪到下一個。</td><td>每一個人</td><td>一階一階地</td></tr><tr><td class="tw">Aban</td><td>城</td><td>……圍起來。</td><td>祭場</td><td>從四邊地</td></tr><tr><td class="tw">Toku Akra</td><td>托庫之魂</td><td>……被記著。</td><td>已經不在的鼓手</td><td>低聲地</td></tr><tr><td class="tw">Mframadan</td><td>風屋</td><td>……沒有被吹倒。</td><td>吹過廣場的風</td><td>整夜地</td></tr></tbody></table>
+<p class="sm" style="margin-top:10px">第五條（2025）由左至右是：Akyempem · Toku Akra · Aban · Babadua · Emaa Da · Mframadan · Ahwepan · Nkyimkyim。你的第 n 格貼著的就是它的第 n 格——縫口偏一緯，所以貼得多的是同號那一格。</p>
+</div></div>
+
+<div class="panel"><h2>認織席次</h2><div class="bd">
+<dl class="fact"><dt>費用</dt><dd>GH₵ 40，含一段 11 公分寬條幅的線材與縫工</dd></dl>
+<dl class="fact"><dt>名額</dt><dd>8 席（八格，一人一格）。報名：+233 32 204 7719，祭務 Akua Serwaa</dd></dl>
+<dl class="fact"><dt>縫</dt><dd>2026 年 12 月 20 日夜台結束後，在 Prempeh 會堂前廣場當場縫。縫完就拆不開了。</dd></dl>
+<dl class="fact"><dt>看不懂母題</dt><dd>先去<a href="kasa.html">〈布會說話〉</a>。那一頁有六軸線與十二母題的全部語彙。</dd></dl>
+</div></div>
+</div>
+<script>
+var SPOOL={"tuntum":{"hex":"#0E0C09","tw":"Tuntum","zh":"黑","say":"成熟、已經過去的事、祖先"},"sika":{"hex":"#F2B01E","tw":"Sika","zh":"金","say":"豐年、王室、收得回來的錢"},"kokoo":{"hex":"#D22B1E","tw":"Kɔkɔɔ","zh":"朱","say":"血緣、動怒、非講不可的事"},"ahaban":{"hex":"#0E7A45","tw":"Ahaban","zh":"綠","say":"新苗、第一次來的人"},"bibiri":{"hex":"#173E86","tw":"Bibiri","zh":"靛藍","say":"和睦、把事情談成"},"fitaa":{"hex":"#F4EFE2","tw":"Fitaa","zh":"棉白","say":"沒有染過的、還沒決定的"}};
+var ORDER=["tuntum","sika","kokoo","ahaban","bibiri","fitaa"];
+var MOTIF=[{"id":"ahwepan","tw":"Ahwepan","zh":"素織","verb":"讓開路","topic":"先到的人","tone":"不出聲地","idx":0},{"id":"babadua","tw":"Babadua","zh":"竹節","verb":"撐住台子","topic":"搭台的人","tone":"一節一節地","idx":1},{"id":"nkyimkyim","tw":"Nkyimkyim","zh":"曲折","verb":"改了道","topic":"去年的路","tone":"彎過幾次才","idx":2},{"id":"nsoroma","tw":"Nsoroma","zh":"星","verb":"守到天亮","topic":"凌晨還沒走的人","tone":"一顆一顆地","idx":3},{"id":"akyempem","tw":"Akyempem","zh":"千盾","verb":"把雨擋下","topic":"十二月的雨","tone":"排成一列地","idx":4},{"id":"adwinasa","tw":"Adwinasa","zh":"花盡","verb":"把話說完","topic":"王","tone":"再無餘地地","idx":5},{"id":"sikafut","tw":"Sika Futuro","zh":"金粉","verb":"把工錢付清","topic":"去年欠的工錢","tone":"一次就","idx":6},{"id":"emaada","tw":"Emaa Da","zh":"未曾有","verb":"頭一次發生","topic":"這座廣場","tone":"從來沒有這樣地","idx":7},{"id":"atwedee","tw":"Owuo Atwedeɛ","zh":"梯","verb":"輪到下一個","topic":"每一個人","tone":"一階一階地","idx":8},{"id":"aban","tw":"Aban","zh":"城","verb":"圍起來","topic":"祭場","tone":"從四邊地","idx":9},{"id":"toku","tw":"Toku Akra","zh":"托庫之魂","verb":"被記著","topic":"已經不在的鼓手","tone":"低聲地","idx":10},{"id":"mframadan","tw":"Mframadan","zh":"風屋","verb":"沒有被吹倒","topic":"吹過廣場的風","tone":"整夜地","idx":11}];
+var MI={};MOTIF.forEach(function(m){MI[m.id]=m;});
+var LAST=["akyempem","toku","aban","babadua","emaada","mframadan","ahwepan","nkyimkyim"];
+function cells(id){
+  const R=[];
+  const put=(x,y,w,h)=>R.push([x,y,w,h]);
+  switch(id){
+    case 'ahwepan':   for(let y=0;y<12;y+=4) put(0,y,12,2); break;
+    case 'babadua':   for(let y=1;y<12;y+=3) put(0,y,12,2); break;
+    case 'nkyimkyim': put(0,0,3,3);put(3,3,3,3);put(6,6,3,3);put(9,9,3,3);put(9,0,3,3);put(6,3,0,0);put(0,9,3,3); break;
+    case 'nsoroma':   [[1,1],[5,2],[9,1],[3,5],[7,6],[1,9],[5,9],[9,9]].forEach(p=>put(p[0],p[1],2,2)); break;
+    case 'akyempem':  for(let y=0;y<12;y+=4){const o=(y/4)%2?2:0; for(let x=o;x<12;x+=4) put(x,y,3,2);} break;
+    case 'adwinasa':  put(0,0,12,2);put(0,10,12,2);put(0,0,2,12);put(10,0,2,12);put(5,2,2,8);put(2,5,8,2); break;
+    case 'sikafut':   put(1,1,10,10); break;
+    case 'emaada':    put(1,0,5,9);put(7,6,4,6);put(7,0,4,4); break;
+    case 'atwedee':   put(2,0,2,12);put(8,0,2,12);for(let y=1;y<12;y+=3) put(4,y,4,2); break;
+    case 'aban':      put(0,0,12,12-12);put(1,1,10,1);put(1,10,10,1);put(1,1,1,10);put(10,1,1,10);put(4,4,4,4); break;
+    case 'toku':      put(0,0,6,6);put(6,6,6,6);put(7,1,4,4);put(1,7,4,4); break;
+    case 'mframadan': put(0,0,2,12);put(5,0,2,12);put(10,0,2,12);put(0,5,12,2); break;
+  }
+  return R.filter(r=>r[2]>0&&r[3]>0);
+}
+function svg(id,a,b){var s='<svg viewBox="0 0 12 12" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><rect width="12" height="12" fill="'+b+'"/>';
+  cells(id).forEach(function(r){s+='<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" fill="'+a+'"/>';});return s+'</svg>';}
+var S=[null,null,null,null,null,null,null,null], sewn=false;
+function armedM(){var e=document.querySelector('input[name=mo]:checked');return e?e.value:null;}
+function armedC(){var e=document.querySelector('input[name=sp]:checked');return e?e.value:'sika';}
+/* ── 相鄰即語意：一格說什麼，由它的鄰居決定 ────────────────────────
+   主詞 ← 跨縫左鄰（第五條同高的那一格）的 topic
+   語氣 ← 上鄰（沒有就下鄰）的 tone
+   動詞 ← 這一格自己的 verb                                        */
+function clause(i){
+  if(!S[i]) return null;
+  var subj=MI[LAST[i]].topic;
+  var nb=(S[i-1]?MI[S[i-1].m]:null)||(S[i+1]?MI[S[i+1].m]:null);
+  var tone=nb?nb.tone:'';
+  return subj+tone+MI[S[i].m].verb+'。';
+}
+function name(){
+  var cnt={},best=null;
+  for(var i=0;i<8;i++){ if(!S[i])continue; cnt[S[i].m]=(cnt[S[i].m]||0)+1;
+    if(!best||cnt[S[i].m]>cnt[best]) best=S[i].m; }
+  if(!best) return null;
+  var uniq=cnt[best]===1;
+  var c=null; for(var j=0;j<8;j++){ if(S[j]&&S[j].m===best){c=S[j].a;break;} }
+  return {tw:SPOOL[c].tw+' '+MI[best].tw, zh:SPOOL[c].zh+MI[best].zh, n:cnt[best], uniq:uniq};
+}
+function render(){
+  for(var i=0;i<8;i++){
+    var el=document.getElementById('c'+i); if(!el) continue;
+    if(S[i]){ var bg=S[i].a==='tuntum'?'fitaa':'tuntum';
+      el.innerHTML=svg(S[i].m,SPOOL[S[i].a].hex,SPOOL[bg].hex);
+      el.className='cell full'; el.setAttribute('aria-label','第 '+(i+1)+' 格：'+MI[S[i].m].tw+' '+MI[S[i].m].zh+'，'+SPOOL[S[i].a].zh+'線。再按一次取下。');
+    } else { el.innerHTML=''; el.className='cell empty';
+      el.setAttribute('aria-label','第 '+(i+1)+' 格：空的。按一下把手上那一塊放進來。'); }
+  }
+  var out=[],k=0;
+  for(var i=0;i<8;i++){var c=clause(i); if(c){out.push('<span class="cl"><b>'+(i+1)+'</b>'+c+'</span>');k++;}}
+  var r=document.getElementById('reading');
+  r.innerHTML = k? out.join('') : '<span class="sm">（還沒有放上任何一塊。左邊挑一塊，再按中間那一條的空格。）</span>';
+  var nm=name(), t=document.getElementById('nmtag');
+  t.textContent = nm? nm.tw : '——';
+  document.getElementById('nmzh').textContent = nm? (nm.uniq? '「'+nm.zh+'」·　八格沒有重複的母題，就用最上面那一塊命名。' : '「'+nm.zh+'」·　最顯著的母題出現 '+nm.n+' 次，布就叫這個名字。') : '八格裡出現最多次的那一塊，決定這條布的名字。';
+  document.getElementById('cntfill').textContent=k+' / 8';
+  if(sewn){sewn=false;document.getElementById('verdict').textContent='';}
+}
+function place(i){
+  var m=armedM(); if(!m) return;
+  if(S[i] && S[i].m===m && S[i].a===armedC()){ S[i]=null; } else { S[i]={m:m,a:armedC()}; }
+  render();
+}
+function sew(){
+  var k=0,all=true;
+  for(var i=0;i<8;i++){ if(S[i])k++; if(!S[i]||S[i].m!=='adwinasa') all=false; }
+  if(k<8) return;
+  var v=document.getElementById('verdict'), nm=name();
+  if(all){ v.innerHTML='<b class="kokoo">縫工 Kwabena Owusu 把布推回來。</b>八格全是 Adwinasa——花盡。只有 Asantehene 的布可以花盡，這一塊本祭不縫。換掉其中一格再拿來。'; return; }
+  var line=[]; for(var i=0;i<8;i++){var c=clause(i); if(c)line.push(c);}
+  sewn=true;
+  v.innerHTML='<b class="sika">縫上去了。</b>第六條進了祭布，整塊布現在唸起來是：<br><span class="full">'+line.join('')+'</span><br><span class="sm">12 月 20 日夜台結束後，這一條會在廣場上當場縫死。縫下去就拆不開了。</span>';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  for(var i=0;i<8;i++){ (function(i){ document.getElementById('c'+i).addEventListener('click',function(){place(i);}); })(i); }
+  document.getElementById('sewbtn').addEventListener('click',sew);
+  document.getElementById('clrbtn').addEventListener('click',function(){S=[null,null,null,null,null,null,null,null];document.getElementById('verdict').textContent='';render();});
+  document.querySelector('.loom').classList.add('live');
+  render();
+});
+</script></main>
+<footer class="foot"><div class="wrap">
+<p class="tw" style="font-size:15px">NNWOM AFAHYƐ · 歌祭 · 第六屆</p>
+<p class="sm">迦納 Ashanti Region，Kumasi，Amakom，Harper Road，Prempeh 會堂前廣場｜售票處：Kumasi，Adum，Guggisberg Avenue 21 號二樓｜+233 32 204 7719｜週一至週六 09:00–17:30，週日休</p>
+<p style="margin-top:10px"><a href="index.html">NTOMA 今年的布</a><a href="dwom.html">NNWOM 節目</a><a href="kasa.html">KASA 布會說話</a><a href="nwene.html">NWENE 織這一條</a><a href="SKILL.md">SKILL.md</a><a href="README.md">README</a></p>
+<p class="sm" style="margin-top:10px">本站為網頁設計風格示範站。祭典、人名、票價、場次、電話與地址皆為虛構；緯塊母題名取自阿散蒂 kente／adinkra 的既有命名傳統，語意組合為本站為示範所設計，非民族誌紀錄。</p>
+<p class="sm">Design Skills Center · <a href="../../index.html">回藝廊</a></p>
+</div></footer>
+</body></html>

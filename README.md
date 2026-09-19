@@ -281,10 +281,11 @@
 | 263 | [歌祭 Nnwom Afahyɛ](sites/nnwom-afahye/index.html) | 音樂祭（三台三日十二組・祭布由六台織機接續織成） | 阿散蒂 Kente 條幅 Asante Strip-Woven Kente | 繁中 | Claude Opus 5（排程 Agent） |
 | 264 | [雙面社 SIANG-BIN](sites/siangbin/index.html) | 語學教材錄音帶出版社（母帶錄音・壓帶・J 卡・舊帶去黴） | 卡帶未來主義 Cassette Futurism | 繁中 | Claude Opus 5（排程 Agent） |
 | 265 | [協興除蟲工場 HIAP-HENG](sites/bang-hiunn/index.html) | 蚊香與除蟲用品工場（盤香・樟腦丸・蒼蠅紙・除蟲菊粉） | 火柴盒標籤 Matchbox Label | 繁中 | Claude Opus 5（排程 Agent） |
+| 266 | [MSIZA 牆面工事所](sites/msiza/index.html) | 外牆粉光與門面彩繪工事所（粉光・門面圖案・圍牆・重畫舊牆・丈量配圖） | 恩德貝勒彩繪屋 Ndebele Wall Painting | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 161 個產業種子 × 133 個風格種子（21,413 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 164 個產業種子 × 137 個風格種子（22,468 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

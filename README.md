@@ -285,6 +285,7 @@
 | 267 | [BQB 波斯特石問答社](sites/bolsterstone/index.html) | 酒館問答題紙代寫與聯賽事務所（每週六十題・印成題紙送四十一家酒館・聯賽計分・決賽司儀・申訴裁定） | 終端機 Teletext／Ceefax | 繁中 | Claude Opus 5（排程 Agent） |
 | 268 | [紅圓號 ÂNG-ÎNN-HŌ](sites/ang-inn/index.html) | 糕粿舖（紅龜粿・壽桃・發粿・米糕栫・祝壽與謝神供品訂製） | 台式辦桌紅 Taiwanese Banquet Red | 繁中 | Claude Opus 5（排程 Agent） |
 | 269 | [AUFZUGWERK QUADRAT 方格升降機工房](sites/quadratwerk/index.html) | 手動升降機修復工房（鍛鐵柵門重製・機廂內裝・樓層指示盤修復・年度保養合約） | 維也納分離派 Secession（格柵半身 Gitterwerk） | 繁中/德 | Claude Opus 5（排程 Agent） |
+| 270 | [THE HOMER 史柯爾斯賽鴿會週報](sites/the-homer/index.html) | 賽鴿會（訓放與海放・環號登記・歸返計時與驗錶・幼鴿拍賣・鴿舍檢查・週報自印） | 英國紅頂小報 Red-top Tabloid | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE HOMER 第三版 歸返榜｜史柯爾斯賽鴿會</title>
+<meta name="description" content="本季四場全成績、鴿舍名次與速度算式，每一筆都可用同一張表上的碼數與飛行分驗算。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20fill='%23B80014'/%3E%3Cpath%20d='M7%206h5v9h8V6h5v20h-5v-8h-8v8H7z'%20fill='%23D6D4C6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ========================================================================
+   THE HOMER — 英國紅頂小報 Red-top Tabloid
+   吃墨的新聞紙 ink-gain-newsprint ／ 粗網構成 coarse-screen
+   硬規則：沒有一個灰色的色碼（每一階灰都是墨的網點百分比）
+           沒有 #FFF（反白＝紙上沒有墨＝紙色）
+           沒有漸層（唯一的 radial-gradient 是網點，唯一的 linear-gradient 是硬停點欄線）
+           沒有模糊陰影、沒有 filter、沒有發光、圓角一律 0
+   ====================================================================== */
+
+:root{
+  --paper:#D6D4C6;   /* 新聞紙　約 46% */
+  --ink:#17171A;     /* 墨　　　約 34% */
+  --red:#B80014;     /* 紅頂紅　≤8%  只給報頭・旗標・更正・focus */
+  --yellow:#FFD400;  /* 旗黃　　≤3%  只給圓旗標 */
+  --blue:#1A4FA3;    /* 校對藍　≤2%  只給校對符號與量度 */
+
+  --gain:0.40px;     /* 吃墨：實塊比幾何大這麼多 */
+  --rule:0.6px;      /* 欄線（兩種線寬之一） */
+  --box:2.4px;       /* 框線（兩種線寬之二） */
+  --pitch:3.2px;     /* 網點間距（85 lpi） */
+
+  --f-lat:'Archivo','Arial Narrow',Helvetica,sans-serif;
+  --f-cjk:'Noto Sans TC','PingFang TC','Heiti TC',sans-serif;
+
+  --gut:10px;        /* 欄間 */
+  --measure:1100px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html{background:var(--ink)}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-cjk);
+  font-weight:400;
+  font-size:15px;
+  line-height:1.52;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body::before{ /* 紙的邊：這張紙躺在暗的檯面上 */
+  content:"";position:fixed;inset:0;pointer-events:none;
+  border-left:var(--box) solid var(--ink);border-right:var(--box) solid var(--ink);
+  z-index:40;
+}
+.sheet{max-width:var(--measure);margin:0 auto;padding:0 18px 0 66px;position:relative}
+
+/* ---------- 網點：兩層同格陣互錯半格＝45° 單色網 ---------- */
+.s10,.s25,.s40,.s60,.s85{
+  background-image:
+    radial-gradient(circle at 50% 50%, var(--ink) 0 var(--r), rgba(0,0,0,0) var(--r)),
+    radial-gradient(circle at 50% 50%, var(--ink) 0 var(--r), rgba(0,0,0,0) var(--r));
+  background-size:var(--pitch) var(--pitch);
+  background-position:0 0, calc(var(--pitch)/2) calc(var(--pitch)/2);
+}
+.s10{--r:0.404px}  /* 10% */
+.s25{--r:0.638px}  /* 25% */
+.s40{--r:0.807px}  /* 40% */
+.s60{--r:0.989px}  /* 60% */
+.s85{--r:1.177px}  /* 85% */
+
+/* ---------- 吃墨：環境動效（ambient・無輸入・時間驅動） ----------
+   墨在新聞紙上會往外吃。整版所有的實塊同相位一起脹一起縮，
+   位置一格也不動，像一台正在暖機的輪轉機。 */
+@keyframes gain-ink{0%,100%{box-shadow:0 0 0 .30px var(--ink)}   50%{box-shadow:0 0 0 .95px var(--ink)}}
+@keyframes gain-red{0%,100%{box-shadow:0 0 0 .30px var(--red)}   50%{box-shadow:0 0 0 .95px var(--red)}}
+@keyframes gain-yel{0%,100%{box-shadow:0 0 0 .30px var(--yellow)}50%{box-shadow:0 0 0 .95px var(--yellow)}}
+@keyframes gain-blu{0%,100%{box-shadow:0 0 0 .30px var(--blue)}  50%{box-shadow:0 0 0 .95px var(--blue)}}
+
+.kicker,caption,.boxed .lbl,.wob,.tally i,.press.again{
+  animation:gain-ink 14s ease-in-out infinite}
+.redtop,.kicker.red,.errata .lbl,.press,.flash.r{
+  animation:gain-red 14s ease-in-out infinite}
+.flash{animation:gain-ink 14s ease-in-out infinite}
+.err[data-state="hit"]{animation:gain-blu 14s ease-in-out infinite}
+
+.solid{background:currentColor}
+.wob{background:var(--ink);color:var(--paper);box-shadow:0 0 0 var(--gain) var(--ink)}
+
+/* ---------- 版次轉場：整版一欄一欄落下（steps，不滑行） ---------- */
+@keyframes replate{from{opacity:0}to{opacity:1}}
+.col{animation:replate 1ms steps(1) both;animation-delay:calc(var(--i,0)*42ms)}
+
+/* ---------- 報頭 ---------- */
+.masthead{display:flex;align-items:stretch;gap:0;margin-top:14px;flex-wrap:wrap}
+.redtop{                      /* 報頭寬度是給定的；刊名被解到剛好填滿它 */
+  flex:0 0 42%;min-width:210px;max-width:470px;
+  background:var(--red);color:var(--paper);
+  padding:10px 16px 12px;display:flex;align-items:center;
+  box-shadow:0 0 0 var(--gain) var(--red);
+}
+.redtop .screamer{margin:0}
+.redtop .screamer .ln{
+  font-family:var(--f-lat);font-weight:900;line-height:.86;
+  font-size:var(--sz,clamp(28px,5.6vw,72px));
+}
+.mast-right{
+  flex:1;border-bottom:var(--box) solid var(--ink);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 0 5px 12px;
+}
+.mast-line{
+  font-family:var(--f-lat);font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;display:flex;flex-wrap:wrap;gap:0 14px;
+}
+.mast-line .cjk{font-family:var(--f-cjk);letter-spacing:.02em;font-weight:500}
+.stars{color:var(--red);letter-spacing:.14em}
+.mast-rule{height:var(--box);background:var(--ink);margin-top:0}
+
+/* 耳題 ears */
+.ears{display:flex;justify-content:space-between;gap:12px;
+  border-bottom:var(--rule) solid var(--ink);padding:3px 0 4px;
+  font-size:11px;font-weight:700;letter-spacing:.03em}
+.ears i{font-style:normal;color:var(--red)}
+
+/* ---------- 導覽：摺痕 creased ---------- */
+.fold-nav{display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:var(--box) solid var(--ink);border-bottom:var(--box) solid var(--ink);
+  margin:0 0 8px}
+.fold-nav a{
+  position:relative;display:block;text-decoration:none;color:var(--ink);
+  padding:7px 8px 8px;border-right:var(--rule) solid var(--ink);
+  background:var(--paper);
+}
+.fold-nav a:last-child{border-right:0}
+.fold-nav .no{font-family:var(--f-lat);font-size:10px;font-weight:900;letter-spacing:.1em;display:block}
+.fold-nav .nm{font-size:13px;font-weight:700;letter-spacing:.02em;display:block;line-height:1.25}
+.fold-nav .en{font-family:var(--f-lat);font-size:9px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;display:block;opacity:1}
+/* 摺痕：一條亮、一條暗，紙被摺過就回不去了。紙色那一條＝紙上沒有墨 */
+.fold-nav a[aria-current="page"]::before{
+  content:"";position:absolute;left:50%;top:0;bottom:0;width:0;
+  border-left:1px solid var(--paper);border-right:1px solid var(--ink);
+  transform:translateX(-1px);
+}
+.fold-nav a[aria-current="page"]::after{ /* 摺過去的那半邊，紙疊了一層＝10% 網點，不是灰色 */
+  content:"";position:absolute;left:calc(50% + 1px);right:0;top:0;bottom:0;
+  pointer-events:none;
+  background-image:
+    radial-gradient(circle at 50% 50%, var(--ink) 0 .404px, rgba(0,0,0,0) .404px),
+    radial-gradient(circle at 50% 50%, var(--ink) 0 .404px, rgba(0,0,0,0) .404px);
+  background-size:var(--pitch) var(--pitch);
+  background-position:0 0, calc(var(--pitch)/2) calc(var(--pitch)/2);
+}
+.fold-nav a[aria-current="page"] .nm{color:var(--red)}
+.fold-nav a:hover{background:var(--ink);color:var(--paper)}
+.fold-nav a:hover .nm{color:var(--paper)}
+.fold-nav a:focus-visible{outline:var(--box) solid var(--red);outline-offset:-3px}
+
+/* ---------- 欄 ---------- */
+.grid{display:grid;gap:0 var(--gut);grid-template-columns:repeat(7,1fr)}
+.grid > *{border-left:var(--rule) solid var(--ink);padding-left:calc(var(--gut)/2)}
+.grid > *:first-child{border-left:0;padding-left:0}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}
+.c5{grid-column:span 5}.c7{grid-column:span 7}
+
+/* ---------- 字階：三級暴力對比，沒有中間值 ---------- */
+.kicker{
+  display:inline-block;background:var(--ink);color:var(--paper);
+  font-size:12px;font-weight:900;letter-spacing:.12em;padding:2px 8px 3px;
+  margin-bottom:6px;box-shadow:0 0 0 var(--gain) var(--ink);
+}
+.kicker.red{background:var(--red);box-shadow:0 0 0 var(--gain) var(--red)}
+
+.screamer{display:block;width:100%;overflow:hidden;margin:2px 0 4px}
+.screamer .ln{
+  display:inline-block;transform-origin:left center;white-space:nowrap;
+  font-family:var(--f-cjk);font-weight:900;line-height:.94;
+  transform:scaleX(var(--cond,.78));font-size:var(--sz,clamp(44px,10.4vw,132px));
+}
+.screamer.lat .ln{
+  font-family:var(--f-lat);transform:none;
+  font-variation-settings:'wdth' var(--wd,66),'wght' 900;
+  letter-spacing:var(--tr,0em);
+}
+.spec{
+  display:block;font-family:var(--f-lat);font-size:9.5px;font-weight:700;
+  letter-spacing:.07em;color:var(--blue);border-top:var(--rule) solid var(--blue);
+  padding-top:2px;margin-bottom:6px;
+}
+.spec.loose{color:var(--red);border-top-color:var(--red)}
+
+.stand{
+  font-size:16.5px;line-height:1.5;font-weight:500;margin-bottom:8px;
+}
+.stand b:first-child{font-weight:900}
+.body p{font-size:13.6px;line-height:1.62;text-align:justify;text-justify:inter-character;
+  hyphens:auto;margin-bottom:.55em}
+.body p:first-child::first-letter{font-weight:900}
+.body h3{font-size:14px;font-weight:900;letter-spacing:.02em;margin:.7em 0 .25em;
+  border-bottom:var(--rule) solid var(--ink);padding-bottom:2px}
+
+.jump{font-size:12px;font-weight:900;color:var(--red);letter-spacing:.04em;
+  border-top:var(--rule) solid var(--ink);padding-top:3px;margin-top:4px}
+.jump a{color:var(--red)}
+
+/* ---------- 框稿 boxed story ---------- */
+.boxed{border:var(--box) solid var(--ink);padding:8px 9px 9px;margin-bottom:10px}
+.boxed h2{font-size:22px;font-weight:900;line-height:1.08;letter-spacing:-.01em;margin-bottom:5px}
+.boxed p{font-size:12.6px;line-height:1.55;text-align:justify;margin-bottom:.5em}
+.boxed .lbl{display:block;background:var(--ink);color:var(--paper);font-size:10px;
+  font-weight:900;letter-spacing:.14em;padding:2px 6px;margin:-8px -9px 7px;
+  box-shadow:0 0 0 var(--gain) var(--ink)}
+
+/* ---------- 旗標 flash（全站上限兩個，各偏 6 度） ---------- */
+.flash{
+  position:relative;display:grid;place-items:center;text-align:center;
+  width:104px;height:104px;border-radius:50%;
+  border:var(--box) solid var(--ink);   /* 黃對紙只有 1.04：沒有框線就看不出形 */
+  background:var(--yellow);color:var(--ink);
+  font-weight:900;font-size:13px;line-height:1.14;letter-spacing:.01em;
+  transform:rotate(-6deg);box-shadow:0 0 0 var(--gain) var(--ink);
+}
+.flash.r{background:var(--red);color:var(--paper);transform:rotate(6deg);
+  box-shadow:0 0 0 var(--gain) var(--ink)}
+.flash small{display:block;font-family:var(--f-lat);font-size:9px;letter-spacing:.1em}
+
+/* ---------- 表：成績表一律 agate ---------- */
+table{border-collapse:collapse;width:100%;font-size:11.4px}
+caption{text-align:left;font-size:11px;font-weight:900;letter-spacing:.1em;
+  background:var(--ink);color:var(--paper);padding:2px 6px;margin-bottom:0;
+  box-shadow:0 0 0 var(--gain) var(--ink)}
+th,td{border-bottom:var(--rule) solid var(--ink);padding:2.5px 5px;text-align:left;
+  vertical-align:top}
+th{font-weight:900;font-size:10px;letter-spacing:.06em;
+  border-bottom:var(--box) solid var(--ink);white-space:nowrap}
+td.n,th.n{text-align:right;font-family:var(--f-lat);font-variant-numeric:tabular-nums;
+  font-weight:500}
+tbody tr:nth-child(2n) td{background-image:
+  radial-gradient(circle at 50% 50%, var(--ink) 0 .404px, rgba(0,0,0,0) .404px),
+  radial-gradient(circle at 50% 50%, var(--ink) 0 .404px, rgba(0,0,0,0) .404px);
+  background-size:var(--pitch) var(--pitch);
+  background-position:0 0, calc(var(--pitch)/2) calc(var(--pitch)/2)}
+td.win{font-weight:900}
+
+/* ---------- 校對符號：輸入動效（hover／focus，<100ms，無 transition） ---------- */
+.story{position:relative}
+.marks{
+  position:absolute;left:-44px;top:0;width:38px;height:100%;
+  display:none;font-family:var(--f-lat);font-size:9px;font-weight:700;
+  color:var(--blue);text-align:right;line-height:1.35;
+}
+.story:hover .marks,.story:focus-within .marks{display:block}
+/* 右欄沒有欄外可用（欄間只有 10px），所以那一側的校對符號改印在稿頭，
+   並且永遠占住位置，hover 只是讓它現形——版面不得跳動 */
+.c2 .marks{
+  position:static;display:block;visibility:hidden;
+  width:auto;height:14px;overflow:hidden;text-align:left;
+  border-top:1px solid var(--blue);margin-bottom:4px;padding-top:1px;
+}
+.c2 .story:hover .marks,.c2 .story:focus-within .marks{visibility:visible}
+.c2 .marks b{display:inline;font-size:11px}
+.c2 .marks span{display:inline;margin-left:7px}
+.c2 .marks .cm{border-top:0;margin:0;padding:0;margin-left:7px}
+.marks b{display:block;font-size:15px;line-height:1;font-weight:900}
+.marks .cm{display:block;border-top:1px solid var(--blue);margin-top:3px;padding-top:2px}
+@media(max-width:900px){.marks{display:none !important}}
+
+/* ---------- 欄位尺（捲動驅動：讀到第幾公分） ---------- */
+.ruler{
+  position:fixed;left:2px;top:0;bottom:0;width:18px;z-index:30;
+  border-right:var(--rule) solid var(--ink);
+  font-family:var(--f-lat);font-size:8px;font-weight:700;color:var(--ink);
+  display:none;
+}
+.ruler .tick{position:absolute;left:0;width:100%;border-top:var(--rule) solid var(--ink);
+  padding-left:2px;line-height:1}
+.ruler .cur{position:absolute;left:0;width:18px;height:3px;background:var(--red);top:0;
+  box-shadow:0 0 0 var(--gain) var(--red)}
+.ruler .cap{position:absolute;bottom:6px;left:2px;writing-mode:vertical-rl;
+  font-size:8px;letter-spacing:.14em;color:var(--red)}
+@media(min-width:900px){.ruler{display:block}}
+@keyframes rulerrun{from{top:0}to{top:calc(100% - 3px)}}
+@supports (animation-timeline:scroll()){
+  .ruler .cur{animation:rulerrun linear both;animation-timeline:scroll(root block)}
+}
+@supports not (animation-timeline:scroll()){
+  .ruler .cur{display:none}
+  .ruler .cap::after{content:"（刻度為靜態）"}
+}
+
+/* ---------- 更正欄 ---------- */
+.errata{border:var(--box) solid var(--red);padding:7px 9px 8px;margin:10px 0}
+.errata .lbl{display:inline-block;background:var(--red);color:var(--paper);
+  font-size:10px;font-weight:900;letter-spacing:.14em;padding:2px 7px;margin:-7px 0 6px -9px;
+  box-shadow:0 0 0 var(--gain) var(--red)}
+.errata p{font-size:12px;line-height:1.5;margin-bottom:.4em}
+
+/* ---------- 版腳 folio ---------- */
+.folio{
+  border-top:var(--box) solid var(--ink);margin-top:14px;padding:5px 0 26px;
+  display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;
+  font-family:var(--f-lat);font-size:10px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.folio .cjk{font-family:var(--f-cjk);letter-spacing:.02em;font-weight:500;text-transform:none}
+.folio .budget{color:var(--blue)}
+.folio a{color:var(--ink)}
+
+a{color:var(--ink)}
+a:focus-visible{outline:var(--box) solid var(--red);outline-offset:2px}
+img,svg{display:block;max-width:100%}
+.cut{border-top:var(--box) solid var(--ink);margin:10px 0 9px}
+.tiny{font-family:var(--f-lat);font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase}
+.cap{font-size:11px;font-weight:700;border-top:var(--rule) solid var(--ink);
+  padding-top:3px;margin-top:3px;line-height:1.35}
+.note{font-size:11px;color:var(--ink);border-top:var(--rule) solid var(--ink);padding-top:4px}
+
+/* ---------- RWD ---------- */
+@media(max-width:900px){
+  :root{--measure:100%}
+  .sheet{padding:0 12px}
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .c5,.c4,.c7{grid-column:span 3}
+  .c3{grid-column:span 3}
+  .c2{grid-column:span 3}
+  .grid > *{border-left:0;padding-left:0;border-top:var(--rule) solid var(--ink);
+    padding-top:6px;margin-top:6px}
+  .grid > *:first-child{border-top:0;padding-top:0;margin-top:0}
+}
+@media(max-width:560px){
+  body{font-size:15px}
+  .redtop{flex:1 1 100%;max-width:none;padding:7px 10px 8px}
+  .redtop .screamer .ln{font-size:var(--sz,clamp(26px,9.4vw,48px))}
+  .mast-line{font-size:9px;gap:0 8px}
+  .fold-nav .en{display:none}
+  .fold-nav a{padding:6px 4px}
+  .fold-nav .nm{font-size:12px}
+  .flash{width:84px;height:84px;font-size:11.5px}
+  .stand{font-size:15px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .solid,.wob,.redtop{animation:none !important;box-shadow:0 0 0 var(--gain) currentColor}
+  .wob{box-shadow:0 0 0 var(--gain) var(--ink)}
+  .redtop{box-shadow:0 0 0 var(--gain) var(--red)}
+  .col{animation:none !important}
+  .ruler .cur{animation:none !important;display:none}
+  .ruler .cap::after{content:"（刻度為靜態）"}
+}
+</style>
+</head>
+<body>
+
+<div class="ruler" aria-hidden="true">
+  <span class="tick" style="top:0">0</span>
+  <span class="tick" style="top:16.6%">8</span>
+  <span class="tick" style="top:33.3%">16</span>
+  <span class="tick" style="top:50%">24</span>
+  <span class="tick" style="top:66.6%">32</span>
+  <span class="tick" style="top:83.3%">40</span>
+  <span class="cur"></span>
+  <span class="cap">欄公分</span>
+</div>
+<div class="sheet">
+
+<header class="masthead">
+  <div class="redtop">
+    <div class="screamer lat" id="mast" data-max="82" data-cap="1"><span class="ln">THE HOMER</span></div>
+  </div>
+  <div class="mast-right">
+    <span class="mast-line"><span class="cjk">史柯爾斯賽鴿會　Bolton Road 88, Scholes, Wigan WN1 3QT　01942 24‑1198</span></span>
+    <span class="mast-line">
+      <span class="cjk">每週四出刊</span><span>No. 5,007</span>
+      <span class="cjk">二〇二六年九月二十四日　星期四</span>
+      <span>60p</span><span class="stars">★★</span>
+      <span class="cjk">會員 118　鴿舍 96</span>
+    </span>
+  </div>
+</header>
+<div class="mast-rule"></div>
+
+<nav class="fold-nav" aria-label="版次">
+  <a href="index.html"><span class="no">第一版</span><span class="nm">頭版</span><span class="en">FRONT PAGE</span></a>
+  <a href="rules.html"><span class="no">第二版</span><span class="nm">會規與驗錶</span><span class="en">RULES & CLOCKS</span></a>
+  <a href="results.html" aria-current="page"><span class="no">第三版</span><span class="nm">歸返榜</span><span class="en">RESULTS</span></a>
+  <a href="stone.html"><span class="no">第五版</span><span class="nm">校樣間</span><span class="en">THE STONE</span></a>
+</nav>
+<div class="ears">
+  <span>接第一版 · 本季四場全成績</span>
+  <span>速度單位：碼／分 · 依會規第八條捨去小數</span>
+</div>
+
+<div class="grid" style="margin-top:9px">
+  <div class="c5 col" style="--i:0">
+    <article class="story" tabindex="0">
+      <div class="marks" aria-hidden="true"><b>⌐</b><span>齊頭</span><span class="cm">5 欄</span><span>24.6 公分</span></div>
+      <span class="kicker red">鴿舍名次 · 剩一場</span>
+      <div class="screamer" id="h1" data-max="132" data-cap="0.26"><span class="ln">卡拉瑟斯還是第一</span></div>
+      <span class="spec" data-for="h1">求解中…</span>
+      <p class="stand">Saintes 那一場藍斯代爾拿了唯一的當日歸，但卡拉瑟斯在同一場擺進第二、第三，加上 Messac 的冠軍，季末只剩 Bourges 一場，差距是十四分。</p>
+
+      <table>
+        <caption>本季鴿舍名次（計分：20‧17‧15‧13‧11‧9‧7‧5；訓放不計分）</caption>
+        <thead><tr><th class="n">名</th><th>鴿舍</th><th>會員號</th><th class="n">Cheltenham</th><th class="n">Messac</th><th class="n">Saintes</th><th class="n">總分</th></tr></thead>
+        <tbody>
+          <tr class="win"><td class="n">1</td><td>M. 卡拉瑟斯</td><td>SFC‑044</td><td class="n">15</td><td class="n">31</td><td class="n">32</td><td class="n">78</td></tr>
+          <tr><td class="n">2</td><td>G. 藍斯代爾</td><td>SFC‑009</td><td class="n">20</td><td class="n">17</td><td class="n">27</td><td class="n">64</td></tr>
+          <tr><td class="n">3</td><td>E. 霍布森</td><td>SFC‑101</td><td class="n">17</td><td class="n">13</td><td class="n">11</td><td class="n">41</td></tr>
+          <tr><td class="n">4</td><td>D. 艾許沃斯</td><td>SFC‑017</td><td class="n">13</td><td class="n">15</td><td class="n">13</td><td class="n">41</td></tr>
+          <tr><td class="n">5</td><td>P. 韋恩賴特</td><td>SFC‑072</td><td class="n">—</td><td class="n">9</td><td class="n">9</td><td class="n">18</td></tr>
+          <tr><td class="n">6</td><td>T. 格林霍爾</td><td>SFC‑088</td><td class="n">11</td><td class="n">—</td><td class="n">5</td><td class="n">16</td></tr>
+        </tbody>
+      </table>
+      <p class="note">第三與第四同為四十一分，依會規第九條以本季最高單場速度分先後：霍布森 1,490（Cheltenham）先於艾許沃斯 1,378（同場）。</p>
+    </article>
+
+    <div class="cut"></div>
+
+    <article class="story" tabindex="0">
+      <div class="marks" aria-hidden="true"><b>◻</b><span>表</span><span class="cm">5 欄</span></div>
+      <table>
+        <caption>SAINTES　八二四‧三公里＝901,465 碼　放飛 09/19 06:20　放飛七十一羽</caption>
+        <thead><tr><th class="n">名</th><th>環號</th><th>鴿舍</th><th class="n">歸返</th><th class="n">飛行時間</th><th class="n">分</th><th class="n">碼／分</th></tr></thead>
+        <tbody>
+          <tr class="win"><td class="n">1</td><td>GB24N09117</td><td>G. 藍斯代爾</td><td class="n">20:51:26</td><td class="n">14:31:26</td><td class="n">871.43</td><td class="n">1,034</td></tr>
+          <tr><td class="n">2</td><td>GB23N04418</td><td>M. 卡拉瑟斯</td><td class="n">＋1日 07:12:04</td><td class="n">24:52:04</td><td class="n">1,492.07</td><td class="n">604</td></tr>
+          <tr><td class="n">3</td><td>GB25N14022</td><td>M. 卡拉瑟斯</td><td class="n">＋1日 07:41:18</td><td class="n">25:21:18</td><td class="n">1,521.30</td><td class="n">592</td></tr>
+          <tr><td class="n">4</td><td>GB22N07730</td><td>D. 艾許沃斯</td><td class="n">＋1日 08:06:55</td><td class="n">25:46:55</td><td class="n">1,546.92</td><td class="n">582</td></tr>
+          <tr><td class="n">5</td><td>GB24N10286</td><td>E. 霍布森</td><td class="n">＋1日 09:28:40</td><td class="n">27:08:40</td><td class="n">1,628.67</td><td class="n">553</td></tr>
+          <tr><td class="n">6</td><td>GB23N05901</td><td>P. 韋恩賴特</td><td class="n">＋1日 10:55:12</td><td class="n">28:35:12</td><td class="n">1,715.20</td><td class="n">525</td></tr>
+          <tr><td class="n">7</td><td>GB25N13117</td><td>G. 藍斯代爾</td><td class="n">＋1日 12:33:02</td><td class="n">30:13:02</td><td class="n">1,813.03</td><td class="n">497</td></tr>
+          <tr><td class="n">8</td><td>GB21N02244</td><td>T. 格林霍爾</td><td class="n">＋1日 16:20:39</td><td class="n">34:00:39</td><td class="n">2,040.65</td><td class="n">441</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <div class="cut"></div>
+
+    <div class="grid" style="grid-template-columns:repeat(2,1fr)">
+      <div>
+        <table>
+          <caption>MESSAC　七〇三‧二公里＝769,029 碼　放飛 08/29 06:00</caption>
+          <thead><tr><th class="n">名</th><th>環號</th><th>鴿舍</th><th class="n">飛行分</th><th class="n">碼／分</th></tr></thead>
+          <tbody>
+            <tr class="win"><td class="n">1</td><td>GB23N04418</td><td>卡拉瑟斯</td><td class="n">616.67</td><td class="n">1,247</td></tr>
+            <tr><td class="n">2</td><td>GB24N09117</td><td>藍斯代爾</td><td class="n">631.20</td><td class="n">1,218</td></tr>
+            <tr><td class="n">3</td><td>GB22N07730</td><td>艾許沃斯</td><td class="n">658.08</td><td class="n">1,168</td></tr>
+            <tr><td class="n">4</td><td>GB24N10286</td><td>霍布森</td><td class="n">704.38</td><td class="n">1,091</td></tr>
+            <tr><td class="n">5</td><td>GB25N14022</td><td>卡拉瑟斯</td><td class="n">722.83</td><td class="n">1,063</td></tr>
+            <tr><td class="n">6</td><td>GB23N05901</td><td>韋恩賴特</td><td class="n">1,541.27</td><td class="n">498</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table>
+          <caption>CHELTENHAM　二〇八‧六公里＝228,128 碼　放飛 07/18 07:30</caption>
+          <thead><tr><th class="n">名</th><th>環號</th><th>鴿舍</th><th class="n">飛行分</th><th class="n">碼／分</th></tr></thead>
+          <tbody>
+            <tr class="win"><td class="n">1</td><td>GB25N13117</td><td>藍斯代爾</td><td class="n">151.73</td><td class="n">1,503</td></tr>
+            <tr><td class="n">2</td><td>GB24N10286</td><td>霍布森</td><td class="n">153.10</td><td class="n">1,490</td></tr>
+            <tr><td class="n">3</td><td>GB23N04418</td><td>卡拉瑟斯</td><td class="n">157.92</td><td class="n">1,444</td></tr>
+            <tr><td class="n">4</td><td>GB22N07730</td><td>艾許沃斯</td><td class="n">165.50</td><td class="n">1,378</td></tr>
+            <tr><td class="n">5</td><td>GB21N02244</td><td>格林霍爾</td><td class="n">179.03</td><td class="n">1,274</td></tr>
+          </tbody>
+        </table>
+        <table style="margin-top:8px">
+          <caption>STAFFORD　七二‧四公里＝79,178 碼　訓放，不計分</caption>
+          <thead><tr><th class="n">名</th><th>環號</th><th>鴿舍</th><th class="n">飛行分</th><th class="n">碼／分</th></tr></thead>
+          <tbody>
+            <tr class="win"><td class="n">1</td><td>GB26N12844</td><td>霍布森</td><td class="n">48.43</td><td class="n">1,634</td></tr>
+            <tr><td class="n">2</td><td>GB25N13117</td><td>藍斯代爾</td><td class="n">49.18</td><td class="n">1,609</td></tr>
+            <tr><td class="n">3</td><td>GB26N12901</td><td>格林霍爾</td><td class="n">50.67</td><td class="n">1,562</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="c2 col" style="--i:1">
+    <article class="story boxed" tabindex="0">
+      <span class="lbl">下一場</span>
+      <div class="marks" aria-hidden="true"><b>‖</b><span>框稿</span><span class="cm">2 欄</span></div>
+      <h2>BOURGES 六六八公里</h2>
+      <p>九月二十六日放飛。送鴿：九月二十四日（星期四）晚間七點前，會所。</p>
+      <p>運費每羽 £3.20。轉筒鐘封筒同日晚間八點，戴瑞克在。</p>
+      <p>本場為本季最後一場計分賽。卡拉瑟斯領先十四分；以本會計分，藍斯代爾要翻盤必須在本場拿下第一且卡拉瑟斯掉到第六以後。</p>
+      <p class="note">放飛與否以當日上午六點聯盟無線電為準。天候不佳延到隔日同一時間。</p>
+    </article>
+
+    <article class="story" tabindex="0">
+      <span class="kicker">怎麼讀這張表</span>
+      <div class="body">
+        <p>每一筆的速度都可以自己算：把該場標題列的碼數除以那一列的飛行分，捨去小數，就是最後一欄。</p>
+        <p>算不回來的，代表這一版有錯。請到<a href="stone.html">第五版〈校樣間〉</a>把它點出來——本報每期都印錯幾個，抓到的人下期登名字。</p>
+      </div>
+    </article>
+
+    <article class="story" tabindex="0">
+      <span class="kicker">賣鴿</span>
+      <table>
+        <caption>會員讓鴿（洽秘書）</caption>
+        <tbody>
+          <tr><td>GB22N07741 雌 艾許沃斯</td><td class="n">£45</td></tr>
+          <tr><td>GB23N05914 雄 韋恩賴特</td><td class="n">£30</td></tr>
+          <tr><td>GB24N10290 雌 霍布森</td><td class="n">£60</td></tr>
+          <tr><td>巢箱（六格，自取）</td><td class="n">£25</td></tr>
+          <tr><td>Toulet 轉筒鐘（走時正常）</td><td class="n">£70</td></tr>
+        </tbody>
+      </table>
+      <p class="note">本欄不抽成。會員自行交易，會方不擔保。</p>
+    </article>
+  </div>
+</div>
+
+
+<footer class="folio">
+  <span>THE HOMER · P.三 RESULTS</span>
+  <span class="cjk">史柯爾斯賽鴿會・一九二一年創會・秘書 伊蓮‧霍布森・計時主任 戴瑞克‧艾許沃斯</span>
+  <span class="cjk">會所：星期二、四 19:00–21:00</span>
+  <span class="budget">版面配量 7 欄 × 24.6 公分 ＝ 172.2 欄公分</span>
+  <span class="cjk">本報於會所後間自印，兩色，每期四百份</span>
+  <span class="cjk"><a href="../../index.html">← 回 Design Skills Center</a>　<a href="SKILL.md">SKILL.md</a>　<a href="README.md">README</a></span>
+  <span class="cjk">本站人物、成績、價目與環號皆為虛構示意，與任何真實賽鴿組織無關。</span>
+</footer>
+</div>
+<script>
+/* ======================================================================
+   見方求解器 the lock-up solver　—　本站的簽名動效
+   全站沒有任何一個標題的級數／寬度／字距是寫死的。
+   唯一的硬約束是「欄寬」，三個排版變數由它解出來；
+   解不出來（塞不滿）時不改標題也不改欄寬，把差額印在版面上。
+   ====================================================================== */
+(function(){
+  'use strict';
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 單一量測探針：一次讀一次寫，不做 layout thrashing
+  var probe = document.createElement('span');
+  probe.setAttribute('aria-hidden','true');
+  probe.style.cssText = 'position:absolute;left:-9999px;top:0;white-space:pre;' +
+                        'visibility:hidden;line-height:1;pointer-events:none';
+  document.body.appendChild(probe);
+
+  function widthAt(txt, css, size, vs, tr){
+    probe.style.font = '';
+    probe.style.fontFamily = css.fam;
+    probe.style.fontWeight = '900';
+    probe.style.fontSize = size + 'px';
+    probe.style.fontVariationSettings = vs || 'normal';
+    probe.style.letterSpacing = (tr || 0) + 'em';
+    probe.textContent = txt;
+    return probe.getBoundingClientRect().width;
+  }
+
+  var CJK_FAM = "'Noto Sans TC','PingFang TC','Heiti TC',sans-serif";
+  var LAT_FAM = "'Archivo','Arial Narrow',Helvetica,sans-serif";
+
+  // 長體下限 0.62（照相排版的長體四）、上限 1.15（平體一）
+  var COND_MIN = 0.62, COND_MAX = 1.15;
+  var WD_MIN = 62, WD_MAX = 125;     // Archivo 的 wdth 軸實際範圍
+  var TR_MIN = -0.045, TR_MAX = 0.055;
+
+  function solveCJK(txt, W, maxSize){
+    var n = Array.from(txt).length; if(!n) return null;
+    var unit = widthAt(txt, {fam:CJK_FAM}, 100, null, 0) / 100;  // 每 1px 級數的自然寬
+    if(!(unit > 0)) return null;
+    var size = Math.min(maxSize, W / (unit * COND_MIN));
+    var cond = W / (unit * size);
+    var loose = 0, tr = 0;
+    if(cond > COND_MAX){                       // 字太少，撐不滿這個欄寬
+      cond = COND_MAX;
+      var have = unit * size * cond;
+      tr = Math.min(TR_MAX, (W - have) / (size * Math.max(n - 1, 1)));
+      have = have + tr * size * (n - 1);
+      loose = Math.ceil((W - have) / (size * cond));   // 還差幾個字
+    }
+    return {size:size, cond:cond, tr:tr, loose:loose, n:n,
+            axis:'長體 ' + Math.round(cond*100)};
+  }
+
+  function solveLatin(txt, W, maxSize){
+    if(!txt) return null;
+    // 先把寬度軸壓到能容下最大級數為止（8 次二分，8 次量測）
+    var lo = WD_MIN, hi = WD_MAX, wd = WD_MIN, size = maxSize;
+    for(var i=0;i<8;i++){
+      var mid = (lo+hi)/2;
+      if(widthAt(txt,{fam:LAT_FAM},maxSize,"'wdth' "+mid+",'wght' 900",0) <= W){ lo=mid; wd=mid; }
+      else hi = mid;
+    }
+    var w = widthAt(txt,{fam:LAT_FAM},maxSize,"'wdth' "+wd+",'wght' 900",0);
+    if(w > W){                                  // 連最窄都塞不下：降級數
+      var k = W / w; size = maxSize * k; wd = WD_MIN;
+      w = widthAt(txt,{fam:LAT_FAM},size,"'wdth' "+wd+",'wght' 900",0);
+    }
+    var n = txt.length, loose = 0;
+    var tr = (W - w) / (size * Math.max(n-1,1));
+    if(tr > TR_MAX){ tr = TR_MAX; loose = Math.ceil((W - (w + tr*size*(n-1))) / (size*0.5)); }
+    if(tr < TR_MIN){ tr = TR_MIN; }
+    return {size:size, wd:wd, tr:tr, loose:loose, n:n, axis:'wdth ' + Math.round(wd)};
+  }
+
+  function fmt(x){ return Math.round(x); }
+
+  function apply(el, first){
+    var ln = el.querySelector('.ln'); if(!ln) return;
+    var txt = ln.textContent.trim();
+    var box = el.parentElement;
+    var W = el.clientWidth || box.clientWidth;
+    if(!(W > 40)) return;
+    var maxSize = parseFloat(el.dataset.max || '132');
+    var vwCap = Math.max(34, Math.min(maxSize, W * parseFloat(el.dataset.cap || '0.26')));
+    var r, spec = el.parentElement.querySelector('.spec[data-for="'+el.id+'"]');
+
+    if(el.classList.contains('lat')){
+      r = solveLatin(txt, W, vwCap); if(!r) return;
+      ln.style.fontSize = r.size.toFixed(2)+'px';
+      ln.style.setProperty('--wd', r.wd.toFixed(1));
+      ln.style.setProperty('--tr', r.tr.toFixed(4)+'em');
+    }else{
+      r = solveCJK(txt, W, vwCap); if(!r) return;
+      ln.style.fontSize = r.size.toFixed(2)+'px';
+      ln.style.setProperty('--cond', r.cond.toFixed(4));
+      ln.style.letterSpacing = r.tr.toFixed(4)+'em';
+    }
+
+    if(spec){
+      var parts = [fmt(r.size)+'級', r.axis,
+                   (r.tr>=0?'+':'') + Math.round(r.tr*1000) + '/1000'];
+      if(r.loose > 0){ parts.push('差 '+r.loose+' 字'); spec.classList.add('loose'); }
+      else { parts.push('見方'); spec.classList.remove('loose'); }
+      spec.textContent = parts.join(' · ');
+      spec.setAttribute('data-loose', r.loose>0 ? '1' : '0');
+    }
+
+    // 簽名動效：見方是「鎖緊」不是「滑進去」——三個離散的中間態，沒有緩動
+    if(first && !RM){
+      var target = el.classList.contains('lat') ? r.wd : r.cond;
+      var start  = el.classList.contains('lat') ? WD_MAX : COND_MAX;
+      var steps = [0.34, 0.68, 1];
+      steps.forEach(function(k, i){
+        setTimeout(function(){
+          var v = start + (target - start) * k;
+          if(el.classList.contains('lat')) ln.style.setProperty('--wd', v.toFixed(1));
+          else ln.style.setProperty('--cond', v.toFixed(4));
+        }, 60 + i*70);
+      });
+    }
+  }
+
+  var lines = [], raf = 0;
+  function collect(){ lines = Array.prototype.slice.call(document.querySelectorAll('.screamer')); }
+  function runAll(first){ lines.forEach(function(el){ apply(el, first); }); }
+
+  function schedule(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){ raf = 0; runAll(false); });
+  }
+
+  function boot(){
+    collect();
+    runAll(true);
+    if(window.ResizeObserver){
+      var ro = new ResizeObserver(schedule);
+      lines.forEach(function(el){ if(el.parentElement) ro.observe(el.parentElement); });
+    } else {
+      addEventListener('resize', schedule);
+    }
+    window.__homerFit = function(){ collect(); runAll(false); };
+  }
+
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(boot).catch(boot);
+    setTimeout(function(){ if(!lines.length) boot(); }, 1200);
+  } else {
+    addEventListener('load', boot);
+  }
+})();
+</script>
+</body>
+</html>

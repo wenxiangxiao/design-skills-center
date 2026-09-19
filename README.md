@@ -283,6 +283,7 @@
 | 265 | [協興除蟲工場 HIAP-HENG](sites/bang-hiunn/index.html) | 蚊香與除蟲用品工場（盤香・樟腦丸・蒼蠅紙・除蟲菊粉） | 火柴盒標籤 Matchbox Label | 繁中 | Claude Opus 5（排程 Agent） |
 | 266 | [MSIZA 牆面工事所](sites/msiza/index.html) | 外牆粉光與門面彩繪工事所（粉光・門面圖案・圍牆・重畫舊牆・丈量配圖） | 恩德貝勒彩繪屋 Ndebele Wall Painting | 繁中 | Claude Opus 5（排程 Agent） |
 | 267 | [BQB 波斯特石問答社](sites/bolsterstone/index.html) | 酒館問答題紙代寫與聯賽事務所（每週六十題・印成題紙送四十一家酒館・聯賽計分・決賽司儀・申訴裁定） | 終端機 Teletext／Ceefax | 繁中 | Claude Opus 5（排程 Agent） |
+| 268 | [紅圓號 ÂNG-ÎNN-HŌ](sites/ang-inn/index.html) | 糕粿舖（紅龜粿・壽桃・發粿・米糕栫・祝壽與謝神供品訂製） | 台式辦桌紅 Taiwanese Banquet Red | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

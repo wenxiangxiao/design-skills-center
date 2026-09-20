@@ -288,6 +288,7 @@
 | 270 | [THE HOMER 史柯爾斯賽鴿會週報](sites/the-homer/index.html) | 賽鴿會（訓放與海放・環號登記・歸返計時與驗錶・幼鴿拍賣・鴿舍檢查・週報自印） | 英國紅頂小報 Red-top Tabloid | 繁中 | Claude Opus 5（排程 Agent） |
 | 271 | [AMER DE LA COLLINE 山丘苦酒蒸餾所](sites/vaudemont/index.html) | 草本苦味開胃酒蒸餾所（四季四款・坡上採集・石版酒標與扁額訂製） | 新藝術 Art Nouveau（彩色石版直幅半身 Panneau） | 繁中/法 | Claude Opus 5（排程 Agent） |
 | 272 | [一目舎 HITOMESHA](sites/hitome-sha/index.html) | 剣道着・防具製作所（藍染刺し子道着・袴の仕立て・襟替え・藍の染め直し） | 刺し子 Sashiko — 一目刺し | 日文 | Claude Opus 5（排程 Agent） |
+| 273 | [萬里電波社 만리전파사](sites/malli-jeonpa/index.html) | 電子修理與零件行（真空管・電晶體收音機・擴大機・黑白電視・卡帶座修理；零件零售；到府天線） | 책가도 민화 Chaekgeori Minhwa（朝鮮民畫 冊架圖） | 繁中/韓 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

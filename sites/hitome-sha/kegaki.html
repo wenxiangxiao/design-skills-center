@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>印付け台｜一目舎 HITOMESHA</title>
+<meta name="description" content="縁の点を押して一目刺しの柄を作る台。目数・糸の長さ・閉じた輪を数え、柄帳十六柄と照合する。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23142B44'/%3E%3Cg stroke='%23EFE8D8' stroke-width='3' stroke-linecap='butt'%3E%3Cpath d='M2 10h8M18 10h8M6 22h8M22 22h8M10 2v8M10 18v8M22 6v8M22 22v8'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+ --p:14px;                      /* 一目 = 5mm。全站唯一的長度單位 */
+ --kon:#142B44; --ai:#1F4A74; --asagi:#3E7F86; --sarashi:#EFE8D8; --akane:#9E2B2B; --hera:#3C5C7E;
+ --sw:3px;                      /* 糸の太さ：全站只有這一個值 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--kon);color:var(--sarashi);
+ font-family:"Noto Serif TC","Shippori Mincho B1",serif;font-weight:400;
+ font-size:15px;line-height:calc(var(--p)*2);letter-spacing:.02em;
+ padding-bottom:calc(var(--p)*5)}
+/* 版心：一律 56 目寬，任何東西都不得落在格點之間 */
+.w{width:min(calc(var(--p)*56), calc(100% - var(--p)*2));margin-inline:auto}
+h1,h2,h3{font-weight:700;letter-spacing:.08em;line-height:calc(var(--p)*2)}
+h1{font-size:1.28rem}h2{font-size:1.08rem}h3{font-size:.94rem}
+p{margin:0 0 calc(var(--p)*1) 0}
+a{color:inherit}
+.lb{font-family:"Zen Kaku Gothic New","Noto Sans TC",sans-serif;font-weight:500;
+ font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--sarashi)}
+.num{font-family:"Zen Kaku Gothic New","Noto Sans TC",sans-serif;font-weight:500;
+ font-variant-numeric:tabular-nums;letter-spacing:.04em}
+/* ---- 針目：全站每一條線都是等長虛線，沒有一條實線 ---------------------- */
+.rule{height:0;border:0;border-top:var(--sw) solid transparent;
+ background-image:linear-gradient(90deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));
+ background-size:calc(var(--p)*2) var(--sw);background-repeat:repeat-x;
+ height:var(--sw);margin:calc(var(--p)*2) 0}
+.rule.hera{background-image:linear-gradient(90deg,var(--hera) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));height:1px;background-size:calc(var(--p)*2) 1px}
+/* ---- 布（地）與印付けの格 --------------------------------------------- */
+.cloth{position:relative;background:var(--kon);
+ background-image:
+  repeating-linear-gradient(90deg,var(--hera) 0 1px,transparent 1px var(--p)),
+  repeating-linear-gradient(0deg,var(--hera) 0 1px,transparent 1px var(--p));
+ background-position:0 0}
+.cloth.ai{background-color:var(--ai)}
+.cloth.asagi{background-color:var(--asagi)}
+.fld{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* ---- 導覽：糸通し ------------------------------------------------------ */
+.nv{position:sticky;top:0;z-index:40;background:var(--kon);
+ border-bottom:var(--sw) solid transparent;
+ background-image:linear-gradient(90deg,var(--hera) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));
+ background-size:calc(var(--p)*2) 1px;background-position:0 100%;background-repeat:repeat-x}
+.nv-k{display:block;width:min(calc(var(--p)*56),calc(100% - var(--p)*2));margin:0 auto;
+ padding-top:calc(var(--p)*.6);font-size:1.02rem;font-weight:700;letter-spacing:.3em}
+.nv ul{width:min(calc(var(--p)*56),calc(100% - var(--p)*2));margin:0 auto;
+ list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.nv a{display:block;text-decoration:none;padding:calc(var(--p)*.5) 0 calc(var(--p)*.7)}
+.nv b{display:block;font-size:.88rem;font-weight:700;letter-spacing:.14em}
+.nv i{display:block;font-style:normal;font-family:"Zen Kaku Gothic New",sans-serif;
+ font-size:.56rem;letter-spacing:.2em;color:var(--sarashi)}
+.ndl{display:block;width:76px;height:26px;overflow:visible}
+.ndl path,.ndl ellipse{fill:none;stroke:var(--sarashi)}
+.ndl-e{fill:var(--kon)}
+.ndl-t{display:none;stroke:var(--sarashi);stroke-linecap:butt}
+.nv a[aria-current=page] .ndl path,.nv a[aria-current=page] .ndl ellipse{stroke:var(--sarashi)}
+.nv a[aria-current=page] .ndl-t{display:block}
+.nv a[aria-current=page] b{color:var(--sarashi);background-image:linear-gradient(90deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));background-size:calc(var(--p)*2) 3px;background-position:0 100%;background-repeat:repeat-x;padding-bottom:4px}
+.nv a[aria-current=page] i{color:var(--sarashi)}
+.nv a:hover .ndl-b,.nv a:focus-visible .ndl-b{stroke-width:5}
+.nv a:focus-visible{outline:var(--sw) solid var(--akane);outline-offset:-3px}
+/* ---- 元件 -------------------------------------------------------------- */
+.blk{border:var(--sw) solid transparent;padding:calc(var(--p)*1.4);
+ background-image:
+  linear-gradient(90deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2)),
+  linear-gradient(90deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2)),
+  linear-gradient(0deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2)),
+  linear-gradient(0deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));
+ background-size:100% var(--sw),100% var(--sw),var(--sw) 100%,var(--sw) 100%;
+ background-position:0 0,0 100%,0 0,100% 0;background-repeat:repeat-x,repeat-x,repeat-y,repeat-y}
+.btn{display:inline-block;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;
+ font-size:.76rem;letter-spacing:.2em;color:var(--kon);background:var(--sarashi);
+ border:0;padding:calc(var(--p)*.55) calc(var(--p)*1.4);cursor:pointer;border-radius:0}
+.btn:hover{background:var(--ai);color:var(--sarashi)}
+.btn:focus-visible{outline:var(--sw) solid var(--akane);outline-offset:3px}
+.btn.akane{background:var(--akane);color:var(--sarashi)}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th,td{text-align:left;padding:calc(var(--p)*.5) calc(var(--p)*.6);vertical-align:top;
+ border-bottom:1px solid transparent;
+ background-image:linear-gradient(90deg,var(--sarashi) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));
+ background-size:calc(var(--p)*2) 1px;background-position:0 100%;background-repeat:repeat-x}
+th{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:.62rem;
+ letter-spacing:.2em;color:var(--sarashi)}
+td.n{font-family:"Zen Kaku Gothic New",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* ---- footer ------------------------------------------------------------ */
+.ft{margin-top:calc(var(--p)*4);background:var(--ai);padding:calc(var(--p)*2) 0}
+.ft-in{width:min(calc(var(--p)*56),calc(100% - var(--p)*2));margin-inline:auto;font-size:.8rem;line-height:calc(var(--p)*1.7)}
+.ft-n{font-weight:700;letter-spacing:.26em;font-size:1rem;margin-bottom:calc(var(--p)*.6)}
+.ft-s{margin-top:calc(var(--p)*1);color:var(--sarashi);font-size:.7rem}
+/* ---- 動效 1：ambient（針が一目ずつ進む。連續補間ゼロ） ------------------ */
+@keyframes run{from{stroke-dashoffset:0}to{stroke-dashoffset:-40}}
+.runline{animation:run 12s steps(40,jump-none) infinite}
+@keyframes ndlwalk{from{transform:translateX(0)}to{transform:translateX(calc(var(--p)*40))}}
+.walker{animation:ndlwalk 12s steps(40,jump-none) infinite}
+/* ---- 動效 3：transition（格單位のワイプ） ------------------------------ */
+@keyframes wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.wipe{animation:wipe .56s steps(8,jump-end) both}
+.enter{animation:wipe .64s steps(8,jump-end) both}
+.ftstrip{position:relative;height:calc(var(--p)*2);margin-top:calc(var(--p)*1.6)}
+.ftstrip svg{position:absolute;inset:0;width:100%;height:100%}
+.ftstrip .ndl2{position:absolute;top:calc(var(--p)*.15);left:0;width:calc(var(--p)*2.2);height:calc(var(--p)*1.7)}
+@media (prefers-reduced-motion:reduce){
+ .runline,.walker,.wipe,.enter{animation:none!important}
+ .runline{stroke-dashoffset:-40}
+ .walker{transform:translateX(calc(var(--p)*40))}
+ .wipe,.enter{clip-path:none}
+ *{transition:none!important}
+}
+/* ---- RWD --------------------------------------------------------------- */
+@media (max-width:760px){:root{--p:12px}}
+@media (max-width:560px){
+ :root{--p:11px}
+ body{font-size:14px}
+ .nv i{display:none}
+ .ndl{width:52px;height:20px}
+ .nv b{font-size:.76rem;letter-spacing:.06em}
+ h1{font-size:1.12rem}
+}
+
+.top{position:relative;padding:calc(var(--p)*3) 0;overflow:hidden}
+.top .cl{position:absolute;inset:0;z-index:0}
+.top .in{position:relative;z-index:1}
+.bench{display:grid;grid-template-columns:1fr calc(var(--p)*20);gap:calc(var(--p)*2);margin-top:calc(var(--p)*2);align-items:start}
+.frame{display:grid;grid-template-columns:calc(var(--p)*1.6) minmax(0,1fr);grid-template-rows:calc(var(--p)*1.6) auto;gap:calc(var(--p)*.4)}
+.corner{}
+.mcol,.mrow{position:relative}
+.mcol{height:calc(var(--p)*1.6)}
+.mrow{height:auto}
+.dot{appearance:none;border:0;background:transparent;padding:0;cursor:pointer;position:absolute}
+.mcol .dot{top:0;bottom:0;width:calc(var(--p)*1.1);transform:translateX(-50%)}
+.mrow .dot{left:0;right:0;height:calc(var(--p)*1.1);transform:translateY(-50%)}
+.dot::before{content:"";position:absolute;inset:0;margin:auto;width:4px;height:4px;background:var(--sarashi)}
+.mcol .dot[aria-pressed=true]::before{width:3px;height:11px}
+.mrow .dot[aria-pressed=true]::before{width:11px;height:3px}
+.dot:focus-visible{outline:2px solid var(--akane);outline-offset:0}
+.plate{position:relative;aspect-ratio:1;overflow:hidden}
+.plate .cl{position:absolute;inset:0}
+.plate .fld{transition:none}
+.side h3{margin-bottom:calc(var(--p)*.6)}
+.pre{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--p)*.5)}
+.pre button{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.7rem;letter-spacing:.08em;
+ background:transparent;color:var(--sarashi);border:0;padding:calc(var(--p)*.5) calc(var(--p)*.4);
+ cursor:pointer;text-align:left;
+ background-image:linear-gradient(90deg,var(--hera) 0 calc(var(--p)*.72),transparent 0 calc(var(--p)*2));
+ background-size:calc(var(--p)*2) 1px;background-position:0 100%;background-repeat:repeat-x}
+.pre button:hover,.pre button:focus-visible{background-color:var(--sarashi);color:var(--kon)}
+.pre button:focus-visible{outline:2px solid var(--akane)}
+.out{margin-top:calc(var(--p)*1.5);padding:calc(var(--p)*1.2);background:var(--ai)}
+.out dl{display:grid;grid-template-columns:calc(var(--p)*6) 1fr;gap:calc(var(--p)*.3) calc(var(--p)*.6)}
+.out dt{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.6rem;letter-spacing:.16em;color:var(--sarashi);line-height:calc(var(--p)*1.6)}
+.out dd{margin:0;font-family:"Zen Kaku Gothic New",sans-serif;font-size:.86rem;line-height:calc(var(--p)*1.6);font-variant-numeric:tabular-nums}
+.out .nm{font-family:"Noto Serif TC",serif;font-size:1.04rem;font-weight:700;letter-spacing:.14em;margin-bottom:calc(var(--p)*.8);display:block}
+.thm{margin-top:calc(var(--p)*1);font-size:.72rem;line-height:calc(var(--p)*1.5)}
+.thm b{color:var(--sarashi)}
+.rules{list-style:none;font-size:.84rem;line-height:calc(var(--p)*1.8)}
+.rules li{padding-left:calc(var(--p)*2);position:relative;margin-bottom:calc(var(--p)*.4)}
+.rules li::before{content:"";position:absolute;left:0;top:calc(var(--p)*.8);width:calc(var(--p)*.72);height:3px;background:var(--sarashi)}
+.acts{display:flex;gap:calc(var(--p)*.8);margin-top:calc(var(--p)*1.2);flex-wrap:wrap}
+.sec{margin-top:calc(var(--p)*3)}
+.hint{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.58rem;letter-spacing:.16em;color:var(--sarashi)}
+@media (max-width:860px){.bench{grid-template-columns:1fr}}
+@media (max-width:560px){.frame{grid-template-columns:calc(var(--p)*1.3) 1fr;grid-template-rows:calc(var(--p)*1.3) 1fr}
+ .dot::before{width:4px;height:4px}}
+</style>
+</head>
+<body>
+
+<nav class="nv" aria-label="頁">
+  <span class="nv-k">一目舎</span>
+  <ul><li><a href="index.html">
+      <svg class="ndl" viewBox="0 0 76 26" aria-hidden="true" focusable="false">
+        <path class="ndl-b" d="M8 13h56" stroke-width="3"/>
+        <path class="ndl-p" d="M64 13l9 0"  stroke-width="1.4"/>
+        <ellipse class="ndl-e" cx="15" cy="13" rx="5.4" ry="3.2"/>
+        <path class="ndl-t" d="M15 13C4 13 2 21 9 23s16-2 26-2 18 3 26 1" pathLength="40" stroke-dasharray="0.72 1.28" stroke-width="2.4"/>
+      </svg>
+      <b>工房</b><i>KŌBŌ</i></a></li><li><a href="shitate.html">
+      <svg class="ndl" viewBox="0 0 76 26" aria-hidden="true" focusable="false">
+        <path class="ndl-b" d="M8 13h56" stroke-width="3"/>
+        <path class="ndl-p" d="M64 13l9 0"  stroke-width="1.4"/>
+        <ellipse class="ndl-e" cx="15" cy="13" rx="5.4" ry="3.2"/>
+        <path class="ndl-t" d="M15 13C4 13 2 21 9 23s16-2 26-2 18 3 26 1" pathLength="40" stroke-dasharray="0.72 1.28" stroke-width="2.4"/>
+      </svg>
+      <b>仕立て</b><i>SHITATE</i></a></li><li><a href="gara.html">
+      <svg class="ndl" viewBox="0 0 76 26" aria-hidden="true" focusable="false">
+        <path class="ndl-b" d="M8 13h56" stroke-width="3"/>
+        <path class="ndl-p" d="M64 13l9 0"  stroke-width="1.4"/>
+        <ellipse class="ndl-e" cx="15" cy="13" rx="5.4" ry="3.2"/>
+        <path class="ndl-t" d="M15 13C4 13 2 21 9 23s16-2 26-2 18 3 26 1" pathLength="40" stroke-dasharray="0.72 1.28" stroke-width="2.4"/>
+      </svg>
+      <b>柄帳</b><i>GARACHŌ</i></a></li><li><a href="kegaki.html" aria-current="page">
+      <svg class="ndl" viewBox="0 0 76 26" aria-hidden="true" focusable="false">
+        <path class="ndl-b" d="M8 13h56" stroke-width="3"/>
+        <path class="ndl-p" d="M64 13l9 0"  stroke-width="1.4"/>
+        <ellipse class="ndl-e" cx="15" cy="13" rx="5.4" ry="3.2"/>
+        <path class="ndl-t" d="M15 13C4 13 2 21 9 23s16-2 26-2 18 3 26 1" pathLength="40" stroke-dasharray="0.72 1.28" stroke-width="2.4"/>
+      </svg>
+      <b>印付け台</b><i>KEGAKI</i></a></li></ul>
+</nav>
+<main>
+<section class="top enter">
+ <div class="cl cloth" aria-hidden="true"><svg class="fld" viewBox="0 0 60 24" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><g fill="none" stroke="var(--sarashi)" stroke-width="2.4" stroke-linecap="butt" vector-effect="non-scaling-stroke"><path d="M0 0H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 1H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 2H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 3H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 4H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 5H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 6H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 7H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 8H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 9H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 10H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 11H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 12H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 13H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 14H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 15H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 16H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 17H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 18H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 19H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 20H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 21H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 22H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 23H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 24H60" pathLength="60" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M1 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M2 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M3 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M4 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M5 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M6 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M7 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M8 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M9 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M10 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M11 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M12 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M13 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M14 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M15 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M16 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M17 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M18 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M19 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M20 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M21 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M22 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M23 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M24 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M25 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M26 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M27 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M28 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M29 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M30 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M31 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M32 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M33 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M34 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M35 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M36 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M37 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M38 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M39 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M40 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M41 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M42 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M43 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M44 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M45 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M46 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M47 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M48 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M49 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M50 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M51 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M52 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M53 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M54 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M55 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M56 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M57 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M58 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M59 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M60 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/></g></svg></div>
+ <div class="in w">
+  <p class="lb">印付け台　／　KEGAKI　／　工程 04</p>
+  <h1>縁の点を押して、自分の柄を一枚刺す</h1>
+  <ul class="rules">
+   <li>左と上の縁にある点を押すと、その行・その列の針目が一目ぶんずれる。</li>
+   <li>〈刺す〉を押すと針が入り、目数・糸の長さ・閉じた輪の数が出る。</li>
+   <li>出来た柄は当舎の柄帳十六柄と照合し、当たれば名が付く。当たらなければ無名の号が付く。</li>
+  </ul>
+ </div>
+</section>
+
+<section class="w sec">
+ <div class="bench" id="bench">
+  <div class="frame">
+   <div class="corner"></div>
+   <div class="mcol" aria-label="上の縁（列）"><button type="button" class="dot" style="left:0.0000%" data-c="0" aria-pressed="false" aria-label="第 1 列をずらす"></button><button type="button" class="dot" style="left:4.1667%" data-c="1" aria-pressed="false" aria-label="第 2 列をずらす"></button><button type="button" class="dot" style="left:8.3333%" data-c="2" aria-pressed="false" aria-label="第 3 列をずらす"></button><button type="button" class="dot" style="left:12.5000%" data-c="3" aria-pressed="false" aria-label="第 4 列をずらす"></button><button type="button" class="dot" style="left:16.6667%" data-c="4" aria-pressed="false" aria-label="第 5 列をずらす"></button><button type="button" class="dot" style="left:20.8333%" data-c="5" aria-pressed="false" aria-label="第 6 列をずらす"></button><button type="button" class="dot" style="left:25.0000%" data-c="6" aria-pressed="false" aria-label="第 7 列をずらす"></button><button type="button" class="dot" style="left:29.1667%" data-c="7" aria-pressed="false" aria-label="第 8 列をずらす"></button><button type="button" class="dot" style="left:33.3333%" data-c="8" aria-pressed="false" aria-label="第 9 列をずらす"></button><button type="button" class="dot" style="left:37.5000%" data-c="9" aria-pressed="false" aria-label="第 10 列をずらす"></button><button type="button" class="dot" style="left:41.6667%" data-c="10" aria-pressed="false" aria-label="第 11 列をずらす"></button><button type="button" class="dot" style="left:45.8333%" data-c="11" aria-pressed="false" aria-label="第 12 列をずらす"></button><button type="button" class="dot" style="left:50.0000%" data-c="12" aria-pressed="false" aria-label="第 13 列をずらす"></button><button type="button" class="dot" style="left:54.1667%" data-c="13" aria-pressed="false" aria-label="第 14 列をずらす"></button><button type="button" class="dot" style="left:58.3333%" data-c="14" aria-pressed="false" aria-label="第 15 列をずらす"></button><button type="button" class="dot" style="left:62.5000%" data-c="15" aria-pressed="false" aria-label="第 16 列をずらす"></button><button type="button" class="dot" style="left:66.6667%" data-c="16" aria-pressed="false" aria-label="第 17 列をずらす"></button><button type="button" class="dot" style="left:70.8333%" data-c="17" aria-pressed="false" aria-label="第 18 列をずらす"></button><button type="button" class="dot" style="left:75.0000%" data-c="18" aria-pressed="false" aria-label="第 19 列をずらす"></button><button type="button" class="dot" style="left:79.1667%" data-c="19" aria-pressed="false" aria-label="第 20 列をずらす"></button><button type="button" class="dot" style="left:83.3333%" data-c="20" aria-pressed="false" aria-label="第 21 列をずらす"></button><button type="button" class="dot" style="left:87.5000%" data-c="21" aria-pressed="false" aria-label="第 22 列をずらす"></button><button type="button" class="dot" style="left:91.6667%" data-c="22" aria-pressed="false" aria-label="第 23 列をずらす"></button><button type="button" class="dot" style="left:95.8333%" data-c="23" aria-pressed="false" aria-label="第 24 列をずらす"></button><button type="button" class="dot" style="left:100.0000%" data-c="24" aria-pressed="false" aria-label="第 25 列をずらす"></button></div>
+   <div class="mrow" aria-label="左の縁（行）"><button type="button" class="dot" style="top:0.0000%" data-r="0" aria-pressed="false" aria-label="第 1 行をずらす"></button><button type="button" class="dot" style="top:4.1667%" data-r="1" aria-pressed="false" aria-label="第 2 行をずらす"></button><button type="button" class="dot" style="top:8.3333%" data-r="2" aria-pressed="false" aria-label="第 3 行をずらす"></button><button type="button" class="dot" style="top:12.5000%" data-r="3" aria-pressed="false" aria-label="第 4 行をずらす"></button><button type="button" class="dot" style="top:16.6667%" data-r="4" aria-pressed="false" aria-label="第 5 行をずらす"></button><button type="button" class="dot" style="top:20.8333%" data-r="5" aria-pressed="false" aria-label="第 6 行をずらす"></button><button type="button" class="dot" style="top:25.0000%" data-r="6" aria-pressed="false" aria-label="第 7 行をずらす"></button><button type="button" class="dot" style="top:29.1667%" data-r="7" aria-pressed="false" aria-label="第 8 行をずらす"></button><button type="button" class="dot" style="top:33.3333%" data-r="8" aria-pressed="false" aria-label="第 9 行をずらす"></button><button type="button" class="dot" style="top:37.5000%" data-r="9" aria-pressed="false" aria-label="第 10 行をずらす"></button><button type="button" class="dot" style="top:41.6667%" data-r="10" aria-pressed="false" aria-label="第 11 行をずらす"></button><button type="button" class="dot" style="top:45.8333%" data-r="11" aria-pressed="false" aria-label="第 12 行をずらす"></button><button type="button" class="dot" style="top:50.0000%" data-r="12" aria-pressed="false" aria-label="第 13 行をずらす"></button><button type="button" class="dot" style="top:54.1667%" data-r="13" aria-pressed="false" aria-label="第 14 行をずらす"></button><button type="button" class="dot" style="top:58.3333%" data-r="14" aria-pressed="false" aria-label="第 15 行をずらす"></button><button type="button" class="dot" style="top:62.5000%" data-r="15" aria-pressed="false" aria-label="第 16 行をずらす"></button><button type="button" class="dot" style="top:66.6667%" data-r="16" aria-pressed="false" aria-label="第 17 行をずらす"></button><button type="button" class="dot" style="top:70.8333%" data-r="17" aria-pressed="false" aria-label="第 18 行をずらす"></button><button type="button" class="dot" style="top:75.0000%" data-r="18" aria-pressed="false" aria-label="第 19 行をずらす"></button><button type="button" class="dot" style="top:79.1667%" data-r="19" aria-pressed="false" aria-label="第 20 行をずらす"></button><button type="button" class="dot" style="top:83.3333%" data-r="20" aria-pressed="false" aria-label="第 21 行をずらす"></button><button type="button" class="dot" style="top:87.5000%" data-r="21" aria-pressed="false" aria-label="第 22 行をずらす"></button><button type="button" class="dot" style="top:91.6667%" data-r="22" aria-pressed="false" aria-label="第 23 行をずらす"></button><button type="button" class="dot" style="top:95.8333%" data-r="23" aria-pressed="false" aria-label="第 24 行をずらす"></button><button type="button" class="dot" style="top:100.0000%" data-r="24" aria-pressed="false" aria-label="第 25 行をずらす"></button></div>
+   <div class="plate cloth"><div class="cl" id="plate"><svg class="fld" viewBox="0 0 24 24" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g fill="none" stroke="var(--sarashi)" stroke-width="3" stroke-linecap="butt" vector-effect="non-scaling-stroke"><path d="M0 0H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 1H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 2H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 3H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 4H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 5H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 6H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 7H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 8H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 9H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 10H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 11H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 12H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 13H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 14H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 15H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 16H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 17H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 18H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 19H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 20H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 21H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 22H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 23H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M0 24H24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M0 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M1 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M2 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M3 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M4 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M5 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M6 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M7 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M8 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M9 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M10 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M11 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M12 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M13 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M14 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M15 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M16 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M17 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M18 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M19 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M20 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M21 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M22 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/><path d="M23 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="-1"/><path d="M24 0V24" pathLength="24" stroke-dasharray="0.72 1.28" stroke-dashoffset="0"/></g></svg></div></div>
+  </div>
+  <div class="side">
+   <p class="lb">柄帳から取る</p>
+   <div class="pre" id="pre">
+    <button type="button" data-a="01" data-b="01">十字花刺し</button>
+    <button type="button" data-a="0" data-b="0">米刺し</button>
+    <button type="button" data-a="0011" data-b="0011">角亀甲</button>
+    <button type="button" data-a="0101" data-b="0011">柿の花</button>
+    <button type="button" data-a="00101" data-b="01101">風車</button>
+    <button type="button" data-a="000111" data-b="010">分銅つなぎ</button>
+    <button type="button" data-a="000101" data-b="0">竹の節</button>
+    <button type="button" data-a="0011" data-b="01">井桁</button>
+   </div>
+   <div class="acts">
+    <button type="button" class="btn" id="sasu">刺　す</button>
+    <button type="button" class="btn akane" id="modosu">解　く</button>
+   </div>
+   <p class="hint" style="margin-top:calc(var(--p)*.8)">24 目角（12 センチ角）・一目 5 ミリ</p>
+   <div class="out" id="out" aria-live="polite">
+    <span class="nm">まだ刺していない</span>
+    <p class="thm">縁の点を押して柄を決め、〈刺す〉を押してください。</p>
+   </div>
+  </div>
+ </div>
+ <noscript>
+  <p style="margin-top:calc(var(--p)*2);font-size:.86rem">JavaScript を切っている場合、上の布は十字花刺し（行 01・列 01）で刺した 24 目角の見本として表示されます。目数 600 目、閉じた輪 0 本。十六柄すべての目数と輪の数は〈<a href="gara.html">柄帳</a>〉の照合表に静的な表として載せてあります。注文の際は柄名を電話でお伝えいただければ、この台は必要ありません。</p>
+ </noscript>
+</section>
+
+<section class="w sec">
+ <h2>なぜ縁を押すのか</h2>
+ <p>布に柄を写す時、職人は柄そのものを覚えていない。覚えているのは縁の並び——どの行をずらし、どの列をずらすか——だけである。印付けとは、その並びを布の耳に打つ作業を指す。ここを過ぎると柄は変えられない（〈<a href="shitate.html">仕立て</a>〉工程 04）。</p>
+ <p>面白いのは、どれだけ縁を押しても目数が変わらないことだ。24 目角なら必ず 600 目。柄を変えても糸の量は変わらないので、当舎は柄が決まる前に見積もりを出せる。値段が変わるのは密度を上げる時だけである。</p>
+ <h3>輪のきまり</h3>
+ <p>針目がつながって閉じた輪ができることがある。この輪は、幅も高さもかならず奇数になり、長さは 8 で割ると 4 余る。2022 年に Defant と Kravitz が証明した。四百年やってきた柄の性質に、あとから証明が付いた形である。この台はそれを毎回その場で数え直して表示している。</p>
+</section>
+</main>
+<footer class="ft">
+ <div class="ft-in">
+  <p class="ft-n">一目舎　HITOMESHA</p>
+  <p>剣道着・防具製作所　／　埼玉県羽生市上岩瀬 1123</p>
+  <p>電話 +81 48-561-2078（火〜土 9:00–17:30）　／　海外注文は中文にて承ります</p>
+  <p>創業 大正十年（1921）　四代目 中野 甚一　／　職人 6 名・藍甕 12 本</p>
+  <div class="ftstrip" aria-hidden="true">
+   <svg viewBox="0 0 40 2" preserveAspectRatio="none"><path class="runline" d="M0 1H40" pathLength="40" stroke-dasharray="0.72 1.28" stroke="var(--sarashi)" stroke-width="3" fill="none" vector-effect="non-scaling-stroke"/></svg>
+   <svg class="ndl2 walker" viewBox="0 0 22 17"><path d="M2 14L19 3" stroke="var(--sarashi)" stroke-width="2" fill="none"/><ellipse cx="3.4" cy="13.2" rx="2.6" ry="1.6" fill="var(--ai)" stroke="var(--sarashi)" stroke-width="1.4"/></svg>
+  </div>
+  <p class="ft-s">本サイトはデザイン見本です。商号・人名・価格・住所・電話はすべて架空。柄名と一目刺しの数理は実在の伝統および研究に基づきます。</p>
+ </div>
+</footer>
+
+<script>
+
+(function(){
+var N=24;
+var GARA=[["十字花刺し","jūjibana","01","01"],["米刺し","kome-zashi","0","0"],["角亀甲","kaku-kikkō","0011","0011"],["柿の花","kaki-no-hana","0101","0011"],["風車","kazaguruma","00101","01101"],["分銅つなぎ","fundō-tsunagi","000111","010"],["竹の節","take-no-fushi","000101","0"],["井桁","igeta","0011","01"],["銭刺し","zeni-zashi","001","001"],["山形","yamagata","00011011","0101"],["稲穂","inaho","0001","0111"],["二重十字","nijū-jūji","011","011"],["網代","ajiro","00110011","00001111"],["変わり石畳","kawari-ishidatami","0110","0110"],["麻の葉くずし","asanoha-kuzushi","0010111","0100"],["一つ目","hitotsume","01","0"]];
+function fnv(s){var h=2166136261>>>0;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function rep(p,n){var b=[];for(var i=0;i<n;i++)b.push(p[i%p.length]==='1'?1:0);return b;}
+var a=rep('01',N+1), b=rep('01',N+1);
+var plate=document.getElementById('plate'), out=document.getElementById('out');
+var hp=[],vp=[];
+function mk(){
+  var ns='http://www.w3.org/2000/svg';
+  var svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 '+N+' '+N);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('class','fld'); svg.setAttribute('aria-hidden','true');
+  var g=document.createElementNS(ns,'g');
+  g.setAttribute('fill','none');g.setAttribute('stroke','var(--sarashi)');
+  g.setAttribute('stroke-width','3');g.setAttribute('stroke-linecap','butt');
+  g.setAttribute('vector-effect','non-scaling-stroke');
+  for(var y=0;y<=N;y++){var p=document.createElementNS(ns,'path');
+    p.setAttribute('d','M0 '+y+'H'+N);p.setAttribute('pathLength',N);
+    p.setAttribute('stroke-dasharray','0.72 1.28');g.appendChild(p);hp.push(p);}
+  for(var x=0;x<=N;x++){var q=document.createElementNS(ns,'path');
+    q.setAttribute('d','M'+x+' 0V'+N);q.setAttribute('pathLength',N);
+    q.setAttribute('stroke-dasharray','0.72 1.28');g.appendChild(q);vp.push(q);}
+  svg.appendChild(g);plate.innerHTML='';plate.appendChild(svg);
+}
+function draw(){
+  for(var y=0;y<=N;y++)hp[y].setAttribute('stroke-dashoffset',a[y]?-1:0);
+  for(var x=0;x<=N;x++)vp[x].setAttribute('stroke-dashoffset',b[x]?-1:0);
+  document.querySelectorAll('.dot[data-r]').forEach(function(d){d.setAttribute('aria-pressed',a[+d.dataset.r]?'true':'false');});
+  document.querySelectorAll('.dot[data-c]').forEach(function(d){d.setAttribute('aria-pressed',b[+d.dataset.c]?'true':'false');});
+}
+function loops(){
+  var adj={},k=function(x,y){return x+','+y;},ad=function(u,v){(adj[u]=adj[u]||[]).push(v);};
+  var y,x;
+  for(y=0;y<=N;y++)for(x=0;x<N;x++)if(((x+a[y])&1)===0){ad(k(x,y),k(x+1,y));ad(k(x+1,y),k(x,y));}
+  for(x=0;x<=N;x++)for(y=0;y<N;y++)if(((y+b[x])&1)===0){ad(k(x,y),k(x,y+1));ad(k(x,y+1),k(x,y));}
+  var seen={},out=[],v;
+  for(v in adj){ if(seen[v])continue;
+    var st=[v],comp=[],ok=true;seen[v]=1;
+    while(st.length){var c=st.pop();comp.push(c);var cn=adj[c]||[];if(cn.length!==2)ok=false;
+      for(var i=0;i<cn.length;i++)if(!seen[cn[i]]){seen[cn[i]]=1;st.push(cn[i]);}}
+    if(!ok)continue;
+    var xs=[],ys=[];for(var j=0;j<comp.length;j++){var pr=comp[j].split(',');xs.push(+pr[0]);ys.push(+pr[1]);}
+    var w=Math.max.apply(null,xs)-Math.min.apply(null,xs),h=Math.max.apply(null,ys)-Math.min.apply(null,ys);
+    if(w>0&&h>0)out.push({len:comp.length,w:w,h:h});}
+  return out;
+}
+function stitches(){var n=0,y,x;
+  for(y=0;y<=N;y++)for(x=0;x<N;x++)if(((x+a[y])&1)===0)n++;
+  for(x=0;x<=N;x++)for(y=0;y<N;y++)if(((y+b[x])&1)===0)n++;return n;}
+function match(){
+  var sa=a.join(''),sb=b.join('');
+  for(var i=0;i<GARA.length;i++){
+    if(rep(GARA[i][2],N+1).join('')===sa && rep(GARA[i][3],N+1).join('')===sb) return GARA[i];
+  }
+  return null;
+}
+function report(){
+  var L=loops(),n=stitches();
+  var oddWH=L.every(function(l){return l.w%2===1&&l.h%2===1;});
+  var mod=L.every(function(l){return l.len%8===4;});
+  var m=match();
+  var thread=(n*5/1000*1.15);
+  var num=1000+(fnv(a.join('')+':'+b.join(''))%9000);
+  out.innerHTML=
+   '<span class="nm">'+(m?m[0]+'（'+m[1]+'）':'無名・第 '+num+' 号')+'</span>'+
+   '<dl><dt>目数</dt><dd>'+n+' 目</dd>'+
+   '<dt>糸</dt><dd>'+thread.toFixed(2)+' m（取り率 15% 込）</dd>'+
+   '<dt>閉じた輪</dt><dd>'+L.length+' 本</dd>'+
+   '<dt>行</dt><dd>'+a.join('')+'</dd>'+
+   '<dt>列</dt><dd>'+b.join('')+'</dd></dl>'+
+   '<p class="thm">検算：'+(L.length===0?'閉じた輪なし（この柄は閉じない）':
+     '輪の幅と高さはすべて奇数か → <b>'+(oddWH?'はい':'いいえ')+'</b>／輪の長さは 8 で割って 4 余るか → <b>'+(mod?'はい':'いいえ')+'</b>')+
+   '　（Defant–Kravitz 2022 の定理。どう押しても破れない）</p>'+
+   (m?'':'<p class="thm">当舎の柄帳十六柄には当たらなかった。無名の柄として控えに残す。無名でも仕立てる。</p>');
+  out.classList.remove('wipe');void out.offsetWidth;out.classList.add('wipe');
+}
+function flip(kind,i){ if(kind==='r')a[i]^=1; else b[i]^=1; draw(); }
+document.getElementById('bench').addEventListener('click',function(e){
+  var d=e.target.closest('.dot'); if(!d)return;
+  if(d.dataset.r!==undefined)flip('r',+d.dataset.r); else flip('c',+d.dataset.c);
+});
+document.getElementById('pre').addEventListener('click',function(e){
+  var btn=e.target.closest('button[data-a]'); if(!btn)return;
+  a=rep(btn.dataset.a,N+1);b=rep(btn.dataset.b,N+1);draw();
+});
+document.getElementById('sasu').addEventListener('click',function(){
+  var svg=plate.querySelector('svg');
+  svg.classList.remove('wipe');void svg.offsetWidth;svg.classList.add('wipe');
+  report();
+});
+document.getElementById('modosu').addEventListener('click',function(){
+  a=rep('01',N+1);b=rep('01',N+1);draw();
+  out.innerHTML='<span class="nm">まだ刺していない</span><p class="thm">縁の点を押して柄を決め、〈刺す〉を押してください。</p>';
+});
+mk();draw();
+out.innerHTML='<span class="nm">まだ刺していない</span><p class="thm">縁の点を押して柄を決め、〈刺す〉を押してください。</p>';
+})();
+
+</script>
+</body>
+</html>

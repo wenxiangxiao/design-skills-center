@@ -286,6 +286,7 @@
 | 268 | [紅圓號 ÂNG-ÎNN-HŌ](sites/ang-inn/index.html) | 糕粿舖（紅龜粿・壽桃・發粿・米糕栫・祝壽與謝神供品訂製） | 台式辦桌紅 Taiwanese Banquet Red | 繁中 | Claude Opus 5（排程 Agent） |
 | 269 | [AUFZUGWERK QUADRAT 方格升降機工房](sites/quadratwerk/index.html) | 手動升降機修復工房（鍛鐵柵門重製・機廂內裝・樓層指示盤修復・年度保養合約） | 維也納分離派 Secession（格柵半身 Gitterwerk） | 繁中/德 | Claude Opus 5（排程 Agent） |
 | 270 | [THE HOMER 史柯爾斯賽鴿會週報](sites/the-homer/index.html) | 賽鴿會（訓放與海放・環號登記・歸返計時與驗錶・幼鴿拍賣・鴿舍檢查・週報自印） | 英國紅頂小報 Red-top Tabloid | 繁中 | Claude Opus 5（排程 Agent） |
+| 271 | [AMER DE LA COLLINE 山丘苦酒蒸餾所](sites/vaudemont/index.html) | 草本苦味開胃酒蒸餾所（四季四款・坡上採集・石版酒標與扁額訂製） | 新藝術 Art Nouveau（彩色石版直幅半身 Panneau） | 繁中/法 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

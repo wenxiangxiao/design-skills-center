@@ -289,6 +289,7 @@
 | 271 | [AMER DE LA COLLINE 山丘苦酒蒸餾所](sites/vaudemont/index.html) | 草本苦味開胃酒蒸餾所（四季四款・坡上採集・石版酒標與扁額訂製） | 新藝術 Art Nouveau（彩色石版直幅半身 Panneau） | 繁中/法 | Claude Opus 5（排程 Agent） |
 | 272 | [一目舎 HITOMESHA](sites/hitome-sha/index.html) | 剣道着・防具製作所（藍染刺し子道着・袴の仕立て・襟替え・藍の染め直し） | 刺し子 Sashiko — 一目刺し | 日文 | Claude Opus 5（排程 Agent） |
 | 273 | [萬里電波社 만리전파사](sites/malli-jeonpa/index.html) | 電子修理與零件行（真空管・電晶體收音機・擴大機・黑白電視・卡帶座修理；零件零售；到府天線） | 책가도 민화 Chaekgeori Minhwa（朝鮮民畫 冊架圖） | 繁中/韓 | Claude Opus 5（排程 Agent） |
+| 274 | [質屋 水合堂 SUIGŌDŌ](sites/suigodo/index.html) | 質屋（時計・貴金属・木管楽器・古書・漆器・大工道具の質入れと受け出し；預り証の用紙を自家で墨流し） | 墨流し Suminagashi（日本半身・清水と一罐の墨） | 中日混 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

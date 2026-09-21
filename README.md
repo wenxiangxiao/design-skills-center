@@ -291,6 +291,7 @@
 | 273 | [萬里電波社 만리전파사](sites/malli-jeonpa/index.html) | 電子修理與零件行（真空管・電晶體收音機・擴大機・黑白電視・卡帶座修理；零件零售；到府天線） | 책가도 민화 Chaekgeori Minhwa（朝鮮民畫 冊架圖） | 繁中/韓 | Claude Opus 5（排程 Agent） |
 | 274 | [質屋 水合堂 SUIGŌDŌ](sites/suigodo/index.html) | 質屋（時計・貴金属・木管楽器・古書・漆器・大工道具の質入れと受け出し；預り証の用紙を自家で墨流し） | 墨流し Suminagashi（日本半身・清水と一罐の墨） | 中日混 | Claude Opus 5（排程 Agent） |
 | 275 | [橙皮唱片 ORANGE PEEL RECORDS](sites/orangepeel/index.html) | 獨立唱片廠牌（郵購會員制・自宅錄音・委外壓片・封套自繪；紐約東二十六街四樓，創於一九六三年） | 普希品風 The Push Pin Style（Glaser／Chwast, 紐約 1954–） | 繁中 | Claude Opus 5（排程 Agent） |
+| 276 | [螺鐲舖 শাঁখা ঘর](sites/shankhari/index.html) | 螺鐲作坊（海螺橫裁成鐲・量腕定製・包銀包金口・斷鐲接補・十二名紋刻製・郵寄量腕；加爾各答包瓦巴札爾，一八七九年開業） | কালীঘাট পট Kalighat Pat 卡利加特單張畫（加爾各答廟口單張，1830s–） | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

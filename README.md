@@ -293,6 +293,7 @@
 | 275 | [橙皮唱片 ORANGE PEEL RECORDS](sites/orangepeel/index.html) | 獨立唱片廠牌（郵購會員制・自宅錄音・委外壓片・封套自繪；紐約東二十六街四樓，創於一九六三年） | 普希品風 The Push Pin Style（Glaser／Chwast, 紐約 1954–） | 繁中 | Claude Opus 5（排程 Agent） |
 | 276 | [螺鐲舖 শাঁখা ঘর](sites/shankhari/index.html) | 螺鐲作坊（海螺橫裁成鐲・量腕定製・包銀包金口・斷鐲接補・十二名紋刻製・郵寄量腕；加爾各答包瓦巴札爾，一八七九年開業） | কালীঘাট পট Kalighat Pat 卡利加特單張畫（加爾各答廟口單張，1830s–） | 繁中 | Claude Opus 5（排程 Agent） |
 | 277 | [種板堂 TANEITA-DŌ](sites/taneita/index.html) | 寄木細工工房（種板の仕込み・ヅク貼り・無垢彫り・秘密箱の仕掛け・箱物の修理；箱根 畑宿） | ANSi Art — BBS 場景的 ANSI 藝術（ACiD／iCE, 1990–1997） | 日文 | Claude Opus 5（排程 Agent） |
+| 278 | [姆奈西特歐斯陶坊 ΜΝΗΣΙΘΕΟΣ](sites/mnesitheos/index.html) | 賞瓶坊（泛雅典賽會賞瓶的製作與聖橄欖油灌裝・黒絵と赤絵の二法・破器鉛釘接補；雅典陶匠區 Κεραμεικός 雙門外） | 阿提卡瓶畫 Attic Vase Painting（黒絵 ΜΕΛΑΝΟΜΟΡΦΟΣ／赤絵 ΕΡΥΘΡΟΜΟΡΦΟΣ） | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>種板堂 TANEITA-DŌ ｜ 箱根 畑宿の寄木細工</title>
+<meta name="description" content="箱根畑宿の寄木細工工房。種板の仕込み、ヅク貼り、無垢彫り、秘密箱の仕掛け。型録は一九九〇年代 BBS の ANSi artpack の流儀で、十六色と文字の桝目だけで組んでいます。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23000000'/%3E%3Cpath d='M8 2 L13 5 L13 11 L8 14 L3 11 L3 5 Z' fill='%23AA0000'/%3E%3Cpath d='M8 2 L13 5 L8 8 Z M8 8 L13 11 L8 14 Z M8 8 L3 11 L3 5 Z' fill='%23FFFFFF'/%3E%3Cpath d='M7.6 2 h0.8 v12 h-0.8 Z' fill='%23000000'/%3E%3Cpath d='M3 5 L12.6 10.6 L12.2 11.3 L2.6 5.7 Z M13 5 L3.4 10.6 L3.8 11.3 L13.4 5.7 Z' fill='%23000000'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@400&display=swap" rel="stylesheet">
+<style>
+/* 種板堂 — ANSi Art。色盤是 1984 年 IBM EGA 燒進硬體的十六色，樣式表裡不得出現第十七個色碼。
+   零 opacity・零 rgba 第四位・零 gradient・零 filter・零 border-radius・零 box-shadow。 */
+:root{
+ --c0:#000000;--c1:#0000AA;--c2:#00AA00;--c3:#00AAAA;--c4:#AA0000;--c5:#AA00AA;--c6:#AA5500;--c7:#AAAAAA;
+ --c8:#555555;--c9:#5555FF;--cA:#55FF55;--cB:#55FFFF;--cC:#FF5555;--cD:#FF55FF;--cE:#FFFF55;--cF:#FFFFFF;
+ --fs:clamp(12px,1.34vw,16px);
+ --art:ui-monospace,"DejaVu Sans Mono","Liberation Mono",Menlo,Consolas,"Courier New",monospace;
+ --ui:"M PLUS 1 Code",ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;
+}
+/* 列高必須落在整數像素上，否則相鄰兩列的半塊之間會出現一條髮絲縫。
+   round() 自 2024-05 起全引擎可用（Baseline 2024）；不支援的瀏覽器直接吃上面那行 clamp()。 */
+@supports (width:round(down,10px,1px)){:root{--fs:round(down,clamp(12px,1.34vw,16px),1px)}}
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0}
+html{font-size:var(--fs);background:var(--c0)}
+body{background:var(--c0);color:var(--c7);font-family:var(--ui);font-weight:400;
+ font-size:1rem;line-height:2;font-variant-ligatures:none;-webkit-font-smoothing:antialiased}
+::selection{background:var(--c7);color:var(--c0)}
+.scr{max-width:80ch;margin:0 auto;padding:1em .75em 3em}
+/* ── 導覽：四行一模一樣，變的只有「反白停在哪一行」（ANSI SGR 7 反顯） ── */
+nav{border-bottom:1px solid var(--c8);margin-bottom:1em}
+nav ul{list-style:none;display:flex;flex-wrap:wrap}
+nav a{display:inline-block;text-decoration:none;color:var(--c7);background:var(--c0);
+ padding:0 1ch;white-space:nowrap}
+nav a::before{content:"  ";white-space:pre}
+nav a:hover{color:var(--cF)}
+nav a[aria-current]{color:var(--c0);background:var(--c7)}
+nav a[aria-current]::before{content:"\25BA ";white-space:pre;animation:blk 456ms linear infinite}
+.mark{color:var(--cE);padding:0 1ch}
+/* ── 一個字級、一個字重、一個行高：標題不比正文大，階層只用顏色與框線 ── */
+h1,h2,h3{font-size:1rem;font-weight:400;line-height:2}
+h1{color:var(--cE)}h2{color:var(--cA)}h3{color:var(--c6)}
+h2::before{content:"\2500\2500 ";color:var(--c8)}
+h3::before{content:"\2502 ";color:var(--c8)}
+p,li,dd,dt,td,th{font-size:1rem;line-height:2}
+p{max-width:62ch;margin:0 0 2em}
+a{color:var(--cB)}a:hover{color:var(--cF)}
+strong{font-weight:400;color:var(--cF)}
+em{font-style:normal;color:var(--cE)}
+hr{border:0;border-top:1px solid var(--c8);margin:2em 0}
+.kicker{color:var(--c8)}
+.hi{color:var(--cF)}.dim{color:var(--c8)}.warn{color:var(--cC)}.ok{color:var(--cA)}
+.box{border:1px solid var(--c8);padding:0 1ch;margin:0 0 2em}
+.box>h3{margin:0}
+/* ── 圖：全部是真的文字。可框選、可複製、貼進記事本形還在 ── */
+pre.art{font-family:var(--art);line-height:1;font-size:1rem;white-space:pre;
+ background:var(--c0);color:var(--c7);margin:0 0 1em;max-width:100%;overflow-x:auto;
+ letter-spacing:0;font-variant-ligatures:none;outline:0}
+pre.art:focus-visible{outline:1px solid var(--cE);outline-offset:2px}
+#bar{font-family:var(--ui);color:var(--c8);line-height:2;margin:0 0 2em;
+ border-top:1px solid var(--c8);min-height:2em}
+figure{margin:0 0 2em}
+figcaption{color:var(--c8);line-height:2}
+/* ── 表：只有框線字元，沒有斑馬紋、沒有陰影 ── */
+table{border-collapse:collapse;margin:0 0 2em;width:100%}
+th,td{text-align:left;padding:0 1ch;border:1px solid var(--c8);vertical-align:top}
+th{color:var(--cA);font-weight:400}
+.sw{color:var(--c0)}
+/* ── 按鈕＝反白的一格；沒有圓角、沒有陰影、沒有漸層 ── */
+button{font:inherit;font-size:1rem;line-height:2;font-family:var(--ui);
+ color:var(--c7);background:var(--c0);border:1px solid var(--c8);padding:0 1ch;cursor:pointer}
+button:hover:not(:disabled){color:var(--c0);background:var(--c7)}
+button:focus-visible{outline:1px solid var(--cE);outline-offset:1px}
+button:disabled{color:var(--c8);cursor:not-allowed}
+button[data-on]{color:var(--c0);background:var(--cE)}
+.pad{display:flex;flex-wrap:wrap;gap:1ch;margin:0 0 1em}
+footer{border-top:1px solid var(--c8);margin-top:2em;padding-top:1em;color:var(--c8)}
+/* ── 環境動效：閃爍位。VGA 文字模式每 32 個垂直掃描一循環，70.086Hz/32=2.19Hz → 456ms ── */
+@keyframes blk{0%,49.9%{color:inherit}50%,100%{color:var(--c0)}}
+.blink{animation:blk 456ms linear infinite}
+/* ── 轉場：跨文件 View Transitions。舊屏由上往下清掉，新屏由上往下畫回來 ── */
+@view-transition{navigation:auto}
+@keyframes scr-out{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(100% 0 0 0)}}
+@keyframes scr-in{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+::view-transition-old(root){animation:scr-out 240ms linear both}
+::view-transition-new(root){animation:scr-in 240ms linear both}
+@media (prefers-reduced-motion:reduce){
+ ::view-transition-old(root),::view-transition-new(root){animation:none}
+ .blink,nav a[aria-current]::before{animation:none}
+}
+@media (max-width:560px){
+ .scr{padding:1em .5em 3em}
+ nav ul{flex-direction:column}
+ p{max-width:100%}
+ table{display:block;overflow-x:auto}
+}
+
+.brand{display:flex;align-items:flex-start;gap:1ch;margin:0 0 1em}
+.logo{width:6.5em;height:auto;flex:0 0 auto;display:block}
+.brand p{margin:0}
+@media (max-width:560px){.logo{width:5em}}
+
+</style>
+</head>
+<body>
+<div class="scr">
+<div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 30" class="logo" shape-rendering="crispEdges" role="img" aria-label="種板堂のしるし：麻の葉ひと単位の木口と、水木・一位・神代桂の三条"><title>種板堂 TANEITA-DO</title><rect width="26" height="30" fill="#000000"/><rect x="7" y="3" width="6" height="1" fill="#FFFFFF"/><rect x="13" y="3" width="6" height="1" fill="#AA0000"/><rect x="5" y="4" width="1" height="1" fill="#AA0000"/><rect x="8" y="4" width="5" height="1" fill="#FFFFFF"/><rect x="13" y="4" width="5" height="1" fill="#AA0000"/><rect x="20" y="4" width="1" height="1" fill="#FFFFFF"/><rect x="4" y="5" width="3" height="1" fill="#AA0000"/><rect x="9" y="5" width="4" height="1" fill="#FFFFFF"/><rect x="13" y="5" width="4" height="1" fill="#AA0000"/><rect x="19" y="5" width="3" height="1" fill="#FFFFFF"/><rect x="4" y="6" width="4" height="1" fill="#AA0000"/><rect x="9" y="6" width="4" height="1" fill="#FFFFFF"/><rect x="13" y="6" width="4" height="1" fill="#AA0000"/><rect x="18" y="6" width="4" height="1" fill="#FFFFFF"/><rect x="3" y="7" width="5" height="1" fill="#AA0000"/><rect x="10" y="7" width="3" height="1" fill="#FFFFFF"/><rect x="13" y="7" width="3" height="1" fill="#AA0000"/><rect x="18" y="7" width="5" height="1" fill="#FFFFFF"/><rect x="2" y="8" width="2" height="1" fill="#FFFFFF"/><rect x="4" y="8" width="5" height="1" fill="#AA0000"/><rect x="11" y="8" width="2" height="1" fill="#FFFFFF"/><rect x="13" y="8" width="2" height="1" fill="#AA0000"/><rect x="17" y="8" width="5" height="1" fill="#FFFFFF"/><rect x="22" y="8" width="2" height="1" fill="#AA0000"/><rect x="2" y="9" width="4" height="1" fill="#FFFFFF"/><rect x="6" y="9" width="4" height="1" fill="#AA0000"/><rect x="11" y="9" width="2" height="1" fill="#FFFFFF"/><rect x="13" y="9" width="2" height="1" fill="#AA0000"/><rect x="16" y="9" width="4" height="1" fill="#FFFFFF"/><rect x="20" y="9" width="4" height="1" fill="#AA0000"/><rect x="1" y="10" width="7" height="1" fill="#FFFFFF"/><rect x="8" y="10" width="3" height="1" fill="#AA0000"/><rect x="12" y="10" width="1" height="1" fill="#FFFFFF"/><rect x="13" y="10" width="1" height="1" fill="#AA0000"/><rect x="15" y="10" width="3" height="1" fill="#FFFFFF"/><rect x="18" y="10" width="7" height="1" fill="#AA0000"/><rect x="0" y="11" width="10" height="1" fill="#FFFFFF"/><rect x="10" y="11" width="1" height="1" fill="#AA0000"/><rect x="15" y="11" width="1" height="1" fill="#FFFFFF"/><rect x="16" y="11" width="10" height="1" fill="#AA0000"/><rect x="0" y="12" width="12" height="1" fill="#FFFFFF"/><rect x="14" y="12" width="12" height="1" fill="#AA0000"/><rect x="0" y="13" width="12" height="1" fill="#AA0000"/><rect x="14" y="13" width="12" height="1" fill="#FFFFFF"/><rect x="0" y="14" width="10" height="1" fill="#AA0000"/><rect x="10" y="14" width="1" height="1" fill="#FFFFFF"/><rect x="15" y="14" width="1" height="1" fill="#AA0000"/><rect x="16" y="14" width="10" height="1" fill="#FFFFFF"/><rect x="1" y="15" width="7" height="1" fill="#AA0000"/><rect x="8" y="15" width="3" height="1" fill="#FFFFFF"/><rect x="12" y="15" width="1" height="1" fill="#AA0000"/><rect x="13" y="15" width="1" height="1" fill="#FFFFFF"/><rect x="15" y="15" width="3" height="1" fill="#AA0000"/><rect x="18" y="15" width="7" height="1" fill="#FFFFFF"/><rect x="2" y="16" width="4" height="1" fill="#AA0000"/><rect x="6" y="16" width="4" height="1" fill="#FFFFFF"/><rect x="11" y="16" width="2" height="1" fill="#AA0000"/><rect x="13" y="16" width="2" height="1" fill="#FFFFFF"/><rect x="16" y="16" width="4" height="1" fill="#AA0000"/><rect x="20" y="16" width="4" height="1" fill="#FFFFFF"/><rect x="2" y="17" width="2" height="1" fill="#AA0000"/><rect x="4" y="17" width="5" height="1" fill="#FFFFFF"/><rect x="11" y="17" width="2" height="1" fill="#AA0000"/><rect x="13" y="17" width="2" height="1" fill="#FFFFFF"/><rect x="17" y="17" width="5" height="1" fill="#AA0000"/><rect x="22" y="17" width="2" height="1" fill="#FFFFFF"/><rect x="3" y="18" width="5" height="1" fill="#FFFFFF"/><rect x="10" y="18" width="3" height="1" fill="#AA0000"/><rect x="13" y="18" width="3" height="1" fill="#FFFFFF"/><rect x="18" y="18" width="5" height="1" fill="#AA0000"/><rect x="4" y="19" width="4" height="1" fill="#FFFFFF"/><rect x="9" y="19" width="4" height="1" fill="#AA0000"/><rect x="13" y="19" width="4" height="1" fill="#FFFFFF"/><rect x="18" y="19" width="4" height="1" fill="#AA0000"/><rect x="4" y="20" width="3" height="1" fill="#FFFFFF"/><rect x="9" y="20" width="4" height="1" fill="#AA0000"/><rect x="13" y="20" width="4" height="1" fill="#FFFFFF"/><rect x="19" y="20" width="3" height="1" fill="#AA0000"/><rect x="5" y="21" width="1" height="1" fill="#FFFFFF"/><rect x="8" y="21" width="5" height="1" fill="#AA0000"/><rect x="13" y="21" width="5" height="1" fill="#FFFFFF"/><rect x="20" y="21" width="1" height="1" fill="#AA0000"/><rect x="7" y="22" width="6" height="1" fill="#AA0000"/><rect x="13" y="22" width="6" height="1" fill="#FFFFFF"/><rect x="1" y="27" width="8" height="1" fill="#FFFFFF"/><rect x="9" y="27" width="8" height="1" fill="#AA0000"/><rect x="17" y="27" width="8" height="1" fill="#AAAAAA"/><rect x="1" y="28" width="8" height="1" fill="#FFFFFF"/><rect x="9" y="28" width="8" height="1" fill="#AA0000"/><rect x="17" y="28" width="8" height="1" fill="#AAAAAA"/></svg><p class="kicker"><span class="mark">█▓▒░</span>種板堂　TANEITA-DŌ<br>—— 箱根 畑宿 寄木細工<br><span class="dim">しるし＝麻の葉ひと単位の木口。整数座標の矩形だけで書いた、文字画面の写しです。</span></p></div>
+<nav aria-label="頁"><ul><li><a href="index.html" aria-current="page">工房</a></li><li><a href="monyo.html">文様</a></li><li><a href="iroha.html">木の色</a></li><li><a href="tejun.html">手順</a></li></ul></nav>
+<h1>種板堂　たねいただう　＊　箱根 畑宿の寄木細工</h1>
+<noscript><p class="warn">［ JavaScript が切れています。絵は文字で組み立てているので描かれませんが、どの絵にも同じ内容の説明文と表が付いています。読めない情報はありません。］</p></noscript>
+<figure>
+<pre class="art" id="hero" role="img" aria-label="種板の三面図。左の面が木口で、水木の白・一位の赤・黒檀の黒で麻の葉が出ている。上面と右面には木条が長手に走り、上面から削いだヅクが一枚、巻き上がっている。"></pre>
+<div id="bar" data-idle="図の上に指を置くと、その一画を描いている「属性流」が一続きに光ります。矢印キーでも動きます。図を押せば、もう一度はじめから流れます。"></div>
+<figcaption>種板（たねいた）四寸角・長さ一尺二寸／麻の葉／水木・一位・黒檀／条数 二百十六本<br><span class="dim">種板の三面図 ─ TANEITA-DŌ ─ 2026-09 ─ 40 cols</span></figcaption>
+</figure>
+
+<p><em>種板</em>は、色のちがう木の条（じょう）を接いで束ねた角材です。切り口——<em>木口（こぐち）</em>——に文様が出ます。そこから鉋で〇・二ミリの<em>ヅク</em>を削ぎ、箱の面に貼る。当工房は明治の畑宿の寸法帳をそのまま使い、条は一本も染めません。<strong>色は木の色だけです。</strong></p>
+
+<h2>この頁の絵について</h2>
+<p>上の絵は画像ではありません。<strong>一文字ずつ並べた本物の文字</strong>です。範囲を選んで複写し、メモ帳に貼ってみてください。色は落ちますが、形はそのまま残ります。色は文字を包む札（タグ）に付いているのではなく、文字列のうえの<em>範囲</em>に直接掛かっているからです。<br>
+木口も同じ理屈です。文様は木に描いたものではなく、条をどう並べたかの<em>断面</em>にすぎません。描き直しはききません。</p>
+
+<h2>今月の種板</h2>
+<table>
+<caption class="dim">九月分・畑宿工房　（条数は一枚の種板に入る木条の本数）</caption>
+<tr><th>文様</th><th>木</th><th>条数</th><th>角</th><th>出</th></tr>
+<tr><td>麻の葉</td><td>水木・一位・黒檀</td><td>216</td><td>四寸</td><td class="ok">出来</td></tr>
+<tr><td>市松</td><td>黒檀・水木</td><td>64</td><td>三寸</td><td class="ok">出来</td></tr>
+<tr><td>青海波</td><td>水木・神代桂</td><td>180</td><td>四寸</td><td class="warn">乾燥中</td></tr>
+<tr><td>七宝</td><td>苦木・樟</td><td>144</td><td>三寸五分</td><td class="ok">出来</td></tr>
+<tr><td>籠目</td><td>樟・苦木・神代桂</td><td>198</td><td>四寸</td><td class="warn">仕込</td></tr>
+<tr><td>三崩し</td><td>紫檀・神代桂</td><td>81</td><td>三寸</td><td class="ok">出来</td></tr>
+</table>
+
+<h2>仕事</h2>
+<div class="box"><h3>種板の仕込み</h3>
+<p class="dim">条を挽き、膠で接ぎ、万力で締め、二十日置く。文様を変えるということは、並べ方を変えるということです。図面はありません。寸法帳に条の順だけが書いてあります。</p></div>
+<div class="box"><h3>ヅク貼り</h3>
+<p class="dim">種板を鉋で〇・二ミリに削ぐ。削ぎ損ねた一枚は元に戻りません。箱の面、盆の縁、文箱の蓋。反りが出たら濡らして重石。</p></div>
+<div class="box"><h3>無垢彫り</h3>
+<p class="dim">貼らずに、種板そのものを轆轤で挽いて器にする。木口が曲面に出るので、文様が伸びます。伸び方は挽き手の癖です。</p></div>
+<div class="box"><h3>秘密箱の仕掛け</h3>
+<p class="dim">四回・七回・十回・二十一回。板を順に滑らせないと開きません。仕掛けの寸法は〇・三ミリの世界で、湿気で渋ります。<a href="tejun.html">→ 四回仕掛けを試す</a></p></div>
+
+<h2>型録は月に一度、まとめて出します</h2>
+<p>文様の型録はその月の分をひとまとめにして出します。一枚ずつ出さないのは、<strong>一枚では寸法が分からない</strong>からです。並べて初めて、条の太さも、接ぎ目の詰まり具合も比べられる。<br>
+このやり方は一九九〇年代の BBS の絵描きたちから借りました。彼らも月に一度、その月に描いた絵を一つの包み（artpack）にして流していた。理由は同じです。<span class="dim">——だから当工房の型録は、彼らの流儀で組んであります。十六色、文字の桝目、それ以外は使いません。</span></p>
+<p><a href="monyo.html">→ 十二の文様を見る</a>　<a href="iroha.html">→ 十六色と、木で出せない六色の話</a></p>
+
+<footer>
+<p class="dim">種板堂／神奈川県足柄下郡箱根町畑宿　〒250-0311　電話 0460-8x-xxxx　月休<br>この頁の絵は、頭のしるし一つを除いて一枚残らず本物の文字です。選んで複写すれば、メモ帳に形のまま貼りつきます。<br>色は CSS Custom Highlight API が範囲（Range）に掛けているだけなので、複写には付いてきません。<br>しるし（<a href="assets/logo.svg">logo.svg</a>）も、同じ桝目を整数座標の矩形に書き写しただけのものです。<br><a href="../../index.html">← Design Skills Center</a>　·　<a href="SKILL.md">SKILL.md</a>　·　架空の工房です（Design Skills Center の範例站）</p>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+/* 種板堂 — ANSi 引擎：像素緩衝 → 半塊字元格 → 屬性流（Custom Highlight API 上色） */
+var EGA=['#000000','#0000AA','#00AA00','#00AAAA','#AA0000','#AA00AA','#AA5500','#AAAAAA',
+'#555555','#5555FF','#55FF55','#55FFFF','#FF5555','#FF55FF','#FFFF55','#FFFFFF'];
+var KI={0:'黒檀 こくたん',2:'朴 ほお',4:'一位 いちい',5:'紫檀 したん',6:'樟 くす',
+7:'神代桂 じんだいかつら',8:'鉄刀木 たがやさん',10:'青膚 あおはだ',14:'苦木 にがき',15:'水木 みずき'};
+var NAKI={1:1,3:1,9:1,11:1,12:1,13:1};
+var XS=1/1.2; /* 半格是 1.2:1 的長方形，橫向先壓縮，圓才會圓 */
+function Buf(w,h){var d=new Int8Array(w*h);d.fill(-1);return{w:w,h:h,d:d};}
+function pset(b,x,y,c){x=x|0;y=y|0;if(x<0||y<0||x>=b.w||y>=b.h)return;b.d[y*b.w+x]=c;}
+function poly(b,pts,c){
+ var i,n=pts.length,ys=[],y,sy,xs,a,q,k,x;
+ for(i=0;i<n;i++)ys.push(pts[i][1]);
+ var y0=Math.max(0,Math.floor(Math.min.apply(null,ys))),y1=Math.min(b.h-1,Math.ceil(Math.max.apply(null,ys)));
+ for(y=y0;y<=y1;y++){sy=y+0.5;xs=[];
+  for(i=0;i<n;i++){a=pts[i];q=pts[(i+1)%n];
+   if((a[1]<=sy&&q[1]>sy)||(q[1]<=sy&&a[1]>sy))xs.push(a[0]+(sy-a[1])/(q[1]-a[1])*(q[0]-a[0]));}
+  xs.sort(function(p,r){return p-r;});
+  for(k=0;k+1<xs.length;k+=2)for(x=Math.ceil(xs[k]-0.5);x<=Math.floor(xs[k+1]-0.5);x++)pset(b,x,y,c);}
+}
+function rect(b,x,y,w,h,c){poly(b,[[x,y],[x+w,y],[x+w,y+h],[x,y+h]],c);}
+function disc(b,cx,cy,r,c,r2){var x,y,dx,dy,d;r2=r2||0;
+ for(y=Math.floor(cy-r);y<=Math.ceil(cy+r);y++)for(x=Math.floor(cx-r/XS);x<=Math.ceil(cx+r/XS);x++){
+  dx=(x+0.5-cx)*XS;dy=y+0.5-cy;d=Math.sqrt(dx*dx+dy*dy);if(d<=r&&d>=r2)pset(b,x,y,c);}}
+function frame(b,x,y,w,h,c){rect(b,x,y,w,1,c);rect(b,x,y+h-1,w,1,c);rect(b,x,y,1,h,c);rect(b,x+w-1,y,1,h,c);}
+/* 木紋：決定性的細縞，不是雜訊 —— 同一根木條每次畫都一樣 */
+function grain(b,x,y,w,h,c,seed){var i,j,v;
+ for(j=0;j<h;j++)for(i=0;i<w;i++){v=((i*2654435761+j*40503+seed*97)>>>0)%23;
+  if(v<4)pset(b,x+i,y+j,c);}}
+/* 緩衝 → 字元格（半塊）*/
+var SH=[' ','░','▒','▓','█'];
+function cells(b){var rows=[],cy,x,row,t,u;
+ for(cy=0;cy*2<b.h;cy++){row=[];
+  for(x=0;x<b.w;x++){t=b.d[(cy*2)*b.w+x];u=(cy*2+1<b.h)?b.d[(cy*2+1)*b.w+x]:-1;
+   if(t<0)t=0;if(u<0)u=0;
+   if(t===u)row.push({g:t===0?' ':'█',f:t,k:0});
+   else if(u===0)row.push({g:'▀',f:t,k:0});
+   else if(t===0)row.push({g:'▄',f:u,k:0});
+   else row.push({g:'▀',f:t,k:u});}
+  rows.push(row);}
+ return rows;}
+/* 濃淡：ANSi の絵描きが面を暗くするときは、色を変えずに ░▒▓ を重ねる。
+   前景＝その面の色、背景＝地。被覆率で四階（空白 25% 50% 75% 100%）に落ちる。 */
+function shadeCells(rows,x0,y0,w,h,lv){var y,x,c,g=SH[lv];
+ for(y=y0;y<y0+h&&y<rows.length;y++)for(x=x0;x<x0+w&&x<rows[y].length;x++){
+  c=rows[y][x];if(c.g===' ')continue;
+  if(c.g==='\u2588'){c.g=g;c.k=0;}
+  else{c.f=(c.g==='\u2584')?c.f:c.f;c.g=g;c.k=0;}}}
+/* 字元格 → 一條字元流 ＋ 一串屬性段（屬性跨換行不中斷，和真的 ANSi 檔一樣）*/
+function runs(rows){var txt='',rs=[],cur=null,i=0,y,x,c;
+ for(y=0;y<rows.length;y++){
+  for(x=0;x<rows[y].length;x++){c=rows[y][x];
+   if(!cur||cur.f!==c.f||cur.k!==c.k){if(cur)rs.push(cur);cur={f:c.f,k:c.k,s:i,e:i};}
+   txt+=c.g;i++;cur.e=i;}
+  if(y<rows.length-1){txt+='\n';i++;cur.e=i;}}
+ if(cur)rs.push(cur);
+ return{txt:txt,runs:rs,cols:rows[0]?rows[0].length:0,rows:rows.length};}
+/* ── 上色：全站零 <span>、零 <canvas>、零 <img>，顏色全部掛在 Range 上 ── */
+var HL=!!(window.CSS&&window.CSS.highlights&&window.Highlight),ST=null,MADE={};
+function sheet(){if(!ST){ST=document.createElement('style');document.head.appendChild(ST);}return ST;}
+function rule(f,k){var n='a'+f+'_'+k;if(MADE[n])return n;MADE[n]=1;
+ sheet().sheet.insertRule('::highlight('+n+'){color:'+EGA[f]+';background-color:'+EGA[k]+'}',0);return n;}
+function runrule(f){var n='r'+f;if(MADE[n])return n;MADE[n]=1;
+ sheet().sheet.insertRule('::highlight('+n+'){color:'+EGA[f]+';background-color:#0000AA}',0);return n;}
+function clearHL(){if(!HL)return;CSS.highlights.forEach(function(h,n){if(n.charAt(0)==='a')h.clear();});}
+function paint(pre,r){
+ pre.textContent=r.txt;pre.dataset.cols=r.cols;pre.dataset.rows=r.rows;pre._r=r;
+ if(!HL){fallback(pre,r);return;}
+ var tn=pre.firstChild,i,run,n,h,rg;
+ for(i=0;i<r.runs.length;i++){run=r.runs[i];n=rule(run.f,run.k);
+  h=CSS.highlights.get(n);if(!h){h=new Highlight();h.priority=1;CSS.highlights.set(n,h);}
+  rg=document.createRange();rg.setStart(tn,run.s);rg.setEnd(tn,run.e);h.add(rg);}
+}
+/* 不支援 Custom Highlight API 時：包 <span> 逐段上色，形與色零損失，只是 DOM 變髒 */
+function fallback(pre,r){var i,run,sp,fr=document.createDocumentFragment();
+ pre.textContent='';
+ for(i=0;i<r.runs.length;i++){run=r.runs[i];sp=document.createElement('span');
+  sp.style.color=EGA[run.f];sp.style.backgroundColor=EGA[run.k];
+  sp.textContent=r.txt.slice(run.s,run.e);fr.appendChild(sp);}
+ pre.appendChild(fr);pre._fb=1;}
+/* 重畫：14400 bps ÷ 10 位元 = 1440 字元／秒，一格一格由左上往右下到達 */
+function redraw(pre,done){
+ var r=pre._r;if(!r)return done&&done();
+ if(!HL||matchMedia('(prefers-reduced-motion: reduce)').matches)return done&&done();
+ var veil=CSS.highlights.get('veil');
+ if(!veil){veil=new Highlight();veil.priority=50;CSS.highlights.set('veil',veil);
+  sheet().sheet.insertRule('::highlight(veil){color:transparent;background-color:#000000}',0);}
+ var tn=pre.firstChild,N=r.txt.length,t0=0;
+ function step(t){if(!t0)t0=t;var i=Math.min(N,Math.floor((t-t0)/1000*1440));
+  veil.clear();
+  if(i<N){var rg=document.createRange();rg.setStart(tn,i);rg.setEnd(tn,N);veil.add(rg);requestAnimationFrame(step);}
+  else{done&&done();}}
+ requestAnimationFrame(step);}
+
+/* ── 簽名動效〈屬性流〉：高亮的邊界是檔案的邊界，不是圖的邊界 ── */
+var RUNHL=null,LASTF=-1;
+function idxAt(pre,cx,cy){
+ var rc=pre.getBoundingClientRect(),cols=+pre.dataset.cols,rows=+pre.dataset.rows;
+ if(!cols||!rows)return -1;
+ var cw=rc.width/cols,chh=rc.height/rows;
+ var col=Math.floor((cx-rc.left)/cw),row=Math.floor((cy-rc.top)/chh);
+ if(col<0||row<0||col>=cols||row>=rows)return -1;
+ return row*(cols+1)+col;}
+function findRun(r,i){var lo=0,hi=r.runs.length-1,m;
+ while(lo<=hi){m=(lo+hi)>>1;if(i<r.runs[m].s)hi=m-1;else if(i>=r.runs[m].e)lo=m+1;else return m;}
+ return -1;}
+function showRun(pre,ri){
+ var r=pre._r,run=r.runs[ri],bar=document.getElementById('bar');
+ if(HL){
+  if(!RUNHL){RUNHL=new Highlight();RUNHL.priority=20;}
+  if(LASTF!==run.f){if(LASTF>=0)CSS.highlights.delete('r'+LASTF);CSS.highlights.set(runrule(run.f),RUNHL);LASTF=run.f;}
+  RUNHL.clear();
+  var rg=document.createRange();rg.setStart(pre.firstChild,run.s);rg.setEnd(pre.firstChild,run.e);RUNHL.add(rg);}
+ if(bar){var cols=+pre.dataset.cols;
+  var l0=Math.floor(run.s/(cols+1))+1,l1=Math.floor((run.e-1)/(cols+1))+1;
+  bar.textContent='屬性流 #'+(ri+1)+'／'+r.runs.length+'　前景 '+run.f+' '+(KI[run.f]||'（木では出せない色）')
+   +'　背景 '+run.k+' '+(KI[run.k]||'（木では出せない色）')
+   +'　第 '+run.s+'–'+(run.e-1)+' 字元'+(l1>l0?('　跨 '+(l1-l0+1)+' 列'):'');}
+}
+function hideRun(){var bar=document.getElementById('bar');
+ if(RUNHL)RUNHL.clear();if(CURHL)CURHL.clear();
+ if(bar)bar.textContent=bar.dataset.idle;}
+var CURHL=null;
+function showCur(pre,i){
+ if(!HL)return;
+ if(!CURHL){CURHL=new Highlight();CURHL.priority=30;CSS.highlights.set('cur',CURHL);
+  sheet().sheet.insertRule('::highlight(cur){color:#000000;background-color:#FFFF55}',0);}
+ CURHL.clear();
+ var rg=document.createRange();rg.setStart(pre.firstChild,i);rg.setEnd(pre.firstChild,i+1);CURHL.add(rg);}
+function wire(pre){
+ pre.tabIndex=0;var cur=0;
+ /* 輸入動效：押せば、もう一度流れる。ANSi の檔は指令の列なので、何度でも同じ順に描き直せる。 */
+ pre.addEventListener('click',function(){redraw(pre);});
+ pre.addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();redraw(pre);}});
+ pre.addEventListener('pointermove',function(e){
+  var i=idxAt(pre,e.clientX,e.clientY);if(i<0)return;cur=i;
+  var ri=findRun(pre._r,i);if(ri>=0){showRun(pre,ri);showCur(pre,i);}});
+ pre.addEventListener('pointerleave',hideRun);
+ pre.addEventListener('blur',hideRun);
+ pre.addEventListener('keydown',function(e){
+  var cols=+pre.dataset.cols,d=0;
+  if(e.key==='ArrowRight')d=1;else if(e.key==='ArrowLeft')d=-1;
+  else if(e.key==='ArrowDown')d=cols+1;else if(e.key==='ArrowUp')d=-(cols+1);else return;
+  e.preventDefault();cur=Math.max(0,Math.min(pre._r.txt.length-1,cur+d));
+  var ri=findRun(pre._r,cur);if(ri>=0){showRun(pre,ri);showCur(pre,cur);}});
+}
+/* 掛載一幅畫 */
+function mount(id,draw,opt){
+ var pre=document.getElementById(id);if(!pre)return null;
+ var b=Buf(pre._w||opt.w,pre._h||opt.h);draw(b);
+ var rows=cells(b);if(draw.post)draw.post(rows);
+ var r=runs(rows);paint(pre,r);if(!pre._fb&&opt.wire!==false)wire(pre);
+ return pre;}
+
+/* ── 十二の文様。どれも「一本の木条の木口」＝三角・菱・六角から組む。 ── */
+function hexpt(cx,cy,R,k,rot){var a=Math.PI/180*(60*k+(rot||0));return[cx+R*Math.cos(a)/XS,cy+R*Math.sin(a)];}
+function halfdisc(b,cx,cy,r,c){var x,y,dx,dy;
+ for(y=Math.floor(cy-r);y<=Math.ceil(cy);y++)for(x=Math.floor(cx-r/XS);x<=Math.ceil(cx+r/XS);x++){
+  dx=(x+0.5-cx)*XS;dy=y+0.5-cy;if(dx*dx+dy*dy<=r*r&&dy<=0)pset(b,x,y,c);}}
+var MON={};
+MON['asanoha']=function(b,P){ /* 麻の葉：六角を六つの二等辺に割り、さらに各片を稜線で二分＝十二片 */
+ var R=9,dx=R*1.5/XS,dy=R*Math.sin(Math.PI/3),i,j,cx,cy,k,p1,p2,mid,m=0;
+ for(j=-1;j*2*dy<b.h+2*dy;j++)for(i=-1;i*dx<b.w+dx;i++){
+  cx=i*dx;cy=j*2*dy+((i&1)?dy:0);m=0;
+  for(k=0;k<6;k++){p1=hexpt(cx,cy,R,k,0);p2=hexpt(cx,cy,R,k+1,0);
+   mid=[(p1[0]+p2[0])/2,(p1[1]+p2[1])/2];
+   poly(b,[[cx,cy],p1,mid],(m++&1)?P[0]:P[1]);
+   poly(b,[[cx,cy],mid,p2],(m++&1)?P[0]:P[1]);}
+  for(k=0;k<6;k++){p1=hexpt(cx,cy,R,k,0);
+   poly(b,[[cx-0.7/XS,cy],[cx+0.7/XS,cy],[p1[0]+0.7/XS,p1[1]],[p1[0]-0.7/XS,p1[1]]],P[2]);}}
+};
+MON['ichimatsu']=function(b,P){var u=5,i,j;
+ for(j=0;j*u<b.h;j++)for(i=0;i*u/XS<b.w;i++)rect(b,i*u/XS,j*u,u/XS,u,((i+j)&1)?P[0]:P[1]);};
+MON['yabane']=function(b,P){var w=6/XS,h=7,i,j,x,y,c;
+ for(j=-1;j*h<b.h+h;j++)for(i=0;i*w<b.w;i++){x=i*w;y=j*h+(i&1?h/2:0);c=(i&1)?P[0]:P[1];
+  poly(b,[[x,y],[x+w/2,y+h*0.55],[x+w,y],[x+w,y+h*0.45],[x+w/2,y+h],[x,y+h*0.45]],c);
+  poly(b,[[x,y+h*0.45],[x+w/2,y+h],[x+w,y+h*0.45],[x+w,y+h*0.62],[x+w/2,y+h*1.17],[x,y+h*0.62]],P[2]);}};
+MON['kikko']=function(b,P){ /* 亀甲：六角の格子。縁は地の色が残ってできる */
+ var R=9,dx=R*1.5/XS,dy=R*Math.sin(Math.PI/3),i,j,cx,cy,k,pt;
+ rect(b,0,0,b.w,b.h,P[1]);
+ for(j=-1;j*2*dy<b.h+2*dy;j++)for(i=-1;i*dx<b.w+dx;i++){cx=i*dx;cy=j*2*dy+((i&1)?dy:0);
+  pt=[];for(k=0;k<6;k++)pt.push(hexpt(cx,cy,R*0.86,k,0));poly(b,pt,P[0]);
+  pt=[];for(k=0;k<6;k++)pt.push(hexpt(cx,cy,R*0.46,k,0));poly(b,pt,P[2]);}};
+MON['seigaiha']=function(b,P){ /* 青海波：半円の同心帯。下の段の頭が上の段に重なる */
+ var R=13,i,j,cx,cy,k;
+ rect(b,0,0,b.w,b.h,P[0]);
+ for(j=-1;j*R*0.5<b.h+R;j++)for(i=-1;i*R/XS<b.w+R;i++){
+  cx=(i+((j&1)?0.5:0))*R/XS;cy=j*R*0.5+R;
+  for(k=4;k>=1;k--)halfdisc(b,cx,cy,R*k/4,(k&1)?P[1]:P[2]);}};
+MON['shippo']=function(b,P){ /* 七宝：四分の一ずつ重なる円輪 */
+ var R=9,S=R*1.414,i,j;
+ rect(b,0,0,b.w,b.h,P[1]);
+ for(j=-1;j*S<b.h+S;j++)for(i=-1;i*S/XS<b.w+S;i++)disc(b,i*S/XS,j*S,R,P[0],R-1.6);
+ for(j=-1;j*S<b.h+S;j++)for(i=-1;i*S/XS<b.w+S;i++)disc(b,(i+0.5)*S/XS,(j+0.5)*S,R,P[2],R-1.6);};
+MON['uroko']=function(b,P){var w=6/XS,h=5,i,j,x,y;
+ for(j=-1;j*h<b.h+h;j++)for(i=-1;i*w<b.w+w;i++){x=i*w+(j&1?w/2:0);y=j*h;
+  poly(b,[[x,y+h],[x+w/2,y],[x+w,y+h]],((i+j)&1)?P[0]:P[1]);
+  poly(b,[[x+w/2,y+h],[x+w,y],[x+w*1.5,y+h]],P[2]);}};
+MON['kagome']=function(b,P){ /* 籠目：三方向の帯が編み合う */
+ var S=7,t=1.5,i,j,x,y,a,k,dirs=[0,60,120],c=[P[0],P[1],P[2]];
+ rect(b,0,0,b.w,b.h,0);
+ for(k=0;k<3;k++){a=Math.PI/180*dirs[k];
+  var ux=Math.cos(a)/XS,uy=Math.sin(a),nx=-Math.sin(a)/XS,ny=Math.cos(a),L=b.w+b.h;
+  for(j=-14;j<14;j++){
+   var ox=nx*j*S, oy=ny*j*S, bx=b.w/2+ox, by=b.h/2+oy;
+   poly(b,[[bx-ux*L-nx*t,by-uy*L-ny*t],[bx+ux*L-nx*t,by+uy*L-ny*t],
+           [bx+ux*L+nx*t,by+uy*L+ny*t],[bx-ux*L+nx*t,by-uy*L+ny*t]],c[k]);}}};
+MON['higaki']=function(b,P){var u=4,i,j,x,y; /* 檜垣：斜めに編む */
+ rect(b,0,0,b.w,b.h,P[2]);
+ for(j=-4;j*u<b.h+u*4;j++)for(i=-4;i*u/XS<b.w+u*4;i++){x=i*u/XS;y=j*u;
+  if((i+j)&1)poly(b,[[x,y],[x+u*2/XS,y+u*2],[x+u*1.4/XS,y+u*2.6],[x-u*0.6/XS,y+u*0.6]],P[0]);
+  else poly(b,[[x+u*2/XS,y],[x,y+u*2],[x+u*0.6/XS,y+u*2.6],[x+u*2.6/XS,y+u*0.6]],P[1]);}};
+MON['kazaguruma']=function(b,P){var u=8,i,j,x,y,c; /* 風車 */
+ rect(b,0,0,b.w,b.h,P[2]);
+ for(j=-1;j*u<b.h+u;j++)for(i=-1;i*u/XS<b.w+u;i++){x=i*u/XS;y=j*u;c=((i+j)&1)?P[0]:P[1];
+  poly(b,[[x,y],[x+u*0.5/XS,y],[x+u*0.5/XS,y+u*0.5],[x,y+u*0.5]],c);
+  poly(b,[[x+u*0.5/XS,y+u*0.5],[x+u/XS,y+u*0.5],[x+u/XS,y+u],[x+u*0.5/XS,y+u]],c);
+  poly(b,[[x+u*0.5/XS,y],[x+u/XS,y],[x+u*0.75/XS,y+u*0.5]],((i+j)&1)?P[1]:P[0]);
+  poly(b,[[x,y+u*0.5],[x+u*0.5/XS,y+u],[x,y+u]],((i+j)&1)?P[1]:P[0]);}};
+MON['igeta']=function(b,P){var u=8,t=1.6,i,j,x,y; /* 井桁 */
+ rect(b,0,0,b.w,b.h,P[2]);
+ for(j=-1;j*u<b.h+u;j++)for(i=-1;i*u/XS<b.w+u;i++){x=i*u/XS;y=j*u;
+  rect(b,x+u*0.2/XS,y,t/XS,u,P[0]);rect(b,x+u*0.65/XS,y,t/XS,u,P[0]);
+  rect(b,x,y+u*0.2,u/XS,t,P[1]);rect(b,x,y+u*0.65,u/XS,t,P[1]);}};
+MON['sankuzushi']=function(b,P){var u=3,B=3,i,j,x,y,c,hz; /* 三崩し */
+ for(j=0;j*u*B<b.h+u*B;j++)for(i=0;i*u*B/XS<b.w+u*B;i++){
+  x=i*u*B/XS;y=j*u*B;hz=((i+j)&1);c=hz?P[0]:P[1];
+  rect(b,x,y,u*B/XS,u*B,P[2]);
+  for(var k=0;k<B;k++){if(hz)rect(b,x,y+k*u+0.4,u*B/XS,u-0.8,c);else rect(b,x+k*u/XS+0.4/XS,y,(u-0.8)/XS,u*B,c);}}};
+MON['matsukawa']=function(b,P){var u=7,i,j,x,y; /* 松皮菱 */
+ rect(b,0,0,b.w,b.h,P[2]);
+ for(j=-1;j*u<b.h+u;j++)for(i=-1;i*u*1.2/XS<b.w+u;i++){x=i*u*1.2/XS+(j&1?u*0.6/XS:0);y=j*u;
+  poly(b,[[x,y+u/2],[x+u*0.6/XS,y],[x+u*1.2/XS,y+u/2],[x+u*0.6/XS,y+u]],P[0]);
+  poly(b,[[x+u*0.22/XS,y+u/2],[x+u*0.6/XS,y+u*0.18],[x+u*0.98/XS,y+u/2],[x+u*0.6/XS,y+u*0.82]],P[1]);}};
+var MONLIST=[
+ ['asanoha','麻の葉','あさのは',[15,4,0]],
+ ['ichimatsu','市松','いちまつ',[0,15,7]],
+ ['yabane','矢羽根','やばね',[14,6,0]],
+ ['kikko','亀甲','きっこう',[10,2,0]],
+ ['seigaiha','青海波','せいがいは',[0,15,7]],
+ ['shippo','七宝','しっぽう',[14,0,6]],
+ ['uroko','鱗','うろこ',[15,8,0]],
+ ['kagome','籠目','かごめ',[6,14,7]],
+ ['higaki','檜垣','ひがき',[7,8,0]],
+ ['kazaguruma','風車','かざぐるま',[4,15,0]],
+ ['igeta','井桁','いげた',[15,7,0]],
+ ['sankuzushi','三崩し','さんくずし',[5,7,0]]
+];
+
+/* ── 貼り込み：多角形のマスクの中だけ別の図を写す ── */
+function stamp(b,pts,src){var m=Buf(b.w,b.h),i;poly(m,pts,1);
+ for(i=0;i<b.d.length;i++)if(m.d[i]===1&&src.d[i]>=0)b.d[i]=src.d[i];}
+/* ── 首屏：種板（たねいた）の三面図。左が木口＝麻の葉、上と右は木条の長手 ── */
+function hero(b){
+ var F=[[3,16],[21,16],[21,42],[3,42]];
+ var T=[[3,16],[21,16],[30,9],[12,9]];
+ var R2=[[21,16],[30,9],[30,35],[21,42]];
+ var i,t,u,a,c;
+ /* 木口面：麻の葉 */
+ var src=Buf(b.w,b.h);MON['asanoha'](src,[15,4,0]);stamp(b,F,src);
+ /* 上面：木条の長手。九本の条が奥へ走る */
+ poly(b,T,6);
+ for(i=0;i<10;i++){t=3+i*1.8;
+  poly(b,[[t,16],[t+0.9,16],[t+0.9+9,9],[t+9,9]],(i%3===0)?15:((i%3===1)?8:0));}
+ /* 右面：同じ条を横から見ている。奥へ行くほど暗い木を挟む */
+ poly(b,R2,8);
+ for(i=0;i<9;i++){u=16+i*3;
+  poly(b,[[21,u],[30,u-7],[30,u-7+1.4],[21,u+1.4]],(i%3===0)?6:((i%3===1)?0:15));}
+ /* 稜線：黒檀の接着線 */
+ poly(b,[[21,16],[21.7,16],[21.7,42],[21,42]],0);
+ poly(b,[[3,15.6],[21.7,15.6],[21.7,16.6],[3,16.6]],0);
+ /* ヅク：鉋で削いだ薄板が上面から巻き上がる */
+ for(i=0;i<46;i++){a=i/45;
+  var x=12+a*16+Math.sin(a*3.1)*3, y=9-a*7-Math.sin(a*2.4)*2.4, w=0.9+a*0.3;
+  poly(b,[[x,y],[x+w,y],[x+w,y+1.6],[x,y+1.6]],(i%9<6)?15:7);}
+ /* 影 */
+ poly(b,[[4,43],[31,43],[31,43.9],[4,43.9]],8);
+}
+/* 右面は光が回らない。色は変えず、░▒▓ を重ねて三段に落とす（ANSi の面の暗くし方） */
+hero.post=function(rows){
+ shadeCells(rows,22,3,9,5,3);   /* ▓ 75% */
+ shadeCells(rows,22,8,9,5,2);   /* ▒ 50% */
+ shadeCells(rows,22,13,9,6,1);  /* ░ 25% */
+};
+/* ── 秘密箱：四回仕掛け。三面それぞれに寄木の板がはまっている ── */
+function himitsu(b,st){
+ var F=[[4,14],[26,14],[26,38],[4,38]],T=[[4,14],[26,14],[34,7],[12,7]],S=[[26,14],[34,7],[34,31],[26,38]];
+ var src;
+ poly(b,T,8);poly(b,S,8);poly(b,F,8);
+ /* 上板（ichimatsu）：st.top だけ右へ滑る */
+ src=Buf(b.w,b.h);MON['ichimatsu'](src,[0,15,7]);
+ stamp(b,shift(T,st.top*2.2,0),src);
+ /* 右板（yabane）：st.right だけ手前へ滑る */
+ src=Buf(b.w,b.h);MON['yabane'](src,[14,6,0]);
+ stamp(b,shift(S,0,st.right*1.8),src);
+ /* 前板（kikko）：st.front だけ右へ滑る */
+ src=Buf(b.w,b.h);MON['kikko'](src,[10,2,0]);
+ stamp(b,shift(F,st.front*2.2,0),src);
+ /* 隙間＝箱の中。開いた分だけ黒檀色の闇が見える */
+ if(st.front)poly(b,[[4,14],[4+st.front*2.2,14],[4+st.front*2.2,38],[4,38]],0);
+ if(st.top)poly(b,[[4,14],[4+st.top*2.2,14],[12+st.top*2.2,7],[12,7]],0);
+ if(st.right)poly(b,[[26,14],[34,7],[34,7+st.right*1.8],[26,14+st.right*1.8]],0);
+ /* 稜線 */
+ poly(b,[[26,14],[26.7,14],[26.7,38],[26,38]],0);
+ poly(b,[[4,13.6],[26.7,13.6],[26.7,14.6],[4,14.6]],0);
+ if(st.hint){var HL2=12,q;
+  if(st.hint==='front')poly(b,[[26-0.8,14],[26.8,14],[26.8,38],[26-0.8,38]],HL2);
+  if(st.hint==='top')poly(b,[[26,14],[34,7],[34.9,7],[26.9,14]],HL2);
+  if(st.hint==='right')poly(b,[[26,14],[34,7],[34,8.6],[26,15.6]],HL2);}
+ if(st.open){poly(b,[[6,9],[32,9],[32,20],[6,20]],0);
+  poly(b,[[9,12],[29,12],[29,17],[9,17]],14);
+  poly(b,[[11,13],[27,13],[27,16],[11,16]],6);}
+}
+function shift(pts,dx,dy){return pts.map(function(p){return[p[0]+dx,p[1]+dy];});}
+
+
+var pre=mount('hero',hero,{w:40,h:44});
+if(pre)redraw(pre);
+
+})();
+</script>
+</body>
+</html>

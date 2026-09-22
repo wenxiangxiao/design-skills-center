@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>刮一版｜三刮印房 SANKUA</title>
+<meta name="description" content="選一張紙、選一張圖，三罐墨各刮一次。刮得慢墨膜厚，刮得抖就套不準——刮完那張就是你的。">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="%23E0B429"/><rect x="5" y="6" width="22" height="13" fill="none" stroke="%23141118" stroke-width="2.4"/><path d="M4 22h24l-3.2 5H7.2z" fill="%23FF2D6F"/><path d="M2.6 20.6h26.8" stroke="%23141118" stroke-width="2.8"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo+Narrow:wght@400;700&family=Noto+Sans+TC:wght@400;500;900&display=swap" rel="stylesheet">
+<style>
+/* ── 三刮印房 SANKUA — 網版印刷 Screenprint ───────────────────────────
+   一色一版一刮。紙是基底不是背景。墨有厚度。網目給解析度下限。
+   ────────────────────────────────────────────────────────────────── */
+:root{
+  --stock-mustard:#E0B429; --stock-duck:#2F5D50; --stock-coal:#17151A; --stock-peach:#F2A6A0;
+  --ink-k:#141118; --ink-p:#FF2D6F; --ink-b:#1F3FC4; --ink-w:#F5F2E9;
+  --stock:var(--stock-mustard); --onstock:var(--ink-k);
+  --reg-x:0.0px; --reg-y:0.0px; --reg-rot:0deg;     /* 套準誤差：由你刮的那一下決定 */
+  --mesh:120;                                        /* 網目數 */
+  --measure:min(1180px,94vw);
+  --rule:2.6px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--stock); color:var(--onstock);
+  font-family:"Noto Sans TC","Archivo Narrow",system-ui,sans-serif; font-weight:400;
+  font-size:clamp(15px,1.05vw,17px); line-height:1.72;
+  overflow-x:hidden;
+}
+body[data-stock=duck]{--stock:var(--stock-duck);--onstock:var(--ink-w)}
+body[data-stock=coal]{--stock:var(--stock-coal);--onstock:var(--ink-w)}
+body[data-stock=peach]{--stock:var(--stock-peach);--onstock:var(--ink-k)}
+
+/* ── 紙：整張紙上機時永遠是歪的 ───────────────────────────────── */
+.press{position:relative;min-height:100vh;padding:clamp(14px,3vw,44px) 0 0}
+.sheet{
+  position:relative; width:var(--measure); margin:0 auto 0;
+  transform:rotate(-0.45deg);
+  padding:clamp(18px,3.4vw,46px) clamp(16px,3vw,40px) clamp(60px,8vw,110px);
+  animation:cockle 19s ease-in-out infinite;     /* 環境動效：紙的翹曲 */
+}
+@keyframes cockle{0%,100%{transform:rotate(-0.45deg) translateY(0)}
+  37%{transform:rotate(-0.28deg) translateY(-2px)}
+  71%{transform:rotate(-0.58deg) translateY(1px)}}
+
+/* 濕墨反光：環境動效之二，只在已上墨的大色塊上跑 */
+.wet{position:relative;overflow:hidden}
+.wet::after{
+  content:"";position:absolute;inset:-40% -60%;pointer-events:none;
+  background:linear-gradient(104deg,transparent 42%,rgba(255,255,255,.17) 49%,rgba(255,255,255,.03) 53%,transparent 60%);
+  transform:translateX(-60%); animation:sheen 11s linear infinite; mix-blend-mode:screen;
+}
+@keyframes sheen{0%{transform:translateX(-62%)}100%{transform:translateX(62%)}}
+
+/* ── 套準十字：每張紙四角都有，黑版準、粉版不準 ─────────────── */
+.regmark{position:absolute;width:34px;height:34px;pointer-events:none;opacity:.85}
+.regmark.tl{top:-6px;left:-8px}.regmark.tr{top:-6px;right:-8px}
+.regmark.bl{bottom:-6px;left:-8px}.regmark.br{bottom:-6px;right:-8px}
+.regmark .k{stroke:var(--ink-k);stroke-width:1.6;fill:none}
+body[data-stock=coal] .regmark .k,body[data-stock=duck] .regmark .k{stroke:var(--ink-w)}
+.regmark .p{stroke:var(--ink-p);stroke-width:1.6;fill:none;
+  transform:translate(var(--reg-x),var(--reg-y)) rotate(var(--reg-rot));transform-origin:50% 50%}
+
+/* ── 三罐墨：每一色是一個獨立的版，各自帶著自己的套準誤差 ───── */
+.run-k{color:var(--ink-k)}
+body[data-stock=coal] .run-k,body[data-stock=duck] .run-k{color:var(--ink-w)}
+.run-p{color:var(--ink-p);display:inline-block;
+  transform:translate(var(--reg-x),var(--reg-y)) rotate(var(--reg-rot))}
+.run-b{color:var(--ink-b);display:inline-block;
+  transform:translate(calc(var(--reg-x)*-.62),calc(var(--reg-y)*1.18)) rotate(calc(var(--reg-rot)*-.7))}
+.trap{ /* 疊印：兩色相疊的地方會出現第三色 */
+  background:color-mix(in srgb,var(--ink-p) 62%,var(--ink-b));color:var(--ink-w)}
+
+/* ── 字體：粗黑大寫、字級硬碰硬、沒有中間值 ─────────────────── */
+.display{font-family:"Archivo Black","Noto Sans TC",sans-serif;font-weight:900;
+  line-height:.86;letter-spacing:-.02em;text-transform:uppercase;margin:0}
+.d1{font-size:clamp(54px,12.2vw,148px)}
+.d2{font-size:clamp(30px,5.6vw,68px)}
+.d3{font-size:clamp(21px,2.9vw,34px)}
+.lbl{font-family:"Archivo Narrow","Noto Sans TC",sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.20em;font-size:12px;line-height:1.5}
+.num{font-family:"Archivo Black",sans-serif;font-variant-numeric:tabular-nums}
+h2.display{margin:0 0 .35em}
+p{margin:0 0 1.05em;max-width:62ch}
+a{color:inherit}
+.rule{border:0;border-top:var(--rule) solid currentColor;margin:clamp(18px,2.6vw,34px) 0;opacity:.92}
+.rule.thin{border-top-width:1.2px;opacity:.55}
+
+/* ── 版架 rack：導覽不是置頂列，是牆上那排曬好的網版 ─────────── */
+.rack{position:fixed;left:max(8px,1.4vw);top:50%;transform:translateY(-50%);
+  z-index:72;display:flex;flex-direction:column;gap:9px}
+.rack a{display:block;width:62px;text-decoration:none;
+  border:2px solid var(--onstock);background:color-mix(in srgb,var(--stock) 82%,var(--ink-k));
+  padding:6px 5px 7px;transition:transform .16s cubic-bezier(.2,.8,.3,1),background .16s}
+.rack a:hover,.rack a:focus-visible{transform:translateX(7px) rotate(-1.4deg);
+  background:var(--ink-p);color:var(--ink-w);border-color:var(--ink-w);outline:none}
+.rack a[aria-current=page]{background:var(--onstock);color:var(--stock)}
+.rack .sc{display:block;height:24px;margin-bottom:5px;border:1.4px solid currentColor;
+  background-image:repeating-linear-gradient(46deg,currentColor 0 .8px,transparent .8px 3.4px),
+                   repeating-linear-gradient(-46deg,currentColor 0 .8px,transparent .8px 3.4px);
+  opacity:.9}
+.rack .nm{font-family:"Archivo Narrow",sans-serif;font-weight:700;font-size:9.5px;
+  letter-spacing:.09em;text-transform:uppercase;display:block;text-align:center;line-height:1.25}
+.rack .cn{font-size:10.5px;display:block;text-align:center;font-weight:500;letter-spacing:.04em}
+
+/* ── 刮刀：頂端一條真的可以抓的刀。只有它吃手勢，
+      所以頁面其餘部分照常捲動（手機尤其重要）。 ─────────────── */
+.grab{position:fixed;left:0;right:0;top:0;height:46px;z-index:66;
+  cursor:ns-resize;touch-action:none;will-change:transform;border:0;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:linear-gradient(180deg,#3A3440 0 44%,#0C0A0E 44% 60%,#6F6678 60%);
+  color:#F5F2E9;font-family:"Archivo Narrow",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.18em;text-transform:uppercase;box-shadow:0 8px 0 -4px rgba(0,0,0,.36)}
+.grab b{font-family:"Archivo Black",sans-serif;letter-spacing:.06em;background:#FF2D6F;padding:3px 7px}
+.grab:focus-visible{outline:3px solid #FF2D6F;outline-offset:-5px}
+.grab.done{display:none}
+@media (max-width:560px){.grab{height:40px;font-size:10px;letter-spacing:.12em;gap:8px}}
+
+/* ── 未上墨 / 已上墨 ─────────────────────────────────────────── */
+::highlight(ink4){color:var(--ink-k)}
+::highlight(ink3){color:color-mix(in srgb,var(--ink-k) 78%,var(--stock))}
+::highlight(ink2){color:color-mix(in srgb,var(--ink-k) 56%,var(--stock))}
+::highlight(ink1){color:color-mix(in srgb,var(--ink-k) 36%,var(--stock))}
+body[data-stock=coal] ::highlight(ink4),body[data-stock=duck] ::highlight(ink4){color:var(--ink-w)}
+body[data-stock=coal] ::highlight(ink3),body[data-stock=duck] ::highlight(ink3){color:color-mix(in srgb,var(--ink-w) 74%,var(--stock))}
+body[data-stock=coal] ::highlight(ink2),body[data-stock=duck] ::highlight(ink2){color:color-mix(in srgb,var(--ink-w) 52%,var(--stock))}
+body[data-stock=coal] ::highlight(ink1),body[data-stock=duck] ::highlight(ink1){color:color-mix(in srgb,var(--ink-w) 32%,var(--stock))}
+/* 還沒刮到的字：紙上打的淡樣，看得見但沒上墨 */
+body.pressing .inkable{color:color-mix(in srgb,var(--onstock) 17%,var(--stock))}
+/* 色塊與圖：刮刀推過去才落下來，不是淡入 */
+body.pressing .block{clip-path:inset(0 0 calc((1 - var(--inked,0)) * 100%) 0)}
+body.pressing .block[data-inked="1"]{clip-path:none}
+
+/* ── 元件 ─────────────────────────────────────────────────────── */
+.slab{padding:clamp(13px,1.9vw,22px) clamp(14px,2vw,24px);border:var(--rule) solid currentColor}
+.slab.k{background:var(--ink-k);color:var(--ink-w);border-color:var(--ink-k)}
+.slab.p{background:var(--ink-p);color:var(--ink-w);border-color:var(--ink-p)}
+.slab.b{background:var(--ink-b);color:var(--ink-w);border-color:var(--ink-b)}
+.btn{display:inline-block;font-family:"Archivo Narrow",sans-serif;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;font-size:13px;cursor:pointer;
+  padding:11px 20px;border:var(--rule) solid var(--onstock);background:transparent;color:inherit;
+  transition:transform .13s,background .13s,color .13s}
+.btn:hover,.btn:focus-visible{background:var(--ink-p);border-color:var(--ink-p);color:var(--ink-w);
+  transform:translate(-2px,-2px);outline:none;box-shadow:4px 4px 0 var(--ink-k)}
+.btn[disabled]{opacity:.42;cursor:not-allowed;box-shadow:none;transform:none}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1.4px solid currentColor}
+th{font-family:"Archivo Narrow",sans-serif;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;font-size:11px;border-bottom-width:var(--rule)}
+td.num{font-family:"Archivo Black",sans-serif;font-size:13px;text-align:right;white-space:nowrap}
+.cols{display:grid;gap:clamp(16px,2.4vw,34px)}
+.c-7-5{grid-template-columns:1.32fr 1fr}
+.c-5-7{grid-template-columns:1fr 1.32fr}
+.c-3{grid-template-columns:repeat(3,1fr)}
+.pad-l{padding-left:clamp(0px,6.2vw,86px)}
+footer.colophon{margin-top:clamp(34px,5vw,64px);border-top:var(--rule) solid currentColor;
+  padding-top:18px;font-size:13.5px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;z-index:99;background:var(--ink-k);color:var(--ink-w);padding:8px 12px}
+
+/* ── 轉場：換版 ──────────────────────────────────────────────── */
+@view-transition{navigation:auto}
+@keyframes lift{to{transform:translateY(-16px) rotate(-1.6deg);opacity:0;clip-path:inset(0 0 100% 0)}}
+@keyframes drop{from{clip-path:inset(0 0 100% 0);transform:translateY(-10px)}}
+::view-transition-old(root){animation:lift .30s cubic-bezier(.5,0,.85,.2) both}
+::view-transition-new(root){animation:drop .40s cubic-bezier(.15,.8,.25,1) both}
+
+/* ── RWD ─────────────────────────────────────────────────────── */
+@media (max-width:900px){
+  .c-7-5,.c-5-7,.c-3{grid-template-columns:1fr}
+  .pad-l{padding-left:0}
+}
+@media (max-width:560px){
+  :root{--measure:100vw;--rule:2px}
+  .sheet{padding:14px 13px 96px;transform:rotate(-0.3deg);animation:none}
+  .rack{left:0;right:0;top:auto;bottom:0;transform:none;flex-direction:row;
+    justify-content:space-between;gap:0;border-top:var(--rule) solid var(--onstock);
+    background:var(--stock)}
+  .rack a{flex:1;width:auto;border:0;border-right:1.4px solid var(--onstock);padding:6px 2px 7px}
+  .rack a:last-child{border-right:0}
+  .rack a:hover,.rack a:focus-visible{transform:none}
+  .rack .sc{height:14px}
+  .d1{font-size:clamp(40px,13.4vw,64px)}
+  table{font-size:13px}th,td{padding:6px 5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .sheet{animation:none}.wet::after{animation:none;display:none}
+  .btn,.rack a{transition:none}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+  .grab{display:none}
+}
+</style>
+<style>
+.rules{counter-reset:r;list-style:none;padding:0;margin:18px 0 0;display:grid;gap:9px;max-width:74ch}
+.rules li{position:relative;padding-left:46px;font-size:15.5px}
+.rules li::before{counter-increment:r;content:counter(r);position:absolute;left:0;top:-4px;
+  font-family:"Archivo Black",sans-serif;font-size:24px;color:var(--ink-p)}
+.bench{display:grid;grid-template-columns:1fr 1.22fr;gap:clamp(16px,2.6vw,34px);align-items:start}
+.ctrl .grp{margin-bottom:22px}
+.ctrl .lbl{margin:0 0 9px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:66px;height:60px;border:var(--rule) solid var(--onstock);background:var(--s);cursor:pointer;
+  display:flex;align-items:flex-end;justify-content:center;padding:0 0 5px;transition:transform .12s}
+.sw span{font-size:10.5px;font-weight:700;background:var(--stock);color:var(--onstock);padding:1px 5px}
+.sw.on{outline:3px solid var(--ink-p);outline-offset:3px}
+.sw:hover,.dg:hover{transform:translateY(-3px)}
+.dg{font:700 13px/1 "Noto Sans TC",sans-serif;padding:11px 13px;cursor:pointer;
+  border:var(--rule) solid var(--onstock);background:transparent;color:inherit;transition:transform .12s,background .12s}
+.dg.on{background:var(--onstock);color:var(--stock)}
+.runs{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px}
+.runs li{display:flex;align-items:center;gap:9px;border:1.6px solid currentColor;padding:7px 9px;opacity:.48}
+.runs li.now{opacity:1;border-width:var(--rule);box-shadow:4px 4px 0 var(--ink-p)}
+.runs li.done{opacity:1}
+.runs b{width:16px;height:16px;flex:0 0 16px;border:1.4px solid var(--onstock)}
+.runs span{font-size:13px;font-weight:700;flex:1}
+.runs em{font-style:normal;font-family:"Archivo Narrow",sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.tip{font-size:13.5px;opacity:.84;margin:0 0 13px;max-width:none}
+.bed{position:relative;border:var(--rule) solid var(--onstock);padding:clamp(14px,2.2vw,26px);
+  background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--stock) 86%,var(--ink-w)) 0 7px,transparent 7px 14px)}
+.bed svg#art{display:block;width:100%;height:auto;max-width:420px;margin:0 auto;box-shadow:7px 9px 0 rgba(0,0,0,.34)}
+.pl{fill-opacity:var(--f);stroke-opacity:var(--f);
+  transform:translate(calc(var(--dx) * 1px),calc(var(--dy) * 1px)) rotate(var(--rot));transform-origin:50% 50%;
+  clip-path:inset(0 0 calc((1 - var(--p)) * 100%) 0)}
+.bedgrab{position:absolute;inset:0;cursor:ns-resize;touch-action:none}
+.bedgrab:focus-visible{outline:3px solid var(--ink-p);outline-offset:-4px}
+.blade{position:absolute;left:0;right:0;top:0;height:20px;pointer-events:none;opacity:0;transition:opacity .15s;will-change:transform}
+.blade.live{opacity:1}
+.blade i{position:absolute;inset:0;background:linear-gradient(180deg,#3A3440 0 46%,#0C0A0E 46% 62%,#6F6678 62%);
+  box-shadow:0 6px 0 -3px rgba(0,0,0,.36)}
+.blade b{position:absolute;right:6px;top:-19px;font:700 10.5px/1 "Archivo Narrow",sans-serif;
+  letter-spacing:.14em;background:var(--ink-k);color:var(--ink-w);padding:3px 6px;white-space:nowrap}
+.verdict{margin:15px 0 0;font-size:14.5px;border-top:var(--rule) solid currentColor;padding-top:11px;max-width:none}
+@media(max-width:900px){.bench{grid-template-columns:1fr}}
+@media(max-width:560px){.sw{width:54px;height:50px}.bed{padding:12px}}
+@media (prefers-reduced-motion:reduce){.sw,.dg,.blade{transition:none}.sw:hover,.dg:hover{transform:none}}
+</style>
+
+</head>
+<body data-stock="coal" data-press="off">
+<a class="skip" href="#main">跳到內容</a>
+<svg class="plates" aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
+<defs>
+<!-- 網紗：一塊 22×22 的網目貼片，由 feTile 鋪滿整個濾鏡區。
+     這就是絹印的物理事實——整張紙共用同一塊網，不是每個圖各有各的紋。 -->
+<filter id="mesh" x="-3%" y="-3%" width="106%" height="106%"
+        primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.58" numOctaves="1" seed="9"
+                x="0" y="0" width="22" height="22" result="n"/>
+  <feTile in="n" result="gauze"/>
+  <feColorMatrix in="gauze" type="matrix" result="holes"
+     values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 9 0 -4.35"/>
+  <feComposite in="SourceGraphic" in2="holes" operator="out"/>
+</filter>
+<filter id="mesh-coarse" x="-3%" y="-3%" width="106%" height="106%"
+        primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.34" numOctaves="1" seed="3"
+                x="0" y="0" width="34" height="34" result="n"/>
+  <feTile in="n" result="gauze"/>
+  <feColorMatrix in="gauze" type="matrix" result="holes"
+     values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 7.4 0 -3.5"/>
+  <feComposite in="SourceGraphic" in2="holes" operator="out"/>
+</filter>
+</defs>
+</svg>
+
+<div class="press">
+ <div class="sheet" id="sheet">
+  <svg class="regmark tl" viewBox="0 0 34 34" aria-hidden="true"><g class="p"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g><g class="k"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g></svg>
+<svg class="regmark tr" viewBox="0 0 34 34" aria-hidden="true"><g class="p"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g><g class="k"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g></svg>
+<svg class="regmark bl" viewBox="0 0 34 34" aria-hidden="true"><g class="p"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g><g class="k"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g></svg>
+<svg class="regmark br" viewBox="0 0 34 34" aria-hidden="true"><g class="p"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g><g class="k"><circle cx="17" cy="17" r="8"/><path d="M17 3v28M3 17h28"/></g></svg>
+
+  <header>
+    <p class="lbl run-p" style="margin:0 0 8px">RUN 03 ／ 週四 19:00 開放刮版</p>
+    <h1 class="display d1" style="margin:0"><span class="run-k">刮</span><span class="run-p">一</span><span class="run-b">版</span></h1>
+    <ol class="rules inkable" id="main">
+      <li>選一張紙、選一張圖。</li>
+      <li>三罐墨各刮一次——按住往下拉：慢一點墨膜厚，穩一點套得準。</li>
+      <li>三刮刮完就是你的，右下角會印上流水號，我們不重印。</li>
+    </ol>
+  </header>
+
+  <hr class="rule">
+
+  <div class="bench">
+    <!-- 左：選紙選圖 + 刮的狀態 -->
+    <div class="ctrl">
+      <div class="grp">
+        <p class="lbl">① 紙</p>
+        <div class="swatches" id="stocks" role="radiogroup" aria-label="選紙">
+          <button type="button" class="sw on" data-stock="#E0B429" data-on="#141118" data-nm="芥末卡 250g" role="radio" aria-checked="true" style="--s:#E0B429"><span>芥末</span></button>
+          <button type="button" class="sw" data-stock="#2F5D50" data-on="#F5F2E9" data-nm="鴨綠卡 240g" role="radio" aria-checked="false" style="--s:#2F5D50"><span>鴨綠</span></button>
+          <button type="button" class="sw" data-stock="#17151A" data-on="#F5F2E9" data-nm="炭黑卡 300g" role="radio" aria-checked="false" style="--s:#17151A"><span>炭黑</span></button>
+          <button type="button" class="sw" data-stock="#F2A6A0" data-on="#141118" data-nm="粉桃卡 240g" role="radio" aria-checked="false" style="--s:#F2A6A0"><span>粉桃</span></button>
+        </div>
+      </div>
+      <div class="grp">
+        <p class="lbl">② 圖</p>
+        <div class="swatches" id="designs" role="radiogroup" aria-label="選圖">
+          <button type="button" class="dg on" data-d="egret" role="radio" aria-checked="true">白鷺鷥</button>
+          <button type="button" class="dg" data-d="shutter" role="radio" aria-checked="false">鐵捲門</button>
+          <button type="button" class="dg" data-d="mango" role="radio" aria-checked="false">土芒果</button>
+          <button type="button" class="dg" data-d="pole" role="radio" aria-checked="false">電線桿</button>
+        </div>
+      </div>
+      <div class="grp">
+        <p class="lbl">③ 刮</p>
+        <ul class="runs" id="runs">
+          <li data-run="0" class="now"><b style="background:#141118"></b><span>RUN 01 黑版</span><em>待刮</em></li>
+          <li data-run="1"><b style="background:#FF2D6F"></b><span>RUN 02 螢光粉</span><em>待刮</em></li>
+          <li data-run="2"><b style="background:#1F3FC4"></b><span>RUN 03 鈷藍</span><em>待刮</em></li>
+        </ul>
+        <p class="tip inkable" id="tip">在右邊那張紙上按住往下拉，刮完一次算一版。也可以按住 ↓ 鍵。</p>
+        <p><button class="btn" id="auto">請明蕙幫我刮完</button> <button class="btn" id="again" hidden>再刮一張</button></p>
+      </div>
+    </div>
+
+    <!-- 右：印台 -->
+    <div class="bed" id="bed">
+      <div class="bedmark" aria-hidden="true"></div>
+      <svg id="art" viewBox="0 0 240 330" role="img" aria-labelledby="artlab">
+        <title id="artlab">你正在刮的那一張：〈白鷺鷥〉，芥末卡紙，三色。</title>
+        <rect id="paper" x="0" y="0" width="240" height="330" fill="#E0B429"/>
+        <g id="plate-b" class="pl" style="--dx:0;--dy:0;--rot:0deg;--f:0;--p:0"><g class="art-b"></g></g>
+        <g id="plate-p" class="pl" style="--dx:0;--dy:0;--rot:0deg;--f:0;--p:0"><g class="art-p"></g></g>
+        <g id="plate-k" class="pl" style="--dx:0;--dy:0;--rot:0deg;--f:0;--p:0"><g class="art-k"></g></g>
+        <g id="colo" class="pl" style="--f:0;--p:0">
+          <path d="M18 288h204" stroke="#141118" stroke-width="2" fill="none" id="coloRule"/>
+          <text x="18" y="308" id="coloA" font-family="Archivo Narrow, sans-serif" font-size="11.5" letter-spacing="2.4" fill="#141118">SANKUA PRINT &amp; SKATE</text>
+          <text x="222" y="308" id="coloB" text-anchor="end" font-family="Archivo Black, sans-serif" font-size="12" fill="#141118">NO.0000</text>
+        </g>
+      </svg>
+      <div class="blade" id="blade" aria-hidden="true"><i></i><b>墨膜 —</b></div>
+      <div class="bedgrab" id="bedgrab" tabindex="0" role="application"
+           aria-label="印台：按住往下拉刮一版，或按方向鍵下"></div>
+      <p class="verdict" id="verdict" hidden></p>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="cols c-7-5">
+    <div>
+      <h2 class="display d3 inkable">為什麼刮壞的那張比較好看</h2>
+      <p class="inkable">套準準的那張是「對的」，但看久了跟印刷廠的東西沒兩樣。手刮的版永遠差那零點幾毫米，粉紅色會從黑線旁邊露出一條，藍色會少掉一條——那條縫就是這張紙唯一不會被複製的地方。我們不會幫你修掉它。</p>
+      <p class="inkable">真的要準，就刮慢一點、刮穩一點、刮刀角度固定 70 度、兩手一起出力。第一次來的人平均偏 1.8 mm；明蕙可以壓到 0.2 mm 以內，她說那是因為她不趕。</p>
+    </div>
+    <div class="slab block" style="border-color:currentColor">
+      <p class="lbl run-p" style="margin:0 0 8px">週四場規矩</p>
+      <ul class="inkable" style="margin:0;padding-left:1.1em;font-size:14.5px">
+        <li>一次 NT$200，含紙、墨與洗版。</li>
+        <li>自己的圖要先給明蕙看過線寬。</li>
+        <li>刮完自己洗刮刀，不洗下次不給刮。</li>
+        <li>墨乾之前不要疊，疊了就是兩張一起壞。</li>
+        <li>最多待到 21:30，之後要關鐵捲門。</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="colophon inkable">
+  <div class="cols c-3" style="gap:20px">
+    <div>
+      <div class="lbl run-p">三刮印房 SANKUA</div>
+      <p style="margin:.5em 0 0">臺南市中西區康樂街 152 號<br>（正興街口轉進去，鐵捲門拉一半那間）<br>06-221 3378</p>
+    </div>
+    <div>
+      <div class="lbl run-p">開門</div>
+      <p style="margin:.5em 0 0">週二–週日 13:00–21:00．週一公休<br>週四 19:00 後是開放刮版時間，<br>帶自己的圖來，刮刀我們出。</p>
+    </div>
+    <div>
+      <div class="lbl run-p">人</div>
+      <p style="margin:.5em 0 0">板面 — 陳彥樺<br>曬版與調墨 — 吳明蕙<br>週四晚上顧店 — 看誰有空</p>
+    </div>
+  </div>
+  <hr class="rule thin">
+  <p style="font-size:12px;opacity:.72;max-width:none">本站為網頁設計風格範例站，店家、人名、價格、電話與地址皆為虛構示意。
+  風格規格書見 <a href="SKILL.md">SKILL.md</a>．<a href="../../index.html">回 Design Skills Center</a></p>
+</footer>
+
+ </div>
+</div>
+<nav class="rack" aria-label="版架">
+  <a href="index.html" ><span class="sc" aria-hidden="true"></span><span class="nm">Run 01</span><span class="cn">印房</span></a>
+  <a href="banpi.html" ><span class="sc" aria-hidden="true"></span><span class="nm">Run 02</span><span class="cn">板胚</span></a>
+  <a href="kuayiban.html" aria-current="page"><span class="sc" aria-hidden="true"></span><span class="nm">Run 03</span><span class="cn">刮一版</span></a>
+  <a href="wangmu.html" ><span class="sc" aria-hidden="true"></span><span class="nm">Run 04</span><span class="cn">網目</span></a>
+</nav>
+
+<noscript><style>body.pressing .inkable{color:inherit}.bedgrab,.blade{display:none}.pl{--f:.85;--p:1}</style></noscript>
+
+<script>
+/* ═══ 三刮印房 印壓引擎 ═══════════════════════════════════════════
+   一刮＝一色。刮刀從視窗頂走到底，墨鋒就從紙頭走到紙尾。
+   刮得慢＝墨膜厚；刮得抖＝下一色套不準。你手上那一下決定整站的長相。
+   技術：D 輸入層 PointerEvent.getCoalescedEvents()
+        C 樣式層 CSS Custom Highlight API（::highlight，零 DOM 變動）
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var HAS_HL = !!(window.CSS && CSS.highlights && window.Highlight);
+  var body = document.body, sheet = document.getElementById("sheet");
+  if(!sheet) return;
+
+  /* ── 套準誤差：讀上一次刮的結果，套用到全站 ───────────────── */
+  var REG = {x:0,y:0,r:0};
+  try{ var s = sessionStorage.getItem("sankua.reg"); if(s){ REG = JSON.parse(s); } }catch(e){}
+  function applyReg(){
+    var d = document.documentElement.style;
+    d.setProperty("--reg-x", REG.x.toFixed(2)+"px");
+    d.setProperty("--reg-y", REG.y.toFixed(2)+"px");
+    d.setProperty("--reg-rot", REG.r.toFixed(2)+"deg");
+  }
+  applyReg();
+
+  /* ── 建立墨區：把正文切成一小段一小段的 Range，一段一段上墨 ── */
+  var CHUNK = 7, zones = [], hls = null;
+  function buildZones(){
+    zones.length = 0;
+    var hosts = document.querySelectorAll(".inkable");
+    for(var h=0;h<hosts.length;h++){
+      var w = document.createTreeWalker(hosts[h], NodeFilter.SHOW_TEXT, null);
+      var n;
+      while((n = w.nextNode())){
+        var len = n.nodeValue.length;
+        if(!n.nodeValue.trim()) continue;
+        for(var i=0;i<len;i+=CHUNK){
+          var r = document.createRange();
+          r.setStart(n, i); r.setEnd(n, Math.min(i+CHUNK, len));
+          zones.push({r:r, y:0, on:false});
+        }
+      }
+    }
+    if(HAS_HL){
+      hls = [new Highlight(), new Highlight(), new Highlight(), new Highlight()];
+      for(var k=0;k<4;k++) CSS.highlights.set("ink"+(k+1), hls[k]);
+    }
+  }
+  var blocks = [];
+  function measure(){
+    var sy = window.scrollY || window.pageYOffset;
+    for(var i=0;i<zones.length;i++){
+      var rc = zones[i].r.getBoundingClientRect();
+      zones[i].y = rc.top + sy + rc.height*0.62;      /* 墨落在字身下緣才算印上 */
+    }
+    blocks = [];
+    var bs = document.querySelectorAll(".block");
+    for(var j=0;j<bs.length;j++){
+      var b = bs[j].getBoundingClientRect();
+      blocks.push({el:bs[j], top:b.top+sy, h:Math.max(b.height,1)});
+    }
+  }
+
+  /* ── 墨膜厚度：刮得越快，留在紙上的墨越薄 ─────────────────── */
+  function film(v){ return 0.30 + 0.70*Math.exp(-v/1.2); }   /* v: px/ms */
+  var speeds = [], front = -1, printed = false;
+
+  function inkTo(absY, f){
+    if(absY <= front) return;
+    front = absY;
+    var bucket = f>=0.74 ? 3 : f>=0.56 ? 2 : f>=0.40 ? 1 : 0;
+    for(var i=0;i<zones.length;i++){
+      var z = zones[i];
+      if(!z.on && z.y <= absY){
+        z.on = true;
+        if(hls) hls[bucket].add(z.r);
+      }
+    }
+    for(var j=0;j<blocks.length;j++){
+      var b = blocks[j];
+      if(b.el.dataset.inked === "1") continue;
+      var p = (absY - b.top) / b.h;
+      if(p <= 0){ continue; }
+      if(p >= 1){ b.el.dataset.inked = "1"; b.el.style.setProperty("--inked","1"); }
+      else { b.el.style.setProperty("--inked", p.toFixed(3)); }
+    }
+  }
+
+  /* ── 完成：算出這一刮的抖動，換算成整站的套準誤差 ─────────── */
+  function finish(){
+    if(printed) return;
+    printed = true;
+    var m=0,sd=0,i;
+    for(i=0;i<speeds.length;i++) m+=speeds[i];
+    m = speeds.length ? m/speeds.length : 0;
+    for(i=0;i<speeds.length;i++) sd += (speeds[i]-m)*(speeds[i]-m);
+    sd = speeds.length ? Math.sqrt(sd/speeds.length) : 0;
+    var g = Math.min(sd*0.62, 3.2);                  /* 位移上限 3.2px：印壞也要還能讀 */
+    REG = { x:+(g*1.00).toFixed(2), y:+(g*0.58).toFixed(2), r:+(Math.min(g*0.30,0.9)).toFixed(2) };
+    try{ sessionStorage.setItem("sankua.reg", JSON.stringify(REG)); }catch(e){}
+    applyReg();
+    body.classList.remove("pressing");
+    body.classList.add("printed");
+    for(var j=0;j<blocks.length;j++){ blocks[j].el.dataset.inked="1"; blocks[j].el.style.setProperty("--inked","1"); }
+    if(hls){ for(var k=0;k<zones.length;k++){ if(!zones[k].on){ zones[k].on=true; hls[3].add(zones[k].r); } } }
+    var g1 = document.getElementById("grab"); if(g1) g1.classList.add("done");
+    var hint = document.getElementById("hint");
+    if(hint){
+      hint.innerHTML = '<span class="lbl">RUN 01 · 黑版　已刮</span> <span class="lbl" style="opacity:.7">墨膜 '
+        + Math.round(film(m)*100) + '%　套準偏移 ' + REG.x.toFixed(2) + ' mm'
+        + (REG.x < 0.35 ? '（刮得很穩，這版可以賣）' : REG.x < 1.4 ? '（可以接受，粉版偏一點點）' : '（抖了，整站的粉版都會偏這麼多）') + '</span>';
+    }
+    document.dispatchEvent(new CustomEvent("sankua:printed",{detail:{film:film(m),reg:REG}}));
+  }
+  function printNow(){ measure(); inkTo(1e7, 0.82); finish(); }
+
+  /* ── 降級：不動畫偏好 / 沒有 Highlight API / 沒有 JS → 直接印好 ── */
+  if(RM || !HAS_HL || body.dataset.press === "off"){
+    buildZones();
+    requestAnimationFrame(function(){ printNow(); });
+    return;
+  }
+
+  var grab = document.getElementById("grab");
+  buildZones();
+  if(!grab){ requestAnimationFrame(printNow); return; }
+  body.classList.add("pressing");
+  var bar = grab.querySelector("b");
+  var pulling=false, lastY=0, lastT=0, vh=innerHeight, top0=0, H0=1, raf=0, pendY=0, pendF=0.8;
+
+  function sheetMetrics(){
+    var sy = window.scrollY||pageYOffset, r = sheet.getBoundingClientRect();
+    top0 = r.top + sy; H0 = Math.max(r.height,1); vh = innerHeight;
+  }
+  function frontFor(vy){ return top0 + (Math.max(0,Math.min(vy,vh))/vh) * H0; }
+
+  function flush(){
+    raf = 0;
+    grab.style.transform = "translateY(" + pendY.toFixed(1) + "px)";
+    inkTo(frontFor(pendY), pendF);
+    if(bar) bar.textContent = "墨膜 " + Math.round(pendF*100) + "%";
+    if(pendY >= vh - 2) finish();
+  }
+  function step(y, t){
+    var dy = y - lastY, dt = Math.max(t - lastT, 1);
+    if(dy > 0){ var v = dy/dt; speeds.push(v); pendF = film(v); }
+    lastY = y; lastT = t; pendY = y;
+    if(!raf) raf = requestAnimationFrame(flush);
+  }
+
+  function down(e){
+    if(printed) return;
+    sheetMetrics(); measure();
+    pulling = true; lastY = e.clientY; lastT = e.timeStamp || performance.now();
+    grab.style.transform = "translateY("+lastY+"px)";
+    if(grab.setPointerCapture && e.pointerId!=null){ try{ grab.setPointerCapture(e.pointerId); }catch(err){} }
+    e.preventDefault();
+  }
+  function move(e){
+    if(!pulling || printed) return;
+    /* ── getCoalescedEvents：取回兩幀之間所有中間點，墨量沿真實刮刀路徑累積 ──
+       不支援時（Safari 等）退回單點，墨量仍然會累積，只是取樣較粗 ── */
+    var pts = (e.getCoalescedEvents ? e.getCoalescedEvents() : null);
+    if(pts && pts.length){ for(var i=0;i<pts.length;i++) step(pts[i].clientY, pts[i].timeStamp); }
+    else step(e.clientY, e.timeStamp || performance.now());
+    e.preventDefault();
+  }
+  function up(){ pulling = false; if(!printed && pendY >= vh*0.92) finish(); }
+
+  {
+    grab.addEventListener("pointerdown", down);
+    grab.addEventListener("pointermove", move, {passive:false});
+    grab.addEventListener("pointerup", up);
+    grab.addEventListener("pointercancel", up);
+  }
+  /* 鍵盤：刮刀本身可聚焦（Tab 到它），按 ↓ 或空白鍵，刀自己走。
+     只掛在刮刀上，不攔截整頁的捲動鍵。 */
+  var kb = 0;
+  grab.addEventListener("keydown", function(e){
+    if(printed) return;
+    if(e.key === "ArrowDown" || e.key === " " || e.key === "Spacebar"){
+      e.preventDefault();
+      if(kb) return;
+      sheetMetrics(); measure();
+      var y = 0;
+      kb = setInterval(function(){
+        y += 11; var now = performance.now();
+        step(y, now);
+        if(y >= vh){ clearInterval(kb); kb = 0; finish(); }
+      }, 16);
+    }
+  });
+  var pb = document.getElementById("printnow");
+  if(pb) pb.addEventListener("click", function(){
+    /* 「直接印好」＝明蕙照標準速度刮的一版：墨膜約 58%，粉版偏 0.35px */
+    speeds=[0.4,1.1,2.0,0.55,1.5,0.7,1.8,0.85]; printNow(); });
+  addEventListener("resize", function(){ if(!printed){ sheetMetrics(); measure(); } });
+})();
+</script>
+
+<script>
+/* ═══ 〈刮一版〉印台 ═════════════════════════════════════════════
+   三罐墨各刮一次。每一刮的速度決定墨膜，每一刮的抖動決定下一色套準。
+   技術：D 輸入層 getCoalescedEvents()（不支援時退回單點，行為不變只是取樣較粗）
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var A = {
+    egret:{
+      b:'<path d="M8 118c22-8 34 6 56 6s34-14 56-6 32 4 32 4v30H8Z"/>',
+      p:'<circle cx="112" cy="50" r="28"/>',
+      k:'<path d="M44 96c-14-8-16-26-2-36 16-11 42-9 52 4 8 9 4 23-6 28l15 17-19-5-8 15-8-16-15 8Z"/>'+
+        '<path d="M70 68c-12-19-15-36-5-48 9-11 26-10 32-1" fill="none" stroke="#141118" stroke-width="9" stroke-linecap="round"/>'+
+        '<path d="M96 17l26-8-24 16"/>'+
+        '<path d="M52 108l-5 24M74 110l6 22" fill="none" stroke="#141118" stroke-width="4.4" stroke-linecap="round"/>'
+    },
+    shutter:{
+      b:'<path d="M16 104h128v40H16Z"/>',
+      p:'<path d="M24 96h112v22H24Z"/><path d="M52 118h20v26H52Z"/>',
+      k:'<g fill="none" stroke="#141118" stroke-width="5"><path d="M16 16h128v80H16Z"/>'+
+        '<path d="M22 28h116M22 40h116M22 52h116M22 64h116M22 76h116" stroke-width="4"/>'+
+        '<path d="M10 96h140" stroke-width="7"/><path d="M16 144h128" stroke-width="6"/></g>'
+    },
+    mango:{
+      b:'<path d="M34 126c26-12 70-12 96 4-30 14-72 12-96-4Z"/>',
+      p:'<path d="M56 60c26-20 56-8 62 20 6 28-16 46-42 42S32 86 56 60Z"/>',
+      k:'<g fill="none" stroke="#141118" stroke-width="5"><path d="M52 62c26-22 60-10 66 20 7 30-18 50-46 45S28 88 52 62Z"/>'+
+        '<path d="M70 40c4-14 18-20 30-16" stroke-width="6" stroke-linecap="round"/>'+
+        '<path d="M66 96c8 10 22 12 32 4" stroke-width="4" stroke-linecap="round"/></g>'+
+        '<path d="M100 24c14-6 26 0 28 10-12 8-24 6-28-10Z"/>'
+    },
+    pole:{
+      b:'<path d="M8 20h144v14H8Z"/><path d="M8 46h144v10H8Z"/><path d="M8 128h144v24H8Z"/>',
+      p:'<circle cx="112" cy="70" r="30"/>',
+      k:'<g fill="none" stroke="#141118" stroke-width="6"><path d="M56 12v128"/>'+
+        '<path d="M26 42h60M32 66h48" stroke-width="5"/>'+
+        '<path d="M26 42c34 6 74 2 126-8M26 66c30 8 76 4 126-10" stroke-width="2.6"/>'+
+        '<path d="M40 140h32" stroke-width="7"/></g>'+
+        '<circle cx="36" cy="42" r="4"/><circle cx="76" cy="42" r="4"/><circle cx="42" cy="66" r="4"/><circle cx="70" cy="66" r="4"/>'
+    }
+  };
+  var NAME = {egret:"白鷺鷥",shutter:"鐵捲門",mango:"土芒果",pole:"電線桿"};
+  var INK = ["#141118","#FF2D6F","#1F3FC4"], RUNNM = ["黑版","螢光粉","鈷藍"];
+  var PL = ["plate-k","plate-p","plate-b"];      /* 刮的順序：黑 → 粉 → 藍 */
+  var bed=document.getElementById("bed"), grab=document.getElementById("bedgrab"),
+      blade=document.getElementById("blade"), bb=blade.querySelector("b"),
+      paper=document.getElementById("paper"), art=document.getElementById("art"),
+      runs=document.getElementById("runs"), tip=document.getElementById("tip"),
+      verdict=document.getElementById("verdict"), again=document.getElementById("again"),
+      auto=document.getElementById("auto"), lab=document.getElementById("artlab"),
+      coloA=document.getElementById("coloA"), coloB=document.getElementById("coloB"),
+      coloRule=document.getElementById("coloRule");
+
+  var st = {stock:"#E0B429", on:"#141118", nm:"芥末卡 250g", d:"egret", run:0, log:[], done:false};
+  var FILM = function(v){ return 0.30 + 0.70*Math.exp(-v/1.2); };
+
+  function draw(){
+    var a = A[st.d];
+    var wrap = function(s){ return '<g transform="translate(24,30) scale(1.2)">'+s+'</g>'; };
+    art.querySelector(".art-k").innerHTML = wrap('<g fill="#141118" filter="url(#mesh)">'+a.k+'</g>');
+    art.querySelector(".art-p").innerHTML = wrap('<g fill="#FF2D6F" filter="url(#mesh)">'+a.p+'</g>');
+    art.querySelector(".art-b").innerHTML = wrap('<g fill="#1F3FC4" filter="url(#mesh-coarse)">'+a.b+'</g>');
+    paper.setAttribute("fill", st.stock);
+    coloA.setAttribute("fill", st.on); coloB.setAttribute("fill", st.on); coloRule.setAttribute("stroke", st.on);
+    lab.textContent = "你正在刮的那一張：〈"+NAME[st.d]+"〉，"+st.nm+"，三色。";
+  }
+  function reset(){
+    st.run=0; st.log=[]; st.done=false;
+    for(var i=0;i<3;i++){ var g=document.getElementById(PL[i]);
+      g.style.setProperty("--f","0"); g.style.setProperty("--p","0");
+      g.style.setProperty("--dx","0"); g.style.setProperty("--dy","0"); g.style.setProperty("--rot","0deg"); }
+    var c=document.getElementById("colo"); c.style.setProperty("--f","0"); c.style.setProperty("--p","0");
+    var li=runs.children;
+    for(var j=0;j<3;j++){ li[j].className = j===0?"now":""; li[j].lastElementChild.textContent="待刮"; }
+    verdict.hidden=true; again.hidden=true; auto.hidden=false;
+    tip.textContent = "在右邊那張紙上按住往下拉，刮完一次算一版。也可以用鍵盤：點一下印台，按住 ↓ 鍵。";
+    grab.style.pointerEvents="";
+    draw();
+  }
+
+  /* ── 選紙 / 選圖 ─────────────────────────────────────────── */
+  function pick(container, cls, fn){
+    container.addEventListener("click", function(e){
+      var b = e.target.closest("."+cls); if(!b) return;
+      var all = container.querySelectorAll("."+cls);
+      for(var i=0;i<all.length;i++){ all[i].classList.remove("on"); all[i].setAttribute("aria-checked","false"); }
+      b.classList.add("on"); b.setAttribute("aria-checked","true"); fn(b); reset();
+    });
+  }
+  pick(document.getElementById("stocks"),"sw",function(b){
+    st.stock=b.dataset.stock; st.on=b.dataset.on; st.nm=b.dataset.nm; });
+  pick(document.getElementById("designs"),"dg",function(b){ st.d=b.dataset.d; });
+
+  /* ── 一刮 ────────────────────────────────────────────────── */
+  var pulling=false, lastY=0, lastT=0, sp=[], raf=0, pendP=0, pendF=.8, H=1;
+  function paint(){
+    raf=0;
+    var g=document.getElementById(PL[st.run]);
+    g.style.setProperty("--p", pendP.toFixed(3));
+    g.style.setProperty("--f", (pendF*0.94).toFixed(3));
+    blade.style.transform = "translateY(" + (pendP*H).toFixed(1) + "px)";
+    bb.textContent = "墨膜 " + Math.round(pendF*100) + "%";
+  }
+  function step(y,t){
+    var dy=y-lastY, dt=Math.max(t-lastT,1);
+    if(dy>0){ var v=dy/dt; sp.push(v); pendF=FILM(v); }
+    lastY=y; lastT=t; pendP=Math.max(pendP, Math.min(1, y/H));
+    if(!raf) raf=requestAnimationFrame(paint);
+  }
+  function commit(){
+    var i,m=0,sd=0;
+    for(i=0;i<sp.length;i++) m+=sp[i]; m = sp.length? m/sp.length : .5;
+    for(i=0;i<sp.length;i++) sd += (sp[i]-m)*(sp[i]-m);
+    sd = sp.length? Math.sqrt(sd/sp.length) : 0;
+    var off = Math.min(sd*1.05, 5.4);                       /* SVG 使用者單位 ≈ 0.42 mm */
+    var g=document.getElementById(PL[st.run]);
+    g.style.setProperty("--p","1");
+    g.style.setProperty("--f", FILM(m).toFixed(3));
+    if(st.run>0){                                            /* 第一版永遠是準的，它就是基準 */
+      var sgn = st.run===1 ? 1 : -0.72;
+      g.style.setProperty("--dx", (off*sgn).toFixed(2));
+      g.style.setProperty("--dy", (off*sgn*0.55).toFixed(2));
+      g.style.setProperty("--rot", (off*sgn*0.16).toFixed(2)+"deg");
+    }
+    st.log.push({film:FILM(m), off:off});
+    var li=runs.children[st.run];
+    li.className="done";
+    li.lastElementChild.textContent = "墨膜 "+Math.round(FILM(m)*100)+"%"+(st.run? " · 偏 "+(off*0.42).toFixed(2)+"mm" : " · 基準");
+    sp=[]; pendP=0; st.run++;
+    if(st.run<3){ runs.children[st.run].className="now";
+      tip.textContent = "換版。接下來刮 RUN 0"+(st.run+1)+" "+RUNNM[st.run]+"——這一色會照你上一刮的抖動偏出去。";
+      blade.style.transform="translateY(0)";
+    } else { finish(); }
+  }
+  function finish(){
+    st.done=true; blade.classList.remove("live"); grab.style.pointerEvents="none";
+    var c=document.getElementById("colo"); c.style.setProperty("--p","1"); c.style.setProperty("--f","1");
+    var n=1; try{ n = (parseInt(sessionStorage.getItem("sankua.no")||"40",10)+1); sessionStorage.setItem("sankua.no", String(n)); }catch(e){ n = 41; }
+    coloB.textContent = "NO." + ("000"+n).slice(-4);
+    var worst=0, thin=1, i;
+    for(i=0;i<st.log.length;i++){ if(st.log[i].off>worst) worst=st.log[i].off; if(st.log[i].film<thin) thin=st.log[i].film; }
+    var mm=(worst*0.42), say;
+    if(mm<0.30 && thin>0.58) say="套準 "+mm.toFixed(2)+" mm、最薄的一版墨膜 "+Math.round(thin*100)+"%。這張可以賣，明蕙會問你是不是有練過。";
+    else if(mm<1.10) say="套準 "+mm.toFixed(2)+" mm、最薄的一版墨膜 "+Math.round(thin*100)+"%。正常水準——粉版從黑線旁邊露出一條，那條縫是這張唯一不會被複製的地方。";
+    else if(thin<0.42) say="套準 "+mm.toFixed(2)+" mm，而且刮太快了，最薄的那一版只有 "+Math.round(thin*100)+"% 墨膜，紙色整片透出來。掛起來當練習，下一張慢一點。";
+    else say="套準 "+mm.toFixed(2)+" mm。抖得有點兇，三個顏色各走各的——留著，這種你重刮也刮不出來。";
+    verdict.textContent = "NO."+("000"+n).slice(-4)+"　"+say;
+    verdict.hidden=false; again.hidden=false; auto.hidden=true;
+    tip.textContent = "刮完了。這張是你的。";
+  }
+
+  function down(e){
+    if(st.done) return;
+    H = Math.max(bed.getBoundingClientRect().height,1);
+    pulling=true; lastY=e.clientY-bed.getBoundingClientRect().top; lastT=e.timeStamp||performance.now();
+    blade.classList.add("live");
+    if(grab.setPointerCapture && e.pointerId!=null){ try{ grab.setPointerCapture(e.pointerId); }catch(err){} }
+    e.preventDefault();
+  }
+  function move(e){
+    if(!pulling||st.done) return;
+    var top = bed.getBoundingClientRect().top;
+    var pts = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+    if(pts && pts.length){ for(var i=0;i<pts.length;i++) step(pts[i].clientY-top, pts[i].timeStamp); }
+    else step(e.clientY-top, e.timeStamp||performance.now());
+    e.preventDefault();
+  }
+  function up(){ if(!pulling) return; pulling=false; if(!st.done && pendP>=0.9) commit();
+    else { pendP=0; blade.style.transform="translateY(0)";
+      var g=document.getElementById(PL[st.run]); if(g){ g.style.setProperty("--p","0"); g.style.setProperty("--f","0"); } sp=[]; } }
+
+  grab.addEventListener("pointerdown", down);
+  grab.addEventListener("pointermove", move, {passive:false});
+  grab.addEventListener("pointerup", up);
+  grab.addEventListener("pointercancel", up);
+
+  var kb=0;
+  grab.addEventListener("keydown", function(e){
+    if(st.done) return;
+    if(e.key==="ArrowDown"||e.key===" "||e.key==="Spacebar"){
+      e.preventDefault(); if(kb) return;
+      H=Math.max(bed.getBoundingClientRect().height,1);
+      var y=0; lastY=0; lastT=performance.now(); blade.classList.add("live");
+      kb=setInterval(function(){ y+=H/56; step(y, performance.now());
+        if(y>=H){ clearInterval(kb); kb=0; commit(); } },16);
+    }
+  });
+  auto.addEventListener("click", function(){
+    /* 明蕙的手：墨膜約 74%、套準約 0.15 mm，符合她「壓在 0.2 mm 以內」的說法 */
+    while(!st.done){ sp=[0.15,0.6,1.1,0.3,0.85,0.4]; pendP=1; commit(); }
+  });
+  again.addEventListener("click", function(){ reset(); grab.focus(); });
+
+  reset();
+  if(RM){ auto.click(); tip.textContent="已依「減少動態」偏好直接印好三色。想自己刮的話，按「再刮一張」。"; }
+})();
+</script>
+
+</body>
+</html>

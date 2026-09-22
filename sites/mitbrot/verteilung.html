@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MITBROT｜配給板 Verteilbrett</title>
+<meta name="description" content="把今天的 24 箱麵包分到六個取貨點，結算用沒有四捨五入的數字，並告訴你有多少人落在被切掉的半個符號裡。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22%23E3DECD%22%2F%3E%3Cg%20fill%3D%22%23C8361C%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M2%2027v-9a7%207%200%200%201%2014%200v9ZM6%2015.4l1.7-2.6%201.4.9-1.7%202.6Zm4.4%200%201.7-2.6%201.4.9-1.7%202.6Z%22%2F%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M19%2027v-9a7%207%200%200%201%208%20-6.9v15.9Z%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%2227%22%20y%3D%229%22%20width%3D%222%22%20height%3D%2220%22%20fill%3D%22%231A1916%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   MITBROT · Genossenschaftsbäckerei, Wien 16.
+   ISOTYPE / Wiener Methode der Bildstatistik
+   Otto Neurath · Marie Reidemeister · Gerd Arntz, 1925–1934
+   ----------------------------------------------------------------
+   一條規矩統治全站：數量用「多少個」表示，永遠不用「多大」。
+   符號不縮放。不夠一個單位就把符號切掉，切口留著。
+   ================================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --karton:#CFC9B6;      /* 卡紙地（暗） */
+  --blatt:#E3DECD;       /* 板面（亮） */
+  --schwarz:#1A1916;     /* 墨：人 */
+  --zinnober:#C8361C;    /* 朱：麵包・成品 */
+  --blau:#1D5A86;        /* 藍：時間・爐次 */
+  --braun:#7B4A22;       /* 褐：穀・原料 */
+  --gruen:#3D6A38;       /* 綠：回去的東西 */
+  --ocker:#D6A121;       /* 赭：錢 */
+  --u:24;                /* 一格的使用者座標寬 */
+}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--karton);color:var(--schwarz);
+  font-family:'Jost',system-ui,'Noto Sans TC',sans-serif;
+  font-size:16px;line-height:1.55;
+  font-variant-numeric:tabular-nums lining-nums;
+  padding:22px 18px 46px;
+}
+.blatt{max-width:1180px;margin:0 auto;background:var(--blatt);border:2px solid var(--schwarz)}
+
+/* ---------- 板緣抬頭（出處印在板緣上，不是大標） ---------- */
+.kopfband{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 30px;
+  padding:14px 20px 12px;border-bottom:2px solid var(--schwarz)}
+.marke{display:block;height:44px;width:auto}
+.quelle{font-size:13px;line-height:1.45;letter-spacing:.01em}
+.quelle b{font-weight:600}
+.massstab{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;
+  text-transform:uppercase;letter-spacing:.13em;font-weight:600;flex-wrap:wrap}
+.massstab .gruppe{display:flex;border:2px solid var(--schwarz)}
+.massstab button{font:inherit;letter-spacing:.1em;background:var(--blatt);color:var(--schwarz);
+  border:0;border-left:2px solid var(--schwarz);padding:5px 11px;cursor:pointer}
+.massstab button:first-child{border-left:0}
+.massstab button[aria-pressed="true"]{background:var(--schwarz);color:var(--blatt)}
+.massstab button:focus-visible{outline:3px solid var(--zinnober);outline-offset:2px}
+
+/* ---------- 爐次帶（ambient：依訪客本地真實時刻推進） ---------- */
+.ofenband{display:flex;align-items:center;gap:0;padding:0 20px;height:38px;
+  border-bottom:2px solid var(--schwarz);position:relative;overflow:hidden}
+.ofenband .titel{font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:600;color:var(--blau);padding-right:14px;white-space:nowrap}
+.spur{position:relative;flex:1;height:14px;background:transparent;
+  border-top:2px solid var(--blau);border-bottom:2px solid var(--blau)}
+.spur .gang{position:absolute;top:-2px;bottom:-2px;width:10px;background:var(--blau)}
+.spur .gang.kalt{background:transparent;border:2px solid var(--blau)}
+.jetzt{position:absolute;top:-9px;bottom:-9px;width:2px;background:var(--schwarz);
+  transition:left 240ms linear}
+.jetzt::after{content:'';position:absolute;left:-3px;top:-1px;width:8px;height:5px;background:var(--schwarz)}
+.ofenband .uhr{font-size:12px;letter-spacing:.06em;padding-left:14px;white-space:nowrap;font-weight:500}
+
+/* ---------- 行首欄導覽（nav 就是圖表的行首） ---------- */
+.rumpf{display:grid;grid-template-columns:186px 1fr}
+.reihenkopf{border-right:2px solid var(--schwarz);padding:10px 0 20px}
+.reihenkopf a{display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;
+  padding:9px 14px;text-decoration:none;color:var(--schwarz)}
+.reihenkopf a svg{width:26px;height:28px;fill:var(--schwarz)}
+.reihenkopf a b{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.reihenkopf a i{display:block;font-style:normal;font-size:12px;letter-spacing:.02em}
+.reihenkopf a[aria-current="page"]{background:var(--schwarz);color:var(--blatt)}
+.reihenkopf a[aria-current="page"] svg{fill:var(--zinnober)}
+.reihenkopf a:hover b{text-decoration:underline;text-underline-offset:3px}
+.reihenkopf a:focus-visible{outline:3px solid var(--zinnober);outline-offset:-3px}
+main{padding:20px 20px 30px;min-width:0}
+
+/* ---------- 版塊 ---------- */
+section{padding:6px 0 4px}
+.lab{display:inline-block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  font-weight:600;color:var(--zinnober);margin-bottom:6px}
+h1{font-size:clamp(23px,3.1vw,34px);line-height:1.12;font-weight:600;letter-spacing:-.01em;margin-bottom:12px}
+h2{font-size:clamp(19px,2.3vw,25px);line-height:1.18;font-weight:600;margin-bottom:10px}
+h3{font-size:16px;font-weight:600;letter-spacing:.02em;margin-bottom:6px}
+p.text{max-width:66ch;margin-bottom:11px;font-size:15.5px}
+p.mini{font-size:13px;line-height:1.5;max-width:74ch}
+hr{border:0;border-top:2px solid var(--schwarz);margin:22px 0}
+a{color:var(--zinnober);text-underline-offset:3px}
+
+/* ---------- 板（圖表） ---------- */
+.brett{border-top:2px solid var(--schwarz);margin:14px 0 4px}
+.zeile{display:grid;grid-template-columns:196px 1fr 84px;align-items:start;gap:0;
+  border-bottom:2px solid var(--schwarz);animation-composition:add}
+.zeile .kopf{padding:10px 12px 10px 0;display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:start}
+.zeile .kopf>svg{width:26px;height:28px;margin-top:1px}
+.zeile .kopf b{display:block;font-size:14.5px;font-weight:600;line-height:1.25}
+.zeile .kopf .schluessel{display:block;font-size:11.5px;letter-spacing:.04em;margin-top:2px}
+.zeile .kopf .rest{display:block;font-size:11.5px;letter-spacing:.04em;color:var(--zinnober);font-weight:600;margin-top:1px}
+.zeile .feld{padding:10px 10px 10px 0;min-width:0}
+.zeile .feld svg{display:block;width:100%;height:auto}
+.zeile .wert{padding:10px 0;text-align:right;font-size:17px;font-weight:600;letter-spacing:.01em}
+.zeile .wert small{display:block;font-size:11px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase}
+.zeile:hover,.zeile:focus-within{animation:heben 110ms linear forwards}
+@keyframes heben{to{transform:translateY(-2px)}}
+@keyframes nachsetzen{from{transform:translateX(-5px)}to{transform:translateX(0)}}
+.zeile.setzen{animation:nachsetzen 220ms linear}
+/* 兩條動畫同時寫 transform：重列的水平位移＋指認的垂直抬起。
+   animation-composition:add 讓它們相加；沒有它，後者會整個取代前者。 */
+.zeile.setzen:hover,.zeile.setzen:focus-within{animation:nachsetzen 220ms linear, heben 110ms linear forwards}
+/* fallback：不支援 animation-composition 時，兩個 transform 會互相取代，
+   改由內層 .feld 承擔位移，資訊與觀感皆不損失 */
+@supports not (animation-composition:add){
+  .zeile:hover,.zeile:focus-within{animation:none}
+  .zeile:hover .feld,.zeile:focus-within .feld{transform:translateY(-2px)}
+  .zeile.setzen .feld{animation:nachsetzen 220ms linear}
+}
+.schnittkante{fill:var(--schwarz)}
+
+/* ---------- 刀口（簽名動效） ---------- */
+.messer{position:fixed;top:0;bottom:0;width:2px;background:var(--schwarz);
+  left:0;transform:translateX(-10px);opacity:0;pointer-events:none;z-index:40}
+.messer.faehrt{animation:schnitt 200ms linear}
+@keyframes schnitt{0%{opacity:1;transform:translateX(var(--von))}100%{opacity:1;transform:translateX(var(--bis))}}
+
+/* ---------- 一般表格化的列（純文字備援 + 資料本體） ---------- */
+table{border-collapse:collapse;width:100%;font-size:14.5px;table-layout:auto}
+th,td{text-align:left;padding:8px 12px 8px 0;border-bottom:2px solid var(--schwarz);vertical-align:top;overflow-wrap:anywhere}
+th{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+td.z{text-align:right;font-weight:600}
+caption{text-align:left;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:600;color:var(--zinnober);padding-bottom:6px}
+
+/* ---------- 配給板 ---------- */
+.regeln{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:2px solid var(--schwarz);margin:14px 0 18px}
+.regeln div{padding:12px 14px;border-left:2px solid var(--schwarz)}
+.regeln div:first-child{border-left:0}
+.regeln b{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--zinnober);margin-bottom:4px}
+.regeln p{font-size:14px;line-height:1.45}
+.vorrat{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 0;border-bottom:2px solid var(--schwarz)}
+.vorrat .zahl{font-size:30px;font-weight:600;line-height:1}
+.vorrat .vfeld{flex:1 1 300px;max-width:460px;min-width:220px}
+.vorrat svg{display:block;width:100%;height:auto}
+.stelle{display:grid;grid-template-columns:196px 1fr 118px;border-bottom:2px solid var(--schwarz);
+  align-items:start}
+.stelle .kopf{padding:12px 12px 12px 0;display:grid;grid-template-columns:30px 1fr;gap:9px}
+.stelle .kopf>svg{width:26px;height:28px}
+.stelle .kopf b{font-size:14.5px;font-weight:600;display:block}
+.stelle .kopf span{font-size:11.5px;letter-spacing:.03em;display:block}
+.stelle .feld{padding:12px 10px 12px 0;min-width:0}
+.stelle .feld svg{display:block;width:100%;height:auto}
+.stelle .feld .lage{font-size:11.5px;letter-spacing:.03em;margin-top:5px}
+.stelle .feld .lage.fehlt{color:var(--zinnober);font-weight:600}
+.stelle .knopf{padding:12px 0;display:flex;gap:6px;justify-content:flex-end;align-items:flex-start}
+.stelle .knopf button{font:inherit;font-weight:600;font-size:17px;line-height:1;width:34px;height:34px;
+  border:2px solid var(--schwarz);background:var(--blatt);color:var(--schwarz);cursor:pointer}
+.stelle .knopf button:disabled{background:var(--karton);cursor:not-allowed}
+.stelle .knopf button:focus-visible{outline:3px solid var(--zinnober);outline-offset:2px}
+.abschluss{border:2px solid var(--schwarz);padding:14px 16px;margin-top:18px}
+.abschluss b.gro{display:block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--zinnober);margin-bottom:8px}
+.abschluss .satz{font-size:15.5px;max-width:70ch;margin-bottom:8px}
+.abschluss .satz em{font-style:normal;font-weight:600;color:var(--zinnober)}
+.tasten{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+.tasten button{font:inherit;font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;
+  padding:9px 16px;border:2px solid var(--schwarz);background:var(--schwarz);color:var(--blatt);cursor:pointer}
+.tasten button.leer{background:var(--blatt);color:var(--schwarz)}
+.tasten button:disabled{background:var(--karton);color:var(--schwarz);cursor:not-allowed}
+.tasten button:focus-visible{outline:3px solid var(--zinnober);outline-offset:2px}
+details.rechnung{border:2px solid var(--schwarz);margin-top:16px}
+details.rechnung summary{padding:10px 14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:600;cursor:pointer;list-style:none}
+details.rechnung summary::-webkit-details-marker{display:none}
+details.rechnung summary::before{content:'▸ ';color:var(--zinnober)}
+details.rechnung[open] summary::before{content:'▾ '}
+details.rechnung .innen{padding:0 14px 14px;border-top:2px solid var(--schwarz)}
+
+/* ---------- 頁腳 ---------- */
+.pata{border-top:2px solid var(--schwarz);padding:18px 20px 20px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px 26px}
+.pata b.gro{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px;color:var(--zinnober)}
+.pata p{font-size:13px;line-height:1.55}
+.pata .fikce,.pata .built{grid-column:1/-1;font-size:12px;line-height:1.5;
+  border-top:2px solid var(--schwarz);padding-top:10px}
+.pata .built{border-top:0;padding-top:0}
+
+/* ---------- 進場（transition：由左往右揭開，刀口的方向就是讀圖的方向） ---------- */
+.auf .feld svg{animation:aufdecken 420ms linear both}
+@keyframes aufdecken{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.auf .brett>*:nth-child(1) .feld svg{animation-delay:0ms}
+.auf .brett>*:nth-child(2) .feld svg{animation-delay:45ms}
+.auf .brett>*:nth-child(3) .feld svg{animation-delay:90ms}
+.auf .brett>*:nth-child(4) .feld svg{animation-delay:135ms}
+.auf .brett>*:nth-child(5) .feld svg{animation-delay:180ms}
+.auf .brett>*:nth-child(6) .feld svg{animation-delay:225ms}
+.auf .brett>*:nth-child(7) .feld svg{animation-delay:270ms}
+.auf .brett>*:nth-child(8) .feld svg{animation-delay:315ms}
+
+/* ---------- RWD ---------- */
+@media (max-width:880px){
+  .rumpf{grid-template-columns:1fr}
+  .reihenkopf{border-right:0;border-bottom:2px solid var(--schwarz);
+    display:grid;grid-template-columns:repeat(4,1fr);padding:0}
+  .reihenkopf a{grid-template-columns:1fr;justify-items:center;text-align:center;gap:3px;
+    padding:9px 4px;border-left:2px solid var(--schwarz)}
+  .reihenkopf a:first-child{border-left:0}
+  .reihenkopf a b{font-size:11px;letter-spacing:.1em}
+  .reihenkopf a i{font-size:10.5px}
+  .zeile,.stelle{grid-template-columns:1fr 84px}
+  .zeile .feld,.stelle .feld{grid-column:1/-1;padding-right:0;padding-top:0}
+  .stelle .knopf{padding-top:12px}
+  .regeln{grid-template-columns:1fr}
+  .regeln div{border-left:0;border-top:2px solid var(--schwarz)}
+  .regeln div:first-child{border-top:0}
+  .pata{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  body{padding:12px 10px 30px;font-size:15px}
+  .kopfband{padding:12px 14px 10px;gap:10px 18px}
+  .marke{height:38px}
+  .massstab{margin-left:0;width:100%}
+  main{padding:14px 14px 22px}
+  .ofenband{padding:0 14px;height:auto;flex-wrap:wrap;gap:6px;padding-top:8px;padding-bottom:8px}
+  .spur{flex:1 0 100%;order:3}
+  .zeile .kopf,.stelle .kopf{padding-right:0}
+  .zeile .wert{font-size:16px}
+  .vorrat .zahl{font-size:24px}
+  table{font-size:13.5px}
+  th,td{padding:7px 8px 7px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}
+  .messer{display:none}
+  .zeile:hover,.zeile:focus-within{animation:none}
+  .zeile:hover .kopf b::after,.zeile:focus-within .kopf b::after{content:' ◂';color:var(--zinnober)}
+  .auf .feld svg{animation:none}
+}
+</style>
+<noscript><style>.massstab .gruppe{display:none}.tasten,.stelle .knopf{display:none}.nurjs{display:none}</style></noscript>
+</head>
+<body>
+<svg class="lager" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs><symbol id="z-mensch" viewBox="0 0 22 26"><circle cx="11" cy="4.6" r="3"/><path d="M4.8 19v-4.8a6.2 6.2 0 0 1 12.4 0V19Z"/><rect x="4.8" y="19.5" width="5" height="4.5"/><rect x="12.2" y="19.5" width="5" height="4.5"/></symbol><symbol id="z-laib" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M2.6 23.6v-7.4a8.4 8.4 0 0 1 16.8 0v7.4ZM5 14.6l2-3.2 1.5 1-2 3.2Z M9 14.6l2-3.2 1.5 1-2 3.2Z M13 14.6l2-3.2 1.5 1-2 3.2Z"/></symbol><symbol id="z-kiste" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M2.4 8.6h17.2v15H2.4Z M5.2 11.2h4.2v2.1H5.2Z M12.6 11.2h4.2v2.1h-4.2Z"/></symbol><symbol id="z-sack" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M7.4 4.4h7.2v3.8H7.4Z M6.2 8.8h9.6l2.6 14.8H3.6Z M8.8 13.4h4.4v1.8H8.8Z"/></symbol><symbol id="z-korn" viewBox="0 0 22 26"><rect x="10.3" y="9" width="1.6" height="14.6"/><path d="M10.3 9.4c-3.2 0-4.8 1.6-4.8 4.2 3.2 0 4.8-1.6 4.8-4.2Z"/><path d="M11.9 9.4c3.2 0 4.8 1.6 4.8 4.2-3.2 0-4.8-1.6-4.8-4.2Z"/><path d="M10.3 14.2c-3.2 0-4.8 1.6-4.8 4.2 3.2 0 4.8-1.6 4.8-4.2Z"/><path d="M11.9 14.2c3.2 0 4.8 1.6 4.8 4.2-3.2 0-4.8-1.6-4.8-4.2Z"/><path d="M11.1 3.6c-1.5 1.3-2.2 2.8-2.2 4.6h4.4c0-1.8-.7-3.3-2.2-4.6Z"/></symbol><symbol id="z-ofen" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M2.4 7.4h17.2v16.2H2.4Z M7 23.6v-5.8a4.1 4.1 0 0 1 8.2 0v5.8Z M5.2 9.6h11.6v2.2H5.2Z"/></symbol><symbol id="z-stelle" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M11 3.4 20 11.4H2Z M4.4 12.6h13.2v11H4.4Z M8.8 16.4h4.4v7.2H8.8Z"/></symbol><symbol id="z-topf" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M1.8 10.6h18.4v2.4H1.8Z M3.8 13.6h14.4l-1.4 10H5.2ZM18.6 14.6h2.6v4.2h-2.6Z M.8 14.6h2.6v4.2H.8Z"/></symbol><symbol id="z-muenze" viewBox="0 0 22 26"><path fill-rule="evenodd" d="M14.4 3.8a7.3 7.3 0 1 1 0 14.6 7.3 7.3 0 0 1 0-14.6ZM7.6 9a7.3 7.3 0 1 1 0 14.6A7.3 7.3 0 0 1 7.6 9Z"/></symbol><pattern id="p-mensch-schwarz" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#1A1916"><circle cx="11" cy="4.6" r="3"/><path d="M4.8 19v-4.8a6.2 6.2 0 0 1 12.4 0V19Z"/><rect x="4.8" y="19.5" width="5" height="4.5"/><rect x="12.2" y="19.5" width="5" height="4.5"/></g></pattern><pattern id="p-mensch-zinnober" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#C8361C"><circle cx="11" cy="4.6" r="3"/><path d="M4.8 19v-4.8a6.2 6.2 0 0 1 12.4 0V19Z"/><rect x="4.8" y="19.5" width="5" height="4.5"/><rect x="12.2" y="19.5" width="5" height="4.5"/></g></pattern><pattern id="p-laib-zinnober" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#C8361C"><path fill-rule="evenodd" d="M2.6 23.6v-7.4a8.4 8.4 0 0 1 16.8 0v7.4ZM5 14.6l2-3.2 1.5 1-2 3.2Z M9 14.6l2-3.2 1.5 1-2 3.2Z M13 14.6l2-3.2 1.5 1-2 3.2Z"/></g></pattern><pattern id="p-kiste-zinnober" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#C8361C"><path fill-rule="evenodd" d="M2.4 8.6h17.2v15H2.4Z M5.2 11.2h4.2v2.1H5.2Z M12.6 11.2h4.2v2.1h-4.2Z"/></g></pattern><pattern id="p-sack-braun" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#7B4A22"><path fill-rule="evenodd" d="M7.4 4.4h7.2v3.8H7.4Z M6.2 8.8h9.6l2.6 14.8H3.6Z M8.8 13.4h4.4v1.8H8.8Z"/></g></pattern><pattern id="p-korn-braun" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#7B4A22"><rect x="10.3" y="9" width="1.6" height="14.6"/><path d="M10.3 9.4c-3.2 0-4.8 1.6-4.8 4.2 3.2 0 4.8-1.6 4.8-4.2Z"/><path d="M11.9 9.4c3.2 0 4.8 1.6 4.8 4.2-3.2 0-4.8-1.6-4.8-4.2Z"/><path d="M10.3 14.2c-3.2 0-4.8 1.6-4.8 4.2 3.2 0 4.8-1.6 4.8-4.2Z"/><path d="M11.9 14.2c3.2 0 4.8 1.6 4.8 4.2-3.2 0-4.8-1.6-4.8-4.2Z"/><path d="M11.1 3.6c-1.5 1.3-2.2 2.8-2.2 4.6h4.4c0-1.8-.7-3.3-2.2-4.6Z"/></g></pattern><pattern id="p-ofen-blau" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#1D5A86"><path fill-rule="evenodd" d="M2.4 7.4h17.2v16.2H2.4Z M7 23.6v-5.8a4.1 4.1 0 0 1 8.2 0v5.8Z M5.2 9.6h11.6v2.2H5.2Z"/></g></pattern><pattern id="p-stelle-blau" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#1D5A86"><path fill-rule="evenodd" d="M11 3.4 20 11.4H2Z M4.4 12.6h13.2v11H4.4Z M8.8 16.4h4.4v7.2H8.8Z"/></g></pattern><pattern id="p-topf-gruen" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#3D6A38"><path fill-rule="evenodd" d="M1.8 10.6h18.4v2.4H1.8Z M3.8 13.6h14.4l-1.4 10H5.2ZM18.6 14.6h2.6v4.2h-2.6Z M.8 14.6h2.6v4.2H.8Z"/></g></pattern><pattern id="p-muenze-ocker" patternUnits="userSpaceOnUse" width="24" height="26"><g fill="#D6A121"><path fill-rule="evenodd" d="M14.4 3.8a7.3 7.3 0 1 1 0 14.6 7.3 7.3 0 0 1 0-14.6ZM7.6 9a7.3 7.3 0 1 1 0 14.6A7.3 7.3 0 0 1 7.6 9Z"/></g></pattern></defs></svg>
+<div class="messer" id="messer" aria-hidden="true"></div>
+<div class="blatt">
+<header class="kopfband">
+<a href="index.html" aria-label="MITBROT 首頁"><svg class="marke" viewBox="0 0 380 62" role="img" aria-label="MITBROT Genossenschaftsbäckerei Wien 16.">
+<title>MITBROT</title>
+<defs><clipPath id="lg-halb"><rect x="0" y="0" width="75" height="62"/></clipPath></defs>
+<g fill="#C8361C">
+<g transform="translate(0,14.5) scale(1.25)"><path fill-rule="evenodd" d="M2.6 23.6v-7.4a8.4 8.4 0 0 1 16.8 0v7.4ZM5 14.6l2-3.2 1.5 1-2 3.2Z M9 14.6l2-3.2 1.5 1-2 3.2Z M13 14.6l2-3.2 1.5 1-2 3.2Z"/></g>
+<g transform="translate(31,14.5) scale(1.25)"><path fill-rule="evenodd" d="M2.6 23.6v-7.4a8.4 8.4 0 0 1 16.8 0v7.4ZM5 14.6l2-3.2 1.5 1-2 3.2Z M9 14.6l2-3.2 1.5 1-2 3.2Z M13 14.6l2-3.2 1.5 1-2 3.2Z"/></g>
+<g clip-path="url(#lg-halb)"><g transform="translate(62,14.5) scale(1.25)"><path fill-rule="evenodd" d="M2.6 23.6v-7.4a8.4 8.4 0 0 1 16.8 0v7.4ZM5 14.6l2-3.2 1.5 1-2 3.2Z M9 14.6l2-3.2 1.5 1-2 3.2Z M13 14.6l2-3.2 1.5 1-2 3.2Z"/></g></g>
+</g>
+<rect x="75" y="8" width="3" height="44" fill="#1A1916"/>
+<g fill="#1A1916" transform="translate(12,0)">
+<path d="M84 44V16h6.9l8.5 15.4L107.9 16h6.9v28h-5.6V26.9l-7.2 13h-3.2l-7.2-13V44z"/>
+<path d="M122 44V16h5.6v28z"/>
+<path d="M134 21.6V16h22.4v5.6H148V44h-5.6V21.6z"/>
+<path fill-rule="evenodd" d="M164 16h11.8a7.4 7.4 0 0 1 5.3 12.7 7.7 7.7 0 0 1-4.2 14.3H164zm5.6 5.4v5.9h5.9a2.95 2.95 0 0 0 0-5.9zm0 11.1v6.1h6.5a3.05 3.05 0 0 0 0-6.1z"/>
+<path fill-rule="evenodd" d="M190 44V16h11.9a8.85 8.85 0 0 1 3.5 17l6.8 11h-6.6l-6.2-10.2h-3.8V44zm5.6-22.4v7.2h6.1a3.6 3.6 0 0 0 0-7.2z"/>
+<path fill-rule="evenodd" d="M234 15.2a14.8 14.8 0 1 1 0 29.6 14.8 14.8 0 0 1 0-29.6zm0 5.6a9.2 9.2 0 1 0 0 18.4 9.2 9.2 0 0 0 0-18.4z"/>
+<path d="M254 21.6V16h22.4v5.6H268V44h-5.6V21.6z"/>
+</g>
+<text x="96" y="56" font-family="Jost,system-ui,sans-serif" font-size="9" font-weight="600" letter-spacing="2" fill="#1A1916">GENOSSENSCHAFTSBÄCKEREI · WIEN 16.</text>
+</svg></a>
+<p class="quelle"><b>Hasnerstraße 41, 1160 Wien</b><br>+43 1 407 22 18　·　門市 06:30–12:30<br>板面日期：Dienstag, 22. September</p>
+<div class="massstab"><span>MASSSTAB 尺度</span><noscript><span style="font-weight:500;letter-spacing:.02em;text-transform:none">mittel（固定）</span></noscript><div class="gruppe" role="group" aria-label="符號尺度">
+<button type="button" data-st="0" aria-pressed="false">fein 細</button>
+<button type="button" data-st="1" aria-pressed="true">mittel 中</button>
+<button type="button" data-st="2" aria-pressed="false">grob 粗</button>
+</div></div>
+</header>
+<div class="ofenband"><span class="titel">OFEN 爐次</span><div class="spur" id="spur">
+<span class="gang" style="left:0%" data-min="340" title="Ofen 1 · 05:40"></span>
+<span class="gang" style="left:44%" data-min="560" title="Ofen 2 · 09:20"></span>
+<span class="gang" style="left:88%" data-min="830" title="Ofen 3 · 13:50"></span>
+<span class="jetzt" id="jetzt" style="left:0%"></span></div><span class="uhr" id="uhr">05:40 · 09:20 · 13:50</span></div>
+<div class="rumpf">
+<nav class="reihenkopf" aria-label="主導覽"><a href="index.html"><svg viewBox="0 0 22 26" aria-hidden="true" focusable="false"><use href="#z-laib"/></svg><span><b>BRETT</b><i>今日的板</i></span></a><a href="brot.html"><svg viewBox="0 0 22 26" aria-hidden="true" focusable="false"><use href="#z-korn"/></svg><span><b>BROT</b><i>麵包與穀</i></span></a><a href="verteilung.html" aria-current="page"><svg viewBox="0 0 22 26" aria-hidden="true" focusable="false"><use href="#z-kiste"/></svg><span><b>TEILEN</b><i>配給板</i></span></a><a href="genossenschaft.html"><svg viewBox="0 0 22 26" aria-hidden="true" focusable="false"><use href="#z-mensch"/></svg><span><b>GENOSSENSCHAFT</b><i>合作社</i></span></a></nav>
+<main>
+
+<section>
+<span class="lab">VERTEILBRETT 配給板</span>
+<h1>今天的 24 箱，<br>你來分</h1>
+<div class="regeln">
+<div><b>EINS</b><p>今天 <b>24 箱</b>，每箱 <b>20 條</b>。</p></div>
+<div><b>ZWEI</b><p>每個取貨點至少要拿到 <b>每 4 名社員 1 條</b>。</p></div>
+<div><b>DREI</b><p>把 24 箱<b>全部分完</b>，板子才會結算。</p></div>
+</div>
+<div class="vorrat"><span class="zahl" id="v-zahl">24</span><span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600">Kisten noch zu verteilen 還沒分出去的箱</span><span class="vfeld" id="v-feld"><svg viewBox="0 0 384 56" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="384" height="26" fill="url(#p-kiste-zinnober)"/><rect x="0" y="30" width="192" height="26" fill="url(#p-kiste-zinnober)"/></svg></span></div>
+<div class="brett" id="stellen">
+<div class="stelle" data-i="0">
+<div class="kopf"><svg viewBox="0 0 22 26" role="img" aria-hidden="true" focusable="false" style="fill:#1D5A86"><use href="#z-stelle"/></svg><div><b>Hasnerstraße 41</b><span>1160 Wien　·　取貨 06:30–12:30</span><span>社員 184 人　·　最低 46 條</span></div></div>
+<div class="feld"><div class="bild"><svg viewBox="0 0 384 26" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="176.64" height="26" fill="url(#p-mensch-schwarz)"/><rect class="schnittkante" x="175.24" y="0" width="1.4" height="26"/></svg></div><p class="lage fehlt">0 箱 = 0 條　可供 0 人　還缺 184 人</p></div>
+<div class="knopf"><button type="button" data-m="-1" aria-label="Hasnerstraße 41 減一箱" disabled>−</button><button type="button" data-m="1" aria-label="Hasnerstraße 41 加一箱">＋</button></div>
+</div><div class="stelle" data-i="1">
+<div class="kopf"><svg viewBox="0 0 22 26" role="img" aria-hidden="true" focusable="false" style="fill:#1D5A86"><use href="#z-stelle"/></svg><div><b>Yppenplatz 3</b><span>1160 Wien　·　取貨 07:00–11:00</span><span>社員 97 人　·　最低 25 條</span></div></div>
+<div class="feld"><div class="bild"><svg viewBox="0 0 384 26" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="93.12" height="26" fill="url(#p-mensch-schwarz)"/><rect class="schnittkante" x="91.72" y="0" width="1.4" height="26"/></svg></div><p class="lage fehlt">0 箱 = 0 條　可供 0 人　還缺 97 人</p></div>
+<div class="knopf"><button type="button" data-m="-1" aria-label="Yppenplatz 3 減一箱" disabled>−</button><button type="button" data-m="1" aria-label="Yppenplatz 3 加一箱">＋</button></div>
+</div><div class="stelle" data-i="2">
+<div class="kopf"><svg viewBox="0 0 22 26" role="img" aria-hidden="true" focusable="false" style="fill:#1D5A86"><use href="#z-stelle"/></svg><div><b>Meiselmarkt 12</b><span>1150 Wien　·　取貨 06:30–13:00</span><span>社員 241 人　·　最低 61 條</span></div></div>
+<div class="feld"><div class="bild"><svg viewBox="0 0 384 26" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="231.36" height="26" fill="url(#p-mensch-schwarz)"/><rect class="schnittkante" x="229.96" y="0" width="1.4" height="26"/></svg></div><p class="lage fehlt">0 箱 = 0 條　可供 0 人　還缺 241 人</p></div>
+<div class="knopf"><button type="button" data-m="-1" aria-label="Meiselmarkt 12 減一箱" disabled>−</button><button type="button" data-m="1" aria-label="Meiselmarkt 12 加一箱">＋</button></div>
+</div><div class="stelle" data-i="3">
+<div class="kopf"><svg viewBox="0 0 22 26" role="img" aria-hidden="true" focusable="false" style="fill:#1D5A86"><use href="#z-stelle"/></svg><div><b>Klausgasse 8</b><span>1170 Wien　·　取貨 15:00–18:00</span><span>社員 58 人　·　最低 15 條</span></div></div>
+<div class="feld"><div class="bild"><svg viewBox="0 0 384 26" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="55.68" height="26" fill="url(#p-mensch-schwarz)"/><rect class="schnittkante" x="54.28" y="0" width="1.4" height="26"/></svg></div><p class="lage fehlt">0 箱 = 0 條　可供 0 人　還缺 58 人</p></div>
+<div class="knopf"><button type="button" data-m="-1" aria-label="Klausgasse 8 減一箱" disabled>−</button><button type="button" data-m="1" aria-label="Klausgasse 8 加一箱">＋</button></div>
+</div><div class="stelle" data-i="4">
+<div class="kopf"><svg viewBox="0 0 22 26" role="img" aria-hidden="true" focusable="false" style="fill:#1D5A86"><use href="#z-stelle"/></svg><div><b>Grundsteingasse 60</b><span>1160 Wien　·　取貨 07:00–12:00</span><span>社員 133 人　·　最低 34 條</span></div></div>
+<div class="feld"><div class="bild"><svg viewBox="0 0 384 26" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="127.68" height="26" fill="url(#p-mensch-schwarz)"/><rect class="schnittkante" x="126.28" y="0" width="1.4" height="26"/></svg></div><p class="lage fehlt">0 箱 = 0 條　可供 0 人　還缺 133 人</p></div>
+<div class="knopf"><button type="button" data-m="-1" aria-label="Grundsteingasse 60 減一箱" disabled>−</button><button type="button" data-m="1" aria-label="Grundsteingasse 60 加一箱">＋</button></div>
+</div><div class="stelle" data-i="5">
+<div class="kopf"><svg viewBox="0 0 22 26" role="img" aria-hidden="true" focusable="false" style="fill:#1D5A86"><use href="#z-stelle"/></svg><div><b>Wattgasse 27</b><span>1170 Wien　·　取貨 15:00–18:00</span><span>社員 76 人　·　最低 19 條</span></div></div>
+<div class="feld"><div class="bild"><svg viewBox="0 0 384 26" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false"><rect x="0" y="0" width="72.96" height="26" fill="url(#p-mensch-schwarz)"/><rect class="schnittkante" x="71.56" y="0" width="1.4" height="26"/></svg></div><p class="lage fehlt">0 箱 = 0 條　可供 0 人　還缺 76 人</p></div>
+<div class="knopf"><button type="button" data-m="-1" aria-label="Wattgasse 27 減一箱" disabled>−</button><button type="button" data-m="1" aria-label="Wattgasse 27 加一箱">＋</button></div>
+</div>
+</div>
+<noscript><div style="border:2px solid var(--schwarz);padding:12px 14px;margin-top:16px">
+<b style="display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--zinnober);margin-bottom:6px">OHNE JAVASCRIPT 靜態備援</b>
+<p style="font-size:14.5px;max-width:70ch">配給板需要 JavaScript 才能動手分。下面是今天 24 箱按<b>最大餘數法</b>分出來的結果，也就是板上那個「公平基準線」：</p>
+<table style="margin-top:10px"><thead><tr><th>取貨點</th><th>社員</th><th>最低需求</th><th>配得</th><th>人均</th></tr></thead><tbody>
+<tr><td>Hasnerstraße 41</td><td class="z">184</td><td class="z">46 條</td><td class="z">6 箱 = 120 條</td><td class="z">0,65</td></tr><tr><td>Yppenplatz 3</td><td class="z">97</td><td class="z">25 條</td><td class="z">3 箱 = 60 條</td><td class="z">0,62</td></tr><tr><td>Meiselmarkt 12</td><td class="z">241</td><td class="z">61 條</td><td class="z">7 箱 = 140 條</td><td class="z">0,58</td></tr><tr><td>Klausgasse 8</td><td class="z">58</td><td class="z">15 條</td><td class="z">2 箱 = 40 條</td><td class="z">0,69</td></tr><tr><td>Grundsteingasse 60</td><td class="z">133</td><td class="z">34 條</td><td class="z">4 箱 = 80 條</td><td class="z">0,6</td></tr><tr><td>Wattgasse 27</td><td class="z">76</td><td class="z">19 條</td><td class="z">2 箱 = 40 條</td><td class="z">0,53</td></tr>
+</tbody></table></div></noscript>
+<div class="tasten">
+<button type="button" id="t-hare" class="leer">按最大餘數法分</button>
+<button type="button" id="t-leer" class="leer">清空</button>
+</div>
+<div class="abschluss" id="abschluss" hidden>
+<b class="gro">ABSCHLUSS 結算</b>
+<div id="ab-text"></div>
+</div>
+<details class="rechnung"><summary>這塊板怎麼算的</summary><div class="innen">
+<p class="text" style="margin-top:12px">結算用的是<b>沒有四捨五入的數字</b>，不是板子上畫出來的符號數。三件事各算一次：</p>
+<p class="text"><b>一、最低保障。</b>每個取貨點需要 <code>ceil(社員 ÷ 4)</code> 條。六個點加起來是 200 條，而今天只有 480 條，所以保障一定做得到——做不到的話是你分歪了，不是麵包不夠。</p>
+<p class="text"><b>二、公平基準線。</b>把 24 箱按社員數用<b>最大餘數法</b>（Hare quota／largest remainder）分：先算每個點的理論配額 <code>社員 ÷ 總社員 × 24</code>，各自取整數部分，剩下的箱按小數部分由大到小發。結果是 6 / 3 / 7 / 2 / 4 / 2 箱，人均 0,65 / 0,62 / 0,58 / 0,69 / 0,6 / 0,53 條，最大與最小差 0,16 條。這是整箱制度下能做到的最公平，不是完美——完美要拆箱。</p>
+<p class="text"><b>三、被切掉的人。</b>板子上一個朱紅小人代表好幾名社員，所以「剛好吃飽的那條界線」通常落在某個符號的中間。那半個符號被切斷，切口是黑的。結算會把六個切口加起來告訴你：這張圖上有多少人，是沒有被任何一個完整符號代表的。<b>圖跟帳可以不一致，但不可以不講。</b></p>
+</div></details>
+</section>
+</main>
+</div>
+<footer class="pata">
+<div><b class="gro">MITBROT</b><p>Genossenschaftsbäckerei<br>Hasnerstraße 41, 1160 Wien<br>+43 1 407 22 18<br>brett@mitbrot.at</p></div>
+<div><b class="gro">BACKSTUBE</b><p>週一–週六 03:00–13:00<br>門市 06:30–12:30<br>週日與國定假日不開爐<br>社員大會：每年三月第一個週四 19:00</p></div>
+<div><b class="gro">ABHOLSTELLEN</b><p>Hasnerstraße 41 · Yppenplatz 3<br>Meiselmarkt 12 · Klausgasse 8<br>Grundsteingasse 60 · Wattgasse 27<br>取貨時段見〈合作社〉頁</p></div>
+<p class="fikce">本站為設計範例。社名、人名、地址、電話、價格與全部數字皆為虛構示意。維也納社會經濟博物館（Gesellschafts- und Wirtschaftsmuseum in Wien, 1925）、Otto Neurath 的維也納圖形統計法、Gerd Arntz 自 1928 年起刻製的符號、Marie Reidemeister（後為 Marie Neurath）的 transformer 工作、1930 年《Gesellschaft und Wirtschaft》圖集、1934 年遷海牙、1942 年牛津 Isotype Institute，為真實史料。</p>
+<p class="built">本站由 <b>Claude Opus 5</b> 設計與建置（排程 Agent 自動執行，2026-09-22）。</p></footer>
+</div>
+<script>
+(function(){
+"use strict";
+var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var TW=24, TH=26, PITCH=30;
+function spalten(){ return (window.innerWidth||1200)<=560 ? 11 : 16; }
+function zahl(n){
+  var s=(Math.round(n*100)/100).toString().replace('.',',');
+  return s;
+}
+function feld(q, per, z, f, cols){
+  var S=q/per, breite=cols*TW;
+  var zeilen=Math.max(1, Math.ceil(S-1e-9));
+  zeilen=Math.max(1, Math.ceil(S/cols-1e-9));
+  var h=zeilen*PITCH-(PITCH-TH), out='', i, rest, w;
+  for(i=0;i<zeilen;i++){
+    rest=Math.min(cols, S-i*cols);
+    if(rest<=0) break;
+    w=rest*TW;
+    out+='<rect x="0" y="'+(i*PITCH)+'" width="'+(Math.round(w*100)/100)+'" height="'+TH+'" fill="url(#p-'+z+'-'+f+')"/>';
+    if(i===zeilen-1 && Math.abs(rest-Math.round(rest))>1e-9){
+      out+='<rect class="schnittkante" x="'+(Math.round((w-1.4)*100)/100)+'" y="'+(i*PITCH)+'" width="1.4" height="'+TH+'"/>';
+    }
+  }
+  return '<svg viewBox="0 0 '+breite+' '+h+'" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false">'+out+'</svg>';
+}
+function schluessel(per, einheit){ return '1 Zeichen = '+zahl(per)+' '+einheit; }
+function restsatz(q, per, einheit){
+  var S=q/per, br=S-Math.floor(S);
+  if(br<1e-9) return '';
+  return 'Rest ' + zahl(Math.round(br*per*100)/100) + ' ' + einheit + '（被切掉的那一塊）';
+}
+function feld2(q, qv, per, z, f, fv, cols){
+  var S=q/per, Sv=Math.min(qv,q)/per, breite=cols*TW;
+  var zeilen=Math.max(1, Math.ceil(S/cols-1e-9));
+  var h=zeilen*PITCH-(PITCH-TH), out='', i, rest, w, rv;
+  for(i=0;i<zeilen;i++){
+    rest=Math.min(cols, S-i*cols); if(rest<=0) break;
+    w=rest*TW;
+    out+='<rect x="0" y="'+(i*PITCH)+'" width="'+(Math.round(w*100)/100)+'" height="'+TH+'" fill="url(#p-'+z+'-'+f+')"/>';
+  }
+  for(i=0;i<zeilen;i++){
+    rv=Math.max(0, Math.min(cols, Sv-i*cols)); if(rv<=0) break;
+    out+='<rect x="0" y="'+(i*PITCH)+'" width="'+(Math.round(rv*TW*100)/100)+'" height="'+TH+'" fill="url(#p-'+z+'-'+fv+')"/>';
+    if(Math.abs(rv-Math.round(rv))>1e-9 && (i+1)*cols>=Sv)
+      out+='<rect class="schnittkante" x="'+(Math.round((rv*TW-1.4)*100)/100)+'" y="'+(i*PITCH)+'" width="1.4" height="'+TH+'"/>';
+  }
+  for(i=0;i<zeilen;i++){
+    rest=Math.min(cols, S-i*cols); if(rest<=0) break;
+    if(i===zeilen-1 && Math.abs(rest-Math.round(rest))>1e-9)
+      out+='<rect class="schnittkante" x="'+(Math.round((rest*TW-1.4)*100)/100)+'" y="'+(i*PITCH)+'" width="1.4" height="'+TH+'"/>';
+  }
+  return '<svg viewBox="0 0 '+breite+' '+h+'" preserveAspectRatio="xMinYMin meet" role="img" aria-hidden="true" focusable="false">'+out+'</svg>';
+}
+function hare(werte, sitze){
+  var tot=0,i; for(i=0;i<werte.length;i++) tot+=werte[i];
+  var q=[],f=[],s=0;
+  for(i=0;i<werte.length;i++){ q.push(werte[i]/tot*sitze); f.push(Math.floor(q[i])); s+=f[i]; }
+  var ord=[]; for(i=0;i<q.length;i++) ord.push([q[i]-f[i], i]);
+  ord.sort(function(a,b){ return b[0]-a[0]; });
+  for(i=0;i<sitze-s;i++) f[ord[i][1]]++;
+  return f;
+}
+
+
+
+/* ---------- ambient：爐次帶依訪客本地真實時刻推進 ---------- */
+(function(){
+  var spur=document.getElementById('spur'), jetzt=document.getElementById('jetzt'), uhr=document.getElementById('uhr');
+  if(!spur) return;
+  var A=300, B=870;                              /* 05:00 – 14:30 */
+  var gaenge=[[340,'Ofen 1 · 05:40'],[560,'Ofen 2 · 09:20'],[830,'Ofen 3 · 13:50']];
+  function zwei(n){ return (n<10?'0':'')+n; }
+  function tick(){
+    var d=new Date(), m=d.getHours()*60+d.getMinutes();
+    var p=Math.max(0,Math.min(1,(m-A)/(B-A)));
+    jetzt.style.left=(p*100)+'%';
+    var el=spur.querySelectorAll('.gang'), i, fertig=0, naechst=null;
+    for(i=0;i<el.length;i++){
+      var gm=+el[i].getAttribute('data-min');
+      el[i].style.left=(((gm-A)/(B-A))*100)+'%';
+      if(m>=gm){ el[i].className='gang'; fertig++; }
+      else { el[i].className='gang kalt'; if(naechst===null) naechst=gaenge[i][1]; }
+    }
+    uhr.textContent = zwei(d.getHours())+':'+zwei(d.getMinutes())+'　'
+      + (fertig===0 ? '今天還沒開爐　下一爐 05:40'
+      : fertig===3 ? '三爐都出完了'
+      : '第 '+fertig+' 爐已出　下一爐 '+naechst.slice(-5));
+  }
+  tick(); setInterval(tick, 30000);
+})();
+
+/* ---------- transition：進場由左往右揭開（讀圖的方向） ---------- */
+if(!RM){ document.body.classList.add('auf'); }
+
+/* ---------- 簽名動效〈切符號重列〉＋ input-driven 尺度桿 ---------- */
+(function(){
+  var knoepfe=[].slice.call(document.querySelectorAll('.massstab button'));
+  var stufe=1, messer=document.getElementById('messer');
+  function neuSetzen(){
+    var zeilen=[].slice.call(document.querySelectorAll('.zeile[data-q]')), cols=spalten();
+    zeilen.forEach(function(zl){
+      var q=+zl.getAttribute('data-q'), per=zl.getAttribute('data-per').split(',').map(Number)[stufe];
+      var z=zl.getAttribute('data-z'), f=zl.getAttribute('data-f'), e=zl.getAttribute('data-einheit');
+      zl.querySelector('.feld').innerHTML=feld(q,per,z,f,cols);
+      zl.querySelector('.schluessel').textContent=schluessel(per,e);
+      zl.querySelector('.rest').textContent=restsatz(q,per,e);
+      if(!RM){ zl.classList.remove('setzen'); void zl.offsetWidth; zl.classList.add('setzen'); }
+    });
+    if(window.MITBROT_neu) window.MITBROT_neu(stufe, cols);
+    if(!RM && messer){
+      messer.style.setProperty('--von', window.innerWidth+'px');
+      messer.style.setProperty('--bis','-4px');
+      messer.classList.remove('faehrt'); void messer.offsetWidth; messer.classList.add('faehrt');
+    }
+  }
+  knoepfe.forEach(function(b){
+    b.addEventListener('click', function(){
+      stufe=+b.getAttribute('data-st');
+      knoepfe.forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); });
+      neuSetzen();
+    });
+  });
+  var t=null;
+  window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(neuSetzen,160); }, {passive:true});
+  window.MITBROT_stufe=function(){ return stufe; };
+  if(spalten()!==16) neuSetzen();
+})();
+
+var ST=[184,97,241,58,133,76], KI=24, JE=20, MJ=4;
+var zu=[0,0,0,0,0,0];
+var stellen=[].slice.call(document.querySelectorAll('.stelle'));
+var vZahl=document.getElementById('v-zahl'), vFeld=document.getElementById('v-feld');
+var absch=document.getElementById('abschluss'), abText=document.getElementById('ab-text');
+function per(){ return [10,25,50][window.MITBROT_stufe?window.MITBROT_stufe():1]; }
+function summe(a){ var t=0,i; for(i=0;i<a.length;i++) t+=a[i]; return t; }
+function zeichnen(){
+  var cols=spalten(), rest=KI-summe(zu), p=per(), i;
+  vZahl.textContent=rest;
+  vFeld.innerHTML = rest>0 ? feld(rest,1,'kiste','zinnober',cols)
+    : '<span style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--zinnober)">alle verteilt 分完了</span>';
+  for(i=0;i<stellen.length;i++){
+    var laibe=zu[i]*JE, versorgt=Math.min(ST[i], laibe*MJ), fehlt=ST[i]-versorgt;
+    stellen[i].querySelector('.bild').innerHTML=feld2(ST[i],versorgt,p,'mensch','schwarz','zinnober',cols);
+    var l=stellen[i].querySelector('.lage');
+    l.className='lage'+(fehlt>0?' fehlt':'');
+    l.textContent=zu[i]+' 箱 = '+laibe+' 條　可供 '+versorgt+' 人'+(fehlt>0?('　還缺 '+fehlt+' 人'):'　全數有份');
+    stellen[i].querySelector('button[data-m="-1"]').disabled = zu[i]===0;
+    stellen[i].querySelector('button[data-m="1"]').disabled  = rest===0;
+  }
+  if(rest===0) rechnen(); else { absch.hidden=true; }
+}
+function rechnen(){
+  var p=per(), i, jeM=[], unter=[], scherbe=0;
+  for(i=0;i<ST.length;i++){
+    jeM.push(zu[i]*JE/ST[i]);
+    if(zu[i]*JE < Math.ceil(ST[i]/MJ)) unter.push(i);
+    var v=Math.min(ST[i], zu[i]*JE*MJ)/p; scherbe += (v-Math.floor(v))*p;
+  }
+  scherbe=Math.round(scherbe*100)/100;
+  var spann=Math.round((Math.max.apply(null,jeM)-Math.min.apply(null,jeM))*100)/100;
+  var fair=hare(ST,KI), fjeM=fair.map(function(b,k){ return b*JE/ST[k]; });
+  var fspann=Math.round((Math.max.apply(null,fjeM)-Math.min.apply(null,fjeM))*100)/100;
+  var namen=["Hasnerstraße 41","Yppenplatz 3","Meiselmarkt 12","Klausgasse 8","Grundsteingasse 60","Wattgasse 27"];
+  var h='';
+  h+='<p class="satz"><em>一、最低保障：</em>'+(unter.length===0
+      ? '六個點都過了。' : unter.map(function(k){ return namen[k]+' 差 '+(Math.ceil(ST[k]/MJ)-zu[k]*JE)+' 條'; }).join('；')+'。');
+  h+='</p><p class="satz"><em>二、人均：</em>最多 '+zahl(Math.round(Math.max.apply(null,jeM)*100)/100)+' 條、最少 '
+    +zahl(Math.round(Math.min.apply(null,jeM)*100)/100)+' 條，差 <b>'+zahl(spann)+' 條</b>。'
+    +'最大餘數法的基準線是差 '+zahl(fspann)+' 條（'+fair.join('／')+' 箱）。'
+    +(spann<=fspann+1e-9 ? '你分得跟基準線一樣好或更好。' : '你比基準線多拉開了 '+zahl(Math.round((spann-fspann)*100)/100)+' 條。')+'</p>';
+  h+='<p class="satz"><em>三、這張圖沒說的：</em>目前一個小人代表 '+p+' 人。'
+    +(scherbe<1e-9
+      ? '這一次剛好每一條朱紅界線都停在符號與符號之間，沒有人被切到——會這樣純屬巧合，換一個尺度就不成立了。'
+      : '朱紅界線切在符號中間的部分，六列合計 <b>'+zahl(scherbe)+' 人</b>——他們有麵包，但這張圖上沒有一個完整的符號屬於他們。')
+    +'把尺度轉到「fein 細」再看一次，這個數字會變小；轉到「grob 粗」會變大。圖沒有變，人也沒有變，變的只是你願意讓圖吞掉多少。</p>';
+  abText.innerHTML=h; absch.hidden=false;
+}
+stellen.forEach(function(el,i){
+  [].slice.call(el.querySelectorAll('button')).forEach(function(b){
+    b.addEventListener('click', function(){
+      var m=+b.getAttribute('data-m');
+      if(m>0 && KI-summe(zu)<=0) return;
+      if(m<0 && zu[i]<=0) return;
+      zu[i]+=m; zeichnen();
+    });
+  });
+});
+document.getElementById('t-hare').addEventListener('click', function(){ zu=hare(ST,KI); zeichnen(); });
+document.getElementById('t-leer').addEventListener('click', function(){ zu=[0,0,0,0,0,0]; zeichnen(); });
+window.MITBROT_neu=function(){ zeichnen(); };
+zeichnen();
+})();
+</script>
+</body>
+</html>

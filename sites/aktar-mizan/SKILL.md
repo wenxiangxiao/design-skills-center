@@ -40,13 +40,15 @@ description: Ottoman İznik ceramic style (1480–1600) — six fired glaze colo
 ```css
 svg [data-line="structure"] { stroke: #211E1A; stroke-width: 2;   }
 svg [data-line="detail"]    { stroke: #211E1A; stroke-width: 1.2; }
-svg * { vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+/* 尖角，不是圓角——圓角會把鬱金香頂端的三個尖磨平 */
+svg * { stroke-linejoin: miter; stroke-miterlimit: 8; stroke-linecap: butt; }
 ```
 
 實作時先畫加倍寬的錳黑描邊，再把平塗填色蓋上去，就得到「顏色不溢出輪廓」的釉下效果：
 
 ```html
-<path d="…" fill="none" stroke="#211E1A" stroke-width="4" stroke-linejoin="round"/>
+<path d="…" fill="none" stroke="#211E1A" stroke-width="4"
+      stroke-linejoin="miter" stroke-miterlimit="8"/>
 <path d="…" fill="#1B3C86"/>
 ```
 
@@ -78,7 +80,14 @@ for (const e of document.querySelectorAll('.cut')) {
 }
 ```
 
-無縫磚的做法：母題放在**環面**上——任何一個靠近邊界的母題，在 x±T、y±T 的位置各畫一份；藤蔓用週期等於 T 的正弦曲線，兩端自然接得上。
+無縫磚的做法：母題放在**環面**上——任何一個靠近邊界的母題，在 x±T、y±T 的位置各畫一份；藤蔓用週期等於 T 的正弦曲線，兩端自然接得上。每個母題只在 `<defs>` 裡定義一次，環面上的重複用 `<use>` 引用，所以一張含十二個母題、約三十次擺放的磚只有 22 KB。
+
+```js
+// defs 一次、use 多次；靠近邊界的母題在 x±T、y±T 各補一份
+defs += `<g id="m-${name}">${draw(MOTIFS[name](), 'translate(-50,-50)')}</g>`;
+for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+  g += `<use href="#m-${name}" transform="translate(${x + dx*T},${y + dy*T}) rotate(${rot}) scale(${sc})"/>`;
+```
 
 ### 特徵 4：器緣必有一條「岩波帶」，繞整圈且格數整除
 
@@ -365,15 +374,15 @@ const lale = () => [
 
 | 頁 | 單頁大小（含 inline 全部資源） | 外部請求 |
 |---|---|---|
-| `index.html` | 114.4 KB | 僅 Google Fonts |
-| `kavanoz.html` | 179.2 KB | 僅 Google Fonts |
-| `sir.html` | 244.5 KB | 僅 Google Fonts |
-| `posta.html` | 112.2 KB | 僅 Google Fonts |
+| `index.html` | 98.9 KB | 僅 Google Fonts |
+| `kavanoz.html` | 164.7 KB | 僅 Google Fonts |
+| `sir.html` | 215.2 KB | 僅 Google Fonts |
+| `posta.html` | 96.7 KB | 僅 Google Fonts |
 
 - 全部 ≤350 KB 的硬門檻。零外部圖片、零外部音檔、零 JS 相依、零 build step 產物被載入。
 - 首屏 JS：`index.html` 僅 719 bytes，工作是對 12 個元素各讀一次 `getBoundingClientRect()` 並寫兩個自訂屬性——單次量測 + 單次寫入，無 layout thrashing，實測 <100ms（實際在個位數毫秒）。
 - 動畫全部是 `clip-path` 與 `background-position`，不觸發版面重算；`resize` 事件以 120ms debounce 重新對花。
-- 藤蔓磚是一張 27 KB 的 SVG data URI，被瀏覽器解碼一次後重複平鋪，不隨裁片數增加。
+- 藤蔓磚是一張 22 KB 的 SVG data URI（`<defs>` ＋ `<use>`），被瀏覽器解碼一次後重複平鋪，不隨裁片數增加。
 
 ---
 

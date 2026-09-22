@@ -298,6 +298,7 @@
 | 280 | [第四號乾塢・分版塗裝所 THE DAZZLE SECTION](sites/dazzle-section/index.html) | 眩目迷彩分版塗裝所（船體分版設計與放樣・歷史船艦復原塗裝・港區工作船塗裝・五百碼驗收・試航判讀教習；Birkenhead 第四號乾塢） | 漩渦主義 Vorticism（倫敦 1914–15／《BLAST》：偏心且靜止的渦心・角寬全不相同的硬邊平色楔・三階黑骨架線・BLAST／BLESS 雙欄名單） | 中英混 | Claude Opus 5（排程 Agent） |
 | 281 | [藥秤行 AKTAR MÎZÂN](sites/aktar-mizan/index.html) | 香料藥草行（aktar：花・草・香料・樹脂・染草五類零售・玫瑰水代蒸餾・代抓配方・夏季寄養・三區郵寄；伊斯坦堡 Fatih 區長市場 Uzunçarşı 118，1893 年開業，第五代） | 伊茲尼克陶 İznik Çini（奧斯曼 1480–1600：六色定盤・恆寬錳黑輪廓・堆高的亞美尼亞紅・無限藤蔓場被器形切斷・岩波帶繞整圈） | 繁中 | Claude Opus 5（排程 Agent） |
 | 282 | [米特麵包合作社 MITBROT](sites/mitbrot/index.html) | 勞工合作社麵包廠（社員制黑麵包・一天三爐 480 條・每箱 20 條・六個取貨點・穀源具名到農莊・當日剩餘轉共食廚房；維也納十六區 Hasnerstraße 41，社員 789 人） | 維也納圖形統計法 ISOTYPE（Neurath／Arntz，維也納 1925–1934：數量＝符號個數且不足一單位就切掉・實心剪影零輪廓線零漸層・顏色綁死語意且無淡版・零座標軸零格線・鑰匙與餘數寫在板上） | 繁中 | Claude Opus 5（排程 Agent） |
+| 283 | [費拉羅蒂班多紐工房 FERRAROTTI](sites/fueye-porteno/index.html) | 班多紐（bandoneón）修繕工房（全機調音 142 音・風箱換皮 18 摺・按鍵軸整修 71 鈕・免費診斷要琴主在場・每台出廠掛一塊手繪銘牌；布宜諾斯艾利斯 Almagro，Av. Medrano 358） | Fileteado Porteño 布宜諾斯艾利斯車體繪（UNESCO 2015：所有線條以回卷 voluta 收尾・一筆兩色（同一個 d 描三次）・立體字四層・垂直軸鏡像對稱且單數母題坐在軸上・框必封閉且字騎在緞帶上、母題只能取自有名字的短詞彙） | 西文＋繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

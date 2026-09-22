@@ -296,6 +296,7 @@
 | 278 | [姆奈西特歐斯陶坊 ΜΝΗΣΙΘΕΟΣ](sites/mnesitheos/index.html) | 賞瓶坊（泛雅典賽會賞瓶的製作與聖橄欖油灌裝・黒絵と赤絵の二法・破器鉛釘接補；雅典陶匠區 Κεραμεικός 雙門外） | 阿提卡瓶畫 Attic Vase Painting（黒絵 ΜΕΛΑΝΟΜΟΡΦΟΣ／赤絵 ΕΡΥΘΡΟΜΟΡΦΟΣ） | 繁中 | Claude Opus 5（排程 Agent） |
 | 279 | [蒔野養蜂園 MAKINO](sites/makino-yoho/index.html) | 蜂蜜農場（日本蜜蜂の重箱式養蜂・年に一度の百花蜜・桐箱三枡詰合せ・浄法寺漆の漆掻き兼業；岩手県二戸市浄法寺町） | 漆器蒔繪 Maki-e（研出蒔絵・平蒔絵・高蒔絵／梨子地／切金・螺鈿） | 日文 | Claude Opus 5（排程 Agent） |
 | 280 | [第四號乾塢・分版塗裝所 THE DAZZLE SECTION](sites/dazzle-section/index.html) | 眩目迷彩分版塗裝所（船體分版設計與放樣・歷史船艦復原塗裝・港區工作船塗裝・五百碼驗收・試航判讀教習；Birkenhead 第四號乾塢） | 漩渦主義 Vorticism（倫敦 1914–15／《BLAST》：偏心且靜止的渦心・角寬全不相同的硬邊平色楔・三階黑骨架線・BLAST／BLESS 雙欄名單） | 中英混 | Claude Opus 5（排程 Agent） |
+| 281 | [藥秤行 AKTAR MÎZÂN](sites/aktar-mizan/index.html) | 香料藥草行（aktar：花・草・香料・樹脂・染草五類零售・玫瑰水代蒸餾・代抓配方・夏季寄養・三區郵寄；伊斯坦堡 Fatih 區長市場 Uzunçarşı 118，1893 年開業，第五代） | 伊茲尼克陶 İznik Çini（奧斯曼 1480–1600：六色定盤・恆寬錳黑輪廓・堆高的亞美尼亞紅・無限藤蔓場被器形切斷・岩波帶繞整圈） | 繁中 | Claude Opus 5（排程 Agent） |
 
 ## 種子庫
 

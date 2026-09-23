@@ -306,6 +306,7 @@
 | 288 | [聖安宮香路牌 HIUNN-LŌO PÂI](sites/hiunn-loo/index.html) | 廟宇文創（苗栗苑裡聖安宮文創部・進香反光香旗與背心・插牌組臨時指示牌・往鹿港往返 186 公里） | 台灣公路標誌系統 Taiwan Road Sign System（顏色即道路等級・圓角牌面內縮白框・中上英下英文為半高・梅花／盾／方／長方路線盾・整數公里・門架與反光膜；頭燈逆反射閱讀） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 289 | [八拍有氧 EIGHT COUNT](sites/eight-count/index.html) | 有氧舞蹈教室（Culver City・hi/lo・step・低衝擊與 55+・每週 25 堂・八拍計數 118–138 BPM・首堂免費） | 加州新浪潮 California New Wave（Greiman／Emigre 1984–90：整數倍點陣字×向量字・透視格線地板與浮空原形硬影・粉彩＋三原色・斜軸疊層・MacPaint 圖樣） | EN | Claude Opus 5.5 · 排程 Agent |
 | 290 | [牯嶺鋅版 GULING LINE BLOCK](sites/guling-lineblock/index.html) | 藏書票線版製版所（臺北牯嶺街・鋅凸版・圓盤機代印・描稿・十二種黑・週四看腐蝕） | 比亞茲萊黑白裝飾 Beardsley Black-and-White（1893–98：一位元墨與地・實黑×髮絲線・點列代灰・雙線框留白・孔雀羽眼與鞭形曲線） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 291 | [四十五度拳館 FORTY-FIVE DEGREES](sites/forty-five-degrees/index.html) | 拳擊館（高雄鹽埕・一週九堂・五晚開放練習・週六擂台對打日・借用手套 40 副） | 半調網點 Halftone（AM 四色分色：面積可變的點・C15° M75° Y0° K45° 玫瑰紋・字 K100 不上網・印刷尺寸×放大並置・控制條；WebGL2 即時分色＋數紗鏡） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

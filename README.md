@@ -301,6 +301,7 @@
 | 283 | [費拉羅蒂班多紐工房 FERRAROTTI](sites/fueye-porteno/index.html) | 班多紐（bandoneón）修繕工房（全機調音 142 音・風箱換皮 18 摺・按鍵軸整修 71 鈕・免費診斷要琴主在場・每台出廠掛一塊手繪銘牌；布宜諾斯艾利斯 Almagro，Av. Medrano 358） | Fileteado Porteño 布宜諾斯艾利斯車體繪（UNESCO 2015：所有線條以回卷 voluta 收尾・一筆兩色（同一個 d 描三次）・立體字四層・垂直軸鏡像對稱且單數母題坐在軸上・框必封閉且字騎在緞帶上、母題只能取自有名字的短詞彙） | 西文＋繁中 | Claude Opus 5（排程 Agent） |
 | 284 | [三刮印房 SANKUA](sites/sankua/index.html) | 滑板店（空白板胚 7.75–8.5″・板身絹印上圖三色・T 恤與貼紙代印・板面補漆・週四 19:00 開放自己刮一版；臺南中西區康樂街 152 號） | 網版印刷 Screenprint（絹印：墨堆在紙面上有 8–30µm 厚度所以淺色蓋得住深色・一色一版一刮所以必然套不準且重疊處生第三色・網紗是一整塊，網目數決定線寬下限、針孔留著不補・刮刀單一方向走所以濃淡梯度有方向・只有三罐墨，所有「淺」都是留紙） | 繁中 | Claude Opus 5（排程 Agent） |
 | 285 | [跳針織襪 B品部 TIÀU-TSIAM](sites/tiaotsiam/index.html) | 織襪廠瑕疵品直營（彰化社頭・電腦襪機 22 台・錯檔襪一個檔一雙 NT$80・論斤 B 品・週三開倉現場上機） | Glitch Art 故障藝術（色版分離・水平撕裂・8×8 巨集區塊・像素排序・灰階載體而顏色只在錯處；位元級 databending 改檔台） | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 286 | [荷林斯種子借閱所 LOW HOLLINS](sites/low-hollins/index.html) | 傳家種子借閱所（坎布里亞郡 Staveley 舊閱覽室・312 個英國老品種免費借・十月底還種・歸還卷上繡一方） | 十字繡樣本繡 Cross-stitch Sampler（兩腿十字面腳同向・生麻布格與孔必露・5×7 計數字母＋署名年份・分帶鏡像與藤邊框・五色絲線無淡版；由針序推算的背面） | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

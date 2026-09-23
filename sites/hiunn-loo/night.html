@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>暗暝行 — 用頭燈讀路牌的第一暝｜聖安宮香路牌</title>
+<meta name="description" content="夜間互動：用頭燈照亮反光路牌，四個路口選方向跟著神轎走到清水駐駕，拿一面自己的隨香路牌。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%222%22%20y%3D%228%22%20width%3D%2260%22%20height%3D%2248%22%20rx%3D%229%22%20fill%3D%22%2300704A%22%2F%3E%3Crect%20x%3D%226.5%22%20y%3D%2212.5%22%20width%3D%2251%22%20height%3D%2239%22%20rx%3D%226%22%20fill%3D%22none%22%20stroke%3D%22%23F5F7F3%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20d%3D%22M20%2044V30h14v-6l12%2010-12%2010v-6h-6v6z%22%20fill%3D%22%23F5F7F3%22%2F%3E%3Cpath%20d%3D%22M46%2018l-9%204%209%204z%22%20fill%3D%22%23F3B400%22%2F%3E%3Cpath%20d%3D%22M46%2017v12%22%20stroke%3D%22%23F5F7F3%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Overpass:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--asph:#1C1F1E;--asph2:#262A28;--line:#3A3F3C;--grn:#00704A;--grn2:#005A3B;--wht:#F5F7F3;--blu:#1D4F9E;--red:#D2232A;--brn:#6B3B22;--yel:#F3B400;--blk:#121413;--galv:#9AA09B;--dim:#A9B0AB;
+--zh:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--en:"Overpass","Arial Narrow",Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--asph);color:var(--wht);font:500 16px/1.75 var(--zh);-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--asph);overflow-x:hidden}
+a{color:inherit}
+img,svg{display:block}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:var(--yel);color:var(--blk);padding:6px 10px;z-index:99}
+:focus-visible{outline:3px solid var(--yel);outline-offset:3px}
+
+/* ===== sign system: every length is a multiple of H (Chinese cap height) ===== */
+.sign{container-type:inline-size;position:relative}
+.face{--H:calc(var(--k,9) * .62vw + 4px);display:block;position:relative;background:var(--bg,var(--grn));color:var(--fg,var(--wht));border-radius:calc(var(--H) * .5);padding:calc(var(--H) * .62) calc(var(--H) * .7);text-decoration:none}
+@supports (width:1cqi){.face{--H:calc(var(--k,9) * 1cqi)}}
+.face::before{content:"";position:absolute;inset:calc(var(--H) * .16);border:calc(var(--H) * .085) solid var(--edge,currentColor);border-radius:calc(var(--H) * .36);pointer-events:none}
+.zh{display:block;font:900 var(--H)/1.12 var(--zh);letter-spacing:.06em;font-style:normal}
+.en{display:block;font:700 calc(var(--H) * .5 / .7)/1.05 var(--en);font-style:normal;letter-spacing:.005em}
+.km{font:800 calc(var(--H) * 1.08)/1 var(--en);font-variant-numeric:tabular-nums;justify-self:end}
+.arw{width:calc(var(--H) * 1.5);height:calc(var(--H) * 1.5);flex:none}
+.shd{height:calc(var(--H) * 1.5);width:auto;flex:none}
+.shd.twp{height:calc(var(--H) * 1.4)}
+.face.blue{--bg:var(--blu)}.face.brown{--bg:var(--brn)}
+.face.white{--bg:var(--wht);--fg:var(--blk)}
+.face.aux{--bg:var(--wht);--fg:var(--blk)}
+/* 地名里程 rows: place / en / integer km */
+.dest{display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:calc(var(--H) * .55);padding:calc(var(--H) * .18) 0}
+.dest + .dest{border-top:0}
+.zh-s{font:900 calc(var(--H) * .62)/1.35 var(--zh);letter-spacing:.04em}
+.en-s{font:700 calc(var(--H) * .31 / .7)/1.3 var(--en);opacity:1}
+
+/* retroreflective glint (input) + passing headlight (ambient) */
+.rr{overflow:hidden;isolation:isolate}
+.rr::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at var(--mx,-40%) var(--my,-40%),rgba(255,255,240,.34),rgba(255,255,240,0) 38%);mix-blend-mode:screen;z-index:2}
+.sweep::after{background:
+ radial-gradient(circle at var(--mx,-40%) var(--my,-40%),rgba(255,255,240,.34),rgba(255,255,240,0) 38%),
+ linear-gradient(100deg,transparent 0 40%,rgba(255,255,235,.26) 47%,rgba(255,255,235,.05) 52%,transparent 60%) no-repeat;
+ background-size:auto,300% 100%;background-position:0 0,140% 0;animation:passcar 9s linear infinite}
+@keyframes passcar{0%,62%{background-position:0 0,140% 0}100%{background-position:0 0,-40% 0}}
+
+/* ===== nav gantry ===== */
+.gnav{position:sticky;top:0;z-index:40;display:grid;grid-template-columns:auto 1fr;align-items:end;gap:14px;padding:10px clamp(10px,3vw,28px) 16px;background:var(--asph)}
+.gnav .truss{grid-column:1/-1;height:12px;margin-top:-4px;background:
+ repeating-linear-gradient(60deg,transparent 0 7px,var(--galv) 7px 9px,transparent 9px 16px),
+ repeating-linear-gradient(-60deg,transparent 0 7px,var(--galv) 7px 9px,transparent 9px 16px);
+ border-top:3px solid var(--galv);border-bottom:3px solid var(--galv);opacity:.8}
+.brand{display:flex;gap:9px;align-items:center;text-decoration:none;padding-bottom:4px}
+.brand svg{width:44px;height:44px}
+.brand b{display:block;font:900 17px/1.1 var(--zh);letter-spacing:.08em}
+.brand i{display:block;font:700 10px/1.3 var(--en);letter-spacing:.08em;color:var(--dim);font-style:normal}
+.lanes{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:760px;margin-left:auto}
+.lane{container-type:inline-size}
+.lane .face{--k:11.5;display:flex;align-items:center;gap:calc(var(--H) * .45);padding:calc(var(--H) * .55) calc(var(--H) * .6);transition:transform .09s linear}
+.lane .zh{font-size:var(--H)}
+.lane .en{font-size:calc(var(--H) * .5 / .7)}
+.lane .arw{width:calc(var(--H) * 1.3);height:calc(var(--H) * 1.3);opacity:.9}
+.lane .face:not(.here){--bg:var(--grn2);--edge:rgba(245,247,243,.7)}
+.lane .face:not(.here):hover{transform:translateY(-2px);--bg:var(--grn)}
+.lane .face.here{box-shadow:0 7px 0 -3px var(--yel)}
+.lane .face.here .arw{color:var(--yel);opacity:1}
+
+/* ===== page pass (transition: driving under a gantry) ===== */
+.pass{position:fixed;inset:0;z-index:90;pointer-events:none;background:
+ repeating-linear-gradient(60deg,transparent 0 22px,rgba(154,160,155,.55) 22px 26px,transparent 26px 44px),var(--grn);clip-path:inset(0 0 100% 0)}
+html.js .pass{animation:passout .42s cubic-bezier(.55,.05,.35,1) both}
+@keyframes passout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(100% 0 0 0)}}
+html.leaving .pass{animation:passin .26s cubic-bezier(.6,0,.9,.4) both}
+@keyframes passin{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* ===== content blocks ===== */
+main{position:relative}
+.wrap{width:min(1180px,100% - 32px);margin-inline:auto}
+.lede{font:700 clamp(17px,1.9vw,21px)/1.7 var(--zh);max-width:34em}
+.body p{max-width:36em;margin:0 0 1em;color:#DCE0DB}
+.body p b{color:var(--wht)}
+.tag{display:inline-block;font:800 12px/1 var(--en);letter-spacing:.14em;color:var(--yel);text-transform:uppercase;margin-bottom:10px}
+h2.hd{display:flex;align-items:center;gap:14px;font:900 clamp(24px,3.2vw,36px)/1.2 var(--zh);letter-spacing:.06em;margin:0 0 18px}
+h2.hd .warn{width:clamp(46px,5vw,64px);height:auto;flex:none}
+h2.hd small{display:block;font:700 13px/1.2 var(--en);letter-spacing:.06em;color:var(--dim)}
+.post{width:14px;height:120px;background:repeating-linear-gradient(180deg,#F5F7F3 0 20px,#121413 20px 40px)}
+table.board{border-collapse:collapse;width:100%;font:500 15px/1.5 var(--zh)}
+table.board th,table.board td{padding:10px 12px;border-bottom:2px solid rgba(245,247,243,.35);text-align:left;vertical-align:top}
+table.board th{font:800 12px/1.2 var(--en);letter-spacing:.1em;color:var(--yel);text-transform:uppercase}
+table.board td.n{font:800 17px/1.3 var(--en);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.foot{display:grid;grid-template-columns:14px minmax(0,760px);gap:0 16px;align-items:end;padding:70px clamp(16px,4vw,48px) 40px}
+.foot .aux .face{--k:5.2}
+.foot .fine{grid-column:1/-1;margin-top:26px;font:500 12.5px/1.7 var(--zh);color:var(--dim);max-width:62em}
+
+@media (max-width:760px){
+ .gnav{grid-template-columns:1fr;gap:8px}
+ .brand svg{width:34px;height:34px}
+ .lanes{gap:6px;max-width:none;width:100%}
+ .lane .face{--k:15;flex-direction:column;align-items:flex-start;gap:3px}
+ .lane .arw{width:calc(var(--H) * 1.1);height:calc(var(--H) * 1.1)}
+}
+@media (max-width:560px){
+ .lane .en{display:none}
+ .lane .face{--k:17}
+ .foot .aux .face{--k:6.4}
+ .foot{grid-template-columns:10px 1fr}
+ .post{width:10px}
+}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important}
+ html.js .pass,html.leaving .pass{clip-path:inset(0 0 100% 0)}
+}
+
+.nhead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:clamp(20px,4vw,50px);align-items:end;padding-top:clamp(28px,5vw,60px)}
+.nhead h1{font:900 clamp(28px,4vw,46px)/1.15 var(--zh);letter-spacing:.06em}
+.nhead h1 small{display:block;font:700 clamp(13px,1.5vw,17px)/1.3 var(--en);color:var(--dim);margin-top:6px}
+.nhead ol{list-style:none;counter-reset:r;font-size:14.5px;color:#DCE0DB}
+.nhead ol li{counter-increment:r;display:grid;grid-template-columns:28px 1fr;margin-bottom:6px}
+.nhead ol li::before{content:counter(r);font:800 15px/1.6 var(--en);color:var(--yel)}
+.rig{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;border:3px solid #3B403D}
+.scene{--x:50%;--y:88%;--r:110px;position:relative;height:min(64vh,620px);min-height:420px;overflow:hidden;background:#171A19;touch-action:none;cursor:crosshair;user-select:none}
+.scene.hi{--r:1400px}
+.ground{position:absolute;inset:0}
+.ground svg{width:100%;height:100%}
+.lantern{position:absolute;width:7px;height:7px;border-radius:50%;background:#FFB347;top:37%;box-shadow:0 0 6px 2px rgba(255,170,60,.6);animation:bob 1.6s ease-in-out infinite;z-index:6}
+.lantern.b{animation-delay:-.5s}.lantern.c{animation-delay:-1.1s}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.dark-a,.dark-b{position:absolute;inset:0;pointer-events:none;background:#030404}
+.dark-a{z-index:2;opacity:.975;-webkit-mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0 30%,#000 100%);mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),transparent 0 30%,#000 100%)}
+.dark-b{z-index:5;opacity:.93;-webkit-mask-image:radial-gradient(circle calc(var(--r) * 2.6) at var(--x) var(--y),transparent 0 58%,#000 100%);mask-image:radial-gradient(circle calc(var(--r) * 2.6) at var(--x) var(--y),transparent 0 58%,#000 100%)}
+.rrl{position:absolute;inset:0;z-index:3}
+.jsign{position:absolute;right:4%;top:5%;width:min(46%,400px);transform-origin:70% 100%}
+.jsign .face{--k:6.6;padding:calc(var(--H) * .5) calc(var(--H) * .6)}
+.jsign .gx{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:calc(var(--H) * .4);padding:calc(var(--H) * .14) 0}
+.jsign .gx + .gx{border-top:calc(var(--H) * .07) solid rgba(245,247,243,.9)}
+.jsign .shd{height:calc(var(--H) * 1.35)}.jsign .shd.twp{height:calc(var(--H) * 1.25)}
+.jsign .arw{width:calc(var(--H) * 1.3);height:calc(var(--H) * 1.3)}
+.jsign .km{font-size:calc(var(--H) * 1.05)}
+.jsign .hdr{display:block;font:700 calc(var(--H) * .38 / .7)/1.3 var(--en);opacity:.92;margin-bottom:calc(var(--H) * .2);letter-spacing:.03em}
+.jpost{position:absolute;right:calc(4% + min(23%,200px) - 7px);top:14%;bottom:0;width:14px;background:repeating-linear-gradient(180deg,#F5F7F3 0 20px,#121413 20px 40px);z-index:1}
+.rrl .face{transition:filter .08s linear}
+.hot{filter:brightness(1.22) saturate(1.08)}
+.flag{position:absolute;width:26px;height:40px}
+.flag i{position:absolute;left:0;top:0;width:3px;height:40px;background:#8b8f8c}
+.flag b{position:absolute;left:3px;top:0;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:22px solid #F3B400}
+.delin{position:absolute;width:6px;height:34px;background:#DCDCD6}
+.delin::before{content:"";position:absolute;left:0;right:0;top:4px;height:8px;background:#F3B400}
+.hud{background:var(--asph2);padding:16px;display:flex;flex-direction:column;gap:14px;border-left:3px solid #3B403D}
+.hud .row{display:flex;justify-content:space-between;font:800 13px/1.2 var(--en);letter-spacing:.08em;color:var(--dim);text-transform:uppercase}
+.hud .row b{font:800 26px/1 var(--en);color:var(--wht);font-variant-numeric:tabular-nums;letter-spacing:0}
+.jname{font:900 19px/1.3 var(--zh);letter-spacing:.05em}
+.jname small{display:block;font:700 12px/1.3 var(--en);color:var(--dim);letter-spacing:.04em}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pad button,.hbtn,.again{font:800 15px/1 var(--zh);background:var(--grn);color:var(--wht);border:0;border-radius:8px;padding:14px 4px;cursor:pointer;box-shadow:inset 0 0 0 2px var(--grn),inset 0 0 0 4px var(--wht)}
+.pad button:hover{background:#00845A}
+.pad button span{display:block;font:800 22px/1 var(--en);margin-bottom:5px}
+.hbtn{background:#333836;box-shadow:inset 0 0 0 2px #333836,inset 0 0 0 4px var(--dim);font-size:14px;padding:11px}
+.hbtn[aria-pressed="true"]{background:var(--yel);color:var(--blk);box-shadow:inset 0 0 0 2px var(--yel),inset 0 0 0 4px var(--blk)}
+.log{font-size:14px;line-height:1.7;color:#DCE0DB;min-height:7em}
+.log b{color:var(--yel);font-weight:800}
+.hint{position:absolute;left:14px;bottom:12px;z-index:7;font:700 12px/1.4 var(--en);letter-spacing:.08em;color:#8E958F;text-transform:uppercase;pointer-events:none}
+.result{display:none;margin-top:28px;grid-template-columns:minmax(0,620px) minmax(0,1fr);gap:clamp(20px,4vw,50px);align-items:start}
+.result.on{display:grid}
+.result .face{--k:6.2}
+.result .gx{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:calc(var(--H) * .5);padding:calc(var(--H) * .12) 0}
+.result .gx .shd{height:calc(var(--H) * 1.3)}
+.result .tot{border-top:calc(var(--H) * .08) solid var(--wht);margin-top:calc(var(--H) * .3);padding-top:calc(var(--H) * .3)}
+.result .serial{display:flex;justify-content:space-between;font:800 calc(var(--H) * .36)/1.2 var(--en);letter-spacing:.1em;margin-bottom:calc(var(--H) * .3)}
+.verdict h2{font:900 clamp(26px,3.4vw,38px)/1.2 var(--zh);letter-spacing:.06em;margin-bottom:10px}
+.verdict p{color:#DCE0DB;margin-bottom:12px}
+.again{padding:13px 18px;margin-right:10px}
+.verdict a.buy{font-weight:800;color:var(--yel)}
+details.all{margin-top:40px;border:2px solid #3B403D;padding:14px 18px}
+details.all summary{cursor:pointer;font-weight:800}
+details.all table{margin-top:10px}
+@media (max-width:900px){.rig{grid-template-columns:1fr}.hud{border-left:0;border-top:3px solid #3B403D}.nhead,.result{grid-template-columns:1fr}}
+@media (max-width:560px){.scene{height:58vh;min-height:360px;--r:80px}.jsign{width:78%;right:3%;top:4%}.jsign .face{--k:7.4}.jpost{right:calc(3% + 39% - 5px);width:10px;top:12%}.result .face{--k:7.6}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到內容</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 64 64"><rect x="2" y="8" width="60" height="48" rx="9" fill="#00704A"/><rect x="6.5" y="12.5" width="51" height="39" rx="6" fill="none" stroke="#F5F7F3" stroke-width="3"/><path d="M20 44V30h14v-6l12 10-12 10v-6h-6v6z" fill="#F5F7F3"/><path d="M46 17v12" stroke="#F5F7F3" stroke-width="2"/><path d="M46 18l-9 4 9 4z" fill="#F3B400"/></symbol></svg>
+<div class="pass" aria-hidden="true"></div>
+<header class="gnav" aria-label="主導覽">
+  <a class="brand" href="index.html" aria-label="聖安宮香路牌 首頁"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo"/></svg><span><b>聖安宮香路牌</b><i>SING-AN · HIUNN-LŌO PÂI</i></span></a>
+  <nav><ul class="lanes"><li class="lane"><a class="face" href="index.html"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M52 8v31l-10-10-24 24-11-11 24-24-10-10z" fill="currentColor"/></svg><span><b class="zh">香路牌</b><i class="en">Signworks</i></span></a></li><li class="lane"><a class="face" href="route.html"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M52 8v31l-10-10-24 24-11-11 24-24-10-10z" fill="currentColor"/></svg><span><b class="zh">香路</b><i class="en">The Route</i></span></a></li><li class="lane"><a class="face" href="shop.html"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M52 8v31l-10-10-24 24-11-11 24-24-10-10z" fill="currentColor"/></svg><span><b class="zh">牌仔店</b><i class="en">Sign Shop</i></span></a></li><li class="lane"><a class="face here" href="night.html" aria-current="page"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M30 56 52 32H38V4H22v28H8z" fill="currentColor"/></svg><span><b class="zh">暗暝行</b><i class="en">Night Leg</i></span></a></li></ul></nav>
+  <div class="truss" aria-hidden="true"></div>
+</header>
+<main id="main">
+
+<section class="wrap nhead">
+ <div>
+  <span class="tag">Night leg · 第一暝 · 大甲溪以南</span>
+  <h1>暗暝行<small>Four junctions, one headlamp, until the palanquin rests</small></h1>
+  <p class="lede">凌晨 02:10，你在大甲。轎在前面某個地方，駐駕處在清水。路口的牌是插牌組剛插的，不照到讀不到。</p>
+ </div>
+ <ol>
+  <li>移動游標或手指當頭燈——反光牌會比柏油亮很多，找得到字，也找得到轎子那一側被照亮的黃色香旗。</li>
+  <li>每個路口選一個方向：跟轎走比較遠，但會遇到事；抄捷徑比較快，但會錯過。</li>
+  <li>走完四個路口，拿到一面印著你這一暝路線的隨香路牌。</li>
+ </ol>
+</section>
+
+<section class="wrap" aria-label="暗暝行">
+ <div class="rig">
+  <div class="scene" id="scene" tabindex="0" role="application" aria-roledescription="夜間路口" aria-label="夜間路口，用方向鍵選路，H 開遠燈" aria-describedby="scene-desc">
+   <div class="ground" aria-hidden="true">
+    <svg viewBox="0 0 800 600" preserveAspectRatio="none">
+     <rect width="800" height="600" fill="#1B1E1D"/>
+     <path d="M300 600 L372 250 L428 250 L500 600Z" fill="#2E3331"/>
+     <path d="M0 330 L372 262 L380 292 L0 420Z" fill="#2B302E"/>
+     <path d="M800 330 L428 262 L420 292 L800 420Z" fill="#2B302E"/>
+     <path d="M400 600 L400 262" stroke="#E6E6DF" stroke-width="5" stroke-dasharray="26 32" id="cl"/>
+     <path d="M312 600 L374 262M488 600 L426 262" stroke="#E6E6DF" stroke-width="3"/>
+     <path d="M0 375 L376 277M800 375 L424 277" stroke="#E6E6DF" stroke-width="2" stroke-dasharray="18 22"/>
+    </svg>
+   </div>
+   <div class="dark-a" aria-hidden="true"></div>
+   <div class="rrl" id="rrl">
+    <span class="lantern a" id="ln1" aria-hidden="true"></span><span class="lantern b" id="ln2" aria-hidden="true"></span><span class="lantern c" id="ln3" aria-hidden="true"></span>
+    <span class="delin" style="left:33%;top:62%" aria-hidden="true"></span><span class="delin" style="left:25%;top:74%" aria-hidden="true"></span>
+    <span class="delin" style="left:61%;top:60%;height:26px" aria-hidden="true"></span><span class="delin" style="left:68%;top:72%" aria-hidden="true"></span>
+    <span class="flag" id="flag" aria-hidden="true"><i></i><b></b></span>
+    <div class="jpost" aria-hidden="true"></div>
+    <div class="sign jsign" id="jsign"><div class="face" id="jface"><span class="hdr">Dajia · Shuntian Rd.</span><div class="gx"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M30 4 52 28H38v28H22V28H8z" fill="currentColor"/></svg><svg class="shd prov" viewBox="0 0 100 100" role="img" aria-label="省道台1線"><path d="M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z" fill="#1D4F9E"/><path d="M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z" fill="none" stroke="#F5F7F3" stroke-width="5" transform="translate(50 50) scale(.86) translate(-50 -50)"/><path d="M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z" fill="none" stroke="#1D4F9E" stroke-width="2" transform="translate(50 50) scale(.79) translate(-50 -50)"/><text x="50" y="38" text-anchor="middle" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="19" fill="#F5F7F3">台</text><text x="50" y="74" text-anchor="middle" font-family="Overpass,Arial,sans-serif" font-weight="800" font-size="40" fill="#F5F7F3">1</text></svg><span><span class="zh">大甲溪橋</span><i class="en">Dajia River Br.</i></span><span class="km">3</span></div><div class="gx"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M4 30 28 8v14h28v16H28v14z" fill="currentColor"/></svg><svg class="shd twp" viewBox="0 0 140 100" role="img" aria-label="區道中44線"><rect x="5" y="14" width="130" height="72" rx="7" fill="#F5F7F3" stroke="#121413" stroke-width="6"/><text x="44" y="64" text-anchor="middle" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="34" fill="#121413">中</text><text x="96" y="66" text-anchor="middle" font-family="Overpass,Arial,sans-serif" font-weight="800" font-size="38" fill="#121413">44</text></svg><span><span class="zh">外埔</span><i class="en">Waipu</i></span><span class="km">6</span></div><div class="gx"><svg class="arw" viewBox="0 0 60 60" aria-hidden="true"><path d="M56 30 32 8v14H4v16h28v14z" fill="currentColor"/></svg><svg class="shd prov" viewBox="0 0 100 100" role="img" aria-label="快速公路台61線"><path d="M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z" fill="#D2232A"/><path d="M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z" fill="none" stroke="#F5F7F3" stroke-width="5" transform="translate(50 50) scale(.86) translate(-50 -50)"/><path d="M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z" fill="none" stroke="#D2232A" stroke-width="2" transform="translate(50 50) scale(.79) translate(-50 -50)"/><text x="50" y="38" text-anchor="middle" font-family="'Noto Sans TC',sans-serif" font-weight="900" font-size="19" fill="#F5F7F3">台</text><text x="50" y="74" text-anchor="middle" font-family="Overpass,Arial,sans-serif" font-weight="800" font-size="34" fill="#F5F7F3">61</text></svg><span><span class="zh">大安港</span><i class="en">Da'an Harbor</i></span><span class="km">7</span></div></div></div>
+   </div>
+   <div class="dark-b" aria-hidden="true"></div>
+   <p class="hint" id="hint">Move the pointer · 頭燈</p>
+  </div>
+  <div class="hud">
+   <div class="jname" id="jname">路口 1／4　大甲・順天路口<small>Dajia · Shuntian Rd.</small></div>
+   <div class="row"><span>Time<br><b id="clk">02:10</b></span><span>Walked<br><b id="kmv">0.0</b></span><span>Stamps<br><b id="stv">0</b></span></div>
+   <div class="pad" role="group" aria-label="選方向">
+    <button type="button" data-d="L"><span>←</span>左轉</button>
+    <button type="button" data-d="S"><span>↑</span>直行</button>
+    <button type="button" data-d="R"><span>→</span>右轉</button>
+   </div>
+   <button type="button" class="hbtn" id="hi" aria-pressed="false">遠燈（全部照亮）· H</button>
+   <div class="log" id="log" aria-live="polite">先點一下畫面，鍵盤就能用：← ↑ → 選方向，H 開遠燈。</div>
+  </div>
+ </div>
+ <p id="scene-desc" class="hint" style="position:static;margin-top:8px">這個畫面是夜間路口：右側牌桿上一面綠底地名方向牌，列出直行、左轉、右轉三個去處與公里數；神轎的香旗與燈籠在它走的那一側。</p>
+
+ <div class="result" id="result" aria-live="polite">
+  <div class="sign"><div class="face rr" id="rface"></div></div>
+  <div class="verdict" id="verdict"></div>
+ </div>
+
+ <details class="all">
+  <summary>不用頭燈：四個路口的全部牌面與去處（無障礙與無 JavaScript 版本）</summary>
+  <table class="board"><thead><tr><th>#</th><th>路口</th><th>方向</th><th>牌面</th><th>實走</th><th>轎</th></tr></thead><tbody><tr><td class="n">1</td><td>大甲・順天路口</td><td>直行</td><td>大甲溪橋（Dajia River Br.）3</td><td class="n">2.9 km / 42 分</td><td>轎往這走</td></tr><tr><td class="n">1</td><td>大甲・順天路口</td><td>左轉</td><td>外埔（Waipu）6</td><td class="n">4.6 km / 70 分</td><td></td></tr><tr><td class="n">1</td><td>大甲・順天路口</td><td>右轉</td><td>大安港（Da'an Harbor）7</td><td class="n">1.2 km / 38 分</td><td></td></tr><tr><td class="n">2</td><td>大甲溪南・甲南</td><td>直行</td><td>高美（Gaomei）5</td><td class="n">3.8 km / 58 分</td><td></td></tr><tr><td class="n">2</td><td>大甲溪南・甲南</td><td>左轉</td><td>清水市區（Qingshui）9</td><td class="n">3.4 km / 50 分</td><td></td></tr><tr><td class="n">2</td><td>大甲溪南・甲南</td><td>右轉</td><td>田寮（Tianliao）1</td><td class="n">2.2 km / 46 分</td><td>轎往這走</td></tr><tr><td class="n">3</td><td>清水・中山路口</td><td>直行</td><td>清水 駐駕（Qingshui (rest)）3</td><td class="n">2.4 km / 36 分</td><td>轎往這走</td></tr><tr><td class="n">3</td><td>清水・中山路口</td><td>左轉</td><td>鰲峰山（Aofeng Hill）2</td><td class="n">2.6 km / 48 分</td><td></td></tr><tr><td class="n">3</td><td>清水・中山路口</td><td>右轉</td><td>台中港（Taichung Port）10</td><td class="n">1.6 km / 30 分</td><td></td></tr><tr><td class="n">4</td><td>清水・鰲峰路口</td><td>直行</td><td>沙鹿（Shalu）9</td><td class="n">1.8 km / 40 分</td><td></td></tr><tr><td class="n">4</td><td>清水・鰲峰路口</td><td>左轉</td><td>駐駕處（Rest stop）1</td><td class="n">0.9 km / 18 分</td><td>轎往這走</td></tr><tr><td class="n">4</td><td>清水・鰲峰路口</td><td>右轉</td><td>清水車站（Qingshui Stn.）2</td><td class="n">1.2 km / 25 分</td><td></td></tr></tbody></table>
+ </details>
+ <noscript><p class="lede" style="margin-top:14px">沒有 JavaScript 時頭燈不會動、路口不會前進；四個路口的所有牌面都列在上面的表裡。</p></noscript>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="post" aria-hidden="true"></div>
+  <div class="sign aux"><div class="face">
+    <p class="zh-s">苗栗縣苑裡鎮海墘里海墘路 88 號　聖安宮右廂</p>
+    <p class="en-s">No. 88, Haikinn Rd., Yuanli Township, Miaoli County</p>
+    <p class="zh-s">電話 (037) 868-205　週二至週日 09:00–18:00　週一休</p>
+    <p class="en-s">進香前七日（農曆三月初一起）二十四小時開門 · Open 24 h for the seven days before the pilgrimage</p>
+  </div></div>
+  <p class="fine">聖安宮香路牌為虛構品牌，地址、電話與路線皆為示意。牌面顏色、盾徽形狀、中英字高比例依交通部《道路交通標誌標線號誌設置規則》第 11、12、15、88–90 條繪製；本站不是官方標誌，請勿據以行車。<br>© 2026 聖安宮文創部 · 牌面手寫 林秀鑾 · 設計 陳柏諺</p>
+</footer>
+<script>
+(function(){
+ var d=document.documentElement;
+ var gn=document.querySelector('.gnav');
+ function nh(){d.style.setProperty('--navh',gn.offsetHeight+'px')}
+ if(gn){nh();if('ResizeObserver' in window)new ResizeObserver(nh).observe(gn)}
+ var rm=matchMedia('(prefers-reduced-motion: reduce)');
+ // input: retroreflective glint follows the pointer on every .rr panel
+ document.addEventListener('pointermove',function(e){
+  var t=e.target.closest&&e.target.closest('.rr');if(!t)return;
+  var r=t.getBoundingClientRect();
+  t.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
+  t.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
+ },{passive:true});
+ document.addEventListener('pointerout',function(e){var t=e.target.closest&&e.target.closest('.rr');if(t&&!t.contains(e.relatedTarget)){t.style.removeProperty('--mx');t.style.removeProperty('--my');}});
+ // transition: drive under a gantry between pages
+ document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('a[href$=".html"]');
+  if(!a||e.metaKey||e.ctrlKey||e.shiftKey||a.target||rm.matches)return;
+  if(a.getAttribute('href').indexOf('//')>-1)return;
+  e.preventDefault();d.classList.add('leaving');
+  setTimeout(function(){location.href=a.href},250);
+ });
+ addEventListener('pageshow',function(){d.classList.remove('leaving')});
+})();
+(function(){
+var J=[{"name":"大甲・順天路口","en":"Dajia · Shuntian Rd.","palanquin":"S","opts":{"S":{"zh":"大甲溪橋","en":"Dajia River Br.","km":3,"sh":["prov","1",""],"walk":2.9,"min":42,"stamp":"","story":"你跟著轎前的鑼聲上橋。橋上風大，所有香旗都往北倒，一整排反光條一路亮到橋尾。"},"L":{"zh":"外埔","en":"Waipu","km":6,"sh":["twp","44","中"],"walk":4.6,"min":70,"stamp":"米粉湯","story":"外埔農會前有人擺點心站，米粉湯加油蔥，一碗一碗遞出來。你喝完才發現，隊伍的燈已經在另一條路上了。"},"R":{"zh":"大安港","en":"Da'an Harbor","km":7,"sh":["exp","61",""],"walk":1.2,"min":38,"stamp":"","story":"往台 61 的匝道口站著一位警員：快速公路，行人不能上。你照原路繞回路口，白走一段。"}}},{"name":"大甲溪南・甲南","en":"Jianan, south bank","palanquin":"R","opts":{"S":{"zh":"高美","en":"Gaomei","km":5,"sh":["twp","47","中"],"walk":3.8,"min":58,"stamp":"","story":"往海邊的路沒有路燈。頭燈照到一面舊的棕底觀光牌，寫著高美濕地，風裡有鹽味。轎不在這裡，你切回台 1。"},"L":{"zh":"清水市區","en":"Qingshui","km":9,"sh":["prov","1",""],"walk":3.4,"min":50,"stamp":"","story":"台 1 線的路燈一盞接一盞，你走得很快。路肩上沒有新鮮的香灰——轎沒有走這條。"},"R":{"zh":"田寮","en":"Tianliao","km":1,"sh":["twp","42","中"],"walk":2.2,"min":46,"stamp":"過爐","story":"轎在田寮福德祠前停了四十分鐘。村長端出一盆炸粿，香客排成一列從轎底下鑽過去——過爐。你也鑽了。"}}},{"name":"清水・中山路口","en":"Qingshui · Zhongshan Rd.","palanquin":"S","opts":{"S":{"zh":"清水 駐駕","en":"Qingshui (rest)","km":3,"sh":["prov","1",""],"walk":2.4,"min":36,"stamp":"平安水","story":"中山路兩邊的店把鐵捲門拉起一半，掛出我們做的「當心香客」牌。有個阿伯在門口發礦泉水，每一瓶都用奇異筆寫了「平安」。"},"L":{"zh":"鰲峰山","en":"Aofeng Hill","km":2,"sh":["cty","121",""],"walk":2.6,"min":48,"stamp":"","story":"你想從鰲峰山步道抄近路，步道盡頭是一片墓仔埔。原路下山時，頭燈照到的每一面牌都在講同一件事：你走錯了。"},"R":{"zh":"台中港","en":"Taichung Port","km":10,"sh":["prov","10",""],"walk":1.6,"min":30,"stamp":"","story":"往港區全是貨櫃車。你在路口站了一分鐘，看著車燈把你身上的反光條照成一條白線，然後轉身回來。"}}},{"name":"清水・鰲峰路口","en":"Qingshui · Aofeng Rd.","palanquin":"L","opts":{"S":{"zh":"沙鹿","en":"Shalu","km":9,"sh":["prov","1",""],"walk":1.8,"min":40,"stamp":"","story":"你走過頭了。一台插牌組的機車追上來，把一面臨時牌塞給你：「駐駕在後面，你拿著走回去，順便幫我插在路口。」"},"L":{"zh":"駐駕處","en":"Rest stop","km":1,"sh":["twp","3","清"],"walk":0.9,"min":18,"stamp":"駐駕","story":"轎在廣場停下，鞭炮從四個角同時響。有人喊「駐駕——」，你看了一下手錶。"},"R":{"zh":"清水車站","en":"Qingshui Stn.","km":2,"sh":["twp","3","清"],"walk":1.2,"min":25,"stamp":"","story":"車站前的計程車司機說，每年這一晚都有人走到這裡就不走了。你沒有上車，往回走。"}}}];
+var SIGNS=["<span class=\"hdr\">Dajia · Shuntian Rd.</span><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M30 4 52 28H38v28H22V28H8z\" fill=\"currentColor\"/></svg><svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台1線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"40\" fill=\"#F5F7F3\">1</text></svg><span><span class=\"zh\">大甲溪橋</span><i class=\"en\">Dajia River Br.</i></span><span class=\"km\">3</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M4 30 28 8v14h28v16H28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道中44線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">中</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">44</text></svg><span><span class=\"zh\">外埔</span><i class=\"en\">Waipu</i></span><span class=\"km\">6</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M56 30 32 8v14H4v16h28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"快速公路台61線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#D2232A\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#D2232A\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"#F5F7F3\">61</text></svg><span><span class=\"zh\">大安港</span><i class=\"en\">Da'an Harbor</i></span><span class=\"km\">7</span></div>","<span class=\"hdr\">Jianan, south bank</span><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M30 4 52 28H38v28H22V28H8z\" fill=\"currentColor\"/></svg><svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道中47線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">中</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">47</text></svg><span><span class=\"zh\">高美</span><i class=\"en\">Gaomei</i></span><span class=\"km\">5</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M4 30 28 8v14h28v16H28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台1線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"40\" fill=\"#F5F7F3\">1</text></svg><span><span class=\"zh\">清水市區</span><i class=\"en\">Qingshui</i></span><span class=\"km\">9</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M56 30 32 8v14H4v16h28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道中42線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">中</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">42</text></svg><span><span class=\"zh\">田寮</span><i class=\"en\">Tianliao</i></span><span class=\"km\">1</span></div>","<span class=\"hdr\">Qingshui · Zhongshan Rd.</span><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M30 4 52 28H38v28H22V28H8z\" fill=\"currentColor\"/></svg><svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台1線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"40\" fill=\"#F5F7F3\">1</text></svg><span><span class=\"zh\">清水 駐駕</span><i class=\"en\">Qingshui (rest)</i></span><span class=\"km\">3</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M4 30 28 8v14h28v16H28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd cty\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"市道121線\"><rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"8\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"50\" y=\"64\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"36\" fill=\"#121413\">121</text></svg><span><span class=\"zh\">鰲峰山</span><i class=\"en\">Aofeng Hill</i></span><span class=\"km\">2</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M56 30 32 8v14H4v16h28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台10線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"#F5F7F3\">10</text></svg><span><span class=\"zh\">台中港</span><i class=\"en\">Taichung Port</i></span><span class=\"km\">10</span></div>","<span class=\"hdr\">Qingshui · Aofeng Rd.</span><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M30 4 52 28H38v28H22V28H8z\" fill=\"currentColor\"/></svg><svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台1線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"40\" fill=\"#F5F7F3\">1</text></svg><span><span class=\"zh\">沙鹿</span><i class=\"en\">Shalu</i></span><span class=\"km\">9</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M4 30 28 8v14h28v16H28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道清3線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">清</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">3</text></svg><span><span class=\"zh\">駐駕處</span><i class=\"en\">Rest stop</i></span><span class=\"km\">1</span></div><div class=\"gx\"><svg class=\"arw\" viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M56 30 32 8v14H4v16h28v14z\" fill=\"currentColor\"/></svg><svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道清3線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">清</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">3</text></svg><span><span class=\"zh\">清水車站</span><i class=\"en\">Qingshui Stn.</i></span><span class=\"km\">2</span></div>"];
+var SH={"prov|1|":"<svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台1線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"40\" fill=\"#F5F7F3\">1</text></svg>","twp|44|中":"<svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道中44線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">中</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">44</text></svg>","exp|61|":"<svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"快速公路台61線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#D2232A\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#D2232A\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"#F5F7F3\">61</text></svg>","twp|47|中":"<svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道中47線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">中</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">47</text></svg>","twp|42|中":"<svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道中42線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">中</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">42</text></svg>","cty|121|":"<svg class=\"shd cty\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"市道121線\"><rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"8\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"50\" y=\"64\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"36\" fill=\"#121413\">121</text></svg>","prov|10|":"<svg class=\"shd prov\" viewBox=\"0 0 100 100\" role=\"img\" aria-label=\"省道台10線\"><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"#1D4F9E\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#F5F7F3\" stroke-width=\"5\" transform=\"translate(50 50) scale(.86) translate(-50 -50)\"/><path d=\"M50 4 C62 12 78 13 92 10 C94 42 88 74 50 96 C12 74 6 42 8 10 C22 13 38 12 50 4Z\" fill=\"none\" stroke=\"#1D4F9E\" stroke-width=\"2\" transform=\"translate(50 50) scale(.79) translate(-50 -50)\"/><text x=\"50\" y=\"38\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"19\" fill=\"#F5F7F3\">台</text><text x=\"50\" y=\"74\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"34\" fill=\"#F5F7F3\">10</text></svg>","twp|3|清":"<svg class=\"shd twp\" viewBox=\"0 0 140 100\" role=\"img\" aria-label=\"區道清3線\"><rect x=\"5\" y=\"14\" width=\"130\" height=\"72\" rx=\"7\" fill=\"#F5F7F3\" stroke=\"#121413\" stroke-width=\"6\"/><text x=\"44\" y=\"64\" text-anchor=\"middle\" font-family=\"'Noto Sans TC',sans-serif\" font-weight=\"900\" font-size=\"34\" fill=\"#121413\">清</text><text x=\"96\" y=\"66\" text-anchor=\"middle\" font-family=\"Overpass,Arial,sans-serif\" font-weight=\"800\" font-size=\"38\" fill=\"#121413\">3</text></svg>"};
+var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var sc=document.getElementById('scene'),rrl=document.getElementById('rrl'),face=document.getElementById('jface'),js=document.getElementById('jsign');
+var flag=document.getElementById('flag'),lns=[1,2,3].map(function(i){return document.getElementById('ln'+i)});
+var i=0,t=130,km=0,picks=[],busy=false,px=-1,py=-1,raf=0;
+function fmt(m){var h=Math.floor(m/60)%24,mm=m%60;return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm}
+function place(){var p=J[i].palanquin;
+ var fx={S:[44,44],L:[16,51],R:[82,51]}[p];flag.style.left=fx[0]+'%';flag.style.top=fx[1]+'%';
+ var lx={S:[46,47.5,49],L:[8,11,5],R:[90,87,93]}[p];lns.forEach(function(l,k){l.style.left=lx[k]+'%';l.style.top=(p==='S'?43.5:49)+k*.5+'%'})}
+// headlamp: pointer -> css vars in one rAF; retroreflective flare on sign & flag
+var targets=[];
+function measure(){targets=[face,flag].map(function(el){return {el:el,r:el.getBoundingClientRect()}})}
+function lamp(){raf=0;var b=sc.getBoundingClientRect();
+ sc.style.setProperty('--x',(px-b.left)+'px');sc.style.setProperty('--y',(py-b.top)+'px');
+ var R=parseFloat(getComputedStyle(sc).getPropertyValue('--r'))||110;
+ targets.forEach(function(o){var r=o.el.getBoundingClientRect();var dx=Math.max(r.left-px,0,px-r.right),dy=Math.max(r.top-py,0,py-r.bottom);
+  o.el.classList.toggle('hot',Math.hypot(dx,dy)<R*.5)})}
+sc.addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;document.getElementById('hint').style.display='none';if(!raf)raf=requestAnimationFrame(lamp)});
+sc.addEventListener('pointerdown',function(e){px=e.clientX;py=e.clientY;if(!raf)raf=requestAnimationFrame(lamp)});
+var hi=document.getElementById('hi');
+function toggleHi(){var on=hi.getAttribute('aria-pressed')!=='true';hi.setAttribute('aria-pressed',on);sc.classList.toggle('hi',on)}
+hi.addEventListener('click',toggleHi);
+function hud(){document.getElementById('clk').textContent=fmt(t);document.getElementById('kmv').textContent=km.toFixed(1);
+ document.getElementById('stv').textContent=picks.filter(function(p){return p.o.stamp}).length;
+ if(i<J.length){document.getElementById('jname').innerHTML='路口 '+(i+1)+'／'+J.length+'　'+J[i].name+'<small>'+J[i].en+'</small>'}}
+function choose(d){if(busy||i>=J.length)return;var j=J[i],o=j.opts[d];
+ picks.push({d:d,o:o,f:j.palanquin===d,j:j});t+=o.min;km+=o.walk;
+ document.getElementById('log').innerHTML='<b>'+({S:'直行',L:'左轉',R:'右轉'})[d]+'・'+o.zh+'</b>　'+o.story+(o.stamp?'　<b>［'+o.stamp+'］</b>':'');
+ i++;hud();
+ if(i>=J.length){finish();return}
+ if(rm||!js.animate){face.innerHTML=SIGNS[i];place();return}
+ busy=true;
+ var a=js.animate([{transform:'none'},{transform:'translate(-6%,-70%) scale(2.4)'}],{duration:420,easing:'cubic-bezier(.5,0,.9,.5)',fill:'forwards'});
+ a.onfinish=function(){face.innerHTML=SIGNS[i];place();
+  var b=js.animate([{transform:'translate(-30%,30%) scale(.3)'},{transform:'none'}],{duration:520,easing:'cubic-bezier(.2,.7,.3,1)'});
+  a.cancel();b.onfinish=function(){busy=false;measure()}}}
+document.querySelectorAll('.pad button').forEach(function(b){b.addEventListener('click',function(){choose(b.getAttribute('data-d'))})});
+document.querySelector('.rig').addEventListener('keydown',function(e){
+ var m={ArrowLeft:'L',ArrowUp:'S',ArrowRight:'R'}[e.key];if(m){e.preventDefault();choose(m)}else if(e.key==='h'||e.key==='H'){toggleHi()}});
+function finish(){
+ var f=picks.filter(function(p){return p.f}).length;
+ var stamps=picks.filter(function(p){return p.o.stamp}).map(function(p){return p.o.stamp});
+ var code=picks.map(function(p){return p.d}).join('');
+ var serial=(0x811c9dc5>>>0);for(var k=0;k<code.length;k++){serial^=code.charCodeAt(k);serial=Math.imul(serial,16777619)>>>0}
+ var rows=picks.map(function(p){return '<div class="gx">'+SH[p.o.sh.join('|')]+'<span><span class="zh">'+p.o.zh+'</span><i class="en">'+p.o.en+'</i></span><span class="km">'+p.o.walk.toFixed(1)+'</span></div>'}).join('');
+ document.getElementById('rface').innerHTML='<div class="serial"><span>隨香路牌 · SING-AN 2027</span><span>No. '+code+'-'+(serial%10000+'').padStart(4,'0')+'</span></div>'+rows+
+ '<div class="gx tot"><span class="zh-s">抵達</span><span><span class="zh">'+fmt(t)+'</span><i class="en">'+(t<=330?'before first light':'after first light')+'</i></span><span class="km">'+km.toFixed(1)+'</span></div>';
+ var title=f===4?'轎跤':f===3?'隨香':f>=1?'落隊':'插牌組候補';
+ var line=f===4?'你一整暝都走在轎後，一個路口也沒偏。秀鑾姐說，這樣的人她每年只數得到幾十個。':
+  f===3?'四個路口跟對了三個。會偏一次的才是正常人。':
+  f>=1?'你大半夜都在自己走。沒關係，插的牌就是給你這種人看的。':'你一個路口都沒跟上轎子——但每一個路口你都讀懂了牌。插牌組缺人，打電話來。';
+ document.getElementById('verdict').innerHTML='<span class="tag">'+f+' / 4 with the palanquin</span><h2>'+title+'</h2><p>'+line+'</p><p>'+(t<=330?'天光前抵達清水駐駕處。':'抵達時天已經亮了。')+(stamps.length?'　蓋到的章：'+stamps.join('、')+'。':'　沒有蓋到章。')+'</p><p><button type="button" class="again" id="again">再走一次</button><a class="buy" href="shop.html">把這面牌印成反光貼紙 NT$120 →</a></p>';
+ var r=document.getElementById('result');r.classList.add('on');
+ document.getElementById('again').addEventListener('click',reset);
+ if(!rm&&r.animate)r.animate([{clipPath:'inset(0 0 100% 0)'},{clipPath:'inset(0 0 0 0)'}],{duration:480,easing:'cubic-bezier(.3,.7,.3,1)'});
+ if(r.scrollIntoView)r.scrollIntoView({behavior:rm?'auto':'smooth',block:'nearest'});
+ document.getElementById('jname').innerHTML='清水・駐駕<small>Arrived</small>';
+}
+function reset(){i=0;t=130;km=0;picks=[];face.innerHTML=SIGNS[0];place();hud();document.getElementById('result').classList.remove('on');document.getElementById('log').textContent='回到大甲，02:10。';measure()}
+place();measure();addEventListener('resize',measure);addEventListener('scroll',measure,{passive:true});
+})();</script>
+</body>
+</html>

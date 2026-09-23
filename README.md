@@ -303,10 +303,11 @@
 | 285 | [跳針織襪 B品部 TIÀU-TSIAM](sites/tiaotsiam/index.html) | 織襪廠瑕疵品直營（彰化社頭・電腦襪機 22 台・錯檔襪一個檔一雙 NT$80・論斤 B 品・週三開倉現場上機） | Glitch Art 故障藝術（色版分離・水平撕裂・8×8 巨集區塊・像素排序・灰階載體而顏色只在錯處；位元級 databending 改檔台） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 286 | [荷林斯種子借閱所 LOW HOLLINS](sites/low-hollins/index.html) | 傳家種子借閱所（坎布里亞郡 Staveley 舊閱覽室・312 個英國老品種免費借・十月底還種・歸還卷上繡一方） | 十字繡樣本繡 Cross-stitch Sampler（兩腿十字面腳同向・生麻布格與孔必露・5×7 計數字母＋署名年份・分帶鏡像與藤邊框・五色絲線無淡版；由針序推算的背面） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 287 | [十份調色所 TEN PARTS](sites/ten-parts/index.html) | 指甲油調色所（臺北赤峰街・十罐色膏＋透明底照份數現調・84 色常備・一瓶 8 ml NT$420・對色編新號） | 專色配方色票 Spot-colour Formula Guide（平色晶片＋註記帶・七階扇頁以鉚釘展開・號碼即名字・份數配方即色值・G／M 兩種表面並排） | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 288 | [聖安宮香路牌 HIUNN-LŌO PÂI](sites/hiunn-loo/index.html) | 廟宇文創（苗栗苑裡聖安宮文創部・進香反光香旗與背心・插牌組臨時指示牌・往鹿港往返 186 公里） | 台灣公路標誌系統 Taiwan Road Sign System（顏色即道路等級・圓角牌面內縮白框・中上英下英文為半高・梅花／盾／方／長方路線盾・整數公里・門架與反光膜；頭燈逆反射閱讀） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 181 個產業種子 × 158 個風格種子（28,598 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 181 個產業種子 × 159 個風格種子（28,779 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

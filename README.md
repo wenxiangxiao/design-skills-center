@@ -304,6 +304,7 @@
 | 286 | [荷林斯種子借閱所 LOW HOLLINS](sites/low-hollins/index.html) | 傳家種子借閱所（坎布里亞郡 Staveley 舊閱覽室・312 個英國老品種免費借・十月底還種・歸還卷上繡一方） | 十字繡樣本繡 Cross-stitch Sampler（兩腿十字面腳同向・生麻布格與孔必露・5×7 計數字母＋署名年份・分帶鏡像與藤邊框・五色絲線無淡版；由針序推算的背面） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 287 | [十份調色所 TEN PARTS](sites/ten-parts/index.html) | 指甲油調色所（臺北赤峰街・十罐色膏＋透明底照份數現調・84 色常備・一瓶 8 ml NT$420・對色編新號） | 專色配方色票 Spot-colour Formula Guide（平色晶片＋註記帶・七階扇頁以鉚釘展開・號碼即名字・份數配方即色值・G／M 兩種表面並排） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 288 | [聖安宮香路牌 HIUNN-LŌO PÂI](sites/hiunn-loo/index.html) | 廟宇文創（苗栗苑裡聖安宮文創部・進香反光香旗與背心・插牌組臨時指示牌・往鹿港往返 186 公里） | 台灣公路標誌系統 Taiwan Road Sign System（顏色即道路等級・圓角牌面內縮白框・中上英下英文為半高・梅花／盾／方／長方路線盾・整數公里・門架與反光膜；頭燈逆反射閱讀） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 289 | [八拍有氧 EIGHT COUNT](sites/eight-count/index.html) | 有氧舞蹈教室（Culver City・hi/lo・step・低衝擊與 55+・每週 25 堂・八拍計數 118–138 BPM・首堂免費） | 加州新浪潮 California New Wave（Greiman／Emigre 1984–90：整數倍點陣字×向量字・透視格線地板與浮空原形硬影・粉彩＋三原色・斜軸疊層・MacPaint 圖樣） | EN | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>染補台｜蘗紙補書室</title>
+<meta name="description" content="三頁待補的舊書，一張白楮紙，五缸染材四種媒染。浸到顏色跟書頁一樣，就補得上。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%2230%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%23B79B69%22%2F%3E%3Cpath%20d%3D%22M8%205h16v20l-2%203-2-2-2%203-2-3-2%203-2-2-2%202-2-3z%22%20fill%3D%22%23ECD97C%22%2F%3E%3Cpath%20d%3D%22M8%2016q8-2%2016%200v9l-2%203-2-2-2%203-2-3-2%203-2-2-2%202-2-3z%22%20fill%3D%22%23D2C265%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC&family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* 每一個色碼都是 dye(染材, 媒染, 回數) 的輸出，由 build.js 從染料模型算出後寫入 */
+:root{
+  --kinari:#EFE8D6;      /* 生成：未染楮紙，唯一的最亮值 */
+  --kinari-2:#E6DECA; /* 胡桃 無媒染 1 回：帳頁 */
+  --ink:#25231F;      /* 胡桃 鐵漿 9 回：正文 */
+  --ink-2:#5A564F;    /* 胡桃 鐵漿 5 回：次級文字 */
+  --rule:#A39E91;     /* 胡桃 鐵漿 2 回：細線 */
+  --suou:#DF6C7C;       /* 蘇芳 明礬 4 回：現用態／焦點 */
+  --suou-deep:#9A4041;/* 蘇芳 銅 6 回：紅字 */
+  --suou-fe:#93697F;    /* 蘇芳 鐵漿 4 回 */
+  --yasha:#C8B286;     /* 矢車 明礬 4 回 */
+  --yasha-fe:#A09780;  /* 矢車 鐵漿 3 回 */
+  --kihada:#ECD97C;   /* 黃蘗 明礬 3 回 */
+  --kihada-cu:#D0D769;/* 黃蘗 銅 4 回 */
+  --cha-fe:#BBB19A;      /* 茶 鐵漿 2 回 */
+  --kurumi-fe:#868177;/* 胡桃 鐵漿 3 回 */
+  --pole:#B79B69;      /* 晾竿 */
+  --pole-node:#8B826B;
+  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --hand:"LXGW WenKai TC","Kaiti TC","DFKai-SB",cursive;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--kinari)}
+body{margin:0;background:var(--kinari);color:var(--ink);font-family:var(--serif);font-weight:400;line-height:1.85;font-size:17px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:4px}
+:focus-visible{outline:2px solid var(--suou);outline-offset:3px}
+img,canvas,svg{display:block}
+.hand{font-family:var(--hand)}
+.v{writing-mode:vertical-rl;text-orientation:mixed}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+
+/* ── 頁首：左上屋號、右上晾繩布籤（pinned-tag 導覽） ── */
+.top{position:relative;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:22px 32px 0}
+.mark{display:flex;gap:12px;align-items:flex-start;text-decoration:none}
+.mark img{width:46px;height:auto}
+.mark b{display:block;font-size:20px;font-weight:700;letter-spacing:.18em;line-height:1.2}
+.mark small{display:block;font-family:var(--hand);font-size:13px;color:var(--ink-2);letter-spacing:.05em}
+.line{position:relative;width:420px;height:150px;flex:none}
+.line svg.cord{position:absolute;inset:0;width:100%;height:40px}
+.tags{position:absolute;left:0;right:0;top:12px;display:flex;justify-content:space-around;padding:0 18px;margin:0;list-style:none}
+.tags li{position:relative;transform-origin:50% 0;animation:tagSway var(--d,5s) ease-in-out infinite alternate;animation-delay:var(--dl,0s)}
+.tags .pin{display:block;width:10px;height:22px;margin:0 auto;background:var(--pole);border:1px solid var(--pole-node);border-radius:2px 2px 1px 1px}
+.tags a{display:block;width:44px;padding:10px 0 18px;margin-top:-4px;text-decoration:none;font-size:15px;letter-spacing:.3em;background:var(--kinari-2);
+  writing-mode:vertical-rl;text-align:start;line-height:44px;
+  clip-path:polygon(0 0,100% 0,100% 92%,88% 97%,76% 93%,62% 99%,50% 94%,36% 100%,24% 95%,12% 98%,0 93%);
+  box-shadow:inset 0 0 0 1px var(--rule);transition:transform .18s cubic-bezier(.3,1.6,.5,1),background-color .2s}
+.tags a:hover,.tags a:focus-visible{transform:rotate(-6deg) translateY(4px)}
+.tags a[aria-current="page"]{background:var(--tag,var(--suou));color:var(--ink)}
+.tags a[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:22%;height:2px;background:var(--tide,var(--suou-fe))}
+@keyframes tagSway{from{transform:rotate(-2.2deg)}to{transform:rotate(2.6deg)}}
+
+/* ── 頁尾 ── */
+.foot{margin-top:120px;border-top:1px solid var(--rule);padding:40px 32px 60px;display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:32px;font-size:14px;color:var(--ink-2)}
+.foot b{color:var(--ink);font-size:16px;letter-spacing:.12em}
+.foot a{display:inline-block;margin-right:14px}
+.foot .note{grid-column:1/-1;font-family:var(--hand);font-size:13px}
+
+/* 轉場布幕 */
+.dye-wipe{position:fixed;inset:0;z-index:999;display:none;pointer-events:none}
+
+/* 帳頁上的手寫墨書標籤 */
+.label{font-family:var(--hand);font-size:14px;line-height:1.5;color:var(--ink)}
+.label i{font-style:normal;color:var(--ink-2)}
+
+@media (max-width:860px){
+  .line{width:100%;height:auto;position:fixed;left:0;right:0;bottom:0;top:auto;z-index:50;background:var(--kinari);border-top:1px solid var(--rule)}
+  .line svg.cord{display:none}
+  .tags{position:static;padding:0;justify-content:stretch}
+  .tags li{flex:1;animation:none}
+  .tags .pin{display:none}
+  .tags a{writing-mode:horizontal-tb;width:auto;line-height:1.3;text-align:center;padding:12px 4px 14px;margin:0;letter-spacing:.1em;font-size:14px;clip-path:none;box-shadow:inset 1px 0 0 var(--rule)}
+  .tags a:hover{transform:none}
+  body{padding-bottom:64px}
+  .foot{grid-template-columns:1fr}
+}
+@media (max-width:560px){.wrap{padding:0 16px}.top{padding:16px 16px 0}body{font-size:16px}}
+@media (prefers-reduced-motion:reduce){.tags li{animation:none}.tags a{transition:none}}
+
+.rules{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;margin-top:40px}
+.rules h1{writing-mode:vertical-rl;font-size:40px;letter-spacing:.35em;margin:0;font-weight:700;line-height:1.1}
+.rules ol{margin:0;padding-left:1.4em;max-width:40em;font-size:16px}
+.rules ol li{margin-bottom:4px}
+.jobs{display:flex;gap:0;margin:38px 0 0;padding:0;list-style:none;border-bottom:1px solid var(--rule)}
+.jobs button{all:unset;cursor:pointer;padding:10px 18px 12px;font-size:15px;border:1px solid transparent;border-bottom:0;display:flex;gap:10px;align-items:center}
+.jobs button i{width:12px;height:16px;display:inline-block}
+.jobs button[aria-selected="true"]{border-color:var(--rule);background:var(--kinari-2);margin-bottom:-1px}
+.jobs button .ok{font-family:var(--hand);color:var(--suou-deep);font-size:13px}
+.jobs button:focus-visible{outline:2px solid var(--suou)}
+
+.bench{display:grid;grid-template-columns:minmax(260px,1.1fr) 190px minmax(260px,1fr);gap:40px;padding:34px 0;background:var(--kinari-2);margin:0 -32px;padding-left:32px;padding-right:32px}
+/* 書頁 */
+.book{position:relative}
+.book .meta{font-family:var(--hand);font-size:14px;color:var(--ink-2);margin:0 0 10px;line-height:1.5}
+.book .meta b{font-family:var(--serif);font-size:19px;color:var(--ink);display:block}
+.page{position:relative;width:100%;max-width:360px;aspect-ratio:3/4.1;overflow:hidden}
+.page canvas{position:absolute;inset:0}
+.page .txt{position:absolute;inset:8% 9% 8% 9%;writing-mode:vertical-rl;font-size:17px;line-height:2.05;letter-spacing:.12em;color:var(--ink-2);overflow:hidden;user-select:none}
+.page .txt span{color:var(--ink)}
+.page svg.hole{position:absolute;inset:0;width:100%;height:100%}
+.page .hole .gap{fill:var(--ink-2);transition:fill .35s}
+.page .hole .patch{opacity:0;transition:opacity .5s}
+.page.patched .hole .patch{opacity:1}
+/* 中：染紙＋染缸 */
+.dyeing{display:flex;flex-direction:column;align-items:center;gap:0}
+.dyeing .pin{width:16px;height:24px;background:var(--pole);border:1px solid var(--pole-node);border-radius:3px;margin-bottom:-6px;position:relative;z-index:2}
+.dyeing canvas{transform-origin:50% 0}
+.dyeing .vat{width:100%;height:20px;margin-top:-4px;border-radius:0 0 40% 40%/0 0 100% 100%;background:var(--vat,var(--yasha));transition:background-color .3s}
+.dyeing .rec{font-family:var(--hand);font-size:14px;margin-top:12px;text-align:center;line-height:1.5;min-height:3em}
+/* 右：缸與媒染 */
+.ctrl h2{font-size:14px;letter-spacing:.3em;margin:0 0 8px;font-weight:700}
+.pick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:20px}
+.pick.m{grid-template-columns:repeat(4,1fr)}
+.pick button{all:unset;cursor:pointer;text-align:center;padding:8px 0 6px;font-size:15px;border:1px solid var(--rule);background:var(--kinari);position:relative}
+.pick button i{display:block;height:8px;margin:6px 8px 0;clip-path:polygon(0 0,100% 0,100% 70%,80% 100%,55% 75%,30% 100%,0 80%)}
+.pick button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--suou)}
+.pick button:focus-visible{outline:2px solid var(--suou);outline-offset:2px}
+.act{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.btn{all:unset;cursor:pointer;padding:10px 18px;font-size:16px;letter-spacing:.15em;border:1px solid var(--ink);background:var(--kinari)}
+.btn.main{background:var(--ink);color:var(--kinari)}
+.btn.go{background:var(--suou);border-color:var(--suou-deep)}
+.btn[disabled]{cursor:not-allowed;border-color:var(--rule);color:var(--ink-2);background:var(--kinari)}
+.btn:focus-visible{outline:2px solid var(--suou);outline-offset:3px}
+.read{border-top:2px solid var(--ink);padding-top:12px}
+.read .de{display:flex;align-items:baseline;gap:12px}
+.read .de b{font-size:44px;font-weight:700;line-height:1}
+.read .de span{font-family:var(--hand);color:var(--ink-2);font-size:14px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;margin:10px 0;height:44px}
+.cmp div{display:flex;align-items:flex-end;padding:4px 6px;font-family:var(--hand);font-size:12px}
+.hint{font-family:var(--hand);font-size:17px;min-height:3.2em;margin:6px 0 0;color:var(--ink)}
+.hint em{font-style:normal;color:var(--suou-deep)}
+/* 今日貼樣 */
+.mine{margin-top:60px}
+.mine h2{font-size:15px;letter-spacing:.3em;margin:0 0 12px}
+.mine ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:22px}
+.mine li{display:flex;gap:8px;align-items:flex-start}
+.mine li i{display:block;width:40px;height:54px}
+.mine .empty{font-family:var(--hand);color:var(--ink-2)}
+.done{display:none;margin-top:40px;border:1px solid var(--ink);padding:28px 32px;background:var(--kinari-2);max-width:760px}
+.done.on{display:block}
+.done h2{margin:0 0 10px;font-size:24px}
+.done table{border-collapse:collapse;width:100%;font-size:15px;margin:10px 0 16px}
+.done td,.done th{border-bottom:1px solid var(--rule);padding:6px 4px;text-align:left}
+.done th{font-weight:700;font-size:13px;letter-spacing:.2em}
+@media (max-width:980px){.bench{grid-template-columns:1fr 170px}.ctrl{grid-column:1/-1}}
+@media (max-width:560px){.bench{grid-template-columns:1fr;margin:0 -16px;padding:24px 16px}.dyeing{order:-1}.rules{grid-template-columns:1fr}.rules h1{writing-mode:horizontal-tb;font-size:30px}.jobs button{padding:8px 8px 10px;font-size:14px}.page{max-width:100%}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="mark" href="index.html" data-dye="#C8B286" aria-label="蘗紙補書室 首頁">
+    <img src="assets/logo.svg" alt="" width="46" height="64">
+    <span><b>蘗紙補書室</b><small>pheh-tsuá · 古籍紙本修復與草木染紙</small></span>
+  </a>
+  <nav class="line" aria-label="主要頁面">
+    <svg class="cord" viewBox="0 0 420 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6 Q210 30 420 6" fill="none" stroke="#6E6A61" stroke-width="1.5"/></svg>
+    <ul class="tags">
+      <li style="--d:5.2s;--dl:-1s;margin-top:4px"><span class="pin"></span><a href="index.html" data-dye="#C8B286" style="--tag:#C8B286" >晾場</a></li>
+      <li style="--d:4.4s;--dl:-2.3s;margin-top:11px"><span class="pin"></span><a href="tone.html" data-dye="#E3848F" style="--tag:#E3848F" aria-current="page">染補</a></li>
+      <li style="--d:6.1s;--dl:-.6s;margin-top:12px"><span class="pin"></span><a href="swatchbook.html" data-dye="#ECD97C" style="--tag:#ECD97C" >見本帳</a></li>
+      <li style="--d:4.9s;--dl:-3.1s;margin-top:5px"><span class="pin"></span><a href="visit.html" data-dye="#BBB19A" style="--tag:#BBB19A" >委託</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="rules">
+    <h1>染補台</h1>
+    <ol>
+      <li>選一缸染材、一種媒染，按「浸一回」——每浸一回，紙就深一階；換媒染，顏色會變。</li>
+      <li>右邊的色差小於 <b>2.0</b> 時，「補上」才會亮；深了洗不回來，只能換一張新紙。</li>
+      <li>甲、乙、丙三頁都補好，就能拿到交件單。一輪大約一分半鐘。</li>
+    </ol>
+  </section>
+
+  <div role="tablist" class="jobs" id="jobs" aria-label="待補的三頁"></div>
+  <section class="bench" id="bench">
+    <div class="book">
+      <p class="meta" id="meta"></p>
+      <div class="page" id="page"><canvas id="pagecv"></canvas><div class="txt" id="txt"></div>
+        <svg class="hole" viewBox="0 0 300 410" preserveAspectRatio="none" aria-hidden="true"><path class="gap" id="gap"/><path class="patch" id="patch"/></svg></div>
+    </div>
+    <div class="dyeing">
+      <span class="pin" aria-hidden="true"></span>
+      <canvas id="strip" role="img" aria-label="正在染的楮紙"></canvas>
+      <div class="vat" id="vat" aria-hidden="true"></div>
+      <p class="rec" id="rec" aria-live="polite">白楮紙一張<br>還沒下缸</p>
+    </div>
+    <div class="ctrl">
+      <h2>染材</h2><div class="pick" id="plants"></div>
+      <h2>媒染</h2><div class="pick m" id="mords"></div>
+      <div class="act">
+        <button class="btn main" id="dip" type="button">浸一回</button>
+        <button class="btn" id="fresh" type="button">換新紙</button>
+        <button class="btn go" id="mend" type="button" disabled>補上</button>
+      </div>
+      <div class="read">
+        <div class="de"><b id="de">—</b><span>色差 ΔE（OKLab×100）<br>小於 2.0 可補</span></div>
+        <div class="cmp"><div id="c1">書頁</div><div id="c2">你的紙</div></div>
+        <p class="hint" id="hint" aria-live="polite">先看書頁：是偏黃、偏紅，還是偏灰？</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mine"><h2>今天貼進見本帳的</h2><ul id="mine"><li class="empty">還沒有。補好一頁，那張紙的剪邊就會貼在這裡，也會出現在<a href="swatchbook.html" data-dye="#ECD97C">見本帳</a>的最後一頁。</li></ul></section>
+  <section class="done" id="done" aria-live="polite"></section>
+  <noscript><p>染補台需要 JavaScript。三頁的正解配方寫在<a href="swatchbook.html">見本帳</a>最末「本月三件」。</p></noscript>
+</main>
+<footer class="foot">
+  <div><b>蘗紙補書室</b><br>臺南市中西區信義街 74 號（兌悅門往西第三間）<br>06-221-7408 · 週二至週六 10:00–17:30，週四延至 20:00<br>收件與取件請先來電約時間，染缸在後院，雨天不開缸。</div>
+  <div><b>頁面</b><br><a href="index.html">晾場</a><a href="tone.html">染補</a><br><a href="swatchbook.html">見本帳</a><a href="visit.html">委託</a></div>
+  <div><b>本室五種染材</b><br>矢車・黃蘗・胡桃・蘇芳・茶<br>四種媒染：無・明礬・鐵漿・銅</div>
+  <p class="note">本站人物、地址、電話與價格為設計示範用之虛構資料。頁面上所有色碼皆由同一支染料模型 dye(染材, 媒染, 回數) 算出，沒有一個是挑出來的。</p>
+</footer>
+
+<script>
+/* 蘗紙補書室 — 染料模型＋布紙紋理＋毛細上染（所有頁面共用，建置時 inline） */
+const DY=(()=>{
+  const s2l=c=>{c/=255;return c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)};
+  const l2s=c=>{c=Math.max(0,Math.min(1,c));return Math.round(255*(c<=.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-.055))};
+  const hex=h=>[1,3,5].map(i=>s2l(parseInt(h.slice(i,i+2),16)));
+  const toRGB=c=>c.map(l2s);
+  const toHex=c=>'#'+toRGB(c).map(v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
+  function oklab([r,g,b]){const l=.4122214708*r+.5363325363*g+.0514459929*b,m=.2119034982*r+.6806995451*g+.1073969566*b,s=.0883024619*r+.2817188376*g+.6299787005*b;const L=Math.cbrt(l),M=Math.cbrt(m),S=Math.cbrt(s);return[.2104542553*L+.793617785*M-.0040720468*S,1.9779984951*L-2.428592205*M+.4505937099*S,.0259040371*L+.7827717662*M-.808675766*S]}
+  const dE=(a,b)=>{const A=oklab(a),B=oklab(b);return 100*Math.hypot(A[0]-B[0],A[1]-B[1],A[2]-B[2])};
+  /* 生成（未染楮紙）＝唯一的最亮值 */
+  const BASE=hex('#EFE8D6');
+  /* 每浸一回的吸光量（線性 RGB 的 -ln 反射率）；fe＝鐵媒染單寧鐵黑，cu＝銅媒染偏綠 */
+  const P={
+    yasha:{zh:'矢車',full:'矢車（夜叉五倍子球果）',k:[.10,.15,.26],fe:[.22,.20,.17],cu:[.08,.02,.10]},
+    kihada:{zh:'黃蘗',full:'黃蘗（黃檗樹皮）',k:[.01,.05,.40],fe:[.05,.04,.01],cu:[.07,0,.05]},
+    kurumi:{zh:'胡桃',full:'胡桃（青皮外果皮）',k:[.16,.19,.24],fe:[.30,.28,.24],cu:[.10,.04,.12]},
+    suou:{zh:'蘇芳',full:'蘇芳（心材碎片）',k:[.04,.42,.30],fe:[.24,.10,.05],cu:[.13,.10,.17]},
+    cha:{zh:'茶',full:'茶（凍頂粗老葉）',k:[.12,.17,.27],fe:[.18,.17,.15],cu:[.08,.03,.10]}
+  };
+  const M={none:{zh:'無媒染',u:.55},alum:{zh:'明礬',u:1},iron:{zh:'鐵漿',u:.8},copper:{zh:'銅',u:.85}};
+  const step=(p,m)=>P[p].k.map((k,i)=>k*M[m].u+(m==='iron'?P[p].fe[i]:m==='copper'?P[p].cu[i]:0));
+  const color=A=>BASE.map((b,i)=>b*Math.exp(-A[i]));
+  const dye=(p,m,n)=>color(step(p,m).map(a=>a*n));
+  const dyeHex=(p,m,n)=>toHex(dye(p,m,n));
+  /* 決定性偽隨機 */
+  const fnv=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+  const mulberry=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  /* 一維 value noise（平滑） */
+  function noise1(seed,n){const r=mulberry(seed),v=[];for(let i=0;i<=n+1;i++)v.push(r()*2-1);return x=>{const i=Math.floor(x),f=x-i,a=v[((i%n)+n)%n],b=v[(((i+1)%n)+n)%n],s=f*f*(3-2*f);return a+(b-a)*s}}
+  /* 二維 value noise 格點 */
+  function noise2(seed,gw,gh){const r=mulberry(seed),g=new Float32Array((gw+1)*(gh+1));for(let i=0;i<g.length;i++)g[i]=r()*2-1;return(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);const I=Math.min(i,gw-1),J=Math.min(j,gh-1);const a=g[J*(gw+1)+I],b=g[J*(gw+1)+I+1],c=g[(J+1)*(gw+1)+I],d=g[(J+1)*(gw+1)+I+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy}}
+
+  /* 一條布／紙：預先算好每個像素的織目、斑駁、毛邊；之後每一幀只查表 */
+  function Strip(canvas,opt){
+    const dpr=Math.min(2,window.devicePixelRatio||1);
+    const cw=opt.w,ch=opt.h,W=Math.round(cw*dpr),H=Math.round(ch*dpr);
+    canvas.width=W;canvas.height=H;canvas.style.width=cw+'px';canvas.style.height=ch+'px';
+    const ctx=canvas.getContext('2d');
+    const seed=fnv(opt.seed||'strip');const rnd=mulberry(seed);
+    const N=W*H,weave=new Float32Array(N),mott=new Float32Array(N);
+    const cloth=opt.material!=='paper';
+    const n2=noise2(seed^0x9e37,8,24),n2b=noise2(seed^0x51ed,40,120);
+    const colV=new Float32Array(W),rowV=new Float32Array(H);
+    for(let x=0;x<W;x++)colV[x]=(rnd()-.5)*.05;for(let y=0;y<H;y++)rowV[y]=(rnd()-.5)*.05;
+    const cell=Math.max(2,Math.round(2*dpr));
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;
+      let w;
+      if(cloth){const over=((Math.floor(x/cell)+Math.floor(y/cell))&1);w=1+(over?.035+colV[x]:-.035+rowV[y]);
+        const fx=(x%cell)/cell,fy=(y%cell)/cell;w-=over?Math.abs(fx-.5)*.05:Math.abs(fy-.5)*.05}
+      else{w=1+n2b(x/W*40,y/H*120)*.025+(rnd()-.5)*.03}
+      weave[i]=w;mott[i]=n2(x/W*8,y/H*24)*.5+n2b(x/W*40,y/H*120)*.2}
+    /* 毛邊：底緣（布＝抽絲，紙＝手撕） */
+    const fray=new Float32Array(W),fN=noise1(seed^7,32);
+    for(let x=0;x<W;x++){fray[x]=(cloth?7:4)*dpr+fN(x/W*32)*3*dpr+(cloth&&x%Math.max(3,Math.round(3*dpr))===0?rnd()*9*dpr:0)}
+    /* 每欄的毛細前緣偏移 */
+    const offN=noise1(seed^99,14),colOff=new Float32Array(W);
+    for(let x=0;x<W;x++)colOff[x]=offN(x/W*14)*9*dpr+(rnd()-.5)*1.5*dpr;
+    const pal=[toRGB(BASE)],cid=new Uint8Array(N),wet=new Uint8Array(N),tide=new Uint8Array(N);
+    const img=ctx.createImageData(W,H),D=img.data;
+    const S={canvas,W,H,dpr,pal,cid,wet,tide,colOff,fray,wetAmt:0,busy:false,A:[0,0,0],topKeep:opt.topKeep||.06};
+    S.paint=()=>{const wa=S.wetAmt;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,o=i*4;
+        if(y>H-fray[x]){D[o+3]=0;continue}
+        const c=pal[cid[i]];let f=weave[i]*(1-.07*mott[i]);if(wet[i])f*=1-.17*wa;if(tide[i])f*=.86;
+        D[o]=c[0]*f;D[o+1]=c[1]*f;D[o+2]=c[2]*f;D[o+3]=255}
+      ctx.putImageData(img,0,0)};
+    /* 直接設定（無動畫）：從底往上 frac 高度染成色 lin；留潮線 */
+    S.set=(lin,frac)=>{const id=pushPal(lin);const top=H*(1-frac);
+      for(let x=0;x<W;x++){const t=Math.max(0,Math.round(top+colOff[x]));for(let y=0;y<H;y++){const i=y*W+x;if(y>=t){cid[i]=id;tide[i]=0}}
+        for(let k=0;k<Math.round(1.6*dpr);k++){const y=t+k;if(y>=0&&y<H)tide[y*W+x]=1}}};
+    function pushPal(lin){const rgb=toRGB(lin);for(let i=0;i<pal.length;i++){const p=pal[i];if(p[0]===rgb[0]&&p[1]===rgb[1]&&p[2]===rgb[2])return i}
+      if(pal.length>=250){pal.splice(1,pal.length-1);cid.fill(0)}pal.push(rgb);return pal.length-1}
+    S.pushPal=pushPal;
+    S.reset=()=>{pal.length=1;cid.fill(0);wet.fill(0);tide.fill(0);S.A=[0,0,0];S.paint()};
+    /* 簽名動效：浸＋毛細上染＋媒染翻色＋晾乾留潮線
+       raw＝未媒染時的色（先上），fin＝媒染後的色（翻色後）。opts.bath 浸入深度（0..1），opts.reach 毛細最高點 */
+    S.dip=(raw,fin,o={})=>new Promise(res=>{
+      if(S.busy)return res(false);S.busy=true;
+      const idR=pushPal(raw),idF=pushPal(fin);
+      const bath=H*(o.bath||.58),reach=H*(1-(o.reach||S.topKeep)),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const T1=320,T2=1250,T3=380,T4=900;const t0=performance.now();
+      const front=new Float32Array(W);
+      const tick=now=>{const t=now-t0;
+        if(t<T1){const lv=bath*(t/T1);wetTo(x=>H-lv,idR)}
+        else if(t<T1+T2){const s=Math.sqrt((t-T1)/T2);wetTo(x=>{const yb=H-bath-(H-bath-reach)*s+colOff[x]*s;front[x]=yb;return yb},idR)}
+        else if(t<T1+T2+T3){if(!S._f){wetTo(x=>{front[x]=reach+colOff[x];return front[x]},idR);S._f=1}
+          const s=(t-T1-T2)/T3;for(let x=0;x<W;x++){const lim=H-(H-front[x])*s;for(let y=H-1;y>=lim&&y>=0;y--){const i=y*W+x;if(cid[i]===idR)cid[i]=idF}}}
+        else if(t<T1+T2+T3+T4){if(!S._g){flipAll();S._g=1}S.wetAmt=1-(t-T1-T2-T3)/T4}
+        else{finish();return}
+        S.paint();requestAnimationFrame(tick)};
+      function wetTo(fy,id){S.wetAmt=1;for(let x=0;x<W;x++){const yt=Math.max(0,fy(x));for(let y=H-1;y>=yt;y--){const i=y*W+x;if(!wet[i]){wet[i]=1;tide[i]=0;cid[i]=id}}}}
+      function flipAll(){for(let i=0;i<cid.length;i++)if(cid[i]===idR)cid[i]=idF}
+      function finish(){flipAll();for(let x=0;x<W;x++){const yt=Math.max(0,Math.round(front[x]||reach+colOff[x]));for(let k=0;k<Math.round(1.6*dpr);k++){const y=yt+k;if(y<H)tide[y*W+x]=1}}
+        wet.fill(0);S.wetAmt=0;S._f=0;S._g=0;S.paint();S.busy=false;res(true)}
+      if(reduce){for(let x=0;x<W;x++)front[x]=reach+colOff[x];wetTo(x=>front[x],idF);finish();return}
+      requestAnimationFrame(tick)});
+    S.paint();return S}
+
+  /* 轉場：毛細前緣的布幕（clip-path polygon，點數固定才可補間） */
+  function ragged(level,seed,amp){const r=noise1(seed,10),pts=[];for(let i=0;i<=24;i++){const x=i/24*100;pts.push(x.toFixed(2)+'% '+Math.max(-10,Math.min(110,level+r(i/24*10)*amp)).toFixed(2)+'%')}return 'polygon(0% 110%, '+pts.join(', ')+', 100% 110%)'}
+  function wipeInit(){
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ov=document.createElement('div');ov.className='dye-wipe';ov.setAttribute('aria-hidden','true');document.body.appendChild(ov);
+    let from=null;try{from=sessionStorage.getItem('dyeWipe')}catch(e){}
+    if(from&&!reduce&&ov.animate){ov.style.background=from;ov.style.display='block';
+      const a=ov.animate([{clipPath:ragged(-12,3,6)},{clipPath:ragged(112,3,6)}],{duration:620,easing:'cubic-bezier(.5,0,.8,.4)',fill:'forwards'});
+      a.onfinish=()=>{ov.style.display='none'}}
+    try{sessionStorage.removeItem('dyeWipe')}catch(e){}
+    document.addEventListener('click',e=>{const a=e.target.closest('a[href]');if(!a||e.metaKey||e.ctrlKey||e.shiftKey||a.target)return;
+      const href=a.getAttribute('href');if(!href||href.startsWith('#')||/^(https?:|mailto:|tel:)/.test(href))return;
+      const col=a.dataset.dye||getComputedStyle(document.documentElement).getPropertyValue('--yasha').trim()||'#C8B286';
+      try{sessionStorage.setItem('dyeWipe',col)}catch(err){}
+      if(reduce||!ov.animate)return;e.preventDefault();ov.style.background=col;ov.style.display='block';
+      const an=ov.animate([{clipPath:ragged(112,8,7)},{clipPath:ragged(-12,8,7)}],{duration:480,easing:'cubic-bezier(.2,.6,.4,1)',fill:'forwards'});
+      an.onfinish=()=>{location.href=href};setTimeout(()=>{location.href=href},900)})}
+  return{hex,toHex,toRGB,oklab,dE,BASE,P,M,step,color,dye,dyeHex,fnv,mulberry,noise1,Strip,wipeInit}
+})();
+
+(()=>{
+  DY.wipeInit();
+  const $=id=>document.getElementById(id);
+  const NUM='零一二三四五六七八九十';
+  /* 三頁待補：目標色＝某一組 (染材,媒染,回數) 的色再加一點紙的老化偏移 */
+  const JOBS=[
+    {id:'甲',title:'《重修臺灣府志》卷十三・第 41 葉',meta:'乾隆年間刻本・竹紙・蟲蛀穿孔',sol:['yasha','alum',3],drift:[.004,-.002,.003],
+     txt:'臺灣府學在府治寧南坊<span>康熙二十四年</span>巡道周昌知府蔣毓英建大成殿於中東西兩廡櫺星門泮池俱備四十三年知府衛台揆重修',
+     hole:'M168 188 L182 176 L201 181 L214 170 L231 184 L228 203 L241 219 L229 238 L212 236 L198 251 L183 240 L169 244 L163 226 L150 214 L158 199 Z'},
+    {id:'乙',title:'府城某宮 籤詩簿・第五十二首',meta:'民國四十年代木刻・黃紙・邊緣鼠嚙',sol:['kihada','alum',3],drift:[-.003,.001,-.002],
+     txt:'第五十二首 中平<span>舊屋添梁待好時</span>一溪春水慢來遲莫嫌行舟風未順潮生自有到岸期',
+     hole:'M0 300 L22 292 L30 305 L48 298 L57 316 L72 312 L76 333 L90 344 L84 362 L96 380 L88 410 L0 410 Z'},
+    {id:'丙',title:'臺南州 戶籍謄本・第 7 張',meta:'昭和年間・機械紙泛灰・摺線斷裂',sol:['cha','iron',2],drift:[.002,.003,.001],
+     txt:'本籍 臺南州新化郡<span>大目降街</span>戶主 陳氏 續柄 長男 出生 大正九年三月十二日 職業 農 種族 福 備考 昭和十二年轉住',
+     hole:'M136 0 L162 0 L158 34 L171 61 L157 92 L166 124 L151 150 L158 181 L142 196 L147 168 L131 141 L141 112 L128 84 L140 55 L129 27 Z'}];
+  JOBS.forEach(j=>{const L=DY.oklab(DY.dye(...j.sol));j.tgt=DY.dye(...j.sol).map((v,i)=>v*(1+j.drift[i]*6));j.done=false});
+  const PL=Object.keys(DY.P),MO=Object.keys(DY.M);
+  let cur=0,plant='yasha',mord='alum',A=[0,0,0],hist=[],t0=null,dipsTotal=0;
+  const mine=[];
+  /* 選擇鈕 */
+  $('plants').innerHTML=PL.map(p=>'<button type="button" data-p="'+p+'" aria-pressed="'+(p===plant)+'">'+DY.P[p].zh+'<i style="background:'+DY.dyeHex(p,'alum',4)+'"></i></button>').join('');
+  $('mords').innerHTML=MO.map(m=>'<button type="button" data-m="'+m+'" aria-pressed="'+(m===mord)+'">'+DY.M[m].zh.replace('無媒染','無')+'</button>').join('');
+  $('plants').onclick=e=>{const b=e.target.closest('button');if(!b)return;plant=b.dataset.p;sync()};
+  $('mords').onclick=e=>{const b=e.target.closest('button');if(!b)return;mord=b.dataset.m;sync()};
+  function sync(){document.querySelectorAll('#plants button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===plant));
+    document.querySelectorAll('#mords button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===mord));
+    $('vat').style.setProperty('--vat',DY.dyeHex(plant,mord,5))}
+  /* 頁籤 */
+  function tabs(){$('jobs').innerHTML=JOBS.map((j,i)=>'<button role="tab" type="button" aria-selected="'+(i===cur)+'" data-i="'+i+'"><i style="background:'+DY.toHex(j.tgt)+'"></i>'+j.id+'頁'+(j.done?'<span class="ok">已補</span>':'')+'</button>').join('')}
+  $('jobs').onclick=e=>{const b=e.target.closest('button');if(!b)return;cur=+b.dataset.i;loadJob()};
+  /* 書頁 */
+  let pageS=null;
+  function loadJob(){const j=JOBS[cur];tabs();
+    $('meta').innerHTML='<b>'+j.id+'頁　'+j.title+'</b>'+j.meta;
+    $('txt').innerHTML=j.txt;
+    const pg=$('page'),w=pg.clientWidth,h=pg.clientHeight;
+    pageS=DY.Strip($('pagecv'),{w,h,seed:'page'+j.id,material:'paper'});pageS.fray.fill(-1);pageS.set(j.tgt,1.2);pageS.tide.fill(0);pageS.paint();
+    $('gap').setAttribute('d',j.hole);$('patch').setAttribute('d',j.hole);
+    $('patch').setAttribute('fill',j.done?DY.toHex(j.patch):'none');
+    $('patch').setAttribute('stroke',j.done?DY.toHex(j.patch):'none');$('patch').setAttribute('stroke-width','5');$('patch').setAttribute('stroke-dasharray','2 3');
+    pg.classList.toggle('patched',j.done);
+    $('c1').style.background=DY.toHex(j.tgt);$('c1').textContent='書頁 '+DY.toHex(j.tgt);
+    read()}
+  /* 染紙 */
+  const strip=DY.Strip($('strip'),{w:matchMedia('(max-width:560px)').matches?120:150,h:matchMedia('(max-width:560px)').matches?300:400,seed:'kozo',material:'paper'});
+  function rec(){$('rec').innerHTML=hist.length?hist.map(h=>DY.P[h.p].zh+'・'+DY.M[h.m].zh.replace('無媒染','無')).reduce((a,s)=>{const l=a[a.length-1];if(l&&l.s===s)l.n++;else a.push({s,n:1});return a},[]).map(x=>x.s+' ×'+x.n).join('<br>'):'白楮紙一張<br>還沒下缸'}
+  function read(){const j=JOBS[cur],c=DY.color(A);
+    $('c2').style.background=DY.toHex(c);$('c2').textContent='你的紙 '+DY.toHex(c);
+    if(!hist.length){$('de').textContent='—';$('mend').disabled=true;$('hint').innerHTML='先看書頁：是偏黃、偏紅，還是偏灰？';return}
+    const d=DY.dE(c,j.tgt);$('de').textContent=d.toFixed(1);
+    const a=DY.oklab(c),b=DY.oklab(j.tgt),dL=a[0]-b[0],da=a[1]-b[1],db=a[2]-b[2],dC=Math.hypot(a[1],a[2])-Math.hypot(b[1],b[2]);
+    const ok=d<2&&!j.done;$('mend').disabled=!ok;
+    let h=[];
+    if(d<2)h.push('<em>對上了。</em>按「補上」。');
+    else{
+      if(dL>.015)h.push('還太淺，再浸一回。');else if(dL<-.015)h.push('<em>太深了</em>——深了洗不回來，換新紙。');
+      if(dC<-.02)h.push('太灰，是不是鐵漿下太多？');else if(dC>.02&&dL<.015)h.push('太鮮了，書頁老得比較灰。');
+      if(db<-.012&&dC>-.02)h.push('不夠黃。');else if(db>.012)h.push('太黃了。');
+      if(da>.012)h.push('偏紅。');else if(da<-.012)h.push('偏綠，銅少用。');
+      if(!h.length)h.push('很接近了，差在一點點。換個媒染試試？')}
+    $('hint').innerHTML=h.join(' ')}
+  $('dip').onclick=async()=>{if(strip.busy)return;if(!t0)t0=performance.now();
+    const sR=DY.step(plant,'none'),sF=DY.step(plant,mord);
+    const raw=DY.color(A.map((a,i)=>a+sR[i])),fin=DY.color(A.map((a,i)=>a+sF[i]));
+    A=A.map((a,i)=>a+sF[i]);hist.push({p:plant,m:mord});dipsTotal++;
+    $('dip').disabled=true;$('hint').textContent=DY.P[plant].zh+'缸・'+DY.M[mord].zh+'——第 '+hist.length+' 回下缸……';
+    await strip.dip(raw,fin,{bath:.62,reach:.06});$('dip').disabled=false;rec();read()};
+  $('fresh').onclick=()=>{if(strip.busy)return;A=[0,0,0];hist=[];strip.reset();rec();read()};
+  $('mend').onclick=()=>{const j=JOBS[cur];if(j.done)return;const c=DY.color(A);
+    j.done=true;j.patch=c;j.recipe=$('rec').innerHTML.replace(/<br>/g,'＋');j.de=DY.dE(c,j.tgt);
+    mine.push({job:j.id,hex:DY.toHex(c),recipe:j.recipe,de:j.de.toFixed(1)});
+    try{const prev=JSON.parse(sessionStorage.getItem('pheh-mine')||'[]');prev.push(mine[mine.length-1]);sessionStorage.setItem('pheh-mine',JSON.stringify(prev))}catch(e){}
+    $('mine').innerHTML=mine.map(m=>'<li><i style="background:'+m.hex+';clip-path:polygon(4% 2%,96% 0,100% 30%,95% 64%,100% 97%,60% 100%,30% 96%,0 100%,3% 60%,0 28%)"></i><span class="label">'+m.job+'頁<br><i>'+m.recipe+'</i><br>ΔE '+m.de+'</span></li>').join('');
+    A=[0,0,0];hist=[];strip.reset();rec();
+    loadJob();
+    const next=JOBS.findIndex(x=>!x.done);
+    if(next<0)finish();else setTimeout(()=>{cur=next;loadJob()},900)};
+  function finish(){const s=Math.round((performance.now()-t0)/1000);
+    $('done').classList.add('on');
+    $('done').innerHTML='<h2>三頁補好了。</h2><p class="label">共浸 '+dipsTotal+' 回，用了 '+Math.floor(s/60)+' 分 '+(s%60)+' 秒。</p><table><tr><th>頁</th><th>你的配方</th><th>色差</th><th>本室的配方</th></tr>'+JOBS.map(j=>'<tr><td>'+j.id+'</td><td>'+j.recipe+'</td><td>'+j.de.toFixed(1)+'</td><td>'+DY.P[j.sol[0]].zh+'・'+DY.M[j.sol[1]].zh+'・'+NUM[j.sol[2]]+'回</td></tr>').join('')+'</table><p>配方跟本室不同也沒關係——矢車三回和茶五回，補在書上可以是同一個顏色。家裡有要補的書，<a href="visit.html" data-dye="'+getComputedStyle(document.documentElement).getPropertyValue('--cha-fe').trim()+'">帶來給我們看</a>。</p>';
+    $('done').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'})}
+  sync();loadJob();rec();
+  addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(loadJob,200)});
+})();
+</script>
+</body>
+</html>

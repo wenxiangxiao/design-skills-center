@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>攤位名錄｜崁仔腳夜市</title>
+<meta name="description" content="崁仔腳夜市二十四攤：價錢、份量、開攤年份、老闆名字，全部寫在招牌上。">
+<meta name="theme-color" content="#3A5CFF">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2250%22%20height%3D%2250%22%20fill%3D%22%23111%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2250%22%20height%3D%2250%22%20fill%3D%22%23FFD400%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M4%2020h50%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M4%204h50v16H4z%22%20fill%3D%22%23FF5C8A%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M17%204v16M30%204v16M43%204v16%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M15%2050V28h7v8l8-8h9l-11%2010%2012%2012h-10l-8-8v8z%22%20fill%3D%22%23111%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@500;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ===== 崁仔腳夜市 · Neubrutalism core ===== */
+@property --z{syntax:'<length>';inherits:false;initial-value:6px}
+@property --sway{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{
+  --ink:#111111; --paper:#FFF8E7; --tarp:#3A5CFF; --sign:#FFD400; --hot:#FF5C8A; --mint:#2EE59D; --orange:#FF7A1A;
+  --b:3px;
+  /* 落牌：一條 linear() 同時寫下落、撞地（超過 1＝壓到 0）、回彈、靜止 */
+  --slam:linear(0, 0.08 8%, 0.3 16%, 0.66 25%, 1.14 34%, 0.93 43%, 0.9 47%, 0.95 52%, 1.06 60%, 0.99 69%, 1.02 79%, 1);
+  /* 鐵捲門：落下時撞底小彈兩下 */
+  --shut:linear(0, 0.12 10%, 0.45 25%, 1 42%, 0.94 50%, 1 58%, 0.985 66%, 1);
+  --display:"Archivo Black","Noto Sans TC",system-ui,sans-serif;
+  --zh:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"Space Mono",ui-monospace,"Menlo",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--tarp);color:var(--ink);-webkit-text-size-adjust:100%}
+body{font-family:var(--zh);font-weight:500;line-height:1.55;background:var(--tarp);min-height:100vh;padding-bottom:96px;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;box-shadow:0 0 0 7px var(--sign)}
+::selection{background:var(--sign);color:var(--ink)}
+/* 裸露的捲軸：也是零件 */
+html{scrollbar-color:var(--ink) var(--sign);scrollbar-width:auto}
+::-webkit-scrollbar{width:16px;height:16px}
+::-webkit-scrollbar-track{background:var(--sign);border-left:3px solid var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--ink);border:3px solid var(--sign)}
+
+/* ---- slab：特徵 1＋2 ---- */
+.slab{
+  border:var(--b) solid var(--ink); background:var(--paper); border-radius:0;
+  transform:translate(calc(var(--z) * -1),calc(var(--z) * -1));
+  box-shadow:var(--z) var(--z) 0 0 var(--ink);
+  transition:--z 90ms steps(3,end);
+}
+.lift:hover,.lift:focus-visible{--z:10px}
+.lift:active{--z:0px;transition-duration:40ms}
+.y{background:var(--sign)} .p{background:var(--hot)} .m{background:var(--mint)} .o{background:var(--orange)} .w{background:var(--paper)} .k{background:var(--ink);color:var(--paper)} .t{background:var(--tarp)}
+.slam{animation:slam 620ms var(--slam) both}
+@keyframes slam{from{--z:48px}to{--z:6px}}
+.jolt{animation:jolt 260ms steps(4,end)}
+@keyframes jolt{0%{translate:0 0}25%{translate:3px -2px}50%{translate:-3px 1px}75%{translate:2px 1px}100%{translate:0 0}}
+.nope{animation:nope 300ms steps(6,end)}
+@keyframes nope{0%,100%{translate:0}20%{translate:-8px}40%{translate:8px}60%{translate:-6px}80%{translate:5px}}
+
+/* ---- type：特徵 4 ---- */
+.dsp{font-family:var(--display);font-weight:900;letter-spacing:-.02em;line-height:.92}
+.zh9{font-family:var(--zh);font-weight:900;letter-spacing:-.01em}
+.mono{font-family:var(--mono);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.price{font-family:var(--display);font-weight:900;line-height:.85;letter-spacing:-.03em}
+.price small{font-size:.38em;vertical-align:.95em;margin-right:.06em;letter-spacing:0}
+
+/* ---- sticker：特徵 5 ---- */
+.sticker{display:inline-block;border:var(--b) solid var(--ink);background:var(--sign);padding:.25em .6em;font-family:var(--mono);font-weight:700;font-size:13px;text-transform:uppercase;box-shadow:4px 4px 0 var(--ink);rotate:-4deg}
+.sticker.p{background:var(--hot)} .sticker.m{background:var(--mint)} .sticker.w{background:var(--paper)} .sticker.o{background:var(--orange)}
+
+/* ---- 燈泡串（ambient）---- */
+.bulbs{display:flex;gap:0;justify-content:space-between;padding:0 10px;height:30px;align-items:flex-start;border-top:var(--b) solid var(--ink);background:var(--tarp);position:relative;overflow:hidden}
+.bulbs i{display:block;width:16px;height:16px;border:var(--b) solid var(--ink);border-radius:50%;background:var(--paper);margin-top:7px;flex:none}
+.bulbs i:nth-child(3n+1){animation:bulb 1.8s steps(1,end) infinite}
+.bulbs i:nth-child(3n+2){animation:bulb 1.8s steps(1,end) infinite -.6s}
+.bulbs i:nth-child(3n){animation:bulb 1.8s steps(1,end) infinite -1.2s}
+@keyframes bulb{0%{background:var(--sign)}33%{background:var(--paper)}66%{background:var(--paper)}}
+
+/* ---- tray-dock 托盤底欄（nav）---- */
+.dock{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;display:flex;align-items:stretch;gap:10px;pointer-events:none}
+.dock>*{pointer-events:auto}
+.dock .home{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;text-decoration:none;background:var(--sign)}
+.dock .home svg{width:40px;height:40px;flex:none}
+.dock .home b{font-family:var(--zh);font-weight:900;font-size:17px;line-height:1}
+.dock .home em{display:block;font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700}
+.dock nav{display:flex;gap:10px;flex:1}
+.dock nav a{display:flex;align-items:center;gap:8px;padding:0 16px;text-decoration:none;font-family:var(--zh);font-weight:900;font-size:17px;background:var(--paper)}
+.dock nav a .mono{font-size:11px}
+.dock nav a[aria-current=page]{background:var(--ink);color:var(--paper);--z:0px}
+.dock .traychip{display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--mint);text-decoration:none;font-family:var(--mono);font-weight:700;font-size:13px;white-space:nowrap}
+.dock .traychip b{font-family:var(--display);font-size:22px}
+@media (max-width:760px){.dock nav a .mono{display:none}.dock .home em{display:none}}
+@media (max-width:560px){
+  body{padding-bottom:84px}
+  .dock{left:8px;right:8px;bottom:8px;gap:6px}
+  .dock .home{padding:4px}.dock .home b{display:none}.dock .home svg{width:34px;height:34px}
+  .dock nav{gap:6px}.dock nav a{padding:0 10px;font-size:15px;flex:1;justify-content:center}
+  .dock .traychip{padding:0 8px}.dock .traychip span{display:none}
+}
+
+/* ---- 鐵捲門轉場（transition）---- */
+.shutter{position:fixed;inset:0;z-index:100;pointer-events:none;translate:0 -101%;
+  background:var(--sign);
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--ink) 31px 34px);
+  border-bottom:12px solid var(--ink);display:grid;place-items:end center}
+.shutter span{margin-bottom:28px;font-family:var(--zh);font-weight:900;font-size:clamp(28px,6vw,64px);background:var(--paper);border:var(--b) solid var(--ink);padding:.1em .5em;box-shadow:8px 8px 0 var(--ink)}
+.shutter.down{animation:shutDown 420ms var(--shut) forwards}
+.shutter.up{translate:0 0;animation:shutUp 460ms cubic-bezier(.5,0,.75,0) 80ms forwards}
+@keyframes shutDown{from{translate:0 -101%}to{translate:0 0}}
+@keyframes shutUp{from{translate:0 0}to{translate:0 -101%}}
+
+/* ---- footer ---- */
+.foot{margin:64px 16px 0;display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px}
+.foot>div{padding:18px}
+.foot h4{font-family:var(--zh);font-weight:900;font-size:20px;margin-bottom:6px}
+.foot p,.foot li{font-size:14px;list-style:none}
+.foot .mono{font-size:11px}
+@media (max-width:760px){.foot{grid-template-columns:1fr}}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.noscript{margin:16px;padding:16px}
+
+@media (prefers-reduced-motion:reduce){
+  .slab{transition:none}
+  .slam,.jolt,.nope{animation:none!important}
+  .bulbs i{animation:none!important}
+  .bulbs i:nth-child(2n){background:var(--sign)}
+  .shutter{display:none}
+  .sway{animation:none!important}
+}
+
+
+.top{padding:22px 16px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+.top h1{font-family:var(--zh);font-weight:900;font-size:clamp(48px,9vw,120px);line-height:.9;padding:12px 18px 14px}
+.top h1 .mono{display:block;font-size:13px;margin-top:8px}
+.filters{border:3px solid var(--ink);background:var(--paper);padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px 14px;box-shadow:6px 6px 0 var(--ink);font-weight:900}
+.filters legend{font-family:var(--mono);font-size:11px;background:var(--ink);color:var(--paper);padding:2px 8px}
+.filters label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.filters input{appearance:none;width:22px;height:22px;border:3px solid var(--ink);background:var(--paper);margin:0;display:grid;place-items:center}
+.filters input:checked{background:var(--ink);box-shadow:inset 0 0 0 4px var(--sign)}
+.grid{position:relative;margin:40px 16px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:30px 24px;grid-auto-flow:dense}
+.card{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;position:relative;outline-offset:6px}
+.card:nth-child(5n+1){grid-column:span 2}
+.card header{display:flex;justify-content:space-between;font-size:11px}
+.card .id{background:var(--ink);color:var(--paper);padding:0 6px}
+.card .price{font-size:84px}
+.card:nth-child(5n+1) .price{font-size:128px}
+.card h2{font-size:24px;line-height:1.1}
+.card .stn{font-weight:900;font-size:14px}
+.card .note{font-size:14.5px;border-top:3px solid var(--ink);padding-top:8px;margin-top:4px}
+.card footer{font-size:10.5px;margin-top:auto;padding-top:8px}
+.card.gone{display:none}
+.fb{position:absolute;right:-10px;top:-14px;rotate:4deg}
+.tag{position:absolute;z-index:4;top:calc(anchor(top) - 16px);right:calc(anchor(right) - 12px);position-try-fallbacks:flip-inline;pointer-events:none;white-space:nowrap}
+.tag.gone{display:none}
+@supports (anchor-name:--a){ .card .fb{display:none} }
+@supports not (anchor-name:--a){ .tag{display:none} }
+.pin{position:fixed;z-index:30;position-anchor:--pin;position-area:bottom span-right;margin:14px 0 0 -10px;position-try-fallbacks:flip-block,flip-inline;width:250px;padding:12px 14px;display:none;background:var(--paper)}
+.pin.on{display:block}
+.pin b{font-family:var(--zh);font-weight:900;font-size:18px;display:block}
+.pin p{font-size:13.5px}
+@supports not (anchor-name:--a){ .pin{display:none!important} }
+.count{margin:22px 16px 0;font-family:var(--mono);font-weight:700;color:var(--paper);font-size:13px}
+@media (max-width:560px){.top{grid-template-columns:1fr}.card:nth-child(5n+1){grid-column:auto}.card:nth-child(5n+1) .price,.card .price{font-size:72px}.grid{grid-template-columns:1fr 1fr;gap:22px 16px}.card h2{font-size:19px}.card .note{display:none}}
+@media (max-width:380px){.grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<a class="vh" href="#main">跳到內容</a>
+<main id="main">
+
+<div class="bulbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<header class="top">
+  <h1 class="slab m">攤位名錄<span class="mono">24 STALLS · 3 LANES · PRICES FIRST</span></h1>
+  <fieldset class="filters" id="filters">
+    <legend>看哪些</legend>
+    <label><input type="radio" name="f" value="all" checked> 全部</label>
+    <label><input type="radio" name="f" value="A"> 北巷</label>
+    <label><input type="radio" name="f" value="B"> 中巷</label>
+    <label><input type="radio" name="f" value="C"> 南巷</label>
+    <label><input type="radio" name="f" value="甜"> 甜的</label>
+    <label><input type="radio" name="f" value="喝"> 喝的</label>
+    <label><input type="radio" name="f" value="cheap"> 50 元以下</label>
+  </fieldset>
+</header>
+<p class="count" id="count" role="status">24 攤 · 招牌上最大的字都是價錢</p>
+<div class="grid" id="grid">
+  <article class="card slab lift y" data-id="A1" data-lane="A" data-kind="鹹" tabindex="0" style="anchor-name:--cA1">
+    <header><span class="mono id">A1</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>70</p>
+    <h2 class="zh9">蚵仔煎</h2>
+    <p class="stn">洪記蚵仔煎</p>
+    <p class="note">蚵仔每天下午從東石到，蛋打兩顆不是一顆。</p>
+    <footer class="mono">洪麗卿 · 1987 年開攤</footer>
+    <span class="sticker o fb">加蛋 +15</span>
+  </article>
+  <article class="card slab lift y" data-id="A2" data-lane="A" data-kind="鹹" tabindex="0" style="anchor-name:--cA2">
+    <header><span class="mono id">A2</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>65</p>
+    <h2 class="zh9">大腸包小腸</h2>
+    <p class="stn">阿弟大腸包小腸</p>
+    <p class="note">糯米腸自己灌，蒜片當場切。</p>
+    <footer class="mono">林家弟 · 2009 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift y" data-id="A3" data-lane="A" data-kind="鹹" tabindex="0" style="anchor-name:--cA3">
+    <header><span class="mono id">A3</span><span class="mono">鹹 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>55</p>
+    <h2 class="zh9">胡椒餅</h2>
+    <p class="stn">炭窯胡椒餅</p>
+    <p class="note">一爐四十個，十二分鐘一爐，排到哪爐就是哪爐。</p>
+    <footer class="mono">蔡明哲 · 2014 年開攤</footer>
+    <span class="sticker o fb">一爐 12 分</span>
+  </article>
+  <article class="card slab lift y" data-id="A4" data-lane="A" data-kind="鹹" tabindex="0" style="anchor-name:--cA4">
+    <header><span class="mono id">A4</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>80</p>
+    <h2 class="zh9">鹽酥雞</h2>
+    <p class="stn">九層塔鹽酥雞</p>
+    <p class="note">小份 80。九層塔最後下鍋，不收錢。</p>
+    <footer class="mono">吳淑芬 · 1998 年開攤</footer>
+    <span class="sticker o fb">大份 +40</span>
+  </article>
+  <article class="card slab lift y" data-id="A5" data-lane="A" data-kind="甜" tabindex="0" style="anchor-name:--cA5">
+    <header><span class="mono id">A5</span><span class="mono">甜 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>40</p>
+    <h2 class="zh9">地瓜球</h2>
+    <p class="stn">QQ 地瓜球</p>
+    <p class="note">台農 57 號，下鍋後用鏟子壓扁再放開，壓三次。</p>
+    <footer class="mono">黃柏翰 · 2019 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift y" data-id="A6" data-lane="A" data-kind="喝" tabindex="0" style="anchor-name:--cA6">
+    <header><span class="mono id">A6</span><span class="mono">喝 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>45</p>
+    <h2 class="zh9">甘蔗汁</h2>
+    <p class="stn">整枝甘蔗汁</p>
+    <p class="note">整枝現壓，不加水。冰塊另外裝。</p>
+    <footer class="mono">鄭阿土 · 1979 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift y" data-id="A7" data-lane="A" data-kind="鹹" tabindex="0" style="anchor-name:--cA7">
+    <header><span class="mono id">A7</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>70</p>
+    <h2 class="zh9">臭豆腐</h2>
+    <p class="stn">麻辣臭豆腐</p>
+    <p class="note">鴨血免費續一次，辣度分四級。</p>
+    <footer class="mono">許家豪 · 2006 年開攤</footer>
+    <span class="sticker o fb">加辣免費</span>
+  </article>
+  <article class="card slab lift y" data-id="A8" data-lane="A" data-kind="甜" tabindex="0" style="anchor-name:--cA8">
+    <header><span class="mono id">A8</span><span class="mono">甜 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>50</p>
+    <h2 class="zh9">雞蛋糕</h2>
+    <p class="stn">十顆雞蛋糕</p>
+    <p class="note">一包十顆，不是八顆。</p>
+    <footer class="mono">江美玲 · 2012 年開攤</footer>
+    <span class="sticker o fb">二十顆 95</span>
+  </article>
+  <article class="card slab lift p" data-id="B1" data-lane="B" data-kind="鹹" tabindex="0" style="anchor-name:--cB1">
+    <header><span class="mono id">B1</span><span class="mono">鹹 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>60</p>
+    <h2 class="zh9">刈包</h2>
+    <p class="stn">福州刈包</p>
+    <p class="note">爌肉肥瘦你講，花生粉多給。</p>
+    <footer class="mono">王俊傑 · 2001 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift p" data-id="B2" data-lane="B" data-kind="鹹" tabindex="0" style="anchor-name:--cB2">
+    <header><span class="mono id">B2</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>90</p>
+    <h2 class="zh9">滷味</h2>
+    <p class="stn">阿琴自選滷味</p>
+    <p class="note">一籃最低 90。王子麵一包 10，寫在籃子上。</p>
+    <footer class="mono">李秀琴 · 1995 年開攤</footer>
+    <span class="sticker o fb">王子麵 +10</span>
+  </article>
+  <article class="card slab lift p" data-id="B3" data-lane="B" data-kind="鹹" tabindex="0" style="anchor-name:--cB3">
+    <header><span class="mono id">B3</span><span class="mono">鹹 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>40</p>
+    <h2 class="zh9">蔥油餅加蛋</h2>
+    <p class="stn">阿娥蔥油餅</p>
+    <p class="note">40 已經含蛋。不加蛋 30，招牌上兩個都寫。</p>
+    <footer class="mono">陳阿娥 · 1990 年開攤</footer>
+    <span class="sticker o fb">不加蛋 30</span>
+  </article>
+  <article class="card slab lift p" data-id="B4" data-lane="B" data-kind="甜" tabindex="0" style="anchor-name:--cB4">
+    <header><span class="mono id">B4</span><span class="mono">甜 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>45</p>
+    <h2 class="zh9">豆花</h2>
+    <p class="stn">花生粉圓豆花</p>
+    <p class="note">三樣配料，糖水是二砂熬的。</p>
+    <footer class="mono">張雅婷 · 2016 年開攤</footer>
+    <span class="sticker o fb">加料 +10</span>
+  </article>
+  <article class="card slab lift p" data-id="B5" data-lane="B" data-kind="鹹" tabindex="0" style="anchor-name:--cB5">
+    <header><span class="mono id">B5</span><span class="mono">鹹 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>70</p>
+    <h2 class="zh9">烤玉米</h2>
+    <p class="stn">振興碳烤玉米</p>
+    <p class="note">刷三次醬，烤二十分鐘。要等，先去別攤。</p>
+    <footer class="mono">劉振興 · 1993 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift p" data-id="B6" data-lane="B" data-kind="喝" tabindex="0" style="anchor-name:--cB6">
+    <header><span class="mono id">B6</span><span class="mono">喝 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>55</p>
+    <h2 class="zh9">青蛙下蛋</h2>
+    <p class="stn">青蛙下蛋</p>
+    <p class="note">粉圓下午四點煮，十點前賣完就收。</p>
+    <footer class="mono">周子晴 · 2021 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift p" data-id="B7" data-lane="B" data-kind="鹹" tabindex="0" style="anchor-name:--cB7">
+    <header><span class="mono id">B7</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>120</p>
+    <h2 class="zh9">烤魷魚</h2>
+    <p class="stn">國棟碳烤魷魚</p>
+    <p class="note">整尾，剪好裝袋，胡椒另外撒。</p>
+    <footer class="mono">黃國棟 · 2003 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift p" data-id="B8" data-lane="B" data-kind="甜" tabindex="0" style="anchor-name:--cB8">
+    <header><span class="mono id">B8</span><span class="mono">甜 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>20</p>
+    <h2 class="zh9">車輪餅</h2>
+    <p class="stn">阿香車輪餅</p>
+    <p class="note">一個 20，十個 180。紅豆、奶油、芋頭。</p>
+    <footer class="mono">楊阿香 · 1984 年開攤</footer>
+    <span class="sticker o fb">十個 180</span>
+  </article>
+  <article class="card slab lift m" data-id="C1" data-lane="C" data-kind="鹹" tabindex="0" style="anchor-name:--cC1">
+    <header><span class="mono id">C1</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>80</p>
+    <h2 class="zh9">藥燉排骨</h2>
+    <p class="stn">康記藥燉排骨</p>
+    <p class="note">當歸湯可以續一次，排骨不行。</p>
+    <footer class="mono">康文雄 · 1989 年開攤</footer>
+    <span class="sticker o fb">續湯免費</span>
+  </article>
+  <article class="card slab lift m" data-id="C2" data-lane="C" data-kind="鹹" tabindex="0" style="anchor-name:--cC2">
+    <header><span class="mono id">C2</span><span class="mono">鹹 · ■■□□</span></header>
+    <p class="price"><small>NT$</small>55</p>
+    <h2 class="zh9">大腸麵線</h2>
+    <p class="stn">佩珊大腸麵線</p>
+    <p class="note">香菜另外放，要就自己加。</p>
+    <footer class="mono">謝佩珊 · 2008 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift m" data-id="C3" data-lane="C" data-kind="甜" tabindex="0" style="anchor-name:--cC3">
+    <header><span class="mono id">C3</span><span class="mono">甜 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>40</p>
+    <h2 class="zh9">炸湯圓</h2>
+    <p class="stn">金枝炸湯圓</p>
+    <p class="note">芝麻餡，一份五顆，燙。</p>
+    <footer class="mono">羅金枝 · 1997 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift m" data-id="C4" data-lane="C" data-kind="鹹" tabindex="0" style="anchor-name:--cC4">
+    <header><span class="mono id">C4</span><span class="mono">鹹 · ■■■■</span></header>
+    <p class="price"><small>NT$</small>180</p>
+    <h2 class="zh9">鐵板牛排</h2>
+    <p class="stn">志豪鐵板牛排</p>
+    <p class="note">麵、蛋、玉米濃湯都有。座位十二個，不能訂。</p>
+    <footer class="mono">簡志豪 · 2005 年開攤</footer>
+    <span class="sticker o fb">加麵免費</span>
+  </article>
+  <article class="card slab lift m" data-id="C5" data-lane="C" data-kind="鹹" tabindex="0" style="anchor-name:--cC5">
+    <header><span class="mono id">C5</span><span class="mono">鹹 · ■■■□</span></header>
+    <p class="price"><small>NT$</small>85</p>
+    <h2 class="zh9">生炒花枝</h2>
+    <p class="stn">淑惠生炒花枝</p>
+    <p class="note">大火三十秒起鍋，勾芡不勾太稠。</p>
+    <footer class="mono">曾淑惠 · 2010 年開攤</footer>
+    <span class="sticker o fb">大份 +30</span>
+  </article>
+  <article class="card slab lift m" data-id="C6" data-lane="C" data-kind="喝" tabindex="0" style="anchor-name:--cC6">
+    <header><span class="mono id">C6</span><span class="mono">喝 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>50</p>
+    <h2 class="zh9">木瓜牛奶</h2>
+    <p class="stn">明德木瓜牛奶</p>
+    <p class="note">木瓜一天削四十顆，削完就沒了。</p>
+    <footer class="mono">何明德 · 1992 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift m" data-id="C7" data-lane="C" data-kind="甜" tabindex="0" style="anchor-name:--cC7">
+    <header><span class="mono id">C7</span><span class="mono">甜 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>45</p>
+    <h2 class="zh9">拔絲地瓜</h2>
+    <p class="stn">拔絲地瓜</p>
+    <p class="note">糖絲拉得起來才賣，拉不起來重煮。</p>
+    <footer class="mono">范姜文 · 2018 年開攤</footer>
+    
+  </article>
+  <article class="card slab lift m" data-id="C8" data-lane="C" data-kind="喝" tabindex="0" style="anchor-name:--cC8">
+    <header><span class="mono id">C8</span><span class="mono">喝 · ■□□□</span></header>
+    <p class="price"><small>NT$</small>35</p>
+    <h2 class="zh9">檸檬愛玉</h2>
+    <p class="stn">美雲檸檬愛玉</p>
+    <p class="note">愛玉子手洗，不是果凍粉。</p>
+    <footer class="mono">林美雲 · 1999 年開攤</footer>
+    
+  </article><span class="tag sticker o" data-for="A1" style="position-anchor:--cA1;rotate:-5deg" aria-hidden="true">加蛋 +15</span><span class="tag sticker w" data-for="A3" style="position-anchor:--cA3;rotate:4deg" aria-hidden="true">一爐 12 分</span><span class="tag sticker y" data-for="A4" style="position-anchor:--cA4;rotate:-3deg" aria-hidden="true">大份 +40</span><span class="tag sticker o" data-for="A7" style="position-anchor:--cA7;rotate:6deg" aria-hidden="true">加辣免費</span><span class="tag sticker w" data-for="A8" style="position-anchor:--cA8;rotate:-6deg" aria-hidden="true">二十顆 95</span><span class="tag sticker y" data-for="B2" style="position-anchor:--cB2;rotate:3deg" aria-hidden="true">王子麵 +10</span><span class="tag sticker o" data-for="B3" style="position-anchor:--cB3;rotate:-5deg" aria-hidden="true">不加蛋 30</span><span class="tag sticker w" data-for="B4" style="position-anchor:--cB4;rotate:4deg" aria-hidden="true">加料 +10</span><span class="tag sticker y" data-for="B8" style="position-anchor:--cB8;rotate:-3deg" aria-hidden="true">十個 180</span><span class="tag sticker o" data-for="C1" style="position-anchor:--cC1;rotate:6deg" aria-hidden="true">續湯免費</span><span class="tag sticker w" data-for="C4" style="position-anchor:--cC4;rotate:-6deg" aria-hidden="true">加麵免費</span><span class="tag sticker y" data-for="C5" style="position-anchor:--cC5;rotate:3deg" aria-hidden="true">大份 +30</span></div>
+<div class="pin slab y" id="pin" aria-hidden="true"></div>
+
+</main>
+<footer class="foot">
+  <div class="slab k"><h4>崁仔腳夜市攤商自治會</h4><p>新北市板橋區崁仔腳街 · 24 攤 · 3 條巷 · 每晚 17:30 開攤，週一公休。<br>招牌照〈招牌五條〉畫：價錢比菜名大。</p><p class="mono" style="margin-top:10px;color:var(--sign)">Design Skills Center · 範例站 · 店家與資料皆為虛構示意</p></div>
+  <div class="slab y"><h4>電話</h4><p>(02) 2961-0538<br>每晚 16:00 後</p></div>
+  <div class="slab w"><h4>這站的風格</h4><p>Neubrutalism 新粗獷</p><p><a href="SKILL.md">下載 SKILL.md</a> · <a href="README.md">README</a> · <a href="../../index.html">回藝廊</a></p></div>
+</footer>
+<div class="dock">
+  <a class="home slab lift" href="index.html" aria-label="崁仔腳夜市首頁"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="10" y="10" width="50" height="50" fill="#111"/><rect x="4" y="4" width="50" height="50" fill="#FFD400" stroke="#111" stroke-width="4"/><path d="M4 20h50" stroke="#111" stroke-width="4"/><path d="M4 4h50v16H4z" fill="#FF5C8A" stroke="#111" stroke-width="4"/><path d="M17 4v16M30 4v16M43 4v16" stroke="#111" stroke-width="4"/><path d="M15 50V28h7v8l8-8h9l-11 10 12 12h-10l-8-8v8z" fill="#111"/></svg><span><b>崁仔腳</b><em>NIGHT MARKET</em></span></a>
+  <nav aria-label="主要"><a class="slab lift" href="index.html"><span>掃街</span><span class="mono">CRAWL</span></a><a class="slab lift" href="stalls.html" aria-current="page"><span>攤位</span><span class="mono">STALLS</span></a><a class="slab lift" href="map.html"><span>地圖</span><span class="mono">MAP</span></a></nav>
+  <a class="traychip slab lift" href="index.html#crawl" data-traychip><span>托盤</span><b>0</b><i style="font-style:normal">NT$0</i></a>
+</div>
+<script>window.KHK_STALLS=[{"id":"A1","name":"洪記蚵仔煎","dish":"蚵仔煎","price":70,"fill":3,"kind":"鹹","owner":"洪麗卿"},{"id":"A2","name":"阿弟大腸包小腸","dish":"大腸包小腸","price":65,"fill":3,"kind":"鹹","owner":"林家弟"},{"id":"A3","name":"炭窯胡椒餅","dish":"胡椒餅","price":55,"fill":2,"kind":"鹹","owner":"蔡明哲"},{"id":"A4","name":"九層塔鹽酥雞","dish":"鹽酥雞","price":80,"fill":3,"kind":"鹹","owner":"吳淑芬"},{"id":"A5","name":"QQ 地瓜球","dish":"地瓜球","price":40,"fill":2,"kind":"甜","owner":"黃柏翰"},{"id":"A6","name":"整枝甘蔗汁","dish":"甘蔗汁","price":45,"fill":1,"kind":"喝","owner":"鄭阿土"},{"id":"A7","name":"麻辣臭豆腐","dish":"臭豆腐","price":70,"fill":3,"kind":"鹹","owner":"許家豪"},{"id":"A8","name":"十顆雞蛋糕","dish":"雞蛋糕","price":50,"fill":2,"kind":"甜","owner":"江美玲"},{"id":"B1","name":"福州刈包","dish":"刈包","price":60,"fill":2,"kind":"鹹","owner":"王俊傑"},{"id":"B2","name":"阿琴自選滷味","dish":"滷味","price":90,"fill":3,"kind":"鹹","owner":"李秀琴"},{"id":"B3","name":"阿娥蔥油餅","dish":"蔥油餅加蛋","price":40,"fill":2,"kind":"鹹","owner":"陳阿娥"},{"id":"B4","name":"花生粉圓豆花","dish":"豆花","price":45,"fill":2,"kind":"甜","owner":"張雅婷"},{"id":"B5","name":"振興碳烤玉米","dish":"烤玉米","price":70,"fill":2,"kind":"鹹","owner":"劉振興"},{"id":"B6","name":"青蛙下蛋","dish":"青蛙下蛋","price":55,"fill":1,"kind":"喝","owner":"周子晴"},{"id":"B7","name":"國棟碳烤魷魚","dish":"烤魷魚","price":120,"fill":3,"kind":"鹹","owner":"黃國棟"},{"id":"B8","name":"阿香車輪餅","dish":"車輪餅","price":20,"fill":1,"kind":"甜","owner":"楊阿香"},{"id":"C1","name":"康記藥燉排骨","dish":"藥燉排骨","price":80,"fill":3,"kind":"鹹","owner":"康文雄"},{"id":"C2","name":"佩珊大腸麵線","dish":"大腸麵線","price":55,"fill":2,"kind":"鹹","owner":"謝佩珊"},{"id":"C3","name":"金枝炸湯圓","dish":"炸湯圓","price":40,"fill":1,"kind":"甜","owner":"羅金枝"},{"id":"C4","name":"志豪鐵板牛排","dish":"鐵板牛排","price":180,"fill":4,"kind":"鹹","owner":"簡志豪"},{"id":"C5","name":"淑惠生炒花枝","dish":"生炒花枝","price":85,"fill":3,"kind":"鹹","owner":"曾淑惠"},{"id":"C6","name":"明德木瓜牛奶","dish":"木瓜牛奶","price":50,"fill":1,"kind":"喝","owner":"何明德"},{"id":"C7","name":"拔絲地瓜","dish":"拔絲地瓜","price":45,"fill":1,"kind":"甜","owner":"范姜文"},{"id":"C8","name":"美雲檸檬愛玉","dish":"檸檬愛玉","price":35,"fill":1,"kind":"喝","owner":"林美雲"}];</script>
+<script>
+/* 崁仔腳夜市 shared: shutter transition, tray chip, open/closed by real clock */
+(function(){
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ss = {get:function(k){try{return sessionStorage.getItem(k)}catch(e){return null}},
+            set:function(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+  window.KHK_SS = ss;
+  // --- shutter
+  var sh = document.createElement('div'); sh.className='shutter'; sh.setAttribute('aria-hidden','true');
+  sh.innerHTML='<span>拉鐵門…</span>'; document.body.appendChild(sh);
+  if(!RM && ss.get('khk-shut')==='1'){ sh.querySelector('span').textContent='開門！'; sh.classList.add('up'); }
+  ss.set('khk-shut','0');
+  document.addEventListener('click',function(e){
+    var a=e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var h=a.getAttribute('href');
+    if(!h || h.charAt(0)==='#' || a.target || /^(https?:|mailto:|tel:)/.test(h) || e.metaKey||e.ctrlKey||e.shiftKey||e.button) return;
+    if(RM) return;
+    e.preventDefault(); ss.set('khk-shut','1');
+    sh.classList.remove('up'); sh.querySelector('span').textContent='拉鐵門…'; void sh.offsetWidth; sh.classList.add('down');
+    setTimeout(function(){location.href=h},430);
+  });
+  window.addEventListener('pageshow',function(ev){ if(ev.persisted){sh.classList.remove('down','up');} });
+  // --- tray chip
+  window.KHK_chip = function(){
+    var c=document.querySelector('[data-traychip]'); if(!c) return;
+    var t=[]; try{t=JSON.parse(ss.get('khk-tray')||'[]')}catch(e){}
+    var S=window.KHK_STALLS||[], m=0; t.forEach(function(id){S.forEach(function(s){if(s.id===id)m+=s.price})});
+    c.querySelector('b').textContent=t.length; c.querySelector('i').textContent='NT$'+m;
+  };
+  window.KHK_chip();
+  // --- open / closed (真實時刻)
+  function status(){
+    var d=new Date(), h=d.getHours()+d.getMinutes()/60, day=d.getDay();
+    var open = day!==1 && (h>=17.5);
+    document.querySelectorAll('[data-open]').forEach(function(el){
+      el.textContent = day===1 ? '週一公休' : open ? '營業中 · 收攤 24:00' : (h<17.5 ? '17:30 開攤' : '收攤了');
+      el.classList.toggle('m',open); el.classList.toggle('o',!open);
+    });
+    document.documentElement.classList.toggle('closed',!open);
+  }
+  status(); setInterval(status,60000);
+})();
+
+</script>
+<script>
+/* 崁仔腳夜市 route engine — shared by index (掃街) and map (你的路線) */
+window.KHK_ROUTE = (function(){
+  var STEP=12, GAP=15, J=[0,48,96], LY={A:0,B:15,C:30};
+  function pos(id){ var lane=id.charAt(0), n=+id.slice(1)-1; return {lane:lane, x:n*STEP+6, y:LY[lane]}; }
+  function d(a,b){
+    if(a.lane===b.lane) return Math.abs(a.x-b.x);
+    var best=1e9, bj=0; J.forEach(function(j){ var v=Math.abs(a.x-j)+Math.abs(b.x-j)+Math.abs(a.y-b.y); if(v<best){best=v;bj=j;} });
+    return best;
+  }
+  function via(a,b){
+    if(a.lane===b.lane) return [[a.x,a.y],[b.x,b.y]];
+    var best=1e9, bj=0; J.forEach(function(j){ var v=Math.abs(a.x-j)+Math.abs(b.x-j); if(v<best){best=v;bj=j;} });
+    return [[a.x,a.y],[bj,a.y],[bj,b.y],[b.x,b.y]];
+  }
+  var ENTRY={lane:'A',x:0,y:0};
+  /* Held-Karp：從入口出發、走完全部、最後走到最近的巷口離開 */
+  function solve(ids){
+    var n=ids.length; if(!n) return {order:[],meters:0,path:[]};
+    var P=ids.map(pos), N=1<<n, INF=1e9;
+    var dp=new Float64Array(N*n).fill(INF), par=new Int16Array(N*n).fill(-1);
+    for(var i=0;i<n;i++) dp[(1<<i)*n+i]=d(ENTRY,P[i]);
+    for(var m=1;m<N;m++) for(var i=0;i<n;i++){
+      var cur=dp[m*n+i]; if(cur>=INF || !(m&(1<<i))) continue;
+      for(var k=0;k<n;k++){ if(m&(1<<k)) continue; var nm=m|(1<<k), v=cur+d(P[i],P[k]);
+        if(v<dp[nm*n+k]){dp[nm*n+k]=v; par[nm*n+k]=i;} }
+    }
+    var full=N-1, bi=0, bv=INF;
+    for(var i=0;i<n;i++){ var exitCost=Math.min(P[i].x, 96-P[i].x); var v=dp[full*n+i]+exitCost; if(v<bv){bv=v;bi=i;} }
+    var order=[], m=full, i=bi; while(i!==-1){ order.unshift(i); var pi=par[m*n+i]; m&=~(1<<i); i=pi; }
+    var pts=[[ENTRY.x,ENTRY.y]], prev=ENTRY;
+    order.forEach(function(k){ var seg=via(prev,P[k]); seg.shift(); pts=pts.concat(seg); prev=P[k]; });
+    var last=P[order[order.length-1]], ex=last.x<48?0:96; pts.push([ex,last.y]);
+    return {order:order.map(function(k){return ids[k]}), meters:Math.round(bv), path:pts, exit:(ex?'東':'西')+'口・'+({A:'北巷',B:'中巷',C:'南巷'})[last.lane]};
+  }
+  function fnv(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return h; }
+  /* SVG 地圖：x 公尺 → px */
+  function svg(S, route, opts){
+    opts=opts||{}; var W=opts.w||640, X=function(x){return 44+x*((W-88)/96)}, Y=function(y){return 52+y*5.6};
+    var col={A:'var(--sign)',B:'var(--hot)',C:'var(--mint)'};
+    var o='<svg viewBox="0 0 '+W+' 290" role="img" aria-label="崁仔腳夜市三條巷與路線" class="mapsvg">';
+    o+='<rect x="'+(X(0)-18)+'" y="'+(Y(0)-30)+'" width="'+(X(96)-X(0)+36)+'" height="'+(Y(30)-Y(0)+60)+'" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>';
+    ['A','B','C'].forEach(function(L){ var y=Y(LY[L]);
+      o+='<rect x="'+(X(0)+4)+'" y="'+(y+4)+'" width="'+(X(96)-X(0))+'" height="22" fill="var(--ink)"/>';
+      o+='<rect x="'+X(0)+'" y="'+y+'" width="'+(X(96)-X(0))+'" height="22" fill="'+col[L]+'" stroke="var(--ink)" stroke-width="3"/>';
+    });
+    J.forEach(function(j){ o+='<rect x="'+(X(j)-7)+'" y="'+Y(0)+'" width="14" height="'+(Y(30)-Y(0)+22)+'" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>'; });
+    S.forEach(function(s){ var p=pos(s.id), on=route&&route.order.indexOf(s.id)>-1;
+      o+='<g class="mstall" data-id="'+s.id+'"><rect x="'+(X(p.x)-11)+'" y="'+(Y(p.y)-26)+'" width="22" height="20" fill="'+(on?'var(--ink)':'var(--paper)')+'" stroke="var(--ink)" stroke-width="3"/>'+
+         '<text x="'+X(p.x)+'" y="'+(Y(p.y)-11)+'" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="10" fill="'+(on?'var(--paper)':'var(--ink)')+'">'+s.id+'</text></g>';
+    });
+    o+='<text x="'+(X(0)-14)+'" y="'+(Y(0)-12)+'" font-family="Noto Sans TC,sans-serif" font-weight="900" font-size="13" fill="var(--ink)">▼入口</text>';
+    if(route && route.path.length>1){
+      var pts=route.path.map(function(p){return X(p[0])+','+(Y(p[1])+11)}).join(' ');
+      o+='<polyline points="'+pts+'" fill="none" stroke="var(--ink)" stroke-width="7" stroke-linejoin="miter" stroke-linecap="square" class="routeline" pathLength="1"/>';
+      route.order.forEach(function(id,i){ var p=pos(id);
+        o+='<g class="mnum"><rect x="'+(X(p.x)-12)+'" y="'+(Y(p.y)+20)+'" width="24" height="22" fill="var(--orange)" stroke="var(--ink)" stroke-width="3"/><text x="'+X(p.x)+'" y="'+(Y(p.y)+36)+'" text-anchor="middle" font-family="Archivo Black,sans-serif" font-size="14" fill="var(--ink)">'+(i+1)+'</text></g>';
+      });
+    }
+    return o+'</svg>';
+  }
+  return {solve:solve, fnv:fnv, svg:svg, pos:pos};
+})();
+
+</script>
+<script>
+
+(function(){
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches, S=window.KHK_STALLS;
+var cards=[].slice.call(document.querySelectorAll('.card')), pin=document.getElementById('pin');
+function apply(v){
+  var n=0; cards.forEach(function(c){ var s=S.filter(function(x){return x.id===c.dataset.id})[0];
+    var on=v==='all'||c.dataset.lane===v||c.dataset.kind===v||(v==='cheap'&&s.price<=50);
+    c.classList.toggle('gone',!on); var t=document.querySelector('.tag[data-for="'+c.dataset.id+'"]'); if(t) t.classList.toggle('gone',!on);
+    if(on){ n++; if(!RM){ c.classList.remove('slam'); void c.offsetWidth; c.style.animationDelay=(n*40)+'ms'; c.classList.add('slam'); } } });
+  document.getElementById('count').textContent=n+' 攤 · 招牌上最大的字都是價錢';
+}
+document.getElementById('filters').addEventListener('change',function(e){ apply(e.target.value); });
+cards.forEach(function(c){ c.addEventListener('animationend',function(){c.classList.remove('slam');c.style.animationDelay='';}); });
+/* 懸停 → 一張共用的黃貼紙改貼到這一攤（錨點跟著換） */
+function show(c){ cards.forEach(function(x){x.style.anchorName='--c'+x.dataset.id}); c.style.anchorName='--c'+c.dataset.id+', --pin';
+  var s=S.filter(function(x){return x.id===c.dataset.id})[0];
+  pin.innerHTML='<b>'+s.name+'</b><p>佔胃 '+s.fill+' 格 · '+s.kind+' · '+s.owner+'</p><p style="margin-top:6px"><a href="index.html?p='+s.id+'#crawl">放進托盤 →</a></p>';
+  pin.classList.add('on'); }
+cards.forEach(function(c){ c.addEventListener('pointerenter',function(){show(c)}); c.addEventListener('focus',function(){show(c)}); });
+document.getElementById('grid').addEventListener('pointerleave',function(){ pin.classList.remove('on'); });
+if(!RM) cards.forEach(function(c,i){ c.style.animationDelay=(i*35)+'ms'; c.classList.add('slam'); });
+})();
+
+</script>
+</body>
+</html>

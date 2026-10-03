@@ -309,6 +309,7 @@
 | 291 | [四十五度拳館 FORTY-FIVE DEGREES](sites/forty-five-degrees/index.html) | 拳擊館（高雄鹽埕・一週九堂・五晚開放練習・週六擂台對打日・借用手套 40 副） | 半調網點 Halftone（AM 四色分色：面積可變的點・C15° M75° Y0° K45° 玫瑰紋・字 K100 不上網・印刷尺寸×放大並置・控制條；WebGL2 即時分色＋數紗鏡） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 292 | [對嘴配音室 DUÌZUǏ](sites/duizui/index.html) | 配音工作室（臺北長安東路 B1・華語配音・對嘴帶寫帶・Booth A 租借・週六對嘴一小時） | 動態字體 Kinetic Typography（片頭字卡傳統＋對嘴帶：字即演員・大小即音量寬度即時長・snap-rotate 字塊拼版・色場硬切；Intl.Segmenter 切詞計分＋可變字型軸＋跨文件 View Transitions） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 293 | [和昌號 南北貨 HÔ-TSHIONG](sites/ho-tshiong/index.html) | 南北貨行（臺北迪化街一段 172 號・十樣年貨・禮盒・年貨大街・清供單取貨） | 膠彩畫 Nihonga／臺灣東洋畫（岩繪具粒徑即明度・骨描・隈取・絹本掛軸表裝；SVG 濾鏡鏈＋SMIL 撒粉遮罩＋Pointer Events 壓力傾斜分層筆刷） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 294 | [崁仔腳夜市 KHÀM-Á-KHA](sites/kham-a-kha/index.html) | 夜市攤商自治會（新北板橋崁仔腳街・24 攤 3 條巷・〈招牌五條〉・掃街路線） | 新粗獷 Neubrutalism（3px 黑框・零模糊硬陰影即高度・螢光筆平色・價錢最大・旋轉貼紙；@property 高度變數＋linear() 落牌＋CSS 錨點定位貼紙） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

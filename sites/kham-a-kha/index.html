@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>崁仔腳夜市｜價錢比菜名大</title>
+<meta name="description" content="新北市板橋區崁仔腳街，二十四攤三條巷，每晚 17:30–24:00。拖攤位進托盤，排出最短的掃街路線。">
+<meta name="theme-color" content="#3A5CFF">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2250%22%20height%3D%2250%22%20fill%3D%22%23111%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%2250%22%20height%3D%2250%22%20fill%3D%22%23FFD400%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M4%2020h50%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M4%204h50v16H4z%22%20fill%3D%22%23FF5C8A%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M17%204v16M30%204v16M43%204v16%22%20stroke%3D%22%23111%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M15%2050V28h7v8l8-8h9l-11%2010%2012%2012h-10l-8-8v8z%22%20fill%3D%22%23111%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@500;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+/* ===== 崁仔腳夜市 · Neubrutalism core ===== */
+@property --z{syntax:'<length>';inherits:false;initial-value:6px}
+@property --sway{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{
+  --ink:#111111; --paper:#FFF8E7; --tarp:#3A5CFF; --sign:#FFD400; --hot:#FF5C8A; --mint:#2EE59D; --orange:#FF7A1A;
+  --b:3px;
+  /* 落牌：一條 linear() 同時寫下落、撞地（超過 1＝壓到 0）、回彈、靜止 */
+  --slam:linear(0, 0.08 8%, 0.3 16%, 0.66 25%, 1.14 34%, 0.93 43%, 0.9 47%, 0.95 52%, 1.06 60%, 0.99 69%, 1.02 79%, 1);
+  /* 鐵捲門：落下時撞底小彈兩下 */
+  --shut:linear(0, 0.12 10%, 0.45 25%, 1 42%, 0.94 50%, 1 58%, 0.985 66%, 1);
+  --display:"Archivo Black","Noto Sans TC",system-ui,sans-serif;
+  --zh:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"Space Mono",ui-monospace,"Menlo",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--tarp);color:var(--ink);-webkit-text-size-adjust:100%}
+body{font-family:var(--zh);font-weight:500;line-height:1.55;background:var(--tarp);min-height:100vh;padding-bottom:96px;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;box-shadow:0 0 0 7px var(--sign)}
+::selection{background:var(--sign);color:var(--ink)}
+/* 裸露的捲軸：也是零件 */
+html{scrollbar-color:var(--ink) var(--sign);scrollbar-width:auto}
+::-webkit-scrollbar{width:16px;height:16px}
+::-webkit-scrollbar-track{background:var(--sign);border-left:3px solid var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--ink);border:3px solid var(--sign)}
+
+/* ---- slab：特徵 1＋2 ---- */
+.slab{
+  border:var(--b) solid var(--ink); background:var(--paper); border-radius:0;
+  transform:translate(calc(var(--z) * -1),calc(var(--z) * -1));
+  box-shadow:var(--z) var(--z) 0 0 var(--ink);
+  transition:--z 90ms steps(3,end);
+}
+.lift:hover,.lift:focus-visible{--z:10px}
+.lift:active{--z:0px;transition-duration:40ms}
+.y{background:var(--sign)} .p{background:var(--hot)} .m{background:var(--mint)} .o{background:var(--orange)} .w{background:var(--paper)} .k{background:var(--ink);color:var(--paper)} .t{background:var(--tarp)}
+.slam{animation:slam 620ms var(--slam) both}
+@keyframes slam{from{--z:48px}to{--z:6px}}
+.jolt{animation:jolt 260ms steps(4,end)}
+@keyframes jolt{0%{translate:0 0}25%{translate:3px -2px}50%{translate:-3px 1px}75%{translate:2px 1px}100%{translate:0 0}}
+.nope{animation:nope 300ms steps(6,end)}
+@keyframes nope{0%,100%{translate:0}20%{translate:-8px}40%{translate:8px}60%{translate:-6px}80%{translate:5px}}
+
+/* ---- type：特徵 4 ---- */
+.dsp{font-family:var(--display);font-weight:900;letter-spacing:-.02em;line-height:.92}
+.zh9{font-family:var(--zh);font-weight:900;letter-spacing:-.01em}
+.mono{font-family:var(--mono);font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.price{font-family:var(--display);font-weight:900;line-height:.85;letter-spacing:-.03em}
+.price small{font-size:.38em;vertical-align:.95em;margin-right:.06em;letter-spacing:0}
+
+/* ---- sticker：特徵 5 ---- */
+.sticker{display:inline-block;border:var(--b) solid var(--ink);background:var(--sign);padding:.25em .6em;font-family:var(--mono);font-weight:700;font-size:13px;text-transform:uppercase;box-shadow:4px 4px 0 var(--ink);rotate:-4deg}
+.sticker.p{background:var(--hot)} .sticker.m{background:var(--mint)} .sticker.w{background:var(--paper)} .sticker.o{background:var(--orange)}
+
+/* ---- 燈泡串（ambient）---- */
+.bulbs{display:flex;gap:0;justify-content:space-between;padding:0 10px;height:30px;align-items:flex-start;border-top:var(--b) solid var(--ink);background:var(--tarp);position:relative;overflow:hidden}
+.bulbs i{display:block;width:16px;height:16px;border:var(--b) solid var(--ink);border-radius:50%;background:var(--paper);margin-top:7px;flex:none}
+.bulbs i:nth-child(3n+1){animation:bulb 1.8s steps(1,end) infinite}
+.bulbs i:nth-child(3n+2){animation:bulb 1.8s steps(1,end) infinite -.6s}
+.bulbs i:nth-child(3n){animation:bulb 1.8s steps(1,end) infinite -1.2s}
+@keyframes bulb{0%{background:var(--sign)}33%{background:var(--paper)}66%{background:var(--paper)}}
+
+/* ---- tray-dock 托盤底欄（nav）---- */
+.dock{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;display:flex;align-items:stretch;gap:10px;pointer-events:none}
+.dock>*{pointer-events:auto}
+.dock .home{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;text-decoration:none;background:var(--sign)}
+.dock .home svg{width:40px;height:40px;flex:none}
+.dock .home b{font-family:var(--zh);font-weight:900;font-size:17px;line-height:1}
+.dock .home em{display:block;font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700}
+.dock nav{display:flex;gap:10px;flex:1}
+.dock nav a{display:flex;align-items:center;gap:8px;padding:0 16px;text-decoration:none;font-family:var(--zh);font-weight:900;font-size:17px;background:var(--paper)}
+.dock nav a .mono{font-size:11px}
+.dock nav a[aria-current=page]{background:var(--ink);color:var(--paper);--z:0px}
+.dock .traychip{display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--mint);text-decoration:none;font-family:var(--mono);font-weight:700;font-size:13px;white-space:nowrap}
+.dock .traychip b{font-family:var(--display);font-size:22px}
+@media (max-width:760px){.dock nav a .mono{display:none}.dock .home em{display:none}}
+@media (max-width:560px){
+  body{padding-bottom:84px}
+  .dock{left:8px;right:8px;bottom:8px;gap:6px}
+  .dock .home{padding:4px}.dock .home b{display:none}.dock .home svg{width:34px;height:34px}
+  .dock nav{gap:6px}.dock nav a{padding:0 10px;font-size:15px;flex:1;justify-content:center}
+  .dock .traychip{padding:0 8px}.dock .traychip span{display:none}
+}
+
+/* ---- 鐵捲門轉場（transition）---- */
+.shutter{position:fixed;inset:0;z-index:100;pointer-events:none;translate:0 -101%;
+  background:var(--sign);
+  background-image:repeating-linear-gradient(180deg,transparent 0 31px,var(--ink) 31px 34px);
+  border-bottom:12px solid var(--ink);display:grid;place-items:end center}
+.shutter span{margin-bottom:28px;font-family:var(--zh);font-weight:900;font-size:clamp(28px,6vw,64px);background:var(--paper);border:var(--b) solid var(--ink);padding:.1em .5em;box-shadow:8px 8px 0 var(--ink)}
+.shutter.down{animation:shutDown 420ms var(--shut) forwards}
+.shutter.up{translate:0 0;animation:shutUp 460ms cubic-bezier(.5,0,.75,0) 80ms forwards}
+@keyframes shutDown{from{translate:0 -101%}to{translate:0 0}}
+@keyframes shutUp{from{translate:0 0}to{translate:0 -101%}}
+
+/* ---- footer ---- */
+.foot{margin:64px 16px 0;display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px}
+.foot>div{padding:18px}
+.foot h4{font-family:var(--zh);font-weight:900;font-size:20px;margin-bottom:6px}
+.foot p,.foot li{font-size:14px;list-style:none}
+.foot .mono{font-size:11px}
+@media (max-width:760px){.foot{grid-template-columns:1fr}}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.noscript{margin:16px;padding:16px}
+
+@media (prefers-reduced-motion:reduce){
+  .slab{transition:none}
+  .slam,.jolt,.nope{animation:none!important}
+  .bulbs i{animation:none!important}
+  .bulbs i:nth-child(2n){background:var(--sign)}
+  .shutter{display:none}
+  .sway{animation:none!important}
+}
+
+
+.hero{padding:22px 16px 10px;position:relative}
+.hero-top{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start;margin-bottom:34px}
+.mname{padding:18px 22px 20px;position:relative}
+.mname h1{font-family:var(--zh);font-weight:900;font-size:clamp(54px,11vw,150px);line-height:.9;letter-spacing:-.04em}
+.mname .en{font-family:var(--display);font-size:clamp(14px,2.1vw,26px);margin-top:10px;letter-spacing:.01em}
+.mname [data-open]{position:absolute;right:-14px;top:-16px;rotate:5deg;font-size:15px}
+.claim{padding:16px 18px;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.claim p.big{font-family:var(--zh);font-weight:900;font-size:clamp(30px,4.2vw,52px);line-height:1}
+.claim p.big b{background:var(--ink);color:var(--sign);padding:0 .12em}
+.claim .facts{font-size:15px}
+.claim .facts span{display:inline-block;border:3px solid var(--ink);padding:0 .4em;margin:0 4px 4px 0;background:var(--paper);font-weight:700}
+.signs{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;position:relative;padding-top:18px}
+.sign{flex:1 1 140px;min-width:132px;padding:12px 14px 12px;display:flex;flex-direction:column;gap:4px;position:relative}
+.sign .price{font-size:clamp(64px,8.6vw,124px)}
+.sign .dish{font-size:clamp(17px,1.6vw,22px)}
+.sign .who{font-size:11px}
+.sign:nth-child(2n){margin-bottom:22px}
+.sign:nth-child(3){margin-bottom:40px}
+.fb{position:absolute;right:-10px;top:-16px}
+.hang{position:absolute;top:calc(anchor(top) - 22px);left:calc(anchor(right) - 74px);transform-origin:50% -10px;z-index:3;white-space:nowrap}
+.sway{animation:sway 2.6s ease-in-out infinite alternate}
+@keyframes sway{from{rotate:-7deg}to{rotate:5deg}}
+@supports (anchor-name:--a){ .sign .fb{display:none} }
+@supports not (anchor-name:--a){ .hang{display:none} }
+.hero .sign{--z:6px}
+.hero .hang{visibility:hidden}.hero.done .hang{visibility:visible}
+@media (pointer:coarse){.stall{touch-action:manipulation}}
+.hero.pre .sign{--z:48px;visibility:hidden}
+
+.sec{margin:70px 16px 0}
+.sechd{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:22px}
+.sechd h2{font-family:var(--zh);font-weight:900;font-size:clamp(40px,7vw,92px);line-height:.9;padding:10px 18px 12px}
+.sechd h2 .mono{display:block;font-size:13px;margin-top:6px}
+.how{padding:12px 16px;max-width:560px;counter-reset:h}
+.how li{list-style:none;padding-left:34px;position:relative;margin:4px 0;font-weight:700}
+.how li::before{counter-increment:h;content:counter(h);position:absolute;left:0;top:1px;width:24px;height:24px;border:3px solid var(--ink);background:var(--sign);font-family:var(--display);font-size:13px;display:grid;place-items:center}
+
+.crawl{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.lane{margin-bottom:26px}
+.lanehd{display:inline-flex;gap:12px;align-items:baseline;padding:4px 12px;margin-bottom:14px;--z:4px}
+.lanehd .zh9{font-size:20px}.lanehd .mono{font-size:11px}
+.lanegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.stall{position:relative;text-align:left;padding:10px 12px 10px;display:flex;flex-direction:column;gap:2px;min-height:118px;touch-action:none;user-select:none;-webkit-user-select:none}
+.stall .price{font-size:46px}
+.stall .dish{font-size:17px;line-height:1.15}
+.stall .meta{font-size:10.5px;margin-top:auto}
+.stall .meta i{font-style:normal;letter-spacing:1px}
+.stall .plus{position:absolute;right:-3px;top:-3px;width:30px;height:30px;border:3px solid var(--ink);background:var(--ink);color:var(--paper);font-family:var(--display);font-size:22px;line-height:22px;text-align:center}
+.stall.in{background:var(--ink);color:var(--paper);--z:0px}
+.stall.in .plus{background:var(--paper);color:var(--ink)}
+.stall.in .plus::after{content:"✓";position:absolute;inset:0;background:var(--paper);color:var(--ink);font-size:16px;line-height:24px}
+
+.tray{position:sticky;top:16px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.tray h3{font-family:var(--zh);font-weight:900;font-size:26px;display:flex;justify-content:space-between;align-items:baseline}
+.tray h3 .mono{font-size:11px}
+.trayin{display:grid;grid-template-columns:118px 1fr;gap:12px}
+.gut{position:relative;height:372px;border:3px solid var(--ink);background:var(--paper);display:grid;grid-template-rows:repeat(12,1fr);padding:3px;gap:3px;
+}
+.gut .tick{position:absolute;left:-3px;right:-3px;border-top:3px dashed var(--ink);pointer-events:none}
+.gut .blk{grid-column:1;border:3px solid var(--ink);display:flex;flex-direction:column;justify-content:center;padding:0 6px;font-weight:900;font-size:13px;line-height:1.1;cursor:pointer;position:relative;--z:3px;transform:translate(calc(var(--z)*-1),calc(var(--z)*-1));box-shadow:var(--z) var(--z) 0 var(--ink);text-align:left}
+.gut .blk small{font-family:var(--mono);font-size:10px;font-weight:700}
+.gut .blk.slam{animation:slamb 620ms var(--slam) both}
+@keyframes slamb{from{--z:40px}to{--z:3px}}
+.gut.hot{background:var(--sign)}
+.gutlab{font-family:var(--mono);font-size:10.5px;font-weight:700;margin-top:6px}
+.side{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.big2{font-family:var(--display);font-size:38px;line-height:.9}
+.wallet{height:26px;border:3px solid var(--ink);background:var(--paper);position:relative}
+.wallet i{position:absolute;left:0;top:0;bottom:0;background:var(--orange);border-right:3px solid var(--ink);width:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;font-family:var(--zh);font-weight:900;font-size:20px;text-decoration:none}
+.btn[disabled]{background:var(--paper);color:#777;cursor:not-allowed;--z:0px;border-style:dashed}
+.btnrow{display:flex;gap:12px}
+.btnrow .btn{flex:1}
+.msg{min-height:1.5em;font-weight:900;font-size:14px}
+
+.ghost{position:fixed;z-index:80;pointer-events:none;margin:0;--z:22px;anchor-name:--ghost;transition:none;width:170px}
+.ghosttag{position:fixed;z-index:81;pointer-events:none;position-anchor:--ghost;position-area:top right;margin:0 0 -18px -26px;position-try-fallbacks:flip-block,flip-inline,flip-block flip-inline;display:none}
+.ghosttag.on{display:inline-block}
+@supports not (anchor-name:--a){ .ghosttag{display:none!important} }
+
+.ticket{margin-top:30px;display:none;grid-template-columns:220px minmax(0,1fr);gap:0;padding:0}
+.ticket.on{display:grid}
+.ticket .no{background:var(--sign);border-right:3px solid var(--ink);padding:16px;display:flex;flex-direction:column;gap:8px}
+.ticket .no .dsp{font-size:72px}
+.ticket .no .mono{font-size:11px}
+.ticket .body{padding:16px 18px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px}
+.mapsvg{width:100%;height:auto;display:block}
+.routeline{stroke-dasharray:1;stroke-dashoffset:0}
+.ticket ol{list-style:none;counter-reset:r}
+.ticket ol li{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:baseline;padding:5px 0;border-bottom:3px solid var(--ink);font-weight:700}
+.ticket ol li::before{counter-increment:r;content:counter(r);font-family:var(--display);background:var(--orange);border:3px solid var(--ink);text-align:center;font-size:13px;line-height:20px}
+.ticket ol li b{font-family:var(--display)}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.stats span{border:3px solid var(--ink);padding:4px 10px;background:var(--paper);font-weight:900}
+.stats span b{font-family:var(--display);font-size:22px;margin-right:4px}
+.verdict{list-style:none;display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
+.verdict li{border-left:8px solid var(--ink);padding-left:10px;font-weight:700}
+.share{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.share input{flex:1;min-width:0;border:3px solid var(--ink);padding:9px 10px;font-family:var(--mono);font-size:12px;background:var(--paper)}
+
+.rules{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:22px}
+.rule{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:16px 18px 18px;position:relative;overflow:visible}
+.rule:nth-child(1){grid-column:span 4}.rule:nth-child(2){grid-column:span 2}.rule:nth-child(3){grid-column:span 3}.rule:nth-child(4){grid-column:span 3}.rule:nth-child(5){grid-column:2 / span 5}
+.rule .rn{font-size:64px}
+.rule h3{font-size:clamp(22px,2.4vw,30px);line-height:1.1;margin-bottom:6px}
+.rule p{font-size:15px;max-width:44ch}
+.rdemo{position:absolute;right:14px;bottom:-18px;border:3px solid var(--ink);background:var(--paper);font-family:var(--display);font-size:26px;padding:2px 12px;box-shadow:6px 6px 0 var(--ink)}
+.r-shadow{box-shadow:14px 14px 0 var(--ink)}.r-sticker{rotate:-6deg;background:var(--sign)}.r-type{font-family:var(--zh);font-weight:900}.r-frame{border-width:6px}
+
+@media (max-width:980px){.crawl{grid-template-columns:1fr}.tray{position:static}.lanegrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ticket{grid-template-columns:1fr}.ticket .no{border-right:0;border-bottom:3px solid var(--ink)}.ticket .body{grid-template-columns:1fr}}
+@media (max-width:760px){.hero-top{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.rule:nth-child(n){grid-column:auto}}
+@media (max-width:560px){.signs{gap:14px}.sign{flex-basis:40%;min-width:0}.sign .price{font-size:60px}.sign:nth-child(n){margin-bottom:0}
+  .stall .price{font-size:38px}.stall{min-height:104px}.trayin{grid-template-columns:96px 1fr}.big2{font-size:30px}.lanegrid{gap:12px}}
+
+</style>
+</head>
+<body>
+<a class="vh" href="#main">跳到內容</a>
+<main id="main">
+
+<div class="bulbs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<header class="hero pre" id="top">
+  <div class="hero-top">
+    <div class="mname slab y">
+      <span class="sticker" data-open>營業中</span>
+      <h1>崁仔腳<br>夜市</h1>
+      <p class="en">KHÀM-Á-KHA NIGHT MARKET</p>
+    </div>
+    <div class="claim slab w">
+      <p class="big">價錢<b>比</b>菜名大。</p>
+      <p class="facts"><span>新北市板橋區崁仔腳街</span><span>24 攤 · 3 條巷</span><span>每晚 17:30–24:00</span><span>週一公休</span></p>
+      <p style="font-size:14px">2025 年夏天，攤商自治會投票通過〈招牌五條〉，二十四面招牌照同一套規矩重畫：黑框、平色、影子往右下，價錢寫最大。</p>
+    </div>
+  </div>
+  <div class="signs" aria-label="六面招牌">
+  <div class="sign slab y" style="anchor-name:--sg0;flex-grow:1.2" data-i="0">
+    <span class="price"><small>NT$</small>70</span>
+    <span class="dish zh9">蚵仔煎</span>
+    <span class="who mono">A1 · 洪記蚵仔煎</span>
+    <span class="sticker w fb">1987 起</span>
+  </div>
+  <div class="sign slab p" style="anchor-name:--sg1;flex-grow:1" data-i="1">
+    <span class="price"><small>NT$</small>120</span>
+    <span class="dish zh9">烤魷魚</span>
+    <span class="who mono">B7 · 國棟碳烤魷魚</span>
+    <span class="sticker w fb">2003 起</span>
+  </div>
+  <div class="sign slab m" style="anchor-name:--sg2;flex-grow:1.35" data-i="2">
+    <span class="price"><small>NT$</small>180</span>
+    <span class="dish zh9">鐵板牛排</span>
+    <span class="who mono">C4 · 志豪鐵板牛排</span>
+    <span class="sticker w fb">2005 起</span>
+  </div>
+  <div class="sign slab w" style="anchor-name:--sg3;flex-grow:0.8" data-i="3">
+    <span class="price"><small>NT$</small>20</span>
+    <span class="dish zh9">車輪餅</span>
+    <span class="who mono">B8 · 阿香車輪餅</span>
+    <span class="sticker w fb">1984 起</span>
+  </div>
+  <div class="sign slab o" style="anchor-name:--sg4;flex-grow:1" data-i="4">
+    <span class="price"><small>NT$</small>55</span>
+    <span class="dish zh9">胡椒餅</span>
+    <span class="who mono">A3 · 炭窯胡椒餅</span>
+    <span class="sticker w fb">2014 起</span>
+  </div>
+  <div class="sign slab y" style="anchor-name:--sg5;flex-grow:0.85" data-i="5">
+    <span class="price"><small>NT$</small>35</span>
+    <span class="dish zh9">檸檬愛玉</span>
+    <span class="who mono">C8 · 美雲檸檬愛玉</span>
+    <span class="sticker w fb">1999 起</span>
+  </div><span class="hang sticker sway m" style="position-anchor:--sg0;animation-delay:-0.00s" aria-hidden="true">排隊最長</span><span class="hang sticker sway p" style="position-anchor:--sg1;animation-delay:-0.37s" aria-hidden="true">最貴</span><span class="hang sticker sway m" style="position-anchor:--sg2;animation-delay:-0.74s" aria-hidden="true">最飽</span><span class="hang sticker sway p" style="position-anchor:--sg3;animation-delay:-1.11s" aria-hidden="true">最便宜</span><span class="hang sticker sway m" style="position-anchor:--sg4;animation-delay:-1.48s" aria-hidden="true">十二分一爐</span><span class="hang sticker sway p" style="position-anchor:--sg5;animation-delay:-1.85s" aria-hidden="true">愛玉手洗</span></div>
+</header>
+
+<section class="sec" id="crawl" aria-labelledby="crawlh">
+  <div class="sechd">
+    <h2 id="crawlh" class="slab p">掃街<span class="mono">THE CRAWL · 90 秒一輪</span></h2>
+    <ol class="how slab w">
+      <li>把攤位拖進右邊的托盤（或按一下）。錢包 NT$350，胃 12 格。</li>
+      <li>塞不下、錢不夠，托盤會把它彈回去。點托盤裡的那塊可以拿出來。</li>
+      <li>按「開吃」，自治會幫你排出最短的掃街路線，印一張號碼牌。</li>
+    </ol>
+  </div>
+  <div class="crawl">
+    <div class="picker">
+  <div class="lane">
+    <h3 class="lanehd slab k"><span class="zh9">北巷</span> <span class="mono">A · NORTH LANE</span></h3>
+    <div class="lanegrid">
+    <button type="button" class="stall slab lift y" data-id="A1" aria-label="蚵仔煎 70 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>70</span>
+      <span class="dish zh9">蚵仔煎</span>
+      <span class="meta mono">A1 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A2" aria-label="大腸包小腸 65 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>65</span>
+      <span class="dish zh9">大腸包小腸</span>
+      <span class="meta mono">A2 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A3" aria-label="胡椒餅 55 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>55</span>
+      <span class="dish zh9">胡椒餅</span>
+      <span class="meta mono">A3 · 鹹 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A4" aria-label="鹽酥雞 80 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>80</span>
+      <span class="dish zh9">鹽酥雞</span>
+      <span class="meta mono">A4 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A5" aria-label="地瓜球 40 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>40</span>
+      <span class="dish zh9">地瓜球</span>
+      <span class="meta mono">A5 · 甜 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A6" aria-label="甘蔗汁 45 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>45</span>
+      <span class="dish zh9">甘蔗汁</span>
+      <span class="meta mono">A6 · 喝 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A7" aria-label="臭豆腐 70 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>70</span>
+      <span class="dish zh9">臭豆腐</span>
+      <span class="meta mono">A7 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift y" data-id="A8" aria-label="雞蛋糕 50 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>50</span>
+      <span class="dish zh9">雞蛋糕</span>
+      <span class="meta mono">A8 · 甜 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button>
+    </div>
+  </div>
+  <div class="lane">
+    <h3 class="lanehd slab k"><span class="zh9">中巷</span> <span class="mono">B · MIDDLE LANE</span></h3>
+    <div class="lanegrid">
+    <button type="button" class="stall slab lift p" data-id="B1" aria-label="刈包 60 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>60</span>
+      <span class="dish zh9">刈包</span>
+      <span class="meta mono">B1 · 鹹 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B2" aria-label="滷味 90 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>90</span>
+      <span class="dish zh9">滷味</span>
+      <span class="meta mono">B2 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B3" aria-label="蔥油餅加蛋 40 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>40</span>
+      <span class="dish zh9">蔥油餅加蛋</span>
+      <span class="meta mono">B3 · 鹹 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B4" aria-label="豆花 45 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>45</span>
+      <span class="dish zh9">豆花</span>
+      <span class="meta mono">B4 · 甜 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B5" aria-label="烤玉米 70 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>70</span>
+      <span class="dish zh9">烤玉米</span>
+      <span class="meta mono">B5 · 鹹 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B6" aria-label="青蛙下蛋 55 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>55</span>
+      <span class="dish zh9">青蛙下蛋</span>
+      <span class="meta mono">B6 · 喝 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B7" aria-label="烤魷魚 120 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>120</span>
+      <span class="dish zh9">烤魷魚</span>
+      <span class="meta mono">B7 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift p" data-id="B8" aria-label="車輪餅 20 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>20</span>
+      <span class="dish zh9">車輪餅</span>
+      <span class="meta mono">B8 · 甜 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button>
+    </div>
+  </div>
+  <div class="lane">
+    <h3 class="lanehd slab k"><span class="zh9">南巷</span> <span class="mono">C · SOUTH LANE</span></h3>
+    <div class="lanegrid">
+    <button type="button" class="stall slab lift m" data-id="C1" aria-label="藥燉排骨 80 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>80</span>
+      <span class="dish zh9">藥燉排骨</span>
+      <span class="meta mono">C1 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C2" aria-label="大腸麵線 55 元，佔胃 2 格，加進托盤">
+      <span class="price"><small>NT$</small>55</span>
+      <span class="dish zh9">大腸麵線</span>
+      <span class="meta mono">C2 · 鹹 · <i title="佔胃 2 格">■■□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C3" aria-label="炸湯圓 40 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>40</span>
+      <span class="dish zh9">炸湯圓</span>
+      <span class="meta mono">C3 · 甜 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C4" aria-label="鐵板牛排 180 元，佔胃 4 格，加進托盤">
+      <span class="price"><small>NT$</small>180</span>
+      <span class="dish zh9">鐵板牛排</span>
+      <span class="meta mono">C4 · 鹹 · <i title="佔胃 4 格">■■■■</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C5" aria-label="生炒花枝 85 元，佔胃 3 格，加進托盤">
+      <span class="price"><small>NT$</small>85</span>
+      <span class="dish zh9">生炒花枝</span>
+      <span class="meta mono">C5 · 鹹 · <i title="佔胃 3 格">■■■□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C6" aria-label="木瓜牛奶 50 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>50</span>
+      <span class="dish zh9">木瓜牛奶</span>
+      <span class="meta mono">C6 · 喝 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C7" aria-label="拔絲地瓜 45 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>45</span>
+      <span class="dish zh9">拔絲地瓜</span>
+      <span class="meta mono">C7 · 甜 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button><button type="button" class="stall slab lift m" data-id="C8" aria-label="檸檬愛玉 35 元，佔胃 1 格，加進托盤">
+      <span class="price"><small>NT$</small>35</span>
+      <span class="dish zh9">檸檬愛玉</span>
+      <span class="meta mono">C8 · 喝 · <i title="佔胃 1 格">■□□□</i></span>
+      <span class="plus" aria-hidden="true">+</span>
+    </button>
+    </div>
+  </div></div>
+    <aside class="tray slab w" aria-label="托盤">
+      <h3>托盤 <span class="mono" id="tcount">0 樣</span></h3>
+      <div class="trayin">
+        <div><div class="gut" id="gut" aria-label="胃，12 格"></div><div class="gutlab">胃 · 12 格</div></div>
+        <div class="side">
+          <div><div class="mono" style="font-size:11px">錢包剩</div><div class="big2" id="left">NT$350</div></div>
+          <div class="wallet" aria-hidden="true"><i id="spent"></i></div>
+          <div><div class="mono" style="font-size:11px">胃還有</div><div class="big2" id="room">12 格</div></div>
+          <p class="msg" id="msg" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="btn slab lift k" id="go" type="button" disabled>開吃 →</button>
+        <button class="btn slab lift w" id="clr" type="button" style="flex:0 0 auto">清空</button>
+      </div>
+    </aside>
+  </div>
+  <div class="ticket slab w" id="ticket" aria-live="polite"></div>
+  <noscript><div class="noscript slab y"><b>需要 JavaScript 才能拖托盤。</b> 價目全部寫在招牌上，也可以直接看 <a href="stalls.html">攤位名錄</a> 與 <a href="map.html">地圖</a>。</div></noscript>
+</section>
+
+<section class="sec" id="rules" aria-labelledby="rulesh">
+  <div class="sechd"><h2 id="rulesh" class="slab y">招牌五條<span class="mono">THE FIVE SIGN RULES · 2025-07-14 自治會大會通過</span></h2></div>
+  <ol class="rules">
+  <li class="rule slab y">
+    <span class="rn dsp">1</span>
+    <div><h3 class="zh9">價錢要比菜名大。</h3><p>客人先看的是錢包，不是菜名。招牌上最大的字一定是數字；菜名第二大；攤名最小。</p></div>
+    <span class="rdemo r-price" aria-hidden="true">70</span>
+  </li>
+  <li class="rule slab p">
+    <span class="rn dsp">2</span>
+    <div><h3 class="zh9">黑框三公分，一面一個顏色。</h3><p>北巷黃、中巷粉、南巷薄荷綠。一面招牌只准一個底色，框一律黑的，三公分，轉角不倒圓。</p></div>
+    <span class="rdemo r-frame" aria-hidden="true">3cm</span>
+  </li>
+  <li class="rule slab m">
+    <span class="rn dsp">3</span>
+    <div><h3 class="zh9">影子只往右下，掛多高影子就多長。</h3><p>所有招牌都朝同一個方向投影：右下四十五度，邊緣是硬的，不能糊。牌子掛高一點，影子就長一點——客人用影子看哪攤離他近。</p></div>
+    <span class="rdemo r-shadow" aria-hidden="true">↘</span>
+  </li>
+  <li class="rule slab w">
+    <span class="rn dsp">4</span>
+    <div><h3 class="zh9">字一律粗黑，不准花體、不准漸層、不准 LED 跑馬燈。</h3><p>攤名、菜名、價錢都用最粗的那一級黑體。要醒目就把字放大，不是把字弄亮。</p></div>
+    <span class="rdemo r-type" aria-hidden="true">粗</span>
+  </li>
+  <li class="rule slab o">
+    <span class="rn dsp">5</span>
+    <div><h3 class="zh9">加價的東西寫出來，寫在貼紙上。</h3><p>加蛋 +10、大份 +20、加辣不用錢——全部寫成貼紙，斜斜貼在招牌角上，誰都看得到。</p></div>
+    <span class="rdemo r-sticker" aria-hidden="true">+10</span>
+  </li></ol>
+</section>
+<span class="ghosttag sticker o" id="ghosttag" aria-hidden="true"></span>
+
+</main>
+<footer class="foot">
+  <div class="slab k"><h4>崁仔腳夜市攤商自治會</h4><p>新北市板橋區崁仔腳街 · 24 攤 · 3 條巷 · 每晚 17:30 開攤，週一公休。<br>招牌照〈招牌五條〉畫：價錢比菜名大。</p><p class="mono" style="margin-top:10px;color:var(--sign)">Design Skills Center · 範例站 · 店家與資料皆為虛構示意</p></div>
+  <div class="slab y"><h4>電話</h4><p>(02) 2961-0538<br>每晚 16:00 後</p></div>
+  <div class="slab w"><h4>這站的風格</h4><p>Neubrutalism 新粗獷</p><p><a href="SKILL.md">下載 SKILL.md</a> · <a href="README.md">README</a> · <a href="../../index.html">回藝廊</a></p></div>
+</footer>
+<div class="dock">
+  <a class="home slab lift" href="index.html" aria-label="崁仔腳夜市首頁"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="10" y="10" width="50" height="50" fill="#111"/><rect x="4" y="4" width="50" height="50" fill="#FFD400" stroke="#111" stroke-width="4"/><path d="M4 20h50" stroke="#111" stroke-width="4"/><path d="M4 4h50v16H4z" fill="#FF5C8A" stroke="#111" stroke-width="4"/><path d="M17 4v16M30 4v16M43 4v16" stroke="#111" stroke-width="4"/><path d="M15 50V28h7v8l8-8h9l-11 10 12 12h-10l-8-8v8z" fill="#111"/></svg><span><b>崁仔腳</b><em>NIGHT MARKET</em></span></a>
+  <nav aria-label="主要"><a class="slab lift" href="index.html" aria-current="page"><span>掃街</span><span class="mono">CRAWL</span></a><a class="slab lift" href="stalls.html"><span>攤位</span><span class="mono">STALLS</span></a><a class="slab lift" href="map.html"><span>地圖</span><span class="mono">MAP</span></a></nav>
+  <a class="traychip slab lift" href="index.html#crawl" data-traychip><span>托盤</span><b>0</b><i style="font-style:normal">NT$0</i></a>
+</div>
+<script>window.KHK_STALLS=[{"id":"A1","name":"洪記蚵仔煎","dish":"蚵仔煎","price":70,"fill":3,"kind":"鹹","owner":"洪麗卿"},{"id":"A2","name":"阿弟大腸包小腸","dish":"大腸包小腸","price":65,"fill":3,"kind":"鹹","owner":"林家弟"},{"id":"A3","name":"炭窯胡椒餅","dish":"胡椒餅","price":55,"fill":2,"kind":"鹹","owner":"蔡明哲"},{"id":"A4","name":"九層塔鹽酥雞","dish":"鹽酥雞","price":80,"fill":3,"kind":"鹹","owner":"吳淑芬"},{"id":"A5","name":"QQ 地瓜球","dish":"地瓜球","price":40,"fill":2,"kind":"甜","owner":"黃柏翰"},{"id":"A6","name":"整枝甘蔗汁","dish":"甘蔗汁","price":45,"fill":1,"kind":"喝","owner":"鄭阿土"},{"id":"A7","name":"麻辣臭豆腐","dish":"臭豆腐","price":70,"fill":3,"kind":"鹹","owner":"許家豪"},{"id":"A8","name":"十顆雞蛋糕","dish":"雞蛋糕","price":50,"fill":2,"kind":"甜","owner":"江美玲"},{"id":"B1","name":"福州刈包","dish":"刈包","price":60,"fill":2,"kind":"鹹","owner":"王俊傑"},{"id":"B2","name":"阿琴自選滷味","dish":"滷味","price":90,"fill":3,"kind":"鹹","owner":"李秀琴"},{"id":"B3","name":"阿娥蔥油餅","dish":"蔥油餅加蛋","price":40,"fill":2,"kind":"鹹","owner":"陳阿娥"},{"id":"B4","name":"花生粉圓豆花","dish":"豆花","price":45,"fill":2,"kind":"甜","owner":"張雅婷"},{"id":"B5","name":"振興碳烤玉米","dish":"烤玉米","price":70,"fill":2,"kind":"鹹","owner":"劉振興"},{"id":"B6","name":"青蛙下蛋","dish":"青蛙下蛋","price":55,"fill":1,"kind":"喝","owner":"周子晴"},{"id":"B7","name":"國棟碳烤魷魚","dish":"烤魷魚","price":120,"fill":3,"kind":"鹹","owner":"黃國棟"},{"id":"B8","name":"阿香車輪餅","dish":"車輪餅","price":20,"fill":1,"kind":"甜","owner":"楊阿香"},{"id":"C1","name":"康記藥燉排骨","dish":"藥燉排骨","price":80,"fill":3,"kind":"鹹","owner":"康文雄"},{"id":"C2","name":"佩珊大腸麵線","dish":"大腸麵線","price":55,"fill":2,"kind":"鹹","owner":"謝佩珊"},{"id":"C3","name":"金枝炸湯圓","dish":"炸湯圓","price":40,"fill":1,"kind":"甜","owner":"羅金枝"},{"id":"C4","name":"志豪鐵板牛排","dish":"鐵板牛排","price":180,"fill":4,"kind":"鹹","owner":"簡志豪"},{"id":"C5","name":"淑惠生炒花枝","dish":"生炒花枝","price":85,"fill":3,"kind":"鹹","owner":"曾淑惠"},{"id":"C6","name":"明德木瓜牛奶","dish":"木瓜牛奶","price":50,"fill":1,"kind":"喝","owner":"何明德"},{"id":"C7","name":"拔絲地瓜","dish":"拔絲地瓜","price":45,"fill":1,"kind":"甜","owner":"范姜文"},{"id":"C8","name":"美雲檸檬愛玉","dish":"檸檬愛玉","price":35,"fill":1,"kind":"喝","owner":"林美雲"}];</script>
+<script>
+/* 崁仔腳夜市 shared: shutter transition, tray chip, open/closed by real clock */
+(function(){
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ss = {get:function(k){try{return sessionStorage.getItem(k)}catch(e){return null}},
+            set:function(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+  window.KHK_SS = ss;
+  // --- shutter
+  var sh = document.createElement('div'); sh.className='shutter'; sh.setAttribute('aria-hidden','true');
+  sh.innerHTML='<span>拉鐵門…</span>'; document.body.appendChild(sh);
+  if(!RM && ss.get('khk-shut')==='1'){ sh.querySelector('span').textContent='開門！'; sh.classList.add('up'); }
+  ss.set('khk-shut','0');
+  document.addEventListener('click',function(e){
+    var a=e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var h=a.getAttribute('href');
+    if(!h || h.charAt(0)==='#' || a.target || /^(https?:|mailto:|tel:)/.test(h) || e.metaKey||e.ctrlKey||e.shiftKey||e.button) return;
+    if(RM) return;
+    e.preventDefault(); ss.set('khk-shut','1');
+    sh.classList.remove('up'); sh.querySelector('span').textContent='拉鐵門…'; void sh.offsetWidth; sh.classList.add('down');
+    setTimeout(function(){location.href=h},430);
+  });
+  window.addEventListener('pageshow',function(ev){ if(ev.persisted){sh.classList.remove('down','up');} });
+  // --- tray chip
+  window.KHK_chip = function(){
+    var c=document.querySelector('[data-traychip]'); if(!c) return;
+    var t=[]; try{t=JSON.parse(ss.get('khk-tray')||'[]')}catch(e){}
+    var S=window.KHK_STALLS||[], m=0; t.forEach(function(id){S.forEach(function(s){if(s.id===id)m+=s.price})});
+    c.querySelector('b').textContent=t.length; c.querySelector('i').textContent='NT$'+m;
+  };
+  window.KHK_chip();
+  // --- open / closed (真實時刻)
+  function status(){
+    var d=new Date(), h=d.getHours()+d.getMinutes()/60, day=d.getDay();
+    var open = day!==1 && (h>=17.5);
+    document.querySelectorAll('[data-open]').forEach(function(el){
+      el.textContent = day===1 ? '週一公休' : open ? '營業中 · 收攤 24:00' : (h<17.5 ? '17:30 開攤' : '收攤了');
+      el.classList.toggle('m',open); el.classList.toggle('o',!open);
+    });
+    document.documentElement.classList.toggle('closed',!open);
+  }
+  status(); setInterval(status,60000);
+})();
+
+</script>
+<script>
+/* 崁仔腳夜市 route engine — shared by index (掃街) and map (你的路線) */
+window.KHK_ROUTE = (function(){
+  var STEP=12, GAP=15, J=[0,48,96], LY={A:0,B:15,C:30};
+  function pos(id){ var lane=id.charAt(0), n=+id.slice(1)-1; return {lane:lane, x:n*STEP+6, y:LY[lane]}; }
+  function d(a,b){
+    if(a.lane===b.lane) return Math.abs(a.x-b.x);
+    var best=1e9, bj=0; J.forEach(function(j){ var v=Math.abs(a.x-j)+Math.abs(b.x-j)+Math.abs(a.y-b.y); if(v<best){best=v;bj=j;} });
+    return best;
+  }
+  function via(a,b){
+    if(a.lane===b.lane) return [[a.x,a.y],[b.x,b.y]];
+    var best=1e9, bj=0; J.forEach(function(j){ var v=Math.abs(a.x-j)+Math.abs(b.x-j); if(v<best){best=v;bj=j;} });
+    return [[a.x,a.y],[bj,a.y],[bj,b.y],[b.x,b.y]];
+  }
+  var ENTRY={lane:'A',x:0,y:0};
+  /* Held-Karp：從入口出發、走完全部、最後走到最近的巷口離開 */
+  function solve(ids){
+    var n=ids.length; if(!n) return {order:[],meters:0,path:[]};
+    var P=ids.map(pos), N=1<<n, INF=1e9;
+    var dp=new Float64Array(N*n).fill(INF), par=new Int16Array(N*n).fill(-1);
+    for(var i=0;i<n;i++) dp[(1<<i)*n+i]=d(ENTRY,P[i]);
+    for(var m=1;m<N;m++) for(var i=0;i<n;i++){
+      var cur=dp[m*n+i]; if(cur>=INF || !(m&(1<<i))) continue;
+      for(var k=0;k<n;k++){ if(m&(1<<k)) continue; var nm=m|(1<<k), v=cur+d(P[i],P[k]);
+        if(v<dp[nm*n+k]){dp[nm*n+k]=v; par[nm*n+k]=i;} }
+    }
+    var full=N-1, bi=0, bv=INF;
+    for(var i=0;i<n;i++){ var exitCost=Math.min(P[i].x, 96-P[i].x); var v=dp[full*n+i]+exitCost; if(v<bv){bv=v;bi=i;} }
+    var order=[], m=full, i=bi; while(i!==-1){ order.unshift(i); var pi=par[m*n+i]; m&=~(1<<i); i=pi; }
+    var pts=[[ENTRY.x,ENTRY.y]], prev=ENTRY;
+    order.forEach(function(k){ var seg=via(prev,P[k]); seg.shift(); pts=pts.concat(seg); prev=P[k]; });
+    var last=P[order[order.length-1]], ex=last.x<48?0:96; pts.push([ex,last.y]);
+    return {order:order.map(function(k){return ids[k]}), meters:Math.round(bv), path:pts, exit:(ex?'東':'西')+'口・'+({A:'北巷',B:'中巷',C:'南巷'})[last.lane]};
+  }
+  function fnv(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return h; }
+  /* SVG 地圖：x 公尺 → px */
+  function svg(S, route, opts){
+    opts=opts||{}; var W=opts.w||640, X=function(x){return 44+x*((W-88)/96)}, Y=function(y){return 52+y*5.6};
+    var col={A:'var(--sign)',B:'var(--hot)',C:'var(--mint)'};
+    var o='<svg viewBox="0 0 '+W+' 290" role="img" aria-label="崁仔腳夜市三條巷與路線" class="mapsvg">';
+    o+='<rect x="'+(X(0)-18)+'" y="'+(Y(0)-30)+'" width="'+(X(96)-X(0)+36)+'" height="'+(Y(30)-Y(0)+60)+'" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>';
+    ['A','B','C'].forEach(function(L){ var y=Y(LY[L]);
+      o+='<rect x="'+(X(0)+4)+'" y="'+(y+4)+'" width="'+(X(96)-X(0))+'" height="22" fill="var(--ink)"/>';
+      o+='<rect x="'+X(0)+'" y="'+y+'" width="'+(X(96)-X(0))+'" height="22" fill="'+col[L]+'" stroke="var(--ink)" stroke-width="3"/>';
+    });
+    J.forEach(function(j){ o+='<rect x="'+(X(j)-7)+'" y="'+Y(0)+'" width="14" height="'+(Y(30)-Y(0)+22)+'" fill="var(--paper)" stroke="var(--ink)" stroke-width="3"/>'; });
+    S.forEach(function(s){ var p=pos(s.id), on=route&&route.order.indexOf(s.id)>-1;
+      o+='<g class="mstall" data-id="'+s.id+'"><rect x="'+(X(p.x)-11)+'" y="'+(Y(p.y)-26)+'" width="22" height="20" fill="'+(on?'var(--ink)':'var(--paper)')+'" stroke="var(--ink)" stroke-width="3"/>'+
+         '<text x="'+X(p.x)+'" y="'+(Y(p.y)-11)+'" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="10" fill="'+(on?'var(--paper)':'var(--ink)')+'">'+s.id+'</text></g>';
+    });
+    o+='<text x="'+(X(0)-14)+'" y="'+(Y(0)-12)+'" font-family="Noto Sans TC,sans-serif" font-weight="900" font-size="13" fill="var(--ink)">▼入口</text>';
+    if(route && route.path.length>1){
+      var pts=route.path.map(function(p){return X(p[0])+','+(Y(p[1])+11)}).join(' ');
+      o+='<polyline points="'+pts+'" fill="none" stroke="var(--ink)" stroke-width="7" stroke-linejoin="miter" stroke-linecap="square" class="routeline" pathLength="1"/>';
+      route.order.forEach(function(id,i){ var p=pos(id);
+        o+='<g class="mnum"><rect x="'+(X(p.x)-12)+'" y="'+(Y(p.y)+20)+'" width="24" height="22" fill="var(--orange)" stroke="var(--ink)" stroke-width="3"/><text x="'+X(p.x)+'" y="'+(Y(p.y)+36)+'" text-anchor="middle" font-family="Archivo Black,sans-serif" font-size="14" fill="var(--ink)">'+(i+1)+'</text></g>';
+      });
+    }
+    return o+'</svg>';
+  }
+  return {solve:solve, fnv:fnv, svg:svg, pos:pos};
+})();
+
+</script>
+<script>
+
+(function(){
+var S=window.KHK_STALLS, R=window.KHK_ROUTE, ss=window.KHK_SS;
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var BUD=350, CAP=12, tray=[];
+var by={}; S.forEach(function(s){by[s.id]=s});
+var gut=document.getElementById('gut'), msg=document.getElementById('msg'), go=document.getElementById('go');
+var LC={A:'y',B:'p',C:'m'};
+for(var i=1;i<12;i++){var t=document.createElement('span');t.className='tick';t.style.top=(i*100/12)+'%';t.style.opacity=i%4?0:1;gut.appendChild(t);}
+/* ---- 開場：六面招牌依序落牌（signature）---- */
+var hero=document.querySelector('.hero'), signs=[].slice.call(document.querySelectorAll('.sign'));
+function slamIn(el,delay,cb){ setTimeout(function(){ el.style.visibility='visible'; el.classList.add('slam');
+  setTimeout(function(){ jolt(el); cb&&cb(); },210); el.addEventListener('animationend',function f(){el.classList.remove('slam');el.removeEventListener('animationend',f)}); },delay); }
+function jolt(el){ var sib=[el.previousElementSibling,el.nextElementSibling];
+  sib.forEach(function(n){ if(n&&n.classList&&(n.classList.contains('sign')||n.classList.contains('stall')||n.classList.contains('blk'))){ n.classList.remove('jolt'); void n.offsetWidth; n.classList.add('jolt'); } }); }
+if(RM){ hero.classList.remove('pre'); hero.classList.add('done'); }
+else { requestAnimationFrame(function(){ hero.classList.remove('pre'); signs.forEach(function(s){s.style.visibility='hidden'}); signs.forEach(function(s,i){ slamIn(s,180+i*150,i===signs.length-1?function(){hero.classList.add('done')}:null); }); }); }
+document.addEventListener('animationend',function(e){ if(e.animationName==='jolt') e.target.classList.remove('jolt'); });
+/* ---- 托盤 ---- */
+function sum(k){ return tray.reduce(function(a,id){return a+by[id][k]},0); }
+function say(t){ msg.textContent=t; }
+function save(){ ss.set('khk-tray',JSON.stringify(tray)); window.KHK_chip&&window.KHK_chip(); }
+function render(slamId){
+  gut.querySelectorAll('.blk').forEach(function(b){b.remove()});
+  var used=0;
+  tray.forEach(function(id){ var s=by[id]; var b=document.createElement('button'); b.type='button';
+    b.className='blk '+LC[id[0]]+(id===slamId&&!RM?' slam':''); var start=CAP-used-s.fill+1; used+=s.fill;
+    b.style.gridRow=start+' / span '+s.fill; b.innerHTML=s.dish+'<small>'+id+' · NT$'+s.price+'</small>';
+    b.setAttribute('aria-label','拿出 '+s.dish); b.onclick=function(){ remove(id) }; gut.appendChild(b); });
+  var m=sum('price'), f=sum('fill');
+  document.getElementById('left').textContent='NT$'+(BUD-m);
+  document.getElementById('room').textContent=(CAP-f)+' 格';
+  document.getElementById('spent').style.width=(m/BUD*100)+'%';
+  document.getElementById('tcount').textContent=tray.length+' 樣';
+  go.disabled=!tray.length;
+  document.querySelectorAll('.stall').forEach(function(b){ var on=tray.indexOf(b.dataset.id)>-1; b.classList.toggle('in',on); b.setAttribute('aria-pressed',on); });
+  gut.classList.toggle('hot',f===CAP);
+  save();
+}
+function add(id,src){
+  var s=by[id]; if(tray.indexOf(id)>-1){ remove(id); return; }
+  if(sum('fill')+s.fill>CAP){ reject(src,'胃塞不下了：'+s.dish+' 要 '+s.fill+' 格，只剩 '+(CAP-sum('fill'))+' 格。'); return; }
+  if(sum('price')+s.price>BUD){ reject(src,'錢不夠：'+s.dish+' NT$'+s.price+'，錢包剩 NT$'+(BUD-sum('price'))+'。'); return; }
+  tray.push(id); render(id); say('＋ '+s.dish+'，NT$'+s.price+'。');
+  if(!RM) setTimeout(function(){ var b=gut.querySelector('.blk:last-of-type'); var all=gut.querySelectorAll('.blk'); if(all.length>1){ var n=all[all.length-2]; n.classList.remove('jolt'); void n.offsetWidth; n.classList.add('jolt'); } gut.classList.remove('jolt'); void gut.offsetWidth; gut.classList.add('jolt'); },210);
+  document.getElementById('ticket').classList.remove('on');
+}
+function remove(id){ tray=tray.filter(function(x){return x!==id}); render(); say('－ '+by[id].dish+'，放回去了。'); document.getElementById('ticket').classList.remove('on'); }
+function reject(src,t){ say(t); [src,gut].forEach(function(el){ if(!el) return; el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); setTimeout(function(){el.classList.remove('nope')},320); }); }
+document.getElementById('clr').onclick=function(){ tray=[]; render(); say('托盤清空。'); document.getElementById('ticket').classList.remove('on'); };
+/* ---- 拖曳（pointer）＋ 錨點價牌 ---- */
+var tag=document.getElementById('ghosttag'), drag=null;
+document.querySelectorAll('.stall').forEach(function(b){
+  b.addEventListener('pointerdown',function(e){ if(e.button||e.pointerType==='touch') return; drag={b:b,x0:e.clientX,y0:e.clientY,on:false,id:b.dataset.id,pid:e.pointerId}; });
+  b.addEventListener('click',function(e){ if(b._dragged){ b._dragged=false; return; } add(b.dataset.id,b); });
+});
+function overTray(x,y){ var r=document.querySelector('.tray').getBoundingClientRect(); return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom; }
+window.addEventListener('pointermove',function(e){
+  if(!drag) return; var dx=e.clientX-drag.x0, dy=e.clientY-drag.y0;
+  if(!drag.on && Math.hypot(dx,dy)>7){ drag.on=true; drag.b._dragged=true;
+    var r=drag.b.getBoundingClientRect(); var g=drag.b.cloneNode(true); g.className=drag.b.className.replace(' lift','')+' ghost'; g.removeAttribute('aria-label');
+    g.style.width=r.width+'px'; document.body.appendChild(g); drag.g=g; drag.ox=e.clientX-r.left; drag.oy=e.clientY-r.top; drag.vx=0; drag.lx=e.clientX;
+    var s=by[drag.id]; tag.textContent='NT$'+s.price+' · '+s.fill+' 格'; tag.classList.add('on'); }
+  if(drag.on){ var g=drag.g; g.style.left=(e.clientX-drag.ox)+'px'; g.style.top=(e.clientY-drag.oy)+'px';
+    drag.vx=drag.vx*.7+(e.clientX-drag.lx)*.3; drag.lx=e.clientX; g.style.rotate=Math.max(-6,Math.min(6,drag.vx*.6))+'deg';
+    var ov=overTray(e.clientX,e.clientY); g.style.setProperty('--z',ov?'30px':'22px'); tag.textContent=(ov?'放下！ ':'')+'NT$'+by[drag.id].price+' · '+by[drag.id].fill+' 格';
+    if(!CSS.supports('anchor-name','--a')){} }
+});
+function end(e){ if(!drag) return; var d=drag; drag=null; tag.classList.remove('on');
+  if(!d.on) return;
+  var ok=overTray(e.clientX,e.clientY), g=d.g;
+  if(ok){ g.remove(); if(tray.indexOf(d.id)<0) add(d.id,d.b); }
+  else { var r=d.b.getBoundingClientRect(); g.style.transition=RM?'none':'left .22s var(--shut), top .22s var(--shut), rotate .22s'; g.style.left=r.left+'px'; g.style.top=r.top+'px'; g.style.rotate='0deg'; setTimeout(function(){g.remove()},RM?0:240); }
+}
+window.addEventListener('pointerup',end); window.addEventListener('pointercancel',end);
+/* ---- 開吃 ---- */
+function verdict(ids,res){
+  var k={鹹:0,甜:0,喝:0}; ids.forEach(function(id){k[by[id].kind]++});
+  var v=[], f=sum('fill'), m=sum('price');
+  if(!k.甜) v.push('沒有甜的收尾。南巷 C3 炸湯圓 NT$40、1 格——會長說「沒吃甜的不算逛完」。');
+  if(!k.喝) v.push('一杯都沒喝。北巷 A6 甘蔗汁就在入口旁，鹽酥雞之前先買。');
+  if(k.鹹>=5) v.push('鹹的 '+k.鹹+' 樣，連續鹹到第三攤會想喝水，路線上已經幫你把甜的插在中間了——如果你有點的話。');
+  if(f===CAP) v.push('胃剛好 12 格滿。自治會的說法是：你是專業的。');
+  else if(f<=6) v.push('胃還剩 '+(CAP-f)+' 格。這樣叫散步，不叫掃街。');
+  if(BUD-m<20) v.push('錢包剩 NT$'+(BUD-m)+'，連一個車輪餅都買不起了，剛剛好。');
+  if(res.meters>260) v.push('要走 '+res.meters+' 公尺，三條巷都跑遍。中段的橫巷是捷徑，路線已經走它了。');
+  if(ids.indexOf('C4')>-1) v.push('志豪鐵板牛排只有十二個座位，排在路線第 '+(res.order.indexOf('C4')+1)+' 站——先佔位再說。');
+  return v.slice(0,4);
+}
+function eat(){
+  if(!tray.length) return;
+  var res=R.solve(tray.slice()); var key=tray.slice().sort().join('.'); var no=('000'+(R.fnv(key)%10000)).slice(-4);
+  var url=location.href.split('#')[0].split('?')[0]+'?p='+key;
+  var t=document.getElementById('ticket');
+  t.innerHTML='<div class="no"><span class="mono">號碼牌 · NO.</span><span class="dsp">'+no+'</span><span class="sticker" style="align-self:flex-start">'+tray.length+' 攤</span><span class="mono">崁仔腳夜市攤商自治會<br>從北巷西口進 · '+res.exit+'出</span></div>'+
+   '<div class="body"><div>'+R.svg(S,res)+'<div class="stats"><span><b>'+res.meters+'</b>公尺</span><span><b>'+sum('price')+'</b>元</span><span><b>'+sum('fill')+'</b>/12 格</span></div>'+
+   '<ul class="verdict">'+verdict(tray,res).map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+   '<div><ol>'+res.order.map(function(id){var s=by[id];return '<li><span>'+s.dish+' <span class="mono" style="font-size:10px">'+id+'</span></span><b>'+s.price+'</b></li>'}).join('')+'</ol>'+
+   '<div class="share" style="margin-top:14px"><input id="shareurl" readonly value="'+url+'" aria-label="分享連結"><button class="btn slab lift y" id="copy" type="button" style="font-size:16px;padding:8px 12px">複製</button></div>'+
+   '<p style="margin-top:12px;font-size:14px">路線已經存好，打開 <a href="map.html">地圖</a> 會畫在大地圖上。</p></div></div>';
+  t.classList.add('on'); if(!RM){ t.classList.remove('slam'); void t.offsetWidth; t.classList.add('slam'); var rl=t.querySelector('.routeline'); if(rl&&rl.animate) rl.animate([{strokeDashoffset:1},{strokeDashoffset:0}],{duration:900,easing:'steps(12,end)'}); }
+  ss.set('khk-route',JSON.stringify({ids:tray,no:no}));
+  document.getElementById('copy').onclick=function(){ var i=document.getElementById('shareurl'); i.select(); try{navigator.clipboard.writeText(i.value)}catch(e){document.execCommand&&document.execCommand('copy')} this.textContent='複製了'; };
+  t.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});
+}
+go.onclick=eat;
+/* ---- 從網址或 session 還原 ---- */
+var q=new URLSearchParams(location.search).get('p'), init=[];
+if(q){ init=q.split('.').filter(function(x){return by[x]}); } else { try{ init=JSON.parse(ss.get('khk-tray')||'[]').filter(function(x){return by[x]}); }catch(e){} }
+init.forEach(function(id){ var s=by[id]; if(sum('fill')+s.fill<=CAP && sum('price')+s.price<=BUD && tray.indexOf(id)<0) tray.push(id); });
+render(); if(q&&tray.length) eat();
+})();
+
+</script>
+</body>
+</html>

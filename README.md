@@ -307,6 +307,7 @@
 | 289 | [八拍有氧 EIGHT COUNT](sites/eight-count/index.html) | 有氧舞蹈教室（Culver City・hi/lo・step・低衝擊與 55+・每週 25 堂・八拍計數 118–138 BPM・首堂免費） | 加州新浪潮 California New Wave（Greiman／Emigre 1984–90：整數倍點陣字×向量字・透視格線地板與浮空原形硬影・粉彩＋三原色・斜軸疊層・MacPaint 圖樣） | EN | Claude Opus 5.5 · 排程 Agent |
 | 290 | [牯嶺鋅版 GULING LINE BLOCK](sites/guling-lineblock/index.html) | 藏書票線版製版所（臺北牯嶺街・鋅凸版・圓盤機代印・描稿・十二種黑・週四看腐蝕） | 比亞茲萊黑白裝飾 Beardsley Black-and-White（1893–98：一位元墨與地・實黑×髮絲線・點列代灰・雙線框留白・孔雀羽眼與鞭形曲線） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 291 | [四十五度拳館 FORTY-FIVE DEGREES](sites/forty-five-degrees/index.html) | 拳擊館（高雄鹽埕・一週九堂・五晚開放練習・週六擂台對打日・借用手套 40 副） | 半調網點 Halftone（AM 四色分色：面積可變的點・C15° M75° Y0° K45° 玫瑰紋・字 K100 不上網・印刷尺寸×放大並置・控制條；WebGL2 即時分色＋數紗鏡） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 292 | [對嘴配音室 DUÌZUǏ](sites/duizui/index.html) | 配音工作室（臺北長安東路 B1・華語配音・對嘴帶寫帶・Booth A 租借・週六對嘴一小時） | 動態字體 Kinetic Typography（片頭字卡傳統＋對嘴帶：字即演員・大小即音量寬度即時長・snap-rotate 字塊拼版・色場硬切；Intl.Segmenter 切詞計分＋可變字型軸＋跨文件 View Transitions） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -311,6 +311,7 @@
 | 293 | [和昌號 南北貨 HÔ-TSHIONG](sites/ho-tshiong/index.html) | 南北貨行（臺北迪化街一段 172 號・十樣年貨・禮盒・年貨大街・清供單取貨） | 膠彩畫 Nihonga／臺灣東洋畫（岩繪具粒徑即明度・骨描・隈取・絹本掛軸表裝；SVG 濾鏡鏈＋SMIL 撒粉遮罩＋Pointer Events 壓力傾斜分層筆刷） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 294 | [崁仔腳夜市 KHÀM-Á-KHA](sites/kham-a-kha/index.html) | 夜市攤商自治會（新北板橋崁仔腳街・24 攤 3 條巷・〈招牌五條〉・掃街路線） | 新粗獷 Neubrutalism（3px 黑框・零模糊硬陰影即高度・螢光筆平色・價錢最大・旋轉貼紙；@property 高度變數＋linear() 落牌＋CSS 錨點定位貼紙） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 295 | [蘗紙補書室 PHEH-TSUÁ](sites/pheh-tsua/index.html) | 古籍紙本修復室（臺南信義街・族譜契書籤詩簿日治謄本・染紙補缺・〈染補〉對色） | 草木染 Kusaki-zome（染材×媒染×回數即色・生成色底・織目斑駁・毛細上爬留潮線・晾竿毛邊・見本帳手寫貼樣；Canvas ImageData 毛細前緣＋scroll-driven view() 吃色＋Beer–Lambert 染料模型） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 296 | [餘暉示波 YUHUI SCOPE ROOM](sites/yuhui-scope/index.html) | 示波器維修室（臺北光華商場後巷 B1・類比示波器維修收購・週五示波器音樂 XY 夜・〈點光〉點播） | CRT 磷光 CRT Phosphor（單一磷光色只分亮度・輝光・立即亮指數暗的餘暉・管面掃描線與機殼軟鍵・字元 ROM＋筆畫向量字；Web Audio 立體聲即 X-Y 訊號＋AnalyserNode 讀回＋Canvas lighter 衰減＋WAAPI 開關機） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -312,6 +312,7 @@
 | 294 | [崁仔腳夜市 KHÀM-Á-KHA](sites/kham-a-kha/index.html) | 夜市攤商自治會（新北板橋崁仔腳街・24 攤 3 條巷・〈招牌五條〉・掃街路線） | 新粗獷 Neubrutalism（3px 黑框・零模糊硬陰影即高度・螢光筆平色・價錢最大・旋轉貼紙；@property 高度變數＋linear() 落牌＋CSS 錨點定位貼紙） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 295 | [蘗紙補書室 PHEH-TSUÁ](sites/pheh-tsua/index.html) | 古籍紙本修復室（臺南信義街・族譜契書籤詩簿日治謄本・染紙補缺・〈染補〉對色） | 草木染 Kusaki-zome（染材×媒染×回數即色・生成色底・織目斑駁・毛細上爬留潮線・晾竿毛邊・見本帳手寫貼樣；Canvas ImageData 毛細前緣＋scroll-driven view() 吃色＋Beer–Lambert 染料模型） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 296 | [餘暉示波 YUHUI SCOPE ROOM](sites/yuhui-scope/index.html) | 示波器維修室（臺北光華商場後巷 B1・類比示波器維修收購・週五示波器音樂 XY 夜・〈點光〉點播） | CRT 磷光 CRT Phosphor（單一磷光色只分亮度・輝光・立即亮指數暗的餘暉・管面掃描線與機殼軟鍵・字元 ROM＋筆畫向量字；Web Audio 立體聲即 X-Y 訊號＋AnalyserNode 讀回＋Canvas lighter 衰減＋WAAPI 開關機） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 297 | [鹿泉湯 LO̍K-TSUÂNN THNG](sites/lok-tsuann/index.html) | 公共浴場（北投溫泉路・青磺大池・白磺桶間・冷泉池・〈尋光〉金頂找物） | 拜占庭鑲嵌 Byzantine Mosaic（玻璃方石與灰縫・斜按金地隨光反射・andamento 順勢・暗色輪廓列分階平塗・寶石珍珠帶與碑銘大寫；OffscreenCanvas Worker 逐片反光＋距離場鋪石＋DeviceOrientation 光向） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

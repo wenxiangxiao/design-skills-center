@@ -317,10 +317,11 @@
 | 299 | [幕間屋 MAKUAI](sites/makuai/index.html) | 劇場中場便當外送（臺北・幕の内・中場前十分鐘送前台・〈盛付〉剛好裝滿才出餐） | 便當格 Bento Grid（零空洞矩形與同心圓角・一格一事・每格一強調色・出血裁切物件・精確覆蓋裝箱器重排） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 300 | [圓光舞廳 ÎNN-KNG](sites/inn-kng/index.html) | 社交舞廳（臺北大稻埕・茶舞夜舞與六重奏・〈舞卡〉排六支舞：速度差不喘、互補色相鄰越亮） | 奧費主義／同時主義 Orphism · Simultanéisme（Delaunay 同心圓盤四分弧・互補色相鄰・零輪廓零漸層・字壓色場・offset-path 舞伴繞場） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 301 | [大川膠鞋 TUĀ-TSHUAN](sites/tua-tshuan/index.html) | 膠鞋廠（臺南永康・藍白拖白雨鞋鋼頭雨鞋紅帆布童鞋・〈刷〉把舊廣告刷到只剩一雙鞋、換底色、坐電車經過受檢） | 德國物件海報 Sachplakat／Plakatstil（Bernhard 1906–08：一件商品平塊無描線・一塊實地三四罐墨・唯一的字是手繪牌名・CSS 3D 廣告柱與電車一瞥） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 302 | [萬花壁紙 BAN-HUE](sites/ban-hue/index.html) | 壁紙布料行（高雄鹽埕・自家七款花樣・流蘇帷幔・〈對花〉上下拖動四幅對齊接縫、撞一塊布、算出要叫幾支） | 極繁 Maximalism（Draper→Venturi「Less is a bore」→Michele 的 Gucci：花樣疊花樣三種尺度・撞色一條串色・Fraunces 軟歪字混排・沙龍密掛金框・扇貝流蘇與蜂蛇・壁紙一幅幅落下） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 181 個產業種子 × 159 個風格種子（28,779 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 195 個產業種子 × 172 個風格種子（33,540 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

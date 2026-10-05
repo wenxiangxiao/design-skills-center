@@ -320,10 +320,11 @@
 | 302 | [萬花壁紙 BAN-HUE](sites/ban-hue/index.html) | 壁紙布料行（高雄鹽埕・自家七款花樣・流蘇帷幔・〈對花〉上下拖動四幅對齊接縫、撞一塊布、算出要叫幾支） | 極繁 Maximalism（Draper→Venturi「Less is a bore」→Michele 的 Gucci：花樣疊花樣三種尺度・撞色一條串色・Fraunces 軟歪字混排・沙龍密掛金框・扇貝流蘇與蜂蛇・壁紙一幅幅落下） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 303 | [白鷺渡 PE̍H-LŌ͘ FERRIES](sites/tsun-thau/index.html) | 渡輪（淡水⇄八里・十二分鐘・〈取景〉在活著的河上拖動取景框，把那一秒凍成漫畫格、選對白、四格印成條漫船票） | 清線派 Ligne claire（Hergé／Jacobs；Swarte 1977 命名：一種線寬不隨縮放・平塗零排線・人物簡背景實・鬆餅格白溝・橢圓對白框與黃色旁白框） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 304 | [後拍理髮廳 ĀU-PHIK](sites/au-phik/index.html) | 理髮廳（中山北路二段・〈壓片〉把名字排上爵士封套，字的位置就是譜，由三位師傅＝三種樂器領奏，選時段壓片即預約） | 爵士封套風 Hard-Bop Sleeve（Reid Miles／Blue Note 1956–67：正方封套・撞破邊界的巨字・黑＋一專色單墨照片・寬窄字對撞的切分排版） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 305 | [同心毛線行 TÂNG-SIM YARN](sites/tang-sim/index.html) | 毛線行（民樂街・1968 起・〈猜線〉只露最外圈回聲線，猜錯線往內退兩圈，五字猜完換到店同心券） | 墨西哥 68 線性識別 Mexico 68 Echo Line（Wyman／Terrazas 1966–68：等距回聲線出血・彩線底線相間一條一色・粗圓實心字・兩形之線合流・圓 token 外套同心環） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 197 個產業種子 × 174 個風格種子（34,278 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 198 個產業種子 × 175 個風格種子（34,650 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

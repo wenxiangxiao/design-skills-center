@@ -316,6 +316,7 @@
 | 298 | [存根茶飲 STUB TEA BAR](sites/tsun-kin/index.html) | 手搖飲料店（臺中一中街・杯貼六行三種強調・〈出杯〉七十五秒晚班） | 熱感收據 Thermal Receipt（58mm 384 點一位元・32 欄欄格・倍高／反白／雙色紅・真 QR 與 Code 39・依真實時間褪色） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 299 | [幕間屋 MAKUAI](sites/makuai/index.html) | 劇場中場便當外送（臺北・幕の内・中場前十分鐘送前台・〈盛付〉剛好裝滿才出餐） | 便當格 Bento Grid（零空洞矩形與同心圓角・一格一事・每格一強調色・出血裁切物件・精確覆蓋裝箱器重排） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 300 | [圓光舞廳 ÎNN-KNG](sites/inn-kng/index.html) | 社交舞廳（臺北大稻埕・茶舞夜舞與六重奏・〈舞卡〉排六支舞：速度差不喘、互補色相鄰越亮） | 奧費主義／同時主義 Orphism · Simultanéisme（Delaunay 同心圓盤四分弧・互補色相鄰・零輪廓零漸層・字壓色場・offset-path 舞伴繞場） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 301 | [大川膠鞋 TUĀ-TSHUAN](sites/tua-tshuan/index.html) | 膠鞋廠（臺南永康・藍白拖白雨鞋鋼頭雨鞋紅帆布童鞋・〈刷〉把舊廣告刷到只剩一雙鞋、換底色、坐電車經過受檢） | 德國物件海報 Sachplakat／Plakatstil（Bernhard 1906–08：一件商品平塊無描線・一塊實地三四罐墨・唯一的字是手繪牌名・CSS 3D 廣告柱與電車一瞥） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

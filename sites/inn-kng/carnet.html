@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>舞卡 Carnet — 排一晚的舞序｜圓光舞廳</title>
+<meta name="description" content="包場前先排舞序：六支舞排進一面圓盤，相鄰速度差不超過 60 BPM，相鄰顏色越互補整晚越亮。排好就開舞預覽，帶走一張舞卡與報價。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 16V0A16 16 0 0 1 32 16z' fill='%23E0442B'/%3E%3Cpath d='M16 16h16A16 16 0 0 1 16 32z' fill='%231F8A5B'/%3E%3Cpath d='M16 16v16A16 16 0 0 1 0 16z' fill='%23E0442B'/%3E%3Cpath d='M16 16H0A16 16 0 0 1 16 0z' fill='%231F8A5B'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23F2B825'/%3E%3Cpath d='M16 8a8 8 0 0 1 0 16z' fill='%231F3FA8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c0:#E0442B;--c1:#EE7B26;--c2:#F2B825;--c3:#9DBA3A;--c4:#1F8A5B;--c5:#3FA4D9;--c6:#1F3FA8;--c7:#6B3FA0;
+  --rose:#E98BA6;--ink:#17161A;--canvas:#EDE4D0;--paper:#F7F1E3;--ink2:#4A4650;
+  --fd:"League Spartan","Noto Sans TC",system-ui,sans-serif;
+  --fb:"Noto Sans TC","League Spartan",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--canvas);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+body{background:var(--canvas);min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--c6);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--paper);padding:8px 12px;z-index:99}
+.skip:focus{left:12px}
+
+/* ---- 特徵 1：同心圓盤，四分硬邊（conic-gradient hard stops） ---- */
+.disc{position:absolute;border-radius:50%;aspect-ratio:1;pointer-events:none}
+.disc .ring{position:absolute;border-radius:50%;inset:var(--in,0);will-change:rotate}
+.disc.live{pointer-events:auto}
+
+/* ---- 特徵 3：字永遠坐在一塊平色的色場上 ---- */
+.field{display:inline-block;padding:.08em .32em .02em;line-height:1.05}
+.f0{background:var(--c0);color:var(--paper)}.f1{background:var(--c1);color:var(--ink)}
+.f2{background:var(--c2);color:var(--ink)}.f3{background:var(--c3);color:var(--ink)}
+.f4{background:var(--c4);color:var(--paper)}.f5{background:var(--c5);color:var(--ink)}
+.f6{background:var(--c6);color:var(--paper)}.f7{background:var(--c7);color:var(--paper)}
+.fr{background:var(--rose);color:var(--ink)}.fk{background:var(--ink);color:var(--paper)}
+.fp{background:var(--paper);color:var(--ink)}
+.caps{font-family:var(--fd);font-weight:800;letter-spacing:-.01em;text-transform:uppercase}
+/* O 被圓盤取代（Simultané 字母） */
+.o-disc{display:inline-block;width:.74em;height:.74em;border-radius:50%;vertical-align:-.02em;margin:0 .02em;
+  background:conic-gradient(var(--a,var(--c0)) 0 25%,var(--b,var(--c4)) 0 50%,var(--a,var(--c0)) 0 75%,var(--b,var(--c4)) 0)}
+
+/* ---- 特徵 5：Rythme sans fin 半圓串列分隔 ---- */
+.rythme{height:28px;background:
+  radial-gradient(circle at 50% 100%,var(--c6) 0 13px,transparent 13.5px) 0 0/56px 28px repeat-x,
+  radial-gradient(circle at 50% 0,var(--c0) 0 13px,transparent 13.5px) 28px 0/56px 28px repeat-x;
+  margin:0}
+.rythme.alt{background:
+  radial-gradient(circle at 50% 100%,var(--c2) 0 13px,transparent 13.5px) 0 0/56px 28px repeat-x,
+  radial-gradient(circle at 50% 0,var(--c7) 0 13px,transparent 13.5px) 28px 0/56px 28px repeat-x}
+
+/* ---- 導覽：雙圓舞伴 couple-orbit ---- */
+.couples{position:fixed;top:14px;right:14px;z-index:40;display:flex;gap:6px;background:var(--ink);padding:8px 10px 6px;}
+.couple{display:grid;justify-items:center;text-decoration:none;color:var(--paper);width:62px;gap:2px}
+.couple .pair{position:relative;width:38px;height:38px;rotate:var(--turn,0deg)}
+.couple .pair i{position:absolute;top:9px;width:20px;height:20px;border-radius:50%}
+.couple .pair i:first-child{left:3px;background:var(--a)}
+.couple .pair i:last-child{right:3px;background:var(--b)}
+.couple span{font-size:11px;line-height:1.2;letter-spacing:.06em;font-weight:700}
+.couple small{font-family:var(--fd);font-size:9px;letter-spacing:.12em;opacity:.7;text-transform:uppercase}
+.couple[aria-current=page] .pair i:first-child{box-shadow:0 0 0 2px var(--paper)}
+.couple[aria-current=page] span{border-bottom:2px solid var(--c2)}
+.couple:hover .pair i,.couple:focus-visible .pair i{transform:scale(1.12)}
+
+/* ---- footer ---- */
+footer.site{background:var(--ink);color:var(--paper);padding:40px 6vw 110px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px;font-size:14px}
+footer.site h4{font-family:var(--fd);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--c2);margin-bottom:8px}
+footer.site a{display:block;text-decoration:none;border-bottom:1px solid transparent;width:max-content}
+footer.site a:hover{border-color:var(--c2)}
+footer.site .fine{grid-column:1/-1;opacity:.6;font-size:12px}
+
+/* ---- 轉場：圓盤 iris ---- */
+#iris{position:fixed;inset:0;z-index:90;pointer-events:none;visibility:hidden;
+  background:conic-gradient(from var(--from,0deg),var(--c0) 0 25%,var(--c6) 0 50%,var(--c2) 0 75%,var(--c4) 0)}
+
+@media (max-width:900px){
+  .couples{top:auto;bottom:0;right:0;left:0;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .couple{width:auto;flex:1}
+  footer.site{grid-template-columns:1fr;padding-bottom:120px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+.chead{padding:100px 6vw 0;display:grid;gap:10px;justify-items:start}
+.chead h1{font-size:clamp(42px,6.4vw,88px);font-weight:900;line-height:.95}
+.rules{display:flex;flex-wrap:wrap;gap:0;margin-top:8px;max-width:980px}
+.rules li{list-style:none;padding:10px 14px;font-size:15px;line-height:1.45;flex:1 1 260px}
+.rules b{font-family:var(--fd);font-size:22px;font-weight:900;margin-right:6px}
+.work{display:grid;grid-template-columns:200px auto 1fr;gap:28px;padding:36px 6vw 60px;align-items:start}
+.palette{display:grid;gap:6px}
+.palette h2,.side h2{font-size:13px;letter-spacing:.14em;font-family:var(--fd);text-transform:uppercase;font-weight:800;margin-bottom:4px}
+.chip{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;border:0;background:var(--paper);padding:6px 10px 6px 6px;font:inherit;font-weight:700;cursor:pointer;text-align:left;transition:transform .12s,background .12s}
+.chip i{width:34px;height:34px;border-radius:50%}
+.chip small{font-family:var(--fd);font-weight:800;font-size:13px}
+.chip:hover,.chip:focus-visible{transform:translateX(6px);background:#fff}
+.chip[aria-disabled=true]{opacity:.38;transform:none;cursor:not-allowed}
+.board{--R:min(25vw,260px);position:relative;width:calc(var(--R)*2 + 80px);aspect-ratio:1}
+.prog{position:absolute;inset:40px;border-radius:50%}
+.prog .l{position:absolute;inset:0;border-radius:50%}
+.prog .l2{inset:18%}
+.prog .l3{inset:30%;background:var(--paper)}
+.pointer{position:absolute;left:50%;top:8px;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--ink);translate:-50% 0;z-index:5}
+.floor2{position:absolute;inset:40px;pointer-events:none;z-index:3}
+.cpl{position:absolute;left:0;top:0;width:34px;height:20px}
+.cpl i{position:absolute;top:0;width:20px;height:20px;border-radius:50%;box-shadow:0 0 0 2px var(--paper)}
+.cpl i:first-child{left:0;background:var(--a)}.cpl i:last-child{left:14px;background:var(--b)}
+/* CSS 三角函數：槽位標籤與交界記號沿圓周就位 */
+.slot{position:absolute;left:50%;top:50%;z-index:4;border:0;cursor:pointer;font:inherit;font-weight:900;font-size:15px;padding:4px 8px;min-width:64px;line-height:1.2;
+  translate:calc(-50% + cos(var(--a)) * var(--r)) calc(-50% + sin(var(--a)) * var(--r));transition:scale .15s,box-shadow .15s}
+.slot.empty{background:var(--canvas);color:var(--ink2);font-weight:500;outline:2px dashed var(--ink2)}
+.slot.sel{box-shadow:0 0 0 4px var(--ink);scale:1.12}
+.slot small{display:block;font-family:var(--fd);font-weight:800;font-size:11px}
+.mark{position:absolute;left:50%;top:50%;z-index:4;font-size:12px;font-weight:900;padding:2px 6px;pointer-events:none;
+  translate:calc(-50% + cos(var(--a)) * var(--r)) calc(-50% + sin(var(--a)) * var(--r));white-space:nowrap}
+.mark.m3{background:var(--ink);color:var(--c2)}.mark.m2{background:var(--ink);color:var(--paper)}
+.mark.m1{background:var(--paper);color:var(--ink)}.mark.m0{background:var(--paper);color:var(--ink2);text-decoration:line-through}
+.mark.breath{background:var(--c0);color:var(--paper);outline:3px solid var(--ink)}
+.hub2{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:4;text-align:center;width:calc(var(--R)*.62);pointer-events:none;line-height:1.25}
+.hub2 b{display:block;font-family:var(--fd);font-weight:900;font-size:clamp(34px,4.4vw,56px);line-height:1}
+.hub2 span{font-size:13px}
+.side{display:grid;gap:14px;align-content:start}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.score div{padding:12px 14px}
+.score b{display:block;font-family:var(--fd);font-weight:900;font-size:40px;line-height:1}
+.btns{display:flex;flex-wrap:wrap;gap:0}
+.btns button{border:0;font:inherit;font-weight:900;padding:13px 18px;cursor:pointer;font-size:15px}
+.btns button:disabled{opacity:.4;cursor:not-allowed}
+.btns button:not(:disabled):hover{background:var(--ink);color:var(--paper)}
+.msg{background:var(--paper);padding:12px 14px;font-size:14px;min-height:4.4em;border-left:8px solid var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#card{margin:0 6vw 80px;display:none;grid-template-columns:minmax(220px,320px) 1fr;background:var(--paper);box-shadow:12px 12px 0 var(--ink)}
+#card.on{display:grid}
+#card .cv{position:relative;background:var(--c6);color:var(--paper);padding:26px;overflow:hidden;min-height:340px}
+#card .cv h2{font-family:var(--fd);font-weight:900;text-transform:uppercase;font-size:34px;line-height:.95;position:relative;z-index:2}
+#card .cv p{position:relative;z-index:2;font-size:14px;margin-top:8px}
+#card .cv .disc{width:260px;right:-70px;bottom:-70px}
+#card .body{padding:24px 28px}
+#card table{width:100%;border-collapse:collapse;font-size:15px}
+#card td{padding:7px 6px;border-bottom:1px solid var(--canvas)}
+#card td:first-child{font-family:var(--fd);font-weight:900;width:64px}
+#card .sw{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:-3px;margin-right:6px}
+#card .quote{margin-top:16px;display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:15px}
+#card .quote b{font-family:var(--fd);font-weight:900}
+#card .tot{font-size:22px;border-top:3px solid var(--ink);padding-top:6px}
+noscript .ns{display:block;margin:0 6vw 40px;background:var(--paper);padding:20px}
+@supports not (translate:calc(cos(10deg) * 1px)){.slot,.mark{translate:none}}
+@media (max-width:1100px){.work{grid-template-columns:1fr auto}.side{grid-column:1/-1}}
+@media (max-width:760px){
+  .chead{padding:40px 16px 0}.work{grid-template-columns:1fr;padding:24px 16px 40px;justify-items:center}
+  .palette{grid-template-columns:1fr 1fr;width:100%}.board{--R:36vw;width:calc(var(--R)*2 + 56px)}.prog,.floor2{inset:28px}
+  .slot{font-size:12px;min-width:48px;padding:3px 5px}.mark{font-size:10px}.side{width:100%}
+  #card{grid-template-columns:1fr;margin:0 16px 60px}
+}
+@media print{.couples,.chead,.work,footer,.rythme{display:none!important}#card{display:grid!important;box-shadow:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="couples" aria-label="主選單"><a class="couple" href="index.html" style="--a:#E0442B;--b:#1F8A5B"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>舞池</span><small>Floor</small></a><a class="couple" href="danses.html" style="--a:#F2B825;--b:#1F3FA8"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>八支舞</span><small>Danses</small></a><a class="couple" href="carnet.html" aria-current="page" style="--a:#EE7B26;--b:#3FA4D9"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>舞卡</span><small>Carnet</small></a><a class="couple" href="salle.html" style="--a:#6B3FA0;--b:#9DBA3A"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>舞廳</span><small>Salle</small></a></nav>
+<main id="main">
+<header class="chead">
+  <span class="field fk" style="font-family:var(--fd);letter-spacing:.2em;font-size:12px;text-transform:uppercase">Carnet de bal · 包場舞序</span>
+  <h1><span class="field f1">排一晚的舞序，</span><br><span class="field f5">讓它轉起來</span></h1>
+  <ul class="rules">
+    <li class="fp"><b>1</b>從左邊挑六支舞，依序排進圓盤（從正上方順時針）。</li>
+    <li class="f2"><b>2</b>相鄰兩支的速度差不能超過 60 BPM，不然舞客會喘——標紅的交界要拆開。</li>
+    <li class="f6"><b>3</b>相鄰兩色越互補，那一段越亮；滿盤是 13 分。排好按「開舞」。</li>
+  </ul>
+</header>
+<noscript><span class="ns">這一頁的排舞需要 JavaScript。範例舞序（13 分）：狐步 116 → 吉魯巴 172 → 探戈 128 → 倫巴 104 → 恰恰 124 → 布魯斯 72。包場請直接來電 (02) 2558-3176。</span></noscript>
+<section class="work" aria-label="排舞工作台">
+  <div class="palette" id="palette" role="group" aria-label="八支舞"><h2>八支舞 · 點一下排入</h2></div>
+  <div class="board" id="board">
+    <div class="pointer" aria-hidden="true"></div>
+    <div class="prog" id="prog" aria-hidden="true"><div class="l l1" id="l1"></div><div class="l l2" id="l2"></div><div class="l l3"></div></div>
+    <div class="floor2" id="floor2" aria-hidden="true"></div>
+    <div class="hub2" id="hub2"><b id="hubB">0/6</b><span id="hubS">已排入</span></div>
+  </div>
+  <aside class="side">
+    <h2>這一晚</h2>
+    <div class="score"><div class="fk"><b id="sc">0</b>同時分 / 13</div><div class="f0" id="brBox"><b id="br">0</b>喘點</div></div>
+    <div class="btns">
+      <button type="button" class="f2" id="auto">領班幫我排</button>
+      <button type="button" class="fp" id="clear">清空</button>
+      <button type="button" class="f4" id="go" disabled>開舞 ▶</button>
+    </div>
+    <p class="msg" id="msg" aria-live="polite">點一支舞，它會排進下一個空槽。點圓盤上已排的舞可以選取，再點另一槽就互換；連點兩下拿掉。</p>
+  </aside>
+</section>
+<section id="card" aria-label="你的舞卡">
+  <div class="cv" id="cv"><h2>Carnet<br>de bal</h2><p>圓光舞廳 包場舞序<br>延平北路二段 61 號 3F</p></div>
+  <div class="body">
+    <table id="ctab"></table>
+    <div class="quote" id="quote"></div>
+    <div class="btns" style="margin-top:16px"><button type="button" class="f0" id="save">存進舞卡（舞廳頁會看到）</button><button type="button" class="fp" id="print">列印</button></div>
+  </div>
+</section>
+</main>
+<div class="rythme alt" aria-hidden="true"></div>
+<footer class="site">
+<div><h4>圓光舞廳 Înn-kng Ballroom</h4>
+<p>臺北市大同區延平北路二段 61 號 3 樓（電梯直達，鞋櫃在右）<br>(02) 2558-3176 ・ 週一公休<br>茶舞 週三・六・日 14:00–17:30　夜舞 週五・六 20:00–23:30</p></div>
+<div><h4>頁面</h4><a href="index.html">舞池 Floor</a><a href="danses.html">八支舞 Danses</a><a href="carnet.html">舞卡 Carnet</a><a href="salle.html">舞廳 Salle</a></div>
+<div><h4>同時 Simultané</h4><p>天花板圓盤 2024 年由鄭雅文重繪，依 Sonia Delaunay〈Le Bal Bullier〉1913 的色序。</p></div>
+<p class="fine">店家、人物、價格皆為虛構示意。Design Skills Center 範例站 ・ 風格：奧費主義／同時主義 Orphism · Simultanéisme ・ <a href="SKILL.md" style="display:inline">SKILL.md</a></p>
+</footer>
+<div id="iris" aria-hidden="true"></div>
+<script>
+(function(){
+"use strict";
+var H=["#E0442B","#EE7B26","#F2B825","#9DBA3A","#1F8A5B","#3FA4D9","#1F3FA8","#6B3FA0"];
+var EXTRA={r:"#E98BA6",k:"#17161A",w:"#EDE4D0",p:"#F7F1E3"};
+function col(c){return typeof c==="number"?H[((c%8)+8)%8]:(EXTRA[c]||c)}
+function comp(c){return typeof c==="number"?(c+4)%8:(c==="k"?"p":c==="p"?"k":c==="w"?"k":c==="r"?3:c)}
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* conic-gradient 硬邊色段：每段等分、零漸層 */
+function conic(segs,off){
+  var n=segs.length,s=[],i;
+  for(i=0;i<n;i++){s.push(col(segs[i])+" "+(i*100/n).toFixed(3)+"% "+((i+1)*100/n).toFixed(3)+"%")}
+  return "conic-gradient(from "+(off||0)+"deg,"+s.join(",")+")";
+}
+
+/* 旋轉引擎：所有環共用一支 rAF；分頁不可見時停 */
+var spinners=[],last=0,running=false;
+function tick(t){
+  var dt=last?Math.min(.05,(t-last)/1000):0;last=t;
+  for(var i=0;i<spinners.length;i++){
+    var s=spinners[i];
+    s.cur+=(s.spd*(1+s.boost)-s.cur)*Math.min(1,dt*6);   /* 速度緩動，不跳 */
+    s.ang=(s.ang+s.cur*dt)%360;
+    s.el.style.rotate=s.ang.toFixed(2)+"deg";
+  }
+  if(running)requestAnimationFrame(tick);
+}
+function start(){if(RM||running)return;running=true;last=0;requestAnimationFrame(tick)}
+document.addEventListener("visibilitychange",function(){if(document.hidden){running=false}else start()});
+function spin(el,spd,ang){var s={el:el,spd:spd,cur:RM?0:spd,ang:ang||0,boost:0};el.style.rotate=(ang||0)+"deg";spinners.push(s);start();return s}
+
+/* 建立一枚同時圓盤：rings 由外而內 [{segs:[色...],off,spd,w}] w＝環寬佔半徑比例 */
+function makeDisc(host,rings,opt){
+  opt=opt||{};
+  var d=document.createElement("div");d.className="disc"+(opt.live?" live":"");
+  if(opt.cls)d.className+=" "+opt.cls;
+  var inset=0,list=[];
+  rings.forEach(function(r,i){
+    var e=document.createElement("div");e.className="ring";
+    e.style.setProperty("--in",(inset*50).toFixed(3)+"%");
+    e.style.background=conic(r.segs,r.off);
+    e.dataset.i=i;d.appendChild(e);
+    var sp=r.spd===undefined?((i%2?-1:1)*(4+i*1.5)):r.spd;
+    list.push({el:e,r:r,s:spin(e,sp,0)});
+    inset+=r.w||(1/(rings.length+1));
+  });
+  d._rings=list;
+  if(opt.live)liveDisc(d);
+  host.appendChild(d);return d;
+}
+/* 輸入：游標所在的那一環翻成互補色並加速（同時對比示範） */
+function liveDisc(d){
+  var cur=-1;
+  function set(i){
+    if(i===cur)return;
+    if(cur>=0){var o=d._rings[cur];o.el.style.background=conic(o.r.segs,o.r.off);o.s.boost=0;o.el.classList.remove("hot")}
+    cur=i;
+    if(i>=0){var n=d._rings[i];n.el.style.background=conic(n.r.segs.map(comp),n.r.off);n.s.boost=RM?0:5;n.el.classList.add("hot");
+      d.dispatchEvent(new CustomEvent("ringhover",{detail:{i:i,ring:n.r}}))}
+  }
+  d.addEventListener("pointermove",function(e){
+    var b=d.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
+    var rr=Math.hypot(e.clientX-cx,e.clientY-cy)/(b.width/2);
+    if(rr>1){set(-1);return}
+    var acc=0,idx=-1;
+    for(var k=0;k<d._rings.length;k++){var w=d._rings[k].r.w||(1/(d._rings.length+1));if(1-rr>=acc)idx=k;acc+=w}
+    set(idx);
+  });
+  d.addEventListener("pointerleave",function(){set(-1)});
+}
+
+/* 導覽：雙圓舞伴；現用頁那一對持續旋轉 */
+function nav(){
+  document.querySelectorAll(".couple").forEach(function(a){
+    var p=a.querySelector(".pair");
+    var cur=a.getAttribute("aria-current")==="page";
+    var s=spin(p,cur?60:0,cur?0:90);
+    a.addEventListener("pointerenter",function(){s.spd=cur?220:160});
+    a.addEventListener("pointerleave",function(){s.spd=cur?60:0});
+    a.addEventListener("focus",function(){s.spd=160});a.addEventListener("blur",function(){s.spd=cur?60:0});
+  });
+}
+
+/* 轉場：四分圓盤從點擊處 iris 張開，到新頁再從同一點收回 */
+function iris(){
+  var el=document.getElementById("iris");if(!el)return;
+  var st=null;try{st=JSON.parse(sessionStorage.getItem("ik-iris")||"null");sessionStorage.removeItem("ik-iris")}catch(e){}
+  if(st&&!RM&&el.animate){
+    el.style.visibility="visible";el.style.setProperty("--from",st.r+"deg");
+    var a=el.animate([{clipPath:"circle(150% at "+st.x+"% "+st.y+"%)"},{clipPath:"circle(0% at "+st.x+"% "+st.y+"%)"}],{duration:620,easing:"cubic-bezier(.6,0,.2,1)",fill:"forwards"});
+    a.onfinish=function(){el.style.visibility="hidden"};
+  }
+  document.addEventListener("click",function(e){
+    var a=e.target.closest&&e.target.closest("a[href]");
+    if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||a.target)return;
+    var h=a.getAttribute("href");
+    if(!/^[\w-]+\.html(#.*)?$/.test(h)||RM||!el.animate)return;
+    e.preventDefault();
+    var x=(e.clientX/innerWidth*100)||50,y=(e.clientY/innerHeight*100)||50,r=Math.round(Math.random()*90);
+    try{sessionStorage.setItem("ik-iris",JSON.stringify({x:x.toFixed(1),y:y.toFixed(1),r:r}))}catch(err){}
+    el.style.visibility="visible";el.style.setProperty("--from",r+"deg");
+    var an=el.animate([{clipPath:"circle(0% at "+x+"% "+y+"%)"},{clipPath:"circle(150% at "+x+"% "+y+"%)"}],{duration:520,easing:"cubic-bezier(.6,0,.2,1)",fill:"forwards"});
+    an.onfinish=function(){location.href=h};
+  });
+}
+
+/* offset-path 圓形軌道：以兩段弧寫成 path()（比 circle() 支援更廣）；不支援時退回 rotate+translate */
+var OP=window.CSS&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
+function orbitPath(cx,cy,r){
+  return 'path("M '+(cx-r).toFixed(1)+' '+cy.toFixed(1)+' A '+r+' '+r+' 0 1 1 '+(cx+r).toFixed(1)+' '+cy.toFixed(1)+' A '+r+' '+r+' 0 1 1 '+(cx-r).toFixed(1)+' '+cy.toFixed(1)+'")';
+}
+function placeOnOrbit(el,cx,cy,r,frac){
+  if(OP){el.style.offsetPath=orbitPath(cx,cy,r);el.style.offsetDistance=((frac%1+1)%1*100).toFixed(3)+"%";el.style.offsetRotate="auto"}
+  else{var a=(frac*360+180)*Math.PI/180;el.style.left=(cx+r*Math.cos(a))+"px";el.style.top=(cy+r*Math.sin(a))+"px";el.style.transform="translate(-50%,-50%) rotate("+(frac*360+270)+"deg)"}
+}
+
+window.IK={H:H,col:col,comp:comp,conic:conic,spin:spin,makeDisc:makeDisc,RM:RM,orbitPath:orbitPath,placeOnOrbit:placeOnOrbit,OP:OP,start:start};
+document.addEventListener("DOMContentLoaded",function(){nav();iris()});
+})();
+
+</script>
+<script>
+(function(){
+var IK=window.IK;
+var D=[["探戈","Tango",128,0],["恰恰","Cha-cha",124,1],["快步","Quickstep",204,2],["吉魯巴","Jive",172,3],["倫巴","Rumba",104,4],["布魯斯","Blues",72,5],["華爾滋","Waltz",87,6],["狐步","Foxtrot",116,7]];
+var F=["f0","f1","f2","f3","f4","f5","f6","f7"];
+var slots=[null,null,null,null,null,null],sel=-1,playing=false;
+var pal=document.getElementById("palette"),board=document.getElementById("board"),msg=document.getElementById("msg");
+function pts(a,b){var h1=D[a][3],h2=D[b][3],d=Math.min((h1-h2+8)%8,(h2-h1+8)%8);return[0,0,1,2,3][d]}
+function breath(a,b){return Math.abs(D[a][2]-D[b][2])>60}
+var LAB=["濁","鄰近","對比","同時"],SAY=["顏色太近，互相吃掉","顏色鄰近","對比","互補，整片變亮"];
+/* 色盤 */
+var chips=D.map(function(d,i){
+  var b=document.createElement("button");b.type="button";b.className="chip";
+  b.innerHTML='<i style="background:'+IK.conic([d[3],IK.comp(d[3]),d[3],IK.comp(d[3])])+'"></i><span>'+d[0]+'</span><small>'+d[2]+'</small>';
+  b.setAttribute("aria-label",d[0]+" "+d[2]+" BPM，排入下一個空槽");
+  b.addEventListener("click",function(){add(i)});pal.appendChild(b);return b;
+});
+/* 槽與記號（座標由 CSS cos()/sin() 計算） */
+var slotEls=[],markEls=[];
+for(var k=0;k<6;k++){
+  var s=document.createElement("button");s.type="button";s.className="slot empty";
+  s.style.setProperty("--a",(k*60+30-90)+"deg");s.style.setProperty("--r","calc(var(--R) * .80)");
+  (function(k){s.addEventListener("click",function(){tapSlot(k)})})(k);
+  board.appendChild(s);slotEls.push(s);
+  if(k>0){var m=document.createElement("span");m.className="mark";m.style.setProperty("--a",(k*60-90)+"deg");m.style.setProperty("--r","calc(var(--R) + 26px)");board.appendChild(m);markEls.push(m)}
+}
+var trig=CSS.supports&&CSS.supports("translate","calc(cos(10deg) * 1px)");
+function fb(){if(trig)return;var R=(board.clientWidth-80)/2;
+  slotEls.forEach(function(s,k){var a=(k*60-60)*Math.PI/180;s.style.transform="translate(calc(-50% + "+(Math.cos(a)*R*.8)+"px),calc(-50% + "+(Math.sin(a)*R*.8)+"px))"});
+  markEls.forEach(function(m,j){var a=((j+1)*60-90)*Math.PI/180;m.style.transform="translate(calc(-50% + "+(Math.cos(a)*(R+26))+"px),calc(-50% + "+(Math.sin(a)*(R+26))+"px))"})}
+addEventListener("resize",fb);
+/* 圓盤：外環＝舞的顏色，內環＝它的互補色（同時對比的雙環） */
+var l1=document.getElementById("l1"),l2=document.getElementById("l2"),prog=document.getElementById("prog");
+function paint(){
+  var o=[],n=[];
+  slots.forEach(function(v,k){var a=(k*100/6).toFixed(3),b=((k+1)*100/6).toFixed(3);
+    o.push((v===null?"#E2D7BF":IK.col(D[v][3]))+" "+a+"% "+b+"%");
+    n.push((v===null?"#D6CAB0":IK.col(IK.comp(D[v][3])))+" "+a+"% "+b+"%")});
+  l1.style.background="conic-gradient("+o.join(",")+")";
+  l2.style.background="conic-gradient("+n.join(",")+")";
+}
+function update(){
+  var sc=0,br=0,filled=slots.filter(function(v){return v!==null}).length;
+  slots.forEach(function(v,k){var s=slotEls[k];
+    s.className="slot"+(v===null?" empty":" "+F[D[v][3]])+(k===sel?" sel":"");
+    s.innerHTML=v===null?(k+1)+"<small>空槽</small>":D[v][0]+"<small>"+D[v][2]+"</small>";
+    s.setAttribute("aria-label","第 "+(k+1)+" 槽："+(v===null?"空":D[v][0]+" "+D[v][2]+" BPM"));
+  });
+  markEls.forEach(function(m,j){var a=slots[j],b=slots[j+1];
+    if(a===null||b===null){m.className="mark";m.textContent="";m.style.display="none";return}
+    m.style.display="";var p=pts(a,b),bad=breath(a,b);sc+=p;if(bad)br++;
+    m.className="mark "+(bad?"breath":"m"+p);m.textContent=bad?"喘 Δ"+Math.abs(D[a][2]-D[b][2]):LAB[p]+(p?" +"+p:"");
+  });
+  chips.forEach(function(c,i){c.setAttribute("aria-disabled",slots.indexOf(i)>=0?"true":"false")});
+  document.getElementById("sc").textContent=sc;document.getElementById("br").textContent=br;
+  document.getElementById("brBox").className=br?"f0":"f3";
+  if(!playing){document.getElementById("hubB").textContent=filled<6?filled+"/6":sc+"分";
+    document.getElementById("hubS").textContent=filled<6?"已排入":br?"有 "+br+" 個喘點":sc===13?"滿盤同時":"可以開舞"}
+  document.getElementById("go").disabled=playing||filled<6||br>0;
+  paint();fb();return{sc:sc,br:br,filled:filled};
+}
+function add(i){
+  if(playing)return;
+  if(slots.indexOf(i)>=0){msg.textContent=D[i][0]+" 已經在舞序裡了。每支舞一晚只排一次。";return}
+  var k=sel>=0?sel:slots.indexOf(null);
+  if(k<0){msg.textContent="六個槽都滿了。先點圓盤上一支舞選取它，再點左邊的舞就會替換。";return}
+  slots[k]=i;sel=-1;var r=update();
+  var nb=[slots[k-1],slots[k+1]].filter(function(v){return v!==undefined&&v!==null});
+  var note=nb.map(function(v){return "跟"+D[v][0]+(breath(v,i)?"速度差 "+Math.abs(D[v][2]-D[i][2])+"，會喘":SAY[pts(v,i)])}).join("；");
+  msg.textContent="第 "+(k+1)+" 槽：「"+D[i][0]+"」"+(note?"——"+note+"。":"。")+(r.filled===6&&!r.br?" 六支排滿，可以開舞。":"");
+}
+var lastTap={k:-1,t:0};
+function tapSlot(k){
+  if(playing)return;var now=Date.now();
+  if(slots[k]!==null&&lastTap.k===k&&now-lastTap.t<450){msg.textContent="拿掉「"+D[slots[k]][0]+"」。";slots[k]=null;sel=-1;lastTap={k:-1,t:0};update();return}
+  lastTap={k:k,t:now};
+  if(sel>=0&&sel!==k){var t=slots[sel];slots[sel]=slots[k];slots[k]=t;msg.textContent="第 "+(sel+1)+" 與第 "+(k+1)+" 槽互換。";sel=-1;update();return}
+  if(sel===k){sel=-1;update();return}
+  if(slots[k]===null){sel=k;msg.textContent="選了空的第 "+(k+1)+" 槽，左邊點一支舞放進來。";update();return}
+  sel=k;msg.textContent="選取「"+D[slots[k]][0]+"」。點另一槽互換、點左邊的舞替換、連點兩下拿掉。";update();
+}
+/* 領班排舞：保留你已選的舞，在 8P6 中找不喘且同時分最高的順序（≈20k 種，約 10ms） */
+function solve(keep){
+  var best=null;
+  function rec(seq,used,sc){
+    if(seq.length===6){for(var q=0;q<keep.length;q++)if(seq.indexOf(keep[q])<0)return;if(!best||sc>best.sc)best={sc:sc,seq:seq.slice()};return}
+    var need=keep.filter(function(x){return seq.indexOf(x)<0}).length;if(6-seq.length<need)return;
+    for(var i=0;i<8;i++){if(used>>i&1)continue;var p=seq.length?seq[seq.length-1]:-1;
+      if(p>=0&&breath(p,i))continue;seq.push(i);rec(seq,used|1<<i,sc+(p>=0?pts(p,i):0));seq.pop()}
+  }
+  rec([],0,0);return best;
+}
+document.getElementById("auto").addEventListener("click",function(){
+  if(playing)return;var keep=slots.filter(function(v){return v!==null});
+  var t0=performance.now(),b=solve(keep),ms=(performance.now()-t0).toFixed(0);
+  if(!b){msg.textContent="這幾支舞怎麼排都會喘（快步跟布魯斯差 132 BPM）。拿掉一支再試。";return}
+  slots=[null,null,null,null,null,null];sel=-1;update();
+  var i=0;(function put(){slots[i]=b.seq[i];update();i++;if(i<6)setTimeout(put,IK.RM?0:110);else msg.textContent="鄭文雄排的："+b.seq.map(function(v){return D[v][0]}).join(" → ")+"，同時分 "+b.sc+"。他試了兩萬種順序，花 "+ms+" 毫秒。"})();
+});
+document.getElementById("clear").addEventListener("click",function(){if(playing)return;slots=[null,null,null,null,null,null];sel=-1;update();msg.textContent="清空了。";document.getElementById("card").classList.remove("on")});
+
+/* 舞池：六對舞伴沿 offset-path 雙弧圓軌前進，速度＝當下那支舞的 BPM（每 16 拍一圈） */
+var fl=document.getElementById("floor2"),cps=[];
+for(var c=0;c<6;c++){var e=document.createElement("div");e.className="cpl";e.innerHTML="<i></i><i></i>";fl.appendChild(e);cps.push({el:e,f:c/6,lane:c%2})}
+var g={};
+function geo(){var w=fl.clientWidth;g={c:w/2,r0:w*.5*.70,r1:w*.5*.58}}
+addEventListener("resize",geo);geo();
+var bpm=72,hue=5,last=0;
+function setPair(h){cps.forEach(function(cp,i){var a=i%2?IK.comp(h):h;cp.el.style.setProperty("--a",IK.col(a));cp.el.style.setProperty("--b",IK.col(IK.comp(a)))})}
+setPair(5);
+function frame(t){
+  var dt=last?Math.min(.05,(t-last)/1000):0;last=t;
+  var adv=dt*(bpm/60)/16*(playing?1:.35);
+  cps.forEach(function(cp){cp.f+=cp.lane?-adv:adv;IK.placeOnOrbit(cp.el,g.c,g.c,cp.lane?g.r1:g.r0,cp.f)});
+  if(!document.hidden)requestAnimationFrame(frame);else last=0;
+}
+cps.forEach(function(cp){IK.placeOnOrbit(cp.el,g.c,g.c,cp.lane?g.r1:g.r0,cp.f)});
+if(!IK.RM)requestAnimationFrame(frame);
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!IK.RM){last=0;requestAnimationFrame(frame)}});
+
+/* 簽名〈開舞〉：圓盤把每一支舞依序轉到正上方指針下，舞伴換色並以該舞速度繞場 */
+var DUR=IK.RM?1800:4000;
+document.getElementById("go").addEventListener("click",function(){
+  var r=update();if(r.filled<6||r.br)return;playing=true;update();
+  board.querySelectorAll(".slot,.mark").forEach(function(x){x.style.visibility="hidden"});
+  var k=0,hb=document.getElementById("hubB"),hs=document.getElementById("hubS");
+  function next(){
+    if(k>=6){finish();return}
+    var d=D[slots[k]];bpm=d[2];hue=d[3];setPair(hue);
+    var target=-(k*60+30);  /* 第 k 槽中心轉到 0°（正上方） */
+    if(!IK.RM&&prog.animate){prog.animate([{rotate:(k?-(k*60-30):0)+"deg"},{rotate:target+"deg"}],{duration:700,easing:"cubic-bezier(.5,0,.2,1)",fill:"forwards"})}
+    else prog.style.rotate=target+"deg";
+    hb.textContent=d[0];var beats=0;hs.textContent=d[2]+" BPM ・ 第 "+(k+1)+"/6 支";
+    msg.textContent="第 "+(k+1)+" 支："+d[0]+"（"+d[2]+" BPM）。"+(k>0?"從"+D[slots[k-1]][0]+"接過來，"+SAY[pts(slots[k-1],slots[k])]+"。":"開場。");
+    k++;setTimeout(next,DUR);
+  }
+  next();
+});
+function finish(){
+  playing=false;bpm=72;setPair(5);
+  if(prog.getAnimations)prog.getAnimations().forEach(function(a){a.cancel()});prog.style.rotate="";
+  board.querySelectorAll(".slot,.mark").forEach(function(x){x.style.visibility=""});
+  var r=update();buildCard(r.sc);
+  msg.textContent="散場。舞卡印好了，在下面。";
+  document.getElementById("card").scrollIntoView({behavior:IK.RM?"auto":"smooth",block:"start"});
+}
+function buildCard(sc){
+  var t=19*60+30,rows="";
+  slots.forEach(function(v,i){var d=D[v],hh=Math.floor(t/60),mm=t%60;
+    rows+='<tr><td>'+hh+':'+(mm<10?"0":"")+mm+'</td><td><span class="sw" style="background:'+IK.col(d[3])+'"></span>'+d[0]+' <small>'+d[1]+'</small></td><td>'+d[2]+' BPM</td><td>'+(i?LAB[pts(slots[i-1],v)]:"開場")+'</td></tr>';
+    t+=8;});
+  document.getElementById("ctab").innerHTML='<caption style="text-align:left;font-weight:900;padding-bottom:8px">每組兩首、約 8 分鐘；一輪 48 分鐘，三小時內循環三輪，兩輪之後中場休息 20 分。同時分 '+sc+' / 13</caption>'+rows;
+  document.getElementById("quote").innerHTML='<span>包場三小時（舞池 18×12 m、可容 120 人）</span><b>NT$24,000</b><span>圓光六重奏現場演奏（改錄音伴奏則免費）</span><b>NT$12,000</b><span>訂金 30%，十四天前可全額退</span><b>NT$10,800</b><span class="tot">合計</span><b class="tot">NT$36,000</b>';
+  var cv=document.getElementById("cv"),old=cv.querySelector(".disc");if(old)old.remove();
+  IK.makeDisc(cv,[{segs:slots.map(function(v){return D[v][3]}),spd:6,w:.3},{segs:slots.map(function(v){return IK.comp(D[v][3])}),spd:-9,w:.35},{segs:["p"],spd:0}],{});
+  document.getElementById("card").classList.add("on");
+}
+document.getElementById("save").addEventListener("click",function(){
+  try{sessionStorage.setItem("ik-carnet",JSON.stringify({s:slots,t:Date.now()}));msg.textContent="存好了。到「舞廳」頁會看到你的舞序。";this.textContent="已存 ✓ 到舞廳頁看"}catch(e){msg.textContent="這個瀏覽器不讓網頁存東西；請直接列印舞卡。"}
+});
+document.getElementById("print").addEventListener("click",function(){print()});
+/* 從 ?p=0.5.2 還原（可分享） */
+try{var p=new URLSearchParams(location.search).get("p");if(p){var a=p.split(".").map(Number).filter(function(x){return x>=0&&x<8});a.slice(0,6).forEach(function(v,i){if(slots.indexOf(v)<0)slots[i]=v})}}catch(e){}
+update();
+})();
+</script>
+</body>
+</html>

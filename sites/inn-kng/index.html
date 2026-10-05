@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>圓光舞廳 Înn-kng Ballroom — 大稻埕的同時舞池</title>
+<meta name="description" content="臺北大同區延平北路的社交舞廳：週三六日茶舞、週五六夜舞與現場六重奏，天花板是一面同時對比圓盤。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 16V0A16 16 0 0 1 32 16z' fill='%23E0442B'/%3E%3Cpath d='M16 16h16A16 16 0 0 1 16 32z' fill='%231F8A5B'/%3E%3Cpath d='M16 16v16A16 16 0 0 1 0 16z' fill='%23E0442B'/%3E%3Cpath d='M16 16H0A16 16 0 0 1 16 0z' fill='%231F8A5B'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23F2B825'/%3E%3Cpath d='M16 8a8 8 0 0 1 0 16z' fill='%231F3FA8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c0:#E0442B;--c1:#EE7B26;--c2:#F2B825;--c3:#9DBA3A;--c4:#1F8A5B;--c5:#3FA4D9;--c6:#1F3FA8;--c7:#6B3FA0;
+  --rose:#E98BA6;--ink:#17161A;--canvas:#EDE4D0;--paper:#F7F1E3;--ink2:#4A4650;
+  --fd:"League Spartan","Noto Sans TC",system-ui,sans-serif;
+  --fb:"Noto Sans TC","League Spartan",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--canvas);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+body{background:var(--canvas);min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--c6);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--paper);padding:8px 12px;z-index:99}
+.skip:focus{left:12px}
+
+/* ---- 特徵 1：同心圓盤，四分硬邊（conic-gradient hard stops） ---- */
+.disc{position:absolute;border-radius:50%;aspect-ratio:1;pointer-events:none}
+.disc .ring{position:absolute;border-radius:50%;inset:var(--in,0);will-change:rotate}
+.disc.live{pointer-events:auto}
+
+/* ---- 特徵 3：字永遠坐在一塊平色的色場上 ---- */
+.field{display:inline-block;padding:.08em .32em .02em;line-height:1.05}
+.f0{background:var(--c0);color:var(--paper)}.f1{background:var(--c1);color:var(--ink)}
+.f2{background:var(--c2);color:var(--ink)}.f3{background:var(--c3);color:var(--ink)}
+.f4{background:var(--c4);color:var(--paper)}.f5{background:var(--c5);color:var(--ink)}
+.f6{background:var(--c6);color:var(--paper)}.f7{background:var(--c7);color:var(--paper)}
+.fr{background:var(--rose);color:var(--ink)}.fk{background:var(--ink);color:var(--paper)}
+.fp{background:var(--paper);color:var(--ink)}
+.caps{font-family:var(--fd);font-weight:800;letter-spacing:-.01em;text-transform:uppercase}
+/* O 被圓盤取代（Simultané 字母） */
+.o-disc{display:inline-block;width:.74em;height:.74em;border-radius:50%;vertical-align:-.02em;margin:0 .02em;
+  background:conic-gradient(var(--a,var(--c0)) 0 25%,var(--b,var(--c4)) 0 50%,var(--a,var(--c0)) 0 75%,var(--b,var(--c4)) 0)}
+
+/* ---- 特徵 5：Rythme sans fin 半圓串列分隔 ---- */
+.rythme{height:28px;background:
+  radial-gradient(circle at 50% 100%,var(--c6) 0 13px,transparent 13.5px) 0 0/56px 28px repeat-x,
+  radial-gradient(circle at 50% 0,var(--c0) 0 13px,transparent 13.5px) 28px 0/56px 28px repeat-x;
+  margin:0}
+.rythme.alt{background:
+  radial-gradient(circle at 50% 100%,var(--c2) 0 13px,transparent 13.5px) 0 0/56px 28px repeat-x,
+  radial-gradient(circle at 50% 0,var(--c7) 0 13px,transparent 13.5px) 28px 0/56px 28px repeat-x}
+
+/* ---- 導覽：雙圓舞伴 couple-orbit ---- */
+.couples{position:fixed;top:14px;right:14px;z-index:40;display:flex;gap:6px;background:var(--ink);padding:8px 10px 6px;}
+.couple{display:grid;justify-items:center;text-decoration:none;color:var(--paper);width:62px;gap:2px}
+.couple .pair{position:relative;width:38px;height:38px;rotate:var(--turn,0deg)}
+.couple .pair i{position:absolute;top:9px;width:20px;height:20px;border-radius:50%}
+.couple .pair i:first-child{left:3px;background:var(--a)}
+.couple .pair i:last-child{right:3px;background:var(--b)}
+.couple span{font-size:11px;line-height:1.2;letter-spacing:.06em;font-weight:700}
+.couple small{font-family:var(--fd);font-size:9px;letter-spacing:.12em;opacity:.7;text-transform:uppercase}
+.couple[aria-current=page] .pair i:first-child{box-shadow:0 0 0 2px var(--paper)}
+.couple[aria-current=page] span{border-bottom:2px solid var(--c2)}
+.couple:hover .pair i,.couple:focus-visible .pair i{transform:scale(1.12)}
+
+/* ---- footer ---- */
+footer.site{background:var(--ink);color:var(--paper);padding:40px 6vw 110px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px;font-size:14px}
+footer.site h4{font-family:var(--fd);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--c2);margin-bottom:8px}
+footer.site a{display:block;text-decoration:none;border-bottom:1px solid transparent;width:max-content}
+footer.site a:hover{border-color:var(--c2)}
+footer.site .fine{grid-column:1/-1;opacity:.6;font-size:12px}
+
+/* ---- 轉場：圓盤 iris ---- */
+#iris{position:fixed;inset:0;z-index:90;pointer-events:none;visibility:hidden;
+  background:conic-gradient(from var(--from,0deg),var(--c0) 0 25%,var(--c6) 0 50%,var(--c2) 0 75%,var(--c4) 0)}
+
+@media (max-width:900px){
+  .couples{top:auto;bottom:0;right:0;left:0;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .couple{width:auto;flex:1}
+  footer.site{grid-template-columns:1fr;padding-bottom:120px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+.hero{position:relative;min-height:100vh;min-height:100svh;overflow:hidden;background:var(--canvas)}
+.hero .big{width:min(118vh,112vw);left:calc(78% - min(59vh,56vw));top:calc(58% - min(59vh,56vw))}
+.hero .small{width:34vh;left:-9vh;top:-11vh;opacity:1}
+.hero .mid{width:22vh;left:40%;bottom:-8vh}
+.floor{position:absolute;pointer-events:none}
+.cpl{position:absolute;left:0;top:0;width:44px;height:26px}
+.cpl i{position:absolute;top:0;width:26px;height:26px;border-radius:50%}
+.cpl i:first-child{left:0;background:var(--a)}
+.cpl i:last-child{left:18px;background:var(--b);mix-blend-mode:normal}
+.copy{position:relative;z-index:5;padding:22vh 0 12vh 6vw;max-width:min(620px,92vw);display:grid;gap:14px;justify-items:start}
+.kicker{font-family:var(--fd);font-weight:600;letter-spacing:.2em;font-size:12px;text-transform:uppercase}
+h1.name{font-size:clamp(64px,10.5vw,150px);font-weight:900;line-height:.92;display:flex;flex-wrap:wrap;gap:0;letter-spacing:-.02em}
+h1.name .field{padding:.06em .1em 0}
+.ballroom{font-size:clamp(30px,4.6vw,64px)}
+.lede{background:var(--paper);padding:14px 18px;max-width:30em;font-size:16px;border-left:10px solid var(--c0)}
+.next{display:grid;grid-template-columns:auto 1fr;align-items:stretch;background:var(--ink);color:var(--paper);max-width:30em}
+.next b{font-family:var(--fd);font-weight:900;font-size:40px;line-height:1;padding:12px 14px;background:var(--c2);color:var(--ink);display:grid;place-items:center}
+.next div{padding:10px 14px;font-size:14px;line-height:1.5}
+.next em{font-style:normal;color:var(--c2);font-weight:700}
+.ctas{display:flex;flex-wrap:wrap;gap:0}
+.ctas a{text-decoration:none;font-weight:700;padding:12px 18px;font-size:15px;transition:background .15s,color .15s}
+.ctas a:hover{filter:none;background:var(--ink);color:var(--paper)}
+.legend{position:absolute;z-index:6;right:3vw;bottom:4vh;background:var(--paper);padding:10px 14px;font-size:13px;max-width:290px;border-top:8px solid var(--ink);line-height:1.5}
+.legend .sw{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:2px}
+/* 長卷：左色塊柱＋右文字（Prose du Transsibérien 版式） */
+.prose{display:grid;grid-template-columns:minmax(120px,26%) 1fr;background:var(--paper)}
+.prose .col{position:relative;overflow:hidden;min-height:100%}
+.prose .col i{position:absolute;display:block;border-radius:50%}
+.prose .txt{padding:70px 6vw 70px 5vw;max-width:780px}
+.prose h2{font-size:clamp(30px,4vw,52px);font-weight:900;line-height:1.1;margin-bottom:18px}
+.prose h2 .field{margin:0 0 6px}
+.prose p{margin-bottom:1.1em}
+.prose p .field{font-weight:700;line-height:1.5}
+.week{position:relative;padding:80px 6vw 90px;background:var(--canvas)}
+.week h2{font-size:clamp(28px,3.6vw,46px);font-weight:900;margin-bottom:34px}
+.sessions{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.sess{position:relative;padding-top:calc(100% + 10px)}
+.sess .disc{width:118%;left:-9%;top:0}
+.sess:nth-child(even) .disc{top:30px}
+.sess .info{position:relative;z-index:2;margin-top:24px;padding-right:12px}
+.sess h3{font-size:20px;font-weight:900;line-height:1.2}
+.sess p{font-size:14px;line-height:1.55;margin-top:6px}
+.sess .price{font-family:var(--fd);font-weight:900;font-size:26px}
+.chev{background:var(--ink);color:var(--paper);padding:80px 6vw;display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:center}
+.chev blockquote{font-size:clamp(20px,2.4vw,30px);line-height:1.5;font-weight:700}
+.chev cite{display:block;margin-top:14px;font-style:normal;font-size:13px;opacity:.7;font-weight:400}
+.chev .demo{display:grid;grid-template-columns:1fr 1fr;gap:0;aspect-ratio:2/1}
+.chev .demo div{display:grid;place-items:center}
+.chev .demo span{width:34%;aspect-ratio:1;background:#8A8A8A;border-radius:50%}
+.chev small{grid-column:1/-1;font-size:13px;opacity:.75}
+@media (max-width:900px){
+  .hero .big{width:120vw;left:-10vw;top:-34vw}
+  .hero .small,.hero .mid{display:none}
+  .copy{padding:calc(86vw + 10px) 16px 40px}
+  .legend{position:relative;right:auto;bottom:auto;margin:0 16px 40px}
+  .sessions{grid-template-columns:1fr 1fr;row-gap:40px}
+  .chev{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .prose{grid-template-columns:56px 1fr}
+  .prose .txt{padding:48px 16px}
+  .week{padding:56px 16px}
+  .sessions{grid-template-columns:1fr 1fr;column-gap:12px}
+  .sess h3{font-size:17px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<nav class="couples" aria-label="主選單"><a class="couple" href="index.html" aria-current="page" style="--a:#E0442B;--b:#1F8A5B"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>舞池</span><small>Floor</small></a><a class="couple" href="danses.html" style="--a:#F2B825;--b:#1F3FA8"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>八支舞</span><small>Danses</small></a><a class="couple" href="carnet.html" style="--a:#EE7B26;--b:#3FA4D9"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>舞卡</span><small>Carnet</small></a><a class="couple" href="salle.html" style="--a:#6B3FA0;--b:#9DBA3A"><span class="pair" aria-hidden="true"><i></i><i></i></span><span>舞廳</span><small>Salle</small></a></nav>
+<main id="main">
+<section class="hero" aria-label="圓光舞廳">
+  <div id="heroDiscs" aria-hidden="true"></div>
+  <div class="floor" id="floor" aria-hidden="true"></div>
+  <div class="copy">
+    <span class="kicker field fk">Taipei · 大稻埕 · 延平北路二段 61 號 3F</span>
+    <h1 class="name" aria-label="圓光舞廳"><span class="field f0">圓</span><span class="field f6">光</span><span class="field f2">舞</span><span class="field f4">廳</span></h1>
+    <span class="ballroom caps field f7" aria-label="Înn-kng Ballroom">Ballr<span class="o-disc" style="--a:var(--c2);--b:var(--c6)"></span><span class="o-disc" style="--a:var(--c0);--b:var(--c4)"></span>m</span>
+    <p class="lede">一九八三年鋪的楓木地板，十八乘十二公尺，夠一百二十個人同時轉圈。天花板是一面直徑九公尺的同時圓盤——你在舞池轉，它就在你頭上跟著轉。</p>
+    <div class="next" id="next"><b id="nextDay">六</b><div id="nextTxt">週六茶舞 14:00–17:30 ・ NT$350 含烏龍茶與一份點心<br><em>樂隊：圓光六重奏</em></div></div>
+    <div class="ctas"><a class="f0" href="carnet.html">排你的舞卡 →</a><a class="f2" href="danses.html">八支舞與課程</a><a class="f6" href="salle.html">票價・交通</a></div>
+  </div>
+  <p class="legend" id="legend"><b>把游標移到圓盤上。</b>你停在哪一環，那一環就換成它的互補色，並轉得比較快——這就是 Chevreul 說的同時對比：顏色不是單獨被看見的，是被它旁邊的顏色決定的。</p>
+</section>
+
+<div class="rythme" aria-hidden="true"></div>
+
+<section class="prose" aria-labelledby="h-floor">
+  <div class="col" id="pcol" aria-hidden="true"></div>
+  <div class="txt">
+    <h2 id="h-floor"><span class="field f2">頭上那面圓盤</span><br><span class="field f6">是從巴黎借來的</span></h2>
+    <p>一九一三年，Sonia Delaunay 每個星期四和丈夫 Robert 去蒙帕納斯的 Bal Bullier 跳探戈，她穿自己用碎布拼的「同時裝」，回家把整個舞廳畫成一張近四公尺寬的畫：沒有人臉，只有旋轉的弧、互相推擠的互補色，和被燈打亮的圓。</p>
+    <p>二〇二四年整修時，老闆娘<span class="field fr">蘇麗卿</span>把那張畫的色序交給畫家<span class="field f5">鄭雅文</span>，請她在舞池正上方畫一面九公尺的圓盤：外環朱紅對翠綠、第二環鉻黃對群青、第三環橙對天藍，正中央是一顆紫與黃綠的四分圓。燈一開，整片地板都被染上它的顏色。</p>
+    <p>所以這裡的一切都是圓的：舞卡是圓的，價目是圓的，連菜單上的烏龍茶都用一個四分圓表示熱或冰。<span class="field fk">我們只有一條規矩：</span>相鄰的兩個顏色，最好是互補色。這樣它們會互相把對方推得更亮——跟一對好舞伴一樣。</p>
+  </div>
+</section>
+
+<section class="week" aria-labelledby="h-week">
+  <h2 id="h-week"><span class="field fk">本週舞會</span> <span class="field f1">Cette semaine</span></h2>
+  <div class="sessions" id="sessions">
+    <article class="sess" data-r='[[0,4],[2,6],[0,4]]'><div class="info"><h3><span class="field f0">週三茶舞</span></h3><p>14:00–17:30 ・ 錄音伴奏，華爾滋與布魯斯為主，適合剛下課的同學。</p><p class="price">NT$350</p></div></article>
+    <article class="sess" data-r='[[6,2],[7,3],[6,2]]'><div class="info"><h3><span class="field f6">週五夜舞</span></h3><p>20:00–23:30 ・ 圓光六重奏現場演奏，21:30 有一段十五分鐘的探戈。</p><p class="price">NT$480</p></div></article>
+    <article class="sess" data-r='[[1,5],[0,4],[2,6]]'><div class="info"><h3><span class="field f1">週六茶舞＋夜舞</span></h3><p>14:00 茶舞 ・ 20:00 夜舞。兩場連買 NT$720，中間可以留在二樓喝茶。</p><p class="price">NT$350 / 480</p></div></article>
+    <article class="sess" data-r='[[3,7],[5,1],[3,7]]'><div class="info"><h3><span class="field f3">週日家庭茶舞</span></h3><p>14:00–17:00 ・ 十二歲以下免費，16:00 全場一起跳吉魯巴。</p><p class="price">NT$300</p></div></article>
+  </div>
+</section>
+
+<section class="chev" aria-labelledby="h-chev">
+  <div>
+    <h2 id="h-chev" class="kicker" style="color:var(--c2);margin-bottom:14px">同時對比定律 · 1839</h2>
+    <blockquote>兩個顏色並排的時候，它們看起來會往彼此的反方向逃開：紅旁邊的灰會偏綠，綠旁邊的灰會偏紅。<cite>— 依 Michel-Eugène Chevreul《De la loi du contraste simultané des couleurs》1839 意譯。Chevreul 是巴黎戈布蘭掛毯廠的染料主任，發現染工抱怨「顏色不對」其實是旁邊的顏色在作怪。</cite></blockquote>
+  </div>
+  <div class="demo" aria-label="同一個灰色圓點，放在朱紅與翠綠底上看起來不同">
+    <div style="background:var(--c0)"><span></span></div>
+    <div style="background:var(--c4)"><span></span></div>
+    <small>兩個圓點是同一個灰 #8A8A8A。</small>
+  </div>
+</section>
+</main>
+<div class="rythme alt" aria-hidden="true"></div>
+<footer class="site">
+<div><h4>圓光舞廳 Înn-kng Ballroom</h4>
+<p>臺北市大同區延平北路二段 61 號 3 樓（電梯直達，鞋櫃在右）<br>(02) 2558-3176 ・ 週一公休<br>茶舞 週三・六・日 14:00–17:30　夜舞 週五・六 20:00–23:30</p></div>
+<div><h4>頁面</h4><a href="index.html">舞池 Floor</a><a href="danses.html">八支舞 Danses</a><a href="carnet.html">舞卡 Carnet</a><a href="salle.html">舞廳 Salle</a></div>
+<div><h4>同時 Simultané</h4><p>天花板圓盤 2024 年由鄭雅文重繪，依 Sonia Delaunay〈Le Bal Bullier〉1913 的色序。</p></div>
+<p class="fine">店家、人物、價格皆為虛構示意。Design Skills Center 範例站 ・ 風格：奧費主義／同時主義 Orphism · Simultanéisme ・ <a href="SKILL.md" style="display:inline">SKILL.md</a></p>
+</footer>
+<div id="iris" aria-hidden="true"></div>
+<script>
+(function(){
+"use strict";
+var H=["#E0442B","#EE7B26","#F2B825","#9DBA3A","#1F8A5B","#3FA4D9","#1F3FA8","#6B3FA0"];
+var EXTRA={r:"#E98BA6",k:"#17161A",w:"#EDE4D0",p:"#F7F1E3"};
+function col(c){return typeof c==="number"?H[((c%8)+8)%8]:(EXTRA[c]||c)}
+function comp(c){return typeof c==="number"?(c+4)%8:(c==="k"?"p":c==="p"?"k":c==="w"?"k":c==="r"?3:c)}
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* conic-gradient 硬邊色段：每段等分、零漸層 */
+function conic(segs,off){
+  var n=segs.length,s=[],i;
+  for(i=0;i<n;i++){s.push(col(segs[i])+" "+(i*100/n).toFixed(3)+"% "+((i+1)*100/n).toFixed(3)+"%")}
+  return "conic-gradient(from "+(off||0)+"deg,"+s.join(",")+")";
+}
+
+/* 旋轉引擎：所有環共用一支 rAF；分頁不可見時停 */
+var spinners=[],last=0,running=false;
+function tick(t){
+  var dt=last?Math.min(.05,(t-last)/1000):0;last=t;
+  for(var i=0;i<spinners.length;i++){
+    var s=spinners[i];
+    s.cur+=(s.spd*(1+s.boost)-s.cur)*Math.min(1,dt*6);   /* 速度緩動，不跳 */
+    s.ang=(s.ang+s.cur*dt)%360;
+    s.el.style.rotate=s.ang.toFixed(2)+"deg";
+  }
+  if(running)requestAnimationFrame(tick);
+}
+function start(){if(RM||running)return;running=true;last=0;requestAnimationFrame(tick)}
+document.addEventListener("visibilitychange",function(){if(document.hidden){running=false}else start()});
+function spin(el,spd,ang){var s={el:el,spd:spd,cur:RM?0:spd,ang:ang||0,boost:0};el.style.rotate=(ang||0)+"deg";spinners.push(s);start();return s}
+
+/* 建立一枚同時圓盤：rings 由外而內 [{segs:[色...],off,spd,w}] w＝環寬佔半徑比例 */
+function makeDisc(host,rings,opt){
+  opt=opt||{};
+  var d=document.createElement("div");d.className="disc"+(opt.live?" live":"");
+  if(opt.cls)d.className+=" "+opt.cls;
+  var inset=0,list=[];
+  rings.forEach(function(r,i){
+    var e=document.createElement("div");e.className="ring";
+    e.style.setProperty("--in",(inset*50).toFixed(3)+"%");
+    e.style.background=conic(r.segs,r.off);
+    e.dataset.i=i;d.appendChild(e);
+    var sp=r.spd===undefined?((i%2?-1:1)*(4+i*1.5)):r.spd;
+    list.push({el:e,r:r,s:spin(e,sp,0)});
+    inset+=r.w||(1/(rings.length+1));
+  });
+  d._rings=list;
+  if(opt.live)liveDisc(d);
+  host.appendChild(d);return d;
+}
+/* 輸入：游標所在的那一環翻成互補色並加速（同時對比示範） */
+function liveDisc(d){
+  var cur=-1;
+  function set(i){
+    if(i===cur)return;
+    if(cur>=0){var o=d._rings[cur];o.el.style.background=conic(o.r.segs,o.r.off);o.s.boost=0;o.el.classList.remove("hot")}
+    cur=i;
+    if(i>=0){var n=d._rings[i];n.el.style.background=conic(n.r.segs.map(comp),n.r.off);n.s.boost=RM?0:5;n.el.classList.add("hot");
+      d.dispatchEvent(new CustomEvent("ringhover",{detail:{i:i,ring:n.r}}))}
+  }
+  d.addEventListener("pointermove",function(e){
+    var b=d.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
+    var rr=Math.hypot(e.clientX-cx,e.clientY-cy)/(b.width/2);
+    if(rr>1){set(-1);return}
+    var acc=0,idx=-1;
+    for(var k=0;k<d._rings.length;k++){var w=d._rings[k].r.w||(1/(d._rings.length+1));if(1-rr>=acc)idx=k;acc+=w}
+    set(idx);
+  });
+  d.addEventListener("pointerleave",function(){set(-1)});
+}
+
+/* 導覽：雙圓舞伴；現用頁那一對持續旋轉 */
+function nav(){
+  document.querySelectorAll(".couple").forEach(function(a){
+    var p=a.querySelector(".pair");
+    var cur=a.getAttribute("aria-current")==="page";
+    var s=spin(p,cur?60:0,cur?0:90);
+    a.addEventListener("pointerenter",function(){s.spd=cur?220:160});
+    a.addEventListener("pointerleave",function(){s.spd=cur?60:0});
+    a.addEventListener("focus",function(){s.spd=160});a.addEventListener("blur",function(){s.spd=cur?60:0});
+  });
+}
+
+/* 轉場：四分圓盤從點擊處 iris 張開，到新頁再從同一點收回 */
+function iris(){
+  var el=document.getElementById("iris");if(!el)return;
+  var st=null;try{st=JSON.parse(sessionStorage.getItem("ik-iris")||"null");sessionStorage.removeItem("ik-iris")}catch(e){}
+  if(st&&!RM&&el.animate){
+    el.style.visibility="visible";el.style.setProperty("--from",st.r+"deg");
+    var a=el.animate([{clipPath:"circle(150% at "+st.x+"% "+st.y+"%)"},{clipPath:"circle(0% at "+st.x+"% "+st.y+"%)"}],{duration:620,easing:"cubic-bezier(.6,0,.2,1)",fill:"forwards"});
+    a.onfinish=function(){el.style.visibility="hidden"};
+  }
+  document.addEventListener("click",function(e){
+    var a=e.target.closest&&e.target.closest("a[href]");
+    if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||a.target)return;
+    var h=a.getAttribute("href");
+    if(!/^[\w-]+\.html(#.*)?$/.test(h)||RM||!el.animate)return;
+    e.preventDefault();
+    var x=(e.clientX/innerWidth*100)||50,y=(e.clientY/innerHeight*100)||50,r=Math.round(Math.random()*90);
+    try{sessionStorage.setItem("ik-iris",JSON.stringify({x:x.toFixed(1),y:y.toFixed(1),r:r}))}catch(err){}
+    el.style.visibility="visible";el.style.setProperty("--from",r+"deg");
+    var an=el.animate([{clipPath:"circle(0% at "+x+"% "+y+"%)"},{clipPath:"circle(150% at "+x+"% "+y+"%)"}],{duration:520,easing:"cubic-bezier(.6,0,.2,1)",fill:"forwards"});
+    an.onfinish=function(){location.href=h};
+  });
+}
+
+/* offset-path 圓形軌道：以兩段弧寫成 path()（比 circle() 支援更廣）；不支援時退回 rotate+translate */
+var OP=window.CSS&&CSS.supports&&CSS.supports("offset-path",'path("M0 0 L1 1")');
+function orbitPath(cx,cy,r){
+  return 'path("M '+(cx-r).toFixed(1)+' '+cy.toFixed(1)+' A '+r+' '+r+' 0 1 1 '+(cx+r).toFixed(1)+' '+cy.toFixed(1)+' A '+r+' '+r+' 0 1 1 '+(cx-r).toFixed(1)+' '+cy.toFixed(1)+'")';
+}
+function placeOnOrbit(el,cx,cy,r,frac){
+  if(OP){el.style.offsetPath=orbitPath(cx,cy,r);el.style.offsetDistance=((frac%1+1)%1*100).toFixed(3)+"%";el.style.offsetRotate="auto"}
+  else{var a=(frac*360+180)*Math.PI/180;el.style.left=(cx+r*Math.cos(a))+"px";el.style.top=(cy+r*Math.sin(a))+"px";el.style.transform="translate(-50%,-50%) rotate("+(frac*360+270)+"deg)"}
+}
+
+window.IK={H:H,col:col,comp:comp,conic:conic,spin:spin,makeDisc:makeDisc,RM:RM,orbitPath:orbitPath,placeOnOrbit:placeOnOrbit,OP:OP,start:start};
+document.addEventListener("DOMContentLoaded",function(){nav();iris()});
+})();
+
+</script>
+<script>
+(function(){
+var IK=window.IK;
+var host=document.getElementById("heroDiscs");
+var big=IK.makeDisc(host,[
+  {segs:[0,4,0,4],off:0,spd:5,w:.16},
+  {segs:[2,6,2,6],off:45,spd:-7,w:.15},
+  {segs:[1,5,1,5],off:10,spd:9,w:.16},
+  {segs:[7,3,7,3],off:60,spd:-12,w:.17},
+  {segs:["r",4,"r",4],off:20,spd:16,w:.18},
+  {segs:[2,6],off:90,spd:-22,w:.18}
+],{live:true,cls:"big"});
+IK.makeDisc(host,[{segs:[6,2,6,2],spd:-6,w:.3},{segs:[0,4],spd:9,w:.35},{segs:["k","p"],spd:-14}],{cls:"small"});
+IK.makeDisc(host,[{segs:[5,1,5,1],spd:8,w:.4},{segs:[7,3],spd:-11}],{cls:"mid"});
+
+var NAMES=["朱紅","橙","鉻黃","黃綠","翠綠","天藍","群青","紫"];
+var lg=document.getElementById("legend"),lgOrig=lg.innerHTML;
+function nm(c){return typeof c==="number"?NAMES[c]:({r:"玫瑰",k:"墨",p:"紙"}[c]||c)}
+function sw(c){return '<span class="sw" style="background:'+IK.col(c)+'"></span>'}
+big.addEventListener("ringhover",function(e){
+  var r=e.detail.ring,a=r.segs[0],b=r.segs[1];
+  lg.innerHTML="<b>第 "+(e.detail.i+1)+" 環</b>　"+sw(a)+nm(a)+" × "+sw(b)+nm(b)+"<br>翻成互補 → "+sw(IK.comp(a))+nm(IK.comp(a))+" × "+sw(IK.comp(b))+nm(IK.comp(b))+"<br>看鄰環：同一圈旁邊的顏色，好像也跟著變了。";
+});
+big.addEventListener("pointerleave",function(){lg.innerHTML=lgOrig});
+
+/* 舞池：六對舞伴沿 offset-path 圓軌以華爾滋 87 BPM 前進（每 24 拍一圈） */
+var floor=document.getElementById("floor"),cps=[];
+var PAIRS=[[0,4],[2,6],[1,5],[7,3],["r",4],[6,2]];
+PAIRS.forEach(function(p,i){
+  var e=document.createElement("div");e.className="cpl";
+  e.style.setProperty("--a",IK.col(p[0]));e.style.setProperty("--b",IK.col(p[1]));
+  e.innerHTML="<i></i><i></i>";floor.appendChild(e);
+  cps.push({el:e,f:i/6,lane:i%2});
+});
+var geo={};
+function layout(){
+  var b=big.getBoundingClientRect(),h=host.parentNode.getBoundingClientRect();
+  floor.style.left=(b.left-h.left)+"px";floor.style.top=(b.top-h.top)+"px";
+  floor.style.width=b.width+"px";floor.style.height=b.height+"px";
+  geo={c:b.width/2,r0:b.width*.5*.70,r1:b.width*.5*.55};
+  draw();
+}
+function draw(){cps.forEach(function(c){IK.placeOnOrbit(c.el,geo.c,geo.c,c.lane?geo.r1:geo.r0,c.f)})}
+addEventListener("resize",layout);layout();
+var bpm=87,last=0;
+function step(t){
+  var dt=last?Math.min(.05,(t-last)/1000):0;last=t;
+  var adv=dt*(bpm/60)/24;
+  cps.forEach(function(c){c.f+=c.lane?-adv*1.3:adv});
+  draw();
+  if(!document.hidden)requestAnimationFrame(step);else last=0;
+}
+if(!IK.RM)requestAnimationFrame(step);
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&!IK.RM){last=0;requestAnimationFrame(step)}});
+
+/* 下一場：依真實時刻（Asia/Taipei）推算 */
+var S=[null,null,[3,"週三茶舞 14:00–17:30 ・ NT$350","錄音伴奏・華爾滋與布魯斯",14,17.5],null,[5,"週五夜舞 20:00–23:30 ・ NT$480","樂隊：圓光六重奏",20,23.5],[6,"週六茶舞 14:00 ／ 夜舞 20:00","樂隊：圓光六重奏（夜場）",14,23.5],[0,"週日家庭茶舞 14:00–17:00 ・ NT$300","16:00 全場吉魯巴",14,17]];
+var map={3:S[2],5:S[4],6:S[5],0:S[6]};var DAYS="日一二三四五六";
+try{
+  var parts=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Taipei",weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(new Date());
+  var wd=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(parts.find(function(p){return p.type==="weekday"}).value);
+  var hr=+parts.find(function(p){return p.type==="hour"}).value%24+(+parts.find(function(p){return p.type==="minute"}).value)/60;
+  for(var k=0;k<8;k++){var d=(wd+k)%7,s=map[d];if(s&&(k>0||hr<s[4])){
+    var live=k===0&&hr>=s[3];
+    document.getElementById("nextDay").textContent=DAYS[d];
+    document.getElementById("nextTxt").innerHTML=(live?"<em>正在跳 ・ </em>":k===0?"今天 ・ ":k===1?"明天 ・ ":"")+s[1]+"<br><em>"+s[2]+"</em>";break}}
+}catch(e){}
+
+/* 長卷左柱：疊圓色塊 */
+var col=document.getElementById("pcol");
+[[0,"-30%","4%",150],[6,"30%","22%",110],[2,"-20%","38%",130],[4,"40%","55%",90],["r","-10%","68%",140],[7,"20%","84%",100]].forEach(function(c){
+  var i=document.createElement("i");i.style.background=IK.conic([c[0],IK.comp(c[0]),c[0],IK.comp(c[0])],15);
+  i.style.left=c[1];i.style.top=c[2];i.style.width=i.style.height=c[3]+"%";i.style.aspectRatio="1";i.style.height="auto";col.appendChild(i);
+});
+/* 本週四場：每場一枚三環小盤 */
+document.querySelectorAll(".sess").forEach(function(s){
+  var r=JSON.parse(s.dataset.r);
+  var d=IK.makeDisc(s,r.map(function(p,i){return{segs:[p[0],p[1],p[0],p[1]],off:i*30,w:.22}}),{});
+  s.insertBefore(d,s.firstChild);
+});
+})();
+</script>
+</body>
+</html>

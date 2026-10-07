@@ -325,6 +325,7 @@
 | 307 | [卷貝糖霜室 COQUILLE](sites/coquille/index.html) | 蘭貝斯疊擠花蛋糕工作室（臺中西區・〈轉台〉按住擠花、轉台在手下轉，師傅評繞滿／節奏／不對稱的均衡，開紋樣證書帶去預約） | 洛可可 Rococo・rocaille（Meissonnier 1734・阿瑪麗恩堡・塞夫爾天青／龐巴度玫瑰：不對稱卷紋框・偏心貝殼冠頂・金只做線且打光成浮雕・游標即燭燈） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 308 | [方格磁磚 HONG-KEH](sites/hong-keh/index.html) | 馬賽克磁磚廠（苗栗竹南・〈拼片〉九張被疊亂的背網照格寬與色階拼回牆上，縫接對了變綠，拼完牆會鼓起再凹下，師傅給評語與工單） | 歐普藝術 Op Art・Vasarely〈Vega〉（1968–69：方地＋內形造形單元・暖八階球對冷六階網・格網凸凹只靠格寬・游標即第二顆球・按一下凸變凹） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 309 | [字像社 JI-SIONG](sites/ji-siong/index.html) | 電腦人像攤（臺中繼光街・1982 起・〈坐一張〉開相機／放照片／手繪，監看螢幕即時轉成 95 個 ASCII 字元，九針頭雙向列印報表紙人像＋名字大字＋月曆，存 .txt、取件單到店重印） | ASCII Art・純 ASCII 半身（Knowlton & Harmon 1966・Atari Compugraph 1976・FIGlet／jgs：一種墨・等寬格・字形比對・綠條報表紙） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 310 | [再來罐頭 TSÀI-LÂI](sites/tsai-lai/index.html) | 罐頭工廠直營門市（彰化員林・1963 洋菇外銷・〈再來一罐〉四面連作牆各藏一罐不一樣的，第四面只有一罐套得剛剛好，找到幾罐換幾罐的門市券） | 普普藝術 Pop Art・Warhol 絹印連作（32 Campbell's Soup Cans 1962・Marilyn Diptych 1962・Silver Factory：連作零間距・手切平色＋不對位照片黑版・糊版缺墨・Day-Glo＋銀箔・deadpan 標價） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -324,6 +324,7 @@
 | 306 | [久苔 苔庭所 KÚ-THÎ](sites/ku-thi/index.html) | 苔庭造景與苔蘚園（宜蘭員山・〈三石〉拖三顆石進淺盆，不等邊不置中大中小，師傅點頭苔就從石根長出來，選苔預約取盆） | 侘寂 Wabi-sabi・不均齊（千利休草庵茶→Koren 1994：同一噪聲場生成所有形・灰釉鐵鏽苔金繕・奇數不等邊・光隨真實時刻苔會長・Noto Serif TC 300 直排） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 307 | [卷貝糖霜室 COQUILLE](sites/coquille/index.html) | 蘭貝斯疊擠花蛋糕工作室（臺中西區・〈轉台〉按住擠花、轉台在手下轉，師傅評繞滿／節奏／不對稱的均衡，開紋樣證書帶去預約） | 洛可可 Rococo・rocaille（Meissonnier 1734・阿瑪麗恩堡・塞夫爾天青／龐巴度玫瑰：不對稱卷紋框・偏心貝殼冠頂・金只做線且打光成浮雕・游標即燭燈） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 308 | [方格磁磚 HONG-KEH](sites/hong-keh/index.html) | 馬賽克磁磚廠（苗栗竹南・〈拼片〉九張被疊亂的背網照格寬與色階拼回牆上，縫接對了變綠，拼完牆會鼓起再凹下，師傅給評語與工單） | 歐普藝術 Op Art・Vasarely〈Vega〉（1968–69：方地＋內形造形單元・暖八階球對冷六階網・格網凸凹只靠格寬・游標即第二顆球・按一下凸變凹） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 309 | [字像社 JI-SIONG](sites/ji-siong/index.html) | 電腦人像攤（臺中繼光街・1982 起・〈坐一張〉開相機／放照片／手繪，監看螢幕即時轉成 95 個 ASCII 字元，九針頭雙向列印報表紙人像＋名字大字＋月曆，存 .txt、取件單到店重印） | ASCII Art・純 ASCII 半身（Knowlton & Harmon 1966・Atari Compugraph 1976・FIGlet／jgs：一種墨・等寬格・字形比對・綠條報表紙） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

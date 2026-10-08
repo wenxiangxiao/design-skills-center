@@ -329,6 +329,7 @@
 | 311 | [好日帆布行 HO-JIT](sites/ho-jit/index.html) | 遮陽棚與帆布行（高雄鼓山・1981 起・捲動＝時間，所有影子依今天店址的真實太陽投影；〈遮一個下午〉替咖啡店露台調一面六米棚，快轉今天 13:00–15:00，算三桌曬到幾分、總帳和師傅比） | City Pop 唱片封面插畫・永井博半身（A Long Vacation 1981・FOR YOU 1982：噴槍天空・平塗零描邊・冷藍紫硬影・空景正方形構圖） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 312 | [直筒洋裁 TIT-TÂNG](sites/tit-tang/index.html) | 洋裁教室兼手印棉布行（臺南中西區・1971 後院印台・只教直筒；〈配色本〉同一張網換墨不換版，疊印色相乘算出，人台轉裙越快裙擺越開，林老師三條規矩） | 芬蘭印花布 Finnish Printed Cotton（Printex／Marimekko・Maija Isola：筆刷平塗巨形・透明墨疊印第三色・套偏不修・半錯接版距與布邊印字） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 313 | [同行講古茶房 TÂNG-KIÂNN](sites/tang-kiann/index.html) | 講古茶房（臺北萬華西昌街二樓・同行夜茶客講古比賽、冠軍故事朱墨兩過印進月刊講古本；〈接一句〉一人一句網址接龍，上機壓板兩過、每位作者在藤框上長一條根） | 工藝美術運動 Arts & Crafts・Kelmscott Press 書頁半身（Morris／Kelmscott Chaucer 1896：對開頁 Morris 邊距・黑字塊朱葉分段・白藤黑地木刻框・飾首字沉四行・只有墨與朱） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 314 | [銀梭鋁殼拖車 GÎN-SO](sites/gin-so/index.html) | 鋁殼拖車整修與出租（臺中清水・1979 清泉崗標下的 1956 年鋁殼；〈一趟車貼〉環島停站領流線車貼、拖上鋁殼不跨鉚釘縫，出車算租金、師傅評你貼得是不是一條線） | 流線摩登 Streamline Moderne（Bel Geddes／Loewy／Bowlus／Dreyfuss 1932–38） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

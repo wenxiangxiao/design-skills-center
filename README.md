@@ -327,10 +327,11 @@
 | 309 | [字像社 JI-SIONG](sites/ji-siong/index.html) | 電腦人像攤（臺中繼光街・1982 起・〈坐一張〉開相機／放照片／手繪，監看螢幕即時轉成 95 個 ASCII 字元，九針頭雙向列印報表紙人像＋名字大字＋月曆，存 .txt、取件單到店重印） | ASCII Art・純 ASCII 半身（Knowlton & Harmon 1966・Atari Compugraph 1976・FIGlet／jgs：一種墨・等寬格・字形比對・綠條報表紙） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 310 | [再來罐頭 TSÀI-LÂI](sites/tsai-lai/index.html) | 罐頭工廠直營門市（彰化員林・1963 洋菇外銷・〈再來一罐〉四面連作牆各藏一罐不一樣的，第四面只有一罐套得剛剛好，找到幾罐換幾罐的門市券） | 普普藝術 Pop Art・Warhol 絹印連作（32 Campbell's Soup Cans 1962・Marilyn Diptych 1962・Silver Factory：連作零間距・手切平色＋不對位照片黑版・糊版缺墨・Day-Glo＋銀箔・deadpan 標價） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 311 | [好日帆布行 HO-JIT](sites/ho-jit/index.html) | 遮陽棚與帆布行（高雄鼓山・1981 起・捲動＝時間，所有影子依今天店址的真實太陽投影；〈遮一個下午〉替咖啡店露台調一面六米棚，快轉今天 13:00–15:00，算三桌曬到幾分、總帳和師傅比） | City Pop 唱片封面插畫・永井博半身（A Long Vacation 1981・FOR YOU 1982：噴槍天空・平塗零描邊・冷藍紫硬影・空景正方形構圖） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 312 | [直筒洋裁 TIT-TÂNG](sites/tit-tang/index.html) | 洋裁教室兼手印棉布行（臺南中西區・1971 後院印台・只教直筒；〈配色本〉同一張網換墨不換版，疊印色相乘算出，人台轉裙越快裙擺越開，林老師三條規矩） | 芬蘭印花布 Finnish Printed Cotton（Printex／Marimekko・Maija Isola：筆刷平塗巨形・透明墨疊印第三色・套偏不修・半錯接版距與布邊印字） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 198 個產業種子 × 175 個風格種子（34,650 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 205 個產業種子 × 180 個風格種子（36,900 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

@@ -332,6 +332,7 @@
 | 314 | [銀梭鋁殼拖車 GÎN-SO](sites/gin-so/index.html) | 鋁殼拖車整修與出租（臺中清水・1979 清泉崗標下的 1956 年鋁殼；〈一趟車貼〉環島停站領流線車貼、拖上鋁殼不跨鉚釘縫，出車算租金、師傅評你貼得是不是一條線） | 流線摩登 Streamline Moderne（Bel Geddes／Loewy／Bowlus／Dreyfuss 1932–38） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 315 | [油水皂房 IÛ-TSUÍ](sites/iu-tsui/index.html) | 手工冷製皂房兼週五液態光秀（臺北雙城街・1969 藍天鵝俱樂部的投影機；〈滴一塊〉跟著瀏覽器合成的電子琴滴色油、聽到大鼓壓錶玻璃，歌停倒模切成皂、可訂可分享） | 迷幻 Psychedelic・液態光秀半身（Locks／Bill Ham／Joshua Light Show 1952–71：黑牆圓池・不相溶色胞與彎月面亮線・透射光・隨鼓壓玻璃・投影字） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 316 | [嗶啵汽水廠 PI-POK](sites/pi-pok/index.html) | 彈珠汽水廠（宜蘭羅東・1958 二手彈珠灌裝機；〈灌一班〉60 秒空白鍵封珠，每一瓶噴出照未來主義宣言規則生成的自由字，字是剛體會互撞、可甩） | 義大利未來派・自由字半身（Marinetti 1912–14・Depero 1927／1932：字即聲音・一頁八種字三種墨・名詞對與算式・斜角力線・頻閃殘影） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 317 | [大門面 TUĀ BÛN-BĪN](sites/tua-bun-bin/index.html) | 預售屋接待會館搭建與立面租借（新北五股・1988 起蓋 312 拆 297；〈開過去〉替八種古典片段選尺度、讓時速 60 公里的車經過 2.95 秒，看路人記得哪三樣，業務經理給評語與報價） | 後現代古典主義 Postmodern Classicism・裝飾棚（Venturi／Scott Brown 1972・Vanna Venturi House 1964・Moore 1978・Graves Portland Building 1982：扁平古典片段・一件大得不對・中軸裂開・灰泥三段 45° 平影・招牌比房子大） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

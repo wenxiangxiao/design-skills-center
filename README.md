@@ -335,6 +335,7 @@
 | 317 | [大門面 TUĀ BÛN-BĪN](sites/tua-bun-bin/index.html) | 預售屋接待會館搭建與立面租借（新北五股・1988 起蓋 312 拆 297；〈開過去〉替八種古典片段選尺度、讓時速 60 公里的車經過 2.95 秒，看路人記得哪三樣，業務經理給評語與報價） | 後現代古典主義 Postmodern Classicism・裝飾棚（Venturi／Scott Brown 1972・Vanna Venturi House 1964・Moore 1978・Graves Portland Building 1982：扁平古典片段・一件大得不對・中軸裂開・灰泥三段 45° 平影・招牌比房子大） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 318 | [浮雲號熱氣球 PHÛ-HÛN](sites/phu-hun/index.html) | 熱氣球載客飛行（台東鹿野高台・2013 年降落茶園遇到的是一壺茶而不是乾草叉；〈晨飛記事〉在布上找出機長故事的六個細節，開出下一個能飛的早晨的訂位單） | 茹伊印花布 Toile de Jouy・銅版單墨（Oberkampf 1760–1843・Huet・〈Le Ballon de Gonesse〉約 1784：一塊版一罐墨・刀線疏密・漂浮島・隱形半錯接・刻當下的事） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 319 | [雙囍錄影社 SIANG-HÍ](sites/siang-hi/index.html) | 婚禮錄影與錄影帶轉檔工作室（彰化員林・1991 年一台 Amiga 2000 起家；〈排一支片頭〉在 262 條掃描線與 512 KB 內排一支 20 秒婚禮片頭，超過就掉格或 Guru Meditation，師傅給評語與報價） | Amiga 演示場景 Demoscene・銅條片頭（Commodore Amiga OCS 1987–1995・Phenomena〈Enigma〉1991・Kefrens〈Desert Dream〉1993：12 位元 4,096 色・銅條・鉻字・正弦跑字・raster time） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 320 | [心聲代筆所 SIM-SIANN](sites/sim-siann/index.html) | 代寫書信所（臺北北門・1966 年騎樓代筆攤；首屏放大格往下捲退回 1967 年畫刊原稿；〈寫一格〉對話框自己長大找嘴，寄出網址讓對方回一格成雙聯） | 普普藝術 Pop Art・Lichtenstein 網點漫畫半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

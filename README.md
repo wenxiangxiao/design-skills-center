@@ -330,6 +330,7 @@
 | 312 | [直筒洋裁 TIT-TÂNG](sites/tit-tang/index.html) | 洋裁教室兼手印棉布行（臺南中西區・1971 後院印台・只教直筒；〈配色本〉同一張網換墨不換版，疊印色相乘算出，人台轉裙越快裙擺越開，林老師三條規矩） | 芬蘭印花布 Finnish Printed Cotton（Printex／Marimekko・Maija Isola：筆刷平塗巨形・透明墨疊印第三色・套偏不修・半錯接版距與布邊印字） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 313 | [同行講古茶房 TÂNG-KIÂNN](sites/tang-kiann/index.html) | 講古茶房（臺北萬華西昌街二樓・同行夜茶客講古比賽、冠軍故事朱墨兩過印進月刊講古本；〈接一句〉一人一句網址接龍，上機壓板兩過、每位作者在藤框上長一條根） | 工藝美術運動 Arts & Crafts・Kelmscott Press 書頁半身（Morris／Kelmscott Chaucer 1896：對開頁 Morris 邊距・黑字塊朱葉分段・白藤黑地木刻框・飾首字沉四行・只有墨與朱） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 314 | [銀梭鋁殼拖車 GÎN-SO](sites/gin-so/index.html) | 鋁殼拖車整修與出租（臺中清水・1979 清泉崗標下的 1956 年鋁殼；〈一趟車貼〉環島停站領流線車貼、拖上鋁殼不跨鉚釘縫，出車算租金、師傅評你貼得是不是一條線） | 流線摩登 Streamline Moderne（Bel Geddes／Loewy／Bowlus／Dreyfuss 1932–38） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 315 | [油水皂房 IÛ-TSUÍ](sites/iu-tsui/index.html) | 手工冷製皂房兼週五液態光秀（臺北雙城街・1969 藍天鵝俱樂部的投影機；〈滴一塊〉跟著瀏覽器合成的電子琴滴色油、聽到大鼓壓錶玻璃，歌停倒模切成皂、可訂可分享） | 迷幻 Psychedelic・液態光秀半身（Locks／Bill Ham／Joshua Light Show 1952–71：黑牆圓池・不相溶色胞與彎月面亮線・透射光・隨鼓壓玻璃・投影字） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

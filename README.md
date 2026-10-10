@@ -339,10 +339,11 @@
 | 321 | [揹巾所 PHĀINN-KIN](sites/phainn-kin/index.html) | 嬰兒揹巾行兼揹法課（中壢後站・梭羅 Laweyan 手繪蠟染揹巾；首屏晾布竿掛同一塊布的三個工序階段；〈畫一塊〉只決定蠟，顏色由入缸歷史算出） | 爪哇蠟染 Batik Tulis・梭羅宮廷 sogan 半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 322 | [掃帚星洗車 SÀU-TSHIÚ-TSHENN](sites/sau-tshiu-tshenn/index.html) | 洗車場（高雄三多路・1969 年照一張洛杉磯咖啡店明信片焊出翹屋頂；首屏路牌塔與每天自動換字的燈箱，招牌依高雄日落冷管點火；〈投幣格三號〉九十秒照順序預浸泡沫清水水蠟） | Googie 路邊原子風 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 323 | [好入厝搬家 HÓ JI̍P-TSHÙ](sites/jip-tshu/index.html) | 搬家行兼入厝代辦（新竹北門街・1979 年起每搬一戶送四片花磚貼新家門楣；首屏街屋立面的門楣磚帶，釉光照新竹此刻的日頭；〈門楣四片〉四個角對成門心花，吉語才成） | 花磚・日製馬約利卡浮凸彩釉磚 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 324 | [順發魚行 LOTERÍA DEL MAR](sites/sun-huat/index.html) | 港邊魚行（高雄前鎮漁港・1993 年照墨西哥牌套色法印的 32 張「海的樂得利」；首頁即 4×4 牌板，叫牌人語音唸詩逐字亮起，放豆子喊 ¡Lotería!，贏線上的魚就是你的袋子） | 墨西哥樂得利牌 Lotería Mexicana・套色卡牌 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 216 個產業種子 × 190 個風格種子（41,040 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 217 個產業種子 × 191 個風格種子（41,447 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

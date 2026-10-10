@@ -337,6 +337,7 @@
 | 319 | [雙囍錄影社 SIANG-HÍ](sites/siang-hi/index.html) | 婚禮錄影與錄影帶轉檔工作室（彰化員林・1991 年一台 Amiga 2000 起家；〈排一支片頭〉在 262 條掃描線與 512 KB 內排一支 20 秒婚禮片頭，超過就掉格或 Guru Meditation，師傅給評語與報價） | Amiga 演示場景 Demoscene・銅條片頭（Commodore Amiga OCS 1987–1995・Phenomena〈Enigma〉1991・Kefrens〈Desert Dream〉1993：12 位元 4,096 色・銅條・鉻字・正弦跑字・raster time） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 320 | [心聲代筆所 SIM-SIANN](sites/sim-siann/index.html) | 代寫書信所（臺北北門・1966 年騎樓代筆攤；首屏放大格往下捲退回 1967 年畫刊原稿；〈寫一格〉對話框自己長大找嘴，寄出網址讓對方回一格成雙聯） | 普普藝術 Pop Art・Lichtenstein 網點漫畫半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 321 | [揹巾所 PHĀINN-KIN](sites/phainn-kin/index.html) | 嬰兒揹巾行兼揹法課（中壢後站・梭羅 Laweyan 手繪蠟染揹巾；首屏晾布竿掛同一塊布的三個工序階段；〈畫一塊〉只決定蠟，顏色由入缸歷史算出） | 爪哇蠟染 Batik Tulis・梭羅宮廷 sogan 半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 322 | [掃帚星洗車 SÀU-TSHIÚ-TSHENN](sites/sau-tshiu-tshenn/index.html) | 洗車場（高雄三多路・1969 年照一張洛杉磯咖啡店明信片焊出翹屋頂；首屏路牌塔與每天自動換字的燈箱，招牌依高雄日落冷管點火；〈投幣格三號〉九十秒照順序預浸泡沫清水水蠟） | Googie 路邊原子風 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

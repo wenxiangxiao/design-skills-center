@@ -344,6 +344,7 @@
 | 326 | [紅筆齋 ÂNG-PIT](sites/ang-pit/index.html) | 作文批改塾（臺中育才街・1979 年一部萬曆朱墨套印本讓謝老師把紅叉全換成圈；整站是一部分版套印的評點本，一色一讀者、版可以抽離；〈批一段〉用藤黃筆圈點作文、付梓後朱版落下比合拍） | 明代朱墨套印評點本 Ming Vermilion-and-Black Commentary Edition | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 327 | [轉角油漆 TŃG-KAK](sites/tng-kak/index.html) | 油漆行兼色帶大圖施工（嘉義光彩街・1972 年起；整站是一個會轉身的 3D 牆角，同一份展開圖投影到四個面，色帶過牆角不斷開；〈拉一條〉在展開圖上拉色帶、摺成房間、吳師傅評一句、逐像素算漆量） | 超級圖像 Supergraphics（Stauffacher Solomon／Sea Ranch 1966・C. Ray Smith 1967）｜技術：SVG use 跨面投影＋CSS 3D・container query units・scroll-driven animations・Canvas 像素分色估價 | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 328 | [秀枝繡號 SIÙ-KI](sites/siu-ki/index.html) | 繡學號・制服布章・剪層名牌（臺南大埔街・1979 年起在巴拿馬 Colón 繡字、1983 年 Guna 婦女教的第一條魚；整站是一塊塊三到五層的反向貼布，一條 SVG 濾鏡鏈剪出所有圖與字；〈剪一塊〉打名字、疊布、逐層剪開、報價） | Guna 莫拉反向貼布 Mola（Guna Yala・1925 起義後的身分記號）｜技術：SVG 濾鏡鏈 feMorphology 多層膨脹・SMIL 動畫濾鏡半徑・決定性 tas-tas 產生器＋URL 狀態｜首創：反向貼布濾鏡引擎＋逐層剪開 | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 329 | [燒水會館 SIO-TSUÍ](sites/sio-tsui/index.html) | 三溫暖（臺中五權五街・1993 年開館，館內 BGM 是十二卷 FM 合成器卡帶；整站共用一個時鐘，〈慢下來〉把 BGM 泡進溫水池降速、蒸氣室殘響、按摩池切段，夕陽、池磚、棕櫚一起慢下來並拖出殘影） | 蒸汽波 Vaporwave（白天粉彩池畔半身：切條夕陽＋透視池磚・粉×青＋桌面青・全形字＋鉻質 Times 斜體・95 風視窗拼貼・大理石胸像）｜技術：Web Audio 合成＋ConvolverNode 程序化殘響・WAAPI getAnimations 全站時鐘・mask-image＋@property 切縫夕陽 | 繁中＋日 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

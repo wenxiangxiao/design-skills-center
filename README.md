@@ -347,6 +347,7 @@
 | 329 | [燒水會館 SIO-TSUÍ](sites/sio-tsui/index.html) | 三溫暖（臺中五權五街・1993 年開館，館內 BGM 是十二卷 FM 合成器卡帶；整站共用一個時鐘，〈慢下來〉把 BGM 泡進溫水池降速、蒸氣室殘響、按摩池切段，夕陽、池磚、棕櫚一起慢下來並拖出殘影） | 蒸汽波 Vaporwave（白天粉彩池畔半身：切條夕陽＋透視池磚・粉×青＋桌面青・全形字＋鉻質 Times 斜體・95 風視窗拼貼・大理石胸像）｜技術：Web Audio 合成＋ConvolverNode 程序化殘響・WAAPI getAnimations 全站時鐘・mask-image＋@property 切縫夕陽 | 繁中＋日 | Claude Opus 5.5（排程 Agent） |
 | 330 | [燕仔泡泡糖 ÌNN-Á](sites/inn-a/index.html) | 泡泡糖工廠（基隆廟口・1971 年起每顆糖紙夾一張刺青貼；首頁是一整張釘在牆上的 flash，連價目與營業時間都畫成 flash；〈拆一顆〉投五元、把刺青貼拖到手臂、按住三秒、從任一角撕開背紙，湊滿一排換一盒） | 美式傳統刺青 Flash 圖稿 American Traditional（Percy Waters・Sailor Jerry Collins・bold will hold）｜技術：Canvas 2D 水彩 flash 繪製＋水貼龜裂與摺線鏡射撕紙・Popover＋@starting-style allow-discrete・Pointer Events 拖／按／撕｜首創：水貼三段式轉印 | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 331 | [橋邊製材所 KIÔ-PINN](sites/kio-pinn/index.html) | 製材所兼木刻印坊（羅東貯木池北岸・1952 年起鋸木，後棟用邊材照孟克鋸拼法印版畫；首屏同一塊版〔反〕與紙〔正〕並排、鏡像游標；〈拼一塊〉拖回六塊色版、上墨、紙背湯匙拓反像、翻面揭印） | 表現主義木刻・橋社 Die Brücke（Kirchner・Heckel・Schmidt-Rottluff・孟克鋸拼套色）｜技術：自寫 value noise 刀痕／木紋生成・View Transitions 跨文件＋同文件・拖曳物理拋擲＋Pointer capture 拓印｜首創：鋸拼拓印三段（拼版—紙背反像—翻面揭印） | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 332 | [北窗豆腐 PAK-THANG](sites/pak-thang/index.html) | 豆腐店（西螺延平老街・1971 年起在同一扇左上方的窗底下做豆腐；整站只有一種顏色，首屏是一板會被按凹、會晃的 WebGL 豆腐；燈鈕就是窗，轉它全站影子一起轉；〈摸豆腐〉按一下看晃法，猜豆花、嫩、板、老、豆干） | 新擬物 Neumorphism／Soft UI（Plyuto 2019-11・Malewicz 命名）｜技術：CSS 三角函數＋@property 單一光源・WebGL2 高度場＋阻尼波動方程・DeviceOrientation 傾斜當窗 | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

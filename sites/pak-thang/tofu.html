@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>豆腐與摸豆腐｜北窗豆腐 PAK-THANG</title>
+<meta name="description" content="北窗豆腐的品項、價錢與〈摸豆腐〉：按一下，看它怎麼晃，猜哪一塊是嫩的。">
+<meta name="theme-color" content="#E6E1D6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23F6F2EA'/%3E%3Cstop offset='1' stop-color='%23CFC7B8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23E6E1D6'/%3E%3Crect x='8' y='8' width='48' height='48' rx='13' fill='url(%23g)'/%3E%3Crect x='14' y='14' width='16' height='16' rx='4' fill='%23BCB3A3'/%3E%3Crect x='15.5' y='15.5' width='14' height='14' rx='3' fill='%23E6E1D6'/%3E%3Ccircle cx='44' cy='44' r='4' fill='%233A8F53'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== 北窗豆腐 PAK-THANG · Neumorphism core ===== */
+@property --la{syntax:'<angle>';inherits:true;initial-value:225deg}
+@property --depth{syntax:'<number>';inherits:true;initial-value:1}
+@property --lf{syntax:'<number>';inherits:true;initial-value:1}
+:root{
+  --bg:#E6E1D6;      /* 豆漿米：唯一的材料色 */
+  --hi:#FFFDF8;      /* 窗光側 */
+  --lo:#BCB3A3;      /* 背光側 */
+  --cx1:#F2EEE6;     /* 凸面漸層亮端 */
+  --cx2:#D7D0C3;     /* 凸面漸層暗端 */
+  --ink:#3B352D;     /* 主文字 */
+  --ink2:#5A5348;    /* 次文字 */
+  --mute:#716A5E;    /* 註記（≥4.5:1） */
+  --acc:#3A8F53;     /* 蔥綠：全站唯一強調色，只給「正在發生／被選中」 */
+  --acc-glow:rgba(58,143,83,.45);
+  --la:225deg; --depth:1;
+  --r-s:14px; --r-m:22px; --r-l:36px;
+  --f-zh:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-la:"Nunito","Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--ink);-webkit-text-size-adjust:100%}
+html.lighting{transition:--la 2.4s cubic-bezier(.4,0,.2,1),--lf 2.4s}
+html.sinking{transition:--depth .26s cubic-bezier(.5,0,.75,0)}
+html.rising{transition:--depth .42s cubic-bezier(.2,.9,.3,1.12)}
+body{background:var(--bg);font-family:var(--f-zh);font-size:16px;line-height:1.75;font-weight:400;min-height:100vh;padding-bottom:120px;overflow-x:hidden}
+a{color:inherit}
+img,svg,canvas{display:block}
+.la{font-family:var(--f-la);letter-spacing:.02em}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--acc);outline-offset:4px}
+
+/* ---- 四態：凸 raised / 凹 inset / 凸面 convex / 平 flat ---- */
+/* 靜態後備（不支援 CSS 三角函數時）：固定左上光 */
+.nm,.nm-s,.nm-l{box-shadow:8px 8px 16px var(--lo),-8px -8px 16px var(--hi)}
+.in,.in-s{box-shadow:inset 6px 6px 12px var(--lo),inset -6px -6px 12px var(--hi)}
+@supports (width:calc(1px * cos(0deg))){
+  .nm,.nm-s,.nm-l,.in,.in-s,.cx{
+    --e:calc(var(--elev,8px) * var(--depth) * var(--lf,1));
+    --ox:calc(cos(var(--la)) * var(--e));
+    --oy:calc(sin(var(--la)) * var(--e));
+  }
+  .nm-s{--elev:4px} .nm-l{--elev:14px} .in-s{--elev:3px} .in{--elev:6px}
+  .nm,.nm-s,.nm-l{box-shadow:calc(-1 * var(--ox)) calc(-1 * var(--oy)) calc(2 * var(--e)) var(--lo),var(--ox) var(--oy) calc(2 * var(--e)) var(--hi)}
+  .in,.in-s{box-shadow:inset calc(-1 * var(--ox)) calc(-1 * var(--oy)) calc(2 * var(--e)) var(--lo),inset var(--ox) var(--oy) calc(2 * var(--e)) var(--hi)}
+  .cx{background:linear-gradient(calc(var(--la) + 270deg),var(--cx1),var(--cx2));box-shadow:calc(-1 * var(--ox)) calc(-1 * var(--oy)) calc(2 * var(--e)) var(--lo),var(--ox) var(--oy) calc(2 * var(--e)) var(--hi)}
+  /* 同色凹字：字與底同色，只靠光 */
+  .deboss{color:var(--bg);text-shadow:calc(-.06em * cos(var(--la)) * var(--depth)) calc(-.06em * sin(var(--la)) * var(--depth)) .04em var(--hi),calc(.05em * cos(var(--la)) * var(--depth)) calc(.05em * sin(var(--la)) * var(--depth)) .05em var(--lo)}
+  .emboss{color:var(--bg);text-shadow:calc(.05em * cos(var(--la)) * var(--depth)) calc(.05em * sin(var(--la)) * var(--depth)) .05em var(--hi),calc(-.06em * cos(var(--la)) * var(--depth)) calc(-.06em * sin(var(--la)) * var(--depth)) .06em var(--lo)}
+}
+.deboss,.emboss{-webkit-text-stroke:0}
+@supports not (width:calc(1px * cos(0deg))){
+  .deboss{color:var(--bg);text-shadow:-2px -2px 2px var(--hi),2px 2px 3px var(--lo)}
+  .emboss{color:var(--bg);text-shadow:2px 2px 2px var(--hi),-2px -2px 3px var(--lo)}
+  .cx{background:linear-gradient(135deg,var(--cx1),var(--cx2))}
+}
+.nm,.nm-s,.nm-l,.in,.in-s,.cx{background-color:var(--bg)}
+
+/* 高對比模式（無障礙：新擬物最大的已知缺陷就是對比不足） */
+html.hc{--ink:#211D18;--ink2:#2F2A23;--mute:#4A443B;--lo:#9E9584}
+html.hc .nm,html.hc .nm-s,html.hc .nm-l,html.hc .cx{outline:1.5px solid #8C8373;outline-offset:-1.5px}
+html.hc .in,html.hc .in-s{outline:1.5px solid #8C8373;outline-offset:-1.5px}
+html.hc .deboss,html.hc .emboss{color:var(--ink2)}
+
+/* ---- 按鍵：按下＝從凸換成凹 ---- */
+.key{appearance:none;border:0;font:inherit;text-decoration:none;color:var(--ink);cursor:pointer;border-radius:var(--r-s);padding:.7em 1.3em;background:var(--bg);transition:transform .12s, color .2s}
+.key{--elev:6px}
+.key:active,.key[aria-pressed="true"],.key[aria-current="page"],.key.on{
+  box-shadow:inset 4px 4px 8px var(--lo),inset -4px -4px 8px var(--hi)}
+@supports (width:calc(1px * cos(0deg))){
+  .key:active,.key[aria-pressed="true"],.key[aria-current="page"],.key.on{
+    --e:calc(4px * var(--depth));--ox:calc(cos(var(--la)) * var(--e));--oy:calc(sin(var(--la)) * var(--e));
+    box-shadow:inset calc(-1 * var(--ox)) calc(-1 * var(--oy)) calc(2 * var(--e)) var(--lo),inset var(--ox) var(--oy) calc(2 * var(--e)) var(--hi)}
+}
+.key:active{transform:scale(.985)}
+.led{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cx2);vertical-align:middle;margin-right:.55em;box-shadow:inset 1px 1px 2px var(--lo)}
+.on .led,[aria-pressed="true"] .led,[aria-current="page"] .led,.led.on{background:var(--acc);box-shadow:0 0 8px var(--acc-glow)}
+
+/* ---- 導覽：壓鍵底座 soft-segment dock ---- */
+.dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px;padding:9px;border-radius:30px;background:var(--bg)}
+.dock nav{display:flex;gap:6px;padding:6px;border-radius:22px}
+.dock .key{border-radius:16px;padding:.55em 1.05em;font-size:15px;font-weight:500;text-decoration:none;white-space:nowrap;--elev:4px}
+.dock .key small{font-family:var(--f-la);font-size:11px;color:var(--mute);margin-left:.35em;font-weight:700;letter-spacing:.08em}
+.lamp{position:relative;width:54px;height:54px;border-radius:50%;cursor:grab;touch-action:none;flex:none;border:0}
+.lamp::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc-glow);
+  transform:rotate(var(--la)) translateX(17px)}
+.lamp:active{cursor:grabbing}
+.lamp-tip{position:absolute;bottom:72px;right:0;width:220px;font-size:13px;line-height:1.55;color:var(--ink2);padding:12px 14px;border-radius:16px;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .25s,transform .25s}
+.dock:hover .lamp-tip,.lamp:focus-visible + .lamp-tip{opacity:1;transform:none}
+@media (max-width:560px){
+  .dock{left:10px;right:10px;transform:none;bottom:10px;gap:6px;padding:7px;justify-content:space-between}
+  .dock nav{gap:3px;padding:4px;flex:1}
+  .dock .key{padding:.6em .5em;font-size:14px;flex:1;text-align:center}
+  .dock .key small{display:none}
+  .lamp{width:46px;height:46px}
+  .lamp::after{transform:rotate(var(--la)) translateX(14px)}
+}
+
+/* ---- 版面 ---- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+@media (max-width:560px){.wrap{padding:0 16px}}
+.eyebrow{font-family:var(--f-la);font-weight:800;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+h1,h2,h3{font-weight:700;line-height:1.25;color:var(--ink)}
+h2{font-size:clamp(28px,4.2vw,46px);letter-spacing:.02em}
+h3{font-size:20px}
+p{color:var(--ink2)}
+.price{font-family:var(--f-la);font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.well{border-radius:var(--r-s);padding:.35em .8em;display:inline-block}
+.pill{border-radius:999px;padding:.4em 1em;display:inline-flex;align-items:center;gap:.4em;font-size:14px}
+
+/* 頁尾 */
+.foot{margin:110px auto 0;max-width:1180px;padding:0 28px}
+.foot-in{border-radius:var(--r-l);padding:36px 40px;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:28px;font-size:14px}
+.foot-in p{color:var(--ink2)}
+.foot-in strong{display:block;color:var(--ink);font-size:15px;margin-bottom:6px}
+.foot-note{font-size:12px;color:var(--mute);margin:18px 6px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.foot-note a{color:var(--mute)}
+@media (max-width:760px){.foot-in{grid-template-columns:1fr;padding:26px 22px}}
+@media (max-width:560px){.foot{padding:0 16px}}
+
+/* 進出場：整頁的凸起由 --depth 控制，換頁時沉回平面再從新頁長出來 */
+html.pre{--depth:0}
+
+@media (prefers-reduced-motion:reduce){
+  html.lighting,html.sinking,html.rising{transition:none}
+  .key,.lamp-tip{transition:none}
+}
+
+/* 同色浮雕插圖：SVG 填背景色，靠兩道 drop-shadow 跟著光 */
+.relief{filter:drop-shadow(3px 3px 3px var(--lo)) drop-shadow(-3px -3px 3px var(--hi));overflow:visible}
+.relief .relief-in{filter:drop-shadow(-1.5px -1.5px 1px var(--lo)) drop-shadow(1.5px 1.5px 1px var(--hi))}
+@supports (width:calc(1px * cos(0deg))){
+  .relief{--rx:calc(cos(var(--la)) * 3px * var(--depth));--ry:calc(sin(var(--la)) * 3px * var(--depth));
+    filter:drop-shadow(calc(-1 * var(--rx)) calc(-1 * var(--ry)) 3px var(--lo)) drop-shadow(var(--rx) var(--ry) 3px var(--hi))}
+  .relief .relief-in{--qx:calc(cos(var(--la)) * 1.5px * var(--depth));--qy:calc(sin(var(--la)) * 1.5px * var(--depth));
+    filter:drop-shadow(var(--qx) var(--qy) 1px var(--lo)) drop-shadow(calc(-1 * var(--qx)) calc(-1 * var(--qy)) 1px var(--hi))}
+}
+
+</style>
+<noscript><style>html.pre{--depth:1}.slab canvas{display:none}.slab .css-face{display:flex!important}.js-only{display:none!important}</style></noscript>
+<script>document.documentElement.classList.add("pre");setTimeout(function(){document.documentElement.classList.remove("pre")},1600);</script>
+<script>
+/* ===== 北窗豆腐 core：一扇窗的光 + 換頁沉板 + 豆腐面（WebGL2 阻尼膜） ===== */
+(function(){
+"use strict";
+var root=document.documentElement;
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+var PT={};window.PT=PT;PT.RM=RM;
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+function sstore(k,v){try{if(v===undefined)return sessionStorage.getItem(k);sessionStorage.setItem(k,v)}catch(e){return null}}
+PT.store=store;PT.sstore=sstore;
+
+/* ---------- 光：全站只有一個光源 ---------- */
+// la：螢幕座標角（0°＝右、90°＝下），指向光源。225°＝左上，北窗的位置。
+var light={la:225,el:38,listeners:[],manual:false};
+PT.light=light;
+function taipeiHour(){
+  try{var p=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Taipei",hour:"numeric",minute:"numeric",hourCycle:"h23"}).formatToParts(new Date());
+    var h=0,m=0;p.forEach(function(x){if(x.type==="hour")h=+x.value;if(x.type==="minute")m=+x.value});return h+m/60;}catch(e){var d=new Date();return d.getHours()+d.getMinutes()/60}
+}
+PT.taipeiHour=taipeiHour;
+// 窗固定在左上，但太陽會走：05:30 光偏上（200°），下午偏左（250°）；夜裡是店裡那盞吊燈（正上方偏左 215°、高仰角）
+function windowAngle(){var h=taipeiHour();if(h<5||h>=18.5)return{la:215,el:62};var t=(h-5)/13.5;return{la:198+t*54,el:26+Math.sin(t*Math.PI)*30}}
+function setLight(la,el,smooth){
+  light.la=((la%360)+360)%360; if(el!=null)light.el=Math.max(8,Math.min(80,el));
+  if(smooth&&!RM)root.classList.add("lighting");else root.classList.remove("lighting");
+  root.style.setProperty("--la",light.la.toFixed(2)+"deg");
+  root.style.setProperty("--lf",Math.max(.55,Math.min(1.9,.78/Math.tan(light.el*Math.PI/180))).toFixed(3));
+  for(var i=0;i<light.listeners.length;i++)light.listeners[i](light);
+}
+PT.setLight=setLight;
+PT.onLight=function(f){light.listeners.push(f)};
+var saved=sstore("pt-light");
+if(saved){var sv=saved.split(",");light.manual=true;setLight(+sv[0],+sv[1],false)}else{var w=windowAngle();setLight(w.la,w.el,false)}
+setInterval(function(){if(!light.manual){var w=windowAngle();setLight(w.la,w.el,true)}},60000);
+function remember(){sstore("pt-light",light.la.toFixed(1)+","+light.el.toFixed(1))}
+PT.resetLight=function(){light.manual=false;try{sessionStorage.removeItem("pt-light")}catch(e){}var w=windowAngle();setLight(w.la,w.el,true)};
+
+/* ---------- 燈鈕：拖著轉＝把窗搬到別的方向 ---------- */
+function bindLamp(btn){
+  if(!btn)return;
+  var drag=false;
+  function ang(e){var r=btn.getBoundingClientRect();return Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2))*180/Math.PI}
+  btn.addEventListener("pointerdown",function(e){drag=true;btn.setPointerCapture(e.pointerId);light.manual=true;setLight(ang(e),null,false);e.preventDefault()});
+  btn.addEventListener("pointermove",function(e){if(drag){setLight(ang(e),null,false)}});
+  function end(){if(drag){drag=false;remember()}}
+  btn.addEventListener("pointerup",end);btn.addEventListener("pointercancel",end);
+  btn.addEventListener("keydown",function(e){
+    var k=e.key,d=e.shiftKey?45:15;
+    if(k==="ArrowRight"||k==="ArrowDown"){light.manual=true;setLight(light.la+d,null,true);remember();e.preventDefault()}
+    else if(k==="ArrowLeft"||k==="ArrowUp"){light.manual=true;setLight(light.la-d,null,true);remember();e.preventDefault()}
+    else if(k==="PageUp"){setLight(light.la,light.el+6,false);remember();e.preventDefault()}
+    else if(k==="PageDown"){setLight(light.la,light.el-6,false);remember();e.preventDefault()}
+  });
+  btn.addEventListener("dblclick",function(){PT.resetLight()});
+  function label(){btn.setAttribute("aria-valuenow",Math.round(light.la));btn.setAttribute("aria-valuetext","光從 "+dirName(light.la)+" 來，"+Math.round(light.la)+" 度")}
+  PT.onLight(label);label();
+}
+function dirName(a){var n=["右","右下","下","左下","左","左上","上","右上"];return n[Math.round(a/45)%8]}
+PT.dirName=dirName;
+
+/* ---------- 傾斜：手機斜著拿，光從高的那邊來 ---------- */
+PT.enableTilt=function(btn){
+  function start(){
+    var sm=null;
+    window.addEventListener("deviceorientation",function(e){
+      if(e.beta==null)return;
+      var gx=Math.max(-45,Math.min(45,e.gamma||0)),gy=Math.max(-45,Math.min(45,(e.beta||0)-40));
+      var mag=Math.hypot(gx,gy);if(mag<3)return;
+      var a=Math.atan2(-gy,-gx)*180/Math.PI, el=70-Math.min(mag,45);
+      if(sm==null)sm=a;var d=((a-sm+540)%360)-180;sm+=d*.25;
+      light.manual=true;setLight(sm,el,false);
+    });
+    if(btn){btn.setAttribute("aria-pressed","true");btn.querySelector(".t").textContent="傾斜中：手機高的那側＝窗"}
+  }
+  if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){
+    DeviceOrientationEvent.requestPermission().then(function(s){if(s==="granted")start();else if(btn)btn.querySelector(".t").textContent="沒有拿到傾斜權限，請用燈鈕"}).catch(function(){if(btn)btn.querySelector(".t").textContent="需要 HTTPS 與點擊授權"});
+  }else if("DeviceOrientationEvent" in window){start()}
+  else if(btn){btn.querySelector(".t").textContent="這台裝置沒有方向感測器"}
+};
+
+/* ---------- 高對比 ---------- */
+if(store("pt-hc")==="1")root.classList.add("hc");
+PT.toggleHC=function(btn){var on=root.classList.toggle("hc");store("pt-hc",on?"1":"0");if(btn)btn.setAttribute("aria-pressed",on?"true":"false")};
+
+/* ---------- 換頁：沉板 → 出板 ---------- */
+function rise(){
+  if(RM){root.classList.remove("pre");return}
+  root.classList.add("pre");
+  requestAnimationFrame(function(){requestAnimationFrame(function(){root.classList.add("rising");root.classList.remove("pre");setTimeout(function(){root.classList.remove("rising")},520)})});
+}
+document.addEventListener("click",function(e){
+  var a=e.target.closest&&e.target.closest("a[href]");if(!a)return;
+  var href=a.getAttribute("href");
+  if(!href||href.charAt(0)==="#"||a.target||e.metaKey||e.ctrlKey||e.shiftKey||/^(https?:|mailto:|tel:)/.test(href)||RM)return;
+  e.preventDefault();root.classList.add("sinking");root.style.setProperty("--depth","0");
+  setTimeout(function(){location.href=href},270);
+});
+window.addEventListener("pageshow",function(e){if(e.persisted){root.classList.remove("sinking");root.style.removeProperty("--depth")}});
+PT.rise=rise;
+
+document.addEventListener("DOMContentLoaded",function(){
+  bindLamp(document.querySelector(".lamp"));
+  document.querySelectorAll("[data-hc]").forEach(function(b){b.setAttribute("aria-pressed",root.classList.contains("hc")?"true":"false");b.addEventListener("click",function(){PT.toggleHC(b)})});
+  document.querySelectorAll("[data-tilt]").forEach(function(b){b.addEventListener("click",function(){PT.enableTilt(b)})});
+  rise();
+});
+
+/* ---------- FNV-1a ---------- */
+PT.fnv=function(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h>>>0};
+
+/* =====================================================================
+   Slab：豆腐面。CPU 上跑離散二維阻尼波動方程（含彈性基底項 k·h），
+   每幀把高度場以 R16F 上傳，GPU 由高度場求法線、依全站同一個光源著色：
+   平的地方＝剛好等於背景色（新擬物的第一條規則：同色）。
+   ===================================================================== */
+var VS="#version 300 es\nin vec2 p;out vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}";
+var FS="#version 300 es\nprecision highp float;in vec2 uv;out vec4 o;"+
+"uniform sampler2D uSt,uDy;uniform vec2 uE,uD;uniform vec3 uL,uBg,uHi,uLo;uniform float uSd,uDa,uGain,uA;"+
+"float Hs(vec2 q){return texture(uSt,q).r;}float Hd(vec2 q){return texture(uDy,q).r;}"+
+"void main(){vec2 gs=vec2(Hs(uv+vec2(uE.x,0.))-Hs(uv-vec2(uE.x,0.)),Hs(uv+vec2(0.,uE.y))-Hs(uv-vec2(0.,uE.y)))/(2.*uE);"+
+"vec2 gd=vec2(Hd(uv+vec2(uD.x,0.))-Hd(uv-vec2(uD.x,0.)),Hd(uv+vec2(0.,uD.y))-Hd(uv-vec2(0.,uD.y)))/(2.*uD);"+
+"vec2 g=gs*uSd+gd*uDa;g.y/=uA;vec3 n=normalize(vec3(-g,1.));float s=(dot(n,uL)-uL.z)*uGain;"+
+"vec3 c=s>0.?mix(uBg,uHi,clamp(s,0.,1.)):mix(uBg,uLo,clamp(-s,0.,1.));o=vec4(c,1.);}";
+function hex(h){h=h.replace("#","");return[parseInt(h.substr(0,2),16)/255,parseInt(h.substr(2,2),16)/255,parseInt(h.substr(4,2),16)/255]}
+function cssVar(n){return getComputedStyle(root).getPropertyValue(n).trim()}
+
+function Slab(canvas,o){
+  this.c=canvas;this.o=o;this.W=o.simW||96;this.H=o.simH||60;
+  this.a=new Float32Array(this.W*this.H);this.b=new Float32Array(this.W*this.H);
+  this.pin=null;this.mat=o.mat||{c2:.22,k:.02,damp:.985,press:.8};
+  this.energy=0;this.dirty=true;this.visible=true;this.ok=false;this.cross=0;this.lastSign=0;this.wobbleFrames=0;this.onSettle=o.onSettle||null;
+  var gl=null;try{gl=canvas.getContext("webgl2",{premultipliedAlpha:false,antialias:false,alpha:false})}catch(e){}
+  if(!gl){return}
+  this.gl=gl;
+  function sh(t,s){var x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x}
+  try{var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw"link";}catch(e){this.gl=null;return}
+  this.pr=pr;gl.useProgram(pr);
+  var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  var lp=gl.getAttribLocation(pr,"p");gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+  this.U={};var self=this;["uSt","uDy","uE","uD","uL","uBg","uHi","uLo","uSd","uDa","uGain","uA"].forEach(function(n){self.U[n]=gl.getUniformLocation(pr,n)});
+  this.tSt=gl.createTexture();this.tDy=gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.tDy);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.R16F,this.W,this.H,0,gl.RED,gl.FLOAT,this.a);
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.tSt);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.uniform1i(this.U.uSt,0);gl.uniform1i(this.U.uDy,1);
+  this.ok=true;
+  this.resize();
+  this.bind();
+  PT.onLight(function(){self.dirty=true});
+  if("IntersectionObserver" in window){new IntersectionObserver(function(es){self.visible=es[0].isIntersecting;if(self.visible)self.dirty=true}).observe(canvas)}
+  var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(function(){self.resize()},120)});
+  canvas.addEventListener("webglcontextlost",function(e){e.preventDefault();self.ok=false;canvas.parentNode.classList.add("nogl")});
+  Slab.all.push(this);Slab.loop();
+}
+Slab.all=[];
+Slab.prototype.resize=function(){
+  if(!this.gl)return;var dpr=Math.min(window.devicePixelRatio||1,2),r=this.c.getBoundingClientRect();
+  var w=Math.max(2,Math.round(r.width*dpr)),h=Math.max(2,Math.round(r.height*dpr));
+  this.c.width=w;this.c.height=h;this.cw=r.width;this.ch=r.height;
+  // 靜態高度場：在 2D canvas 上畫、模糊後上傳（約半解析度）
+  var sw=Math.max(64,Math.round(r.width*Math.min(dpr,1.5)*.6)),shh=Math.max(40,Math.round(r.height*Math.min(dpr,1.5)*.6));
+  var cv=document.createElement("canvas");cv.width=sw;cv.height=shh;var x=cv.getContext("2d");
+  x.fillStyle="#000";x.fillRect(0,0,sw,shh);
+  if(this.o.drawStatic)this.o.drawStatic(x,sw,shh,r.width/sw);
+  var id=x.getImageData(0,0,sw,shh);blur(id,Math.max(1,Math.round(sw/260)));blur(id,Math.max(1,Math.round(sw/260)));x.putImageData(id,0,0);
+  var gl=this.gl;gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.tSt);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,cv);
+  this.sw=sw;this.shh=shh;gl.viewport(0,0,w,h);this.dirty=true;
+};
+function blur(id,r){var w=id.width,h=id.height,d=id.data,t=new Float32Array(w*h),i,x,y,s,k;
+  for(i=0;i<w*h;i++)t[i]=d[i*4];
+  var u=new Float32Array(w*h);
+  for(y=0;y<h;y++){s=0;for(x=-r;x<=r;x++)s+=t[y*w+Math.min(w-1,Math.max(0,x))];for(x=0;x<w;x++){u[y*w+x]=s/(2*r+1);s+=t[y*w+Math.min(w-1,x+r+1)]-t[y*w+Math.max(0,x-r)]}}
+  for(x=0;x<w;x++){s=0;for(y=-r;y<=r;y++)s+=u[Math.min(h-1,Math.max(0,y))*w+x];for(y=0;y<h;y++){k=(y*w+x)*4;var v=s/(2*r+1);d[k]=d[k+1]=d[k+2]=v;d[k+3]=255;s+=u[Math.min(h-1,y+r+1)*w+x]-u[Math.max(0,y-r)*w+x]}}
+}
+Slab.prototype.bind=function(){
+  var self=this,c=this.c,down=false;
+  function pos(e){var r=c.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
+  c.addEventListener("pointerdown",function(e){down=true;c.setPointerCapture(e.pointerId);var p=pos(e);self.press(p[0],p[1]);e.preventDefault()});
+  c.addEventListener("pointermove",function(e){if(down){var p=pos(e);self.press(p[0],p[1])}});
+  function up(){if(down){down=false;self.release()}}
+  c.addEventListener("pointerup",up);c.addEventListener("pointercancel",up);c.addEventListener("lostpointercapture",up);
+};
+Slab.prototype.press=function(u,v,depth){
+  this.pin={x:u*(this.W-1),y:v*(this.H-1),r:Math.max(4,this.W*.11),d:(depth||1)*this.mat.press};this.cross=0;this.wobbleFrames=0;this.dirty=true;this.settled=false;
+  if(this.o.onPress)this.o.onPress(this);
+};
+Slab.prototype.release=function(){this.pin=null;this.cross=0;this.wobbleFrames=0;this.lastSign=0;this.settled=false;this.dirty=true;if(this.o.onRelease)this.o.onRelease(this)};
+Slab.prototype.drop=function(u,v,amt,r){var W=this.W,H=this.H,cx=u*(W-1),cy=v*(H-1);r=r||3;
+  for(var y=Math.max(1,Math.floor(cy-r));y<Math.min(H-1,cy+r);y++)for(var x=Math.max(1,Math.floor(cx-r));x<Math.min(W-1,cx+r);x++){var d=Math.hypot(x-cx,y-cy);if(d<r){var q=-amt*(1+Math.cos(Math.PI*d/r))/2;this.a[y*W+x]+=q}}
+  this.dirty=true;};
+Slab.prototype.step=function(){
+  var W=this.W,H=this.H,a=this.a,b=this.b,m=this.mat,c2=m.c2,k=m.k,dp=RM?Math.min(m.damp,.86):m.damp,E=0,i,x,y;
+  var pin=this.pin;
+  for(y=1;y<H-1;y++){for(x=1;x<W-1;x++){i=y*W+x;
+    var lap=a[i-1]+a[i+1]+a[i-W]+a[i+W]-4*a[i];
+    var n=(2*a[i]-b[i]+c2*lap-k*a[i])*dp;
+    if(pin){var dd=Math.hypot(x-pin.x,y-pin.y);if(dd<pin.r){var tg=-pin.d*(1+Math.cos(Math.PI*dd/pin.r))/2;n+=(tg-n)*.28}}
+    b[i]=n;E+=n*n;}}
+  this.a=b;this.b=a;this.energy=E/(W*H);
+  // 量測：中心點越零次數（晃幾下）
+  var ci=(H>>1)*W+(W>>1),sv=this.a[ci],sg=sv>0.004?1:sv<-0.004?-1:0;
+  if(!pin){this.wobbleFrames++;if(sg!==0&&this.lastSign!==0&&sg!==this.lastSign)this.cross++;if(sg!==0)this.lastSign=sg;
+    if(!this.settled&&this.wobbleFrames>8&&this.energy<2e-6){this.settled=true;if(this.onSettle)this.onSettle(this)}}
+};
+Slab.prototype.draw=function(){
+  var gl=this.gl;if(!gl||!this.ok)return;
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.tDy);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,this.W,this.H,gl.RED,gl.FLOAT,this.a);
+  var la=light.la*Math.PI/180,el=light.el*Math.PI/180;
+  gl.uniform3f(this.U.uL,Math.cos(la)*Math.cos(el),Math.sin(la)*Math.cos(el),Math.sin(el));
+  var bg=hex(cssVar("--bg")),hi=hex(cssVar("--hi")),lo=hex(cssVar("--lo"));
+  gl.uniform3fv(this.U.uBg,bg);gl.uniform3fv(this.U.uHi,hi);gl.uniform3fv(this.U.uLo,lo);
+  gl.uniform2f(this.U.uE,1/this.sw,1/this.shh);
+  gl.uniform2f(this.U.uD,1/this.W,1/this.H);
+  gl.uniform1f(this.U.uA,this.ch/this.cw);
+  gl.uniform1f(this.U.uSd,(this.o.staticDepth||.006));
+  gl.uniform1f(this.U.uDa,(this.o.dynDepth||.02));
+  gl.uniform1f(this.U.uGain,(this.o.gain||1.6)*(this.gainMod||1));
+  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+};
+var looping=false;
+Slab.loop=function(){if(looping)return;looping=true;
+  function f(){
+    for(var i=0;i<Slab.all.length;i++){var s=Slab.all[i];if(!s.ok)continue;
+      if(s.o.tick)s.o.tick(s);
+      var active=s.pin||s.energy>1e-7||!s.settled;
+      if(active){s.step();s.step();s.dirty=true}
+      if(s.dirty&&s.visible){s.draw();s.dirty=false}}
+    requestAnimationFrame(f)}
+  requestAnimationFrame(f)};
+PT.Slab=Slab;
+})();
+
+</script>
+</head>
+<body>
+<a class="vh" href="#main">跳到內容</a>
+<style>
+.top{padding-top:70px;display:grid;grid-template-columns:1fr 1.25fr;gap:40px;align-items:end}
+.top h1{font-size:clamp(40px,7vw,86px);letter-spacing:.04em;line-height:1.05}
+.top p{max-width:520px}
+@media (max-width:760px){.top{grid-template-columns:1fr;gap:14px;padding-top:44px}}
+.game{margin-top:70px;border-radius:var(--r-l);padding:34px}
+.g-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.g-head h2{font-size:clamp(26px,3.4vw,38px)}
+.rules{font-size:15px;margin:12px 0 0;max-width:760px}
+.rules b{color:var(--ink)}
+.dots{display:flex;gap:10px}
+.dots i{width:14px;height:14px;border-radius:50%}
+.dots i.on{background:var(--acc);box-shadow:0 0 10px var(--acc-glow)}
+.trays{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:30px}
+.tray{border-radius:var(--r-m);padding:16px;display:flex;flex-direction:column;gap:14px}
+.tray .face{position:relative;aspect-ratio:4/3;border-radius:16px;overflow:hidden}
+.tray canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer;border-radius:16px}
+.tray .cssblk{position:absolute;inset:10%;border-radius:14px;display:none}
+.tray.nogl .cssblk{display:block}
+.tray .no{position:absolute;left:12px;top:10px;font-family:var(--f-la);font-weight:800;font-size:13px;letter-spacing:.14em;color:var(--mute);pointer-events:none}
+.tray .say{min-height:3.3em;font-size:14px;line-height:1.6;color:var(--ink2)}
+.seg{display:flex;gap:6px;padding:6px;border-radius:16px}
+.seg label{flex:1;position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;text-align:center;border-radius:12px;padding:.5em .3em;font-size:15px;cursor:pointer;color:var(--ink2);transition:color .2s}
+.seg input:checked + span{color:var(--ink);font-weight:700}
+.seg input:focus-visible + span{outline:2px solid var(--acc);outline-offset:2px}
+.verdict{font-size:14px;font-weight:700;display:none;align-items:center;gap:6px}
+.tray.judged .verdict{display:flex}
+.verdict.ok{color:var(--acc)} .verdict.ng{color:#9A4A2E}
+.g-foot{margin-top:28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.g-foot .timer{font-family:var(--f-la);font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums}
+.key[disabled]{opacity:.45;cursor:not-allowed}
+.result{margin-top:28px;border-radius:var(--r-m);padding:26px 28px;display:none;grid-template-columns:auto 1fr auto;gap:26px;align-items:center}
+.result.show{display:grid}
+.result .score{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-la);font-weight:800;font-size:40px;color:var(--ink)}
+.result .score small{font-size:16px;color:var(--mute)}
+.result h3{font-size:24px}
+.result .code{font-family:var(--f-la);font-weight:800;letter-spacing:.12em}
+@media (max-width:860px){.trays{grid-template-columns:1fr;gap:22px}.tray .face{aspect-ratio:16/9}.result{grid-template-columns:1fr;text-align:left}}
+@media (max-width:560px){.game{padding:20px 16px}}
+@keyframes wob{0%{transform:scale(1,1)}20%{transform:scale(1.03,.95)}40%{transform:scale(.98,1.03)}60%{transform:scale(1.015,.985)}80%{transform:scale(.995,1.01)}100%{transform:scale(1,1)}}
+
+.order{margin-top:100px;display:grid;grid-template-columns:1fr 380px;gap:34px;align-items:start}
+.list{display:flex;flex-direction:column;gap:16px}
+.line{border-radius:var(--r-m);padding:16px 18px;display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center}
+.line h3{font-size:18px}
+.line h3 small{font-family:var(--f-la);font-size:12px;color:var(--mute);margin-left:.5em;font-weight:700;letter-spacing:.12em}
+.line p{font-size:13.5px;line-height:1.6;margin-top:2px}
+.step3{display:flex;align-items:center;gap:8px}
+.step3 .key{width:40px;height:40px;padding:0;border-radius:12px;font-size:20px;line-height:1;font-family:var(--f-la);font-weight:800}
+.step3 output{min-width:46px;text-align:center;border-radius:12px;padding:.4em 0;font-family:var(--f-la);font-weight:800;font-variant-numeric:tabular-nums}
+.bag{position:sticky;top:24px;border-radius:var(--r-l);padding:26px}
+.bag ul{list-style:none;margin:14px 0;min-height:60px;font-size:14px;color:var(--ink2)}
+.bag li{display:flex;justify-content:space-between;padding:4px 0}
+.bag .tot{border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:15px}
+.bag .tot .price{font-size:26px}
+@media (max-width:860px){.order{grid-template-columns:1fr}.bag{position:static}}
+@media (max-width:560px){.line{grid-template-columns:1fr auto;}.line .price{grid-column:1}.step3{grid-column:2;grid-row:1 / span 2}}
+</style>
+
+<main class="wrap" id="main">
+  <header class="top">
+    <div><div class="eyebrow">02 · Tofu</div><h1>同一鍋<br>豆漿</h1></div>
+    <p>鹽滷下得輕、不壓，是豆花；在盒子裡凝，是嫩豆腐；上木框壓二十分鐘，是板豆腐；壓兩小時，是豆干。差別只在水被擠掉多少——所以用看的分不出來，<b>要用摸的。</b></p>
+  </header>
+
+  <section class="game nm-l" id="game" aria-labelledby="g-title">
+    <div class="g-head">
+      <div><div class="eyebrow">Touch Test · 90 秒</div><h2 id="g-title">〈摸豆腐〉第 <span id="rnd">1</span>／3 盤</h2></div>
+      <div class="dots in pill" aria-label="進度"><i class="nm-s" id="d1"></i><i class="nm-s" id="d2"></i><i class="nm-s" id="d3"></i></div>
+    </div>
+    <p class="rules"><b>按一下豆腐，看它怎麼晃</b>（越嫩晃越久、陷越深；越老一彈就停）。<b>替每一塊選一個名字</b>，三塊都選好按「對答案」。<b>三盤九塊</b>，對六塊以上豆干多送一片。<span class="vh">鍵盤：Tab 移到豆腐上按空白鍵按壓，方向鍵選名字。</span></p>
+    <div class="trays" id="trays"></div>
+    <noscript><p class="rules">〈摸豆腐〉需要 JavaScript。沒有的話，這是答案：豆花按下去陷約 9 mm、晃二十多秒；嫩豆腐陷約 7 mm、晃十秒；板豆腐陷約 5 mm、晃一兩秒；老豆腐與豆干一彈就停。</p></noscript>
+    <div class="g-foot">
+      <button class="key nm-s" id="check" type="button" disabled><span class="led"></span>對答案</button>
+      <button class="key nm-s" id="next" type="button" hidden><span class="led on"></span>下一盤</button>
+      <span class="timer" id="timer" aria-hidden="true">00.0 s</span>
+      <span id="live" class="vh" aria-live="polite"></span>
+    </div>
+    <div class="result nm" id="result" aria-live="polite">
+      <div class="score in" id="score">0<small>/9</small></div>
+      <div><h3 id="r-title">—</h3><p id="r-text">—</p></div>
+      <div><p class="well in-s code" id="r-code">—</p><p style="margin-top:12px"><a class="key nm-s pill" href="visit.html"><span class="led on"></span>帶著取貨單去預約</a></p><p style="margin-top:10px"><button class="key nm-s pill" id="again" type="button"><span class="led"></span>再摸一次</button></p></div>
+    </div>
+  </section>
+
+  <section class="order" aria-labelledby="h-order">
+    <div>
+      <div class="sec-head" style="margin-bottom:26px"><div class="eyebrow">Menu · 價目</div><h2 id="h-order" style="margin-top:6px">今天要帶什麼</h2><p style="margin-top:8px">前一天 19:00 前預約，隔天 05:30 起來拿。數量直接按加減，右邊的袋子會跟著算。</p></div>
+      <div class="list" id="list"></div>
+      <noscript><p>板豆腐 NT$35／塊・嫩豆腐 NT$30／盒・老豆腐 NT$40／塊・豆干 NT$50／包・油豆腐 NT$45／包・豆皮 NT$70／包・無糖豆漿 NT$30／瓶・豆花外帶 NT$45・豆渣免費。預約請來電 (05) 586-7130。</p></noscript>
+    </div>
+    <aside class="bag nm-l" aria-label="取貨袋">
+      <div class="eyebrow">Your Bag</div>
+      <ul id="bag"><li><span>袋子還是空的</span></li></ul>
+      <div class="tot in"><span>合計</span><span class="price" id="tot">NT$0</span></div>
+      <p style="margin-top:14px;font-size:13px" id="bag-note">自備容器的豆漿與豆花，每份折 NT$5。</p>
+      <p style="margin-top:16px"><a class="key nm-s pill" href="visit.html" id="to-visit"><span class="led"></span>帶去預約取貨</a></p>
+    </aside>
+  </section>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+var PT=window.PT,$=function(i){return document.getElementById(i)};
+/* ---------- 材料：同一條方程式，只有硬度不同 ---------- */
+var MAT={
+  huē:{n:"豆花",c2:.06,k:.0018,damp:.998,press:1.55},
+  nūn:{n:"嫩豆腐",c2:.10,k:.006,damp:.996,press:1.2},
+  pán:{n:"板豆腐",c2:.22,k:.02,damp:.985,press:.8},
+  lāu:{n:"老豆腐",c2:.40,k:.07,damp:.955,press:.5},
+  kuann:{n:"豆干",c2:.46,k:.16,damp:.9,press:.26}
+};
+var ROUNDS=[["huē","pán","kuann"],["nūn","pán","lāu"],["huē","nūn","pán"]];
+/* 離線量測：同一個方程式跑 600 步，數中心點越零次數與靜止時間（與畫面上看到的晃動同源） */
+function measure(m){var W=48,H=36,a=new Float32Array(W*H),b=new Float32Array(W*H),cx=24,cy=18,r=W*.11,i,x,y;
+  for(y=0;y<H;y++)for(x=0;x<W;x++){var d=Math.hypot(x-cx,y-cy);if(d<r){a[y*W+x]=b[y*W+x]=-m.press*(1+Math.cos(Math.PI*d/r))/2}}
+  var cr=0,last=0,ls=0;for(var f=0;f<3000;f++){for(y=1;y<H-1;y++)for(x=1;x<W-1;x++){i=y*W+x;b[i]=(2*a[i]-b[i]+m.c2*(a[i-1]+a[i+1]+a[i-W]+a[i+W]-4*a[i])-m.k*a[i])*m.damp}var t=a;a=b;b=t;
+    var v=a[cy*W+cx],s=v>.03?1:v<-.03?-1:0;if(s&&ls&&s!==ls)cr++;if(s)ls=s;if(Math.abs(v)>.03)last=f}
+  return{cross:Math.max(1,Math.round(cr/2)),sec:(last/120).toFixed(1),mm:(m.press*6).toFixed(1)}}
+// 量測延後到閒置時逐一計算（首屏不付這筆）；萬一使用者先按了，就當下補算
+Object.keys(MAT).forEach(function(k,i){Object.defineProperty(MAT[k],"m",{get:function(){return this._m||(this._m=measure(this))}});setTimeout(function(){void MAT[k].m},600+i*250)});
+
+var round=0,score=0,answers=[],slabs=[],t0=0,timerOn=false;
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function drawTray(x,w,h){var p=Math.round(w*.08),r=Math.round(w*.07);x.fillStyle="#fff";x.beginPath();x.moveTo(p+r,p);x.arcTo(w-p,p,w-p,h-p,r);x.arcTo(w-p,h-p,p,h-p,r);x.arcTo(p,h-p,p,p,r);x.arcTo(p,p,w-p,p,r);x.fill()}
+var cur=["","",""];
+function build(){
+  var tr=$("trays");
+  for(var idx=0;idx<3;idx++)(function(idx){
+    var el=document.createElement("div");el.className="tray in";
+    el.innerHTML='<div class="face nm"><canvas tabindex="0" role="button" aria-label="第 '+(idx+1)+' 塊豆腐：按一下看它怎麼晃"></canvas><div class="cssblk nm"></div><span class="no">NO.'+(idx+1)+'</span></div>'+
+      '<p class="say" id="say'+idx+'">還沒摸。</p><div class="seg in" role="radiogroup" aria-label="第 '+(idx+1)+' 塊叫什麼"></div><p class="verdict" id="v'+idx+'"></p>';
+    tr.appendChild(el);
+    var cv=el.querySelector("canvas");
+    function m(){return MAT[cur[idx]]}
+    function report(){var r=m().m;$("say"+idx).textContent="按下去陷了 "+r.mm+" mm；放開後晃了 "+r.cross+" 下，約 "+r.sec+" 秒才停。";$("live").textContent="第 "+(idx+1)+" 塊："+$("say"+idx).textContent;if(!timerOn){timerOn=true;t0=performance.now()}}
+    var s=new PT.Slab(cv,{simW:48,simH:36,drawStatic:drawTray,staticDepth:.008,dynDepth:.05,gain:1.8,
+      onPress:function(){$("say"+idx).textContent="按下去陷了 "+m().m.mm+" mm……放開看看。"},onRelease:report});
+    if(!s.ok){el.classList.add("nogl");cv.style.opacity="0";
+      cv.addEventListener("click",function(){var b=el.querySelector(".cssblk");if(!PT.RM){b.style.animation="none";void b.offsetWidth;b.style.animation="wob "+m().m.sec+"s cubic-bezier(.3,.6,.4,1)"}report()})}
+    cv.addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"){e.preventDefault();if(s.ok){s.press(.5,.5);setTimeout(function(){s.release()},260)}else cv.click()}});
+    slabs.push({s:s,el:el});
+  })(idx);
+}
+function setup(){
+  var keys=shuffle(ROUNDS[round]);
+  $("rnd").textContent=round+1;
+  for(var i=1;i<=3;i++)$("d"+i).classList.toggle("on",i<=round);
+  slabs.forEach(function(o,idx){
+    var k=keys[idx],m=MAT[k],el=o.el;cur[idx]=k;el.dataset.k=k;el.classList.remove("judged");
+    o.s.mat={c2:m.c2,k:m.k,damp:m.damp,press:m.press};o.s.a.fill(0);o.s.b.fill(0);o.s.pin=null;o.s.dirty=true;
+    $("say"+idx).textContent="還沒摸。";$("v"+idx).textContent="";
+    var seg=el.querySelector(".seg");
+    seg.innerHTML=ROUNDS[round].map(function(kk){return '<label><input type="radio" name="t'+idx+'" value="'+kk+'"><span class="nm-s">'+MAT[kk].n+'</span></label>'}).join("");
+    seg.querySelectorAll("input").forEach(function(inp){inp.addEventListener("change",function(){
+      seg.querySelectorAll("label").forEach(function(lb){lb.querySelector("span").classList.toggle("on",lb.querySelector("input").checked)});
+      $("check").disabled=document.querySelectorAll("#trays input:checked").length<3})});
+  });
+  $("check").disabled=true;$("check").hidden=false;$("next").hidden=true;
+}
+// 已選的那一格是「被按下去」的鍵（凹）
+var st=document.createElement("style");st.textContent=".seg span.on{box-shadow:inset 3px 3px 6px var(--lo),inset -3px -3px 6px var(--hi)}@supports (width:calc(1px * cos(0deg))){.seg span.on{--e:calc(3px * var(--depth));--ox:calc(cos(var(--la)) * var(--e));--oy:calc(sin(var(--la)) * var(--e));box-shadow:inset calc(-1 * var(--ox)) calc(-1 * var(--oy)) calc(2 * var(--e)) var(--lo),inset var(--ox) var(--oy) calc(2 * var(--e)) var(--hi)}}";document.head.appendChild(st);
+
+$("check").addEventListener("click",function(){
+  var got=0;document.querySelectorAll("#trays .tray").forEach(function(el,idx){
+    var pick=el.querySelector("input:checked").value,ok=pick===el.dataset.k;if(ok)got++;
+    answers.push(el.dataset.k+":"+pick);el.classList.add("judged");
+    var v=$("v"+idx);v.className="verdict "+(ok?"ok":"ng");v.innerHTML='<span class="led'+(ok?' on':'')+'"></span>'+(ok?"對，這是"+MAT[el.dataset.k].n:"這塊其實是"+MAT[el.dataset.k].n);
+    el.querySelectorAll("input").forEach(function(i){i.disabled=true});
+  });
+  score+=got;$("live").textContent="這一盤對了 "+got+" 塊。";
+  $("check").hidden=true;
+  if(round<2){$("next").hidden=false;$("next").focus()}else finish();
+});
+$("next").addEventListener("click",function(){round++;setup();var c=document.querySelector("#trays canvas");if(c)c.focus()});
+function finish(){
+  for(var i=1;i<=3;i++)$("d"+i).classList.add("on");
+  timerOn=false;var secs=((performance.now()-t0)/1000);
+  var T=score>=9?["可以來壓板了","九塊全對。張師傅說他學了三個月才分得出豆花和嫩豆腐。"]:score>=7?["手很準","差一兩塊。豆花和嫩豆腐最像，差在豆花晃得更久、陷得更深。"]:score>=6?["摸得出來","過關了。下次來店裡，林美雲會讓你摸真的。"]:["再摸一盤","嫩的晃很久、老的一彈就停——慢慢按、等它停下來再選。"];
+  var day=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei"}).format(new Date());
+  var code="PT-"+PT.fnv(day+"|"+score+"|"+answers.join(",")).toString(36).toUpperCase().slice(0,5);
+  $("score").innerHTML=score+"<small>/9</small>";$("r-title").textContent=T[0];
+  $("r-text").textContent=T[1]+"（用了 "+secs.toFixed(0)+" 秒）"+(score>=6?" 取貨時報這組號碼，豆干多送一片。":"");
+  $("r-code").textContent=score>=6?code:"未過關・可再摸";
+  $("result").classList.add("show");
+  PT.sstore("pt-slip",JSON.stringify({score:score,title:T[0],code:score>=6?code:"",day:day}));
+}
+$("again").addEventListener("click",function(){round=0;score=0;answers=[];$("result").classList.remove("show");setup();$("game").scrollIntoView({behavior:PT.RM?"auto":"smooth"})});
+build();
+setInterval(function(){if(timerOn)$("timer").textContent=((performance.now()-t0)/1000).toFixed(1).padStart(4,"0")+" s"},100);
+setup();
+
+/* ---------- 價目＋取貨袋 ---------- */
+var ITEMS=[
+  ["pan","板豆腐","PAN","木框壓二十分鐘，表面有布紋。",35,"塊"],
+  ["nun","嫩豆腐","NŪN","盒裝 400g，不壓。",30,"盒"],
+  ["lau","老豆腐","LĀU","壓得比板豆腐久，冷凍成凍豆腐最好。",40,"塊"],
+  ["kuann","豆干","TĀU-KUANN","五片一包，每片一個凹「北」字。",50,"包"],
+  ["iu","油豆腐","IÛ","十二顆一包，現炸到 09:00。",45,"包"],
+  ["phue","豆皮","TĀU-PHUÊ","煮漿時表面撈起的那層，一包三張。",70,"包"],
+  ["ling","無糖豆漿","TĀU-LING","600 ml，點滷前舀出。",30,"瓶"],
+  ["hue","豆花","TĀU-HUE","外帶，配料三選二。",45,"碗"],
+  ["tsa","豆渣","TĀU-TSA","做菜、堆肥都好，自備袋子。",0,"份"]
+];
+var cart={};try{cart=JSON.parse(PT.sstore("pt-order")||"{}")||{}}catch(e){cart={}}
+var L=$("list");
+ITEMS.forEach(function(it){
+  var d=document.createElement("div");d.className="line nm";
+  d.innerHTML='<div><h3>'+it[1]+'<small>'+it[2]+'</small></h3><p>'+it[3]+'</p></div><span class="well in-s price">'+(it[4]?"NT$"+it[4]:"免費")+'／'+it[5]+'</span>'+
+   '<div class="step3"><button class="key nm-s" type="button" aria-label="'+it[1]+'少一'+it[5]+'">−</button><output class="in-s" aria-live="polite">'+(cart[it[0]]||0)+'</output><button class="key nm-s" type="button" aria-label="'+it[1]+'多一'+it[5]+'">+</button></div>';
+  var bs=d.querySelectorAll("button"),o=d.querySelector("output");
+  bs[0].onclick=function(){cart[it[0]]=Math.max(0,(cart[it[0]]||0)-1);o.textContent=cart[it[0]];sum()};
+  bs[1].onclick=function(){cart[it[0]]=Math.min(30,(cart[it[0]]||0)+1);o.textContent=cart[it[0]];sum()};
+  L.appendChild(d);
+});
+function sum(){var t=0,h="";ITEMS.forEach(function(it){var n=cart[it[0]]||0;if(n){t+=n*it[4];h+="<li><span>"+it[1]+" × "+n+"</span><span>"+(it[4]?"NT$"+n*it[4]:"免費")+"</span></li>"}});
+  $("bag").innerHTML=h||"<li><span>袋子還是空的</span></li>";$("tot").textContent="NT$"+t;PT.sstore("pt-order",JSON.stringify(cart));
+  $("to-visit").querySelector(".led").classList.toggle("on",t>0||!!cart.tsa)}
+sum();
+});
+</script>
+
+
+<div class="dock nm-l" role="navigation" aria-label="主要導覽">
+  <nav class="in">
+    <a class="key nm-s" href="index.html" data-p="index"><span class="led"></span>店<small>01</small></a>
+    <a class="key nm-s" href="tofu.html" data-p="tofu" aria-current="page"><span class="led"></span>豆腐<small>02</small></a>
+    <a class="key nm-s" href="window.html" data-p="window"><span class="led"></span>北窗<small>03</small></a>
+    <a class="key nm-s" href="visit.html" data-p="visit"><span class="led"></span>來店<small>04</small></a>
+  </nav>
+  <button class="lamp cx" role="slider" aria-label="燈鈕：拖著轉，把窗搬到別的方向（方向鍵每次 15 度，雙擊回到真實的窗）" aria-valuemin="0" aria-valuemax="359" tabindex="0"></button>
+  <div class="lamp-tip nm-s" aria-hidden="true">這顆是窗。拖著轉一圈，整個網站的影子都會跟著轉——因為全站只有這一個光源。雙擊回到西螺此刻真實的窗光。</div>
+</div>
+
+
+<footer class="foot">
+  <div class="foot-in nm">
+    <div>
+      <img src="assets/logo.svg" alt="北窗豆腐 PAK-THANG" width="210" height="70" style="margin:-6px 0 10px -6px">
+      <p>雲林縣西螺鎮延平路 134 巷 7 號（延平老街，福興宮往東第二條巷子）<br>(05) 586-7130・LINE @pakthang</p>
+    </div>
+    <div>
+      <strong>開門</strong>
+      <p>週二至週日 05:30–12:30<br>豆花賣到 15:00・週一休・颱風天看粉專</p>
+    </div>
+    <div>
+      <strong>本站</strong>
+      <p><button class="key nm-s pill" data-hc type="button" aria-pressed="false"><span class="led"></span>加深輪廓</button></p>
+      <p style="margin-top:10px;font-size:13px">新擬物 Neumorphism 示範站・店家與人物皆為虛構</p>
+    </div>
+  </div>
+  <div class="foot-note"><span>本站由 Claude Opus 5.5 設計與建置（排程 Agent 自動執行，2026-10-12）</span><a href="../../index.html">← 回 Design Skills Center 藝廊</a></div>
+</footer>
+
+</body>
+</html>

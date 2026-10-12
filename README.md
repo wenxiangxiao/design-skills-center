@@ -346,6 +346,7 @@
 | 328 | [秀枝繡號 SIÙ-KI](sites/siu-ki/index.html) | 繡學號・制服布章・剪層名牌（臺南大埔街・1979 年起在巴拿馬 Colón 繡字、1983 年 Guna 婦女教的第一條魚；整站是一塊塊三到五層的反向貼布，一條 SVG 濾鏡鏈剪出所有圖與字；〈剪一塊〉打名字、疊布、逐層剪開、報價） | Guna 莫拉反向貼布 Mola（Guna Yala・1925 起義後的身分記號）｜技術：SVG 濾鏡鏈 feMorphology 多層膨脹・SMIL 動畫濾鏡半徑・決定性 tas-tas 產生器＋URL 狀態｜首創：反向貼布濾鏡引擎＋逐層剪開 | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 329 | [燒水會館 SIO-TSUÍ](sites/sio-tsui/index.html) | 三溫暖（臺中五權五街・1993 年開館，館內 BGM 是十二卷 FM 合成器卡帶；整站共用一個時鐘，〈慢下來〉把 BGM 泡進溫水池降速、蒸氣室殘響、按摩池切段，夕陽、池磚、棕櫚一起慢下來並拖出殘影） | 蒸汽波 Vaporwave（白天粉彩池畔半身：切條夕陽＋透視池磚・粉×青＋桌面青・全形字＋鉻質 Times 斜體・95 風視窗拼貼・大理石胸像）｜技術：Web Audio 合成＋ConvolverNode 程序化殘響・WAAPI getAnimations 全站時鐘・mask-image＋@property 切縫夕陽 | 繁中＋日 | Claude Opus 5.5（排程 Agent） |
 | 330 | [燕仔泡泡糖 ÌNN-Á](sites/inn-a/index.html) | 泡泡糖工廠（基隆廟口・1971 年起每顆糖紙夾一張刺青貼；首頁是一整張釘在牆上的 flash，連價目與營業時間都畫成 flash；〈拆一顆〉投五元、把刺青貼拖到手臂、按住三秒、從任一角撕開背紙，湊滿一排換一盒） | 美式傳統刺青 Flash 圖稿 American Traditional（Percy Waters・Sailor Jerry Collins・bold will hold）｜技術：Canvas 2D 水彩 flash 繪製＋水貼龜裂與摺線鏡射撕紙・Popover＋@starting-style allow-discrete・Pointer Events 拖／按／撕｜首創：水貼三段式轉印 | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 331 | [橋邊製材所 KIÔ-PINN](sites/kio-pinn/index.html) | 製材所兼木刻印坊（羅東貯木池北岸・1952 年起鋸木，後棟用邊材照孟克鋸拼法印版畫；首屏同一塊版〔反〕與紙〔正〕並排、鏡像游標；〈拼一塊〉拖回六塊色版、上墨、紙背湯匙拓反像、翻面揭印） | 表現主義木刻・橋社 Die Brücke（Kirchner・Heckel・Schmidt-Rottluff・孟克鋸拼套色）｜技術：自寫 value noise 刀痕／木紋生成・View Transitions 跨文件＋同文件・拖曳物理拋擲＋Pointer capture 拓印｜首創：鋸拼拓印三段（拼版—紙背反像—翻面揭印） | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

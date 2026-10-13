@@ -351,10 +351,11 @@
 | 333 | [露水園 LŌO-TSUÍ HN̂G](sites/loo-tsui/index.html) | 大馬士革玫瑰園兼銅釜玫瑰露蒸餾所（彰化田尾・1982 年起；整站是一頁抄本：細密畫的天跟著田尾此刻換色，柏樹與花枝一代一代長出畫框；〈玫瑰籤〉默念、撥書口、開書，對頁即時畫一張照籤詩組成的細密畫） | 波斯細密畫・薩法維抄本頁 Persian Miniature Folio（Behzād・《太美斯普王列王紀》）｜技術：CSS Grid subgrid 四欄界行・L-system＋程序化紋樣生成器（build 時靜態備援）・Intl Asia/Taipei 時間驅動天色 | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 334 | [昌記釣蝦場 TSHIONG-KÌ TIÒ-HÊ](sites/tio-he/index.html) | 釣蝦場（新北三重・1989 年起；整站是門口那根自己立的木電線桿，窗卡一層層釘上去；〈一分鐘快釣〉六十秒看浮標，名字照克數排進下週六窗卡、兩道過版印出、釘回桿上） | 分色滾筒螢光窗卡 Split-Fountain Day-Glo Show Card（Hatch Show Print・Globe Poster・Tribune Showprint）｜技術：可變字軸 wdth 撐滿排字＋照相打字長平體鏡頭・CSS Color 4 display-p3 螢光＋oklab 漸層＋multiply 黑版疊印・CSS scroll-driven animations | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 335 | [瑞興磚窯 SŪI-HING](sites/sui-hing/index.html) | 紅磚窯・八卦窯（彰化花壇・1963 年起的十八室霍夫曼環窯；整站是一本正方《瑞興窯報》，火位跟真實時間走；〈砌一個字〉把門牌號拆成磚條、鎖版入窯、拿到磚數與報價） | Wendingen 鉛條拼字・阿姆斯特丹學派書刊（Hendrik Wijdeveld《Wendingen》1918–1932）｜技術：CSS Houdini Paint API 花邊（同函式 canvas 後備）・矩形分解規則引擎・FLIP 版面轉場＋WAAPI｜首創：鉛條拼字引擎 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 336 | [馬崗石花 MÁ-KANG TSIO̍H-HUE](sites/tsioh-hue/index.html) | 石花菜採集兼石花凍店（新北貢寮馬崗・1952 年起海女採石花、七洗七曬；整站是店裡那面剪紙牆，剪刀沿石花走一圈、形離紙留下洞；〈剪一片〉按住拖曳剪一圈，正負形一起上牆、阿嬤判讀、字照你剪的輪廓讓路、印成外帶盒盒標） | Matisse 剪紙 Gouaches découpées（《Jazz》1947・〈Océanie〉1946・〈The Snail〉1953）｜技術：SVG 濾鏡鏈水粉與手剪邊・CSS shape-outside 剪形繞排・CSS offset-path 剪刀收刀｜首創：剪刀自由剪形＋正負雙形上牆 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 217 個產業種子 × 191 個風格種子（41,447 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 229 個產業種子 × 202 個風格種子（46,258 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

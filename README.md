@@ -349,6 +349,7 @@
 | 331 | [橋邊製材所 KIÔ-PINN](sites/kio-pinn/index.html) | 製材所兼木刻印坊（羅東貯木池北岸・1952 年起鋸木，後棟用邊材照孟克鋸拼法印版畫；首屏同一塊版〔反〕與紙〔正〕並排、鏡像游標；〈拼一塊〉拖回六塊色版、上墨、紙背湯匙拓反像、翻面揭印） | 表現主義木刻・橋社 Die Brücke（Kirchner・Heckel・Schmidt-Rottluff・孟克鋸拼套色）｜技術：自寫 value noise 刀痕／木紋生成・View Transitions 跨文件＋同文件・拖曳物理拋擲＋Pointer capture 拓印｜首創：鋸拼拓印三段（拼版—紙背反像—翻面揭印） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 332 | [北窗豆腐 PAK-THANG](sites/pak-thang/index.html) | 豆腐店（西螺延平老街・1971 年起在同一扇左上方的窗底下做豆腐；整站只有一種顏色，首屏是一板會被按凹、會晃的 WebGL 豆腐；燈鈕就是窗，轉它全站影子一起轉；〈摸豆腐〉按一下看晃法，猜豆花、嫩、板、老、豆干） | 新擬物 Neumorphism／Soft UI（Plyuto 2019-11・Malewicz 命名）｜技術：CSS 三角函數＋@property 單一光源・WebGL2 高度場＋阻尼波動方程・DeviceOrientation 傾斜當窗 | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 333 | [露水園 LŌO-TSUÍ HN̂G](sites/loo-tsui/index.html) | 大馬士革玫瑰園兼銅釜玫瑰露蒸餾所（彰化田尾・1982 年起；整站是一頁抄本：細密畫的天跟著田尾此刻換色，柏樹與花枝一代一代長出畫框；〈玫瑰籤〉默念、撥書口、開書，對頁即時畫一張照籤詩組成的細密畫） | 波斯細密畫・薩法維抄本頁 Persian Miniature Folio（Behzād・《太美斯普王列王紀》）｜技術：CSS Grid subgrid 四欄界行・L-system＋程序化紋樣生成器（build 時靜態備援）・Intl Asia/Taipei 時間驅動天色 | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 334 | [昌記釣蝦場 TSHIONG-KÌ TIÒ-HÊ](sites/tio-he/index.html) | 釣蝦場（新北三重・1989 年起；整站是門口那根自己立的木電線桿，窗卡一層層釘上去；〈一分鐘快釣〉六十秒看浮標，名字照克數排進下週六窗卡、兩道過版印出、釘回桿上） | 分色滾筒螢光窗卡 Split-Fountain Day-Glo Show Card（Hatch Show Print・Globe Poster・Tribune Showprint）｜技術：可變字軸 wdth 撐滿排字＋照相打字長平體鏡頭・CSS Color 4 display-p3 螢光＋oklab 漸層＋multiply 黑版疊印・CSS scroll-driven animations | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

@@ -353,6 +353,7 @@
 | 335 | [瑞興磚窯 SŪI-HING](sites/sui-hing/index.html) | 紅磚窯・八卦窯（彰化花壇・1963 年起的十八室霍夫曼環窯；整站是一本正方《瑞興窯報》，火位跟真實時間走；〈砌一個字〉把門牌號拆成磚條、鎖版入窯、拿到磚數與報價） | Wendingen 鉛條拼字・阿姆斯特丹學派書刊（Hendrik Wijdeveld《Wendingen》1918–1932）｜技術：CSS Houdini Paint API 花邊（同函式 canvas 後備）・矩形分解規則引擎・FLIP 版面轉場＋WAAPI｜首創：鉛條拼字引擎 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 336 | [馬崗石花 MÁ-KANG TSIO̍H-HUE](sites/tsioh-hue/index.html) | 石花菜採集兼石花凍店（新北貢寮馬崗・1952 年起海女採石花、七洗七曬；整站是店裡那面剪紙牆，剪刀沿石花走一圈、形離紙留下洞；〈剪一片〉按住拖曳剪一圈，正負形一起上牆、阿嬤判讀、字照你剪的輪廓讓路、印成外帶盒盒標） | Matisse 剪紙 Gouaches découpées（《Jazz》1947・〈Océanie〉1946・〈The Snail〉1953）｜技術：SVG 濾鏡鏈水粉與手剪邊・CSS shape-outside 剪形繞排・CSS offset-path 剪刀收刀｜首創：剪刀自由剪形＋正負雙形上牆 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 337 | [拍板枝仔冰 PHAH-PÁN KI-Á-PING](sites/phah-pan/index.html) | 枝仔冰店（嘉義朴子・1956 年起腳踏車載木冰箱、敲南管拍板賣冰；整站是綁在阿公冰箱上的紙芝居舞台，拍板一響三扇門打開，抓住卡片往右抽，抽一半停住小孩們往前傾；〈你來演〉敲拍板叫小孩、照卡背紅字快抽慢抽半抽、演完印賣冰帳） | 街頭紙芝居 Gaitō Kamishibai（東京・大阪 1930–1950s・《黄金バット》1931・台詞印在前一張卡背面）｜技術：Web Animations API 手勢 scrub 時間軸・Web Audio 即時合成拍板／紙聲／太鼓・CSS 3D 三扇門與翻面｜首創：抽卡即演技 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 338 | [雙雀命名所 SIANG-TSHIOK](sites/siang-tshiok/index.html) | 命名館兼手繪出生書（花蓮・門諾醫院對面，1969 年起替新生兒取名並以鵝毛筆寫一張出生書；首屏是印好未上彩的空白樣張，滑過的花和對面那朵一起上色，「請先生上彩」照工序重演鉛筆→鐵膽墨→銀朱→藤黃→銅綠→心內字→摺四摺；〈寫一張〉姓入左心瓣、名入右心瓣，同名同時辰永遠同一張、網址即成品） | 賓州德裔 Fraktur 出生書 Pennsylvania German Fraktur（c.1750–1850・Taufschein／Vorschrift・Johann Henrich Otto）｜技術：SVG 濾鏡鏈水彩洗（feMorphology 邊緣積深）・View Transitions 沿摺痕翻摺・決定性生成＋URL 狀態序列化＋心形版心排字｜首創：逐色上彩重演＋心形版心排字 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

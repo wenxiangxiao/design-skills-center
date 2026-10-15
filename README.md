@@ -356,6 +356,7 @@
 | 338 | [雙雀命名所 SIANG-TSHIOK](sites/siang-tshiok/index.html) | 命名館兼手繪出生書（花蓮・門諾醫院對面，1969 年起替新生兒取名並以鵝毛筆寫一張出生書；首屏是印好未上彩的空白樣張，滑過的花和對面那朵一起上色，「請先生上彩」照工序重演鉛筆→鐵膽墨→銀朱→藤黃→銅綠→心內字→摺四摺；〈寫一張〉姓入左心瓣、名入右心瓣，同名同時辰永遠同一張、網址即成品） | 賓州德裔 Fraktur 出生書 Pennsylvania German Fraktur（c.1750–1850・Taufschein／Vorschrift・Johann Henrich Otto）｜技術：SVG 濾鏡鏈水彩洗（feMorphology 邊緣積深）・View Transitions 沿摺痕翻摺・決定性生成＋URL 狀態序列化＋心形版心排字｜首創：逐色上彩重演＋心形版心排字 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 339 | [金鶴繡學號 KIM-HO̍H](sites/kim-hoh/index.html) | 學號刺繡兼制服行（台中育才街，1968 年騎樓手繡、1988 年起每個名字先在 Macintosh 512K 的 FatBits 點一次；整站是那台電腦的桌面：拖商品進 400K 新生磁碟、〈學號.app〉把你的名字柵格化成 16×16 點陣一針一針繡出來、磁碟拖進垃圾桶退出，ImageWriter 印取件單） | 初代麥金塔 1-bit 介面 Macintosh System 1（Susan Kare・Bill Atkinson，1984）｜技術：Canvas 2D ImageData 1-bit 柵格化＋Atkinson 抖色・CSS steps() 逐格動畫＋離散縮放框・Pointer Events＋XOR 外框拖放｜首創：容量受限的磁碟作為購物車（disk-as-cart） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 340 | [影皮行 TOKO KOELIT](sites/iann-phue/index.html) | 皮帶打孔店兼後院通宵皮影（桃園中壢・1960 年從梭羅帶來的鑿偶刀；整站是一面油燈照亮的影幕：偶從燈邊巨影貼上幕面變清楚、游標是戲偶師的手、翻面看鏡像彩面；〈認影〉在影子還糊的時候認出角色） | 爪哇皮影戲 Wayang Kulit Purwa | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 341 | [秀月那卡西 SIÙ-GUE̍H NA-KA-SI](sites/na-ka-si/index.html) | 那卡西走唱團（北投溫泉路・1961 年成團；整站是海報柱上一張四塊石頭印的海報：主唱頭被上緣切掉、前景一團黑剪影，拿牙刷在海報上甩出 crachis 噴點；〈印一張〉排一場酒席，四石逐塊壓印、每塊五秒濕墨窗甩刷，拿報價收執） | 羅特列克石版海報・蒙馬特咖啡音樂廳 Affiche lithographique de Montmartre | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

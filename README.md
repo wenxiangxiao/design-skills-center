@@ -358,6 +358,7 @@
 | 340 | [影皮行 TOKO KOELIT](sites/iann-phue/index.html) | 皮帶打孔店兼後院通宵皮影（桃園中壢・1960 年從梭羅帶來的鑿偶刀；整站是一面油燈照亮的影幕：偶從燈邊巨影貼上幕面變清楚、游標是戲偶師的手、翻面看鏡像彩面；〈認影〉在影子還糊的時候認出角色） | 爪哇皮影戲 Wayang Kulit Purwa | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 341 | [秀月那卡西 SIÙ-GUE̍H NA-KA-SI](sites/na-ka-si/index.html) | 那卡西走唱團（北投溫泉路・1961 年成團；整站是海報柱上一張四塊石頭印的海報：主唱頭被上緣切掉、前景一團黑剪影，拿牙刷在海報上甩出 crachis 噴點；〈印一張〉排一場酒席，四石逐塊壓印、每塊五秒濕墨窗甩刷，拿報價收執） | 羅特列克石版海報・蒙馬特咖啡音樂廳 Affiche lithographique de Montmartre | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 342 | [直角水電 tit-kak](sites/tit-kak/index.html) | 水電行（高雄前鎮・1971 年起；首頁捲動時 1971 年置中舊傳單一行一行改排成一條左軸的新式樣；〈排一張〉在 a5 網格上自己改排，五條規則亮燈即可印） | 新活版術 Die neue Typographie（Tschichold 1925／1928） | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 343 | [雨燈 Hōo-ting](sites/hoo-ting/index.html) | 九份燈籠所兼新版画摺物（豎崎路・1936 年起；首頁那一枚由 WebGL 木版摺り著色器依此刻時鐘重摺，六態印章換態時馬連斜刷重摺；〈你來摺〉抹一文字暈、用馬連壓紙） | 新版画 Shin-hanga（渡邊庄三郎・川瀨巴水・吉田博《帆船》同版六態） | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

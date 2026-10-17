@@ -36,6 +36,16 @@
 - mood：`vermilion-sheet` 朱紙片頭（新 mood）
 - tech：CSS clip-path polygon／SVG clipPath（A）・Web Animations API 群組時間軸 seek（B）・Web Audio 程序合成＋Pointer（D）
 
+## motion-library 特效（2026-10-17 加入，PLAYBOOK §2.8 示範站）
+
+| 頁 | 元件 | 用途 |
+|---|---|---|
+| 店頭 | BG-B-37 Minimal Stripes | 海報與片頭之間的《驚魂記》式條帶（ambient） |
+| 店頭 | TXT-A-33 Slice Text | 「價目」被橫切六條再對齊 |
+| 聽刃 | TXT-A-14 Torn Text | 結算卡的「完」沿鋸齒線撕開再對上 |
+| 打一把 | SHP-12 Split & Merge | 四片方塊隨捲動散開又合回 |
+| 來磨 | TXT-B-10 Stop Motion | 「剪一張片頭」12 格定格跳字，可點擊重播 |
+
 ## 首創
 
 **同源毛病模型的聽辨判讀**：全館第一個讓「聲音」與「切口幾何」由同一組參數同時生成的功能——缺口位置同時決定「喀」聲出現的時間與紙上未剪斷舌頭的高度、軸鬆程度同時決定方波調幅深度與切線弧度；聽不到聲音時看切口一樣判得出來。並以 Web Animations API 把一支 14 秒、約 30 條動畫的剪紙片頭編成可拖曳倒轉的單一時間軸，靜態預設停在片尾格。

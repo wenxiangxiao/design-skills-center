@@ -155,6 +155,30 @@ func 仍為必做，但加上規模上限：
 
 每 5 小時 1 站（02:30／07:30／12:30／16:30／21:30）。主建置模型 **Claude Opus 5**，`builtBy` 一律寫 `"Claude Opus 5 · 排程 Agent"`；若實際執行模型不同，據實填寫。
 
+
+### 2.8 motion-library 特效條款（2026-10-17 Chris 第六次回饋：「目前的網站都太單調」）
+
+站點自己的動效預算（§2.7.4 四種）照舊，**另外**每站必須從私人元件庫 `wenxiangxiao/motion-library`（280 個 Canvas 2D 動畫元件，7 類）引入現成特效，讓畫面更熱鬧，但不得搶走風格本體。示範站：`sites/ka-to`。
+
+1. **數量**：每一頁至少 1 個、全站 4–6 個**不同** ID。
+2. **可用分類**：`BG-A`、`BG-B`（背景）、`TXT-A`、`TXT-B`（文字）、`SHP`（圖形）。**`TEL`、`TRN` 暫禁**——兩類會畫元件庫的示範場景（假影片框、`● REC`、`SCENE A/B`、固定的「導演／Director」字幕），放進網站就是假畫面；待元件庫提供 embed 模式（透明底、可傳入 A/B 圖層與字幕內容）後解禁。`待核對` 佔位元件（TEL-25～32）一律不用。`tools/ml-embed.js` 會直接拒絕。
+3. **服從風格（style-first 仍優先）**：
+   - 顏色只能用本站色票：`colors.primary／secondary／bg` 三格全部填本站 hex。文字元件的字色由元件依 `bg` 亮度自動決定（亮底→近黑、暗底→近白），所以文字元件要放在能得到正確字色的底上。
+   - 挑選前先讀該元件原始碼：幾何若違反本站「5 個不可省略特徵」（例：零圓角的流派不選帶 `rr()` 圓角的元件、零發光的流派不選 `shadowBlur` 的元件），換一個。
+   - 每個元件在 SKILL.md 與 ledger 都要寫一句「它在本站承載什麼、為什麼適合這個流派」。湊數不算。
+   - 元件**不得**擔任本站 signature；可以計入 ambient／input／transition 的實作，但四種動效仍須各有一個本站自製的實作。
+4. **輪替**：同一個 ID 不得出現在最近 3 站（ledger `motionlib` 欄位）；同一分類在本站最多 2 個。
+5. **嵌入方式（單檔規範不變）**：
+   - `git clone https://wenxiangxiao:<PAT>@github.com/wenxiangxiao/motion-library.git /tmp/ml_$RANDOM`（private repo，Pages 不能直接引用）。
+   - `node tools/ml-embed.js <ml>/src/motion-lib.js ID,ID,... <commit> > mlsub.js`：只抽「引擎核心＋所選元件」（5 個約 34KB），inline 成每頁的第一個 `<script>`。檔頭會記元件庫版本與 commit。
+   - `node tools/ml-smoke.js mlsub.js ID,ID,...`：無瀏覽器冒煙測試（假 Canvas 逐格呼叫 `renderFrame`），必須 `smoke ok`。
+   - 掛載一律透過站內包裝（參考 `sites/ka-to` 的 `KT.ml`）：等 `document.fonts.ready` 才掛（否則字寬量錯）；離屏即 `destroy()`、回到視窗再重掛——**元件庫的 rAF 在 `pause()` 後仍每幀重繪**，不 destroy 會一直吃 CPU；一次性文字元件 `loop:false` 進視窗播一次，之後重掛直接 `seek(1)`。
+6. **無障礙與備援**：canvas 一律 `aria-hidden`，原本的 HTML 標題留在容器裡（`.ml-fb`），掛載成功才視覺隱藏；無 JS、無 canvas 時看到的就是原本的 HTML。`prefers-reduced-motion`：背景元件停在單一影格（`seek(.35)`），文字元件直接停最後一格（`seek(1)`），捲動驅動的元件照常（使用者自己在動）。
+7. **預算**：單頁 ≤350KB（含子集）不變；同一畫面同時運轉的元件 ≤2 個。
+8. **帳本**：`ledger.json` 每站新增 `motionlib` 欄位：`[{ id, name, page, role, why }]`。站點 SKILL.md 的「動效規則」章要列出元件 ID、參數（colors／duration／density／intensity／seed／aspectRatio）與 `MotionLib.prompt(id)` 的出處，讓讀者能重現。
+
+**元件庫的已知限制（回報給元件庫維護，非本館規則）**：`mount()` 只支援 16:9／9:16／1:1／4:5 四種比例，做細長條帶時要用容器裁切；`pause()` 不會停止 rAF 重繪；TEL／TRN 沒有 embed 模式。
+
 ## 3. 檔案與目錄規範
 
 ```
@@ -239,4 +263,4 @@ YAML frontmatter：`name`（英文 kebab-case 風格代號，全館不可重複�
 
 ---
 
-*最後更新：2026-08-09 by Claude Opus 5（§2.7 風格本位修正案，經 Chris 裁示）*
+*最後更新：2026-10-17 by Claude Opus 5.5（§2.8 motion-library 特效條款，經 Chris 裁示）*

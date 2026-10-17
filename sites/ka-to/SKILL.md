@@ -150,6 +150,26 @@ body{background:var(--ver);color:var(--ink)}
 | transition 轉場 | **三道片頭條**：換頁時墨／骨／墨三條由上壓下蓋住，下一頁再把它們推下去 | 站內連結 | 360ms 蓋、420ms 推，`cubic-bezier(.7,0,.2,1)` | 直接換頁 |
 | signature 簽名 | **可倒轉的剪紙片頭**：14 秒、約 30 條 WAAPI 動畫共用一條時間軸，range 拖曳即 `currentTime` seek；場次表可跳格 | 進入視窗自動播一次；拖曳／按鈕 | 14000ms，各格自帶 easing | 不自動播，停在片尾（靜態可讀），拖曳仍可用 |
 
+
+### motion-library 元件（PLAYBOOK §2.8）
+
+這五個元件取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0，用 `tools/ml-embed.js` 只抽引擎核心加這五個（約 34KB），inline 進每一頁。顏色一律只用本站三色。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合 Bass |
+|---|---|---|---|---|
+| 店頭 | `BG-B-37` | Minimal Stripes | primary `#E0522B`、secondary `#ECE2CC`、bg `#141210`、duration 7、density 1.6、seed 1962 | ambient：海報與片頭之間一條朱／骨直條緩慢平移的黑帶——《驚魂記》片頭的條帶語法；元件只畫直角矩形，符合零圓角 |
+| 店頭 | `TXT-A-33` | Slice Text | text「價目」、primary 朱、secondary 墨、bg 骨白、duration 1.3、loop false | input（進視窗觸發）：字被橫切成六條、左右錯開再對齊——字被剪刀剪開的樣子 |
+| 聽刃 | `TXT-A-14` | Torn Text | text「完」、primary 朱、secondary 骨白、bg 墨、duration 1.1、loop false | transition：五把送完時「完」被沿鋸齒線撕成上下兩半再對上，接在 clip-path 結算卡之後 |
+| 打一把 | `SHP-12` | Split & Merge | primary 朱、secondary 墨、bg 骨白、1:1、intensity 1.2、**以捲動進度 seek** | input（捲動驅動）：四片方塊隨捲動散開又合回——解剖式碎片化的抽象版 |
+| 來磨 | `TXT-B-10` | Stop Motion | text「剪一張片頭」、primary 朱、secondary 骨白、bg 墨、duration 2.2、loop false | input（進視窗、點擊重播）：12 格定格、字一個一個跳上來還帶抖動——Bass 片頭本來就是一格一格拍的剪紙 |
+
+規則：
+- 不放 `TEL`／`TRN`（會畫元件庫的示範場景）。
+- canvas 都是 `aria-hidden`；容器裡原本的 HTML 標題保留給讀屏與無 JS／無 canvas 的情況。
+- 等 `document.fonts.ready` 才掛載；離開視窗就 `destroy()`，回到視窗再重掛。
+- reduced-motion：背景停在單一影格，文字直接停最後一格。
+- 想重現單一元件：`MotionLib.prompt('TXT-A-33')` 會給出該元件的開發 Prompt。
+
 開場（cut-reveal-first）：首次造訪時一張骨白紙蓋住店頭，一把剪刀沿鋸齒斜線剪過去（1.1s），兩半紙向上下飛開（0.7s）；點擊或任意鍵略過；reduced-motion 不出現。
 
 自我限制：**本流派禁用淡入淡出（cross-fade）**——所有出現都是硬切、滑入或剪開；但不影響四種動效總數。
@@ -222,7 +242,7 @@ body{background:var(--ver);color:var(--ink)}
 - 效能：每刀建立 3–6 個節點、0.7s 後自動 stop 回收；刀合用 rAF 改 SVG `transform` 屬性（不用 CSS transform-origin，避免巢狀變換座標歧義），首次 pointerdown 到第一格 <16ms。
 
 ### 效能預算實測
-- 單頁大小：index ≈ 66KB、bench ≈ 57KB、forge ≈ 67KB、visit ≈ 48KB（全部 inline，遠低於 350KB）。
+- 單頁大小（含 motion-library 子集 34KB）：index ≈ 103KB、bench ≈ 93KB、forge ≈ 103KB、visit ≈ 84KB（全部 inline，遠低於 350KB）。
 - 零外部圖片、零音檔（聲音全部即時合成）；外部資源僅 Google Fonts。
 - 首屏 JS：整段 inline 腳本執行時間以 jsdom 實測 index 18.7ms／bench 7.8ms／forge 5.0ms／visit 3.8ms（jsdom 無版面計算，僅作上限參考；未於實機瀏覽器量測）。
 - 動畫：boil 6fps、片頭與刀合只動 transform／clip-path／opacity，無 layout thrashing。

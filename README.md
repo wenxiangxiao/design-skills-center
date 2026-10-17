@@ -369,6 +369,7 @@
 | 351 | [鉸刀林 KA-TO LÎM](sites/ka-to/index.html) | 剪刀專門店（臺北大同・1962 年起；首屏一張骨白紙被剪刀剪開，底下是被剪成五片的黑剪刀；14 秒剪紙片頭可拖曳倒轉；〈聽刃〉剪一刀聽聲音看切口、把五把剪刀送到正確工位） | Saul Bass 剪紙片頭與海報 Saul Bass Cut-paper Title & Poster（剪刀直線段鋸齒邊・朱橘地＋墨黑＋骨白・手剪歪字・解剖式碎片留縫・片頭刃條與硬切） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 352 | [補磚舍 OFICINA DO AZULEJO QUE FALTA](sites/bou-zyun/index.html) | 葡式瓷磚修補與磚庫（澳門望德堂區・1981 年起；首頁是一面圖案磚牆，點一塊磚整面牆轉一格、同一塊磚排出四種牆；〈缺磚〉從八塊抽屜磚裡挑出三塊、轉對方向把花接回去） | 葡式瓷磚・圖案磚 Azulejo Português · Padrão（鈷藍三階稀釋＋錫釉白・磚格灰縫・四磚轉角成花・筆繪毛邊・卷葉框與中葡街名磚牌） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 353 | [方圓菓子舖 HŌEN WAGASHI](sites/hong-inn/index.html) | 和菓子店（臺北長安西路・1966 年起；首頁是一張依真實月份重排的掛紙，〈九つ入〉把九個菓子拖進桐箱、按「封」九格飛出排成這一盒專屬的掛紙，網址即這一盒） | 日本戰後現代主義平面 Japanese Postwar Modernist Graphic（日宣美／田中一光・龜倉雄策：五種完美基本形・和色平塗・方眼模組零間距・明朝直排 × 極小 Jost・日の丸紅圓） | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 354 | [chiizr 揪起司](sites/chiizr/index.html) | 冷凍重乳酪揪團工坊（新北板橋・2006 年起；首頁是一面活的標籤雲，字級＝今天的推數、每次變動先閃黃；〈揪團牆〉5 個推、90 秒截團、推滿 120 才開烤） | Web 2.0 光澤時代 Web 2.0 Gloss（果凍按鈕 50% 硬切高光・倒影地板・星形爆炸 BETA・斜紋底置中白頁・糖果色・標籤雲・Yellow Fade） | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 

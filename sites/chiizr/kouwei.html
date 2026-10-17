@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>口味相簿 — chiizr 揪起司（beta）</title>
+<meta name="description" content="chiizr 的口味相簿：九種重乳酪與冷凍宅配盒，點開看大圖。">
+<meta name="theme-color" content="#7AB800">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'a'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%23C8EF6A'%2F%3E%3Cstop%20offset%3D'.5'%20stop-color%3D'%23A6DA34'%2F%3E%3Cstop%20offset%3D'.5'%20stop-color%3D'%237AB800'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%235E9600'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D'2'%20y%3D'2'%20width%3D'60'%20height%3D'60'%20rx%3D'14'%20fill%3D'url(%23a)'%2F%3E%3Cpath%20d%3D'M12%2044L50%2020v24z'%20fill%3D'%23FFE07A'%2F%3E%3Cpath%20d%3D'M12%2044L50%2020v6L12%2050z'%20fill%3D'%23E8B04C'%2F%3E%3Ccircle%20cx%3D'38'%20cy%3D'36'%20r%3D'3.4'%20fill%3D'%23E8B04C'%2F%3E%3Ccircle%20cx%3D'28'%20cy%3D'40'%20r%3D'2.4'%20fill%3D'%23E8B04C'%2F%3E%3Cellipse%20cx%3D'26'%20cy%3D'14'%20rx%3D'18'%20ry%3D'6'%20fill%3D'%23fff'%20opacity%3D'.35'%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Noto+Sans+TC:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script>
+/* motion-library 1.1.0 @eb4d70c 子集：TXT-B-17, BG-A-20, TXT-B-18, SHP-39, SHP-19, BG-B-30（tools/ml-embed.js 產生，勿手改） */
+
+(function (root) {
+'use strict';
+const TAU = Math.PI * 2;
+const cl = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const fr = v => v - Math.floor(v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => cl((p - a) / (b - a));
+const E = {
+l: t => t,
+oc: t => 1 - (1 - t) ** 3,
+oq: t => 1 - (1 - t) ** 4,
+ic: t => t * t * t,
+io: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+ob: t => { const a = 1.70158, b = a + 1; return 1 + b * (t - 1) ** 3 + a * (t - 1) ** 2; },
+el: t => t <= 0 ? 0 : t >= 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - .75) * TAU / 3) + 1,
+bo: t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+};
+const stg = (p, i, n, sp = .5) => { const o = n > 1 ? i / (n - 1) * sp : 0; return seg(p, o, o + 1 - sp); };
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const R = (c, salt) => { const r = rng(c.seed * 9973 + salt * 7919 + 17); r(); r(); return r; };
+
+/* ---------- color ---------- */
+function hex(h) { h = (h || '#000').replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const toHex = a => '#' + a.map(v => Math.round(cl(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => lerp(v, B[i], t))); };
+const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${cl(a)})`; };
+const lum = h => { const [r, g, b] = hex(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+const inkFor = bg => lum(bg) > .55 ? '#121418' : '#F4F6F8';
+
+/* ---------- drawing helpers ---------- */
+function bgFill(c, col) { c.ctx.fillStyle = col || c.bg; c.ctx.fillRect(0, 0, c.W, c.H); }
+function gridLines(c, s, ox, oy, col, lw = 1) { const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (let X = ((ox % s) + s) % s; X <= W; X += s) { x.moveTo(X, 0); x.lineTo(X, H); } for (let Y = ((oy % s) + s) % s; Y <= H; Y += s) { x.moveTo(0, Y); x.lineTo(W, Y); } x.stroke(); }
+function dot(x, X, Y, r) { if (r <= .25) return; x.beginPath(); x.arc(X, Y, r, 0, TAU); x.fill(); }
+function halftone(c, st, fn, col) { const { ctx: x, W, H } = c; x.fillStyle = col || c.pr; for (let Y = st / 2; Y < H + st; Y += st) for (let X = st / 2; X < W + st; X += st) dot(x, X, Y, cl(fn(X, Y)) * st * .56); }
+function star(x, X, Y, r1, r2, n, rot) { x.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n - Math.PI / 2, r = i % 2 ? r2 : r1; i ? x.lineTo(X + Math.cos(a) * r, Y + Math.sin(a) * r) : x.moveTo(X + Math.cos(a) * r, Y + Math.sin(a) * r); } x.closePath(); }
+function heart(x, X, Y, s) { x.beginPath(); x.moveTo(X, Y + s * .35); x.bezierCurveTo(X - s * 1.1, Y - s * .35, X - s * .45, Y - s * 1.05, X, Y - s * .45); x.bezierCurveTo(X + s * .45, Y - s * 1.05, X + s * 1.1, Y - s * .35, X, Y + s * .35); x.closePath(); }
+function rr(x, X, Y, w, h, r) { r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2)); x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function poly(x, pts, close = true) { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); if (close) x.closePath(); }
+function ngon(n, r, rot = 0) { const a = []; for (let i = 0; i < n; i++) { const t = rot + i / n * TAU - Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; }
+function shape(x, kind, X, Y, s, rot = 0) {
+x.save(); x.translate(X, Y); x.rotate(rot);
+if (kind === 0) { x.beginPath(); x.arc(0, 0, s, 0, TAU); }
+else if (kind === 1) { poly(x, ngon(3, s * 1.15)); }
+else if (kind === 2) { rr(x, -s * .9, -s * .9, s * 1.8, s * 1.8, s * .2); }
+else if (kind === 3) { star(x, 0, 0, s * 1.1, s * .5, 5, 0); }
+else { const w = s * .38; x.beginPath(); x.rect(-s, -w, s * 2, w * 2); x.rect(-w, -s, w * 2, s * 2); }
+x.restore();
+}
+function partial(x, pts, f) { const n = pts.length; const m = f * (n - 1); if (m <= 0) return; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); const k = Math.floor(m); for (let i = 1; i <= k; i++) x.lineTo(pts[i][0], pts[i][1]); if (k < n - 1) { const t = m - k; x.lineTo(lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)); } x.stroke(); }
+function floor3d(c, hz, col, n = 14, cols = 18, speed = 1) {
+const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = 1.5;
+for (let k = 0; k <= n; k++) { const f = (k + fr(c.p * speed)) / n; const y = hz + (H - hz) * f ** 2.6; x.globalAlpha = cl(f * 1.6); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+x.globalAlpha = 1; for (let i = -cols; i <= cols; i++) { x.beginPath(); x.moveTo(W / 2 + i * W * .02, hz); x.lineTo(W / 2 + i * W * .22, H); x.stroke(); }
+}
+
+/* ---------- offscreen ---------- */
+const POOL = [];
+function off(c, i = 0) {
+let o = POOL[i]; const w = Math.max(1, Math.round(c.W * c.dpr)), h = Math.max(1, Math.round(c.H * c.dpr));
+if (!o) { const cv = document.createElement('canvas'); o = POOL[i] = { cv, ctx: cv.getContext('2d') }; }
+if (o.cv.width !== w || o.cv.height !== h) { o.cv.width = w; o.cv.height = h; }
+const x = o.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, w, h); x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0); return o;
+}
+
+/* ---------- text layout ---------- */
+const FAM = { sans: '"Unbounded","Noto Sans TC",system-ui,sans-serif', tc: '"Noto Sans TC",system-ui,sans-serif', serif: '"Noto Serif TC","Songti TC",serif', mono: '"JetBrains Mono",ui-monospace,monospace' };
+const LC = new Map(); let MC = null;
+function lay(c, o = {}) {
+const text = o.text != null ? o.text : (c.P.text || ' ');
+const maxW = o.maxW || .82, maxH = o.maxH || .24, w = o.w || 800, fam = o.fam || 'sans', sc = o.sc || 1;
+const key = [text, c.W, c.H, maxW, maxH, w, fam, sc].join('|'); let L = LC.get(key); if (L) return L;
+if (!MC) MC = document.createElement('canvas').getContext('2d');
+const ch = Array.from(text.length ? text : ' '); MC.font = `${w} 100px ${FAM[fam]}`;
+const ws = ch.map(s => MC.measureText(s).width || 30); const tot = ws.reduce((a, b) => a + b, 0) || 1;
+const fs = Math.min(c.H * maxH, c.W * maxW * 100 / tot) * sc, k = fs / 100;
+let X = c.W / 2 - tot * k / 2; const xs = []; ws.forEach(v => { xs.push(X + v * k / 2); X += v * k; });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, width: tot * k, left: c.W / 2 - tot * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L;
+}
+function setFont(x, L) { x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle'; }
+function drawChars(c, fn, o = {}) {
+const L = lay(c, o), x = c.ctx, n = L.ch.length, Y = c.cy + (o.y || 0) * c.H; setFont(x, L); x.lineJoin = 'round';
+for (let i = 0; i < n; i++) {
+const s = fn(i, n, L) || {}; if (s.a === 0 || s.skip) continue;
+x.save(); x.globalAlpha = cl(s.a == null ? 1 : s.a);
+const piv = s.piv || 0, pivx = s.pivx || 0;
+x.translate(L.xs[i] + (s.dx || 0) + pivx, Y + (s.dy || 0) + piv); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc); x.translate(-pivx, -piv);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(s.ch || L.ch[i], 0, 0); }
+if (!s.noFill) { x.fillStyle = s.col || c.ink; x.fillText(s.ch || L.ch[i], 0, 0); }
+x.restore();
+}
+return L;
+}
+function word(c, s = {}, o = {}) {
+const L = lay(c, o), x = c.ctx; x.save(); setFont(x, L); x.lineJoin = 'round'; x.globalAlpha = cl(s.a == null ? 1 : s.a);
+x.translate(c.cx + (s.dx || 0), c.cy + (o.y || 0) * c.H + (s.dy || 0)); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(L.text, 0, 0); }
+if (!s.noFill) { x.fillStyle = s.fill || s.col || c.ink; x.fillText(L.text, 0, 0); }
+x.restore(); return L;
+}
+function maskText(c, mask, o = {}) {
+const O = off(c, 0), L = lay(c, o), x = O.ctx; setFont(x, L); x.fillStyle = o.col || c.ink; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; mask(m, L);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); return L;
+}
+const PC = new Map();
+function textPts(c, step, o = {}) {
+const L = lay(c, o); const key = L.font + L.text + c.W + 'x' + c.H + '|' + step + '|' + (o.y || 0); if (PC.has(key)) return PC.get(key);
+const cv = document.createElement('canvas'); cv.width = Math.ceil(c.W); cv.height = Math.ceil(c.H); const x = cv.getContext('2d');
+setFont(x, L); x.fillStyle = '#000'; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const d = x.getImageData(0, 0, cv.width, cv.height).data, pts = [];
+for (let Y = Math.floor(step / 2); Y < cv.height; Y += step) for (let X = Math.floor(step / 2); X < cv.width; X += step) if (d[(Y * cv.width + X) * 4 + 3] > 110) pts.push([X, Y]);
+PC.set(key, pts); if (PC.size > 40) PC.delete(PC.keys().next().value); return pts;
+}
+const GLYPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=?<>動態元件畫面切換';
+
+/* =================================================================
+BACKGROUNDS（BG-A、BG-B）— 以 p∈[0,1) 無縫循環
+================================================================= */
+const ecg = u => { u = fr(u); if (u < .4) return Math.sin(u / .4 * Math.PI) * .04; if (u < .45) return -.12 * (u - .4) / .05; if (u < .5) return -.12 + 1.12 * (u - .45) / .05; if (u < .55) return 1 - 1.35 * (u - .5) / .05; if (u < .6) return -.35 + .35 * (u - .55) / .05; if (u < .75) return Math.sin((u - .6) / .15 * Math.PI) * .18; return 0; };
+function zoomRings(c, fn, n = 22, base = .06, mul = 1.32) { for (let k = -6; k < n; k++) { const v = k + c.p * 2, r = c.u * base * mul ** v; if (r > Math.hypot(c.W, c.H)) break; fn(r, v, k); } }
+const BG = {
+'Diagonal Lines': c => { bgFill(c); const { ctx: x, W, H } = c; const s = c.u / (7 * c.d); x.lineWidth = s * .3 * Math.min(1.6, c.k); const offs = c.p * s * 4;
+for (let i = -Math.ceil(H / s) - 4; i < Math.ceil(W / s) + 4; i++) { const X = i * s + offs; x.strokeStyle = ((i % 4) + 4) % 4 === 0 ? c.se : rgba(c.pr, .85); x.beginPath(); x.moveTo(X, 0); x.lineTo(X + H, H); x.stroke(); } },
+'Confetti Fall': c => { bgFill(c); const { ctx: x, W, H } = c; const r = R(c, 50), n = Math.round(70 * c.d) + 20;
+for (let i = 0; i < n; i++) { const X = r() * W, o = r(), sp = 1 + Math.floor(r() * 2), w = c.u * (.012 + r() * .016), h = w * (1.6 + r()), col = [c.pr, c.se, c.ink, mix(c.pr, c.se, .5)][Math.floor(r() * 4)], ro = r() * TAU, Y = fr(o + c.p * sp) * (H + h * 4) - h * 2;
+x.save(); x.translate(X + Math.sin(c.ph * sp * 2 + o * TAU) * c.u * .04 * c.k, Y); x.rotate(ro + c.ph * sp); x.scale(Math.cos(c.ph * 2 * sp + ro), 1); x.fillStyle = col; x.fillRect(-w / 2, -h / 2, w, h); x.restore(); } },
+};
+
+/* =================================================================
+TEXT（TXT-A、TXT-B）— 單次動作 p∈[0,1]，結束停格清楚
+================================================================= */
+function wordsOf(t) { const w = t.trim().split(/\s+/).filter(Boolean); return w.length > 1 ? w : null; }
+function ghost(c, n, fn) { for (let k = n; k >= 0; k--) fn(k / n, k === 0 ? 1 : (1 - k / (n + 1)) * .35); }
+function digits(t, d = '280') { const m = (t || '').match(/\d+/); return m ? m[0] : d; }
+const TX = {
+'Water Reflection': c => { bgFill(c); const { ctx: x } = c; const L = lay(c, { maxH: .2 }), wl = c.cy + L.fs * .55, q = E.oc(seg(c.p, 0, .7)), rise = (1 - q) * L.fs * 1.1;
+x.save(); x.beginPath(); x.rect(0, 0, c.W, wl); x.clip(); word(c, { dy: rise - L.fs * .05 }, { maxH: .2 }); x.restore();
+const O = off(c, 1), o = O.ctx; setFont(o, L); o.fillStyle = c.ink; o.fillText(L.text, c.cx, c.cy - L.fs * .05 + rise); const d = c.dpr;
+for (let Y = 0; Y < L.fs * 1.2; Y += 2) { const sy = wl - Y, dx = Math.sin(Y * .25 + c.t * 6) * 3 * c.k * (Y / L.fs); x.globalAlpha = .35 * (1 - Y / (L.fs * 1.2)); x.drawImage(O.cv, 0, sy * d, O.cv.width, 2 * d, dx, wl + Y, c.W, 2); } x.globalAlpha = 1;
+x.fillStyle = rgba(c.pr, .6); x.fillRect(0, wl, c.W, 1.5); },
+'Letter Bounce': c => { bgFill(c); drawChars(c, (i, n, L) => { const pi = stg(c.p, i, n, .55), b = E.bo(pi); return { dy: -(1 - b) * c.H * .45, sy: pi > .3 && pi < .45 ? .85 : 1, sx: pi > .3 && pi < .45 ? 1.12 : 1, a: pi > 0 ? 1 : 0 }; }); },
+};
+
+/* =================================================================
+SHAPES（SHP）
+================================================================= */
+function softGrid(c) { bgFill(c); gridLines(c, c.u / 8, c.W / 2, c.H / 2, rgba(c.ink, .06)); }
+function floorLine(c, y) { c.ctx.strokeStyle = rgba(c.ink, .25); c.ctx.lineWidth = 2; c.ctx.beginPath(); c.ctx.moveTo(c.W * .1, y); c.ctx.lineTo(c.W * .9, y); c.ctx.stroke(); }
+function polyPts(kind, rad, n = 120) { const out = []; for (let i = 0; i < n; i++) { const t = i / n; if (kind === 'circle') { const a = t * TAU - Math.PI / 2; out.push([Math.cos(a) * rad, Math.sin(a) * rad]); continue; } const v = ngon(kind === 'tri' ? 3 : 4, rad * (kind === 'tri' ? 1.25 : 1.2), kind === 'sq' ? Math.PI / 4 : 0), m = v.length, f = t * m, k = Math.floor(f), u = f - k, A = v[k % m], B = v[(k + 1) % m]; out.push([lerp(A[0], B[0], u), lerp(A[1], B[1], u)]); } return out; }
+const SH = {
+'Bubble Pop': c => { softGrid(c); const { ctx: x } = c; const r = R(c, 22); for (let i = 0; i < 9; i++) { const X = c.cx + (r() - .5) * c.u * .9, Y = c.cy + (r() - .5) * c.u * .5, del = r() * .45, s = c.u * (.04 + r() * .05) * c.k, col = r() < .5 ? c.pr : c.se, q = seg(c.p, del, del + .4);
+if (q < .7) { x.strokeStyle = col; x.lineWidth = 2; x.fillStyle = rgba(col, .2); x.beginPath(); x.arc(X, Y, s * E.ob(q / .7), 0, TAU); x.fill(); x.stroke(); } else if (q < 1) { const g = seg(q, .7, 1); x.fillStyle = rgba(col, 1 - g); for (let k = 0; k < 8; k++) { const a = k / 8 * TAU; dot(x, X + Math.cos(a) * s * (1 + g), Y + Math.sin(a) * s * (1 + g), 3); } } } },
+'Arc Loader': c => { softGrid(c); const { ctx: x } = c; x.lineCap = 'round'; const q = E.io(seg(c.p, .3, .9)); for (let i = 0; i < 3; i++) { const rad = c.u * (.12 + i * .07), sp = (i + 1) * (i % 2 ? -1 : 1), a = c.p * TAU * sp * 1.2 * c.k, len = lerp(Math.PI * .5, TAU, q); x.strokeStyle = [c.pr, c.se, c.ink][i]; x.lineWidth = c.u * .022; x.beginPath(); x.arc(c.cx, c.cy, rad, a, a + len - (q > .99 ? 0 : .001)); x.stroke(); } },
+};
+
+/* =================================================================
+TELOP（TEL）— 字幕與資訊版型，於示意畫面上
+================================================================= */
+const SC = new Map();
+function cached(key, W, H, dpr, draw) { let v = SC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr)); const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); draw(x); if (SC.size > 24) SC.delete(SC.keys().next().value); SC.set(key, cv); return cv; }
+function telScene(c) {
+const cv = cached(['tel', c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H } = c, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(c.bg, c.pr, .35)); g.addColorStop(.62, mix(c.bg, c.se, .12)); g.addColorStop(1, c.bg); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = R(c, 70); for (let i = 0; i < 14; i++) { const X = r() * W, Y = r() * H * .7, s = c.u * (.04 + r() * .12); const gg = x.createRadialGradient(X, Y, 0, X, Y, s); gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .35)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - s, Y - s, s * 2, s * 2); }
+x.fillStyle = mix(c.bg, '#000000', .25); x.beginPath(); x.moveTo(0, H * .72); for (let X = 0; X <= W; X += W / 12) x.lineTo(X, H * .7 - Math.sin(X / W * 7 + 1) * H * .04 - r() * H * .03); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fill();
+x.strokeStyle = rgba('#ffffff', .25); x.lineWidth = 1; const m = Math.min(W, H) * .05; x.strokeRect(m, m, W - m * 2, H - m * 2);
+});
+c.ctx.drawImage(cv, 0, 0, c.W, c.H); c.ctx.fillStyle = rgba('#ffffff', .65); c.ctx.font = `600 ${Math.max(9, c.u * .028)}px ${FAM.mono}`; c.ctx.textAlign = 'left'; c.ctx.textBaseline = 'top'; c.ctx.fillText('● REC  00:00:' + String(Math.floor(c.t % 60)).padStart(2, '0'), c.u * .07, c.u * .07);
+}
+const CAP = (o = {}) => ({ maxH: .085, maxW: .8, fam: 'tc', w: 900, y: .3, ...o });
+const TITLE = (o = {}) => ({ maxH: .15, maxW: .76, w: 900, ...o });
+function capBox(c, L, pad, col, y, rad = 6, wq = 1) { const x = c.ctx, w = (L.width + pad * 2) * wq, h = L.fs + pad * 1.3; x.fillStyle = col; rr(x, c.cx - w / 2, c.cy + y * c.H - h / 2, w, h, rad); x.fill(); return { w, h }; }
+function pendingBadge(c, id) { const x = c.ctx, fs = Math.max(10, c.u * .04); x.font = `600 ${fs}px ${FAM.mono}`; const t = '待核對 · ' + id, w = x.measureText(t).width + fs * 1.4; x.setLineDash([5, 4]); x.strokeStyle = c.se; x.lineWidth = 1.5; rr(x, c.W - w - fs, fs, w, fs * 1.9, 6); x.stroke(); x.setLineDash([]); x.fillStyle = c.se; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(t, c.W - w - fs + fs * .7, fs * 1.95); }
+const TL = {
+_pending: (c, item) => { telScene(c); const o = CAP({ w: 700 }), q = E.oc(seg(c.p, 0, .4)); word(c, { a: q, col: '#ffffff', stroke: lay(c, o).fs * .14, strokeCol: rgba('#000000', .7) }, o); pendingBadge(c, item.id); },
+};
+
+/* =================================================================
+TRANSITIONS（TRN）— A → B，無黑幀
+================================================================= */
+function scene(c, which) {
+return cached(['scn', which, c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H, u } = c, A = which === 'A', base = A ? c.bg : c.se, card = A ? c.pr : c.bg, fg = A ? inkFor(c.pr) : inkFor(c.bg);
+x.fillStyle = base; x.fillRect(0, 0, W, H); x.strokeStyle = rgba(inkFor(base), .08); x.lineWidth = 1; for (let X = 0; X < W; X += u / 10) { x.beginPath(); x.moveTo(X, 0); x.lineTo(X, H); x.stroke(); } for (let Y = 0; Y < H; Y += u / 10) { x.beginPath(); x.moveTo(0, Y); x.lineTo(W, Y); x.stroke(); }
+const cw = W * .62, ch = H * .56; x.fillStyle = card; rr(x, (W - cw) / 2, (H - ch) / 2, cw, ch, u * .04); x.fill(); x.fillStyle = fg; x.font = `800 ${Math.min(ch * .62, cw * .5)}px ${FAM.sans}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(which, W / 2, H / 2 + ch * .03);
+x.fillStyle = rgba(fg, .5); dot(x, (W - cw) / 2 + u * .05, (H - ch) / 2 + u * .05, u * .014); x.fillRect(W / 2 + cw / 2 - u * .07, H / 2 + ch / 2 - u * .07, u * .03, u * .03);
+x.font = `600 ${Math.max(9, u * .032)}px ${FAM.mono}`; x.textAlign = 'left'; x.textBaseline = 'top'; x.fillStyle = rgba(inkFor(base), .7); x.fillText('SCENE ' + which + (A ? '  ·  00:00:04' : '  ·  00:00:05'), u * .05, u * .05);
+});
+}
+function maskB(c, drawMask) { const O = off(c, 3), x = O.ctx; x.drawImage(scene(c, 'B'), 0, 0, c.W, c.H); const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; drawMask(m);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); }
+const drawA = c => c.ctx.drawImage(scene(c, 'A'), 0, 0, c.W, c.H), drawB = c => c.ctx.drawImage(scene(c, 'B'), 0, 0, c.W, c.H);
+function piece(c, img, clip, dx = 0, dy = 0, sc = 1, rot = 0, ox = c.cx, oy = c.cy) { const x = c.ctx; x.save(); x.translate(ox + dx, oy + dy); x.rotate(rot); x.scale(sc, sc); x.translate(-ox, -oy); x.beginPath(); clip(x); x.clip(); x.drawImage(img, 0, 0, c.W, c.H); x.restore(); }
+const TQ = c => E.io(seg(c.p, .12, .88));
+function wipe(fn) { return c => { const q = TQ(c); drawA(c); if (q > 0) maskB(c, x => fn(c, x, q)); }; }
+const TR = {
+};
+
+/* =================================================================
+DATA — 280 項
+================================================================= */
+const HINT = { grid: '方格格線、矩陣依序位移或變形', line: '以線段描邊、延伸、波動或掃描為主', rot: '圍繞中心點持續或一次旋轉', dot: '以點陣、圓點群的分布與時差運動為主', pop: '利用彈跳式放大與回彈形成出現效果', zoom: '透過縮放、景深或縮放模糊創造動勢', wave: '以相位差的波浪節奏連續運動', half: '網點印刷感點陣的疏密、大小與移動變化', panel: '使用數個面板依序推移或展開', seq: '以逐字分配延遲的方式進行動態', slide: '平滑滑入、滑出、推動或移位', flash: '極短亮度閃爍與恢復，避免頻閃過強', mask: '使用字元與單詞的錯位、位移或遮罩動畫', circle: '圓形的縮放、環繞、切割或構圖變換', orbit: '元素以圓或橢圓軌道公轉', flip: '沿 X 或 Y 軸進行 3D 翻轉', glitch: '錯位色差與短促的數位故障感', stripe: '規律條紋依不同時差錯位移動', marker: '使用手繪螢光筆掃過文字', split: '畫面分割成多個區塊再重新拼接', blur: '使用模糊與清晰的快速轉換', bounce: '自由落體或彈簧物理感的跳動', pulse: '規律放大縮小並回復原始狀態', shape: '運用基本幾何形狀的縮放、位移、變形或組合', ring: '以同心圓擴張、收縮或環繞', draw: 'SVG 路徑從 0% 逐漸描繪到 100%', stroke: '以字體外框/圖形描邊的生成與變化為主', sub: '維持字幕清楚可辨，使用輕量淡入淡出', cap: '用字幕框、文字或顏色的變化提升可讀性', wipe: '遮罩逐步揭示下一畫面' };
+const GROUPS = [
+{ key: 'BG-A', name: '背景動態・幾何網格', kind: 'bg', role: '畫面背景填滿容器並可無縫循環，不顯示文字；根據效果名稱構造幾何、網格、線條或粒子運動。', src: 'Grid Fill|grid;Heartbeat Line|line;Tile Rotate|rot;Vertical Lines|line;Dot Connect|dot;Dizzy Stars|name;Random Pop Dots|pop;Grid Cursor|grid;Polar Grid|grid;Dot Matrix|dot;Parallel Curves|name;Broken Grid|grid;Scanning Lines|line;Halftone Blob|half;Triangle Grid|grid;Zap Marks|name;Flow Lines|line;Grid Magnet|grid;Bubble Dots|dot;Diagonal Lines|line;Graph Paper|name;Dot Wave Floor|wave;Comic Sky|name;Barcode|name;Dot Zoom|zoom;Moving Grid|grid;Sound Wave|wave;Heart Pop|pop;Topo Lines|line;Column Shift|name;Dot Rain|dot;Shock Lines|line;Retro Sunrise|name;Halftone Boom|half;Speed Panels|panel;Radar Sweep|name;Dot Swarm|dot;Zigzag Energy|name;Halftone Tunnel|half;Tilt Grid|grid' },
+{ key: 'TXT-A', name: '文字動態・基礎', kind: 'text', role: '以可編輯文字作為動畫主體，保留字距、易讀性與 UTF-8 繁中文字支援。', src: 'Word Burst|name;Letter Sequence|seq;Stamp In|name;Punch Zoom|zoom;Character Jitter|name;Stretch Pop|pop;Zoom Blur|zoom;Slide Text|slide;Giant Scroll|name;Follow Path|name;Repeat Lines|line;Impact Flash|flash;Ribbon|name;Torn Text|mask;Shatter Letters|seq;Tape Crossing|name;Text Tunnel|mask;Text Fall|mask;Gate|name;Arrow|name;Link Circle|circle;Orbit|orbit;Cube|name;Extrude|name;Paragraph|name;Flip|flip;Typewriter|name;Slot|name;Counter|name;Reveal Outline|line;LED|name;Up Scroll|name;Slice Text|mask;Glitch|glitch;Stripe Mask|stripe;Long Shadow|name;Liquid Text|mask;Marker|marker;Split Turn|split;Blur Scatter|blur' },
+{ key: 'TXT-B', name: '文字動態・特效', kind: 'text', role: '以可編輯文字作為動畫主體，著重具辨識度的特殊動態與結束時的清晰停格。', src: 'Lightning Strike|name;Laser Cut|name;Coin Flip|flip;Explode Out|name;Disintegrate|name;Heartbeat Zoom|zoom;Text Kaleido|mask;Number Slam|name;Wave Letters|wave;Stop Motion|name;Letter Rain|seq;Magnifier Lens|name;Scramble Decode|name;Domino Letters|seq;Gradient Flow|name;Circle Text|mask;Water Reflection|name;Letter Bounce|bounce;Text Flag|mask;Gravity Flip|flip;Magnet Pull|name;Word Pulse Grid|grid;Weight Grow|name;Text Fan|mask;Karaoke Ball|name;Swing Letters|seq;Pixel Dissolve|name;Rotating Words|name;Blur Trail|blur;Checker Words|name;Roller Path|name;Shuffle Letters|seq;Text Spiral|mask;Jitter Settle|name;Elastic Wave Stretch|wave;Ink Bleed|name;Letter Assemble|seq;Text Mosaic|mask;Crumble Down|name;Float Drift|name' },
+{ key: 'SHP', name: '圖形動畫', kind: 'shape', role: '使用 SVG 向量圖元展現動態，精準控制形變、時間曲線與物件數量。', src: 'Scale Pulse|pulse;Rotate Spin|rot;Bounce Drop|bounce;Slide Loop|slide;Squash & Stretch|name;Elastic Pop|pop;Wobble|name;Pendulum Swing|name;Shape Morph|shape;Pattern Morph|name;Circle to Square|circle;Split & Merge|split;Fold Unfold|name;Flip Tiles|flip;Ring Expand|ring;Triangle Twist|name;Shape Explosion|shape;Shape Rain|shape;Bubble Pop|pop;Confetti Burst|name;Ripple Squares|name;Radial Fan|name;Spiral Dots|dot;Particle Orbit|orbit;Shape Parade|shape;Shape Conveyor|shape;Shape Stack|shape;Bouncing Shapes|shape;Wave Dots|wave;Grid Cascade|grid;Domino Fall|name;Stairs Rise|name;Squiggle Draw|draw;Circle Draw|circle;Stroke Trace|stroke;Dash March|name;Path Follow|name;Spirograph|name;Arc Loader|name;Check Draw|draw' },
+{ key: 'BG-B', name: '背景動態・抽象', kind: 'bg', role: '抽象幾何視覺背景，提供無縫循環及降動態版本，避免文字內容重疊時視覺干擾。', src: 'Halftone Expand|half;Halftone Wave|wave;Comic Dots|dot;Halftone Sweep|half;Spiral Dots|dot;Halftone Rings|half;Halftone Checker|half;Halftone Sun|half;Perspective Grid|grid;Grid Zoom|grid;Grid Wave|grid;Rotating Grid|grid;Isometric Grid|grid;Hex Grid|grid;Truchet Tiles|name;Weave Grid|grid;Speed Lines|line;Horizontal Lines|line;Line Burst|line;Wave Lines|wave;Ripple Rings|ring;Stripe Twist|stripe;Line Tunnel|line;Crosshatch|name;Circle Pop|pop;Floating Shapes|shape;Shape Tunnel|shape;Orbit Shapes|shape;Kaleidoscope|name;Confetti Fall|name;Blob Shapes|shape;Pinwheels|name;Minimal Blocks|name;Minimal Circle|circle;Bauhaus Shapes|shape;Minimal Arcs|name;Minimal Stripes|stripe;Minimal Square|name;Minimal Wave|wave;Nested Squares|name' },
+{ key: 'TEL', name: '字幕與資訊版型', kind: 'tel', role: '透明背景的影片字幕/資訊元件，確保安全邊界、對比、在 9:16 與 16:9 均清楚。', src: 'Outline Pop|pop;Double Stroke|stroke;Gradient Impact|name;Tilted Sticker|name;Shake Emphasis|name;Burst Bubble|name;Color Block Telop|name;Pop Number|pop;Lower Third|name;Tape Label|name;Ribbon Banner|name;Highlight Marker|marker;Side Tab|name;Stripe Caution|stripe;Speech Bubble|name;Thought Cloud|name;Clean Subtitle|sub;Black Box Caption|cap;Yellow Subtitle|sub;Karaoke Fill|name;Typewriter Caption|cap;Word Pop Caption|pop;Two-Tone Caption|cap;Gradient Bar Caption|cap;待核對字幕效果 25|name;待核對字幕效果 26|name;待核對字幕效果 27|name;待核對字幕效果 28|name;待核對字幕效果 29|name;待核對字幕效果 30|name;待核對字幕效果 31|name;待核對字幕效果 32|name;Mincho Title|name;Vertical Mincho|name;Hanko Seal|name;Fade Elegance|name;Underline Reveal|line;Corner Frame|name;Chapter Card|name;End Credit|name' },
+{ key: 'TRN', name: '轉場與分割', kind: 'trn', role: '以 A、B 兩個影片或圖片圖層示範畫面切換，實現一個時間確定、無黑幀的轉場。', src: 'Color Wipe|wipe;Diagonal Wipe|wipe;Multi Stripe Wipe|wipe;Zigzag Wipe|wipe;Slice Wipe|wipe;Bars Wipe|wipe;Brush Wipe|wipe;Curtain Slide|slide;Circle Wipe|wipe;Block Wipe|wipe;Shutter Wipe|wipe;Clock Wipe|wipe;Diamond Wipe|wipe;Star Wipe|wipe;Pinwheel Wipe|wipe;Corner Wipe|wipe;Liquid Wipe|wipe;Drip Wipe|wipe;Ripple Wipe|wipe;Text Wipe|wipe;Impact Flash|flash;Wave Split|wave;Zigzag Split|split;Circle Split|circle;Horizontal Split|split;Vertical Split|split;Triple Split|split;Four Panels|panel;Sliding Panels|panel;Diagonal Panels|panel;Quad Open|name;Checker Panels|panel;Diagonal Split|split;Mosaic Flash|flash;Frame Stack|name;Bar Panels|panel;Band Split|split;Grid Flip|grid;Panel Zoom Out|zoom;Strip Shuffle|name' }
+];
+const MAPS = { bg: BG, text: TX, shape: SH, tel: TL, trn: TR };
+const LIST = [], BYID = {};
+GROUPS.forEach(g => { g.items = g.src.split(';').map((s, i) => { const [name, h] = s.split('|'), id = `${g.key}-${String(i + 1).padStart(2, '0')}`, pending = name.startsWith('待核對');
+const hint = h === 'name' ? `依「${name}」名稱和錄影示意演繹具有辨識度的動畫；先建立主視覺，再以移動、旋轉、縮放、透明度或變形呈現此效果` : HINT[h];
+const it = { id, name, group: g.key, groupName: g.name, kind: g.kind, hintKey: h, hint, pending, source: 'spec', added: '2026-10-17' }; LIST.push(it); BYID[id] = it; return it; }); delete g.src; });
+
+function promptFor(id) {
+const it = BYID[id]; if (!it) return ''; const g = GROUPS.find(x => x.key === it.group), txt = it.kind === 'text' || it.kind === 'tel';
+return `請建立動畫元件 \`${it.id}\`（${it.name}）。視覺動作：${it.hint}。${g.role}請用原生 HTML/CSS/JavaScript 實作（必要時 SVG/Canvas），輸出單一可執行 demo.html，另輸出可重用的元件 JS 模組。提供主題色、背景色、duration、loop、intensity、seed 與 16:9/9:16 比例參數；${txt ? '提供可修改的示範文字與繁體中文支援' : '提供可更改的形狀/密度或位置參數'}；預設 1.5 秒（背景循環 4 秒），使用 requestAnimationFrame 或 CSS keyframes，支援 replay、pause、destroy；加入 prefers-reduced-motion 降動態方案。動畫需具有明確起始、主動作和最終畫面，製作獨立預覽、基本測試與可調整控制面板。不要假裝這是原作者的程式或 Prompt；視覺細節依錄影參考再校準。${it.pending ? ' 此編號在錄影中畫面辨識不清，先產出佔位規格，不要直接發布為已完成元件。' : ''}`;
+}
+
+/* =================================================================
+RUNTIME
+================================================================= */
+const AR = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const HOLD = .9;
+const DEFAULTS = { text: 'MOTION 動態', colors: { primary: '#5BD3F5', secondary: '#D6F55A', bg: '#111418' }, loop: true, intensity: 1, density: 1, seed: 7, aspectRatio: '16:9', reducedMotion: false };
+function norm(o) { const it = BYID[o.id] || LIST[0]; const n = { ...DEFAULTS, ...o, colors: { ...DEFAULTS.colors, ...(o.colors || {}) } }; n.id = it.id; if (n.duration == null) n.duration = it.kind === 'bg' ? 4 : 1.5; n.duration = Math.max(.2, +n.duration); n.intensity = cl(+n.intensity, .1, 3); n.density = cl(+n.density, .2, 3); n.seed = Math.max(1, Math.floor(+n.seed) || 1); return n; }
+function cycleLen(o) { const it = BYID[o.id]; const d = o.duration * (o.reducedMotion && it.kind === 'bg' ? 3 : 1); return it.kind === 'bg' ? d : d + HOLD; }
+function progressAt(o, t) { const it = BYID[o.id], bg = it.kind === 'bg', d = o.duration * (o.reducedMotion && bg ? 3 : 1); if (bg) return o.loop ? fr(t / d) : Math.min(.9999, t / d); const tt = o.loop ? t % (d + HOLD) : t; return Math.min(1, tt / d); }
+function getFn(it) { const m = MAPS[it.kind]; if (it.pending) return TL._pending; return m[it.name] || (c => { bgFill(c); }); }
+function renderItem(ctx, W, H, dpr, o, p, t) {
+const it = BYID[o.id], P = { text: o.text || ' ', primary: o.colors.primary, secondary: o.colors.secondary, bg: o.colors.bg };
+const c = { ctx, W, H, dpr, P, p, t: t || 0, u: Math.min(W, H), cx: W / 2, cy: H / 2, pr: P.primary, se: P.secondary, bg: P.bg, ink: inkFor(P.bg), k: o.intensity * (o.reducedMotion && it.kind === 'bg' ? .45 : 1), d: o.density, seed: o.seed, ph: p * TAU };
+const fn = getFn(it); ctx.save();
+try {
+if (o.reducedMotion && it.kind !== 'bg') {
+if (it.kind === 'trn') { const q = E.io(seg(p, .2, .8)); ctx.drawImage(scene(c, 'A'), 0, 0, W, H); ctx.globalAlpha = q; ctx.drawImage(scene(c, 'B'), 0, 0, W, H); ctx.globalAlpha = 1; }
+else { c.p = 1; c.ph = TAU; fn(c, it); ctx.globalAlpha = 1 - E.oc(seg(p, 0, .5)); ctx.fillStyle = it.kind === 'tel' ? 'rgba(0,0,0,0)' : c.bg; if (it.kind !== 'tel') ctx.fillRect(0, 0, W, H); }
+} else fn(c, it);
+} catch (e) { ctx.restore(); ctx.save(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f66'; ctx.font = '12px monospace'; ctx.fillText('render error: ' + it.id, 10, 20); if (root.console) console.warn(it.id, e); }
+ctx.restore();
+}
+function renderFrame(canvas, opts, p = .7, t = 0) { const o = norm(opts), dpr = opts.dpr || 1, W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderItem(ctx, W, H, dpr, o, p, t); }
+function mount(el, opts = {}) {
+const cv = document.createElement('canvas'); cv.className = 'motionlib-canvas'; cv.setAttribute('role', 'img'); el.appendChild(cv); const ctx = cv.getContext('2d');
+let o = norm(opts), raf = 0, alive = true, paused = !!opts.paused, t = 0, last = performance.now(), W = 0, H = 0; const dpr = Math.min(2, root.devicePixelRatio || 1);
+const mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null; if (opts.reducedMotion == null && mq && mq.matches) o.reducedMotion = true;
+function fit() { const ar = AR[o.aspectRatio] || 16 / 9, cw = el.clientWidth || 640, mh = o.maxHeight || cw / ar; const w = Math.max(40, Math.min(cw, mh * ar)); W = Math.round(w); H = Math.round(w / ar); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.setAttribute('aria-label', BYID[o.id].id + ' ' + BYID[o.id].name); draw(); }
+function draw() { if (!W) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const p = progressAt(o, t); renderItem(ctx, W, H, dpr, o, p, t); if (o.onFrame) o.onFrame(t, p, cycleLen(o)); }
+function tick(now) { if (!alive) return; const dt = Math.min(.1, (now - last) / 1000); last = now; if (!paused) { t += dt; if (!o.loop && t >= cycleLen(o)) { t = cycleLen(o); } } draw(); raf = requestAnimationFrame(tick); }
+const ro = root.ResizeObserver ? new ResizeObserver(fit) : null; ro && ro.observe(el); fit(); raf = requestAnimationFrame(tick);
+return {
+play() { if (!o.loop && t >= cycleLen(o) - 1e-3) t = 0; paused = false; last = performance.now(); },
+pause() { paused = true; }, replay() { t = 0; paused = false; last = performance.now(); },
+seek(p) { paused = true; const it = BYID[o.id]; t = it.kind === 'bg' ? cl(p) * cycleLen(o) * .9999 : cl(p) * o.duration * (o.reducedMotion && it.kind === 'bg' ? 3 : 1); draw(); },
+set(n) { const idChanged = n.id && n.id !== o.id; o = norm({ ...o, ...n, colors: { ...o.colors, ...(n.colors || {}) } }); if (idChanged) t = 0; fit(); },
+destroy() { alive = false; cancelAnimationFrame(raf); ro && ro.disconnect(); cv.remove(); },
+get paused() { return paused; }, get time() { return t; }, get options() { return { ...o, colors: { ...o.colors } }; }, get cycle() { return cycleLen(o); }, canvas: cv
+};
+}
+function clearCaches() { LC.clear(); PC.clear(); SC.clear(); }
+root.MotionLib = { mount, renderFrame, list: LIST, groups: GROUPS, byId: BYID, prompt: promptFor, defaults: DEFAULTS, clearCaches, version: '1.1.0' };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>try{if(sessionStorage.getItem('cz-arrive')){sessionStorage.removeItem('cz-arrive');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('arriving');}}catch(e){}</script>
+<style>
+/* chiizr — Web 2.0 光澤時代（2004–2009）共用樣式 */
+:root{
+ --white:#FFFFFF; --floor:#F4F7F9; --line:#C9D3DC; --line2:#E1E8ED;
+ --stripe-a:#E3EBF1; --stripe-b:#EEF3F6;
+ --ink:#333333; --mute:#777777; --soft:#999999;
+ --lime:#7AB800; --lime-hi:#A6DA34; --lime-dk:#4F8A00;
+ --orange:#FF7A00; --orange-hi:#FFB45C; --orange-dk:#C85300;
+ --sky:#1E7FD6; --sky-dk:#0F5DA6; --pink:#FF3D8B;
+ --yft:#FFFF99; --digg:#FFF5B8; --digg-line:#E5D36A;
+ --cream:#FFF3C8; --crust:#B97A3B;
+ --r:6px;
+ --spring:cubic-bezier(.34,1.56,.64,1);
+ --ui:"Lucida Grande","Lucida Sans Unicode",Verdana,"Noto Sans TC",sans-serif;
+ --big:"Nunito","Noto Sans TC","Arial Rounded MT Bold",sans-serif;
+}
+@supports (transition-timing-function:linear(0,1)){
+ :root{--spring:linear(0,.18 6%,.56 14%,1.05 26%,1.16 32%,1.12 38%,.98 50%,.96 56%,1.01 70%,1)}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font:13px/1.6 var(--ui);
+ background-color:var(--stripe-b);
+ background-image:repeating-linear-gradient(45deg,var(--stripe-a) 0 1px,transparent 1px 6px);
+ padding:0 0 40px}
+a{color:var(--sky)}
+a:hover{color:var(--sky-dk);background:var(--yft)}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+h1,h2,h3{font-family:var(--big);font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:0 0 .4em;color:#222}
+h2{font-size:20px}
+h3{font-size:15px}
+p{margin:0 0 .9em}
+.skip{position:absolute;left:-999px;top:0;background:#fff;padding:6px 10px;z-index:99}
+.skip:focus{left:8px}
+
+/* 置中定寬白頁（特徵④） */
+.page{max-width:960px;margin:0 auto;background:var(--white);border:1px solid var(--line);border-top:0;
+ box-shadow:0 0 0 5px rgba(255,255,255,.55);border-radius:0 0 var(--r) var(--r)}
+
+/* 上段：分離的 top section */
+.mast{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+ padding:18px 24px 0;background:linear-gradient(#FFFFFF 0%,#FFFFFF 55%,#EEF6DD 100%);min-height:118px}
+.logo{position:relative;display:block;width:300px;text-decoration:none;color:#121418}
+.logo:hover{background:none}
+.logo .ml{width:300px;aspect-ratio:2/1}
+.logo .ml canvas{margin-top:-35.5%}
+.wordmark{display:block;font:900 64px/1 var(--big);letter-spacing:-.04em;color:#121418;padding-top:20px}
+.wordmark i{font-style:normal;color:var(--lime)}
+.wordmark + .wordmark{transform:scaleY(-1);opacity:.28;padding-top:0;margin-top:-6px;
+ -webkit-mask-image:linear-gradient(to top,#000,transparent 55%);mask-image:linear-gradient(to top,#000,transparent 55%)}
+.wordmark-sub{position:absolute;left:4px;bottom:6px;font-size:11px;color:var(--mute);letter-spacing:.08em;background:rgba(255,255,255,.8);padding:0 4px;border-radius:3px}
+.util{font-size:11px;color:var(--mute);text-align:right;padding-bottom:10px}
+.util a{color:var(--sky)}
+.util b{color:var(--ink)}
+
+/* 星形爆炸徽章（特徵③） */
+.burst{position:absolute;display:grid;place-items:center;pointer-events:none;
+ width:74px;height:74px;color:#fff;font:900 13px/1 var(--big);text-transform:uppercase;letter-spacing:.02em;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.burst svg{position:absolute;inset:0;width:100%;height:100%;animation:spin 26s linear infinite;filter:drop-shadow(0 1px 1px rgba(0,0,0,.22))}
+.burst span{position:relative;transform:rotate(-14deg);text-align:center}
+.burst.beta{left:258px;top:6px}
+.burst.lime svg path{fill:var(--lime)}
+.burst.orange svg path{fill:var(--orange)}
+.burst.pink svg path{fill:var(--pink)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 分頁籤導覽：光澤條＋圓頂籤（topbar 的 Web 2.0 版） */
+.tabs{position:relative;display:flex;align-items:flex-end;gap:4px;padding:0 18px;height:40px;
+ background:linear-gradient(#B5E356 0%,#8CCB1C 50%,#79B800 50%,#6AA400 100%);border-top:1px solid #5E9600;border-bottom:1px solid #4F8A00}
+.tabs a{position:relative;display:block;padding:7px 16px 6px;margin-bottom:-1px;font:700 14px/1.3 var(--big);text-decoration:none;color:#fff;
+ text-shadow:0 -1px 0 rgba(0,0,0,.25);border:1px solid transparent;border-bottom:0;border-radius:7px 7px 0 0;transition:transform .35s var(--spring),background-color .2s}
+.tabs a small{display:block;font:400 10px/1 var(--ui);opacity:.8;letter-spacing:.06em}
+.tabs a:hover{background:rgba(255,255,255,.22);transform:translateY(-2px)}
+.tabs a[aria-current]{background:#fff;color:var(--lime-dk);text-shadow:none;border-color:#4F8A00;transform:none}
+.tabs .sync{margin-left:auto;align-self:center;font-size:11px;color:#fff;opacity:0;transition:opacity .2s;display:flex;gap:6px;align-items:center}
+.tabs .sync i{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
+html.leaving .tabs .sync{opacity:1}
+
+/* 主內容：Ajax 換頁的 BlindUp／BlindDown */
+main{display:block;padding:22px 24px 10px}
+html.leaving main{animation:blindUp .26s ease-in forwards}
+html.arriving main{animation:blindDown .7s var(--spring) both}
+@keyframes blindUp{to{clip-path:inset(0 0 100% 0);opacity:.4}}
+@keyframes blindDown{from{clip-path:inset(0 0 100% 0);transform:translateY(-14px)}to{clip-path:inset(0 0 0 0);transform:none}}
+
+/* 圓角框 */
+.box{border:1px solid var(--line);border-radius:var(--r);background:var(--white);margin:0 0 18px;overflow:hidden}
+.box > header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;
+ background:linear-gradient(#FFFFFF,#E9EFF3);border-bottom:1px solid var(--line);font:800 14px/1.3 var(--big)}
+.box > header small{font:400 11px var(--ui);color:var(--mute)}
+.box .in{padding:12px 14px}
+.grey{background:var(--floor)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px}
+
+/* 果凍按鈕（特徵①） */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:.6em 1.4em;border-radius:999px;border:1px solid var(--orange-dk);
+ color:#fff;font:800 15px/1.2 var(--big);text-decoration:none;cursor:pointer;text-shadow:0 -1px 0 rgba(0,0,0,.25);
+ background:linear-gradient(var(--orange-hi) 0%,#FF8A1F 50%,var(--orange) 50%,#F26200 100%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 4px rgba(255,255,255,.18),0 1px 2px rgba(0,0,0,.22);
+ transition:transform .45s var(--spring),filter .15s}
+.btn:hover{filter:brightness(1.07);background:linear-gradient(var(--orange-hi) 0%,#FF8A1F 50%,var(--orange) 50%,#F26200 100%);color:#fff;transform:scale(1.04)}
+.btn:active{transform:scale(.93);transition-duration:.06s}
+.btn.lime{border-color:var(--lime-dk);background:linear-gradient(#C8EF6A 0%,var(--lime-hi) 50%,var(--lime) 50%,#69A000 100%)}
+.btn.sky{border-color:var(--sky-dk);background:linear-gradient(#8FC6F5 0%,#4FA2EC 50%,var(--sky) 50%,#166CC0 100%)}
+.btn.sm{font-size:12px;padding:.35em .9em}
+.btn[disabled]{filter:grayscale(1) opacity(.55);cursor:default;transform:none}
+.btn .ar{font-size:1.1em}
+
+/* 黃色淡出（簽名動效：所有變化都先閃一下黃） */
+.yft{animation:yft 1.6s ease-out}
+@keyframes yft{0%,15%{background-color:var(--yft)}100%{background-color:transparent}}
+
+/* 倒影地板（特徵②） */
+.floor{position:relative;display:block}
+.floor svg{display:block;width:100%;height:auto}
+
+/* 標籤雲：字級＝熱度，用 typed attr() 讀 data-n（特徵⑤） */
+.cloud{line-height:1.25;text-align:center;padding:10px 6px}
+.cloud a{display:inline-block;margin:2px 5px;text-decoration:none;color:var(--sky);border-radius:4px;padding:0 3px;
+ font-family:var(--big);font-weight:800;letter-spacing:-.01em;font-size:14px;
+ transition:font-size .6s var(--spring),color .3s}
+@supports (width:calc(attr(data-n type(<number>),0) * 1px)){
+ .cloud a{font-size:clamp(11px,calc(9px + attr(data-n type(<number>),0) * .26px),46px)}
+ .cloud a.hot{color:var(--orange)}
+}
+.cloud a.hot{color:var(--orange)}
+.cloud a.mine{color:var(--pink)}
+.cloud a:hover{background:var(--yft);color:var(--sky-dk)}
+
+/* 進度條：糖果斜紋＋typed attr 寬度 */
+.bar{position:relative;height:14px;border-radius:7px;background:#E6ECF0;border:1px solid #CCD6DE;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;width:50%;border-radius:7px;
+ background:linear-gradient(rgba(255,255,255,.55) 0 50%,rgba(255,255,255,0) 50%),repeating-linear-gradient(-45deg,var(--lime) 0 8px,var(--lime-hi) 8px 16px);
+ background-size:auto,22.6px 22.6px;animation:candy 1s linear infinite;transition:width .5s var(--spring)}
+@supports (width:calc(attr(data-v type(<number>),0) * 1%)){
+ .bar i{width:clamp(0%,calc(attr(data-v type(<number>),0) / 120 * 100%),100%)}
+}
+@keyframes candy{to{background-position:0 0,22.6px 0}}
+.bar.done i{background:linear-gradient(rgba(255,255,255,.55) 0 50%,rgba(255,255,255,0) 50%),repeating-linear-gradient(-45deg,var(--orange) 0 8px,var(--orange-hi) 8px 16px);background-size:auto,22.6px 22.6px}
+
+/* 小零件 */
+.badge80{display:inline-flex;height:15px;font:700 9px/15px Verdana,sans-serif;border:1px solid #666;margin:2px;vertical-align:middle;text-decoration:none}
+.badge80 b{background:#666;color:#fff;padding:0 4px;font-weight:700}
+.badge80 span{background:var(--white);color:#333;padding:0 4px}
+.badge80.o b{background:var(--orange)} .badge80.l b{background:var(--lime)} .badge80.s b{background:var(--sky)} .badge80.p b{background:var(--pink)}
+.ico{display:inline-block;width:18px;height:18px;vertical-align:-4px}
+.new{display:inline-block;font:900 9px/1 var(--big);color:#fff;background:var(--pink);padding:2px 4px;border-radius:3px;vertical-align:2px;letter-spacing:.04em}
+.note{font-size:11px;color:var(--mute)}
+.fineprint{font-size:11px;color:var(--soft)}
+.tagline{font:800 24px/1.3 var(--big);color:#222;letter-spacing:-.01em}
+.tagline em{font-style:normal;color:var(--lime-dk)}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;gap:8px;padding:7px 10px;border-bottom:1px dotted var(--line2);font-size:12px}
+.feed li:last-child{border-bottom:0}
+.feed .who{font-weight:700;color:var(--sky)}
+.feed time{margin-left:auto;color:var(--soft);font-size:10px;white-space:nowrap}
+.av{flex:none;width:24px;height:24px;border-radius:4px;border:1px solid var(--line)}
+.kv{width:100%;border-collapse:collapse;font-size:12px}
+.kv th,.kv td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line2);vertical-align:top}
+.kv th{color:var(--mute);font-weight:400;white-space:nowrap}
+input[type=text],textarea,select{font:13px var(--ui);border:1px solid #AEBBC6;border-radius:4px;padding:6px 8px;background:linear-gradient(#F4F7F9,#FFF 6px);color:var(--ink);width:100%}
+input[type=text]:focus,textarea:focus{border-color:var(--sky);outline:2px solid rgba(30,127,214,.25)}
+label{font-size:12px;color:var(--mute)}
+
+/* popover（加入揪團／燈箱） */
+[popover]{border:0;padding:0;background:transparent;color:var(--ink);overflow:visible}
+[popover]::backdrop{background:rgba(0,0,0,.72)}
+.modal{width:min(420px,92vw);background:#fff;border:1px solid #666;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.45);overflow:hidden}
+.modal > header{padding:10px 14px;background:linear-gradient(#FFFFFF,#E9EFF3);border-bottom:1px solid var(--line);font:800 16px var(--big);display:flex;justify-content:space-between;align-items:center}
+.modal .in{padding:14px}
+.x{border:1px solid #999;background:linear-gradient(#fff,#ddd);border-radius:50%;width:24px;height:24px;font:700 13px/1 var(--ui);cursor:pointer;color:#555}
+.nopop [popover]{display:none;position:fixed;inset:0;margin:auto;height:fit-content;z-index:50}
+.nopop [popover].open{display:block}
+.nopop .scrim{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:49}
+
+/* motion-library 容器 */
+.ml{position:relative;overflow:hidden}
+.ml canvas{display:block}
+.ml.ml-live .ml-fb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* 頁尾 */
+.foot{border-top:1px solid var(--line);background:var(--floor);padding:16px 24px;font-size:11px;color:var(--mute);border-radius:0 0 var(--r) var(--r);display:grid;grid-template-columns:1fr auto;gap:10px}
+.foot nav a{margin-right:10px}
+.foot .badges{text-align:right}
+
+/* RWD ≤560 */
+@media (max-width:760px){
+ .cols{grid-template-columns:1fr}
+ .mast{flex-wrap:wrap;padding:12px 14px 0;min-height:0}
+ .util{text-align:left;width:100%;order:-1;padding-bottom:0}
+ main{padding:16px 14px 6px}
+ .foot{grid-template-columns:1fr;padding:14px}
+ .foot .badges{text-align:left}
+}
+@media (max-width:560px){
+ .logo,.logo .ml{width:240px}
+ .wordmark{font-size:52px}
+ .burst.beta{left:196px;top:28px;width:62px;height:62px;font-size:11px}
+ .tabs{padding:0 6px;gap:2px;overflow-x:auto;height:44px}
+ .tabs a{padding:6px 9px 5px;font-size:13px;flex:none}
+ .tabs .sync{display:none}
+ .tagline{font-size:20px}
+ body{padding-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){
+ .burst svg,.bar i,.tabs .sync i{animation:none}
+ html.leaving main,html.arriving main{animation:none}
+ .yft{animation:none;background-color:var(--yft);transition:background-color 0s 1.6s}
+ .btn,.tabs a,.cloud a,.bar i{transition:none}
+}
+
+/* —— kouwei.html —— */
+
+.album-head{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;align-items:center;margin-bottom:12px}
+.album-head .ml{width:260px;aspect-ratio:16/9;border:1px solid var(--line);border-radius:var(--r)}
+.album-head .ml-fb{display:block;width:100%;height:100%;background:radial-gradient(circle at 30% 40%,#A6DA34 0 12%,transparent 13%),radial-gradient(circle at 70% 60%,#4FA2EC 0 10%,transparent 11%),#fff}
+.stream{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:14px;margin:0 0 20px}
+.thumb{display:block;padding:4px;border:1px solid var(--line);background:#fff;border-radius:4px;cursor:zoom-in;box-shadow:0 1px 2px rgba(0,0,0,.12);transition:transform .35s var(--spring),box-shadow .2s;font:inherit;color:inherit;text-align:left;width:100%}
+.thumb:hover{transform:translateY(-3px) rotate(-1deg);box-shadow:0 5px 12px rgba(0,0,0,.18)}
+.thumb .ph{display:block;aspect-ratio:1/1;overflow:hidden;border-radius:2px}
+.thumb .ph svg{display:block;width:100%;height:100%}
+.thumb b{display:block;font:800 12px var(--big);margin:5px 2px 0;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumb small{display:block;font-size:10px;color:var(--mute);margin:0 2px}
+#lb{width:auto;max-width:94vw}
+.lbbox{background:#fff;border-radius:8px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,.5);overflow:hidden;width:min(520px,92vw)}
+.lbbox .stage{position:relative;aspect-ratio:200/220;max-height:66vh;margin:0 auto;border-radius:3px;overflow:hidden}
+.lbbox .stage svg{display:block;width:100%;height:100%}
+.lbbox .nav{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 6px;pointer-events:none}
+.lbbox .nav button{pointer-events:auto;width:40px;height:40px;border-radius:50%;border:1px solid rgba(0,0,0,.25);background:linear-gradient(rgba(255,255,255,.95) 0 50%,rgba(235,240,244,.95) 50%);font:900 18px var(--big);color:#444;cursor:pointer;opacity:.85}
+.lbbox .nav button:hover{opacity:1}
+.cap{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:10px 4px 2px;font-size:12px}
+.cap b{font:800 16px var(--big);color:#222;display:block}
+.cap .x{flex:none}
+.pricelist td,.pricelist th{font-size:13px}
+.pricelist td:last-child{text-align:right}
+@media (max-width:560px){.album-head{grid-template-columns:1fr}.album-head .ml{width:100%}.stream{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主內容</a>
+<div class="page">
+<header class="mast">
+ <a class="logo" href="index.html" aria-label="chiizr 揪起司 首頁">
+  <div class="ml" id="ml-logo"><span class="ml-fb"><span class="wordmark">chiiz<i>r</i></span><span class="wordmark" aria-hidden="true">chiiz<i>r</i></span></span></div>
+  <span class="wordmark-sub">揪起司・冷凍重乳酪揪團</span>
+ </a>
+ <span class="burst orange beta" style="" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M50.0 0.0L55.8 9.4L64.1 2.0L67.0 12.7L77.0 7.9L76.8 19.0L87.8 17.3L84.5 27.8L95.5 29.2L89.3 38.4L99.5 42.9L91.0 50.0L99.5 57.1L89.3 61.6L95.5 70.8L84.5 72.2L87.8 82.7L76.8 81.0L77.0 92.1L67.0 87.3L64.1 98.0L55.8 90.6L50.0 100.0L44.2 90.6L35.9 98.0L33.0 87.3L23.0 92.1L23.2 81.0L12.2 82.7L15.5 72.2L4.5 70.8L10.7 61.6L0.5 57.1L9.0 50.0L0.5 42.9L10.7 38.4L4.5 29.2L15.5 27.8L12.2 17.3L23.2 19.0L23.0 7.9L33.0 12.7L35.9 2.0L44.2 9.4Z"/><path d="M50.0 9.0L55.1 14.4L61.6 10.7L65.0 17.3L72.2 15.5L73.6 22.8L81.0 23.2L80.3 30.5L87.3 33.0L84.5 39.9L90.6 44.2L86.0 50.0L90.6 55.8L84.5 60.1L87.3 67.0L80.3 69.5L81.0 76.8L73.6 77.2L72.2 84.5L65.0 82.7L61.6 89.3L55.1 85.6L50.0 91.0L44.9 85.6L38.4 89.3L35.0 82.7L27.8 84.5L26.4 77.2L19.0 76.8L19.7 69.5L12.7 67.0L15.5 60.1L9.4 55.8L14.0 50.0L9.4 44.2L15.5 39.9L12.7 33.0L19.7 30.5L19.0 23.2L26.4 22.8L27.8 15.5L35.0 17.3L38.4 10.7L44.9 14.4Z" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2"/><ellipse cx="42" cy="30" rx="24" ry="11" fill="#fff" opacity=".28"/></svg><span>beta<br>20 年</span></span>
+ <div class="util">
+  <span class="who-guest">嗨，訪客！ <a href="#join" popovertarget="join">免費加入揪團</a> ・ </span><span class="who-member" hidden>嗨，<b data-nick></b>！ ・ </span>
+  <a href="blog.html#pickup">取貨資訊</a> ・ <a href="blog.html#feed"><svg class="ico" viewBox="0 0 18 18" aria-hidden="true"><defs><linearGradient id="irss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFB45C"/><stop offset=".5" stop-color="#FF8A1F"/><stop offset=".5" stop-color="#FF7A00"/><stop offset="1" stop-color="#E25A00"/></linearGradient></defs><rect width="18" height="18" rx="4" fill="url(#irss)"/><circle cx="5" cy="13" r="1.8" fill="#fff"/><path d="M3.5 8.2a6.3 6.3 0 0 1 6.3 6.3M3.5 4a10.5 10.5 0 0 1 10.5 10.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg> RSS</a>
+ </div>
+</header>
+<nav class="tabs" aria-label="主要">
+ <a href="index.html">首頁<small>home</small></a>
+ <a href="jiu.html">揪團牆<small>vote</small></a>
+ <a href="kouwei.html" aria-current="page">口味相簿<small>photos</small></a>
+ <a href="blog.html">店長部落格<small>blog</small></a>
+ <span class="sync" aria-hidden="true"><i></i>載入中…</span>
+</nav>
+<main id="main">
+ <div class="album-head">
+  <div>
+   <h1 style="font-size:28px">chiizr 的相片 <small style="font:400 13px var(--ui);color:var(--mute)">（10 張）</small></h1>
+   <p style="font-size:14px;margin:0">每一種口味都是團友推出來的。照片是店長在工坊窗邊拍的，白色桌板就是倒影的來源——<a href="blog.html">她在部落格寫過怎麼拍</a>。點縮圖看大圖，鍵盤左右鍵換張。</p>
+  </div>
+  <div class="ml" id="ml-bubble"><span class="ml-fb"></span></div>
+ </div>
+ <div class="stream" id="stream">
+  <button class="thumb" type="button" popovertarget="lb" data-i="0"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="plain 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt0s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt0c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt0t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt0f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt0m"><rect x="0" y="150" width="200" height="70" fill="url(#gt0f)"/></mask>
+ <g id="gt0k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt0s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt0c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#FBE7A1"/>
+  <ellipse cx="100" cy="80" rx="46" ry="12" fill="#E8B04C" opacity=".35"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt0t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#EAF4FB"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt0k"/>
+<g mask="url(#gt0m)"><use href="#gt0k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>原味重乳酪</b><small>by yizhen_chz ・ 原味・每週都有・6吋</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="1"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="hojicha 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt1s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt1c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt1t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt1f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt1m"><rect x="0" y="150" width="200" height="70" fill="url(#gt1f)"/></mask>
+ <g id="gt1k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt1s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt1c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#8A5A3B"/>
+  <ellipse cx="100" cy="78" rx="58" ry="17" fill="#6E452C" opacity=".35"/><g fill="#5A3822"><circle cx="70" cy="74" r="1.6"/><circle cx="92" cy="70" r="1.6"/><circle cx="118" cy="76" r="1.6"/><circle cx="132" cy="82" r="1.6"/><circle cx="84" cy="86" r="1.6"/><circle cx="108" cy="88" r="1.6"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt1t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#F3EDE6"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt1k"/>
+<g mask="url(#gt1m)"><use href="#gt1k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>焙茶重乳酪</b><small>by yizhen_chz ・ 焙茶・不甜・大人味</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="2"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="goma 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt2s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt2c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt2t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt2f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt2m"><rect x="0" y="150" width="200" height="70" fill="url(#gt2f)"/></mask>
+ <g id="gt2k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt2s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt2c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#3B3532"/>
+  <g fill="#F3E9D2" opacity=".85"><ellipse cx="64" cy="76" rx="2.2" ry="1.1" transform="rotate(0 64 76)"/><ellipse cx="80" cy="70" rx="2.2" ry="1.1" transform="rotate(37 80 70)"/><ellipse cx="98" cy="74" rx="2.2" ry="1.1" transform="rotate(74 98 74)"/><ellipse cx="116" cy="69" rx="2.2" ry="1.1" transform="rotate(111 116 69)"/><ellipse cx="134" cy="77" rx="2.2" ry="1.1" transform="rotate(148 134 77)"/><ellipse cx="90" cy="84" rx="2.2" ry="1.1" transform="rotate(185 90 84)"/><ellipse cx="112" cy="86" rx="2.2" ry="1.1" transform="rotate(222 112 86)"/><ellipse cx="74" cy="82" rx="2.2" ry="1.1" transform="rotate(259 74 82)"/><ellipse cx="128" cy="86" rx="2.2" ry="1.1" transform="rotate(296 128 86)"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt2t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#EFEFEF"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt2k"/>
+<g mask="url(#gt2m)"><use href="#gt2k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>芝麻黑糖</b><small>by ohmygoma ・ 芝麻・黑糖・濃</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="3"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="mango 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt3s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt3c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt3t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt3f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt3m"><rect x="0" y="150" width="200" height="70" fill="url(#gt3f)"/></mask>
+ <g id="gt3k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt3s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt3c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#FFB21F"/>
+  <g><rect x="65" y="71" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(-20 72 76)"/><rect x="67" y="72" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(-20 72 76)"/><rect x="85" y="65" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(10 92 70)"/><rect x="87" y="66" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(10 92 70)"/><rect x="107" y="69" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(-8 114 74)"/><rect x="109" y="70" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(-8 114 74)"/><rect x="125" y="75" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(24 132 80)"/><rect x="127" y="76" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(24 132 80)"/><rect x="93" y="79" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(40 100 84)"/><rect x="95" y="80" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(40 100 84)"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt3t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#FFF5DA"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt3k"/>
+<g mask="url(#gt3m)"><use href="#gt3k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>愛文芒果</b><small>by mochi_ann ・ 芒果・夏天限定</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="4"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="matcha 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt4s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt4c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt4t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt4f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt4m"><rect x="0" y="150" width="200" height="70" fill="url(#gt4f)"/></mask>
+ <g id="gt4k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt4s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt4c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#6D9B2E"/>
+  <g fill="#7B2E22"><ellipse cx="74" cy="78" rx="3.4" ry="2.4"/><ellipse cx="88" cy="72" rx="3.4" ry="2.4"/><ellipse cx="104" cy="76" rx="3.4" ry="2.4"/><ellipse cx="120" cy="72" rx="3.4" ry="2.4"/><ellipse cx="132" cy="80" rx="3.4" ry="2.4"/><ellipse cx="96" cy="86" rx="3.4" ry="2.4"/><ellipse cx="114" cy="85" rx="3.4" ry="2.4"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt4t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#ECF5E2"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt4k"/>
+<g mask="url(#gt4m)"><use href="#gt4k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>抹茶紅豆</b><small>by teatime_yu ・ 抹茶・紅豆</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="5"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="roselle 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt5s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt5c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt5t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt5f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt5m"><rect x="0" y="150" width="200" height="70" fill="url(#gt5f)"/></mask>
+ <g id="gt5k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt5s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt5c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#C2185B"/>
+  <path d="M60 78q10-10 22-2t20-2 22 0 18 4" fill="none" stroke="#7A0E36" stroke-width="5" stroke-linecap="round" opacity=".55"/><g fill="#8E1240"><circle cx="80" cy="70" r="5"/><circle cx="78.5" cy="68.5" r="1.5" fill="#fff" opacity=".5"/><circle cx="118" cy="72" r="5"/><circle cx="116.5" cy="70.5" r="1.5" fill="#fff" opacity=".5"/><circle cx="100" cy="86" r="5"/><circle cx="98.5" cy="84.5" r="1.5" fill="#fff" opacity=".5"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt5t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#FCE8F0"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt5k"/>
+<g mask="url(#gt5m)"><use href="#gt5k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>洛神莓果</b><small>by 板橋小芸 ・ 洛神・酸・莓果</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="6"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="earl 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt6s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt6c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt6t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt6f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt6m"><rect x="0" y="150" width="200" height="70" fill="url(#gt6f)"/></mask>
+ <g id="gt6k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt6s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt6c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#B48A6A"/>
+  <path d="M58 80q20-14 42 0t42 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M70 72q15-9 30 0t30 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".5"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt6t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#F1EAF6"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt6k"/>
+<g mask="url(#gt6m)"><use href="#gt6k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>伯爵奶茶</b><small>by pudding_kuo ・ 伯爵・奶茶</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="7"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="longan 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt7s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt7c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt7t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt7f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt7m"><rect x="0" y="150" width="200" height="70" fill="url(#gt7f)"/></mask>
+ <g id="gt7k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt7s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt7c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#9C5A2A"/>
+  <g><circle cx="76" cy="74" r="6" fill="#6B3A17"/><circle cx="74" cy="72" r="2" fill="#fff" opacity=".35"/><circle cx="100" cy="70" r="6" fill="#6B3A17"/><circle cx="98" cy="68" r="2" fill="#fff" opacity=".35"/><circle cx="124" cy="76" r="6" fill="#6B3A17"/><circle cx="122" cy="74" r="2" fill="#fff" opacity=".35"/><circle cx="100" cy="84" r="6" fill="#6B3A17"/><circle cx="98" cy="82" r="2" fill="#fff" opacity=".35"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt7t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#F6EDE3"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt7k"/>
+<g mask="url(#gt7m)"><use href="#gt7k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>龍眼蜜桂圓</b><small>by 阿嬤的孫子 ・ 桂圓・冬天・蜂蜜</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="8"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="yolk 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gt8s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gt8c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gt8t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gt8f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gt8m"><rect x="0" y="150" width="200" height="70" fill="url(#gt8f)"/></mask>
+ <g id="gt8k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gt8s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gt8c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#F2A93B"/>
+  <g fill="#E07A00"><path d="M70 73l3 2-1 3h-4l-1-3z"/><path d="M86 67l3 2-1 3h-4l-1-3z"/><path d="M102 70l3 2-1 3h-4l-1-3z"/><path d="M118 66l3 2-1 3h-4l-1-3z"/><path d="M134 75l3 2-1 3h-4l-1-3z"/><path d="M92 81l3 2-1 3h-4l-1-3z"/><path d="M110 83l3 2-1 3h-4l-1-3z"/><path d="M78 81l3 2-1 3h-4l-1-3z"/><path d="M124 83l3 2-1 3h-4l-1-3z"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gt8t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#FFF3E0"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gt8k"/>
+<g mask="url(#gt8m)"><use href="#gt8k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></span><b>鹹蛋黃（中秋提案）</b><small>by hsin2006 ・ 鹹蛋黃・中秋・鹹甜</small></button>
+  <button class="thumb" type="button" popovertarget="lb" data-i="9"><span class="ph"><svg viewBox="0 0 200 220" role="img" aria-label="冷凍宅配盒"><defs><linearGradient id="bxa" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#DDE6EC"/></linearGradient><linearGradient id="bxf" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="bxm"><rect y="150" width="200" height="70" fill="url(#bxf)"/></mask><g id="bxk"><path d="M40 70l60-22 60 22v80l-60 22-60-22z" fill="url(#bxa)" stroke="#AEBBC6"/><path d="M40 70l60 22 60-22M100 92v80" stroke="#AEBBC6" fill="none"/><path d="M40 70l60 22v80l-60-22z" fill="#EEF3F6"/><path d="M58 96l26 9v22l-26-9z" fill="#7AB800"/><text x="62" y="114" font-family="Nunito,sans-serif" font-weight="900" font-size="9" fill="#fff" transform="skewY(19 62 114)">chiizr</text><path d="M118 100l30-11v14l-30 11z" fill="#1E7FD6"/><path d="M60 58l60-22" stroke="#fff" stroke-width="4" opacity=".7" stroke-linecap="round"/></g></defs><rect width="200" height="220" fill="#E8F1F8"/><ellipse cx="100" cy="174" rx="70" ry="8" fill="#000" opacity=".07"/><use href="#bxk"/><g mask="url(#bxm)"><use href="#bxk" transform="translate(0 344) scale(1 -1)"/></g></svg></span><b>冷凍宅配盒</b><small>by yizhen_chz ・ 宅配・保冷</small></button>
+ </div>
+
+ <div class="cols">
+  <section class="box" aria-labelledby="pl-h">
+   <header><span id="pl-h">口味與價目</span><small>6 吋・約 680g</small></header>
+   <div class="in"><table class="kv pricelist"><thead><tr><th>口味</th><th>今天的推</th><th>價格</th></tr></thead><tbody id="pl"></tbody></table>
+   <p class="note" style="margin:8px 0 0"><svg class="ico" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="4" width="10" height="8" rx="2" fill="#1E7FD6"/><path d="M11 7h3l3 3v2h-6z" fill="#4FA2EC"/><circle cx="5" cy="13.5" r="2" fill="#333"/><circle cx="14" cy="13.5" r="2" fill="#333"/><rect x="2" y="5" width="8" height="3" rx="1.5" fill="#fff" opacity=".4"/></svg> 冷凍宅配 NT$180，滿 4 盒免運；<svg class="ico" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="#7AB800"/><circle cx="9" cy="9" r="5.8" fill="#fff"/><path d="M9 5.5V9l2.4 1.6" stroke="#333" stroke-width="1.6" fill="none" stroke-linecap="round"/><ellipse cx="7" cy="4.5" rx="4" ry="1.6" fill="#fff" opacity=".5"/></svg> 冷藏解凍 4 小時、冷凍可放 21 天。</p></div>
+  </section>
+  <aside>
+   <section class="box grey"><div class="in" style="font-size:12px">
+    <p><b>相簿標籤</b></p>
+    <p class="cloud" style="text-align:left;padding:0" id="mini"></p>
+    <p style="margin:0"><svg class="ico" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 16S1.5 11 1.5 6.2A3.8 3.8 0 0 1 9 4.6a3.8 3.8 0 0 1 7.5 1.6C16.5 11 9 16 9 16z" fill="#FF3D8B"/><ellipse cx="5.5" cy="5.6" rx="2.4" ry="1.3" fill="#fff" opacity=".55"/></svg> 想看到新口味的照片？<a href="jiu.html">去揪團牆推它</a>。</p>
+   </div></section>
+  </aside>
+ </div>
+</main>
+
+<footer class="foot">
+ <div>
+  <nav aria-label="頁尾"><a href="index.html">首頁</a><a href="jiu.html">揪團牆</a><a href="kouwei.html">口味相簿</a><a href="blog.html">店長部落格</a><a href="blog.html#pickup">取貨資訊</a><a href="../../index.html">← 回 Design Skills Center</a></nav>
+  <p style="margin:8px 0 0">© 2006–2026 chiizr 揪起司 ・ 新北市板橋區館前東路 52 巷 6 號 1F ・ (02) 2961-0716 ・ 取貨 週五 14:00–20:00／週六 11:00–18:00<br>本站為 Design Skills Center 風格示範（Web 2.0 光澤時代），店家、人物與數字皆為虛構。</p>
+ </div>
+ <div class="badges" aria-hidden="true">
+  <span class="badge80 o"><b>RSS</b><span>2.0</span></span><span class="badge80 l"><b>chiizr</b><span>beta</span></span><br>
+  <span class="badge80 s"><b>揪團</b><span>20 年</span></span><span class="badge80 p"><b>手工</b><span>板橋</span></span>
+ </div>
+</footer>
+</div>
+
+<div popover id="join" class="modal" aria-labelledby="join-h">
+ <header><span id="join-h">加入揪團（免費！）</span><button class="x" popovertarget="join" popovertargetaction="hide" aria-label="關閉">×</button></header>
+ <form class="in" id="join-form">
+  <p>取一個暱稱就好，不用 email、不用密碼。暱稱只存在你這台電腦，揪團牆上會用它幫你推。</p>
+  <label for="nick">暱稱</label>
+  <input type="text" id="nick" name="nick" maxlength="16" placeholder="例：板橋小芸" autocomplete="nickname">
+  <p class="note" style="margin-top:8px">已有 3,128 位團友 ・ 2006 年 3 月 14 日起</p>
+  <button class="btn" type="submit">加入 <span class="ar">›</span></button>
+ </form>
+</div>
+<div popover id="lb" aria-label="大圖">
+ <div class="lbbox" id="lbbox">
+  <div class="stage" id="stage"></div>
+  <div class="cap"><span id="cap"></span><button class="x" popovertarget="lb" popovertargetaction="hide" aria-label="關閉">×</button></div>
+ </div>
+</div>
+<template id="shots"><div data-t="原味重乳酪" data-by="yizhen_chz" data-tags="原味・每週都有・6吋" data-p="NT$420" data-f="plain"><svg viewBox="0 0 200 220" role="img" aria-label="plain 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL0s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL0c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL0t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL0f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL0m"><rect x="0" y="150" width="200" height="70" fill="url(#gL0f)"/></mask>
+ <g id="gL0k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL0s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL0c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#FBE7A1"/>
+  <ellipse cx="100" cy="80" rx="46" ry="12" fill="#E8B04C" opacity=".35"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL0t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#EAF4FB"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL0k"/>
+<g mask="url(#gL0m)"><use href="#gL0k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="焙茶重乳酪" data-by="yizhen_chz" data-tags="焙茶・不甜・大人味" data-p="NT$480" data-f="hojicha"><svg viewBox="0 0 200 220" role="img" aria-label="hojicha 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL1s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL1c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL1t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL1f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL1m"><rect x="0" y="150" width="200" height="70" fill="url(#gL1f)"/></mask>
+ <g id="gL1k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL1s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL1c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#8A5A3B"/>
+  <ellipse cx="100" cy="78" rx="58" ry="17" fill="#6E452C" opacity=".35"/><g fill="#5A3822"><circle cx="70" cy="74" r="1.6"/><circle cx="92" cy="70" r="1.6"/><circle cx="118" cy="76" r="1.6"/><circle cx="132" cy="82" r="1.6"/><circle cx="84" cy="86" r="1.6"/><circle cx="108" cy="88" r="1.6"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL1t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#F3EDE6"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL1k"/>
+<g mask="url(#gL1m)"><use href="#gL1k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="芝麻黑糖" data-by="ohmygoma" data-tags="芝麻・黑糖・濃" data-p="NT$480" data-f="goma"><svg viewBox="0 0 200 220" role="img" aria-label="goma 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL2s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL2c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL2t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL2f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL2m"><rect x="0" y="150" width="200" height="70" fill="url(#gL2f)"/></mask>
+ <g id="gL2k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL2s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL2c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#3B3532"/>
+  <g fill="#F3E9D2" opacity=".85"><ellipse cx="64" cy="76" rx="2.2" ry="1.1" transform="rotate(0 64 76)"/><ellipse cx="80" cy="70" rx="2.2" ry="1.1" transform="rotate(37 80 70)"/><ellipse cx="98" cy="74" rx="2.2" ry="1.1" transform="rotate(74 98 74)"/><ellipse cx="116" cy="69" rx="2.2" ry="1.1" transform="rotate(111 116 69)"/><ellipse cx="134" cy="77" rx="2.2" ry="1.1" transform="rotate(148 134 77)"/><ellipse cx="90" cy="84" rx="2.2" ry="1.1" transform="rotate(185 90 84)"/><ellipse cx="112" cy="86" rx="2.2" ry="1.1" transform="rotate(222 112 86)"/><ellipse cx="74" cy="82" rx="2.2" ry="1.1" transform="rotate(259 74 82)"/><ellipse cx="128" cy="86" rx="2.2" ry="1.1" transform="rotate(296 128 86)"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL2t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#EFEFEF"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL2k"/>
+<g mask="url(#gL2m)"><use href="#gL2k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="愛文芒果" data-by="mochi_ann" data-tags="芒果・夏天限定" data-p="NT$480" data-f="mango"><svg viewBox="0 0 200 220" role="img" aria-label="mango 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL3s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL3c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL3t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL3f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL3m"><rect x="0" y="150" width="200" height="70" fill="url(#gL3f)"/></mask>
+ <g id="gL3k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL3s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL3c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#FFB21F"/>
+  <g><rect x="65" y="71" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(-20 72 76)"/><rect x="67" y="72" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(-20 72 76)"/><rect x="85" y="65" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(10 92 70)"/><rect x="87" y="66" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(10 92 70)"/><rect x="107" y="69" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(-8 114 74)"/><rect x="109" y="70" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(-8 114 74)"/><rect x="125" y="75" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(24 132 80)"/><rect x="127" y="76" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(24 132 80)"/><rect x="93" y="79" width="14" height="10" rx="3" fill="#FF9500" transform="rotate(40 100 84)"/><rect x="95" y="80" width="7" height="3" rx="1.5" fill="#fff" opacity=".45" transform="rotate(40 100 84)"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL3t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#FFF5DA"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL3k"/>
+<g mask="url(#gL3m)"><use href="#gL3k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="抹茶紅豆" data-by="teatime_yu" data-tags="抹茶・紅豆" data-p="NT$480" data-f="matcha"><svg viewBox="0 0 200 220" role="img" aria-label="matcha 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL4s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL4c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL4t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL4f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL4m"><rect x="0" y="150" width="200" height="70" fill="url(#gL4f)"/></mask>
+ <g id="gL4k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL4s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL4c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#6D9B2E"/>
+  <g fill="#7B2E22"><ellipse cx="74" cy="78" rx="3.4" ry="2.4"/><ellipse cx="88" cy="72" rx="3.4" ry="2.4"/><ellipse cx="104" cy="76" rx="3.4" ry="2.4"/><ellipse cx="120" cy="72" rx="3.4" ry="2.4"/><ellipse cx="132" cy="80" rx="3.4" ry="2.4"/><ellipse cx="96" cy="86" rx="3.4" ry="2.4"/><ellipse cx="114" cy="85" rx="3.4" ry="2.4"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL4t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#ECF5E2"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL4k"/>
+<g mask="url(#gL4m)"><use href="#gL4k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="洛神莓果" data-by="板橋小芸" data-tags="洛神・酸・莓果" data-p="NT$480" data-f="roselle"><svg viewBox="0 0 200 220" role="img" aria-label="roselle 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL5s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL5c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL5t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL5f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL5m"><rect x="0" y="150" width="200" height="70" fill="url(#gL5f)"/></mask>
+ <g id="gL5k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL5s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL5c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#C2185B"/>
+  <path d="M60 78q10-10 22-2t20-2 22 0 18 4" fill="none" stroke="#7A0E36" stroke-width="5" stroke-linecap="round" opacity=".55"/><g fill="#8E1240"><circle cx="80" cy="70" r="5"/><circle cx="78.5" cy="68.5" r="1.5" fill="#fff" opacity=".5"/><circle cx="118" cy="72" r="5"/><circle cx="116.5" cy="70.5" r="1.5" fill="#fff" opacity=".5"/><circle cx="100" cy="86" r="5"/><circle cx="98.5" cy="84.5" r="1.5" fill="#fff" opacity=".5"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL5t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#FCE8F0"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL5k"/>
+<g mask="url(#gL5m)"><use href="#gL5k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="伯爵奶茶" data-by="pudding_kuo" data-tags="伯爵・奶茶" data-p="NT$480" data-f="earl"><svg viewBox="0 0 200 220" role="img" aria-label="earl 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL6s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL6c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL6t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL6f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL6m"><rect x="0" y="150" width="200" height="70" fill="url(#gL6f)"/></mask>
+ <g id="gL6k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL6s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL6c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#B48A6A"/>
+  <path d="M58 80q20-14 42 0t42 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M70 72q15-9 30 0t30 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".5"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL6t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#F1EAF6"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL6k"/>
+<g mask="url(#gL6m)"><use href="#gL6k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="龍眼蜜桂圓" data-by="阿嬤的孫子" data-tags="桂圓・冬天・蜂蜜" data-p="NT$480" data-f="longan"><svg viewBox="0 0 200 220" role="img" aria-label="longan 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL7s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL7c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL7t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL7f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL7m"><rect x="0" y="150" width="200" height="70" fill="url(#gL7f)"/></mask>
+ <g id="gL7k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL7s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL7c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#9C5A2A"/>
+  <g><circle cx="76" cy="74" r="6" fill="#6B3A17"/><circle cx="74" cy="72" r="2" fill="#fff" opacity=".35"/><circle cx="100" cy="70" r="6" fill="#6B3A17"/><circle cx="98" cy="68" r="2" fill="#fff" opacity=".35"/><circle cx="124" cy="76" r="6" fill="#6B3A17"/><circle cx="122" cy="74" r="2" fill="#fff" opacity=".35"/><circle cx="100" cy="84" r="6" fill="#6B3A17"/><circle cx="98" cy="82" r="2" fill="#fff" opacity=".35"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL7t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#F6EDE3"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL7k"/>
+<g mask="url(#gL7m)"><use href="#gL7k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="鹹蛋黃（中秋提案）" data-by="hsin2006" data-tags="鹹蛋黃・中秋・鹹甜" data-p="NT$480" data-f="yolk"><svg viewBox="0 0 200 220" role="img" aria-label="yolk 重乳酪蛋糕">
+<defs>
+ <linearGradient id="gL8s" x1="0" x2="1"><stop offset="0" stop-color="#E7C06A"/><stop offset=".32" stop-color="#FBEBB8"/><stop offset=".62" stop-color="#F3D58C"/><stop offset="1" stop-color="#D9A84E"/></linearGradient>
+ <linearGradient id="gL8c" x1="0" x2="1"><stop offset="0" stop-color="#9A5F2A"/><stop offset=".35" stop-color="#C98D4C"/><stop offset="1" stop-color="#8A5222"/></linearGradient>
+ <radialGradient id="gL8t" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></radialGradient>
+ <linearGradient id="gL8f" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <mask id="gL8m"><rect x="0" y="150" width="200" height="70" fill="url(#gL8f)"/></mask>
+ <g id="gL8k">
+  <path d="M30 78v50a70 22 0 0 0 140 0V78a70 22 0 0 1-140 0z" fill="url(#gL8s)"/>
+  <path d="M30 120v8a70 22 0 0 0 140 0v-8a70 22 0 0 1-140 0z" fill="url(#gL8c)"/>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="#F2A93B"/>
+  <g fill="#E07A00"><path d="M70 73l3 2-1 3h-4l-1-3z"/><path d="M86 67l3 2-1 3h-4l-1-3z"/><path d="M102 70l3 2-1 3h-4l-1-3z"/><path d="M118 66l3 2-1 3h-4l-1-3z"/><path d="M134 75l3 2-1 3h-4l-1-3z"/><path d="M92 81l3 2-1 3h-4l-1-3z"/><path d="M110 83l3 2-1 3h-4l-1-3z"/><path d="M78 81l3 2-1 3h-4l-1-3z"/><path d="M124 83l3 2-1 3h-4l-1-3z"/></g>
+  <ellipse cx="100" cy="78" rx="70" ry="22" fill="url(#gL8t)"/>
+  <path d="M44 86v40" stroke="#fff" stroke-opacity=".5" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="80" cy="69" rx="30" ry="6" fill="#fff" opacity=".42"/>
+ </g>
+</defs>
+<rect width="200" height="220" fill="#FFF3E0"/>
+<ellipse cx="100" cy="152" rx="78" ry="9" fill="#000" opacity=".07"/>
+<use href="#gL8k"/>
+<g mask="url(#gL8m)"><use href="#gL8k" transform="translate(0 300) scale(1 -1)"/></g>
+</svg></div><div data-t="冷凍宅配盒" data-by="yizhen_chz" data-tags="宅配・保冷" data-p="NT$180／滿 4 盒免運" data-f=""><svg viewBox="0 0 200 220" role="img" aria-label="冷凍宅配盒"><defs><linearGradient id="BXa" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#DDE6EC"/></linearGradient><linearGradient id="BXf" x1="0" y1="150" x2="0" y2="214" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="BXm"><rect y="150" width="200" height="70" fill="url(#BXf)"/></mask><g id="BXk"><path d="M40 70l60-22 60 22v80l-60 22-60-22z" fill="url(#BXa)" stroke="#AEBBC6"/><path d="M40 70l60 22 60-22M100 92v80" stroke="#AEBBC6" fill="none"/><path d="M40 70l60 22v80l-60-22z" fill="#EEF3F6"/><path d="M58 96l26 9v22l-26-9z" fill="#7AB800"/><text x="62" y="114" font-family="Nunito,sans-serif" font-weight="900" font-size="9" fill="#fff" transform="skewY(19 62 114)">chiizr</text><path d="M118 100l30-11v14l-30 11z" fill="#1E7FD6"/><path d="M60 58l60-22" stroke="#fff" stroke-width="4" opacity=".7" stroke-linecap="round"/></g></defs><rect width="200" height="220" fill="#E8F1F8"/><ellipse cx="100" cy="174" rx="70" ry="8" fill="#000" opacity=".07"/><use href="#BXk"/><g mask="url(#BXm)"><use href="#BXk" transform="translate(0 344) scale(1 -1)"/></g></svg></div></template><noscript><div class="page" style="padding:14px 24px;border-top:1px solid #C9D3DC"><p>沒有 JavaScript 時縮圖仍可看，點開大圖與今天的推數需要 JavaScript。價目：原味 NT$420、其餘口味 NT$480（6 吋），冷凍宅配 NT$180、滿 4 盒免運。</p></div></noscript>
+<script>
+/* chiizr 共用腳本：資料、motion-library 包裝、黃色淡出、typed attr() fallback、Ajax 換頁、popover fallback */
+var CZ=window.CZ={};
+(function(){
+var d=document;
+CZ.$=function(s,r){return (r||d).querySelector(s);};
+CZ.$$=function(s,r){return Array.prototype.slice.call((r||d).querySelectorAll(s));};
+CZ.SPRING=(window.CSS&&CSS.supports&&CSS.supports('transition-timing-function','linear(0,1)'))?'linear(0,.18 6%,.56 14%,1.05 26%,1.16 32%,1.12 38%,.98 50%,.96 56%,1.01 70%,1)':'cubic-bezier(.34,1.56,.64,1)';
+CZ.RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+CZ.get=function(k,def){try{var v=localStorage.getItem(k);return v==null?def:JSON.parse(v);}catch(e){return def;}};
+CZ.set=function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+CZ.fnv=function(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;};
+CZ.rng=function(seed){var a=seed>>>0||1;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};};
+CZ.today=function(){var n=new Date();return n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate();};
+CZ.esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+
+/* ---------- 資料 ---------- */
+CZ.THRESH=120;
+CZ.FLAVORS=[
+ {id:'hojicha',name:'焙茶重乳酪',short:'焙茶',top:'#8A5A3B',note:'鹿港焙茶粉拌進乳酪，表面再篩一層，苦得剛好。',tags:['焙茶','不甜','大人味']},
+ {id:'goma',name:'芝麻黑糖',short:'芝麻',top:'#3B3532',note:'北港黑麻醬＋沖繩黑糖，底層換成芝麻餅乾。',tags:['芝麻','黑糖','濃']},
+ {id:'longan',name:'龍眼蜜桂圓',short:'桂圓',top:'#9C5A2A',note:'東山龍眼乾泡米酒一夜，蜂蜜是同一個蜂農。',tags:['桂圓','冬天','蜂蜜']},
+ {id:'mango',name:'愛文芒果',short:'芒果',top:'#FFB21F',note:'只在六到八月；枋山愛文打成果泥鋪頂。',tags:['芒果','夏天','水果']},
+ {id:'matcha',name:'抹茶紅豆',short:'抹茶',top:'#6D9B2E',note:'萬丹紅豆蜜一整晚，抹茶用的是製菓等級。',tags:['抹茶','紅豆']},
+ {id:'earl',name:'伯爵奶茶',short:'伯爵',top:'#B48A6A',note:'伯爵茶葉煮進鮮奶油，香味在第二口才出來。',tags:['伯爵','奶茶','香']},
+ {id:'yolk',name:'鹹蛋黃',short:'蛋黃',top:'#F2A93B',note:'中秋限定提案；鹹蛋黃烤過壓碎拌進去，鹹甜。',tags:['鹹蛋黃','中秋','鹹甜']},
+ {id:'roselle',name:'洛神莓果',short:'洛神',top:'#C2185B',note:'台東洛神花醬＋蔓越莓，酸的那一派。',tags:['洛神','酸','莓果']}
+];
+CZ.byId={};CZ.FLAVORS.forEach(function(f){CZ.byId[f.id]=f;});
+CZ.PEOPLE=['mochi_ann','板橋小芸','cheesecake_lin','ohmygoma','阿翰在加班','yuyu0412','pudding_kuo','熊熊愛吃甜','dora_tw','小麥','jiunjiun','lazycat88','志明不吃辣','hsin2006','rainy_bq','阿嬤的孫子','kaoru_7','奶油控','teatime_yu','老三'];
+CZ.PAL=['#7AB800','#FF7A00','#1E7FD6','#FF3D8B','#A6DA34','#FFB45C'];
+/* 每天的起始推數（決定性：同一天人人看到同一面牆） */
+CZ.baseVotes=function(seed){var r=CZ.rng(seed||CZ.today()),o={};CZ.FLAVORS.forEach(function(f,i){o[f.id]=48+Math.floor(r()*58);});
+ var hi=CZ.FLAVORS[Math.floor(r()*8)].id;o[hi]=104+Math.floor(r()*8);return o;};
+CZ.avatar=function(name){var h=CZ.fnv(name),c=CZ.PAL[h%6],e=(h>>3)%3;
+ return '<svg class="av" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="ag'+(h%999)+'" x1="0" y1="0" x2="0" y2="1"><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect width="24" height="24" fill="'+c+'"/>'+
+ (e===0?'<circle cx="8.5" cy="11" r="1.6" fill="#222"/><circle cx="15.5" cy="11" r="1.6" fill="#222"/><path d="M8 16q4 3 8 0" stroke="#222" stroke-width="1.6" fill="none" stroke-linecap="round"/>':e===1?'<rect x="6.5" y="9.5" width="4" height="2.4" rx="1.2" fill="#222"/><rect x="13.5" y="9.5" width="4" height="2.4" rx="1.2" fill="#222"/><circle cx="12" cy="16.5" r="1.7" fill="#222"/>':'<path d="M6.5 11q2-2.4 4 0M13.5 11q2-2.4 4 0" stroke="#222" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M9 15.5h6" stroke="#222" stroke-width="1.6" stroke-linecap="round"/>')+
+ '<rect width="24" height="24" fill="url(#ag'+(h%999)+')"/></svg>';};
+CZ.ago=function(s){return s<8?'剛剛':s<60?Math.round(s)+' 秒前':s<3600?Math.round(s/60)+' 分鐘前':s<86400?Math.round(s/3600)+' 小時前':Math.round(s/86400)+' 天前';};
+
+/* ---------- typed attr()：支援就只寫 data-*，不支援由 JS 代算 ---------- */
+CZ.attrOK=!!(window.CSS&&CSS.supports&&CSS.supports('width','calc(attr(data-n type(<number>), 0) * 1px)'));
+d.documentElement.classList.add(CZ.attrOK?'attr-typed':'attr-js');
+CZ.setN=function(el,n){el.setAttribute('data-n',n);if(!CZ.attrOK)el.style.fontSize=Math.max(11,Math.min(46,9+n*.26))+'px';};
+CZ.setV=function(el,v){el.setAttribute('data-v',v);if(!CZ.attrOK)el.style.width=Math.max(0,Math.min(100,v/CZ.THRESH*100))+'%';};
+
+/* ---------- 黃色淡出 Yellow Fade Technique（37signals, 2004） ---------- */
+CZ.yft=function(el){if(!el)return;el.classList.remove('yft');void el.offsetWidth;el.classList.add('yft');
+ clearTimeout(el._yft);el._yft=setTimeout(function(){el.classList.remove('yft');},1700);};
+
+/* ---------- motion-library 包裝（同 sites/ka-to 的 KT.ml） ----------
+   等字型載入才掛；離屏 destroy、回到視窗重掛；once＝一次性文字元件進視窗播一次、之後重掛停在最後一格；
+   canvas aria-hidden；容器內 .ml-fb 為原 HTML 標題，掛載成功才視覺隱藏；reduced-motion：背景 seek(.35)、文字 seek(1)。 */
+CZ.ml=function(el,o){var cx=null;try{cx=d.createElement('canvas').getContext('2d');}catch(_){}if(!el||!window.MotionLib||!cx)return null;
+ var m=null,done=false,vis=false,api={el:el,replay:function(n){if(n)o=Object.assign({},o,n);done=false;if(m){m.destroy();m=null;}if(vis)mount();},kill:function(){unmount();}};
+ function mount(){if(m)return;m=MotionLib.mount(el,Object.assign({},o,{paused:true}));m.canvas.setAttribute('aria-hidden','true');m.canvas.removeAttribute('role');el.classList.add('ml-live');
+  if(CZ.RM)return m.seek(o.once?1:.35);if(o.once&&done)return m.seek(1);m.replay();if(o.once)done=true;}
+ function unmount(){if(m){m.destroy();m=null;el.classList.remove('ml-live');}}
+ api.unmount=unmount;
+ var go=function(){if(o.manual)return;if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){vis=e.isIntersecting;vis?mount():unmount();});},{rootMargin:'60px'}).observe(el);else{vis=true;mount();}};
+ api.show=function(n){if(n)o=Object.assign({},o,n);done=false;if(m){m.destroy();m=null;}vis=true;mount();};
+ (d.fonts&&d.fonts.ready?d.fonts.ready:Promise.resolve()).then(go);
+ return api;};
+
+/* ---------- popover fallback ---------- */
+CZ.popOK=typeof HTMLElement!=='undefined'&&HTMLElement.prototype.hasOwnProperty('popover');
+if(!CZ.popOK)d.documentElement.classList.add('nopop');
+CZ.open=function(el){if(!el)return;if(CZ.popOK){try{el.showPopover();}catch(e){}return;}
+ el.classList.add('open');var s=d.createElement('div');s.className='scrim';s.onclick=function(){CZ.close(el);};d.body.appendChild(s);el._scrim=s;};
+CZ.close=function(el){if(!el)return;if(CZ.popOK){try{el.hidePopover();}catch(e){}return;}el.classList.remove('open');if(el._scrim){el._scrim.remove();el._scrim=null;}};
+if(!CZ.popOK){d.addEventListener('click',function(e){var b=e.target.closest('[popovertarget]');if(!b)return;var t=d.getElementById(b.getAttribute('popovertarget'));if(!t)return;e.preventDefault();
+  (b.getAttribute('popovertargetaction')==='hide'||t.classList.contains('open'))?CZ.close(t):CZ.open(t);});
+ d.addEventListener('keydown',function(e){if(e.key==='Escape')CZ.$$('[popover].open').forEach(CZ.close);});}
+
+/* ---------- 加入揪團（暱稱） ---------- */
+CZ.nick=function(){return CZ.get('cz-nick','');};
+d.addEventListener('submit',function(e){var f=e.target;if(!f.matches('#join-form'))return;e.preventDefault();
+ var ni=f.querySelector('[name=nick]'),v=(ni.value||'').trim().slice(0,16);if(!v){ni.focus();return;}CZ.set('cz-nick',v);
+ CZ.$$('[data-nick]').forEach(function(n){n.textContent=v;CZ.yft(n);});CZ.$$('.who-guest').forEach(function(n){n.hidden=true;});CZ.$$('.who-member').forEach(function(n){n.hidden=false;});
+ var p=CZ.$('#join');CZ.close(p);if(CZ.onJoin)CZ.onJoin(v);});
+d.addEventListener('DOMContentLoaded',function(){var n=CZ.nick();if(n){CZ.$$('[data-nick]').forEach(function(x){x.textContent=n;});CZ.$$('.who-guest').forEach(function(x){x.hidden=true;});CZ.$$('.who-member').forEach(function(x){x.hidden=false;});}});
+
+/* ---------- Ajax 式換頁：主內容 BlindUp → 下一頁 BlindDown ---------- */
+d.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||a.target)return;
+ var h=a.getAttribute('href');if(!/^[a-z-]+\.html(\?[^#]*)?$/.test(h))return;if(CZ.RM)return;
+ e.preventDefault();try{sessionStorage.setItem('cz-arrive','1');}catch(_){}
+ d.documentElement.classList.add('leaving');setTimeout(function(){location.href=h;},280);});
+addEventListener('pageshow',function(e){if(e.persisted)d.documentElement.classList.remove('leaving');});
+setTimeout(function(){d.documentElement.classList.remove('arriving');},1200);
+})();
+</script>
+<script>
+
+(function(){
+var $=CZ.$,lb=$('#lb'),box=$('#lbbox'),stage=$('#stage'),cap=$('#cap'),src=$('#shots').content.children,N=src.length,cur=0;
+var votes=CZ.baseVotes();
+stage.innerHTML='<div class="nav"><button type="button" id="pv" aria-label="上一張">‹</button><button type="button" id="nx" aria-label="下一張">›</button></div>';
+function show(i,anim){cur=(i+N)%N;var s=src[cur],old=stage.querySelector('svg');if(old)old.remove();
+ var c=s.querySelector('svg').cloneNode(true);stage.insertBefore(c,stage.firstChild);
+ var f=s.getAttribute('data-f'),v=f&&votes[f]?' ・ 今天 '+votes[f]+' 推':'';
+ cap.innerHTML='<span><b>'+s.getAttribute('data-t')+'</b>by '+s.getAttribute('data-by')+' ・ '+s.getAttribute('data-tags')+v+'<br>'+s.getAttribute('data-p')+' ・ 第 '+(cur+1)+' 張，共 '+N+' 張'+(f&&f!=='plain'?' ・ <a href="jiu.html#f-'+f+'">去推</a>':'')+'</span>';
+ if(anim&&!CZ.RM&&c.animate)c.animate([{opacity:0},{opacity:1}],{duration:280,easing:'ease-out'});}
+/* Lightbox 2 式開箱：先長寬、再長高、最後圖片淡入 */
+function grow(){if(CZ.RM||!box.animate)return;var w=box.offsetWidth,h=box.offsetHeight;stage.style.opacity=0;cap.style.opacity=0;
+ var a=box.animate([{width:'140px',height:'140px'},{width:w+'px',height:'140px',offset:.45},{width:w+'px',height:h+'px'}],{duration:620,easing:'ease-in-out'});
+ a.onfinish=function(){stage.animate([{opacity:0},{opacity:1}],{duration:260,fill:'forwards'}).onfinish=function(){stage.style.opacity='';};cap.style.opacity='';cap.animate([{transform:'translateY(-8px)',opacity:0},{transform:'none',opacity:1}],{duration:360,easing:CZ.SPRING});};}
+$('#stream').addEventListener('click',function(e){var t=e.target.closest('.thumb');if(!t)return;show(+t.getAttribute('data-i'),false);if(!CZ.popOK)setTimeout(grow,0);});
+lb.addEventListener('toggle',function(e){if(e.newState==='open')grow();});
+stage.addEventListener('click',function(e){if(e.target.id==='pv')show(cur-1,true);if(e.target.id==='nx')show(cur+1,true);});
+document.addEventListener('keydown',function(e){var open=CZ.popOK?lb.matches(':popover-open'):lb.classList.contains('open');if(!open)return;if(e.key==='ArrowLeft')show(cur-1,true);if(e.key==='ArrowRight')show(cur+1,true);});
+var pl=$('#pl');pl.innerHTML='<tr><td>原味重乳酪</td><td class="note">每週都有</td><td>NT$420</td></tr>'+CZ.FLAVORS.map(function(f){return '<tr><td><a href="jiu.html#f-'+f.id+'">'+f.name+'</a></td><td><span data-v>'+votes[f.id]+'</span> / '+CZ.THRESH+'</td><td>NT$480</td></tr>';}).join('');
+var mini=$('#mini');CZ.FLAVORS.forEach(function(f){var a=document.createElement('a');a.href='jiu.html#f-'+f.id;a.textContent=f.short;CZ.setN(a,Math.round(votes[f.id]*.55));mini.appendChild(a);mini.appendChild(document.createTextNode(' '));});
+CZ.ml($('#ml-bubble'),{id:'SHP-19',colors:{primary:'#1E7FD6',secondary:'#7AB800',bg:'#FFFFFF'},duration:2.4,loop:true,intensity:1.1,seed:9});
+})();
+</script>
+</body>
+</html>

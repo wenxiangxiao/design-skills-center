@@ -187,3 +187,15 @@ lc = cv[o.far ? 'keyFar' : 'key']; lc.lineWidth = o.far ? 1.5 : (o.z < 2 ? 2.6 :
 - 片元著色器：每像素約 12 次紋理讀取＋約 30 次 value-noise；DPR 上限 1.5（hanmoto 1.25）、離開視窗（IntersectionObserver）或分頁隱藏即停 rAF。
 - 驗證方式：建置環境沒有可用的瀏覽器／GPU，著色器以 `@shaderfrog/glsl-parser` 檢查語法，再用 `glsl-transpiler` 轉成 JS、在 CPU 上逐像素實際渲染六態與〈你來摺〉壓力模式並目視比對；頁面邏輯以 jsdom＋WebGL 替身跑完整操作流程（含無 WebGL 與 reduced-motion 兩種模式）。**實機 GPU 幀時間尚未量測**，上線後請以 DevTools Performance 確認主要動畫 60fps。
 - 注意：`smoothstep(e0,e1,x)` 在 GLSL 中 e0≥e1 為未定義行為，反向要寫 `1.-smoothstep(e1,e0,x)`。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-20` | Diagonal Lines | primary #5C6680／secondary #2C4F8C／bg #F1E8D6、duration 9、density 3、intensity 0.5、seed 1918 | ambient：雨版：一條和紙底上斜向平移的細雨線帶，只用直線與平色、無發光無漸層，延續首頁「九份的雨夜」而不搶版畫本體 |
+| toro.html | `TXT-B-17` | Water Reflection | primary #D2462E／secondary #2C4F8C／bg #F1E8D6、text 雨燈、duration 2.2、aspectRatio 16:9、seed 5（一次性，進視窗播放、點擊重播） | input：店名浮出後在濕石階般的水線下留一道晃動倒影——特徵③光與倒影是「留下的紙」而非發光，燈籠紅只用在水線 |
+| hanmoto.html | `TXT-A-30` | Reveal Outline | primary #3D5A80／secondary #2B2622／bg #F1E8D6、text 主版、duration 1.8、aspectRatio 16:9、seed 11（一次性，進視窗播放） | input：先用遠線藍描出字的輪廓（校合摺只摺主版），再摺上墨色——把版元頁講的「主版線→色版」工序演一次 |
+| hanmoto.html | `BG-B-20` | Wave Lines | primary #4E7A6A／secondary #3F6E9A／bg #F1E8D6、duration 12、density 1、intensity 0.8、seed 1926、scroll true（捲動驅動） | input：山色版到海色版一層層平色疊摺、半透明交疊處自然變深＝乘法疊色的版序；隨捲動推進，像吉田博同版換色 |
+| suri.html | `TXT-A-02` | Letter Sequence | primary #C23B26／secondary #2C4F8C／bg #F1E8D6、text 摺一枚、duration 1.6、aspectRatio 16:9、seed 3（一次性，進視窗播放、點擊重播） | input：「摺一枚」逐字由下往上浮出——像摺師一枚一枚把色版摺上去，字一個一個出現在紙上；只動位移與不透明度，紙色底、無發光無漸層，貼合本頁的工序體驗。 |

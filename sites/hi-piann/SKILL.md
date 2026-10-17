@@ -188,3 +188,14 @@ const luhn=s=>{let t=0,d=true;for(let i=s.length-1;i>=0;i--){let n=+s[i];if(d){n
 - 單頁大小：index 54KB、piann 49KB、kuan 53KB、lai 50KB（含 inline CSS/JS，遠低於 350KB）；logo.svg 20KB。
 - 一張全細節券面的幾何生成：約 30–45ms（Node），輸出約 0.77MB path 字串由瀏覽器一次 `innerHTML` 解析；餅目頁四張券改 `lite` 參數（底紋間距 6、玫瑰 ≤20 條、去掉第二層轉盤）並以 IntersectionObserver 延後到捲入前 300px 才生成，首屏只算一張。
 - 動畫只動 `transform`／`clip-path`／`gradientTransform` 一個屬性；轉盤用 CSS `animation`（合成器執行），游標彩虹在 rAF 內寫屬性、收斂後停 rAF。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-11` | Parallel Curves | primary #EE8C6A／secondary #B79AD6／bg #F4EFE6、duration 10、density 1.2、intensity 0.8、seed 1987 | ambient：十幾條同寬 2.4px 的柿橘與藤紫細波線慢慢起伏——就是券面底下那層彩虹底紋（iris underprint）在呼吸；彩虹只出現在細線、不填色，符合「彩虹只在底紋」。 |
+| kuan.html | `TXT-A-28` | Slot | primary #C8232C／secondary #3A2347／bg #F4EFE6、text No.000318、duration 1.6、aspectRatio 16:9、seed 318（一次性，進視窗播放、點擊重播） | input：號碼機的字輪一格一格轉、由左到右依序停定成流水號——「印你們的券」這頁產出的就是一本有號碼的券簿；滾動中的字用號碼紅、停定後轉墨色，紅色只給號碼。 |
+| lai.html | `TXT-B-13` | Scramble Decode | primary #6A4C7A／secondary #3A2347／bg #F4EFE6、text 憑券兌換、duration 1.4、aspectRatio 16:9、seed 7（一次性，進視窗播放、點擊重播） | input：「憑券兌換」先以亂碼閃動、由左至右逐字解出——像櫃檯核對券號與騎縫；淡藤紫亂碼、墨色定字，沒有發光沒有漸層。 |
+| piann.html | `BG-B-24` | Crosshatch | primary #3A2347／secondary #6A4C7A／bg #F4EFE6、duration 8、density 1.6、intensity 0.8、seed 5、scroll true（捲動驅動） | input：兩組同寬的交叉排線隨捲動相對滑動——凹版線雕「濃淡只靠疏密」的雕線語法；捲動即推動雕刀，只用凹版藤紫兩階。 |

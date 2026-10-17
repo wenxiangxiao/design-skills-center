@@ -32,6 +32,18 @@
 
 **潛像驗券片 decoder-film latent image**：全館第一個把證券防偽的「潛像／加密線網」做成可操作介面——潛像帶內外是同一種 3 單位線、相位錯開半格的 `userSpaceOnUse` 線網（以 `<mask>` 的字形分區），肉眼看是一塊均勻灰；驗券片是一片跟著指標移動、自帶同頻線網的膠片（`mix-blend-mode:multiply`），疊上去時字形外是「線疊線」、字形內是「線填縫」，字就浮出來；膠片每上下移半格，正負像翻轉。〈印你們的券〉的潛像字是兩位新人的姓，玫瑰章由名字與日期的 FNV-1a 種子決定，所以每一對新人的券都是獨一無二的版。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-11` | Parallel Curves | primary #EE8C6A／secondary #B79AD6／bg #F4EFE6、duration 10、density 1.2、intensity 0.8、seed 1987 | ambient：十幾條同寬 2.4px 的柿橘與藤紫細波線慢慢起伏——就是券面底下那層彩虹底紋（iris underprint）在呼吸；彩虹只出現在細線、不填色，符合「彩虹只在底紋」。 |
+| kuan.html | `TXT-A-28` | Slot | primary #C8232C／secondary #3A2347／bg #F4EFE6、text No.000318、duration 1.6、aspectRatio 16:9、seed 318（一次性，進視窗播放、點擊重播） | input：號碼機的字輪一格一格轉、由左到右依序停定成流水號——「印你們的券」這頁產出的就是一本有號碼的券簿；滾動中的字用號碼紅、停定後轉墨色，紅色只給號碼。 |
+| lai.html | `TXT-B-13` | Scramble Decode | primary #6A4C7A／secondary #3A2347／bg #F4EFE6、text 憑券兌換、duration 1.4、aspectRatio 16:9、seed 7（一次性，進視窗播放、點擊重播） | input：「憑券兌換」先以亂碼閃動、由左至右逐字解出——像櫃檯核對券號與騎縫；淡藤紫亂碼、墨色定字，沒有發光沒有漸層。 |
+| piann.html | `BG-B-24` | Crosshatch | primary #3A2347／secondary #6A4C7A／bg #F4EFE6、duration 8、density 1.6、intensity 0.8、seed 5、scroll true（捲動驅動） | input：兩組同寬的交叉排線隨捲動相對滑動——凹版線雕「濃淡只靠疏密」的雕線語法；捲動即推動雕刀，只用凹版藤紫兩階。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-16，排程 Agent 自動執行）。店名、人物、門牌、電話、價格與「萬益證券印刷所」皆為虛構示意；提貨券為商家禮券示意，不仿任何真實貨幣。台中訂婚分送大餅、喜餅業者以提貨券代替整盒禮餅為真實習俗；扭索紋、彩虹印刷、凹版線雕、號碼機與潛像為真實證券印刷工藝。所有圖像皆由瀏覽器以數學曲線即時生成，無外部圖片。*

@@ -252,3 +252,14 @@ function stroke(x1,y1,cx,cy,x2,y2,w){ let nx=-(y2-y1),ny=x2-x1; const L=Math.hyp
 - `ART.focus()` 150 條集中線：平均 0.14ms／次（Node 22，100 次平均）；12 張封面 SVG 字串生成 0.012ms。首屏 JS 只做 IO 註冊與一次集中線計算，遠低於 100ms 預算。
 - 動畫只動 `transform`／`translate`／`clip-path`／`opacity`；集中線放在**獨立的覆蓋 SVG**（`.fx`，`will-change:transform`），每 150ms 換 path 時不會讓下方的網點濾鏡重新計算。濾鏡群組本身從不動畫。
 - 網屏 PNG：16×16 與 6×6 各一張，base64 共約 0.5KB。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-34` | Halftone Boom | primary #1B1A1C／secondary #3B3936／bg #ECE4D0、duration 6、density 1.3、intensity 1、seed 1965 | ambient：網點從中心一圈圈爆開——劇畫的「集中線」改用網點紙表現，灰階全靠點的大小，不用透明度；正好接在奧付上方像最後一格的效果音。 |
+| shelf.html | `BG-B-06` | Halftone Rings | primary #1B1A1C／secondary #3B3936／bg #ECE4D0、duration 7、density 1.2、intensity 1、seed 61 | ambient：同心網點環緩緩外推——一張會動的網點紙（screentone），所有灰都是墨點疏密；書架頁底像撕下一條網點紙壓在書背下。 |
+| story.html | `TXT-B-10` | Stop Motion | primary #D7372B／secondary #1B1A1C／bg #ECE4D0、text 《一刀》第一話、duration 2.2、aspectRatio 16:9、seed 1966（一次性，進視窗播放、點擊重播） | input：書名一格一格、帶逐格抖動跳上紙面——12 格定格，像貸本劇畫的逐格分鏡；完全是 steps，沒有平滑晃動也沒有淡入。 |
+| visit.html | `TXT-A-27` | Typewriter | primary #D7372B／secondary #1B1A1C／bg #CFE1E3、text 還書日 10/24、duration 1.6、aspectRatio 16:9、seed 24（一次性，進視窗播放、點擊重播） | input：還書日期一個字一個字打上借書卡、朱色游標方塊跟著走——租書店櫃檯在卡上蓋日期的那一下；朱色只占一個小方塊。 |

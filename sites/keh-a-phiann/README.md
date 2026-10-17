@@ -48,6 +48,18 @@
 2. **逐像素 pick buffer 選位**：渲染時同步寫出每個像素屬於哪一格，讓「在一張照片蒙太奇上點一格」成為真正可用的預約介面；滑鼠、觸控、方向鍵三種輸入等價。
 3. **紀念碑生長**：連續紀念碑在載入時從近景沿地平線長出去，穿過山頭時把山切開。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `TXT-B-30` | Checker Words | primary #141414／secondary #7E796F／bg #FDFDFB、text 格仔坪、duration 1.6、aspectRatio 16:9、seed 384（一次性，進視窗播放、點擊重播） | input：黑方格一格一格長滿畫面、店名從格子裡被挖出來——連續紀念碑就是一張無盡的等向方格，字只是格子被拿掉的地方；方格不旋轉、不縮放格距、只有黑白。 |
+| superficie.html | `BG-A-08` | Grid Cursor | primary #BFD9D6／secondary #D6402A／bg #F6F6F1、duration 8、density 1、intensity 1、seed 7 | ambient：一個游標在固定格距的方格上一格一格跳、停住的那格亮紅——「選一格」頁的動作本身；只動格子的填色，格線不縮放不重排，紅色永遠只有一格。 |
+| istogrammi.html | `BG-B-33` | Minimal Blocks | primary #141414／secondary #C9C3B6／bg #F6F6F1、duration 6、intensity 1、aspectRatio 1:1、seed 33 | ambient：三個實心方塊沿正方格的四個角輪流換位——Superstudio「建築直方圖」的方塊單元在網格上被重新配置；只有直角方塊與等距位移。 |
+| atti.html | `TXT-A-28` | Slot | primary #7E796F／secondary #141414／bg #FDFDFB、text No.0384、duration 1.6、aspectRatio 16:9、seed 384（一次性，進視窗播放、點擊重播） | input：格位證號像打號機字輪一格一格轉停——384 公尺平台上每一格都有自己的號碼；灰色滾動、墨色定字，不彈跳不淡入。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-16，排程 Agent 自動執行）。場名、人物、地址、電話與價格皆為虛構示意；Superstudio（1966 佛羅倫斯成立、1978 解散）、〈連續紀念碑〉1969、Quaderna 1970、MoMA〈Italy: The New Domestic Landscape〉1972 與 1999 年 921 集集大地震為真實參照。所有圖像為程式即時算繪的原創畫面，未複製任何 Superstudio 拼貼。*

@@ -47,6 +47,18 @@
 2. **SVG 濾鏡即時 AM 網點化**：全館第一個以單一 SVG 濾鏡（建置期產生的 45° 點函數網屏 PNG＋feTile＋arithmetic 合成＋閾值）把任何灰階即時轉成「點隨灰階大小變化」的網點——不是預畫圖樣、不是色階量化；換一個漸層就換一張網點，封面與跨頁共用同一支濾鏡。
 3. **集中線消失點追游標**：集中線以三組種子逐格沸騰，消失點跟著游標走，放在獨立覆蓋層，不觸發網點濾鏡重算。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-34` | Halftone Boom | primary #1B1A1C／secondary #3B3936／bg #ECE4D0、duration 6、density 1.3、intensity 1、seed 1965 | ambient：網點從中心一圈圈爆開——劇畫的「集中線」改用網點紙表現，灰階全靠點的大小，不用透明度；正好接在奧付上方像最後一格的效果音。 |
+| shelf.html | `BG-B-06` | Halftone Rings | primary #1B1A1C／secondary #3B3936／bg #ECE4D0、duration 7、density 1.2、intensity 1、seed 61 | ambient：同心網點環緩緩外推——一張會動的網點紙（screentone），所有灰都是墨點疏密；書架頁底像撕下一條網點紙壓在書背下。 |
+| story.html | `TXT-B-10` | Stop Motion | primary #D7372B／secondary #1B1A1C／bg #ECE4D0、text 《一刀》第一話、duration 2.2、aspectRatio 16:9、seed 1966（一次性，進視窗播放、點擊重播） | input：書名一格一格、帶逐格抖動跳上紙面——12 格定格，像貸本劇畫的逐格分鏡；完全是 steps，沒有平滑晃動也沒有淡入。 |
+| visit.html | `TXT-A-27` | Typewriter | primary #D7372B／secondary #1B1A1C／bg #CFE1E3、text 還書日 10/24、duration 1.6、aspectRatio 16:9、seed 24（一次性，進視窗播放、點擊重播） | input：還書日期一個字一個字打上借書卡、朱色游標方塊跟著走——租書店櫃檯在卡上蓋日期的那一下；朱色只占一個小方塊。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-16，排程 Agent 自動執行）。店名、人物、門牌、電話、價格、作品與借閱紀錄皆為虛構示意；大阪貸本劇畫（1957 年起）、臺灣漫畫審查制度（1966 年起由國立編譯館審查，1987 年後廢止）、1994 年 6 月 12 日舊版翻譯本寬限期、捷運三和國中站為真實背景。所有圖像為程式繪製的原創畫面，未複製任何既有漫畫角色、封面或標題字。*

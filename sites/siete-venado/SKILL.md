@@ -260,3 +260,14 @@ Logo 是創辦人的日名「7 鹿」：七顆輪色點＋鹿頭符，右邊一�
 - Node 量測：260 格曆表字串＋一次 `nextOf` 0.65 ms；婚約頁完整重繪 ×10 0.96 ms。
 - 動畫只動 `opacity` 與 `transform`（泡沫、摺頁條），無 layout thrashing；全部有 `prefers-reduced-motion` 降級。
 - 外部資源只有 Google Fonts；零圖片、零音檔。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-38` | Zigzag Energy | primary #B02A1F／secondary #1C1612／bg #EFE6D2、duration 8、density 1、intensity 1、seed 7 | ambient：胭脂紅與碳黑的鋸齒帶左右交錯推移——古抄本邊框的階梯回紋（xicalcoliuhqui）帶；斜接角、恆寬線、零透明。 |
+| naming.html | `TXT-A-35` | Stripe Mask | primary #B02A1F／secondary #1C1612／bg #EFE6D2、text 取日名、duration 1.4、aspectRatio 16:9、seed 7（一次性，進視窗播放、點擊重播） | input：「取日名」被十四道硬邊直條一條一條印上、紅色刮線走過——像在石膏底上一格一格塗色；只有有色／無色，沒有半透明。 |
+| twenty.html | `TXT-B-16` | Circle Text | primary #3B8A8F／secondary #1C1612／bg #EFE6D2、text 二十日符、duration 1.8、aspectRatio 16:9、seed 20（一次性，進視窗播放、點擊重播） | input：四個字先排成一圈、再展開成一行——260 日曆的日符本來就是繞著圈數的；開頭有約 0.1 秒的出現，其餘只有位移與旋轉。 |
+| visit.html | `BG-B-02` | Halftone Wave | primary #1C1612／secondary #B02A1F／bg #EFE6D2、duration 9、density 1、intensity 0.9、seed 13 | ambient：一整片黑點隨波起伏變大變小——古抄本的數字就是點（1–13 個圓點），這裡把點數排成一片會呼吸的田；實心圓、零透明。 |

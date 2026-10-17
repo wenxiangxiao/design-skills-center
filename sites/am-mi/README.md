@@ -40,6 +40,18 @@
 
 **分次腐蝕的時序繪圖（staged-bite drawing）**：全館第一個讓「筆畫的明度由它在第幾輪被畫下決定」的繪圖工具——線沒有筆刷粗細或顏色參數，只有它經歷過幾次浸酸；越早畫的線被咬越多次、越黑也越寬（側蝕），最後一輪畫完若沒有浸酸就印不出來。工作台上的線也依已受咬次數即時變色，讓「時間＝深度」這條銅版的核心規則成為可操作的介面；同時是全館第一個以捲動驅動「左右相反的銅版 → 正向的印張」的壓印轉換。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-29` | Topo Lines | primary #231A14／secondary #B26A43／bg #EEE5D1、duration 12、density 1.2、intensity 0.8、seed 1996 | ambient：兩座山的等高線一圈圈緩慢起伏——針在防蝕底上刮出的等寬細線，像夜裡樟湖步道的山形；只有線，濃淡靠線距，第五圈用銅色當版痕。 |
+| etch.html | `BG-B-24` | Crosshatch | primary #231A14／secondary #4A3B2E／bg #EEE5D1、duration 8、density 1.8、intensity 0.7、seed 3、scroll true（捲動驅動） | input：兩組交叉排線隨捲動相對滑動——蝕刻用交叉排線堆暗部的語法；捲動越深、線越密集地交錯，像版子在酸裡一次次加深。 |
+| eyes.html | `BG-A-20` | Diagonal Lines | primary #4A3B2E／secondary #231A14／bg #E5D9BF、duration 10、density 1.4、intensity 0.6、seed 8 | ambient：斜向細線緩慢平移——乾刻針順著同一方向一路刮下的斜線調子，也像紅光手電筒照到的夜雨；版痕內紙色底、墨線，零漸層。 |
+| visit.html | `TXT-B-13` | Scramble Decode | primary #B26A43／secondary #231A14／bg #EEE5D1、text 暗暝行、duration 1.6、aspectRatio 16:9、seed 96（一次性，進視窗播放、點擊重播） | input：店名先以銅色亂碼閃動、再由左至右一字一字定成墨字——夜裡的形一點一點被認出來；元件用 600 字重 mono，不超過本站 600 上限，無淡入無發光。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-17，排程 Agent 自動執行）。社名、人物、地址、電話與價格皆為虛構示意；Goya《Los Caprichos》1799 年於馬德里醒悟街一號的利口酒與香水店販售（320 里爾、300 套售出 27 套）、Calcografía Nacional、各物種學名與季節為真實參照。所有版畫皆為程式即時蝕刻算繪的原創圖像，未複製任何哥雅作品。*

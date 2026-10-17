@@ -204,3 +204,14 @@ ink = 1 - (1-ink)*(1-film);
 - 工具壓印 1000×720（含擦版圖雙線性放大與鏡像）：約 200 ms，於滾筒動畫 1.3 s 內完成。
 - 首屏主執行緒 JS：建立 Blob worker、量測一次尺寸、兩次 postMessage，<10 ms；壓印與擦版動畫只動 transform／clip-path。
 - 單頁大小：index 約 51 KB、eyes 約 45 KB、etch 約 56 KB、visit 約 24 KB（全部 inline，遠低於 350 KB）。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-29` | Topo Lines | primary #231A14／secondary #B26A43／bg #EEE5D1、duration 12、density 1.2、intensity 0.8、seed 1996 | ambient：兩座山的等高線一圈圈緩慢起伏——針在防蝕底上刮出的等寬細線，像夜裡樟湖步道的山形；只有線，濃淡靠線距，第五圈用銅色當版痕。 |
+| etch.html | `BG-B-24` | Crosshatch | primary #231A14／secondary #4A3B2E／bg #EEE5D1、duration 8、density 1.8、intensity 0.7、seed 3、scroll true（捲動驅動） | input：兩組交叉排線隨捲動相對滑動——蝕刻用交叉排線堆暗部的語法；捲動越深、線越密集地交錯，像版子在酸裡一次次加深。 |
+| eyes.html | `BG-A-20` | Diagonal Lines | primary #4A3B2E／secondary #231A14／bg #E5D9BF、duration 10、density 1.4、intensity 0.6、seed 8 | ambient：斜向細線緩慢平移——乾刻針順著同一方向一路刮下的斜線調子，也像紅光手電筒照到的夜雨；版痕內紙色底、墨線，零漸層。 |
+| visit.html | `TXT-B-13` | Scramble Decode | primary #B26A43／secondary #231A14／bg #EEE5D1、text 暗暝行、duration 1.6、aspectRatio 16:9、seed 96（一次性，進視窗播放、點擊重播） | input：店名先以銅色亂碼閃動、再由左至右一字一字定成墨字——夜裡的形一點一點被認出來；元件用 600 字重 mono，不超過本站 600 上限，無淡入無發光。 |

@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>九つ入 — 組一盒，封箱就是一張掛紙｜方圓菓子舖</title>
+<meta name="description" content="把九個菓子拖進桐箱，按下紅色的「封」，九格飛出箱子排成這一盒專屬的掛紙海報；網址即可分享同一盒。">
+<meta name="theme-color" content="#EFEAE0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D'0%200%2064%2064'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%3E%3Crect%20width%3D'64'%20height%3D'64'%20fill%3D'%2316140F'%2F%3E%3Cpath%20d%3D'M0%2064L0%2036A28%2028%200%200%201%2028%2064Z'%20fill%3D'%23EDB01F'%2F%3E%3Ccircle%20cx%3D'41'%20cy%3D'23'%20r%3D'15'%20fill%3D'%23D93A26'%2F%3E%3Cpath%20d%3D'M36%2064L64%2064L64%2036Z'%20fill%3D'%23EFEAE0'%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Noto+Serif+TC:wght@500;800&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@800&text=%E6%96%B9%E3%83%BB%E5%9C%93%E3%83%BB%E8%A7%92%E5%8D%81%E4%BA%8C%E6%9C%88%E4%BB%A4%E5%B0%81%E4%B9%9D%E3%81%A4%E5%85%A5&display=swap" rel="stylesheet">
+<script>/* motion-library 1.1.0 @eb4d70c 子集：BG-B-35, TXT-A-26, BG-B-33, TXT-B-30, SHP-09（tools/ml-embed.js 產生，勿手改） */
+
+(function (root) {
+'use strict';
+const TAU = Math.PI * 2;
+const cl = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const fr = v => v - Math.floor(v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => cl((p - a) / (b - a));
+const E = {
+l: t => t,
+oc: t => 1 - (1 - t) ** 3,
+oq: t => 1 - (1 - t) ** 4,
+ic: t => t * t * t,
+io: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+ob: t => { const a = 1.70158, b = a + 1; return 1 + b * (t - 1) ** 3 + a * (t - 1) ** 2; },
+el: t => t <= 0 ? 0 : t >= 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - .75) * TAU / 3) + 1,
+bo: t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+};
+const stg = (p, i, n, sp = .5) => { const o = n > 1 ? i / (n - 1) * sp : 0; return seg(p, o, o + 1 - sp); };
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const R = (c, salt) => { const r = rng(c.seed * 9973 + salt * 7919 + 17); r(); r(); return r; };
+
+/* ---------- color ---------- */
+function hex(h) { h = (h || '#000').replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const toHex = a => '#' + a.map(v => Math.round(cl(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => lerp(v, B[i], t))); };
+const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${cl(a)})`; };
+const lum = h => { const [r, g, b] = hex(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+const inkFor = bg => lum(bg) > .55 ? '#121418' : '#F4F6F8';
+
+/* ---------- drawing helpers ---------- */
+function bgFill(c, col) { c.ctx.fillStyle = col || c.bg; c.ctx.fillRect(0, 0, c.W, c.H); }
+function gridLines(c, s, ox, oy, col, lw = 1) { const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (let X = ((ox % s) + s) % s; X <= W; X += s) { x.moveTo(X, 0); x.lineTo(X, H); } for (let Y = ((oy % s) + s) % s; Y <= H; Y += s) { x.moveTo(0, Y); x.lineTo(W, Y); } x.stroke(); }
+function dot(x, X, Y, r) { if (r <= .25) return; x.beginPath(); x.arc(X, Y, r, 0, TAU); x.fill(); }
+function halftone(c, st, fn, col) { const { ctx: x, W, H } = c; x.fillStyle = col || c.pr; for (let Y = st / 2; Y < H + st; Y += st) for (let X = st / 2; X < W + st; X += st) dot(x, X, Y, cl(fn(X, Y)) * st * .56); }
+function star(x, X, Y, r1, r2, n, rot) { x.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n - Math.PI / 2, r = i % 2 ? r2 : r1; i ? x.lineTo(X + Math.cos(a) * r, Y + Math.sin(a) * r) : x.moveTo(X + Math.cos(a) * r, Y + Math.sin(a) * r); } x.closePath(); }
+function heart(x, X, Y, s) { x.beginPath(); x.moveTo(X, Y + s * .35); x.bezierCurveTo(X - s * 1.1, Y - s * .35, X - s * .45, Y - s * 1.05, X, Y - s * .45); x.bezierCurveTo(X + s * .45, Y - s * 1.05, X + s * 1.1, Y - s * .35, X, Y + s * .35); x.closePath(); }
+function rr(x, X, Y, w, h, r) { r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2)); x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function poly(x, pts, close = true) { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); if (close) x.closePath(); }
+function ngon(n, r, rot = 0) { const a = []; for (let i = 0; i < n; i++) { const t = rot + i / n * TAU - Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; }
+function shape(x, kind, X, Y, s, rot = 0) {
+x.save(); x.translate(X, Y); x.rotate(rot);
+if (kind === 0) { x.beginPath(); x.arc(0, 0, s, 0, TAU); }
+else if (kind === 1) { poly(x, ngon(3, s * 1.15)); }
+else if (kind === 2) { rr(x, -s * .9, -s * .9, s * 1.8, s * 1.8, s * .2); }
+else if (kind === 3) { star(x, 0, 0, s * 1.1, s * .5, 5, 0); }
+else { const w = s * .38; x.beginPath(); x.rect(-s, -w, s * 2, w * 2); x.rect(-w, -s, w * 2, s * 2); }
+x.restore();
+}
+function partial(x, pts, f) { const n = pts.length; const m = f * (n - 1); if (m <= 0) return; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); const k = Math.floor(m); for (let i = 1; i <= k; i++) x.lineTo(pts[i][0], pts[i][1]); if (k < n - 1) { const t = m - k; x.lineTo(lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)); } x.stroke(); }
+function floor3d(c, hz, col, n = 14, cols = 18, speed = 1) {
+const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = 1.5;
+for (let k = 0; k <= n; k++) { const f = (k + fr(c.p * speed)) / n; const y = hz + (H - hz) * f ** 2.6; x.globalAlpha = cl(f * 1.6); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+x.globalAlpha = 1; for (let i = -cols; i <= cols; i++) { x.beginPath(); x.moveTo(W / 2 + i * W * .02, hz); x.lineTo(W / 2 + i * W * .22, H); x.stroke(); }
+}
+
+/* ---------- offscreen ---------- */
+const POOL = [];
+function off(c, i = 0) {
+let o = POOL[i]; const w = Math.max(1, Math.round(c.W * c.dpr)), h = Math.max(1, Math.round(c.H * c.dpr));
+if (!o) { const cv = document.createElement('canvas'); o = POOL[i] = { cv, ctx: cv.getContext('2d') }; }
+if (o.cv.width !== w || o.cv.height !== h) { o.cv.width = w; o.cv.height = h; }
+const x = o.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, w, h); x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0); return o;
+}
+
+/* ---------- text layout ---------- */
+const FAM = { sans: '"Unbounded","Noto Sans TC",system-ui,sans-serif', tc: '"Noto Sans TC",system-ui,sans-serif', serif: '"Noto Serif TC","Songti TC",serif', mono: '"JetBrains Mono",ui-monospace,monospace' };
+const LC = new Map(); let MC = null;
+function lay(c, o = {}) {
+const text = o.text != null ? o.text : (c.P.text || ' ');
+const maxW = o.maxW || .82, maxH = o.maxH || .24, w = o.w || 800, fam = o.fam || 'sans', sc = o.sc || 1;
+const key = [text, c.W, c.H, maxW, maxH, w, fam, sc].join('|'); let L = LC.get(key); if (L) return L;
+if (!MC) MC = document.createElement('canvas').getContext('2d');
+const ch = Array.from(text.length ? text : ' '); MC.font = `${w} 100px ${FAM[fam]}`;
+const ws = ch.map(s => MC.measureText(s).width || 30); const tot = ws.reduce((a, b) => a + b, 0) || 1;
+const fs = Math.min(c.H * maxH, c.W * maxW * 100 / tot) * sc, k = fs / 100;
+let X = c.W / 2 - tot * k / 2; const xs = []; ws.forEach(v => { xs.push(X + v * k / 2); X += v * k; });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, width: tot * k, left: c.W / 2 - tot * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L;
+}
+function setFont(x, L) { x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle'; }
+function drawChars(c, fn, o = {}) {
+const L = lay(c, o), x = c.ctx, n = L.ch.length, Y = c.cy + (o.y || 0) * c.H; setFont(x, L); x.lineJoin = 'round';
+for (let i = 0; i < n; i++) {
+const s = fn(i, n, L) || {}; if (s.a === 0 || s.skip) continue;
+x.save(); x.globalAlpha = cl(s.a == null ? 1 : s.a);
+const piv = s.piv || 0, pivx = s.pivx || 0;
+x.translate(L.xs[i] + (s.dx || 0) + pivx, Y + (s.dy || 0) + piv); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc); x.translate(-pivx, -piv);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(s.ch || L.ch[i], 0, 0); }
+if (!s.noFill) { x.fillStyle = s.col || c.ink; x.fillText(s.ch || L.ch[i], 0, 0); }
+x.restore();
+}
+return L;
+}
+function word(c, s = {}, o = {}) {
+const L = lay(c, o), x = c.ctx; x.save(); setFont(x, L); x.lineJoin = 'round'; x.globalAlpha = cl(s.a == null ? 1 : s.a);
+x.translate(c.cx + (s.dx || 0), c.cy + (o.y || 0) * c.H + (s.dy || 0)); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(L.text, 0, 0); }
+if (!s.noFill) { x.fillStyle = s.fill || s.col || c.ink; x.fillText(L.text, 0, 0); }
+x.restore(); return L;
+}
+function maskText(c, mask, o = {}) {
+const O = off(c, 0), L = lay(c, o), x = O.ctx; setFont(x, L); x.fillStyle = o.col || c.ink; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; mask(m, L);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); return L;
+}
+const PC = new Map();
+function textPts(c, step, o = {}) {
+const L = lay(c, o); const key = L.font + L.text + c.W + 'x' + c.H + '|' + step + '|' + (o.y || 0); if (PC.has(key)) return PC.get(key);
+const cv = document.createElement('canvas'); cv.width = Math.ceil(c.W); cv.height = Math.ceil(c.H); const x = cv.getContext('2d');
+setFont(x, L); x.fillStyle = '#000'; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const d = x.getImageData(0, 0, cv.width, cv.height).data, pts = [];
+for (let Y = Math.floor(step / 2); Y < cv.height; Y += step) for (let X = Math.floor(step / 2); X < cv.width; X += step) if (d[(Y * cv.width + X) * 4 + 3] > 110) pts.push([X, Y]);
+PC.set(key, pts); if (PC.size > 40) PC.delete(PC.keys().next().value); return pts;
+}
+const GLYPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=?<>動態元件畫面切換';
+
+/* =================================================================
+BACKGROUNDS（BG-A、BG-B）— 以 p∈[0,1) 無縫循環
+================================================================= */
+const ecg = u => { u = fr(u); if (u < .4) return Math.sin(u / .4 * Math.PI) * .04; if (u < .45) return -.12 * (u - .4) / .05; if (u < .5) return -.12 + 1.12 * (u - .45) / .05; if (u < .55) return 1 - 1.35 * (u - .5) / .05; if (u < .6) return -.35 + .35 * (u - .55) / .05; if (u < .75) return Math.sin((u - .6) / .15 * Math.PI) * .18; return 0; };
+function zoomRings(c, fn, n = 22, base = .06, mul = 1.32) { for (let k = -6; k < n; k++) { const v = k + c.p * 2, r = c.u * base * mul ** v; if (r > Math.hypot(c.W, c.H)) break; fn(r, v, k); } }
+const BG = {
+'Minimal Blocks': c => { bgFill(c); const { ctx: x, W, H } = c; const s = c.u * .2, P = [[-1, -1], [1, -1], [1, 1], [-1, 1]], cols = [c.pr, c.se, c.ink];
+for (let b = 0; b < 3; b++) { const t = c.p * 4 + b, st = Math.floor(t), f = E.io(seg(fr(t), .1, .7)), a = P[st % 4], bb = P[(st + 1) % 4]; x.fillStyle = cols[b]; const X = W / 2 + lerp(a[0], bb[0], f) * s * .62 - s / 2, Y = H / 2 + lerp(a[1], bb[1], f) * s * .62 - s / 2; x.fillRect(X, Y, s, s); } },
+'Bauhaus Shapes': c => { bgFill(c); const { ctx: x, W, H } = c; const n = Math.round(5 * c.d) + 2, s = W / n, rows = Math.ceil(H / s), cols = [c.pr, c.se, c.ink], r = R(c, 55);
+for (let i = 0; i < n; i++) for (let j = 0; j < rows; j++) { const kind = Math.floor(r() * 3), col = cols[Math.floor(r() * 3)], d0 = r(), f = fr(c.p * 4 + d0), rot = (Math.floor(c.p * 4 + d0) + E.io(seg(f, 0, .5))) * Math.PI / 2; x.save(); x.translate(i * s + s / 2, j * s + s / 2); x.rotate(rot); x.fillStyle = col;
+x.beginPath(); if (kind === 0) { x.arc(0, s / 2, s / 2 * .95, Math.PI, TAU); } else if (kind === 1) { x.moveTo(-s / 2, -s / 2); x.arc(-s / 2, -s / 2, s * .95, 0, Math.PI / 2); } else { x.moveTo(-s / 2, s / 2); x.lineTo(s / 2, s / 2); x.lineTo(-s / 2, -s / 2); } x.closePath(); x.fill(); x.restore(); } },
+};
+
+/* =================================================================
+TEXT（TXT-A、TXT-B）— 單次動作 p∈[0,1]，結束停格清楚
+================================================================= */
+function wordsOf(t) { const w = t.trim().split(/\s+/).filter(Boolean); return w.length > 1 ? w : null; }
+function ghost(c, n, fn) { for (let k = n; k >= 0; k--) fn(k / n, k === 0 ? 1 : (1 - k / (n + 1)) * .35); }
+function digits(t, d = '280') { const m = (t || '').match(/\d+/); return m ? m[0] : d; }
+const TX = {
+'Flip': c => { bgFill(c); drawChars(c, (i, n) => { const pi = E.oc(stg(c.p, i, n, .5)), sy = Math.cos(Math.PI * (1 - pi)); return { sy: Math.abs(sy) < .02 ? .02 : sy, col: sy < 0 ? c.pr : c.ink, a: c.p > 0 ? 1 : 0 }; }); },
+'Checker Words': c => { bgFill(c); const { ctx: x } = c; const n = 6, cs = c.u / n, cells = []; for (let j = -1; j < c.H / cs + 1; j++) for (let i = -1; i < c.W / cs + 1; i++) if ((i + j) % 2 === 0) cells.push([i * cs, j * cs, i + j]);
+const m = cells.length ? Math.max(...cells.map(v => v[2])) : 1, sz = v => cs * E.oc(seg(c.p, v / m * .5, v / m * .5 + .4)); x.fillStyle = c.pr; cells.forEach(([X, Y, v]) => { const s = sz(v); x.fillRect(X + (cs - s) / 2, Y + (cs - s) / 2, s, s); });
+word(c, { a: seg(c.p, .3, .6) }); maskText(c, mm => cells.forEach(([X, Y, v]) => { const s = sz(v); mm.fillRect(X + (cs - s) / 2, Y + (cs - s) / 2, s, s); }), { col: c.bg }); if (c.p < .3) { } },
+};
+
+/* =================================================================
+SHAPES（SHP）
+================================================================= */
+function softGrid(c) { bgFill(c); gridLines(c, c.u / 8, c.W / 2, c.H / 2, rgba(c.ink, .06)); }
+function floorLine(c, y) { c.ctx.strokeStyle = rgba(c.ink, .25); c.ctx.lineWidth = 2; c.ctx.beginPath(); c.ctx.moveTo(c.W * .1, y); c.ctx.lineTo(c.W * .9, y); c.ctx.stroke(); }
+function polyPts(kind, rad, n = 120) { const out = []; for (let i = 0; i < n; i++) { const t = i / n; if (kind === 'circle') { const a = t * TAU - Math.PI / 2; out.push([Math.cos(a) * rad, Math.sin(a) * rad]); continue; } const v = ngon(kind === 'tri' ? 3 : 4, rad * (kind === 'tri' ? 1.25 : 1.2), kind === 'sq' ? Math.PI / 4 : 0), m = v.length, f = t * m, k = Math.floor(f), u = f - k, A = v[k % m], B = v[(k + 1) % m]; out.push([lerp(A[0], B[0], u), lerp(A[1], B[1], u)]); } return out; }
+const SH = {
+'Shape Morph': c => { softGrid(c); const { ctx: x } = c; const s = c.u * .2, A = polyPts('circle', s), B = polyPts('sq', s), C = polyPts('tri', s), q1 = E.io(seg(c.p, 0, .45)), q2 = E.io(seg(c.p, .5, .95)), pts = A.map((p, i) => { const m = [lerp(p[0], B[i][0], q1), lerp(p[1], B[i][1], q1)]; return [c.cx + lerp(m[0], C[i][0], q2), c.cy + lerp(m[1], C[i][1], q2)]; });
+x.fillStyle = mix(c.pr, c.se, q2); poly(x, pts); x.fill(); },
+};
+
+/* =================================================================
+TELOP（TEL）— 字幕與資訊版型，於示意畫面上
+================================================================= */
+const SC = new Map();
+function cached(key, W, H, dpr, draw) { let v = SC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr)); const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); draw(x); if (SC.size > 24) SC.delete(SC.keys().next().value); SC.set(key, cv); return cv; }
+function telScene(c) {
+const cv = cached(['tel', c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H } = c, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(c.bg, c.pr, .35)); g.addColorStop(.62, mix(c.bg, c.se, .12)); g.addColorStop(1, c.bg); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = R(c, 70); for (let i = 0; i < 14; i++) { const X = r() * W, Y = r() * H * .7, s = c.u * (.04 + r() * .12); const gg = x.createRadialGradient(X, Y, 0, X, Y, s); gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .35)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - s, Y - s, s * 2, s * 2); }
+x.fillStyle = mix(c.bg, '#000000', .25); x.beginPath(); x.moveTo(0, H * .72); for (let X = 0; X <= W; X += W / 12) x.lineTo(X, H * .7 - Math.sin(X / W * 7 + 1) * H * .04 - r() * H * .03); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fill();
+x.strokeStyle = rgba('#ffffff', .25); x.lineWidth = 1; const m = Math.min(W, H) * .05; x.strokeRect(m, m, W - m * 2, H - m * 2);
+});
+c.ctx.drawImage(cv, 0, 0, c.W, c.H); c.ctx.fillStyle = rgba('#ffffff', .65); c.ctx.font = `600 ${Math.max(9, c.u * .028)}px ${FAM.mono}`; c.ctx.textAlign = 'left'; c.ctx.textBaseline = 'top'; c.ctx.fillText('● REC  00:00:' + String(Math.floor(c.t % 60)).padStart(2, '0'), c.u * .07, c.u * .07);
+}
+const CAP = (o = {}) => ({ maxH: .085, maxW: .8, fam: 'tc', w: 900, y: .3, ...o });
+const TITLE = (o = {}) => ({ maxH: .15, maxW: .76, w: 900, ...o });
+function capBox(c, L, pad, col, y, rad = 6, wq = 1) { const x = c.ctx, w = (L.width + pad * 2) * wq, h = L.fs + pad * 1.3; x.fillStyle = col; rr(x, c.cx - w / 2, c.cy + y * c.H - h / 2, w, h, rad); x.fill(); return { w, h }; }
+function pendingBadge(c, id) { const x = c.ctx, fs = Math.max(10, c.u * .04); x.font = `600 ${fs}px ${FAM.mono}`; const t = '待核對 · ' + id, w = x.measureText(t).width + fs * 1.4; x.setLineDash([5, 4]); x.strokeStyle = c.se; x.lineWidth = 1.5; rr(x, c.W - w - fs, fs, w, fs * 1.9, 6); x.stroke(); x.setLineDash([]); x.fillStyle = c.se; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(t, c.W - w - fs + fs * .7, fs * 1.95); }
+const TL = {
+_pending: (c, item) => { telScene(c); const o = CAP({ w: 700 }), q = E.oc(seg(c.p, 0, .4)); word(c, { a: q, col: '#ffffff', stroke: lay(c, o).fs * .14, strokeCol: rgba('#000000', .7) }, o); pendingBadge(c, item.id); },
+};
+
+/* =================================================================
+TRANSITIONS（TRN）— A → B，無黑幀
+================================================================= */
+function scene(c, which) {
+return cached(['scn', which, c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H, u } = c, A = which === 'A', base = A ? c.bg : c.se, card = A ? c.pr : c.bg, fg = A ? inkFor(c.pr) : inkFor(c.bg);
+x.fillStyle = base; x.fillRect(0, 0, W, H); x.strokeStyle = rgba(inkFor(base), .08); x.lineWidth = 1; for (let X = 0; X < W; X += u / 10) { x.beginPath(); x.moveTo(X, 0); x.lineTo(X, H); x.stroke(); } for (let Y = 0; Y < H; Y += u / 10) { x.beginPath(); x.moveTo(0, Y); x.lineTo(W, Y); x.stroke(); }
+const cw = W * .62, ch = H * .56; x.fillStyle = card; rr(x, (W - cw) / 2, (H - ch) / 2, cw, ch, u * .04); x.fill(); x.fillStyle = fg; x.font = `800 ${Math.min(ch * .62, cw * .5)}px ${FAM.sans}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(which, W / 2, H / 2 + ch * .03);
+x.fillStyle = rgba(fg, .5); dot(x, (W - cw) / 2 + u * .05, (H - ch) / 2 + u * .05, u * .014); x.fillRect(W / 2 + cw / 2 - u * .07, H / 2 + ch / 2 - u * .07, u * .03, u * .03);
+x.font = `600 ${Math.max(9, u * .032)}px ${FAM.mono}`; x.textAlign = 'left'; x.textBaseline = 'top'; x.fillStyle = rgba(inkFor(base), .7); x.fillText('SCENE ' + which + (A ? '  ·  00:00:04' : '  ·  00:00:05'), u * .05, u * .05);
+});
+}
+function maskB(c, drawMask) { const O = off(c, 3), x = O.ctx; x.drawImage(scene(c, 'B'), 0, 0, c.W, c.H); const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; drawMask(m);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); }
+const drawA = c => c.ctx.drawImage(scene(c, 'A'), 0, 0, c.W, c.H), drawB = c => c.ctx.drawImage(scene(c, 'B'), 0, 0, c.W, c.H);
+function piece(c, img, clip, dx = 0, dy = 0, sc = 1, rot = 0, ox = c.cx, oy = c.cy) { const x = c.ctx; x.save(); x.translate(ox + dx, oy + dy); x.rotate(rot); x.scale(sc, sc); x.translate(-ox, -oy); x.beginPath(); clip(x); x.clip(); x.drawImage(img, 0, 0, c.W, c.H); x.restore(); }
+const TQ = c => E.io(seg(c.p, .12, .88));
+function wipe(fn) { return c => { const q = TQ(c); drawA(c); if (q > 0) maskB(c, x => fn(c, x, q)); }; }
+const TR = {
+};
+
+/* =================================================================
+DATA — 280 項
+================================================================= */
+const HINT = { grid: '方格格線、矩陣依序位移或變形', line: '以線段描邊、延伸、波動或掃描為主', rot: '圍繞中心點持續或一次旋轉', dot: '以點陣、圓點群的分布與時差運動為主', pop: '利用彈跳式放大與回彈形成出現效果', zoom: '透過縮放、景深或縮放模糊創造動勢', wave: '以相位差的波浪節奏連續運動', half: '網點印刷感點陣的疏密、大小與移動變化', panel: '使用數個面板依序推移或展開', seq: '以逐字分配延遲的方式進行動態', slide: '平滑滑入、滑出、推動或移位', flash: '極短亮度閃爍與恢復，避免頻閃過強', mask: '使用字元與單詞的錯位、位移或遮罩動畫', circle: '圓形的縮放、環繞、切割或構圖變換', orbit: '元素以圓或橢圓軌道公轉', flip: '沿 X 或 Y 軸進行 3D 翻轉', glitch: '錯位色差與短促的數位故障感', stripe: '規律條紋依不同時差錯位移動', marker: '使用手繪螢光筆掃過文字', split: '畫面分割成多個區塊再重新拼接', blur: '使用模糊與清晰的快速轉換', bounce: '自由落體或彈簧物理感的跳動', pulse: '規律放大縮小並回復原始狀態', shape: '運用基本幾何形狀的縮放、位移、變形或組合', ring: '以同心圓擴張、收縮或環繞', draw: 'SVG 路徑從 0% 逐漸描繪到 100%', stroke: '以字體外框/圖形描邊的生成與變化為主', sub: '維持字幕清楚可辨，使用輕量淡入淡出', cap: '用字幕框、文字或顏色的變化提升可讀性', wipe: '遮罩逐步揭示下一畫面' };
+const GROUPS = [
+{ key: 'BG-A', name: '背景動態・幾何網格', kind: 'bg', role: '畫面背景填滿容器並可無縫循環，不顯示文字；根據效果名稱構造幾何、網格、線條或粒子運動。', src: 'Grid Fill|grid;Heartbeat Line|line;Tile Rotate|rot;Vertical Lines|line;Dot Connect|dot;Dizzy Stars|name;Random Pop Dots|pop;Grid Cursor|grid;Polar Grid|grid;Dot Matrix|dot;Parallel Curves|name;Broken Grid|grid;Scanning Lines|line;Halftone Blob|half;Triangle Grid|grid;Zap Marks|name;Flow Lines|line;Grid Magnet|grid;Bubble Dots|dot;Diagonal Lines|line;Graph Paper|name;Dot Wave Floor|wave;Comic Sky|name;Barcode|name;Dot Zoom|zoom;Moving Grid|grid;Sound Wave|wave;Heart Pop|pop;Topo Lines|line;Column Shift|name;Dot Rain|dot;Shock Lines|line;Retro Sunrise|name;Halftone Boom|half;Speed Panels|panel;Radar Sweep|name;Dot Swarm|dot;Zigzag Energy|name;Halftone Tunnel|half;Tilt Grid|grid' },
+{ key: 'TXT-A', name: '文字動態・基礎', kind: 'text', role: '以可編輯文字作為動畫主體，保留字距、易讀性與 UTF-8 繁中文字支援。', src: 'Word Burst|name;Letter Sequence|seq;Stamp In|name;Punch Zoom|zoom;Character Jitter|name;Stretch Pop|pop;Zoom Blur|zoom;Slide Text|slide;Giant Scroll|name;Follow Path|name;Repeat Lines|line;Impact Flash|flash;Ribbon|name;Torn Text|mask;Shatter Letters|seq;Tape Crossing|name;Text Tunnel|mask;Text Fall|mask;Gate|name;Arrow|name;Link Circle|circle;Orbit|orbit;Cube|name;Extrude|name;Paragraph|name;Flip|flip;Typewriter|name;Slot|name;Counter|name;Reveal Outline|line;LED|name;Up Scroll|name;Slice Text|mask;Glitch|glitch;Stripe Mask|stripe;Long Shadow|name;Liquid Text|mask;Marker|marker;Split Turn|split;Blur Scatter|blur' },
+{ key: 'TXT-B', name: '文字動態・特效', kind: 'text', role: '以可編輯文字作為動畫主體，著重具辨識度的特殊動態與結束時的清晰停格。', src: 'Lightning Strike|name;Laser Cut|name;Coin Flip|flip;Explode Out|name;Disintegrate|name;Heartbeat Zoom|zoom;Text Kaleido|mask;Number Slam|name;Wave Letters|wave;Stop Motion|name;Letter Rain|seq;Magnifier Lens|name;Scramble Decode|name;Domino Letters|seq;Gradient Flow|name;Circle Text|mask;Water Reflection|name;Letter Bounce|bounce;Text Flag|mask;Gravity Flip|flip;Magnet Pull|name;Word Pulse Grid|grid;Weight Grow|name;Text Fan|mask;Karaoke Ball|name;Swing Letters|seq;Pixel Dissolve|name;Rotating Words|name;Blur Trail|blur;Checker Words|name;Roller Path|name;Shuffle Letters|seq;Text Spiral|mask;Jitter Settle|name;Elastic Wave Stretch|wave;Ink Bleed|name;Letter Assemble|seq;Text Mosaic|mask;Crumble Down|name;Float Drift|name' },
+{ key: 'SHP', name: '圖形動畫', kind: 'shape', role: '使用 SVG 向量圖元展現動態，精準控制形變、時間曲線與物件數量。', src: 'Scale Pulse|pulse;Rotate Spin|rot;Bounce Drop|bounce;Slide Loop|slide;Squash & Stretch|name;Elastic Pop|pop;Wobble|name;Pendulum Swing|name;Shape Morph|shape;Pattern Morph|name;Circle to Square|circle;Split & Merge|split;Fold Unfold|name;Flip Tiles|flip;Ring Expand|ring;Triangle Twist|name;Shape Explosion|shape;Shape Rain|shape;Bubble Pop|pop;Confetti Burst|name;Ripple Squares|name;Radial Fan|name;Spiral Dots|dot;Particle Orbit|orbit;Shape Parade|shape;Shape Conveyor|shape;Shape Stack|shape;Bouncing Shapes|shape;Wave Dots|wave;Grid Cascade|grid;Domino Fall|name;Stairs Rise|name;Squiggle Draw|draw;Circle Draw|circle;Stroke Trace|stroke;Dash March|name;Path Follow|name;Spirograph|name;Arc Loader|name;Check Draw|draw' },
+{ key: 'BG-B', name: '背景動態・抽象', kind: 'bg', role: '抽象幾何視覺背景，提供無縫循環及降動態版本，避免文字內容重疊時視覺干擾。', src: 'Halftone Expand|half;Halftone Wave|wave;Comic Dots|dot;Halftone Sweep|half;Spiral Dots|dot;Halftone Rings|half;Halftone Checker|half;Halftone Sun|half;Perspective Grid|grid;Grid Zoom|grid;Grid Wave|grid;Rotating Grid|grid;Isometric Grid|grid;Hex Grid|grid;Truchet Tiles|name;Weave Grid|grid;Speed Lines|line;Horizontal Lines|line;Line Burst|line;Wave Lines|wave;Ripple Rings|ring;Stripe Twist|stripe;Line Tunnel|line;Crosshatch|name;Circle Pop|pop;Floating Shapes|shape;Shape Tunnel|shape;Orbit Shapes|shape;Kaleidoscope|name;Confetti Fall|name;Blob Shapes|shape;Pinwheels|name;Minimal Blocks|name;Minimal Circle|circle;Bauhaus Shapes|shape;Minimal Arcs|name;Minimal Stripes|stripe;Minimal Square|name;Minimal Wave|wave;Nested Squares|name' },
+{ key: 'TEL', name: '字幕與資訊版型', kind: 'tel', role: '透明背景的影片字幕/資訊元件，確保安全邊界、對比、在 9:16 與 16:9 均清楚。', src: 'Outline Pop|pop;Double Stroke|stroke;Gradient Impact|name;Tilted Sticker|name;Shake Emphasis|name;Burst Bubble|name;Color Block Telop|name;Pop Number|pop;Lower Third|name;Tape Label|name;Ribbon Banner|name;Highlight Marker|marker;Side Tab|name;Stripe Caution|stripe;Speech Bubble|name;Thought Cloud|name;Clean Subtitle|sub;Black Box Caption|cap;Yellow Subtitle|sub;Karaoke Fill|name;Typewriter Caption|cap;Word Pop Caption|pop;Two-Tone Caption|cap;Gradient Bar Caption|cap;待核對字幕效果 25|name;待核對字幕效果 26|name;待核對字幕效果 27|name;待核對字幕效果 28|name;待核對字幕效果 29|name;待核對字幕效果 30|name;待核對字幕效果 31|name;待核對字幕效果 32|name;Mincho Title|name;Vertical Mincho|name;Hanko Seal|name;Fade Elegance|name;Underline Reveal|line;Corner Frame|name;Chapter Card|name;End Credit|name' },
+{ key: 'TRN', name: '轉場與分割', kind: 'trn', role: '以 A、B 兩個影片或圖片圖層示範畫面切換，實現一個時間確定、無黑幀的轉場。', src: 'Color Wipe|wipe;Diagonal Wipe|wipe;Multi Stripe Wipe|wipe;Zigzag Wipe|wipe;Slice Wipe|wipe;Bars Wipe|wipe;Brush Wipe|wipe;Curtain Slide|slide;Circle Wipe|wipe;Block Wipe|wipe;Shutter Wipe|wipe;Clock Wipe|wipe;Diamond Wipe|wipe;Star Wipe|wipe;Pinwheel Wipe|wipe;Corner Wipe|wipe;Liquid Wipe|wipe;Drip Wipe|wipe;Ripple Wipe|wipe;Text Wipe|wipe;Impact Flash|flash;Wave Split|wave;Zigzag Split|split;Circle Split|circle;Horizontal Split|split;Vertical Split|split;Triple Split|split;Four Panels|panel;Sliding Panels|panel;Diagonal Panels|panel;Quad Open|name;Checker Panels|panel;Diagonal Split|split;Mosaic Flash|flash;Frame Stack|name;Bar Panels|panel;Band Split|split;Grid Flip|grid;Panel Zoom Out|zoom;Strip Shuffle|name' }
+];
+const MAPS = { bg: BG, text: TX, shape: SH, tel: TL, trn: TR };
+const LIST = [], BYID = {};
+GROUPS.forEach(g => { g.items = g.src.split(';').map((s, i) => { const [name, h] = s.split('|'), id = `${g.key}-${String(i + 1).padStart(2, '0')}`, pending = name.startsWith('待核對');
+const hint = h === 'name' ? `依「${name}」名稱和錄影示意演繹具有辨識度的動畫；先建立主視覺，再以移動、旋轉、縮放、透明度或變形呈現此效果` : HINT[h];
+const it = { id, name, group: g.key, groupName: g.name, kind: g.kind, hintKey: h, hint, pending, source: 'spec', added: '2026-10-17' }; LIST.push(it); BYID[id] = it; return it; }); delete g.src; });
+
+function promptFor(id) {
+const it = BYID[id]; if (!it) return ''; const g = GROUPS.find(x => x.key === it.group), txt = it.kind === 'text' || it.kind === 'tel';
+return `請建立動畫元件 \`${it.id}\`（${it.name}）。視覺動作：${it.hint}。${g.role}請用原生 HTML/CSS/JavaScript 實作（必要時 SVG/Canvas），輸出單一可執行 demo.html，另輸出可重用的元件 JS 模組。提供主題色、背景色、duration、loop、intensity、seed 與 16:9/9:16 比例參數；${txt ? '提供可修改的示範文字與繁體中文支援' : '提供可更改的形狀/密度或位置參數'}；預設 1.5 秒（背景循環 4 秒），使用 requestAnimationFrame 或 CSS keyframes，支援 replay、pause、destroy；加入 prefers-reduced-motion 降動態方案。動畫需具有明確起始、主動作和最終畫面，製作獨立預覽、基本測試與可調整控制面板。不要假裝這是原作者的程式或 Prompt；視覺細節依錄影參考再校準。${it.pending ? ' 此編號在錄影中畫面辨識不清，先產出佔位規格，不要直接發布為已完成元件。' : ''}`;
+}
+
+/* =================================================================
+RUNTIME
+================================================================= */
+const AR = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const HOLD = .9;
+const DEFAULTS = { text: 'MOTION 動態', colors: { primary: '#5BD3F5', secondary: '#D6F55A', bg: '#111418' }, loop: true, intensity: 1, density: 1, seed: 7, aspectRatio: '16:9', reducedMotion: false };
+function norm(o) { const it = BYID[o.id] || LIST[0]; const n = { ...DEFAULTS, ...o, colors: { ...DEFAULTS.colors, ...(o.colors || {}) } }; n.id = it.id; if (n.duration == null) n.duration = it.kind === 'bg' ? 4 : 1.5; n.duration = Math.max(.2, +n.duration); n.intensity = cl(+n.intensity, .1, 3); n.density = cl(+n.density, .2, 3); n.seed = Math.max(1, Math.floor(+n.seed) || 1); return n; }
+function cycleLen(o) { const it = BYID[o.id]; const d = o.duration * (o.reducedMotion && it.kind === 'bg' ? 3 : 1); return it.kind === 'bg' ? d : d + HOLD; }
+function progressAt(o, t) { const it = BYID[o.id], bg = it.kind === 'bg', d = o.duration * (o.reducedMotion && bg ? 3 : 1); if (bg) return o.loop ? fr(t / d) : Math.min(.9999, t / d); const tt = o.loop ? t % (d + HOLD) : t; return Math.min(1, tt / d); }
+function getFn(it) { const m = MAPS[it.kind]; if (it.pending) return TL._pending; return m[it.name] || (c => { bgFill(c); }); }
+function renderItem(ctx, W, H, dpr, o, p, t) {
+const it = BYID[o.id], P = { text: o.text || ' ', primary: o.colors.primary, secondary: o.colors.secondary, bg: o.colors.bg };
+const c = { ctx, W, H, dpr, P, p, t: t || 0, u: Math.min(W, H), cx: W / 2, cy: H / 2, pr: P.primary, se: P.secondary, bg: P.bg, ink: inkFor(P.bg), k: o.intensity * (o.reducedMotion && it.kind === 'bg' ? .45 : 1), d: o.density, seed: o.seed, ph: p * TAU };
+const fn = getFn(it); ctx.save();
+try {
+if (o.reducedMotion && it.kind !== 'bg') {
+if (it.kind === 'trn') { const q = E.io(seg(p, .2, .8)); ctx.drawImage(scene(c, 'A'), 0, 0, W, H); ctx.globalAlpha = q; ctx.drawImage(scene(c, 'B'), 0, 0, W, H); ctx.globalAlpha = 1; }
+else { c.p = 1; c.ph = TAU; fn(c, it); ctx.globalAlpha = 1 - E.oc(seg(p, 0, .5)); ctx.fillStyle = it.kind === 'tel' ? 'rgba(0,0,0,0)' : c.bg; if (it.kind !== 'tel') ctx.fillRect(0, 0, W, H); }
+} else fn(c, it);
+} catch (e) { ctx.restore(); ctx.save(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f66'; ctx.font = '12px monospace'; ctx.fillText('render error: ' + it.id, 10, 20); if (root.console) console.warn(it.id, e); }
+ctx.restore();
+}
+function renderFrame(canvas, opts, p = .7, t = 0) { const o = norm(opts), dpr = opts.dpr || 1, W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderItem(ctx, W, H, dpr, o, p, t); }
+function mount(el, opts = {}) {
+const cv = document.createElement('canvas'); cv.className = 'motionlib-canvas'; cv.setAttribute('role', 'img'); el.appendChild(cv); const ctx = cv.getContext('2d');
+let o = norm(opts), raf = 0, alive = true, paused = !!opts.paused, t = 0, last = performance.now(), W = 0, H = 0; const dpr = Math.min(2, root.devicePixelRatio || 1);
+const mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null; if (opts.reducedMotion == null && mq && mq.matches) o.reducedMotion = true;
+function fit() { const ar = AR[o.aspectRatio] || 16 / 9, cw = el.clientWidth || 640, mh = o.maxHeight || cw / ar; const w = Math.max(40, Math.min(cw, mh * ar)); W = Math.round(w); H = Math.round(w / ar); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.setAttribute('aria-label', BYID[o.id].id + ' ' + BYID[o.id].name); draw(); }
+function draw() { if (!W) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const p = progressAt(o, t); renderItem(ctx, W, H, dpr, o, p, t); if (o.onFrame) o.onFrame(t, p, cycleLen(o)); }
+function tick(now) { if (!alive) return; const dt = Math.min(.1, (now - last) / 1000); last = now; if (!paused) { t += dt; if (!o.loop && t >= cycleLen(o)) { t = cycleLen(o); } } draw(); raf = requestAnimationFrame(tick); }
+const ro = root.ResizeObserver ? new ResizeObserver(fit) : null; ro && ro.observe(el); fit(); raf = requestAnimationFrame(tick);
+return {
+play() { if (!o.loop && t >= cycleLen(o) - 1e-3) t = 0; paused = false; last = performance.now(); },
+pause() { paused = true; }, replay() { t = 0; paused = false; last = performance.now(); },
+seek(p) { paused = true; const it = BYID[o.id]; t = it.kind === 'bg' ? cl(p) * cycleLen(o) * .9999 : cl(p) * o.duration * (o.reducedMotion && it.kind === 'bg' ? 3 : 1); draw(); },
+set(n) { const idChanged = n.id && n.id !== o.id; o = norm({ ...o, ...n, colors: { ...o.colors, ...(n.colors || {}) } }); if (idChanged) t = 0; fit(); },
+destroy() { alive = false; cancelAnimationFrame(raf); ro && ro.disconnect(); cv.remove(); },
+get paused() { return paused; }, get time() { return t; }, get options() { return { ...o, colors: { ...o.colors } }; }, get cycle() { return cycleLen(o); }, canvas: cv
+};
+}
+function clearCaches() { LC.clear(); PC.clear(); SC.clear(); }
+root.MotionLib = { mount, renderFrame, list: LIST, groups: GROUPS, byId: BYID, prompt: promptFor, defaults: DEFAULTS, clearCaches, version: '1.1.0' };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<style>/* 方圓菓子舖 — 日本戰後現代主義平面（日宣美／田中一光式）共用樣式 */
+:root{--kinari:#EFEAE0;--sumi:#16140F;--beni:#D93A26;--ukon:#EDB01F;--take:#2E8B6A;--ai:#2C56A0;--momo:#E9A1AE;--shiro:#FBF8F2;--kiri:#D8CDB8;--kiri2:#CFC2AA;
+ --m:clamp(46px,7.2vw,92px);--mn:"Noto Serif TC","Songti TC","Hiragino Mincho ProN",serif;--lt:"Jost","Futura","Century Gothic",sans-serif;--ease:cubic-bezier(.7,0,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--kinari);color:var(--sumi);-webkit-text-size-adjust:100%}
+body{background:var(--kinari);color:var(--sumi);font:500 16px/1.85 var(--mn);font-feature-settings:"palt";overflow-x:hidden;min-height:100vh}
+a{color:inherit}
+img,svg{display:block}
+::selection{background:var(--ukon);color:var(--sumi)}
+:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
+.lt{font-family:var(--lt);font-weight:500;letter-spacing:.18em;text-transform:uppercase;font-size:11px;line-height:1.6}
+.vt{writing-mode:vertical-rl;text-orientation:mixed}
+.wg{width:100%;height:100%}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* 頁首：Logo 左上，四分圓導覽右上 */
+.hd{position:relative;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:22px clamp(16px,4vw,48px) 0}
+.logo{display:flex;gap:12px;align-items:center;text-decoration:none}
+.logo svg{width:44px;height:44px}
+.logo b{font:800 22px/1 var(--mn);letter-spacing:.12em}
+.logo span{display:block;margin-top:5px}
+.qnav{position:fixed;top:18px;right:clamp(16px,3vw,40px);z-index:30;display:flex;gap:14px;align-items:flex-start}
+.qnav ol{list-style:none;text-align:right;padding:2px 0 4px 10px;background:var(--kinari)}
+.qnav li a{display:block;text-decoration:none;font:500 12px/1.9 var(--mn);letter-spacing:.1em;padding-right:10px;position:relative}
+.qnav li a i{font:500 10px/1 var(--lt);letter-spacing:.16em;margin-right:6px;font-style:normal}
+.qnav li a[aria-current]{color:var(--beni)}
+.qnav li a[aria-current]::after{content:"";position:absolute;right:0;top:.55em;width:5px;height:5px;background:var(--beni)}
+.flower{display:grid;grid-template-columns:34px 34px;grid-template-rows:34px 34px;background:var(--kinari)}
+.flower a{display:block;width:34px;height:34px}
+.flower svg{width:34px;height:34px;transition:transform .32s var(--ease)}
+.flower path{fill:var(--sumi);transition:fill .15s}
+.flower a:hover path,.flower a:focus-visible path{fill:var(--ukon)}
+.flower a[aria-current] path{fill:var(--beni)}
+.flower a[aria-current] svg{transform:rotate(180deg)}
+@media (max-width:560px){
+ .qnav{top:auto;bottom:0;right:0;left:0;gap:0;background:var(--kinari);border-top:0;box-shadow:0 -1px 0 var(--sumi)}
+ .qnav .flower{display:none}
+ .qnav ol{display:grid;grid-template-columns:repeat(4,1fr);width:100%;text-align:center;padding:0}
+ .qnav li a{padding:9px 2px 10px;font-size:12px;line-height:1.3}
+ .qnav li a i{display:block;margin:0 0 3px}
+ .qnav li a[aria-current]{background:var(--beni);color:var(--shiro)}
+ .qnav li a[aria-current]::after{display:none}
+ body{padding-bottom:58px}
+}
+
+/* 日の丸：每頁唯一最大的紅圓，跨頁以 View Transitions 連續存在 */
+.hinomaru{view-transition-name:hinomaru;background:var(--beni);border-radius:50%;aspect-ratio:1}
+
+/* 頁尾 */
+.ft{margin-top:calc(var(--m)*1.5);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:0}
+.ft>div{padding:28px clamp(16px,2.4vw,32px) 34px}
+.ft .a{grid-column:span 2;background:var(--sumi);color:var(--kinari)}
+.ft .b{grid-column:span 2}
+.ft .c{grid-column:span 2;background:var(--ukon)}
+.ft h3{font:800 18px/1.3 var(--mn);letter-spacing:.14em;margin-bottom:12px}
+.ft p,.ft li{font-size:13px;line-height:1.9}
+.ft ul{list-style:none}
+.ft a{text-decoration:none;border-bottom:1px solid currentColor}
+.ft .by{grid-column:1/-1;padding:14px clamp(16px,2.4vw,32px);background:var(--kinari)}
+@media (max-width:900px){.ft{grid-template-columns:1fr 1fr}.ft .a,.ft .b,.ft .c{grid-column:span 1}.ft .c{grid-column:1/-1}}
+@media (max-width:560px){.ft{grid-template-columns:1fr}.ft .a,.ft .b,.ft .c{grid-column:1}}
+
+/* motion-library 容器 */
+.ml{position:relative;overflow:hidden}
+.ml canvas{display:block}
+.ml.ml-live .ml-fb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* 換頁 fallback（不支援跨文件 View Transitions 時）：紅圓自導覽花處漲滿再縮回 */
+.wipe{position:fixed;inset:0;z-index:90;background:var(--beni);pointer-events:none;clip-path:circle(0% at calc(100% - 64px) 52px)}
+
+/* 跨文件 View Transitions */
+@media (prefers-reduced-motion:no-preference){
+ @view-transition{navigation:auto}
+ ::view-transition-old(root){animation:none}
+ ::view-transition-new(root){animation:he-in .62s var(--ease) both}
+ ::view-transition-group(hinomaru){animation-duration:.7s;animation-timing-function:var(--ease)}
+}
+@keyframes he-in{from{clip-path:circle(0% at calc(100% - 64px) 52px)}to{clip-path:circle(150% at calc(100% - 64px) 52px)}}
+@media (max-width:560px){@keyframes he-in{from{clip-path:circle(0% at 50% 100%)}to{clip-path:circle(150% at 50% 100%)}}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* 九つ入：組箱工作台 */
+.hk-top{padding:calc(var(--m)*.5) clamp(16px,4vw,48px) 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px calc(var(--m)*.6);align-items:end;max-width:1180px}
+.hk-top h1{font:800 calc(var(--m)*.95)/1 var(--mn);letter-spacing:.16em;grid-row:span 2}
+.rules{list-style:none;grid-column:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.rules li{padding:12px 14px 14px;font-size:14px;line-height:1.75}
+.rules li:nth-child(1){background:var(--shiro)}.rules li:nth-child(2){background:var(--kiri)}.rules li:nth-child(3){background:var(--sumi);color:var(--kinari)}
+.rules b{display:block;font:800 22px/1.2 var(--mn);margin-bottom:4px}
+.rules em{font-style:normal;color:var(--ukon)}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(300px,.9fr);gap:0 calc(var(--m)*.5);padding:calc(var(--m)*.6) clamp(16px,4vw,48px) 0;align-items:start}
+.tray-wrap h2{margin-bottom:10px}
+.tray{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.ti{all:unset;box-sizing:border-box;display:flex;flex-direction:column;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;padding:0 0 10px;background:var(--kinari);transition:background .12s}
+.ti:nth-child(even){background:var(--shiro)}
+.ti:hover{background:var(--ukon)}
+.ti:focus-visible{outline:3px solid var(--ai);outline-offset:-3px}
+.ti .wg{aspect-ratio:1;height:auto}
+.ti b{font:800 14px/1.3 var(--mn);padding:8px 8px 0;letter-spacing:.04em}
+.ti span{font:500 11px/1.4 var(--lt);letter-spacing:.12em;padding:2px 8px 0}
+.tray-note{font-size:12px;line-height:1.8;margin-top:12px}
+.boxwrap{position:relative;width:calc(var(--m)*4.2)}
+.box{display:grid;grid-template-columns:repeat(3,1fr);aspect-ratio:1;background:var(--kiri);padding:calc(var(--m)*.12)}
+.cell{position:relative;background:var(--kiri);touch-action:none;cursor:pointer}
+.cell:nth-child(odd){background:var(--kiri2)}
+.cell:focus-visible{outline:3px solid var(--ai);outline-offset:-3px;z-index:2}
+.cell .wg{position:absolute;inset:0}
+.cell.drop{background:var(--ukon)!important}
+.cell[data-c="4"]::after{content:"主";position:absolute;right:4px;bottom:2px;font:800 11px/1 var(--mn);color:var(--sumi);opacity:1}
+.cell[data-c="4"].on::after{display:none}
+.cell.pop .wg{animation:pop .24s var(--ease)}
+@keyframes pop{from{transform:scale(.55) rotate(-90deg)}to{transform:none}}
+.lid{position:absolute;left:0;top:0;width:100%;aspect-ratio:1;background:var(--kiri);transform:translateY(-110%);visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s;display:flex;align-items:center;justify-content:center}
+.lid .obi{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:28%;background:var(--beni);color:var(--shiro)}
+.lid .obi b{font:800 calc(var(--m)*.42)/1 var(--mn);letter-spacing:.3em}
+.boxwrap.sealed .lid{transform:none;visibility:visible;transition:transform .5s var(--ease),visibility 0s}
+.box-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.sum{font-size:15px}.sum b{font:600 20px/1 var(--lt);margin-left:8px}
+.btns{display:flex;gap:0;flex-wrap:wrap}
+.btns button,.pick button{all:unset;cursor:pointer;font:500 14px/1 var(--mn);letter-spacing:.08em;padding:11px 14px;background:var(--sumi);color:var(--kinari)}
+.btns button+button{background:var(--kiri);color:var(--sumi)}
+.btns button:hover,.pick button:hover{background:var(--ai);color:var(--shiro)}
+.btns button:focus-visible,.pick button:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
+.hk-side{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 16px;align-items:center}
+.seal{all:unset;view-transition-name:hinomaru;background:var(--beni);border-radius:50%;width:128px;height:128px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .2s var(--ease),background .15s}
+.seal span{font:800 52px/1 var(--mn);color:var(--shiro)}
+.seal[aria-disabled="true"]{background:var(--kiri2);cursor:not-allowed}
+.seal:not([aria-disabled="true"]):hover{transform:scale(1.06)}
+.seal:focus-visible{outline:3px solid var(--ai);outline-offset:4px}
+.seal-hint{font-size:13px}
+.kake{grid-column:1/-1;position:relative}
+.wait{aspect-ratio:600/800;background:var(--kinari);width:100%}
+.wait .ml-fb{padding:20px;font-size:14px}
+.wait canvas{width:100%!important;height:auto!important}
+.kposter{--km:calc(var(--kw,336px)/6)}
+.k-grid{display:grid;background:var(--kinari);grid-template-columns:repeat(6,var(--km));grid-template-rows:repeat(6,var(--km));width:calc(var(--km)*6)}
+.k-grid .pt,.k-grid .pb{display:block;position:relative;overflow:hidden}
+.k-grid.hold .pt{visibility:hidden}
+.k-grid.bhold .pb{transform:scale(0)}
+.k-grid .pb{transition:transform .26s var(--ease)}
+.k-foot{display:grid;grid-template-columns:calc(var(--km)*4) calc(var(--km)*2);height:calc(var(--km)*2);width:calc(var(--km)*6)}
+.kf-l{display:flex;flex-direction:column;gap:4px;padding-top:12px}
+.kf-l b{font:800 calc(var(--km)*.36)/1.2 var(--mn);letter-spacing:.12em}
+.kf-r{background:var(--sumi);color:var(--kinari);display:flex;align-items:center;justify-content:center;font-size:12px;letter-spacing:.3em}
+.fly{position:fixed;left:0;top:0;z-index:60;pointer-events:none;transform-origin:0 0}
+.fly svg{width:100%;height:100%}
+.ghost{position:fixed;left:0;top:0;width:72px;height:72px;z-index:70;pointer-events:none;transform:translate(-50%,-50%) rotate(-6deg)}
+.after{grid-column:1/-1;margin-top:14px}
+.a-tot b{font:600 26px/1.3 var(--lt)}
+.share-out{font-size:12px;word-break:break-all;margin:8px 0;min-height:1.4em}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:10px;background:var(--shiro);padding:16px}
+.pick h3{grid-column:1/-1;font:800 18px/1.3 var(--mn);letter-spacing:.1em}
+.pick label{display:flex;flex-direction:column;font-size:12px;gap:4px}
+.pick select,.pick input{font:500 15px/1.4 var(--mn);padding:8px;border:0;background:var(--kinari);color:var(--sumi);border-radius:0;border-bottom:2px solid var(--sumi)}
+.pick button{grid-column:1/-1;text-align:center;background:var(--beni);color:var(--shiro)}
+.pick-out{grid-column:1/-1;font-size:13px}
+.nojs{padding:20px clamp(16px,4vw,48px)}
+@media (max-width:1100px){.bench{grid-template-columns:minmax(0,1fr) auto}.hk-side{grid-column:1/-1;margin-top:24px;max-width:560px}}
+@media (max-width:760px){
+ .hk-top{grid-template-columns:1fr}.hk-top h1{grid-row:auto}.rules{grid-column:1;grid-template-columns:1fr}
+ .bench{grid-template-columns:1fr;gap:20px}.boxwrap{width:100%;max-width:420px}.tray{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .ti b{font-size:12px;padding:6px 4px 0}.ti span{padding:2px 4px 0;font-size:10px}
+ .seal{width:104px;height:104px}.seal span{font-size:42px}.pick{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body class="p-hako">
+<header class="hd"><a class="logo" href="index.html" aria-label="方圓菓子舖 首頁"><svg aria-hidden="true" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" fill="#16140F"/><path d="M0 64L0 36A28 28 0 0 1 28 64Z" fill="#EDB01F"/><circle cx="41" cy="23" r="15" fill="#D93A26"/><path d="M36 64L64 64L64 36Z" fill="#EFEAE0"/></svg><div><b>方圓</b><span class="lt">HŌEN WAGASHI · TAIPEI</span></div></a></header>
+<nav class="qnav" aria-label="主要導覽"><ol><li><a href="index.html"><i>01</i>掛紙</a></li><li><a href="hako.html" aria-current="page"><i>02</i>九つ入</a></li><li><a href="koyomi.html"><i>03</i>十二月令</a></li><li><a href="mise.html"><i>04</i>店</a></li></ol><div class="flower" aria-hidden="true"><a href="index.html" aria-label="01 掛紙" tabindex="-1"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M34 34L0 34A34 34 0 0 1 34 0Z"/></svg></a><a href="hako.html" aria-label="02 九つ入" aria-current="page" tabindex="-1"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M0 34L0 0A34 34 0 0 1 34 34Z"/></svg></a><a href="koyomi.html" aria-label="03 十二月令" tabindex="-1"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M34 0L34 34A34 34 0 0 1 0 0Z"/></svg></a><a href="mise.html" aria-label="04 店" tabindex="-1"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M0 0L34 0A34 34 0 0 1 0 34Z"/></svg></a></div></nav>
+<main id="main">
+<section class="hk-top" aria-labelledby="h-hako">
+ <h1 id="h-hako">九つ入</h1>
+ <p class="lt">BUILD A BOX OF NINE — THE BOX BECOMES ITS OWN POSTER</p>
+ <ol class="rules">
+  <li><b>一</b>把菓子拖進桐箱的九格；或點一下，它會自己放進下一個空格。</li>
+  <li><b>二</b>箱裡的可以拖來拖去換位置，點一下就拿出來。</li>
+  <li><b>三</b>放滿九個，按紅色的「封」。九個菓子飛出箱子，排成只屬於這一盒的掛紙——<em>正中那一格就是掛紙的主角</em>。</li>
+ </ol>
+</section>
+
+<section class="bench" aria-label="組箱工作台">
+ <div class="tray-wrap">
+  <h2 class="lt">THE COUNTER — 14 KINDS</h2>
+  <div class="tray" id="tray"><button type="button" class="ti" data-i="0" aria-label="初日（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#FBF8F2"/><circle cx="50" cy="46" r="28" fill="#D93A26"/><rect x="0" y="78" width="100" height="22" fill="#EDB01F"/></svg><b>初日</b><span>一月 · 85</span></button><button type="button" class="ti" data-i="1" aria-label="梅が枝（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#E9A1AE"/><circle cx="56" cy="44" r="26" fill="#FBF8F2"/><circle cx="56" cy="44" r="9" fill="#EDB01F"/><path d="M38 62L38 100A38 38 0 0 1 0 62Z" fill="#16140F"/></svg><b>梅が枝</b><span>二月 · 85</span></button><button type="button" class="ti" data-i="2" aria-label="菜の花（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#2E8B6A"/><rect x="0" y="50" width="100" height="50" fill="#EDB01F"/><circle cx="30" cy="30" r="16" fill="#EDB01F"/><circle cx="70" cy="30" r="16" fill="#EDB01F"/></svg><b>菜の花</b><span>三月 · 85</span></button><button type="button" class="ti" data-i="3" aria-label="花筏（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#2C56A0"/><path d="M0 55A25 25 0 0 1 50 55Z" fill="#E9A1AE"/><path d="M50 55A25 25 0 0 1 100 55Z" fill="#E9A1AE"/><path d="M25 87A25 25 0 0 1 75 87Z" fill="#E9A1AE"/><rect x="0" y="80" width="100" height="20" fill="#FBF8F2"/></svg><b>花筏</b><span>四月 · 85</span></button><button type="button" class="ti" data-i="4" aria-label="菖蒲（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#FBF8F2"/><path d="M50 46L10 46L50 6Z" fill="#2C56A0"/><path d="M50 46L50 6L90 46Z" fill="#2C56A0"/><rect x="44" y="46" width="12" height="54" fill="#2E8B6A"/></svg><b>菖蒲</b><span>五月 · 85</span></button><button type="button" class="ti" data-i="5" aria-label="水無月（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#2C56A0"/><path d="M8 92L8 8L92 92Z" fill="#FBF8F2"/><circle cx="24" cy="30" r="7" fill="#16140F"/><circle cx="40" cy="22" r="7" fill="#16140F"/><circle cx="22" cy="48" r="7" fill="#16140F"/></svg><b>水無月</b><span>六月 · 85</span></button><button type="button" class="ti" data-i="6" aria-label="天の川（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#16140F"/><path d="M100 0L100 100L0 0Z" fill="#2C56A0"/><circle cx="20" cy="80" r="5" fill="#EDB01F"/><circle cx="40" cy="60" r="5" fill="#EDB01F"/><circle cx="60" cy="40" r="5" fill="#EDB01F"/><circle cx="80" cy="20" r="5" fill="#EDB01F"/><circle cx="50" cy="50" r="3" fill="#FBF8F2"/></svg><b>天の川</b><span>七月 · 85</span></button><button type="button" class="ti" data-i="7" aria-label="朝顔（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#FBF8F2"/><circle cx="50" cy="50" r="38" fill="#2C56A0"/><circle cx="50" cy="50" r="12" fill="#FBF8F2"/><path d="M100 100L62 100A38 38 0 0 1 100 62Z" fill="#2E8B6A"/></svg><b>朝顔</b><span>八月 · 85</span></button><button type="button" class="ti" data-i="8" aria-label="月見（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#16140F"/><circle cx="62" cy="38" r="24" fill="#EDB01F"/><path d="M-10 100A36 36 0 0 1 62 100Z" fill="#FBF8F2"/><rect x="0" y="82" width="100" height="18" fill="#FBF8F2"/></svg><b>月見</b><span>九月 · 85</span></button><button type="button" class="ti" data-i="9" aria-label="栗きんとん（NT$95），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#EDB01F"/><path d="M14 50A36 36 0 0 1 86 50Z" fill="#16140F"/><rect x="14" y="50" width="72" height="36" fill="#EFEAE0"/></svg><b>栗きんとん</b><span>十月 · 95</span></button><button type="button" class="ti" data-i="10" aria-label="紅葉（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#EFEAE0"/><path d="M50 50L0 50A50 50 0 0 1 50 0Z" fill="#D93A26"/><path d="M50 50L50 0A50 50 0 0 1 100 50Z" fill="#EDB01F"/><path d="M50 50L100 50A50 50 0 0 1 50 100Z" fill="#D93A26"/><path d="M50 50L50 100A50 50 0 0 1 0 50Z" fill="#EDB01F"/></svg><b>紅葉</b><span>十一月 · 85</span></button><button type="button" class="ti" data-i="11" aria-label="柚子（NT$85），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#FBF8F2"/><circle cx="50" cy="56" r="32" fill="#EDB01F"/><path d="M50 32L50 8A24 24 0 0 1 74 32Z" fill="#2E8B6A"/></svg><b>柚子</b><span>十二月 · 85</span></button><button type="button" class="ti" data-i="12" aria-label="夜の梅（NT$75），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#EFEAE0"/><rect x="10" y="28" width="80" height="44" fill="#16140F"/><circle cx="34" cy="50" r="5" fill="#FBF8F2"/><circle cx="58" cy="42" r="5" fill="#FBF8F2"/><circle cx="70" cy="58" r="5" fill="#FBF8F2"/></svg><b>夜の梅</b><span>常備 · 75</span></button><button type="button" class="ti" data-i="13" aria-label="方最中（NT$60），點一下放進箱子"><svg class="wg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="100" fill="#EFEAE0"/><rect x="16" y="16" width="68" height="68" fill="#EDB01F"/><circle cx="50" cy="50" r="20" fill="#D93A26"/></svg><b>方最中</b><span>常備 · 60</span></button></div>
+  <p class="tray-note">上生菓子 NT$85（栗きんとん NT$95）・夜の梅 NT$75・方最中 NT$60・桐箱 NT$120。十二個月的菓子都能預訂，當月以外的會在取貨日依木型特製。</p>
+ </div>
+ <div class="boxwrap">
+  <div class="box" id="box" aria-label="桐箱，三乘三九格"><div class="cell" data-c="0" tabindex="0" role="button" aria-label="第 1 格：空"></div><div class="cell" data-c="1" tabindex="0" role="button" aria-label="第 2 格：空"></div><div class="cell" data-c="2" tabindex="0" role="button" aria-label="第 3 格：空"></div><div class="cell" data-c="3" tabindex="0" role="button" aria-label="第 4 格：空"></div><div class="cell" data-c="4" tabindex="0" role="button" aria-label="第 5 格：空"></div><div class="cell" data-c="5" tabindex="0" role="button" aria-label="第 6 格：空"></div><div class="cell" data-c="6" tabindex="0" role="button" aria-label="第 7 格：空"></div><div class="cell" data-c="7" tabindex="0" role="button" aria-label="第 8 格：空"></div><div class="cell" data-c="8" tabindex="0" role="button" aria-label="第 9 格：空"></div></div>
+  <div class="lid" id="lid" aria-hidden="true"><span class="obi"><b>方圓</b><i class="lt">NINE PIECES</i></span></div>
+  <div class="box-foot">
+   <p class="sum"><span id="cnt">0</span> / 9 個　<b id="tot">NT$0</b></p>
+   <div class="btns"><button type="button" id="b-fill">隨機補滿</button><button type="button" id="b-clear">清空</button></div>
+  </div>
+ </div>
+ <div class="hk-side">
+  <button type="button" class="hinomaru seal" id="seal" aria-describedby="seal-hint"><span>封</span></button>
+  <p class="seal-hint" id="seal-hint">還差 9 個才能封箱</p>
+  <div class="kake" id="kake">
+   <div class="ml wait" id="ml-wait"><p class="ml-fb">掛紙待印——箱子封好以後，這裡會印出一張只屬於這一盒的掛紙。</p></div>
+   <div class="kposter" id="kposter" hidden>
+    <div class="poster k-grid" id="k-grid"></div>
+    <div class="k-foot"><div class="kf-l"><b>方圓　九つ入</b><span class="lt" id="k-no">KAKEGAMI Nº 0000</span><span class="lt" id="k-date">2026·10·17</span></div><div class="kf-r vt">臺北長安西路七十四</div></div>
+   </div>
+  </div>
+  <div class="after" id="after" hidden>
+   <p class="lt">THIS BOX</p>
+   <p class="a-tot"><b id="a-tot">NT$0</b>　<span id="a-no">Nº 0000</span></p>
+   <div class="btns"><button type="button" id="b-share">複製這張掛紙的網址</button><button type="button" id="b-open">改一下</button></div>
+   <p class="share-out" id="share-out" aria-live="polite"></p>
+   <form class="pick" id="pick">
+    <h3>預訂取貨</h3>
+    <label>取貨日<select id="p-day" required></select></label>
+    <label>時段<select id="p-slot"><option>11:00–13:00</option><option>13:00–16:00</option><option>16:00–19:00</option></select></label>
+    <label>姓名<input id="p-name" required autocomplete="name" maxlength="20"></label>
+    <label>電話<input id="p-tel" required inputmode="tel" autocomplete="tel" pattern="[0-9\-\s+()]{8,}" maxlength="20"></label>
+    <button type="submit">送出預訂</button>
+    <p class="pick-out" id="pick-out" aria-live="polite"></p>
+   </form>
+  </div>
+ </div>
+</section>
+<noscript><p class="nojs">組箱與掛紙需要 JavaScript。也可以直接打電話 (02) 2558-3317 預訂，說「九つ入」與想要的九種即可。</p></noscript>
+
+</main>
+<footer class="ft">
+ <div class="a"><h3>方圓菓子舖</h3><p>臺北市大同區長安西路 74 號<br>(02) 2558-3317<br>10:00–19:00・週二公休<br>上生菓子每日 11:00 出櫃，售完為止</p></div>
+ <div class="b"><h3>頁</h3><ul><li><a href="index.html">01 掛紙・首頁</a></li><li><a href="hako.html">02 九つ入・組一盒</a></li><li><a href="koyomi.html">03 十二月令</a></li><li><a href="mise.html">04 店・交通與預訂</a></li></ul></div>
+ <div class="c"><h3>決まり</h3><p>本店每一個菓子只准用五種形畫成：圓、方、四分圓、半圓、直角三角。沒有第六種。</p></div>
+ <p class="by lt">本站為 Design Skills Center 風格示範・店家與價格皆為虛構・日本戰後現代主義平面 · 由 Claude Opus 5.5（排程 Agent）設計與建置 2026-10-17</p>
+</footer>
+<script>/* 方圓 HE — 菓子模組引擎：五種基本形 → SVG；掛紙構成；?b= 序列化。全站共用。 */
+var HE=window.HE||{};window.HE=HE;
+HE.C={kinari:'#EFEAE0',sumi:'#16140F',beni:'#D93A26',ukon:'#EDB01F',take:'#2E8B6A',ai:'#2C56A0',momo:'#E9A1AE',shiro:'#FBF8F2',kiri:'#D8CDB8'};
+/* 基本形（100×100 單位）：s 方｜c 圓｜q 四分圓（r 為邊長，o=0..3 圓心在 左上/右上/右下/左下）｜h 半圓（w 寬，o=0..3 平邊朝 下/左/上/右）｜t 直角三角（s 邊長，o=0..3 直角在 左上/右上/右下/左下） */
+HE.prim=function(p){var C=HE.C,k=p[0],f=C[p[p.length-1]]||p[p.length-1];
+ if(k==='s')return '<rect x="'+p[1]+'" y="'+p[2]+'" width="'+p[3]+'" height="'+p[4]+'" fill="'+f+'"/>';
+ if(k==='c')return '<circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+p[3]+'" fill="'+f+'"/>';
+ if(k==='q'){var x=p[1],y=p[2],r=p[3],o=p[4],cx=[x,x+r,x+r,x][o],cy=[y,y,y+r,y+r][o],a0=o*Math.PI/2,
+   R=function(v){return Math.round(v*100)/100;},ax=R(cx+r*Math.cos(a0)),ay=R(cy+r*Math.sin(a0)),bx=R(cx+r*Math.cos(a0+Math.PI/2)),by=R(cy+r*Math.sin(a0+Math.PI/2));
+   return '<path d="M'+cx+' '+cy+'L'+ax+' '+ay+'A'+r+' '+r+' 0 0 1 '+bx+' '+by+'Z" fill="'+f+'"/>';}
+ if(k==='h'){var x=p[1],y=p[2],w=p[3],o=p[4],r=w/2,d;
+   if(o===0)d='M'+x+' '+(y+r)+'A'+r+' '+r+' 0 0 1 '+(x+w)+' '+(y+r)+'Z';
+   else if(o===2)d='M'+x+' '+y+'A'+r+' '+r+' 0 0 0 '+(x+w)+' '+y+'Z';
+   else if(o===1)d='M'+x+' '+y+'A'+r+' '+r+' 0 0 1 '+x+' '+(y+w)+'Z';
+   else d='M'+(x+r)+' '+y+'A'+r+' '+r+' 0 0 0 '+(x+r)+' '+(y+w)+'Z';
+   return '<path d="'+d+'" fill="'+f+'"/>';}
+ if(k==='t'){var x=p[1],y=p[2],s=p[3],o=p[4],P=[[x,y],[x+s,y],[x+s,y+s],[x,y+s]],q=[[0,1,3],[1,2,0],[2,3,1],[3,0,2]][o];
+   return '<path d="M'+P[q[0]].join(' ')+'L'+P[q[1]].join(' ')+'L'+P[q[2]].join(' ')+'Z" fill="'+f+'"/>';}
+ return '';};
+/* 十二月令＋常備二品。每一品只准用 方／圓／四分圓／半圓／直角三角 */
+HE.ITEMS=[
+ {id:'hatsuhi',m:1,zh:'初日',jp:'はつひ',ro:'HATSUHI',p:85,kind:'上生',mat:'白餡・求肥・紅練切',note:'元旦第一道光。白求肥包紅練切，切開是一枚完整的圓。',g:[['s',0,0,100,100,'shiro'],['c',50,46,28,'beni'],['s',0,78,100,22,'ukon']]},
+ {id:'ume',m:2,zh:'梅が枝',jp:'うめがえ',ro:'UMEGAE',p:85,kind:'上生',mat:'白餡・桃練切・黃身餡',note:'五瓣不畫，只留一圓一蕊；枝是一道四分圓。',g:[['s',0,0,100,100,'momo'],['c',56,44,26,'shiro'],['c',56,44,9,'ukon'],['q',0,62,38,1,'sumi']]},
+ {id:'nanohana',m:3,zh:'菜の花',jp:'なのはな',ro:'NANOHANA',p:85,kind:'上生',mat:'白餡・黃身時雨・抹茶練切',note:'黃身時雨蒸出的裂紋留給嘴巴，眼睛只看兩塊色。',g:[['s',0,0,100,100,'take'],['s',0,50,100,50,'ukon'],['c',30,30,16,'ukon'],['c',70,30,16,'ukon']]},
+ {id:'hanaikada',m:4,zh:'花筏',jp:'はないかだ',ro:'HANAIKADA',p:85,kind:'上生',mat:'錦玉羹・桃練切',note:'落在水面的櫻瓣排成一列，被河推著走。',g:[['s',0,0,100,100,'ai'],['h',0,30,50,0,'momo'],['h',50,30,50,0,'momo'],['h',25,62,50,0,'momo'],['s',0,80,100,20,'shiro']]},
+ {id:'ayame',m:5,zh:'菖蒲',jp:'あやめ',ro:'AYAME',p:85,kind:'上生',mat:'白餡・藍練切・抹茶羊羹',note:'花是兩個三角，莖是一根方條。',g:[['s',0,0,100,100,'shiro'],['t',10,6,40,2,'ai'],['t',50,6,40,3,'ai'],['s',44,46,12,54,'take']]},
+ {id:'minazuki',m:6,zh:'水無月',jp:'みなづき',ro:'MINAZUKI',p:85,kind:'上生',mat:'外郎・大納言小豆',note:'六月三十日夏越祓。白外郎切三角，上面鋪紅豆。',g:[['s',0,0,100,100,'ai'],['t',8,8,84,3,'shiro'],['c',24,30,7,'sumi'],['c',40,22,7,'sumi'],['c',22,48,7,'sumi']]},
+ {id:'amanogawa',m:7,zh:'天の川',jp:'あまのがわ',ro:'AMANOGAWA',p:85,kind:'上生',mat:'錦玉羹・黑糖羊羹・金箔',note:'七夕。斜切一刀分出兩岸，中間撒五粒星。',g:[['s',0,0,100,100,'sumi'],['t',0,0,100,1,'ai'],['c',20,80,5,'ukon'],['c',40,60,5,'ukon'],['c',60,40,5,'ukon'],['c',80,20,5,'ukon'],['c',50,50,3,'shiro']]},
+ {id:'asagao',m:8,zh:'朝顔',jp:'あさがお',ro:'ASAGAO',p:85,kind:'上生',mat:'白餡・藍練切',note:'清晨開、中午謝。所以一天只做到上午十點。',g:[['s',0,0,100,100,'shiro'],['c',50,50,38,'ai'],['c',50,50,12,'shiro'],['q',62,62,38,2,'take']]},
+ {id:'tsukimi',m:9,zh:'月見',jp:'つきみ',ro:'TSUKIMI',p:85,kind:'上生',mat:'白玉・黃身餡',note:'中秋。一輪圓月掛在黑夜上，下面是芒草坡。',g:[['s',0,0,100,100,'sumi'],['c',62,38,24,'ukon'],['h',-10,64,72,0,'shiro'],['s',0,82,100,18,'shiro']]},
+ {id:'kuri',m:10,zh:'栗きんとん',jp:'くりきんとん',ro:'KURI-KINTON',p:95,kind:'上生',mat:'栗・和三盆',note:'只用栗與糖。半圓是栗殼，方是栗肉被茶巾絞過的那一面。',g:[['s',0,0,100,100,'ukon'],['h',14,14,72,0,'sumi'],['s',14,50,72,36,'kinari']]},
+ {id:'momiji',m:11,zh:'紅葉',jp:'もみじ',ro:'MOMIJI',p:85,kind:'上生',mat:'白餡・紅黃二色練切',note:'四片葉各轉九十度。兩紅兩黃，誰也不比誰大。',g:[['s',0,0,100,100,'kinari'],['q',0,0,50,2,'beni'],['q',50,0,50,3,'ukon'],['q',50,50,50,0,'beni'],['q',0,50,50,1,'ukon']]},
+ {id:'yuzu',m:12,zh:'柚子',jp:'ゆず',ro:'YUZU',p:85,kind:'上生',mat:'柚皮練切・白餡',note:'冬至泡柚子湯。一顆圓、一片四分圓的葉。',g:[['s',0,0,100,100,'shiro'],['c',50,56,32,'ukon'],['q',50,8,24,3,'take']]},
+ {id:'yorunoume',m:0,zh:'夜の梅',jp:'よるのうめ',ro:'YORU-NO-UME',p:75,kind:'常備',mat:'小倉羊羹（一切）',note:'切面露出的紅豆像夜裡的白梅。常備，每天都有。',g:[['s',0,0,100,100,'kinari'],['s',10,28,80,44,'sumi'],['c',34,50,5,'shiro'],['c',58,42,5,'shiro'],['c',70,58,5,'shiro']]},
+ {id:'monaka',m:0,zh:'方最中',jp:'もなか',ro:'MONAKA',p:60,kind:'常備',mat:'糯米皮・粒餡',note:'本店唯一四方形的最中。皮上壓一枚圓印。',g:[['s',0,0,100,100,'kinari'],['s',16,16,68,68,'ukon'],['c',50,50,20,'beni']]}
+];
+HE.BOXFEE=120;
+HE.svg=function(it,cls){return '<svg class="'+(cls||'wg')+'" viewBox="0 0 100 100" aria-hidden="true" focusable="false">'+it.g.map(HE.prim).join('')+'</svg>';};
+HE.byMonth=function(m){for(var i=0;i<12;i++)if(HE.ITEMS[i].m===m)return i;return 0;};
+/* FNV-1a 32 */
+HE.fnv=function(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;};
+/* ?b=：9 字元，0-9a-d 為品項、- 為空格 */
+HE.enc=function(b){return b.map(function(v){return v==null?'-':v.toString(36);}).join('');};
+HE.dec=function(s){var out=[];s=String(s||'');for(var i=0;i<9;i++){var ch=s.charAt(i),v=parseInt(ch,36);out.push(ch&&ch!=='-'&&v>=0&&v<HE.ITEMS.length?v:null);}return out;};
+/* 掛紙構成：6×6 方眼，四種版型。正中格（index 4）恆為主角，其餘依箱內讀序。空格填色塊。 */
+HE.TPL=[
+ [[0,0,4,4],[4,0,2,2],[4,2,2,2],[0,4,2,2],[2,4,2,2],[4,4,1,1],[5,4,1,1],[4,5,1,1],[5,5,1,1]],
+ [[2,0,4,4],[0,0,2,2],[0,2,2,2],[2,4,2,2],[4,4,2,2],[0,4,1,1],[1,4,1,1],[0,5,1,1],[1,5,1,1]],
+ [[0,0,3,3],[3,0,3,3],[0,3,2,2],[2,3,2,2],[4,3,2,2],[0,5,1,1],[2,5,1,1],[4,5,1,1],[5,5,1,1]],
+ [[1,1,4,4],[0,0,1,1],[5,0,1,1],[3,0,1,1],[0,2,1,1],[5,3,1,1],[0,5,1,1],[2,5,1,1],[5,5,1,1]]
+];
+HE.compose=function(b,force){var key=HE.enc(b),h=HE.fnv(key),ti=force!=null?force:h%4,t=HE.TPL[ti],order=[4,0,1,2,3,5,6,7,8],used={},cells=[],i;
+ /* 主角＝正中格；若正中空，取第一個非空 */
+ var items=order.map(function(k){return b[k];});
+ if(items[0]==null){for(i=1;i<9;i++)if(items[i]!=null){items[0]=items[i];items[i]=null;order=order.slice();var tmp=order[0];order[0]=order[i];order[i]=tmp;break;}}
+ for(i=0;i<9;i++){var r=t[i];cells.push({x:r[0],y:r[1],w:r[2],h:r[3],item:items[i],from:order[i]});for(var yy=r[1];yy<r[1]+r[3];yy++)for(var xx=r[0];xx<r[0]+r[2];xx++)used[xx+','+yy]=1;}
+ var fill=['kinari','sumi','kinari','beni','kinari','ukon','kinari','ai'],n=0,blocks=[];
+ for(var y=0;y<6;y++)for(var x=0;x<6;x++)if(!used[x+','+y]){blocks.push({x:x,y:y,col:fill[(h>>>(n*3))%8]});n++;}
+ return {tpl:ti,cells:cells,blocks:blocks,no:('000'+(h%9973)).slice(-4),key:key};};
+/* 掛紙 HTML：6×6 零間距方眼。link=true 時每格連到月令頁 */
+HE.posterHTML=function(P,link){var s='';P.cells.forEach(function(c,k){var area='grid-area:'+(c.y+1)+'/'+(c.x+1)+'/span '+c.h+'/span '+c.w;
+  if(c.item==null){s+='<i class="pb" data-k="'+k+'" style="'+area+';background:var(--kinari)"></i>';return;}
+  var it=HE.ITEMS[c.item],tag=link?'a':'div',href=link?' href="koyomi.html#'+it.id+'"':'';
+  s+='<'+tag+' class="pt'+(k===0?' lead':'')+'" data-k="'+k+'" data-item="'+c.item+'" data-from="'+c.from+'" style="'+area+'"'+href+(link?' aria-label="'+it.zh+' '+it.ro+'"':'')+'>'+HE.svg(it)+'</'+tag+'>';});
+ P.blocks.forEach(function(b){s+='<i class="pb" style="grid-area:'+(b.y+1)+'/'+(b.x+1)+';background:var(--'+b.col+')"></i>';});
+ return s;};
+HE.MN=['','一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+HE.heroB=function(m){var b=new Array(9),k=0,slots=[0,1,2,3,5,6,7,8];b[4]=HE.byMonth(m);for(var i=1;i<=8;i++){b[slots[k++]]=HE.byMonth((m-1+i)%12+1);}return b;};
+HE.menuHTML=function(m){var cur=HE.ITEMS[HE.byMonth(m)],nx=HE.ITEMS[HE.byMonth(m%12+1)],L=[[cur,'本月上生菓子・'+HE.MN[m]],[HE.ITEMS[12],'常備'],[HE.ITEMS[13],'常備'],[nx,'下月預告・'+HE.MN[m%12+1]+'一日起']];
+ return L.map(function(r,i){var it=r[0];return '<a class="mi'+(i===3?' soon':'')+'" href="koyomi.html#'+it.id+'"><div class="tile">'+HE.svg(it)+'</div><div class="tx"><span class="k">'+r[1]+'</span><b>'+it.zh+'　'+it.ro+'</b><span>'+it.mat+'</span><span class="pr">NT$'+it.p+'</span></div></a>';}).join('');};
+HE.total=function(b){var s=0,c=0;b.forEach(function(v){if(v!=null){s+=HE.ITEMS[v].p;c++;}});return {sum:s+(c?HE.BOXFEE:0),count:c,items:s};};
+if(typeof module!=='undefined')module.exports=HE;
+</script>
+<script>/* 方圓 — 共用：motion-library 包裝、換頁 fallback、reduced-motion */
+(function(){
+var HE=window.HE;HE.$=function(id){return document.getElementById(id);};
+HE.RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+/* 1. motion-library 掛載（照 sites/ka-to KT.ml）：等字型、離屏 destroy、回視窗重掛；once＝一次性文字元件；canvas aria-hidden；原 HTML 標題 .ml-fb 掛載成功才隱藏 */
+HE.ml=function(el,o){var cx=null;try{cx=document.createElement('canvas').getContext('2d');}catch(_){}if(!el||!window.MotionLib||!cx)return null;
+ var m=null,done=false,api={get m(){return m;},replay:function(){done=false;if(m){m.replay();done=true;}},kill:function(){dead=true;unmount();}},dead=false;
+ function mount(){if(m||dead)return;m=MotionLib.mount(el,Object.assign({},o,{paused:true}));m.canvas.setAttribute('aria-hidden','true');m.canvas.removeAttribute('role');el.classList.add('ml-live');
+  if(HE.RM)return m.seek(o.once?1:.35);if(o.once&&done)return m.seek(1);m.replay();if(o.once)done=true;}
+ function unmount(){if(m){m.destroy();m=null;}if(dead)el.classList.remove('ml-live');}
+ var go=function(){if(dead)return;if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?mount():unmount();});},{rootMargin:'80px'});io.observe(el);api.io=io;}else mount();};
+ (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go);
+ return api;};
+/* 2. 換頁：支援跨文件 View Transitions 的瀏覽器交給 CSS（@view-transition＋view-transition-name:hinomaru）；
+      不支援者（如 Firefox）以 WAAPI 讓紅圓自導覽花漲滿，抵達頁再縮回。 */
+var XVT=('CSSViewTransitionRule' in window)||('PageRevealEvent' in window);HE.XVT=XVT;
+function origin(){return innerWidth<=560?'50% 100%':'calc(100% - 64px) 52px';}
+function wipe(){var w=document.createElement('div');w.className='wipe';w.setAttribute('aria-hidden','true');document.body.appendChild(w);return w;}
+if(!XVT&&!HE.RM&&document.body.animate){
+ try{if(sessionStorage.getItem('he-wipe')){sessionStorage.removeItem('he-wipe');var w=wipe();w.style.clipPath='circle(150% at '+origin()+')';
+  w.animate([{clipPath:'circle(150% at '+origin()+')'},{clipPath:'circle(0% at '+origin()+')'}],{duration:460,easing:'cubic-bezier(.7,0,.2,1)',fill:'forwards'}).onfinish=function(){w.remove();};}}catch(_){}
+ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||a.target)return;
+  var h=a.getAttribute('href');if(!/^[a-z-]+\.html/.test(h))return;e.preventDefault();var w=wipe();
+  w.animate([{clipPath:'circle(0% at '+origin()+')'},{clipPath:'circle(150% at '+origin()+')'}],{duration:420,easing:'cubic-bezier(.7,0,.2,1)',fill:'forwards'}).onfinish=function(){try{sessionStorage.setItem('he-wipe','1');}catch(_){}location.href=h;};});
+ addEventListener('pageshow',function(e){if(e.persisted)[].forEach.call(document.querySelectorAll('.wipe'),function(w){w.remove();});});
+}
+})();
+</script>
+<script>/* 九つ入：Pointer Events 拖放（輸入）＋ ?b= 序列化（可分享）＋ 封箱 FLIP 飛成掛紙（簽名） */
+(function(){var $=HE.$,I=HE.ITEMS,box=$('box'),tray=$('tray'),cells=[].slice.call(box.querySelectorAll('.cell')),sealed=false,P=null;
+ var q=new URLSearchParams(location.search),b=HE.dec(q.get('b')||'');
+ var add=q.get('add');if(add){var ai=I.findIndex(function(x){return x.id===add;});if(ai>=0){var e=b.indexOf(null);if(e>=0)b[e]=ai;}}
+ var waitML=HE.ml($('ml-wait'),{id:'BG-B-33',colors:{primary:'#D93A26',secondary:'#EDB01F',bg:'#EFEAE0'},duration:6,intensity:1,seed:9,aspectRatio:'4:5'});
+ function url(s){var u=location.pathname+'?b='+HE.enc(b)+(s?'&s=1':'');try{history.replaceState(null,'',u);}catch(_){}}
+ function draw(k,pop){var c=cells[k],v=b[k];c.innerHTML=v==null?'':HE.svg(I[v]);c.classList.toggle('on',v!=null);
+  c.setAttribute('aria-label','第 '+(k+1)+' 格'+(k===4?'（主角）':'')+'：'+(v==null?'空':I[v].zh+'，點一下拿出來'));
+  if(pop&&!HE.RM){c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');}}
+ function sum(){var t=HE.total(b);$('cnt').textContent=t.count;$('tot').textContent='NT$'+t.sum;var full=t.count===9;
+  $('seal').setAttribute('aria-disabled',full?'false':'true');$('seal-hint').textContent=sealed?'已封箱。按「改一下」可以重新打開。':full?'九個都到齊了。按「封」。':'還差 '+(9-t.count)+' 個才能封箱';}
+ function all(){cells.forEach(function(_,k){draw(k);});sum();}
+ function put(k,v){b[k]=v;draw(k,true);sum();url();}
+ function next(v){if(sealed)return;var e=b.indexOf(null);if(e<0){$('seal-hint').textContent='箱子滿了。點箱裡的一格拿出來再放。';return;}put(e,v);}
+ /* 拖放：移動超過 6px 才算拖，否則當作點擊 */
+ var drag=null,ghost=null,over=-1;
+ function cellAt(x,y){var el=document.elementFromPoint(x,y);el=el&&el.closest&&el.closest('.cell');return el?+el.dataset.c:-1;}
+ function start(e,v,src){if(sealed||e.button>0)return;drag={v:v,src:src,x:e.clientX,y:e.clientY,moved:false,id:e.pointerId,el:e.currentTarget};try{e.currentTarget.setPointerCapture(e.pointerId);}catch(_){}}
+ function move(e){if(!drag||e.pointerId!==drag.id)return;if(!drag.moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return;
+  if(!drag.moved){drag.moved=true;ghost=document.createElement('div');ghost.className='ghost';ghost.innerHTML=HE.svg(I[drag.v]);document.body.appendChild(ghost);}
+  ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';var k=cellAt(e.clientX,e.clientY);if(k!==over){if(over>=0)cells[over].classList.remove('drop');over=k;if(k>=0)cells[k].classList.add('drop');}}
+ function end(e){if(!drag||e.pointerId!==drag.id)return;var d=drag;drag=null;if(over>=0)cells[over].classList.remove('drop');
+  if(ghost){ghost.remove();ghost=null;}
+  if(!d.moved){d.src==null?next(d.v):put(d.src,null);over=-1;return;}
+  var k=over;over=-1;if(d.src==null){if(k>=0)put(k,d.v);return;}
+  if(k<0){put(d.src,null);return;}if(k===d.src)return;var t=b[k];b[k]=d.v;b[d.src]=t;draw(k,true);draw(d.src,t!=null);sum();url();}
+ [].forEach.call(tray.querySelectorAll('.ti'),function(t){var v=+t.dataset.i;t.addEventListener('pointerdown',function(e){start(e,v,null);});t.addEventListener('pointermove',move);t.addEventListener('pointerup',end);t.addEventListener('pointercancel',end);
+  t.addEventListener('click',function(e){if(e.detail===0)next(v);});});
+ cells.forEach(function(c,k){c.addEventListener('pointerdown',function(e){if(b[k]!=null)start(e,b[k],k);});c.addEventListener('pointermove',move);c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+  c.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' '||e.key==='Delete'||e.key==='Backspace')&&b[k]!=null&&!sealed){e.preventDefault();put(k,null);}});});
+ $('b-clear').onclick=function(){if(sealed)return;b=b.map(function(){return null;});all();url();};
+ $('b-fill').onclick=function(){if(sealed)return;var s=HE.fnv(HE.enc(b)+Date.now());b=b.map(function(v,k){if(v!=null)return v;s=Math.imul(s^(s>>>15),2246822507)>>>0;return s%I.length;});cells.forEach(function(_,k){draw(k,true);});sum();url();};
+ /* 掛紙 */
+ function fitK(){var w=Math.min($('kake').clientWidth||336,420);$('kposter').style.setProperty('--kw',Math.floor(w/6)*6+'px');}
+ function seal(instant){if(sealed||b.indexOf(null)>=0)return;sealed=true;P=HE.compose(b);var g=$('k-grid');g.innerHTML=HE.posterHTML(P,false);
+  var d=new Date();$('k-no').textContent='KAKEGAMI Nº '+P.no;$('k-date').textContent=d.getFullYear()+'·'+(d.getMonth()+1)+'·'+d.getDate()+' — '+['A','B','C','D'][P.tpl]+' LAYOUT';
+  $('a-no').textContent='Nº '+P.no;$('a-tot').textContent='NT$'+HE.total(b).sum;
+  if(waitML)waitML.kill();$('ml-wait').hidden=true;$('kposter').hidden=false;$('after').hidden=false;fitK();url(true);sum();
+  var fx=!instant&&!HE.RM&&document.body.animate;if(!fx){box.parentNode.classList.add('sealed');return;}
+  g.classList.add('hold','bhold');var tiles=[].slice.call(g.querySelectorAll('.pt')),done=0;
+  tiles.forEach(function(t,i){var from=cells[+t.dataset.from].getBoundingClientRect(),to=t.getBoundingClientRect(),f=document.createElement('div');f.className='fly';f.innerHTML=HE.svg(I[+t.dataset.item]);
+   f.style.width=to.width+'px';f.style.height=to.height+'px';document.body.appendChild(f);
+   var sx=from.width/to.width,sy=from.height/to.height,dx=from.left,dy=from.top,mx=(from.left+to.left)/2,my=Math.min(from.top,to.top)-60;
+   f.animate([{transform:'translate('+dx+'px,'+dy+'px) scale('+sx+','+sy+')'},{transform:'translate('+mx+'px,'+my+'px) scale('+(sx+1)/2+','+(sy+1)/2+') rotate('+(i%2?90:-90)+'deg)',offset:.5},{transform:'translate('+to.left+'px,'+to.top+'px) scale(1,1)'}],
+    {duration:880,delay:i*70,easing:'cubic-bezier(.7,0,.2,1)',fill:'both'}).onfinish=function(){t.style.visibility='visible';f.remove();if(++done===tiles.length){g.classList.remove('hold');tiles.forEach(function(x){x.style.visibility='';});}};});
+  setTimeout(function(){box.parentNode.classList.add('sealed');},120);
+  var blocks=[].slice.call(g.querySelectorAll('.pb'));setTimeout(function(){blocks.forEach(function(x,i){setTimeout(function(){x.style.transform='scale(1)';},i*90);});setTimeout(function(){g.classList.remove('bhold');blocks.forEach(function(x){x.style.transform='';});},blocks.length*90+300);},880+tiles.length*70);}
+ function unseal(){sealed=false;box.parentNode.classList.remove('sealed');$('kposter').hidden=true;$('after').hidden=true;$('ml-wait').hidden=false;
+  waitML=HE.ml($('ml-wait'),{id:'BG-B-33',colors:{primary:'#D93A26',secondary:'#EDB01F',bg:'#EFEAE0'},duration:6,intensity:1,seed:9,aspectRatio:'4:5'});url();sum();}
+ $('seal').onclick=function(){if(this.getAttribute('aria-disabled')==='true'){if(!HE.RM&&this.animate)this.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:240});return;}seal(false);};
+ $('b-open').onclick=unseal;
+ $('b-share').onclick=function(){var u=location.href,o=$('share-out');function show(t){o.textContent=t;}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(function(){show('已複製。任何人打開這個網址，都會看到同一盒、同一張掛紙：'+u);},function(){show(u);});else show(u);};
+ addEventListener('resize',function(){if(sealed)fitK();});
+ /* 取貨：兩日後起十天，避開週二 */
+ var sel=$('p-day'),W='日一二三四五六',t0=new Date();for(var i=2,n=0;n<8&&i<20;i++){var d=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+i);if(d.getDay()===2)continue;var o=document.createElement('option');o.textContent=(d.getMonth()+1)+'/'+d.getDate()+'（'+W[d.getDay()]+'）';sel.appendChild(o);n++;}
+ $('pick').addEventListener('submit',function(e){e.preventDefault();var nm=$('p-name').value.trim();$('pick-out').textContent='預訂成立（示意）：'+nm+'，'+sel.value+' '+$('p-slot').value+'，九つ入 Nº '+(P?P.no:'')+'，'+$('a-tot').textContent+'。取貨時付款，店裡會照這張掛紙把九個排進桐箱。';});
+ all();if(q.get('s')==='1'&&b.indexOf(null)<0)seal(true);else url();
+})();
+</script>
+</body>
+</html>

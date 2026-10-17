@@ -368,10 +368,11 @@
 | 350 | [七鹿可可 SIETE VENADO](sites/siete-venado/index.html) | 屏東可可園兼 bean-to-bar 工坊（內埔老埤・2009 年起；首屏是七張橫向摺頁古抄本圖版，紅線是地面也是讀序；〈取日名〉兩個生日換成兩個日名、畫成一頁婚約圖，可印上婚約杯禮盒） | 米斯特克—普埃布拉古抄本 Mixteca-Puebla Codex Style（恆寬黑框線・石膏白底礦物平塗・紅色導讀線・點數＋日符曆名・部件化側面人物、山形地名與足印） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 351 | [鉸刀林 KA-TO LÎM](sites/ka-to/index.html) | 剪刀專門店（臺北大同・1962 年起；首屏一張骨白紙被剪刀剪開，底下是被剪成五片的黑剪刀；14 秒剪紙片頭可拖曳倒轉；〈聽刃〉剪一刀聽聲音看切口、把五把剪刀送到正確工位） | Saul Bass 剪紙片頭與海報 Saul Bass Cut-paper Title & Poster（剪刀直線段鋸齒邊・朱橘地＋墨黑＋骨白・手剪歪字・解剖式碎片留縫・片頭刃條與硬切） | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 352 | [補磚舍 OFICINA DO AZULEJO QUE FALTA](sites/bou-zyun/index.html) | 葡式瓷磚修補與磚庫（澳門望德堂區・1981 年起；首頁是一面圖案磚牆，點一塊磚整面牆轉一格、同一塊磚排出四種牆；〈缺磚〉從八塊抽屜磚裡挑出三塊、轉對方向把花接回去） | 葡式瓷磚・圖案磚 Azulejo Português · Padrão（鈷藍三階稀釋＋錫釉白・磚格灰縫・四磚轉角成花・筆繪毛邊・卷葉框與中葡街名磚牌） | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 353 | [方圓菓子舖 HŌEN WAGASHI](sites/hong-inn/index.html) | 和菓子店（臺北長安西路・1966 年起；首頁是一張依真實月份重排的掛紙，〈九つ入〉把九個菓子拖進桐箱、按「封」九格飛出排成這一盒專屬的掛紙，網址即這一盒） | 日本戰後現代主義平面 Japanese Postwar Modernist Graphic（日宣美／田中一光・龜倉雄策：五種完美基本形・和色平塗・方眼模組零間距・明朝直排 × 極小 Jost・日の丸紅圓） | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 246 個產業種子 × 217 個風格種子（53,382 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 247 個產業種子 × 218 個風格種子（53,846 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

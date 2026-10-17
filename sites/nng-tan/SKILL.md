@@ -245,3 +245,14 @@ function spiral(cx,cy,r0,r1,turns,dir){let d='';const N=turns*72;
 - `ART.poster()` 生成一張 4 層海報 ≈ 0.15 ms；首屏 JS（放置光束、啟動描稿計時器）估計 < 5 ms，遠低於 100 ms 門檻。
 - 動畫只動 `transform`／`clip-path`／`opacity`：光盤轉動與 iris 由合成器執行；ракурс 追隨每幀只寫兩個 CSS 自訂屬性，無 layout thrashing。
 - 剪接台每一刀：一次 innerHTML（約 3 KB SVG）＋41 個座位改 `data-k`。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-32` | Shock Lines | primary #E5306F／secondary #141212／bg #F1D21C、duration 6、density 1、intensity 1、seed 1958 | ambient：檸檬黃地上洋紅實心楔形由中心向外放射、內圈半徑一起一落——Stenberg 海報的放射光束；只用實心三角平塗，零漸層零透明，條帶斜 −1.5° 呼應本站斜帶。 |
+| works.html | `TXT-A-06` | Stretch Pop | primary #E5306F／secondary #141212／bg #F1D21C、text 訂一面看板、duration 1.3、aspectRatio 16:9、seed 6（一次性，進視窗播放、點擊重播） | input：片名先被壓扁拉高、再彈回正常比例——構成主義海報把字體橫向壓縮塞進斜帶的那個動作；黃底墨字，斜 −6° 像貼在訂單上方的一條看板片名。 |
+| montage.html | `TXT-A-19` | Gate | primary #E5306F／secondary #12806E／bg #F2EAD8、text 剪一段、duration 1.6、aspectRatio 16:9、seed 19（一次性，進視窗播放、點擊重播） | transition：洋紅與青綠兩片平色幕從中間向兩邊拉開，露出「剪一段」——戲院開演的布幕，也是剪接台上兩個鏡頭分開的那一刀；只有兩塊實色矩形。 |
+| about.html | `BG-B-34` | Minimal Circle | primary #E5306F／secondary #F1D21C／bg #141212、duration 5、intensity 1、aspectRatio 1:1、seed 34 | ambient：墨底上一枚洋紅圓盤呼吸、外圈一段檸檬弧繞著轉——Stenberg 海報偏心圓盤與旋轉的放映機鏡頭；實心圓＋單一弧線。 |

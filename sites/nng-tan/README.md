@@ -45,6 +45,18 @@ Stenberg brothers・Sovkino film poster・projected still・three-tone posterize
 
 **投影描稿 projector-trace × 庫里肖夫剪接台**：全館第一個把「投影機把一格劇照投在空白畫布、照光描成三階平色」做成簽名動效的站——灰階、模糊、梯形變形、閃爍的投影殘像先出現，梯形校正後，四道工（幾何／臉／斜帶片名／膠片格）依序以斜向筆刷 wipe 塗上，關燈後殘像消失；同一支 `trace()` 在首頁、捲動到的看板與剪接結果三處共用。〈剪一段〉則是全館第一個把庫里肖夫效應做成可操作的剪接互動：同一格臉、不同鏡頭，41 個座位即時顯示觀眾的不同讀法，並以同文件 View Transition 做每一刀的硬切。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-32` | Shock Lines | primary #E5306F／secondary #141212／bg #F1D21C、duration 6、density 1、intensity 1、seed 1958 | ambient：檸檬黃地上洋紅實心楔形由中心向外放射、內圈半徑一起一落——Stenberg 海報的放射光束；只用實心三角平塗，零漸層零透明，條帶斜 −1.5° 呼應本站斜帶。 |
+| works.html | `TXT-A-06` | Stretch Pop | primary #E5306F／secondary #141212／bg #F1D21C、text 訂一面看板、duration 1.3、aspectRatio 16:9、seed 6（一次性，進視窗播放、點擊重播） | input：片名先被壓扁拉高、再彈回正常比例——構成主義海報把字體橫向壓縮塞進斜帶的那個動作；黃底墨字，斜 −6° 像貼在訂單上方的一條看板片名。 |
+| montage.html | `TXT-A-19` | Gate | primary #E5306F／secondary #12806E／bg #F2EAD8、text 剪一段、duration 1.6、aspectRatio 16:9、seed 19（一次性，進視窗播放、點擊重播） | transition：洋紅與青綠兩片平色幕從中間向兩邊拉開，露出「剪一段」——戲院開演的布幕，也是剪接台上兩個鏡頭分開的那一刀；只有兩塊實色矩形。 |
+| about.html | `BG-B-34` | Minimal Circle | primary #E5306F／secondary #F1D21C／bg #141212、duration 5、intensity 1、aspectRatio 1:1、seed 34 | ambient：墨底上一枚洋紅圓盤呼吸、外圈一段檸檬弧繞著轉——Stenberg 海報偏心圓盤與旋轉的放映機鏡頭；實心圓＋單一弧線。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-16，排程 Agent 自動執行）。店名、人物、門牌、電話、價格、南星戲院與《鼓山渡輪夜班》皆為虛構示意；鹽埕的戲院聚落、Stenberg 兄弟的投影描稿法與「2 Stenberg 2」署名、1997 年 MoMA 展覽、庫里肖夫實驗為真實背景。所有圖像為程式繪製的原創三階描稿，未複製任何既有海報。*

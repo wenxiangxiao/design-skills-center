@@ -51,6 +51,18 @@ The Designers Republic™、Sheffield「SoYo™ North of Nowhere™」、Warp Re
 
 **公開存量的不放回抽樣作為互動範式（戳戳樂零件板）**：全館第一個把「有限籤池、不放回」做成可玩規則的站——60 籤的組成印在板頭，每戳一格存量劃掉、下一戳各類機率即時重算顯示；抽到的零件直接組成一台車，由 **CSS offset-path 驅動跑過三線立體交叉換道橋**（橋上 z 層翻到橋面之上並放大、橋下從橋面底下穿過），速度與貼地值決定它會不會在橋的出口沿切線飛出去。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-24` | Barcode | primary #0E0F11／secondary #FF5000／bg #A9ACA6、duration 8、density 1、intensity 1、seed 1995 | ambient：遊戲機灰地上一排墨黑條碼持續捲過、偶爾一根信號橘長條——tDR 偽企業識別最愛的條碼與型號標籤；只有直角實心矩形。 |
+| parts.html | `TXT-A-29` | Counter | primary #FF5000／secondary #0E0F11／bg #F6F6F2、text PART 0047、duration 1.4、aspectRatio 16:9、seed 47（一次性，進視窗播放、點擊重播） | input：零件編號從 0000 跳到 0047、下方信號橘進度條同步填滿——型號與編號氾濫就是 tDR 的第一特徵；mono 字、平面色。 |
+| track.html | `SHP-37` | Path Follow | primary #FF5000／secondary #0E0F11／bg #F6F6F2、duration 2、intensity 1、scroll true、aspectRatio 16:9、seed 37（捲動驅動） | input：一個墨黑箭頭沿虛線賽道前進、走過的路段變信號橘，進度由捲動決定——四驅車在三線賽道上跑的抽象圖；底下淡淡的工程方格正是 tDR 的技術圖說底。 |
+| about.html | `TXT-A-16` | Tape Crossing | primary #FF5000／secondary #19B5E8／bg #0E0F11、text PIAU-HONG R&D™、duration 1.6、aspectRatio 16:9、seed 16（一次性，進視窗播放、點擊重播） | input：信號橘與青藍兩條印著店名™的膠帶斜向交叉貼上——tDR 把企業標語當貼紙與包裝帶亂貼的語法；™ 本身就是本站特徵①。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-16，排程 Agent 自動執行）。店名、人物、門牌、電話、價格、紀錄皆為虛構示意；四驅車文化、日本全國大賽停辦與復辦、The Designers Republic™ 與 Wipeout 的設計史為真實背景。所有圖像為程式繪製的原創象形，未複製任何既有商標、封套或遊戲畫面。*

@@ -41,6 +41,18 @@ Die neue Typographie・Elementare Typographie・Jan Tschichold 1925／1928・rin
 
 **中軸解除：用捲動把一張置中的舊傳單一行一行改排成不對稱新式樣（scroll-scrubbed typographic re-set）**——全館第一個 Die neue Typographie 站，也是第一個把「排版規則的前後對照」本身做成可捲動時間軸的站：每一行的位移量由 JS 量測寫入 `--dx`，之後完全交給 CSS `animation-timeline: --reset` 驅動，可來回刷。〈排一張〉則是全館第一個用 **CSS anchor positioning 把規則判讀標註直接拴在被拖動的版面元件上**的站：「× 置中」標籤、跨越兩個元件的紅色軸線（`top` 與 `bottom` 錨在不同元件上）、字級反差讀數、浮動工具列都由瀏覽器跟著元件走，JS 只負責規則引擎。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-B-18` | Horizontal Lines | primary #121212／secondary #EE3A1C／bg #EDEFEA、duration 9、density 0.7、intensity 1、seed 1971 | ambient：一疊全寬黑條粗細緩慢起伏、往下推移，每六條才一道紅——鉛條（粗細線）本來就是字盒裡的零件，特徵④的粗條當作重量；元件只用 fillRect 直角矩形、零圓角零漸層，帶子從左軸 --ax 起頭，不置中。 |
+| rates.html | `TXT-A-08` | Slide Text | primary #EE3A1C／secondary #121212／bg #EDEFEA、text 工資 明碼、duration 1.2、aspectRatio 16:9、seed 4（一次性，進視窗播放、點擊重播） | input：字一個一個從左邊滑進來、下方一道紅條由左向右長出——正是本站列 hover 的紅條 scaleX 與簽名「中軸解除」行滑向左軸的同一個動作；拉丁全小寫、紙底黑字、一道紅。 |
+| set.html | `TXT-A-27` | Typewriter | primary #EE3A1C／secondary #121212／bg #EDEFEA、text 排一張 setzen、duration 1.8、aspectRatio 16:9、seed 8（一次性，進視窗播放、點擊重播） | input：〈排一張〉就是排字：字一格一格落進排字盒，紅色方塊游標（實心矩形）在行尾閃——活版術的工作過程本身；無透明、無圓角，單一紅零件。 |
+| about.html | `SHP-34` | Circle Draw | primary #121212／secondary #EE3A1C／bg #EDEFEA、duration 2、intensity 1、scroll true、aspectRatio 1:1、seed 2（捲動驅動） | input：捲動店史時，一個黑圓隨捲動進度被畫滿、前端一顆紅點跟著走——圓是零件不是裝飾（特徵④），紅點就是頁首導線那顆『電流』；以捲動 seek，等於讀到哪、圓就閉合到哪。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-15，排程 Agent 自動執行）。店名、人物、門牌、電話與價格皆為虛構示意；Jan Tschichold《Elementare Typographie》（1925）、《Die neue Typographie》（1928）、DIN 476／DIN 676 為真實背景。所有圖像為原創 SVG 幾何。*

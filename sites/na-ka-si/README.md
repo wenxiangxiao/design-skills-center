@@ -44,6 +44,18 @@ Toulouse-Lautrec・Divan Japonais・Jules Chéret・affiche lithographique・四
 
 **甩刷噴點 crachis：把指標甩動的速度變成石版上的墨點（flick-to-spatter crachis on a live four-stone lithograph）**：全館第一個羅特列克／美好年代石版海報站，也是第一個讓使用者用手勢「甩」出印刷中間調的站——按住拖曳的速度決定噴出的顆數（×55，上限 260）、飛行距離（×90 單位）與顆粒大小遞減，墨點寫進當下那塊石版、並利用 multiply 的可交換性直接增量疊進成品，不必重合成整張。〈印一張〉把它放進真實的工序：四塊石頭 Y→R→O→K 依序壓印，每塊壓完給五秒「趁墨還濕」的甩刷窗，雅筑依四色噴點比例給評語；套印誤差在壓印過程中逐塊收斂，最後由 `@property --reg` 把朱版字彈回套準。附帶：同一份 `scene()` 在建置期輸出無 JS 靜態 SVG 備援、在執行期惰性生成石版；歌的類型（鄉／情／酒）決定海報前景（一個人／兩個人／舉杯）。
 
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-07` | Random Pop Dots | primary #5E6A33／secondary #1B1712／bg #CFC63B、duration 5、density 2.2、intensity 0.32、seed 1961 | ambient：苦艾黃石面上，橄欖與墨兩色的不規則圓點此起彼落地「甩」上來又消失——就是 crachis 噴點（特徵②）的動態版；元件只畫實心圓、零漸層零陰影，條帶歪 −1.5° 沿用本站以旋轉取代水平分隔線的習慣。 |
+| kiok.html | `TXT-A-35` | Stripe Mask | primary #DB4A2C／secondary #1B1712／bg #CFC63B、text 點唱 Tarif、duration 1.4、aspectRatio 16:9、seed 3（一次性，進視窗播放、點擊重播） | input：字被十四道硬邊直條逐條「壓」出來，朱色細線像刮刀在石面上推過——一塊石頭一道墨、只有有墨／沒墨，零淡入零模糊；黃底墨字＝本站「底一律是 Y、字給 K」的規則，歪 −2° 像貼在價目欄上方的一張小傳單。 |
+| in.html | `TXT-B-36` | Ink Bleed | primary #DB4A2C／secondary #5E6A33／bg #F0E7CF、text 印一張、duration 1.6、aspectRatio 16:9、seed 5（一次性，進視窗播放、點擊重播） | input：〈印一張〉的字由幾團不規則墨漬吸進紙裡長出來，邊緣是波動的有機輪廓而不是幾何——石灰石吸油、墨在紙上暈開的那一下；紙白底配近墨黑字，點擊可再印一次，與本頁四石壓印的主題同一件事。 |
+| lai.html | `SHP-33` | Squiggle Draw | primary #5E6A33／secondary #DB4A2C／bg #F0E7CF、duration 4.2、intensity 0.9、aspectRatio 16:9、seed 12 | ambient：一條橄欖色的毛筆線在紙上一筆畫出去、畫完又重來，永遠是「正在描」的開放線——特徵④橄欖線版、只描一半的手；不封閉、不填色，歪 −3° 擺在預約須知上方像琴頸的一道筆勢。 |
+
 ---
 
 *本站由 **Claude Opus 5.5** 設計與建置（2026-10-15，排程 Agent 自動執行）。店名、人物、門牌、電話、價格與行程皆為虛構示意；北投溫泉與那卡西文化、Toulouse-Lautrec〈Divan Japonais〉（1892–93）與 crachis 技法、Jules Chéret、colonne Morris 為真實背景。海報與所有圖像皆為原創程序化圖形，非任何館藏作品之複製；歌名僅列標題，不含歌詞。*

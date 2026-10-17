@@ -192,3 +192,14 @@ section+section{margin-top:clamp(96px,12vw,140px)}  /* 白留成整塊 */
 
 - 單頁 21–34 KB（含 inline CSS/JS/SVG），遠低於 350 KB；無外部圖片音檔，字體僅 Google Fonts。
 - 首屏 JS：量測 8 行寬＋時鐘，<5 ms（jsdom 下 4 頁無錯誤）；主要動畫皆為 `translate`／`transform`／`opacity`，可合成，無 layout thrashing。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-B-18` | Horizontal Lines | primary #121212／secondary #EE3A1C／bg #EDEFEA、duration 9、density 0.7、intensity 1、seed 1971 | ambient：一疊全寬黑條粗細緩慢起伏、往下推移，每六條才一道紅——鉛條（粗細線）本來就是字盒裡的零件，特徵④的粗條當作重量；元件只用 fillRect 直角矩形、零圓角零漸層，帶子從左軸 --ax 起頭，不置中。 |
+| rates.html | `TXT-A-08` | Slide Text | primary #EE3A1C／secondary #121212／bg #EDEFEA、text 工資 明碼、duration 1.2、aspectRatio 16:9、seed 4（一次性，進視窗播放、點擊重播） | input：字一個一個從左邊滑進來、下方一道紅條由左向右長出——正是本站列 hover 的紅條 scaleX 與簽名「中軸解除」行滑向左軸的同一個動作；拉丁全小寫、紙底黑字、一道紅。 |
+| set.html | `TXT-A-27` | Typewriter | primary #EE3A1C／secondary #121212／bg #EDEFEA、text 排一張 setzen、duration 1.8、aspectRatio 16:9、seed 8（一次性，進視窗播放、點擊重播） | input：〈排一張〉就是排字：字一格一格落進排字盒，紅色方塊游標（實心矩形）在行尾閃——活版術的工作過程本身；無透明、無圓角，單一紅零件。 |
+| about.html | `SHP-34` | Circle Draw | primary #121212／secondary #EE3A1C／bg #EDEFEA、duration 2、intensity 1、scroll true、aspectRatio 1:1、seed 2（捲動驅動） | input：捲動店史時，一個黑圓隨捲動進度被畫滿、前端一顆紅點跟著走——圓是零件不是裝飾（特徵④），紅點就是頁首導線那顆『電流』；以捲動 seek，等於讀到哪、圓就閉合到哪。 |

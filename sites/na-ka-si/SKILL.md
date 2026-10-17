@@ -257,3 +257,14 @@ function brush(g,pts,w,ink){const P=catmullRom(pts,26);g.fillStyle=ink;
 - 繪製成本（以 Node 22＋@napi-rs/canvas〔Skia 軟體繪製〕實測，960px 寬、DPR 2 等效）：紙＋套印參數 3.7ms、首塊黃版 8ms；朱／橄欖／墨三塊合計 59ms，但為**惰性生成**——首屏只做紙與黃版，其餘在壓印動畫期間以 60ms 間隔逐塊生成，不阻塞首屏。甩刷 20 次增量疊印合計 5.9ms（每次 <0.3ms）。瀏覽器的 canvas 合成走 GPU，實際會更快；軟體繪製值作為上限參考。
 - 噴點一律「一顆一個 path」或 `fillRect`（<0.6 單位）；**不要**把上萬顆圓塞進同一個 Path2D 再 fill——在 Skia 上這會從數十毫秒退化到數十秒（實測 40k 顆：單一路徑 82s，逐顆 64ms）。
 - ResizeObserver 僅在寬度變化 >40 裝置像素時重建石版；〈印一張〉印製中鎖定不重建，以免使用者甩上的噴點消失。
+
+## motion-library 元件（2026-10-17 補入，PLAYBOOK §2.8）
+
+取自私人元件庫 `wenxiangxiao/motion-library` 1.1.0（@eb4d70c），以 `tools/ml-retrofit.js` 只抽引擎核心＋下列元件 inline 進每頁。顏色只用本站色票；canvas 為裝飾（aria-hidden），無 JS／無 canvas 時不顯示；離開視窗即停止繪製；reduced-motion 時背景停單格、文字停最後一格。
+
+| 頁 | ID | 名稱 | 參數 | 承載什麼／為什麼適合本流派 |
+|---|---|---|---|---|
+| index.html | `BG-A-07` | Random Pop Dots | primary #5E6A33／secondary #1B1712／bg #CFC63B、duration 5、density 2.2、intensity 0.32、seed 1961 | ambient：苦艾黃石面上，橄欖與墨兩色的不規則圓點此起彼落地「甩」上來又消失——就是 crachis 噴點（特徵②）的動態版；元件只畫實心圓、零漸層零陰影，條帶歪 −1.5° 沿用本站以旋轉取代水平分隔線的習慣。 |
+| kiok.html | `TXT-A-35` | Stripe Mask | primary #DB4A2C／secondary #1B1712／bg #CFC63B、text 點唱 Tarif、duration 1.4、aspectRatio 16:9、seed 3（一次性，進視窗播放、點擊重播） | input：字被十四道硬邊直條逐條「壓」出來，朱色細線像刮刀在石面上推過——一塊石頭一道墨、只有有墨／沒墨，零淡入零模糊；黃底墨字＝本站「底一律是 Y、字給 K」的規則，歪 −2° 像貼在價目欄上方的一張小傳單。 |
+| in.html | `TXT-B-36` | Ink Bleed | primary #DB4A2C／secondary #5E6A33／bg #F0E7CF、text 印一張、duration 1.6、aspectRatio 16:9、seed 5（一次性，進視窗播放、點擊重播） | input：〈印一張〉的字由幾團不規則墨漬吸進紙裡長出來，邊緣是波動的有機輪廓而不是幾何——石灰石吸油、墨在紙上暈開的那一下；紙白底配近墨黑字，點擊可再印一次，與本頁四石壓印的主題同一件事。 |
+| lai.html | `SHP-33` | Squiggle Draw | primary #5E6A33／secondary #DB4A2C／bg #F0E7CF、duration 4.2、intensity 0.9、aspectRatio 16:9、seed 12 | ambient：一條橄欖色的毛筆線在紙上一筆畫出去、畫完又重來，永遠是「正在描」的開放線——特徵④橄欖線版、只描一半的手；不封閉、不填色，歪 −3° 擺在預約須知上方像琴頸的一道筆勢。 |

@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="zh-Hant-TW" data-page="dedicate" data-pl="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>/* motion-library 1.1.0 @eb4d70c 子集：BG-A-29, TXT-A-11, SHP-15, BG-B-19, BG-B-21（tools/ml-embed.js 產生，勿手改） */
+
+(function (root) {
+'use strict';
+const TAU = Math.PI * 2;
+const cl = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const fr = v => v - Math.floor(v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => cl((p - a) / (b - a));
+const E = {
+l: t => t,
+oc: t => 1 - (1 - t) ** 3,
+oq: t => 1 - (1 - t) ** 4,
+ic: t => t * t * t,
+io: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+ob: t => { const a = 1.70158, b = a + 1; return 1 + b * (t - 1) ** 3 + a * (t - 1) ** 2; },
+el: t => t <= 0 ? 0 : t >= 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - .75) * TAU / 3) + 1,
+bo: t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+};
+const stg = (p, i, n, sp = .5) => { const o = n > 1 ? i / (n - 1) * sp : 0; return seg(p, o, o + 1 - sp); };
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const R = (c, salt) => { const r = rng(c.seed * 9973 + salt * 7919 + 17); r(); r(); return r; };
+
+/* ---------- color ---------- */
+function hex(h) { h = (h || '#000').replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const toHex = a => '#' + a.map(v => Math.round(cl(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => lerp(v, B[i], t))); };
+const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${cl(a)})`; };
+const lum = h => { const [r, g, b] = hex(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+const inkFor = bg => lum(bg) > .55 ? '#121418' : '#F4F6F8';
+
+/* ---------- drawing helpers ---------- */
+function bgFill(c, col) { c.ctx.fillStyle = col || c.bg; c.ctx.fillRect(0, 0, c.W, c.H); }
+function gridLines(c, s, ox, oy, col, lw = 1) { const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (let X = ((ox % s) + s) % s; X <= W; X += s) { x.moveTo(X, 0); x.lineTo(X, H); } for (let Y = ((oy % s) + s) % s; Y <= H; Y += s) { x.moveTo(0, Y); x.lineTo(W, Y); } x.stroke(); }
+function dot(x, X, Y, r) { if (r <= .25) return; x.beginPath(); x.arc(X, Y, r, 0, TAU); x.fill(); }
+function halftone(c, st, fn, col) { const { ctx: x, W, H } = c; x.fillStyle = col || c.pr; for (let Y = st / 2; Y < H + st; Y += st) for (let X = st / 2; X < W + st; X += st) dot(x, X, Y, cl(fn(X, Y)) * st * .56); }
+function star(x, X, Y, r1, r2, n, rot) { x.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n - Math.PI / 2, r = i % 2 ? r2 : r1; i ? x.lineTo(X + Math.cos(a) * r, Y + Math.sin(a) * r) : x.moveTo(X + Math.cos(a) * r, Y + Math.sin(a) * r); } x.closePath(); }
+function heart(x, X, Y, s) { x.beginPath(); x.moveTo(X, Y + s * .35); x.bezierCurveTo(X - s * 1.1, Y - s * .35, X - s * .45, Y - s * 1.05, X, Y - s * .45); x.bezierCurveTo(X + s * .45, Y - s * 1.05, X + s * 1.1, Y - s * .35, X, Y + s * .35); x.closePath(); }
+function rr(x, X, Y, w, h, r) { r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2)); x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function poly(x, pts, close = true) { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); if (close) x.closePath(); }
+function ngon(n, r, rot = 0) { const a = []; for (let i = 0; i < n; i++) { const t = rot + i / n * TAU - Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; }
+function shape(x, kind, X, Y, s, rot = 0) {
+x.save(); x.translate(X, Y); x.rotate(rot);
+if (kind === 0) { x.beginPath(); x.arc(0, 0, s, 0, TAU); }
+else if (kind === 1) { poly(x, ngon(3, s * 1.15)); }
+else if (kind === 2) { rr(x, -s * .9, -s * .9, s * 1.8, s * 1.8, s * .2); }
+else if (kind === 3) { star(x, 0, 0, s * 1.1, s * .5, 5, 0); }
+else { const w = s * .38; x.beginPath(); x.rect(-s, -w, s * 2, w * 2); x.rect(-w, -s, w * 2, s * 2); }
+x.restore();
+}
+function partial(x, pts, f) { const n = pts.length; const m = f * (n - 1); if (m <= 0) return; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); const k = Math.floor(m); for (let i = 1; i <= k; i++) x.lineTo(pts[i][0], pts[i][1]); if (k < n - 1) { const t = m - k; x.lineTo(lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)); } x.stroke(); }
+function floor3d(c, hz, col, n = 14, cols = 18, speed = 1) {
+const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = 1.5;
+for (let k = 0; k <= n; k++) { const f = (k + fr(c.p * speed)) / n; const y = hz + (H - hz) * f ** 2.6; x.globalAlpha = cl(f * 1.6); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+x.globalAlpha = 1; for (let i = -cols; i <= cols; i++) { x.beginPath(); x.moveTo(W / 2 + i * W * .02, hz); x.lineTo(W / 2 + i * W * .22, H); x.stroke(); }
+}
+
+/* ---------- offscreen ---------- */
+const POOL = [];
+function off(c, i = 0) {
+let o = POOL[i]; const w = Math.max(1, Math.round(c.W * c.dpr)), h = Math.max(1, Math.round(c.H * c.dpr));
+if (!o) { const cv = document.createElement('canvas'); o = POOL[i] = { cv, ctx: cv.getContext('2d') }; }
+if (o.cv.width !== w || o.cv.height !== h) { o.cv.width = w; o.cv.height = h; }
+const x = o.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, w, h); x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0); return o;
+}
+
+/* ---------- text layout ---------- */
+const FAM = { sans: '"Unbounded","Noto Sans TC",system-ui,sans-serif', tc: '"Noto Sans TC",system-ui,sans-serif', serif: '"Noto Serif TC","Songti TC",serif', mono: '"JetBrains Mono",ui-monospace,monospace' };
+const LC = new Map(); let MC = null;
+function lay(c, o = {}) {
+const text = o.text != null ? o.text : (c.P.text || ' ');
+const maxW = o.maxW || .82, maxH = o.maxH || .24, w = o.w || 800, fam = o.fam || 'sans', sc = o.sc || 1;
+const key = [text, c.W, c.H, maxW, maxH, w, fam, sc].join('|'); let L = LC.get(key); if (L) return L;
+if (!MC) MC = document.createElement('canvas').getContext('2d');
+const ch = Array.from(text.length ? text : ' '); MC.font = `${w} 100px ${FAM[fam]}`;
+const ws = ch.map(s => MC.measureText(s).width || 30); const tot = ws.reduce((a, b) => a + b, 0) || 1;
+const fs = Math.min(c.H * maxH, c.W * maxW * 100 / tot) * sc, k = fs / 100;
+let X = c.W / 2 - tot * k / 2; const xs = []; ws.forEach(v => { xs.push(X + v * k / 2); X += v * k; });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, width: tot * k, left: c.W / 2 - tot * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L;
+}
+function setFont(x, L) { x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle'; }
+function drawChars(c, fn, o = {}) {
+const L = lay(c, o), x = c.ctx, n = L.ch.length, Y = c.cy + (o.y || 0) * c.H; setFont(x, L); x.lineJoin = 'round';
+for (let i = 0; i < n; i++) {
+const s = fn(i, n, L) || {}; if (s.a === 0 || s.skip) continue;
+x.save(); x.globalAlpha = cl(s.a == null ? 1 : s.a);
+const piv = s.piv || 0, pivx = s.pivx || 0;
+x.translate(L.xs[i] + (s.dx || 0) + pivx, Y + (s.dy || 0) + piv); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc); x.translate(-pivx, -piv);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(s.ch || L.ch[i], 0, 0); }
+if (!s.noFill) { x.fillStyle = s.col || c.ink; x.fillText(s.ch || L.ch[i], 0, 0); }
+x.restore();
+}
+return L;
+}
+function word(c, s = {}, o = {}) {
+const L = lay(c, o), x = c.ctx; x.save(); setFont(x, L); x.lineJoin = 'round'; x.globalAlpha = cl(s.a == null ? 1 : s.a);
+x.translate(c.cx + (s.dx || 0), c.cy + (o.y || 0) * c.H + (s.dy || 0)); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(L.text, 0, 0); }
+if (!s.noFill) { x.fillStyle = s.fill || s.col || c.ink; x.fillText(L.text, 0, 0); }
+x.restore(); return L;
+}
+function maskText(c, mask, o = {}) {
+const O = off(c, 0), L = lay(c, o), x = O.ctx; setFont(x, L); x.fillStyle = o.col || c.ink; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; mask(m, L);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); return L;
+}
+const PC = new Map();
+function textPts(c, step, o = {}) {
+const L = lay(c, o); const key = L.font + L.text + c.W + 'x' + c.H + '|' + step + '|' + (o.y || 0); if (PC.has(key)) return PC.get(key);
+const cv = document.createElement('canvas'); cv.width = Math.ceil(c.W); cv.height = Math.ceil(c.H); const x = cv.getContext('2d');
+setFont(x, L); x.fillStyle = '#000'; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const d = x.getImageData(0, 0, cv.width, cv.height).data, pts = [];
+for (let Y = Math.floor(step / 2); Y < cv.height; Y += step) for (let X = Math.floor(step / 2); X < cv.width; X += step) if (d[(Y * cv.width + X) * 4 + 3] > 110) pts.push([X, Y]);
+PC.set(key, pts); if (PC.size > 40) PC.delete(PC.keys().next().value); return pts;
+}
+const GLYPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=?<>動態元件畫面切換';
+
+/* =================================================================
+BACKGROUNDS（BG-A、BG-B）— 以 p∈[0,1) 無縫循環
+================================================================= */
+const ecg = u => { u = fr(u); if (u < .4) return Math.sin(u / .4 * Math.PI) * .04; if (u < .45) return -.12 * (u - .4) / .05; if (u < .5) return -.12 + 1.12 * (u - .45) / .05; if (u < .55) return 1 - 1.35 * (u - .5) / .05; if (u < .6) return -.35 + .35 * (u - .55) / .05; if (u < .75) return Math.sin((u - .6) / .15 * Math.PI) * .18; return 0; };
+function zoomRings(c, fn, n = 22, base = .06, mul = 1.32) { for (let k = -6; k < n; k++) { const v = k + c.p * 2, r = c.u * base * mul ** v; if (r > Math.hypot(c.W, c.H)) break; fn(r, v, k); } }
+const BG = {
+'Topo Lines': c => { bgFill(c); const { ctx: x, W, H } = c; const hills = [[W * .35, H * .45], [W * .72, H * .6]], n = Math.round(10 * c.d) + 4;
+hills.forEach((hl, hi) => { for (let k = 1; k <= n; k++) { const base = k * c.u * .055; x.strokeStyle = k % 5 === 0 ? c.se : rgba(c.pr, .75); x.lineWidth = k % 5 === 0 ? 2.4 : 1.3; x.beginPath();
+for (let a = 0; a <= TAU + .01; a += TAU / 90) { const rad = base * (1 + .14 * c.k * Math.sin(3 * a + c.ph + k * .3 + hi) + .08 * Math.sin(5 * a - c.ph + k * .2)); const X = hl[0] + Math.cos(a) * rad, Y = hl[1] + Math.sin(a) * rad * .8; a ? x.lineTo(X, Y) : x.moveTo(X, Y); } x.stroke(); } }); },
+'Line Burst': c => { bgFill(c); const { ctx: x, W, H } = c; const r = R(c, 43), n = Math.round(60 * c.d) + 16, mx = Math.hypot(W, H) / 2; x.lineCap = 'round';
+for (let i = 0; i < n; i++) { const a = r() * TAU, o = r(), L = c.u * (.06 + r() * .14) * c.k, col = r() < .3 ? c.se : c.pr, f = fr(o + c.p), d1 = c.u * .05 + f * mx; x.strokeStyle = rgba(col, cl(f * 4) * (1 - f * .6)); x.lineWidth = 2 + 3 * f;
+x.beginPath(); x.moveTo(W / 2 + Math.cos(a) * d1, H / 2 + Math.sin(a) * d1); x.lineTo(W / 2 + Math.cos(a) * (d1 + L), H / 2 + Math.sin(a) * (d1 + L)); x.stroke(); } },
+'Ripple Rings': c => { bgFill(c); const { ctx: x, W, H } = c; const n = Math.round(8 * c.d) + 3, mx = Math.hypot(W, H) / 2;
+for (let i = 0; i < n; i++) { const f = fr(c.p + i / n), rad = f * mx; x.strokeStyle = rgba(i % 3 === 0 ? c.se : c.pr, (1 - f) * .95); x.lineWidth = Math.max(1, c.u * .03 * (1 - f) * c.k); x.beginPath(); x.arc(W / 2, H / 2, rad, 0, TAU); x.stroke(); } },
+};
+
+/* =================================================================
+TEXT（TXT-A、TXT-B）— 單次動作 p∈[0,1]，結束停格清楚
+================================================================= */
+function wordsOf(t) { const w = t.trim().split(/\s+/).filter(Boolean); return w.length > 1 ? w : null; }
+function ghost(c, n, fn) { for (let k = n; k >= 0; k--) fn(k / n, k === 0 ? 1 : (1 - k / (n + 1)) * .35); }
+function digits(t, d = '280') { const m = (t || '').match(/\d+/); return m ? m[0] : d; }
+const TX = {
+'Repeat Lines': c => { bgFill(c); const { ctx: x } = c; const L = lay(c, { maxH: .16 }); setFont(x, L); x.lineWidth = Math.max(1, L.fs * .025);
+for (let row = -3; row <= 3; row++) { if (!row) continue; const q = E.oc(stg(c.p, Math.abs(row) - 1, 3, .5)), dir = row % 2 ? 1 : -1; x.strokeStyle = rgba(row % 2 ? c.pr : c.se, (1 - Math.abs(row) / 4.5) * q); x.strokeText(L.text, c.cx + dir * (1 - q) * c.W * .5, c.cy + row * L.fs * 1.05); }
+word(c, { a: seg(c.p, .2, .6), sc: lerp(1.2, 1, E.oc(seg(c.p, .2, .7))) }, { maxH: .16 }); },
+};
+
+/* =================================================================
+SHAPES（SHP）
+================================================================= */
+function softGrid(c) { bgFill(c); gridLines(c, c.u / 8, c.W / 2, c.H / 2, rgba(c.ink, .06)); }
+function floorLine(c, y) { c.ctx.strokeStyle = rgba(c.ink, .25); c.ctx.lineWidth = 2; c.ctx.beginPath(); c.ctx.moveTo(c.W * .1, y); c.ctx.lineTo(c.W * .9, y); c.ctx.stroke(); }
+function polyPts(kind, rad, n = 120) { const out = []; for (let i = 0; i < n; i++) { const t = i / n; if (kind === 'circle') { const a = t * TAU - Math.PI / 2; out.push([Math.cos(a) * rad, Math.sin(a) * rad]); continue; } const v = ngon(kind === 'tri' ? 3 : 4, rad * (kind === 'tri' ? 1.25 : 1.2), kind === 'sq' ? Math.PI / 4 : 0), m = v.length, f = t * m, k = Math.floor(f), u = f - k, A = v[k % m], B = v[(k + 1) % m]; out.push([lerp(A[0], B[0], u), lerp(A[1], B[1], u)]); } return out; }
+const SH = {
+'Ring Expand': c => { softGrid(c); const { ctx: x } = c; for (let i = 0; i < 4; i++) { const q = E.oc(stg(c.p, i, 4, .5)), rad = c.u * .4 * q; x.strokeStyle = rgba(i % 2 ? c.se : c.pr, 1 - q * .7); x.lineWidth = c.u * .02 * (1 - q) * c.k + 1; x.beginPath(); x.arc(c.cx, c.cy, rad, 0, TAU); x.stroke(); } x.fillStyle = c.pr; dot(x, c.cx, c.cy, c.u * .05 * E.ob(seg(c.p, 0, .3))); },
+};
+
+/* =================================================================
+TELOP（TEL）— 字幕與資訊版型，於示意畫面上
+================================================================= */
+const SC = new Map();
+function cached(key, W, H, dpr, draw) { let v = SC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr)); const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); draw(x); if (SC.size > 24) SC.delete(SC.keys().next().value); SC.set(key, cv); return cv; }
+function telScene(c) {
+const cv = cached(['tel', c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H } = c, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(c.bg, c.pr, .35)); g.addColorStop(.62, mix(c.bg, c.se, .12)); g.addColorStop(1, c.bg); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = R(c, 70); for (let i = 0; i < 14; i++) { const X = r() * W, Y = r() * H * .7, s = c.u * (.04 + r() * .12); const gg = x.createRadialGradient(X, Y, 0, X, Y, s); gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .35)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - s, Y - s, s * 2, s * 2); }
+x.fillStyle = mix(c.bg, '#000000', .25); x.beginPath(); x.moveTo(0, H * .72); for (let X = 0; X <= W; X += W / 12) x.lineTo(X, H * .7 - Math.sin(X / W * 7 + 1) * H * .04 - r() * H * .03); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fill();
+x.strokeStyle = rgba('#ffffff', .25); x.lineWidth = 1; const m = Math.min(W, H) * .05; x.strokeRect(m, m, W - m * 2, H - m * 2);
+});
+c.ctx.drawImage(cv, 0, 0, c.W, c.H); c.ctx.fillStyle = rgba('#ffffff', .65); c.ctx.font = `600 ${Math.max(9, c.u * .028)}px ${FAM.mono}`; c.ctx.textAlign = 'left'; c.ctx.textBaseline = 'top'; c.ctx.fillText('● REC  00:00:' + String(Math.floor(c.t % 60)).padStart(2, '0'), c.u * .07, c.u * .07);
+}
+const CAP = (o = {}) => ({ maxH: .085, maxW: .8, fam: 'tc', w: 900, y: .3, ...o });
+const TITLE = (o = {}) => ({ maxH: .15, maxW: .76, w: 900, ...o });
+function capBox(c, L, pad, col, y, rad = 6, wq = 1) { const x = c.ctx, w = (L.width + pad * 2) * wq, h = L.fs + pad * 1.3; x.fillStyle = col; rr(x, c.cx - w / 2, c.cy + y * c.H - h / 2, w, h, rad); x.fill(); return { w, h }; }
+function pendingBadge(c, id) { const x = c.ctx, fs = Math.max(10, c.u * .04); x.font = `600 ${fs}px ${FAM.mono}`; const t = '待核對 · ' + id, w = x.measureText(t).width + fs * 1.4; x.setLineDash([5, 4]); x.strokeStyle = c.se; x.lineWidth = 1.5; rr(x, c.W - w - fs, fs, w, fs * 1.9, 6); x.stroke(); x.setLineDash([]); x.fillStyle = c.se; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(t, c.W - w - fs + fs * .7, fs * 1.95); }
+const TL = {
+_pending: (c, item) => { telScene(c); const o = CAP({ w: 700 }), q = E.oc(seg(c.p, 0, .4)); word(c, { a: q, col: '#ffffff', stroke: lay(c, o).fs * .14, strokeCol: rgba('#000000', .7) }, o); pendingBadge(c, item.id); },
+};
+
+/* =================================================================
+TRANSITIONS（TRN）— A → B，無黑幀
+================================================================= */
+function scene(c, which) {
+return cached(['scn', which, c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H, u } = c, A = which === 'A', base = A ? c.bg : c.se, card = A ? c.pr : c.bg, fg = A ? inkFor(c.pr) : inkFor(c.bg);
+x.fillStyle = base; x.fillRect(0, 0, W, H); x.strokeStyle = rgba(inkFor(base), .08); x.lineWidth = 1; for (let X = 0; X < W; X += u / 10) { x.beginPath(); x.moveTo(X, 0); x.lineTo(X, H); x.stroke(); } for (let Y = 0; Y < H; Y += u / 10) { x.beginPath(); x.moveTo(0, Y); x.lineTo(W, Y); x.stroke(); }
+const cw = W * .62, ch = H * .56; x.fillStyle = card; rr(x, (W - cw) / 2, (H - ch) / 2, cw, ch, u * .04); x.fill(); x.fillStyle = fg; x.font = `800 ${Math.min(ch * .62, cw * .5)}px ${FAM.sans}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(which, W / 2, H / 2 + ch * .03);
+x.fillStyle = rgba(fg, .5); dot(x, (W - cw) / 2 + u * .05, (H - ch) / 2 + u * .05, u * .014); x.fillRect(W / 2 + cw / 2 - u * .07, H / 2 + ch / 2 - u * .07, u * .03, u * .03);
+x.font = `600 ${Math.max(9, u * .032)}px ${FAM.mono}`; x.textAlign = 'left'; x.textBaseline = 'top'; x.fillStyle = rgba(inkFor(base), .7); x.fillText('SCENE ' + which + (A ? '  ·  00:00:04' : '  ·  00:00:05'), u * .05, u * .05);
+});
+}
+function maskB(c, drawMask) { const O = off(c, 3), x = O.ctx; x.drawImage(scene(c, 'B'), 0, 0, c.W, c.H); const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; drawMask(m);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); }
+const drawA = c => c.ctx.drawImage(scene(c, 'A'), 0, 0, c.W, c.H), drawB = c => c.ctx.drawImage(scene(c, 'B'), 0, 0, c.W, c.H);
+function piece(c, img, clip, dx = 0, dy = 0, sc = 1, rot = 0, ox = c.cx, oy = c.cy) { const x = c.ctx; x.save(); x.translate(ox + dx, oy + dy); x.rotate(rot); x.scale(sc, sc); x.translate(-ox, -oy); x.beginPath(); clip(x); x.clip(); x.drawImage(img, 0, 0, c.W, c.H); x.restore(); }
+const TQ = c => E.io(seg(c.p, .12, .88));
+function wipe(fn) { return c => { const q = TQ(c); drawA(c); if (q > 0) maskB(c, x => fn(c, x, q)); }; }
+const TR = {
+};
+
+/* =================================================================
+DATA — 280 項
+================================================================= */
+const HINT = { grid: '方格格線、矩陣依序位移或變形', line: '以線段描邊、延伸、波動或掃描為主', rot: '圍繞中心點持續或一次旋轉', dot: '以點陣、圓點群的分布與時差運動為主', pop: '利用彈跳式放大與回彈形成出現效果', zoom: '透過縮放、景深或縮放模糊創造動勢', wave: '以相位差的波浪節奏連續運動', half: '網點印刷感點陣的疏密、大小與移動變化', panel: '使用數個面板依序推移或展開', seq: '以逐字分配延遲的方式進行動態', slide: '平滑滑入、滑出、推動或移位', flash: '極短亮度閃爍與恢復，避免頻閃過強', mask: '使用字元與單詞的錯位、位移或遮罩動畫', circle: '圓形的縮放、環繞、切割或構圖變換', orbit: '元素以圓或橢圓軌道公轉', flip: '沿 X 或 Y 軸進行 3D 翻轉', glitch: '錯位色差與短促的數位故障感', stripe: '規律條紋依不同時差錯位移動', marker: '使用手繪螢光筆掃過文字', split: '畫面分割成多個區塊再重新拼接', blur: '使用模糊與清晰的快速轉換', bounce: '自由落體或彈簧物理感的跳動', pulse: '規律放大縮小並回復原始狀態', shape: '運用基本幾何形狀的縮放、位移、變形或組合', ring: '以同心圓擴張、收縮或環繞', draw: 'SVG 路徑從 0% 逐漸描繪到 100%', stroke: '以字體外框/圖形描邊的生成與變化為主', sub: '維持字幕清楚可辨，使用輕量淡入淡出', cap: '用字幕框、文字或顏色的變化提升可讀性', wipe: '遮罩逐步揭示下一畫面' };
+const GROUPS = [
+{ key: 'BG-A', name: '背景動態・幾何網格', kind: 'bg', role: '畫面背景填滿容器並可無縫循環，不顯示文字；根據效果名稱構造幾何、網格、線條或粒子運動。', src: 'Grid Fill|grid;Heartbeat Line|line;Tile Rotate|rot;Vertical Lines|line;Dot Connect|dot;Dizzy Stars|name;Random Pop Dots|pop;Grid Cursor|grid;Polar Grid|grid;Dot Matrix|dot;Parallel Curves|name;Broken Grid|grid;Scanning Lines|line;Halftone Blob|half;Triangle Grid|grid;Zap Marks|name;Flow Lines|line;Grid Magnet|grid;Bubble Dots|dot;Diagonal Lines|line;Graph Paper|name;Dot Wave Floor|wave;Comic Sky|name;Barcode|name;Dot Zoom|zoom;Moving Grid|grid;Sound Wave|wave;Heart Pop|pop;Topo Lines|line;Column Shift|name;Dot Rain|dot;Shock Lines|line;Retro Sunrise|name;Halftone Boom|half;Speed Panels|panel;Radar Sweep|name;Dot Swarm|dot;Zigzag Energy|name;Halftone Tunnel|half;Tilt Grid|grid' },
+{ key: 'TXT-A', name: '文字動態・基礎', kind: 'text', role: '以可編輯文字作為動畫主體，保留字距、易讀性與 UTF-8 繁中文字支援。', src: 'Word Burst|name;Letter Sequence|seq;Stamp In|name;Punch Zoom|zoom;Character Jitter|name;Stretch Pop|pop;Zoom Blur|zoom;Slide Text|slide;Giant Scroll|name;Follow Path|name;Repeat Lines|line;Impact Flash|flash;Ribbon|name;Torn Text|mask;Shatter Letters|seq;Tape Crossing|name;Text Tunnel|mask;Text Fall|mask;Gate|name;Arrow|name;Link Circle|circle;Orbit|orbit;Cube|name;Extrude|name;Paragraph|name;Flip|flip;Typewriter|name;Slot|name;Counter|name;Reveal Outline|line;LED|name;Up Scroll|name;Slice Text|mask;Glitch|glitch;Stripe Mask|stripe;Long Shadow|name;Liquid Text|mask;Marker|marker;Split Turn|split;Blur Scatter|blur' },
+{ key: 'TXT-B', name: '文字動態・特效', kind: 'text', role: '以可編輯文字作為動畫主體，著重具辨識度的特殊動態與結束時的清晰停格。', src: 'Lightning Strike|name;Laser Cut|name;Coin Flip|flip;Explode Out|name;Disintegrate|name;Heartbeat Zoom|zoom;Text Kaleido|mask;Number Slam|name;Wave Letters|wave;Stop Motion|name;Letter Rain|seq;Magnifier Lens|name;Scramble Decode|name;Domino Letters|seq;Gradient Flow|name;Circle Text|mask;Water Reflection|name;Letter Bounce|bounce;Text Flag|mask;Gravity Flip|flip;Magnet Pull|name;Word Pulse Grid|grid;Weight Grow|name;Text Fan|mask;Karaoke Ball|name;Swing Letters|seq;Pixel Dissolve|name;Rotating Words|name;Blur Trail|blur;Checker Words|name;Roller Path|name;Shuffle Letters|seq;Text Spiral|mask;Jitter Settle|name;Elastic Wave Stretch|wave;Ink Bleed|name;Letter Assemble|seq;Text Mosaic|mask;Crumble Down|name;Float Drift|name' },
+{ key: 'SHP', name: '圖形動畫', kind: 'shape', role: '使用 SVG 向量圖元展現動態，精準控制形變、時間曲線與物件數量。', src: 'Scale Pulse|pulse;Rotate Spin|rot;Bounce Drop|bounce;Slide Loop|slide;Squash & Stretch|name;Elastic Pop|pop;Wobble|name;Pendulum Swing|name;Shape Morph|shape;Pattern Morph|name;Circle to Square|circle;Split & Merge|split;Fold Unfold|name;Flip Tiles|flip;Ring Expand|ring;Triangle Twist|name;Shape Explosion|shape;Shape Rain|shape;Bubble Pop|pop;Confetti Burst|name;Ripple Squares|name;Radial Fan|name;Spiral Dots|dot;Particle Orbit|orbit;Shape Parade|shape;Shape Conveyor|shape;Shape Stack|shape;Bouncing Shapes|shape;Wave Dots|wave;Grid Cascade|grid;Domino Fall|name;Stairs Rise|name;Squiggle Draw|draw;Circle Draw|circle;Stroke Trace|stroke;Dash March|name;Path Follow|name;Spirograph|name;Arc Loader|name;Check Draw|draw' },
+{ key: 'BG-B', name: '背景動態・抽象', kind: 'bg', role: '抽象幾何視覺背景，提供無縫循環及降動態版本，避免文字內容重疊時視覺干擾。', src: 'Halftone Expand|half;Halftone Wave|wave;Comic Dots|dot;Halftone Sweep|half;Spiral Dots|dot;Halftone Rings|half;Halftone Checker|half;Halftone Sun|half;Perspective Grid|grid;Grid Zoom|grid;Grid Wave|grid;Rotating Grid|grid;Isometric Grid|grid;Hex Grid|grid;Truchet Tiles|name;Weave Grid|grid;Speed Lines|line;Horizontal Lines|line;Line Burst|line;Wave Lines|wave;Ripple Rings|ring;Stripe Twist|stripe;Line Tunnel|line;Crosshatch|name;Circle Pop|pop;Floating Shapes|shape;Shape Tunnel|shape;Orbit Shapes|shape;Kaleidoscope|name;Confetti Fall|name;Blob Shapes|shape;Pinwheels|name;Minimal Blocks|name;Minimal Circle|circle;Bauhaus Shapes|shape;Minimal Arcs|name;Minimal Stripes|stripe;Minimal Square|name;Minimal Wave|wave;Nested Squares|name' },
+{ key: 'TEL', name: '字幕與資訊版型', kind: 'tel', role: '透明背景的影片字幕/資訊元件，確保安全邊界、對比、在 9:16 與 16:9 均清楚。', src: 'Outline Pop|pop;Double Stroke|stroke;Gradient Impact|name;Tilted Sticker|name;Shake Emphasis|name;Burst Bubble|name;Color Block Telop|name;Pop Number|pop;Lower Third|name;Tape Label|name;Ribbon Banner|name;Highlight Marker|marker;Side Tab|name;Stripe Caution|stripe;Speech Bubble|name;Thought Cloud|name;Clean Subtitle|sub;Black Box Caption|cap;Yellow Subtitle|sub;Karaoke Fill|name;Typewriter Caption|cap;Word Pop Caption|pop;Two-Tone Caption|cap;Gradient Bar Caption|cap;待核對字幕效果 25|name;待核對字幕效果 26|name;待核對字幕效果 27|name;待核對字幕效果 28|name;待核對字幕效果 29|name;待核對字幕效果 30|name;待核對字幕效果 31|name;待核對字幕效果 32|name;Mincho Title|name;Vertical Mincho|name;Hanko Seal|name;Fade Elegance|name;Underline Reveal|line;Corner Frame|name;Chapter Card|name;End Credit|name' },
+{ key: 'TRN', name: '轉場與分割', kind: 'trn', role: '以 A、B 兩個影片或圖片圖層示範畫面切換，實現一個時間確定、無黑幀的轉場。', src: 'Color Wipe|wipe;Diagonal Wipe|wipe;Multi Stripe Wipe|wipe;Zigzag Wipe|wipe;Slice Wipe|wipe;Bars Wipe|wipe;Brush Wipe|wipe;Curtain Slide|slide;Circle Wipe|wipe;Block Wipe|wipe;Shutter Wipe|wipe;Clock Wipe|wipe;Diamond Wipe|wipe;Star Wipe|wipe;Pinwheel Wipe|wipe;Corner Wipe|wipe;Liquid Wipe|wipe;Drip Wipe|wipe;Ripple Wipe|wipe;Text Wipe|wipe;Impact Flash|flash;Wave Split|wave;Zigzag Split|split;Circle Split|circle;Horizontal Split|split;Vertical Split|split;Triple Split|split;Four Panels|panel;Sliding Panels|panel;Diagonal Panels|panel;Quad Open|name;Checker Panels|panel;Diagonal Split|split;Mosaic Flash|flash;Frame Stack|name;Bar Panels|panel;Band Split|split;Grid Flip|grid;Panel Zoom Out|zoom;Strip Shuffle|name' }
+];
+const MAPS = { bg: BG, text: TX, shape: SH, tel: TL, trn: TR };
+const LIST = [], BYID = {};
+GROUPS.forEach(g => { g.items = g.src.split(';').map((s, i) => { const [name, h] = s.split('|'), id = `${g.key}-${String(i + 1).padStart(2, '0')}`, pending = name.startsWith('待核對');
+const hint = h === 'name' ? `依「${name}」名稱和錄影示意演繹具有辨識度的動畫；先建立主視覺，再以移動、旋轉、縮放、透明度或變形呈現此效果` : HINT[h];
+const it = { id, name, group: g.key, groupName: g.name, kind: g.kind, hintKey: h, hint, pending, source: 'spec', added: '2026-10-17' }; LIST.push(it); BYID[id] = it; return it; }); delete g.src; });
+
+function promptFor(id) {
+const it = BYID[id]; if (!it) return ''; const g = GROUPS.find(x => x.key === it.group), txt = it.kind === 'text' || it.kind === 'tel';
+return `請建立動畫元件 \`${it.id}\`（${it.name}）。視覺動作：${it.hint}。${g.role}請用原生 HTML/CSS/JavaScript 實作（必要時 SVG/Canvas），輸出單一可執行 demo.html，另輸出可重用的元件 JS 模組。提供主題色、背景色、duration、loop、intensity、seed 與 16:9/9:16 比例參數；${txt ? '提供可修改的示範文字與繁體中文支援' : '提供可更改的形狀/密度或位置參數'}；預設 1.5 秒（背景循環 4 秒），使用 requestAnimationFrame 或 CSS keyframes，支援 replay、pause、destroy；加入 prefers-reduced-motion 降動態方案。動畫需具有明確起始、主動作和最終畫面，製作獨立預覽、基本測試與可調整控制面板。不要假裝這是原作者的程式或 Prompt；視覺細節依錄影參考再校準。${it.pending ? ' 此編號在錄影中畫面辨識不清，先產出佔位規格，不要直接發布為已完成元件。' : ''}`;
+}
+
+/* =================================================================
+RUNTIME
+================================================================= */
+const AR = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const HOLD = .9;
+const DEFAULTS = { text: 'MOTION 動態', colors: { primary: '#5BD3F5', secondary: '#D6F55A', bg: '#111418' }, loop: true, intensity: 1, density: 1, seed: 7, aspectRatio: '16:9', reducedMotion: false };
+function norm(o) { const it = BYID[o.id] || LIST[0]; const n = { ...DEFAULTS, ...o, colors: { ...DEFAULTS.colors, ...(o.colors || {}) } }; n.id = it.id; if (n.duration == null) n.duration = it.kind === 'bg' ? 4 : 1.5; n.duration = Math.max(.2, +n.duration); n.intensity = cl(+n.intensity, .1, 3); n.density = cl(+n.density, .2, 3); n.seed = Math.max(1, Math.floor(+n.seed) || 1); return n; }
+function cycleLen(o) { const it = BYID[o.id]; const d = o.duration * (o.reducedMotion && it.kind === 'bg' ? 3 : 1); return it.kind === 'bg' ? d : d + HOLD; }
+function progressAt(o, t) { const it = BYID[o.id], bg = it.kind === 'bg', d = o.duration * (o.reducedMotion && bg ? 3 : 1); if (bg) return o.loop ? fr(t / d) : Math.min(.9999, t / d); const tt = o.loop ? t % (d + HOLD) : t; return Math.min(1, tt / d); }
+function getFn(it) { const m = MAPS[it.kind]; if (it.pending) return TL._pending; return m[it.name] || (c => { bgFill(c); }); }
+function renderItem(ctx, W, H, dpr, o, p, t) {
+const it = BYID[o.id], P = { text: o.text || ' ', primary: o.colors.primary, secondary: o.colors.secondary, bg: o.colors.bg };
+const c = { ctx, W, H, dpr, P, p, t: t || 0, u: Math.min(W, H), cx: W / 2, cy: H / 2, pr: P.primary, se: P.secondary, bg: P.bg, ink: inkFor(P.bg), k: o.intensity * (o.reducedMotion && it.kind === 'bg' ? .45 : 1), d: o.density, seed: o.seed, ph: p * TAU };
+const fn = getFn(it); ctx.save();
+try {
+if (o.reducedMotion && it.kind !== 'bg') {
+if (it.kind === 'trn') { const q = E.io(seg(p, .2, .8)); ctx.drawImage(scene(c, 'A'), 0, 0, W, H); ctx.globalAlpha = q; ctx.drawImage(scene(c, 'B'), 0, 0, W, H); ctx.globalAlpha = 1; }
+else { c.p = 1; c.ph = TAU; fn(c, it); ctx.globalAlpha = 1 - E.oc(seg(p, 0, .5)); ctx.fillStyle = it.kind === 'tel' ? 'rgba(0,0,0,0)' : c.bg; if (it.kind !== 'tel') ctx.fillRect(0, 0, W, H); }
+} else fn(c, it);
+} catch (e) { ctx.restore(); ctx.save(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f66'; ctx.font = '12px monospace'; ctx.fillText('render error: ' + it.id, 10, 20); if (root.console) console.warn(it.id, e); }
+ctx.restore();
+}
+function renderFrame(canvas, opts, p = .7, t = 0) { const o = norm(opts), dpr = opts.dpr || 1, W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderItem(ctx, W, H, dpr, o, p, t); }
+function mount(el, opts = {}) {
+const cv = document.createElement('canvas'); cv.className = 'motionlib-canvas'; cv.setAttribute('role', 'img'); el.appendChild(cv); const ctx = cv.getContext('2d');
+let o = norm(opts), raf = 0, alive = true, paused = !!opts.paused, t = 0, last = performance.now(), W = 0, H = 0; const dpr = Math.min(2, root.devicePixelRatio || 1);
+const mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null; if (opts.reducedMotion == null && mq && mq.matches) o.reducedMotion = true;
+function fit() { const ar = AR[o.aspectRatio] || 16 / 9, cw = el.clientWidth || 640, mh = o.maxHeight || cw / ar; const w = Math.max(40, Math.min(cw, mh * ar)); W = Math.round(w); H = Math.round(w / ar); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.setAttribute('aria-label', BYID[o.id].id + ' ' + BYID[o.id].name); draw(); }
+function draw() { if (!W) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const p = progressAt(o, t); renderItem(ctx, W, H, dpr, o, p, t); if (o.onFrame) o.onFrame(t, p, cycleLen(o)); }
+function tick(now) { if (!alive) return; const dt = Math.min(.1, (now - last) / 1000); last = now; if (!paused) { t += dt; if (!o.loop && t >= cycleLen(o)) { t = cycleLen(o); } } draw(); raf = requestAnimationFrame(tick); }
+const ro = root.ResizeObserver ? new ResizeObserver(fit) : null; ro && ro.observe(el); fit(); raf = requestAnimationFrame(tick);
+return {
+play() { if (!o.loop && t >= cycleLen(o) - 1e-3) t = 0; paused = false; last = performance.now(); },
+pause() { paused = true; }, replay() { t = 0; paused = false; last = performance.now(); },
+seek(p) { paused = true; const it = BYID[o.id]; t = it.kind === 'bg' ? cl(p) * cycleLen(o) * .9999 : cl(p) * o.duration * (o.reducedMotion && it.kind === 'bg' ? 3 : 1); draw(); },
+set(n) { const idChanged = n.id && n.id !== o.id; o = norm({ ...o, ...n, colors: { ...o.colors, ...(n.colors || {}) } }); if (idChanged) t = 0; fit(); },
+destroy() { alive = false; cancelAnimationFrame(raf); ro && ro.disconnect(); cv.remove(); },
+get paused() { return paused; }, get time() { return t; }, get options() { return { ...o, colors: { ...o.colors } }; }, get cycle() { return cycleLen(o); }, canvas: cv
+};
+}
+function clearCaches() { LC.clear(); PC.clear(); SC.clear(); }
+root.MotionLib = { mount, renderFrame, list: LIST, groups: GROUPS, byId: BYID, prompt: promptFor, defaults: DEFAULTS, clearCaches, version: '1.1.0' };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<title>點一張海報 — 禮拜天電台 RADIO MINGGU｜選一個人、一句話、一個符號，親手刷三版</title>
+<meta name="description" content="給家人點一張四語團結海報：選對象、一句話與一個變形符號，用刮板親手刷黃地、回聲、黑版三版；禮拜天下午兩點在節目裡唸出來。">
+<meta name="theme-color" content="#1F9D55">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20fill%3D%22%23E0157A%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%225%22%20fill%3D%22%23161412%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23161412%22%20stroke-width%3D%224%22%3E%3Cpath%20d%3D%22M17%2017a10%2010%200%200%201%2014%200%22%2F%3E%3Cpath%20d%3D%22M31%2031a10%2010%200%200%201-14%200%22%2F%3E%3Cpath%20d%3D%22M17%2031a10%2010%200%200%201%200-14%22%2F%3E%3Cpath%20d%3D%22M31%2017a10%2010%200%200%201%200%2014%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Narrow:wght@400;600;700&family=Noto+Sans+TC:wght@500;700;900&family=Noto+Sans+Thai:wght@500;800&display=swap">
+<script>try{var w=sessionStorage.getItem('mg-wipe');if(w&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){document.documentElement.classList.add('arriving');document.documentElement.style.setProperty('--wc',w);}}catch(e){}</script>
+<style>/* ===== 禮拜天電台 RADIO MINGGU — 古巴 OSPAAAL 團結海報（共用樣式） ===== */
+:root{
+ --paper:#F3EEE2;   /* 海報紙白：留白、背面、長文 */
+ --ink:#161412;     /* 黑版：剪影、字 */
+ --mag:#E0157A;     /* 洋紅：主場色 */
+ --mag2:#C80F6B;    /* 洋紅第二網（放射線用的同色相深一階，仍是平塗） */
+ --grn:#1F9D55;     /* 草綠：洋紅的互補色 */
+ --yel:#F5D10F;     /* 檸檬黃：海報地色 */
+ --org:#F26B1D;     /* 橙：只給警示與「ON AIR」 */
+ --gut:clamp(16px,3vw,40px);
+ --navh:76px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:500 16px/1.7 "Noto Sans TC","Archivo Narrow",system-ui,sans-serif;padding-bottom:var(--navh)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;box-shadow:0 0 0 6px var(--yel)}
+img,svg{display:block}
+button{font:inherit;color:inherit}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- 字：每種書寫系統一副字 ---------- */
+:lang(id),:lang(vi){font-family:"Archivo Narrow","Noto Sans TC",sans-serif}
+:lang(th){font-family:"Noto Sans Thai","Archivo Narrow",sans-serif;line-height:1.55}
+.disp{font-family:Anton,"Noto Sans TC",sans-serif;font-weight:400;letter-spacing:.01em;line-height:.92}
+.disp:lang(zh){font-family:"Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.02em}
+.disp:lang(th){font-family:"Noto Sans Thai",sans-serif;font-weight:800;line-height:1.3}
+.disp:lang(id),.disp:lang(vi){font-family:Anton,sans-serif;text-transform:uppercase;line-height:1.08}
+.disp .l4>:lang(id),.disp .l4>:lang(vi){font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.01em}
+.disp .l4>:lang(th){font-family:"Noto Sans Thai",sans-serif;font-weight:800}
+.disp .l4>:lang(zh){font-family:"Noto Sans TC",sans-serif;font-weight:900}
+.mono{font-family:"Archivo Narrow",sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px}
+
+/* ---------- 四語塊：語言是版面階層，不是翻譯開關 ---------- */
+.l4{display:flex;flex-direction:column;gap:.08em}
+.l4>*{font-size:.46em;opacity:1;line-height:1.25}
+.l4>:lang(th){line-height:1.5}
+.l4>.p{order:-1;font-size:1em}
+.l4.row{flex-direction:row;flex-wrap:wrap;align-items:baseline;column-gap:.7em}
+/* 語言選擇 */
+.langs{display:flex;gap:0;border:2px solid var(--ink)}
+.langs button{all:unset;cursor:pointer;padding:6px 10px;font:700 13px/1 "Archivo Narrow","Noto Sans TC",sans-serif;letter-spacing:.04em;border-left:2px solid var(--ink);background:var(--paper)}
+.langs button:first-child{border-left:0}
+.langs button[lang=th]{font-family:"Noto Sans Thai",sans-serif;font-weight:800}
+.langs button[aria-pressed=true]{background:var(--ink);color:var(--yel)}
+.langs button:hover{background:var(--yel);color:var(--ink)}
+.langs button:focus-visible{outline:3px solid var(--mag);outline-offset:-5px;box-shadow:none}
+
+/* ---------- 刊頭 ---------- */
+.mast{position:relative;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px var(--gut);background:var(--paper);border-bottom:3px solid var(--ink)}
+.mast .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mast .brand svg{width:44px;height:44px}
+.mast .brand b{font:900 19px/1 "Noto Sans TC",sans-serif;letter-spacing:.06em}
+.mast .brand small{display:block;font:400 15px/1 Anton,sans-serif;letter-spacing:.12em;margin-top:4px}
+.mast .issue{margin-left:auto;text-align:right}
+.mast .onair{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:var(--ink);color:var(--paper)}
+.mast .onair i{width:10px;height:10px;background:var(--org);display:inline-block}
+.mast .onair.off i{background:#6f6a60}
+@media (max-width:560px){.mast .issue{display:none}.mast{gap:10px}.mast .langs{margin-left:auto}}
+
+/* ---------- 導覽：四語圖說帶（OSPAAAL 海報底部那條） ---------- */
+.capnav{position:fixed;left:0;right:0;bottom:0;z-index:40;height:var(--navh);display:grid;grid-template-columns:repeat(4,1fr);background:var(--ink);color:var(--paper);border-top:3px solid var(--ink)}
+.capnav a{position:relative;display:flex;flex-direction:column;justify-content:center;padding:6px 14px;text-decoration:none;border-left:1px solid #3b3733;overflow:hidden;font-size:19px}
+.capnav a:first-child{border-left:0}
+.capnav a .l4{gap:0}
+.capnav a .l4>*{font-size:9.5px;line-height:1.3;opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.capnav a .l4>.p{font-size:19px;opacity:1;line-height:1.15}
+.capnav a .n{position:absolute;right:10px;top:6px;font:400 13px/1 Anton,sans-serif;color:var(--yel)}
+.capnav a::before{content:"";position:absolute;inset:0;background:var(--yel);transform:scaleX(0);transform-origin:0 50%;transition:transform .22s steps(4)}
+.capnav a:hover::before{transform:scaleX(.06)}
+.capnav a[aria-current=page]{color:var(--ink)}
+.capnav a[aria-current=page]::before{transform:none;transition:none}
+.capnav a[aria-current=page] .n{color:var(--mag)}
+.capnav a>*{position:relative}
+@media (max-width:560px){.capnav a{padding:6px 8px}.capnav a .l4>:not(.p){display:none}.capnav a .l4>.p{font-size:14px;white-space:normal;line-height:1.2}.capnav a .n{font-size:11px;right:5px;top:4px}}
+
+/* ---------- 海報元件 ---------- */
+.pst{--g:var(--yel);position:relative;margin:0;aspect-ratio:33/53;background:var(--g);container-type:inline-size;color:var(--ink);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto auto;padding:6cqi 6cqi 4cqi;isolation:isolate}
+.pst .date{font:400 30cqi/.8 Anton,sans-serif;letter-spacing:-.01em;display:flex;align-items:flex-start;gap:2cqi}
+.pst .date small{font-size:9cqi;line-height:1;margin-top:2cqi;display:block}
+.pst .date small em{font-style:normal;display:block;font-size:6cqi;margin-top:1.5cqi}
+.date small .l4{flex-direction:row;flex-wrap:wrap;column-gap:1.4cqi;row-gap:0;align-items:baseline;max-width:44cqi}
+.date small .l4>*{font-size:3.6cqi;line-height:1.35;font-family:"Archivo Narrow","Noto Sans TC",sans-serif;font-weight:700}
+.date small .l4>:lang(th){font-family:"Noto Sans Thai",sans-serif}
+.date small .l4>.p{flex-basis:100%;font-size:9cqi;line-height:1.1;font-family:Anton,"Noto Sans TC",sans-serif;font-weight:400}
+.date small .l4>.p:lang(zh){font-family:"Noto Sans TC",sans-serif;font-weight:900}
+.date small .l4>.p:lang(th){font-family:"Noto Sans Thai",sans-serif;font-weight:800}
+.pst .art{position:relative;min-height:0}
+.pst .art svg{position:absolute;inset:-6cqi -8cqi;width:calc(100% + 16cqi);height:calc(100% + 12cqi)}
+.pst .art .key{fill:var(--ink)}
+.pst .art .echo{fill:#000;transform:translate(calc(var(--rx,0)*.45px),calc(var(--ry,0)*.45px));transition:transform .08s linear}
+.pst .band{container-type:inline-size;display:flex;flex-direction:column;gap:.4cqi;margin-top:2cqi}
+.pst .band>*{font-size:calc(var(--fit,5) * 1cqi);line-height:1.12;white-space:normal;font-family:Anton,sans-serif;text-transform:uppercase}
+.pst .band>:lang(zh){font-family:"Noto Sans TC",sans-serif;font-weight:900;line-height:1.1;letter-spacing:.02em}
+.pst .band>:lang(th){font-family:"Noto Sans Thai",sans-serif;font-weight:800;line-height:1.45;text-transform:none}
+.js .pst .band>*{white-space:nowrap}
+.pst .band>.capd{text-align:justify;text-align-last:justify}
+.pst .foot{display:flex;justify-content:space-between;align-items:center;margin-top:3cqi;padding-top:2cqi;border-top:.6cqi solid var(--ink);font:700 3.1cqi/1 "Archivo Narrow",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.pst .foot svg{width:7cqi;height:7cqi}
+/* 摺痕：隨刊夾送的海報都摺過兩次 */
+.pst::before,.pst::after{content:"";position:absolute;z-index:3;pointer-events:none;mix-blend-mode:multiply}
+.pst::before{left:50%;top:0;bottom:0;width:1px;background:#00000026;box-shadow:1px 0 0 #ffffff40}
+.pst::after{top:50%;left:0;right:0;height:1px;background:#00000026;box-shadow:0 1px 0 #ffffff40}
+
+/* ---------- 共用版塊 ---------- */
+.wrap{padding:0 var(--gut)}
+.kick{display:inline-block;background:var(--ink);color:var(--yel);padding:3px 8px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;background:var(--ink);color:var(--paper);text-decoration:none;border:3px solid var(--ink);font:700 16px/1.2 "Noto Sans TC",sans-serif;cursor:pointer}
+.btn:hover{background:var(--yel);color:var(--ink)}
+.btn.alt{background:var(--paper);color:var(--ink)}
+.btn.alt:hover{background:var(--mag);color:var(--paper)}
+.btn svg{width:18px;height:18px}
+.ml{position:relative;overflow:hidden}
+.ml canvas{display:block;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.ml .ml-fb{position:relative;z-index:1}
+.ml.ml-live .ml-fb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.foot-site{background:var(--ink);color:var(--paper);padding:36px var(--gut) 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;font-size:14px;line-height:1.75}
+.foot-site b{display:block;font:400 22px/1.1 Anton,sans-serif;letter-spacing:.06em;color:var(--yel);margin-bottom:6px}
+.foot-site a{color:var(--paper)}
+.foot-site .fine{grid-column:1/-1;border-top:1px solid #3b3733;padding-top:14px;font-size:12px;color:#bdb6a8}
+
+/* ---------- 換頁：刮板拉過整個畫面 ---------- */
+.wipe{position:fixed;inset:0;z-index:90;pointer-events:none;background:var(--wc,var(--mag));clip-path:inset(0 100% 0 0)}
+.wipe::after{content:"";position:absolute;top:0;bottom:0;width:22px;background:var(--ink);right:0;box-shadow:-6px 0 0 var(--paper)}
+html.arriving body::after{content:"";position:fixed;inset:0;z-index:89;background:var(--wc,var(--mag))}
+.wipe.out::after{right:auto;left:0;box-shadow:6px 0 0 var(--paper)}
+@media (prefers-reduced-motion:reduce){.wipe{display:none}}
+@media print{.capnav,.mast .langs,.wipe{display:none}body{padding:0}}
+
+
+.dh{background:var(--grn);color:var(--paper);padding:clamp(28px,4vw,56px) var(--gut);display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:clamp(20px,4vw,56px);align-items:end;border-bottom:3px solid var(--ink)}
+.dh h1{margin:0;font-size:clamp(46px,7vw,104px)}
+.dh h1 .l4>:not(.p){font-size:.2em;font-family:"Archivo Narrow","Noto Sans Thai",sans-serif;font-weight:700;text-transform:none;line-height:1.35}
+.dh ol{margin:0;padding:0;list-style:none;counter-reset:r;font-size:17px}
+.dh li{counter-increment:r;display:grid;grid-template-columns:44px 1fr;gap:10px;padding:8px 0;border-top:1px solid #ffffff55}
+.dh li::before{content:counter(r);font:400 34px/1 Anton,sans-serif;color:var(--yel)}
+
+.work{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,56px);padding:clamp(28px,4vw,56px) var(--gut)}
+/* 印台：網框＋套版十字 */
+.bed{position:relative;align-self:start;position:sticky;top:16px;padding:34px;background:var(--ink);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.bed::before{content:"";position:absolute;inset:12px;border:2px dashed #5b554c;pointer-events:none}
+.reg{position:absolute;width:22px;height:22px;pointer-events:none}
+.reg::before,.reg::after{content:"";position:absolute;background:var(--paper)}
+.reg::before{left:10px;top:0;width:2px;height:22px}.reg::after{top:10px;left:0;height:2px;width:22px}
+.reg.a{left:6px;top:50%;margin-top:-11px}.reg.b{right:6px;top:50%;margin-top:-11px}.reg.c{left:50%;top:6px;margin-left:-11px}.reg.e{left:50%;bottom:6px;margin-left:-11px}
+.dp{position:relative;aspect-ratio:33/53;background:#FBF8F1;container-type:inline-size;overflow:hidden;cursor:ew-resize}
+.dp .lay{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto auto auto;padding:6cqi 6cqi 4cqi;--p:1;-webkit-mask-image:linear-gradient(90deg,#000 calc(var(--p) * 100%),transparent calc(var(--p) * 100%));mask-image:linear-gradient(90deg,#000 calc(var(--p) * 100%),transparent calc(var(--p) * 100%));transform:translate(var(--ox,0),var(--oy,0))}
+.dp .l1{background:var(--g,#F5D10F)}
+.dp .l2 .ghost{visibility:hidden}
+.dp .date{font:400 30cqi/.8 Anton,sans-serif;display:flex;gap:2cqi}
+.dp .date small{font-size:9cqi;line-height:1;margin-top:2cqi;display:block}
+.dp .date small em{font-style:normal;display:block;font-size:5.5cqi;margin-top:1.5cqi}
+.dp .art{position:relative;min-height:0}
+.dp .art svg{position:absolute;inset:-6cqi -8cqi;width:calc(100% + 16cqi);height:calc(100% + 12cqi)}
+.dp .art .key{fill:var(--ink)}.dp .art .echo{fill:#000}
+.dp .to{font:900 6.4cqi/1.1 "Noto Sans TC",sans-serif;margin-top:2cqi}
+.dp .to .l4>:not(.p){display:none}
+.dp .to .l4>.p:lang(id),.dp .to .l4>.p:lang(vi){font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase}
+.dp .to .l4>.p:lang(th){font-family:"Noto Sans Thai",sans-serif;font-weight:800}
+.dp .band{container-type:inline-size;display:flex;flex-direction:column;gap:.4cqi;margin-top:1.5cqi}
+.dp .band>*{font-size:calc(var(--fit,5) * 1cqi);line-height:1.12;font-family:Anton,sans-serif;text-transform:uppercase}
+.js .dp .band>*{white-space:nowrap}
+.dp .band>:lang(zh){font-family:"Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.02em}
+.dp .band>:lang(th){font-family:"Noto Sans Thai",sans-serif;font-weight:800;line-height:1.45;text-transform:none}
+.dp .band>.capd{text-align:justify;text-align-last:justify}
+.dp .foot{display:flex;justify-content:space-between;margin-top:3cqi;padding-top:2cqi;border-top:.6cqi solid var(--ink);font:700 3.1cqi/1 "Archivo Narrow",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+/* 刮板 */
+.sq{position:absolute;top:10px;bottom:10px;left:calc(34px + var(--sx,0) * (100% - 68px));width:18px;margin-left:-9px;z-index:5;cursor:grab;outline:none}
+.sq::before{content:"";position:absolute;inset:0;background:#2a2622;border:3px solid var(--paper)}
+.sq::after{content:"";position:absolute;left:3px;right:3px;top:0;bottom:0;background:var(--sqc,var(--yel))}
+.sq:focus-visible::before{border-color:var(--mag)}
+.sq.drag{cursor:grabbing}
+.sq[hidden]{display:none}
+.bedcap{display:flex;justify-content:space-between;color:var(--paper);font-size:13px;margin-top:10px}
+
+/* 控制台 */
+.ctl fieldset{border:0;border-top:3px solid var(--ink);margin:0 0 22px;padding:12px 0 0}
+.ctl legend{font:400 26px/1 Anton,sans-serif;letter-spacing:.04em;padding:0 10px 0 0;display:flex;gap:10px;align-items:baseline}
+.ctl legend small{font:700 13px/1 "Noto Sans TC",sans-serif;letter-spacing:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{position:relative;cursor:pointer}
+.chips input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.chips .c{display:block;border:2px solid var(--ink);padding:8px 12px;background:var(--paper);font-size:16px;line-height:1.25}
+.chips .c .l4>:not(.p){font-size:11px;opacity:.75}
+.chips input:checked+.c{background:var(--ink);color:var(--yel)}
+.chips input:focus-visible+.c{outline:3px solid var(--mag);outline-offset:2px}
+.chips input:disabled+.c{opacity:.45;cursor:not-allowed}
+.chips .ph .c{min-width:12em}
+.chips .mo .c{padding:6px}
+.chips .mo svg{width:54px;height:54px}
+.chips .mo .c .vh{position:absolute}
+.chips .sw .c{width:54px;height:54px;padding:0}
+.nm{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:15px}
+.nm input{font:inherit;border:2px solid var(--ink);padding:8px 10px;background:var(--paper);width:12em}
+.pulls{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:3px solid var(--ink);margin-bottom:12px}
+.pulls div{padding:10px 12px;border-left:3px solid var(--ink);font-size:14px;line-height:1.3}
+.pulls div:first-child{border-left:0}
+.pulls div b{display:block;font:400 22px/1 Anton,sans-serif}
+.pulls div.cur{background:var(--yel)}
+.pulls div.ok{background:var(--ink);color:var(--paper)}
+.pulls div.ok b::after{content:" ✓"}
+.hint{min-height:1.6em;font-size:14px;margin:6px 0 12px}
+.act{display:flex;flex-wrap:wrap;gap:10px}
+.res{display:none;margin-top:24px;border:3px solid var(--ink);background:var(--paper)}
+.res.on{display:grid;grid-template-columns:minmax(0,1fr) 180px}
+.res .t{padding:18px}
+.res .t h2{margin:0 0 6px;font:400 34px/1 Anton,sans-serif}
+.res .t .no{font:400 46px/1 Anton,sans-serif;color:var(--mag)}
+.res .t dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0;font-size:15px}
+.res .t dt{font-weight:900}
+.res .t dd{margin:0}
+.res .t dd .l4>*{font-size:.85em}.res .t dd .l4>.p{font-size:1em}
+.res .wave{position:relative;background:var(--ink);min-height:180px}
+.res .wave .ml-fb{color:var(--yel);padding:12px;font:400 20px/1.1 Anton,sans-serif}
+@media (max-width:860px){.dh,.work{grid-template-columns:1fr}.bed{position:relative;top:0;max-width:420px;justify-self:center;width:100%}.res.on{grid-template-columns:1fr}.res .wave{min-height:140px}}
+@media (max-width:560px){.bed{padding:26px}.sq{left:calc(26px + var(--sx,0) * (100% - 52px))}.pulls div{padding:8px;font-size:12px}.chips .ph .c{min-width:0}}
+@media print{.dh,.ctl,.mast,.foot-site,.bedcap,.sq,.reg{display:none!important}.work{display:block;padding:0}.bed{background:none;padding:0;position:static}.bed::before{display:none}.dp{width:120mm;margin:0 auto}}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<filter id="echo-mg" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+<feMorphology in="SourceAlpha" operator="dilate" radius="11" result="d3"/><feFlood flood-color="#1F9D55"/><feComposite in2="d3" operator="in" result="c3"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="7.5" result="d2"/><feFlood flood-color="#F3EEE2"/><feComposite in2="d2" operator="in" result="c2"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d1"/><feFlood flood-color="#E0157A"/><feComposite in2="d1" operator="in" result="c1"/>
+<feMerge><feMergeNode in="c3"/><feMergeNode in="c2"/><feMergeNode in="c1"/></feMerge>
+</filter>
+<filter id="echo-gm" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+<feMorphology in="SourceAlpha" operator="dilate" radius="11" result="d3"/><feFlood flood-color="#E0157A"/><feComposite in2="d3" operator="in" result="c3"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="7.5" result="d2"/><feFlood flood-color="#F5D10F"/><feComposite in2="d2" operator="in" result="c2"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d1"/><feFlood flood-color="#1F9D55"/><feComposite in2="d1" operator="in" result="c1"/>
+<feMerge><feMergeNode in="c3"/><feMergeNode in="c2"/><feMergeNode in="c1"/></feMerge>
+</filter>
+<filter id="echo-yp" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+<feMorphology in="SourceAlpha" operator="dilate" radius="11" result="d3"/><feFlood flood-color="#F5D10F"/><feComposite in2="d3" operator="in" result="c3"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="7.5" result="d2"/><feFlood flood-color="#161412"/><feComposite in2="d2" operator="in" result="c2"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d1"/><feFlood flood-color="#F3EEE2"/><feComposite in2="d1" operator="in" result="c1"/>
+<feMerge><feMergeNode in="c3"/><feMergeNode in="c2"/><feMergeNode in="c1"/></feMerge>
+</filter>
+<filter id="echo-py" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+<feMorphology in="SourceAlpha" operator="dilate" radius="11" result="d3"/><feFlood flood-color="#F3EEE2"/><feComposite in2="d3" operator="in" result="c3"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="7.5" result="d2"/><feFlood flood-color="#E0157A"/><feComposite in2="d2" operator="in" result="c2"/>
+<feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d1"/><feFlood flood-color="#F5D10F"/><feComposite in2="d1" operator="in" result="c1"/>
+<feMerge><feMergeNode in="c3"/><feMergeNode in="c2"/><feMergeNode in="c1"/></feMerge>
+</filter>
+<symbol id="m-rice" viewBox="0 0 100 100" overflow="visible">
+<circle cx="50" cy="9" r="5"/>
+<rect x="47.6" y="13" width="4.8" height="66"/>
+<g>
+<ellipse cx="41" cy="25" rx="8" ry="3.4" transform="rotate(-38 41 25)"/><ellipse cx="59" cy="31" rx="8" ry="3.4" transform="rotate(38 59 31)"/>
+<ellipse cx="40" cy="37" rx="9" ry="3.6" transform="rotate(-38 40 37)"/><ellipse cx="60" cy="43" rx="9" ry="3.6" transform="rotate(38 60 43)"/>
+<ellipse cx="39" cy="49" rx="10" ry="3.8" transform="rotate(-38 39 49)"/><ellipse cx="61" cy="55" rx="10" ry="3.8" transform="rotate(38 61 55)"/>
+<ellipse cx="39" cy="61" rx="10" ry="3.8" transform="rotate(-38 39 61)"/>
+</g>
+<path fill-rule="evenodd" d="M22 76h56v21H22z M30 86.5a6 6 0 1 0 12 0a6 6 0 1 0 -12 0z M50 81h21v3.4H50z M50 88.6h21v3.4H50z"/>
+</symbol>
+<symbol id="m-phone" viewBox="0 0 100 100" overflow="visible">
+<path fill-rule="evenodd" d="M35 47h30v50H35z M39.5 53h21v33h-21z M46.5 89.5h7v4h-7z"/>
+<ellipse cx="50" cy="20" rx="5.5" ry="13"/>
+<ellipse cx="34" cy="26" rx="5.5" ry="13" transform="rotate(-52 34 26)"/><ellipse cx="66" cy="26" rx="5.5" ry="13" transform="rotate(52 66 26)"/>
+<ellipse cx="27" cy="41" rx="5" ry="11" transform="rotate(-88 27 41)"/><ellipse cx="73" cy="41" rx="5" ry="11" transform="rotate(88 73 41)"/>
+<circle cx="50" cy="38" r="7"/>
+</symbol>
+<mask id="mk-net" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+<rect width="100" height="100" fill="#fff"/>
+<path d="M26 0V100M38 0V100M50 0V100M62 0V100M74 0V100M0 30H100M0 42H100M0 54H100M0 66H100" stroke="#000" stroke-width="2.2"/>
+</mask>
+<symbol id="m-star" viewBox="0 0 100 100" overflow="visible">
+<polygon mask="url(#mk-net)" points="50,6 61.2,39.6 96.6,39.8 68.1,60.5 79,94.2 50,73.6 21,94.2 31.9,60.5 3.4,39.8 38.8,39.6"/>
+</symbol>
+<symbol id="m-wheel" viewBox="0 0 100 100" overflow="visible">
+<path fill-rule="evenodd" d="M8 64a32 32 0 1 0 64 0a32 32 0 1 0 -64 0z M16 64a24 24 0 1 0 48 0a24 24 0 1 0 -48 0z"/>
+<circle cx="40" cy="64" r="6"/>
+<rect x="38" y="40" width="4" height="48"/><rect x="16" y="62" width="48" height="4"/>
+<polygon points="56,40 98,4 88,22"/><polygon points="58,46 99,20 92,36"/><polygon points="60,52 98,38 92,50"/>
+</symbol>
+<mask id="mk-moon" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+<rect width="100" height="100" fill="#fff"/>
+<circle cx="47" cy="51" r="13" fill="#000"/><circle cx="54" cy="46" r="11.5" fill="#fff"/>
+</mask>
+<symbol id="m-helmet" viewBox="0 0 100 100" overflow="visible">
+<path mask="url(#mk-moon)" d="M18 66A32 32 0 0 1 82 66Z"/>
+<rect x="8" y="64" width="84" height="9"/>
+<rect x="46" y="28" width="8" height="10"/>
+<polygon points="80,8 82.6,15.4 90.5,15.6 84.2,20.4 86.5,28 80,23.5 73.5,28 75.8,20.4 69.5,15.6 77.4,15.4"/>
+<rect x="14" y="80" width="72" height="5"/><rect x="24" y="90" width="52" height="5"/>
+</symbol>
+<symbol id="m-heart" viewBox="0 0 100 100" overflow="visible">
+<path fill-rule="evenodd" d="M50 92 L13 54 A19 19 0 0 1 50 28 A19 19 0 0 1 87 54 Z M33.5 50a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z M46.5 50a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z M59.5 50a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z M40 61a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z M53 61a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z M46.5 72a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0z"/>
+<polygon points="62,30 80,8 84,11 66,33"/><circle cx="83" cy="8" r="5"/>
+</symbol>
+<symbol id="logo" viewBox="0 0 48 48">
+<rect width="48" height="48" fill="#E0157A"/>
+<circle cx="24" cy="24" r="4.5" fill="#161412"/>
+<g fill="none" stroke="#161412" stroke-width="3.4" stroke-linecap="butt">
+<path d="M17 17a10 10 0 0 1 14 0"/><path d="M31 31a10 10 0 0 1 -14 0"/>
+<path d="M17 31a10 10 0 0 1 0 -14"/><path d="M31 17a10 10 0 0 1 0 14"/>
+<path d="M11.5 11.5a18 18 0 0 1 25 0" stroke="#F3EEE2"/><path d="M36.5 36.5a18 18 0 0 1 -25 0" stroke="#F3EEE2"/>
+</g>
+</symbol>
+</defs>
+</svg>
+
+<a class="vh" href="#main">跳到主要內容 Lewati ke isi</a>
+<header class="mast">
+<a class="brand" href="index.html" data-wc="#E0157A"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#logo"/></svg><span><b>禮拜天電台</b><small>RADIO MINGGU</small></span></a>
+<span class="onair off mono" id="onair" role="status"><i></i><span>下次開播・禮拜天 08:00</span></span>
+<div class="issue mono">《四方 SIFANG》Nº154 · 2026.10<br>桃園後站 · 每週日 08–22</div>
+<div class="langs" role="group" aria-label="主語言 Bahasa utama Ngôn ngữ chính ภาษาหลัก"><button type="button" data-l="zh" lang="zh-Hant" aria-pressed="true">中文</button><button type="button" data-l="id" lang="id" aria-pressed="false">Indonesia</button><button type="button" data-l="vi" lang="vi" aria-pressed="false">Tiếng Việt</button><button type="button" data-l="th" lang="th" aria-pressed="false">ไทย</button></div>
+</header>
+<main id="main">
+<section class="dh" aria-labelledby="h1">
+ <h1 id="h1" class="disp"><span class="l4 "><span lang="zh-Hant">點一張</span><span lang="id">Kirim Satu Poster</span><span lang="vi">Gửi một tấm</span><span lang="th">ฝากโปสเตอร์หนึ่งใบ</span></span></h1>
+ <ol>
+  <li><span>選一個人、一句話、一個符號。</span></li>
+  <li><span>把刮板從左拉到右，一版一版刷：地色、回聲、黑版。沒拉到底，那一截就是白的。</span></li>
+  <li><span>刷好的那張，禮拜天下午兩點〈點播海報時間〉唸出來；人在後站的話，攤位上幫你印一張真的。</span></li>
+ </ol>
+</section>
+
+<section class="work">
+ <div>
+  <div class="bed" id="bed">
+   <i class="reg a"></i><i class="reg b"></i><i class="reg c"></i><i class="reg e"></i>
+   <figure class="dp" id="dp" aria-label="你的點播海報（預覽）">
+    <div class="lay l1" id="L1"></div>
+    <div class="lay l2" id="L2"><div class="date ghost" id="gdate" aria-hidden="true"></div><div class="art"><svg viewBox="-20 -20 140 140" aria-hidden="true"><use class="echo" id="e-use" href="#m-rice" width="100" height="100" filter="url(#echo-mg)"/></svg></div><div class="to ghost" id="gto" aria-hidden="true"></div><div class="band ghost" id="gband" aria-hidden="true"></div><div class="foot ghost" aria-hidden="true">&nbsp;</div></div>
+    <div class="lay l3" id="L3"><div class="date" id="ddate"></div><div class="art"><svg viewBox="-20 -20 140 140" aria-hidden="true"><use class="key" id="k-use" href="#m-rice" width="100" height="100"/></svg></div><div class="to" id="dto"></div><div class="band l4" id="dband" data-cap="12"></div><div class="foot"><span id="dno">點播 Nº154</span><span>RADIO MINGGU</span></div></div>
+   </figure>
+   <div class="sq" id="sq" role="slider" tabindex="0" aria-label="刮板：按住往右拉，或按方向鍵右" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+   <div class="bedcap mono"><span id="cap1">網版 1／3 · 地色</span><span>53 × 33 cm</span></div>
+  </div>
+ </div>
+
+ <form class="ctl" id="ctl" onsubmit="return false">
+  <noscript><p class="hint">刷版需要 JavaScript。也可以禮拜天直接到後站攤位，我們手寫一張給你。</p></noscript>
+  <fieldset><legend>01 <small>寫給誰</small></legend>
+   <div class="chips" id="c-to"></div>
+   <label class="nm">名字（可不填，12 字內）<input id="nm" maxlength="12" autocomplete="off" placeholder="例：Siti"></label>
+  </fieldset>
+  <fieldset><legend>02 <small>說什麼（四語已經翻好）</small></legend><div class="chips" id="c-ph"></div></fieldset>
+  <fieldset><legend>03 <small>哪一個符號</small></legend><div class="chips" id="c-mo"></div></fieldset>
+  <fieldset><legend>04 <small>地色</small></legend><div class="chips" id="c-sw"></div></fieldset>
+  <fieldset><legend>05 <small>刷</small></legend>
+   <div class="pulls" id="pulls"><div class="cur"><b>1 地色</b>整張鋪滿</div><div><b>2 回聲</b>三圈膨脹線</div><div><b>3 黑版</b>符號、日期、四語</div></div>
+   <p class="hint" id="hint" role="status">拖動印台上的刮板，或按下面的按鈕。</p>
+   <div class="act"><button class="btn" type="button" id="pull">刷第 1 版</button><button class="btn alt" type="button" id="reset">重新上紙</button></div>
+  </fieldset>
+  <div class="res" id="res" aria-live="polite">
+   <div class="t"><h2>收到了・Diterima・Đã nhận・ได้รับแล้ว</h2><div class="no" id="rno">154-0000</div>
+    <dl><dt>唸出來</dt><dd id="rwhen"></dd><dt>節目</dt><dd>14:00〈點播海報時間〉四語輪流唸</dd><dt>帶回家</dt><dd>當天 10:00–19:00 後站攤位報號碼，我們用真的網版印一張給你（免費）</dd></dl>
+    <div class="act"><button class="btn" type="button" id="print">列印這一張</button><button class="btn alt" type="button" id="again">再點一張</button></div>
+   </div>
+   <div class="wave ml" id="ml-ring"><p class="ml-fb">電波送出 · TERKIRIM</p></div>
+  </div>
+ </form>
+</section>
+</main>
+<footer class="foot-site">
+<div><b>RADIO MINGGU</b>禮拜天電台・《四方》月刊編輯部<br>桃園市桃園區延平路 108 巷 7 號 2 樓<br>（桃園火車站後站出口步行 4 分鐘）</div>
+<div><b>ON AIR</b>每週日 08:00–22:00 網路直播<br>後站廣場公開錄音攤 10:00–19:00<br>平日語音信箱 (03) 336-0912</div>
+<div><b>SIFANG</b>《四方》每月第三個禮拜天出刊<br>移工朋友免費・其他讀者 NT$40<br>附夾頁海報一張，可拆下張貼</div>
+<p class="fine">本站人物、地址、電話與刊號皆為虛構示意；OSPAAAL 與《Tricontinental》為真實的設計史參照。設計語彙致敬 1966–1990 年代古巴哈瓦那 OSPAAAL 團結海報。<a href="SKILL.md">下載本風格 SKILL.md</a> · <a href="README.md">README</a> · <a href="../../index.html">← Design Skills Center</a></p>
+</footer>
+<nav class="capnav" aria-label="主要導覽 Navigasi"><a href="index.html" data-wc="#E0157A"><span class="n">01</span><span class="l4 "><span lang="zh-Hant">禮拜天電台</span><span lang="id">Radio Minggu</span><span lang="vi">Đài Chủ Nhật</span><span lang="th">วิทยุวันอาทิตย์</span></span></a><a href="dedicate.html" data-wc="#1F9D55" aria-current="page"><span class="n">02</span><span class="l4 "><span lang="zh-Hant">點一張</span><span lang="id">Kirim Poster</span><span lang="vi">Gửi một tấm</span><span lang="th">ฝากโปสเตอร์</span></span></a><a href="archive.html" data-wc="#F5D10F"><span class="n">03</span><span class="l4 "><span lang="zh-Hant">海報牆</span><span lang="id">Dinding Poster</span><span lang="vi">Tường áp phích</span><span lang="th">กำแพงโปสเตอร์</span></span></a><a href="visit.html" data-wc="#161412"><span class="n">04</span><span class="l4 "><span lang="zh-Hant">禮拜天來後站</span><span lang="id">Datang Hari Minggu</span><span lang="vi">Chủ nhật ghé chơi</span><span lang="th">มาหาเราวันอาทิตย์</span></span></a></nav>
+<script>/* ===== 禮拜天電台 RADIO MINGGU — 共用腳本 ===== */
+(function(){
+var MG=window.MG=window.MG||{};var d=document,H=d.documentElement;
+MG.RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function sget(k,s){try{return (s?sessionStorage:localStorage).getItem(k);}catch(e){return null;}}
+function sset(k,v,s){try{(s?sessionStorage:localStorage).setItem(k,v);}catch(e){}}
+MG.sget=sget;MG.sset=sset;
+H.classList.add('js');
+
+/* 1. 主語言：語言決定的是版面的主從（誰排第一、誰最大），不是把其他三種藏起來 */
+var CODES=['zh','id','vi','th'];
+function guess(){var l=(navigator.languages||[navigator.language||'zh']);for(var i=0;i<l.length;i++){var c=String(l[i]).slice(0,2).toLowerCase();if(CODES.indexOf(c)>0)return c;if(c==='zh')return 'zh';}return 'zh';}
+MG.lang=function(){return H.getAttribute('data-pl')||'zh';};
+MG.setLang=function(pl,quiet){if(CODES.indexOf(pl)<0)pl='zh';H.setAttribute('data-pl',pl);
+ var b=d.querySelectorAll('.l4');for(var i=0;i<b.length;i++){var k=b[i].children;for(var j=0;j<k.length;j++){var lg=(k[j].getAttribute('lang')||'').slice(0,2);k[j].classList.toggle('p',lg===pl);}}
+ var bt=d.querySelectorAll('.langs button');for(var m=0;m<bt.length;m++)bt[m].setAttribute('aria-pressed',bt[m].getAttribute('data-l')===pl?'true':'false');
+ if(!quiet)sset('mg-pl',pl);
+ try{d.dispatchEvent(new CustomEvent('mg:lang',{detail:pl}));}catch(e){}};
+MG.setLang(sget('mg-pl')||guess(),true);
+d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.langs button');if(b)MG.setLang(b.getAttribute('data-l'));});
+
+/* 2. 四語等寬求解：每一行以 100px 量一次實際字寬（canvas measureText，字型就緒後），
+      求出「撐滿容器所需的 cqi 倍數」--fit = 10000 / w100。這個數和海報多大無關——
+      之後同一張海報放在 120px 的牆上或 600px 的燈箱裡，都由 container query 單位自己縮放，不必重量。 */
+var cx=null;try{cx=d.createElement('canvas').getContext('2d');}catch(e){}
+MG.fit=function(band){if(!cx||!band)return;var cap=parseFloat(band.getAttribute('data-cap'))||13,k=band.children;
+ for(var i=0;i<k.length;i++){var el=k[i],cs=getComputedStyle(el),t=el.textContent.replace(/\s+/g,' ').trim();if(cs.textTransform==='uppercase')t=t.toUpperCase();
+  cx.font=(cs.fontStyle||'normal')+' '+(cs.fontWeight||'400')+' 100px '+cs.fontFamily;var w=cx.measureText(t).width;
+  var ls=parseFloat(cs.letterSpacing);if(!isNaN(ls)&&ls){w+=ls/parseFloat(cs.fontSize)*100*t.length;}
+  if(!w)continue;var f=10000/w*.985;el.classList.toggle('capd',f>cap);el.style.setProperty('--fit',Math.min(f,cap).toFixed(3));}};
+MG.fitAll=function(root){var b=(root||d).querySelectorAll('.band');for(var i=0;i<b.length;i++)MG.fit(b[i]);};
+(d.fonts&&d.fonts.ready?d.fonts.ready:Promise.resolve()).then(function(){MG.fitAll();H.classList.add('fitted');});
+
+/* 3. 套版晃動（輸入動效）：游標在海報上移動時，回聲版與黑版往相反方向錯開最多 3px——像兩次過網沒對準 */
+if(!MG.RM){d.addEventListener('pointermove',function(e){var p=e.target.closest&&e.target.closest('.pst[data-reg]');if(!p)return;var r=p.getBoundingClientRect();
+ p.style.setProperty('--rx',(((e.clientX-r.left)/r.width-.5)*-6).toFixed(2));p.style.setProperty('--ry',(((e.clientY-r.top)/r.height-.5)*-4).toFixed(2));},{passive:true});
+ d.addEventListener('pointerout',function(e){var p=e.target.closest&&e.target.closest('.pst[data-reg]');if(p&&!p.contains(e.relatedTarget)){p.style.setProperty('--rx',0);p.style.setProperty('--ry',0);}});}
+
+/* 4. 現在有沒有在播：只在禮拜天（臺北時間 08:00–22:00）開播 */
+MG.SCHED=[[8,'早安，禮拜天','Selamat Pagi, Minggu','Chào buổi sáng Chủ nhật','อรุณสวัสดิ์วันอาทิตย์'],[10,'印尼語時段 Suara Minggu','Suara Minggu','Tiếng nói Chủ nhật (Indonesia)','เสียงวันอาทิตย์ (อินโดฯ)'],[12,'越南語午休','Istirahat Siang (Vietnam)','Giờ nghỉ trưa','พักเที่ยง (เวียดนาม)'],[14,'點播海報時間','Jam Poster Kiriman','Giờ áp phích gửi tặng','ช่วงโปสเตอร์ฝากถึง'],[16,'泰語・家鄉的聲音','Suara dari Rumah (Thai)','Tiếng quê nhà (Thái)','เสียงจากบ้าน'],[18,'菲語 Kumusta Linggo','Kumusta Linggo (Filipina)','Kumusta Linggo (Philippines)','กุมุสตา ลิงโก (ฟิลิปปินส์)'],[20,'晚安家鄉','Selamat Malam, Kampung','Chúc ngủ ngon, quê nhà','ราตรีสวัสดิ์บ้านเกิด']];
+MG.now=function(){var p={};try{new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(new Date()).forEach(function(x){p[x.type]=x.value;});}catch(e){var n=new Date();p={weekday:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][n.getDay()],hour:n.getHours(),minute:n.getMinutes()};}
+ return {sun:p.weekday==='Sun',h:(+p.hour)%24,m:+p.minute};};
+MG.onair=function(){var n=MG.now(),cur=null,nxt=null;if(n.sun&&n.h>=8&&n.h<22){for(var i=0;i<MG.SCHED.length;i++){if(n.h>=MG.SCHED[i][0])cur=i;}nxt=cur+1<MG.SCHED.length?cur+1:null;}return {on:cur!==null,cur:cur,next:nxt,n:n};};
+function paintAir(){var el=d.getElementById('onair');if(!el)return;var o=MG.onair();el.classList.toggle('off',!o.on);
+ var L=CODES.indexOf(MG.lang())+1;el.querySelector('span').textContent=o.on?('ON AIR · '+MG.SCHED[o.cur][L]):({zh:'下次開播・禮拜天 08:00',id:'Siaran berikutnya · Minggu 08.00',vi:'Phát sóng lại · Chủ nhật 08:00',th:'ออกอากาศครั้งหน้า · วันอาทิตย์ 08:00'})[MG.lang()];}
+paintAir();d.addEventListener('mg:lang',paintAir);setInterval(paintAir,60000);
+
+/* 5. motion-library 元件（PLAYBOOK §2.8）：等字型就緒才掛；離屏即 destroy（元件庫的 rAF 在 pause 後仍每幀重繪），回到視窗再重掛。
+      o.once＝一次性文字元件：第一次進視窗播一次，之後重掛停最後一格。canvas aria-hidden，容器裡的 HTML 標題掛載成功才視覺隱藏。 */
+MG.ml=function(el,o){var c2=null;try{c2=d.createElement('canvas').getContext('2d');}catch(_){}if(!el||!window.MotionLib||!c2)return null;
+ var m=null,done=false,vis=false,api={replay:function(){if(!vis){done=false;return;}if(m){m.destroy();m=null;}done=false;mount();}};
+ function ar(){var w=el.clientWidth||1,h=el.clientHeight||1,r=w/h;return r>=16/9?'16:9':r>=1?'1:1':r>=.8?'4:5':'9:16';}
+ function mount(){if(m)return;m=MotionLib.mount(el,Object.assign({},o,{paused:true,aspectRatio:ar()}));m.canvas.setAttribute('aria-hidden','true');m.canvas.removeAttribute('role');el.classList.add('ml-live');
+  if(MG.RM)return m.seek(o.once?1:.35);if(o.once&&done)return m.seek(1);m.replay();if(o.once)done=true;}
+ function unmount(){if(m){m.destroy();m=null;}}
+ var go=function(){if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){vis=e.isIntersecting;vis?mount():unmount();});},{rootMargin:'60px'}).observe(el);else{vis=true;mount();}};
+ var rt=0;addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(m){unmount();mount();}},250);});
+ (d.fonts&&d.fonts.ready?d.fonts.ready:Promise.resolve()).then(go);return api;};
+
+/* 6. 換頁：一支刮板把下一頁的地色拉過整個畫面；下一頁再把它往右拉掉 */
+function wipeEl(){var w=d.createElement('div');w.className='wipe';w.setAttribute('aria-hidden','true');d.body.appendChild(w);return w;}
+var arr=sget('mg-wipe',true);
+if(arr&&!MG.RM&&H.classList.contains('arriving')){try{sessionStorage.removeItem('mg-wipe');}catch(e){}
+ var w0=wipeEl();w0.style.setProperty('--wc',arr);w0.classList.add('out');
+ var a0=w0.animate?w0.animate([{clipPath:'inset(0 0 0 0)'},{clipPath:'inset(0 0 0 100%)'}],{duration:460,delay:60,easing:'cubic-bezier(.55,0,.25,1)',fill:'forwards'}):null;
+ H.classList.remove('arriving');var rm=function(){w0.remove();};if(a0)a0.onfinish=rm;else rm();}
+else{H.classList.remove('arriving');try{sessionStorage.removeItem('mg-wipe');}catch(e){}}
+d.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||a.target||a.hasAttribute('download'))return;
+ var u;try{u=new URL(a.getAttribute('href'),location.href);}catch(_){return;}if(u.origin!==location.origin||!/\.html$/.test(u.pathname)||(u.pathname===location.pathname))return;
+ if(MG.RM)return;var col=a.getAttribute('data-wc')||'#E0157A';e.preventDefault();sset('mg-wipe',col,true);
+ var w=wipeEl();w.style.setProperty('--wc',col);var go=function(){location.href=u.href;};
+ if(w.animate){w.animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0 0 0)'}],{duration:400,easing:'cubic-bezier(.6,0,.35,1)',fill:'forwards'}).onfinish=go;setTimeout(go,900);}else go();});
+addEventListener('pageshow',function(e){if(e.persisted){var w=d.querySelectorAll('.wipe');for(var i=0;i<w.length;i++)w[i].remove();}});
+})();
+</script>
+<script>
+(function(){var d=document,$=function(i){return d.getElementById(i);},RM=MG.RM;
+var TO=[['媽媽','Ibu','Mẹ','แม่'],['孩子','Anakku','Con','ลูก'],['同鄉','Teman sekampung','Đồng hương','เพื่อนบ้านเดียวกัน'],['阿嬤','Ama','Bà','อาม่า'],['自己','Diriku sendiri','Chính mình','ตัวเอง']];
+var TO_PRE=['給','Untuk','Gửi','ถึง'];
+var PH=[['我很好，別擔心','Aku baik-baik saja, jangan khawatir','Tôi vẫn ổn, đừng lo','ฉันสบายดี ไม่ต้องห่วง'],['想你了','Aku rindu kamu','Nhớ lắm','คิดถึงนะ'],['生日快樂','Selamat ulang tahun','Chúc mừng sinh nhật','สุขสันต์วันเกิด'],['辛苦了，謝謝你','Terima kasih atas kerja kerasmu','Cảm ơn vì đã vất vả','ขอบคุณที่เหนื่อยมาด้วยกัน'],['下個月就回家','Bulan depan aku pulang','Tháng sau về nhà','เดือนหน้าจะกลับบ้าน'],['禮拜天見','Sampai jumpa hari Minggu','Hẹn gặp Chủ nhật','เจอกันวันอาทิตย์']];
+var MO=[['m-rice','天線稻穗'],['m-phone','手機開花'],['m-star','網眼裡的星'],['m-wheel','長翅膀的輪子'],['m-helmet','安全帽裡的月'],['m-heart','心裡的收音機']];
+var SW=[['#F5D10F','檸檬黃','echo-mg'],['#F3EEE2','紙白','echo-gm'],['#E0157A','洋紅','echo-yp'],['#1F9D55','草綠','echo-py']];
+var LC=['zh-Hant','id','vi','th'];
+function l4(a){return '<span class="l4">'+a.map(function(t,i){return '<span lang="'+LC[i]+'">'+t+'</span>';}).join('')+'</span>';}
+function chips(id,name,arr,fn,cls){$(id).innerHTML=arr.map(function(a,i){return '<label class="'+(cls||'')+'"><input type="radio" name="'+name+'" value="'+i+'"'+(i?'':' checked')+'><span class="c">'+fn(a,i)+'</span></label>';}).join('');}
+chips('c-to','to',TO,function(a){return l4(a);});
+chips('c-ph','ph',PH,function(a){return l4(a);},'ph');
+chips('c-mo','mo',MO,function(a){return '<svg viewBox="-10 -10 120 120" aria-hidden="true"><use href="#'+a[0]+'" width="100" height="100"/></svg><span class="vh">'+a[1]+'</span>';},'mo');
+chips('c-sw','sw',SW,function(a){return '<span class="vh">'+a[1]+'</span>';},'sw');
+[].forEach.call(d.querySelectorAll('#c-sw .c'),function(c,i){c.style.background=SW[i][0];});
+MG.setLang(MG.lang(),true);
+
+/* 下一個禮拜天（臺北時間）；今天是禮拜天且未過 14:00 就是今天 */
+function nextSun(){var n=MG.now(),t=new Date(),dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];var add=0;
+ try{var wd=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(t);add=(7-dow.indexOf(wd))%7;}catch(e){add=(7-t.getDay())%7;}
+ if(add===0&&n.h>=14)add=7;return new Date(t.getTime()+add*864e5);}
+var SUN=nextSun();
+function fmt(loc,o){try{return new Intl.DateTimeFormat(loc,Object.assign({timeZone:'Asia/Taipei'},o)).format(SUN);}catch(e){return SUN.toDateString();}}
+var DAY=fmt('en-US',{day:'numeric'}),MON=+fmt('en-US',{month:'numeric'});
+var MONS={1:['1月','Jan','Th1','ม.ค.'],2:['2月','Feb','Th2','ก.พ.'],3:['3月','Mar','Th3','มี.ค.'],4:['4月','Apr','Th4','เม.ย.'],5:['5月','Mei','Th5','พ.ค.'],6:['6月','Jun','Th6','มิ.ย.'],7:['7月','Jul','Th7','ก.ค.'],8:['8月','Agu','Th8','ส.ค.'],9:['9月','Sep','Th9','ก.ย.'],10:['10月','Okt','Th10','ต.ค.'],11:['11月','Nov','Th11','พ.ย.'],12:['12月','Des','Th12','ธ.ค.']};
+$('rwhen').innerHTML=l4([fmt('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'}),fmt('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),fmt('vi-VN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),fmt('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})]);
+
+function val(n){var r=d.querySelector('input[name='+n+']:checked');return r?+r.value:0;}
+function code(){var s=val('to')+'|'+val('ph')+'|'+val('mo')+'|'+val('sw')+'|'+$('nm').value,h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return '154-'+('000'+((h>>>0)%10000)).slice(-4);}
+function render(){var to=TO[val('to')],nm=$('nm').value.trim().replace(/[<>&"]/g,''),sw=SW[val('sw')],mo=MO[val('mo')][0];
+ $('dp').style.setProperty('--g',sw[0]);$('L1').style.background=sw[0];
+ $('e-use').setAttribute('href','#'+mo);$('e-use').setAttribute('filter','url(#'+sw[2]+')');$('k-use').setAttribute('href','#'+mo);
+ $('ddate').innerHTML=DAY+'<small>'+l4(MONS[MON])+'<em>MINGGU</em></small>';
+ $('dto').innerHTML=l4(TO_PRE.map(function(p,i){return p+(i?' ':'')+to[i]+(nm?'・'+nm:'');}));
+ var ph=PH[val('ph')];$('dband').innerHTML=ph.map(function(t,i){return '<span lang="'+LC[i]+'">'+t+'</span>';}).join('');
+ $('gband').innerHTML=$('dband').innerHTML;$('gdate').innerHTML=$('ddate').innerHTML;$('gto').innerHTML=$('dto').innerHTML;
+ $('dno').textContent='點播 Nº'+code();MG.setLang(MG.lang(),true);
+ (d.fonts&&d.fonts.ready?d.fonts.ready:Promise.resolve()).then(function(){MG.fit($('dband'));MG.fit($('gband'));});}
+$('ctl').addEventListener('change',render);$('nm').addEventListener('input',render);d.addEventListener('mg:lang',function(){MG.fit($('dband'));});
+
+/* 刷版：三片網版，每一片都要親手把刮板從左拉到右；沒拉到底就停在那裡（真的網版也是） */
+var L=[$('L1'),$('L2'),$('L3')],NAMES=['地色','回聲','黑版'],SQC=['#F5D10F','#E0157A','#161412'],cur=0,p=0,sq=$('sq'),bed=$('bed'),dp=$('dp');
+function setP(v){p=Math.max(p,Math.min(1,v));L[cur].style.setProperty('--p',p);sq.style.setProperty('--sx',p);sq.setAttribute('aria-valuenow',Math.round(p*100));if(p>=.985)done();}
+function lock(on){[].forEach.call(d.querySelectorAll('#ctl input'),function(i){i.disabled=on;});}
+function ui(){var ds=$('pulls').children;for(var i=0;i<3;i++){ds[i].className=i<cur?'ok':(i===cur?'cur':'');}
+ $('pull').textContent=cur<3?'刷第 '+(cur+1)+' 版・'+NAMES[cur]:'三版刷完';$('pull').disabled=cur>=3;$('cap1').textContent=cur<3?'網版 '+(cur+1)+'／3 · '+NAMES[cur]:'起版 · 晾乾';
+ sq.hidden=cur>=3;sq.style.setProperty('--sqc',SQC[Math.min(cur,2)]);}
+function done(){p=1;L[cur].style.setProperty('--p',1);
+ /* 每一版都對歪一點點：±1.6px，像人手放網框 */
+ if(cur>0){var r=Math.sin((cur+1)*12.9898+val('mo')*78.233+val('sw'))*43758.5453;r=r-Math.floor(r);L[cur].style.setProperty('--ox',((r-.5)*3.2).toFixed(2)+'px');L[cur].style.setProperty('--oy',((r*7%1-.5)*2.4).toFixed(2)+'px');}
+ cur++;p=0;sq.style.setProperty('--sx',0);
+ $('hint').textContent=cur<3?'第 '+cur+' 版刷好了。換網框，刷第 '+(cur+1)+' 版：'+NAMES[cur]+'。':'三版都刷完了。這一張已經排進禮拜天的節目。';
+ ui();if(cur>=3)finish();}
+function finish(){$('rno').textContent=code();$('res').classList.add('on');ring&&ring.replay();if(!RM)$('res').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function start(){if(cur===0&&p===0)lock(true);}
+var drag=false;
+function px(e){var r=dp.getBoundingClientRect();return (e.clientX-r.left)/r.width;}
+bed.addEventListener('pointerdown',function(e){if(cur>=3)return;drag=true;start();sq.classList.add('drag');try{bed.setPointerCapture(e.pointerId);}catch(_){}
+ if(px(e)<p+.12)setP(px(e));});
+bed.addEventListener('pointermove',function(e){if(!drag)return;var x=px(e);if(x<p+.2)setP(x);else $('hint').textContent='刮板跳太快了——要一路拉過去，不能跳。';});
+function up(){if(!drag)return;drag=false;sq.classList.remove('drag');if(cur<3&&p>0&&p<.985)$('hint').textContent='停在 '+Math.round(p*100)+'%。右邊那一截還是白的——從刮板的位置繼續往右拉。';}
+bed.addEventListener('pointerup',up);bed.addEventListener('pointercancel',up);
+sq.addEventListener('keydown',function(e){if(cur>=3)return;if(e.key==='ArrowRight'||e.key==='ArrowUp'){e.preventDefault();start();setP(p+.1);}else if(e.key==='End'||e.key==='Enter'||e.key===' '){e.preventDefault();auto();}});
+function auto(){if(cur>=3)return;start();if(RM){setP(1);return;}var t0=null,p0=p,c0=cur;(function st(t){if(cur!==c0)return;if(t0===null)t0=t;var k=Math.min(1,(t-t0)/620);setP(p0+(1-p0)*(k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2));if(k<1&&cur===c0)requestAnimationFrame(st);})(performance.now());}
+$('pull').addEventListener('click',auto);
+function reset(){cur=0;p=0;L.forEach(function(l){l.style.setProperty('--p',0);l.style.removeProperty('--ox');l.style.removeProperty('--oy');});lock(false);$('res').classList.remove('on');$('hint').textContent='新的一張紙上機了。';ui();sq.style.setProperty('--sx',0);}
+$('reset').addEventListener('click',reset);$('again').addEventListener('click',function(){reset();$('bed').scrollIntoView({behavior:RM?'auto':'smooth',block:'center'});});
+$('print').addEventListener('click',function(){window.print();});
+/* 無 JS 時三版都看得到；有 JS 才把紙清空等你刷 */
+L.forEach(function(l){l.style.setProperty('--p',0);});render();ui();
+
+/* motion-library：SHP-15 Ring Expand——三版刷完，電波從攤位往外擴三圈（一次性，轉場） */
+var ring=MG.ml($('ml-ring'),{id:'SHP-15',colors:{primary:'#F5D10F',secondary:'#E0157A',bg:'#161412'},duration:1.8,loop:false,once:true,intensity:1,seed:1400,aspectRatio:'1:1'});
+})();
+</script>
+</body>
+</html>

@@ -379,10 +379,11 @@
 | 361 | [雞啼蛋行 KE-THÎ](sites/ke-thi/index.html) | 蛋行（彰化長壽街・1968 年起；滿月紅蛋盒封一張手剪羅維奇 gwiozda；整站是一面刷白的牆，剪紙一層一層被拍上去；〈做滿月〉把紅蛋訂單剪成一張可分享的 gwiozda、〈對摺剪一刀〉） | 波蘭羅維奇剪紙 Wycinanki łowickie | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 362 | [金獅病媒防治 KIM-SAI](sites/kim-sai/index.html) | 病媒防治（基隆仁愛區・1979 年起；每個案子畫成一張麵粉袋電影海報；〈加料〉五道誇張度升級、〈認犯人〉證物指認→判決海報＋放映券） | 迦納流動電影院手繪海報 Ghanaian Mobile Cinema Poster | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 363 | [相黏照相打字行 SIO-LIÂM](sites/sio-liam/index.html) | 照相打字行兼喜帖印刷（臺南西門路・1974 年起；兩人名字碰字成喜帖字標；〈相黏機〉距離／曝光／鏡頭三桿即時求解、民國曆打樣與印量試算） | Lubalin 字象派・ITC《U&lc》照相排字表現主義 | [SKILL.md](sites/sio-liam/SKILL.md) | Claude Opus 5.5 · 排程 Agent |
+| 364 | [早頓煎台 TSÁ-TǸG](sites/tsa-tng/index.html) | 西式早餐店（新竹光復路・1981 年起；點單即煎台關卡：三格鐵板冒滿三縷煙翻面、再冒滿鏟起，90 秒後拿取餐單；鍵盤／觸控／實體手把） | 段碼液晶掌機風 LCD Handheld · Segment Display | [SKILL.md](sites/tsa-tng/SKILL.md) | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 252 個產業種子 × 222 個風格種子（55,944 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 258 個產業種子 × 228 個風格種子（58,824 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

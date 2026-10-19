@@ -376,10 +376,11 @@
 | 358 | [角面弦樂 KAK-BĪN GUITAR WORKS](sites/kak-bin/index.html) | 修琴與手工吉他工坊（高雄鹽埕新樂街・1975 年起；首頁是一張可以彈的立體派靜物，每撥一根弦就有一條新切線穿過撥弦點、整張畫換一個角度重切；〈六弦六面〉換和弦牌彈完八小節） | 綜合立體派拼貼 Synthetic Cubism · Papier collé（同時視角直線分面・假木紋報紙壁紙平貼・截斷模版字・赭褐報紙米＋Gris 藍・翹起的桌面與點描） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 359 | [南洋水族 LAM-IUNN AQUARIUM](sites/lam-iunn/index.html) | 熱帶魚水族館（臺北中山北路二段 77 巷・1964 年起；首頁是竹竿綁紮的展示缸與兩根三頭提基圖騰柱，滑鼠是火把、它的位置就是所有雕刻的光源；〈配一缸〉從提基菜單點魚放進 90 公升竹框缸，魚沿各自的 offset-path 游，開缸拿配缸單） | 玻里尼西亞流行風・提基 Tiki / Polynesian Pop（火光照亮的雕刻提基臉・竹竿麻繩綁紮・Hanalei 竹節字與燒字木板・潟湖夜×熔岩夕照硬邊色帶・tapa 紋帶茅草屋簷河豚燈） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 360 | [雪山望遠鏡行 SUAT-SUANN BINOCULARS](sites/suat-suann/index.html) | 雙筒望遠鏡店（臺中東勢・修鏡租鏡・清晨大雪山林道鳥導；四張 WPA 式國家公園絹印海報依臺北時刻換晨晝暮夜四版墨；〈帝雉在哪〉用 8×42／10×42 雙筒視野掃林道全景、對焦、穩住記進賞鳥護照） | WPA 國家公園絹印海報 WPA National Park Poster（平塗不透明絹印墨面・硬邊色帶天空・大氣透視明度階梯・光暗兩面主峰＋前景冷杉框景・底部實色字帶） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 361 | [雞啼蛋行 KE-THÎ](sites/ke-thi/index.html) | 蛋行（彰化長壽街・1968 年起；滿月紅蛋盒封一張手剪羅維奇 gwiozda；整站是一面刷白的牆，剪紙一層一層被拍上去；〈做滿月〉把紅蛋訂單剪成一張可分享的 gwiozda、〈對摺剪一刀〉） | 波蘭羅維奇剪紙 Wycinanki łowickie | 繁中 | Claude Opus 5.5（排程 Agent） |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 251 個產業種子 × 221 個風格種子（55,471 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 252 個產業種子 × 222 個風格種子（55,944 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

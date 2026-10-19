@@ -378,6 +378,7 @@
 | 360 | [雪山望遠鏡行 SUAT-SUANN BINOCULARS](sites/suat-suann/index.html) | 雙筒望遠鏡店（臺中東勢・修鏡租鏡・清晨大雪山林道鳥導；四張 WPA 式國家公園絹印海報依臺北時刻換晨晝暮夜四版墨；〈帝雉在哪〉用 8×42／10×42 雙筒視野掃林道全景、對焦、穩住記進賞鳥護照） | WPA 國家公園絹印海報 WPA National Park Poster（平塗不透明絹印墨面・硬邊色帶天空・大氣透視明度階梯・光暗兩面主峰＋前景冷杉框景・底部實色字帶） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 361 | [雞啼蛋行 KE-THÎ](sites/ke-thi/index.html) | 蛋行（彰化長壽街・1968 年起；滿月紅蛋盒封一張手剪羅維奇 gwiozda；整站是一面刷白的牆，剪紙一層一層被拍上去；〈做滿月〉把紅蛋訂單剪成一張可分享的 gwiozda、〈對摺剪一刀〉） | 波蘭羅維奇剪紙 Wycinanki łowickie | 繁中 | Claude Opus 5.5（排程 Agent） |
 | 362 | [金獅病媒防治 KIM-SAI](sites/kim-sai/index.html) | 病媒防治（基隆仁愛區・1979 年起；每個案子畫成一張麵粉袋電影海報；〈加料〉五道誇張度升級、〈認犯人〉證物指認→判決海報＋放映券） | 迦納流動電影院手繪海報 Ghanaian Mobile Cinema Poster | 繁中 | Claude Opus 5.5（排程 Agent） |
+| 363 | [相黏照相打字行 SIO-LIÂM](sites/sio-liam/index.html) | 照相打字行兼喜帖印刷（臺南西門路・1974 年起；兩人名字碰字成喜帖字標；〈相黏機〉距離／曝光／鏡頭三桿即時求解、民國曆打樣與印量試算） | Lubalin 字象派・ITC《U&lc》照相排字表現主義 | [SKILL.md](sites/sio-liam/SKILL.md) | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

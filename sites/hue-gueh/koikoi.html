@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一局・花合わせ八手｜花月立飲</title>
+<meta name="description" content="把手上的札拍到場上同月的札上，八手之後你湊出的役，就是今晚的那一杯。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-20%200%20104%20104%22%3E%3Crect%20width%3D%2264%22%20height%3D%22104%22%20fill%3D%22%231B1714%22%2F%3E%3Crect%20x%3D%222.6%22%20y%3D%222.6%22%20width%3D%2258.8%22%20height%3D%2298.8%22%20fill%3D%22%23F3EBD8%22%2F%3E%3Cg%20transform%3D%22translate(.7%20.5)%22%3E%3Crect%20x%3D%222.6%22%20y%3D%222.6%22%20width%3D%2258.8%22%20height%3D%2258%22%20fill%3D%22%23D2352B%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2217%22%20fill%3D%22%23FFFDF6%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2217%22%20fill%3D%22none%22%20stroke%3D%22%231B1714%22%20stroke-width%3D%22.9%22%2F%3E%3Cpath%20d%3D%22M2.6%20101.4V66Q20%2052%2034%2060T61.4%2058V101.4Z%22%20fill%3D%22%231B1714%22%2F%3E%3Cpath%20d%3D%22M10%2066Q14%2040%2022%2030M26%2062Q30%2044%2040%2036M44%2060Q48%2040%2056%2030%22%20fill%3D%22none%22%20stroke%3D%22%231B1714%22%20stroke-width%3D%221.2%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;800&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<script>
+/* motion-library 1.8.0 @a75f72c 子集：TXT-B-32, TXT-A-06（tools/ml-embed.js 產生，勿手改） */
+
+(function (root) {
+'use strict';
+const TAU = Math.PI * 2;
+const cl = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const fr = v => v - Math.floor(v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => cl((p - a) / (b - a));
+const E = {
+l: t => t,
+oc: t => 1 - (1 - t) ** 3,
+oq: t => 1 - (1 - t) ** 4,
+ic: t => t * t * t,
+io: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+ob: t => { const a = 1.70158, b = a + 1; return 1 + b * (t - 1) ** 3 + a * (t - 1) ** 2; },
+el: t => t <= 0 ? 0 : t >= 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - .75) * TAU / 3) + 1,
+bo: t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+};
+const stg = (p, i, n, sp = .5) => { const o = n > 1 ? i / (n - 1) * sp : 0; return seg(p, o, o + 1 - sp); };
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const R = (c, salt) => { const r = rng(c.seed * 9973 + salt * 7919 + 17); r(); r(); return r; };
+
+/* ---------- color ---------- */
+function hex(h) { h = (h || '#000').replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const toHex = a => '#' + a.map(v => Math.round(cl(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => lerp(v, B[i], t))); };
+const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${cl(a)})`; };
+const lum = h => { const [r, g, b] = hex(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+const inkFor = bg => lum(bg) > .55 ? '#121418' : '#F4F6F8';
+
+/* ---------- drawing helpers ---------- */
+function bgFill(c, col) { if (!col && c.transparent) { c.ctx.clearRect(0, 0, c.W, c.H); return; } c.ctx.fillStyle = col || c.bg; c.ctx.fillRect(0, 0, c.W, c.H); }  // transparent：輸出透明影片時，底色改為清空（元件自己指定的顏色照畫）
+function gridLines(c, s, ox, oy, col, lw = 1) { const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (let X = ((ox % s) + s) % s; X <= W; X += s) { x.moveTo(X, 0); x.lineTo(X, H); } for (let Y = ((oy % s) + s) % s; Y <= H; Y += s) { x.moveTo(0, Y); x.lineTo(W, Y); } x.stroke(); }
+function dot(x, X, Y, r) { if (r <= .25) return; x.beginPath(); x.arc(X, Y, r, 0, TAU); x.fill(); }
+function halftone(c, st, fn, col) { const { ctx: x, W, H } = c; x.fillStyle = col || c.pr; for (let Y = st / 2; Y < H + st; Y += st) for (let X = st / 2; X < W + st; X += st) dot(x, X, Y, cl(fn(X, Y)) * st * .56); }
+function star(x, X, Y, r1, r2, n, rot) { x.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n - Math.PI / 2, r = i % 2 ? r2 : r1; i ? x.lineTo(X + Math.cos(a) * r, Y + Math.sin(a) * r) : x.moveTo(X + Math.cos(a) * r, Y + Math.sin(a) * r); } x.closePath(); }
+function heart(x, X, Y, s) { x.beginPath(); x.moveTo(X, Y + s * .35); x.bezierCurveTo(X - s * 1.1, Y - s * .35, X - s * .45, Y - s * 1.05, X, Y - s * .45); x.bezierCurveTo(X + s * .45, Y - s * 1.05, X + s * 1.1, Y - s * .35, X, Y + s * .35); x.closePath(); }
+function rr(x, X, Y, w, h, r) { r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2)); x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function poly(x, pts, close = true) { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); if (close) x.closePath(); }
+function ngon(n, r, rot = 0) { const a = []; for (let i = 0; i < n; i++) { const t = rot + i / n * TAU - Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; }
+function shape(x, kind, X, Y, s, rot = 0) {
+x.save(); x.translate(X, Y); x.rotate(rot);
+if (kind === 0) { x.beginPath(); x.arc(0, 0, s, 0, TAU); }
+else if (kind === 1) { poly(x, ngon(3, s * 1.15)); }
+else if (kind === 2) { rr(x, -s * .9, -s * .9, s * 1.8, s * 1.8, s * .2); }
+else if (kind === 3) { star(x, 0, 0, s * 1.1, s * .5, 5, 0); }
+else { const w = s * .38; x.beginPath(); x.rect(-s, -w, s * 2, w * 2); x.rect(-w, -s, w * 2, s * 2); }
+x.restore();
+}
+function partial(x, pts, f) { const n = pts.length; const m = f * (n - 1); if (m <= 0) return; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); const k = Math.floor(m); for (let i = 1; i <= k; i++) x.lineTo(pts[i][0], pts[i][1]); if (k < n - 1) { const t = m - k; x.lineTo(lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)); } x.stroke(); }
+function floor3d(c, hz, col, n = 14, cols = 18, speed = 1) {
+const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = 1.5;
+for (let k = 0; k <= n; k++) { const f = (k + fr(c.p * speed)) / n; const y = hz + (H - hz) * f ** 2.6; x.globalAlpha = cl(f * 1.6); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+x.globalAlpha = 1; for (let i = -cols; i <= cols; i++) { x.beginPath(); x.moveTo(W / 2 + i * W * .02, hz); x.lineTo(W / 2 + i * W * .22, H); x.stroke(); }
+}
+
+/* ---------- offscreen ---------- */
+const POOL = [];
+function off(c, i = 0) {
+let o = POOL[i]; const w = Math.max(1, Math.round(c.W * c.dpr)), h = Math.max(1, Math.round(c.H * c.dpr));
+if (!o) { const cv = document.createElement('canvas'); o = POOL[i] = { cv, ctx: cv.getContext('2d') }; }
+if (o.cv.width !== w || o.cv.height !== h) { o.cv.width = w; o.cv.height = h; }
+const x = o.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, w, h); x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0); return o;
+}
+
+/* ---------- text layout ---------- */
+const FAM = { sans: '"Unbounded","Noto Sans TC",system-ui,sans-serif', tc: '"Noto Sans TC",system-ui,sans-serif', serif: '"Noto Serif TC","Songti TC",serif', mono: '"JetBrains Mono",ui-monospace,monospace' };
+const LC = new Map(); let MC = null;
+function lay(c, o = {}) {
+const text = o.text != null ? o.text : (c.P.text || ' ');
+const maxW = o.maxW || .82, maxH = o.maxH || .24, w = o.w || 800, fam = o.fam || 'sans', sc = o.sc || 1;
+const key = [text, c.W, c.H, maxW, maxH, w, fam, sc, o.wrap ? 1 : 0].join('|'); let L = LC.get(key); if (L) return L;
+if (!MC) MC = document.createElement('canvas').getContext('2d');
+const ch = Array.from(text.length ? text : ' '); MC.font = `${w} 100px ${FAM[fam]}`;
+const ws = ch.map(s => MC.measureText(s).width || 30); const tot = ws.reduce((a, b) => a + b, 0) || 1;
+let fs = Math.min(c.H * maxH, c.W * maxW * 100 / tot) * sc, k = fs / 100;
+/* wrap：單行字太小時（直式畫面或長字串）改成 2～4 行。英數字詞不拆開；標點不放行首、開括號不放行尾。
+目前只有明確傳入 wrap 的元件使用（T-0009 試作：TXT-A-02），其他元件維持單行。 */
+if (o.wrap && ch.length > 1 && fs < c.W * (c.H > c.W ? .14 : .085) * sc) {
+const toks = []; let cur = null; ch.forEach((s, i) => { const al = /[A-Za-z0-9'’\-]/.test(s); if (al && cur && cur.al) { cur.e = i + 1; cur.w += ws[i]; } else { cur = { s: i, e: i + 1, w: ws[i], al }; toks.push(cur); } });
+const NOSTART = /^[，。、：；！？）」』〉》,.;:!?)\]]/, NOEND = /[（「『〈《(\[]$/;
+const split = n => { const lines = [[]]; let lw = 0; const tgt = tot / n;
+toks.forEach((t, ti) => { const str = ch.slice(t.s, t.e).join(''); const line = lines[lines.length - 1];
+const canBreak = line.length && lines.length < n && lw + t.w / 2 > tgt && !NOSTART.test(str) && !NOEND.test(ch.slice(line[line.length - 1].s, line[line.length - 1].e).join(''));
+if (canBreak) { lines.push([t]); lw = t.w; } else { line.push(t); lw += t.w; } });
+return lines.map(l => { const st = l[0].s, en = l[l.length - 1].e; let a = st, b = en; while (a < b && !ch[a].trim()) a++; while (b > a && !ch[b - 1].trim()) b--; return { s: st, e: en, a, b, w: ws.slice(a, b).reduce((x, y) => x + y, 0) }; }); };
+let best = null; for (let n = 2; n <= 4; n++) { const ls = split(n), mw = Math.max(...ls.map(l => l.w)) || 1, f = Math.min(c.W * maxW * 100 / mw, c.H * .5 / (ls.length * 1.28)) * sc; if (!best || f > best.f * 1.04) best = { ls, f }; }
+if (best && best.f > fs * 1.15) { fs = best.f; k = fs / 100; const lh = fs * 1.28, n = best.ls.length, xs = new Array(ch.length).fill(-1e5), ys = new Array(ch.length).fill(0);
+best.ls.forEach((l, li) => { let X = c.W / 2 - l.w * k / 2; for (let i = l.a; i < l.b; i++) { xs[i] = X + ws[i] * k / 2; ys[i] = (li - (n - 1) / 2) * lh; X += ws[i] * k; } });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, ys, lines: n, width: Math.max(...best.ls.map(l => l.w)) * k, height: n * lh, left: c.W / 2 - Math.max(...best.ls.map(l => l.w)) * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L; }
+}
+let X = c.W / 2 - tot * k / 2; const xs = []; ws.forEach(v => { xs.push(X + v * k / 2); X += v * k; });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, width: tot * k, left: c.W / 2 - tot * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L;
+}
+function setFont(x, L) { x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle'; }
+function drawChars(c, fn, o = {}) {
+const L = lay(c, o), x = c.ctx, n = L.ch.length, Y = c.cy + (o.y || 0) * c.H; setFont(x, L); x.lineJoin = 'round';
+for (let i = 0; i < n; i++) {
+if (L.ys && L.xs[i] < -1e4) continue;  // 換行處被略過的空白
+const s = fn(i, n, L) || {}; if (s.a === 0 || s.skip) continue;
+x.save(); x.globalAlpha = cl(s.a == null ? 1 : s.a);
+const piv = s.piv || 0, pivx = s.pivx || 0;
+x.translate(L.xs[i] + (s.dx || 0) + pivx, Y + (L.ys ? L.ys[i] : 0) + (s.dy || 0) + piv); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc); x.translate(-pivx, -piv);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(s.ch || L.ch[i], 0, 0); }
+if (!s.noFill) { x.fillStyle = s.col || c.ink; x.fillText(s.ch || L.ch[i], 0, 0); }
+x.restore();
+}
+return L;
+}
+function word(c, s = {}, o = {}) {
+const L = lay(c, o), x = c.ctx; x.save(); setFont(x, L); x.lineJoin = 'round'; x.globalAlpha = cl(s.a == null ? 1 : s.a);
+x.translate(c.cx + (s.dx || 0), c.cy + (o.y || 0) * c.H + (s.dy || 0)); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(L.text, 0, 0); }
+if (!s.noFill) { x.fillStyle = s.fill || s.col || c.ink; x.fillText(L.text, 0, 0); }
+x.restore(); return L;
+}
+function maskText(c, mask, o = {}) {
+const O = off(c, 0), L = lay(c, o), x = O.ctx; setFont(x, L); x.fillStyle = o.col || c.ink; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; mask(m, L);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); return L;
+}
+const PC = new Map();
+function textPts(c, step, o = {}) {
+const L = lay(c, o); const key = L.font + L.text + c.W + 'x' + c.H + '|' + step + '|' + (o.y || 0); if (PC.has(key)) return PC.get(key);
+const cv = document.createElement('canvas'); cv.width = Math.ceil(c.W); cv.height = Math.ceil(c.H); const x = cv.getContext('2d');
+setFont(x, L); x.fillStyle = '#000'; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const d = x.getImageData(0, 0, cv.width, cv.height).data, pts = [];
+for (let Y = Math.floor(step / 2); Y < cv.height; Y += step) for (let X = Math.floor(step / 2); X < cv.width; X += step) if (d[(Y * cv.width + X) * 4 + 3] > 110) pts.push([X, Y]);
+PC.set(key, pts); if (PC.size > 40) PC.delete(PC.keys().next().value); return pts;
+}
+const GLYPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=?<>動態元件畫面切換';
+
+/* =================================================================
+BACKGROUNDS（BG-A、BG-B）— 以 p∈[0,1) 無縫循環
+================================================================= */
+const ecg = u => { u = fr(u); if (u < .4) return Math.sin(u / .4 * Math.PI) * .04; if (u < .45) return -.12 * (u - .4) / .05; if (u < .5) return -.12 + 1.12 * (u - .45) / .05; if (u < .55) return 1 - 1.35 * (u - .5) / .05; if (u < .6) return -.35 + .35 * (u - .55) / .05; if (u < .75) return Math.sin((u - .6) / .15 * Math.PI) * .18; return 0; };
+function zoomRings(c, fn, n = 22, base = .06, mul = 1.32) { for (let k = -6; k < n; k++) { const v = k + c.p * 2, r = c.u * base * mul ** v; if (r > Math.hypot(c.W, c.H)) break; fn(r, v, k); } }
+const BG = {
+};
+
+/* =================================================================
+TEXT（TXT-A、TXT-B）— 單次動作 p∈[0,1]，結束停格清楚
+================================================================= */
+function wordsOf(t) { const w = t.trim().split(/\s+/).filter(Boolean); return w.length > 1 ? w : null; }
+function ghost(c, n, fn) { for (let k = n; k >= 0; k--) fn(k / n, k === 0 ? 1 : (1 - k / (n + 1)) * .35); }
+function digits(t, d = '280') { const m = (t || '').match(/\d+/); return m ? m[0] : d; }
+const TX = {
+'Stretch Pop': c => { bgFill(c); const q = seg(c.p, 0, .8), e = E.el(q); word(c, { sx: Math.max(.05, .2 + .8 * e), sy: 1 + (1 - e) * 1.6 * c.k, a: cl(q * 4) }); },
+'Shuffle Letters': c => { bgFill(c); const r = R(c, 15); const n0 = Array.from(c.P.text).length, perm = Array.from({ length: n0 }, (_, i) => i); for (let i = n0 - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+const q = E.io(seg(c.p, .1, .85)); drawChars(c, (i, n, L) => { const from = L.xs[perm[i]] - L.xs[i]; return { dx: from * (1 - q), dy: Math.sin(q * Math.PI) * L.fs * .6 * (i % 2 ? 1 : -1) * c.k, col: q < .98 ? (i % 2 ? c.pr : c.se) : c.ink, a: cl(c.p * 6) }; }); },
+};
+
+/* =================================================================
+SHAPES（SHP）
+================================================================= */
+function softGrid(c) { bgFill(c); gridLines(c, c.u / 8, c.W / 2, c.H / 2, rgba(c.ink, .06)); }
+function floorLine(c, y) { c.ctx.strokeStyle = rgba(c.ink, .25); c.ctx.lineWidth = 2; c.ctx.beginPath(); c.ctx.moveTo(c.W * .1, y); c.ctx.lineTo(c.W * .9, y); c.ctx.stroke(); }
+function polyPts(kind, rad, n = 120) { const out = []; for (let i = 0; i < n; i++) { const t = i / n; if (kind === 'circle') { const a = t * TAU - Math.PI / 2; out.push([Math.cos(a) * rad, Math.sin(a) * rad]); continue; } const v = ngon(kind === 'tri' ? 3 : 4, rad * (kind === 'tri' ? 1.25 : 1.2), kind === 'sq' ? Math.PI / 4 : 0), m = v.length, f = t * m, k = Math.floor(f), u = f - k, A = v[k % m], B = v[(k + 1) % m]; out.push([lerp(A[0], B[0], u), lerp(A[1], B[1], u)]); } return out; }
+const SH = {
+};
+
+/* =================================================================
+TELOP（TEL）— 字幕與資訊版型，於示意畫面上
+================================================================= */
+const SC = new Map();
+function cached(key, W, H, dpr, draw) { let v = SC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr)); const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); draw(x); if (SC.size > 24) SC.delete(SC.keys().next().value); SC.set(key, cv); return cv; }
+function telScene(c) {
+const cv = cached(['tel', c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H } = c, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(c.bg, c.pr, .35)); g.addColorStop(.62, mix(c.bg, c.se, .12)); g.addColorStop(1, c.bg); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = R(c, 70); for (let i = 0; i < 14; i++) { const X = r() * W, Y = r() * H * .7, s = c.u * (.04 + r() * .12); const gg = x.createRadialGradient(X, Y, 0, X, Y, s); gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .35)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - s, Y - s, s * 2, s * 2); }
+x.fillStyle = mix(c.bg, '#000000', .25); x.beginPath(); x.moveTo(0, H * .72); for (let X = 0; X <= W; X += W / 12) x.lineTo(X, H * .7 - Math.sin(X / W * 7 + 1) * H * .04 - r() * H * .03); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fill();
+x.strokeStyle = rgba('#ffffff', .25); x.lineWidth = 1; const m = Math.min(W, H) * .05; x.strokeRect(m, m, W - m * 2, H - m * 2);
+});
+c.ctx.drawImage(cv, 0, 0, c.W, c.H); c.ctx.fillStyle = rgba('#ffffff', .65); c.ctx.font = `600 ${Math.max(9, c.u * .028)}px ${FAM.mono}`; c.ctx.textAlign = 'left'; c.ctx.textBaseline = 'top'; c.ctx.fillText('● REC  00:00:' + String(Math.floor(c.t % 60)).padStart(2, '0'), c.u * .07, c.u * .07);
+}
+const CAP = (o = {}) => ({ maxH: .085, maxW: .8, fam: 'tc', w: 900, y: .3, ...o });
+const TITLE = (o = {}) => ({ maxH: .15, maxW: .76, w: 900, ...o });
+function capBox(c, L, pad, col, y, rad = 6, wq = 1) { const x = c.ctx, w = (L.width + pad * 2) * wq, h = L.fs + pad * 1.3; x.fillStyle = col; rr(x, c.cx - w / 2, c.cy + y * c.H - h / 2, w, h, rad); x.fill(); return { w, h }; }
+function pendingBadge(c, id) { const x = c.ctx, fs = Math.max(10, c.u * .04); x.font = `600 ${fs}px ${FAM.mono}`; const t = '待核對 · ' + id, w = x.measureText(t).width + fs * 1.4; x.setLineDash([5, 4]); x.strokeStyle = c.se; x.lineWidth = 1.5; rr(x, c.W - w - fs, fs, w, fs * 1.9, 6); x.stroke(); x.setLineDash([]); x.fillStyle = c.se; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(t, c.W - w - fs + fs * .7, fs * 1.95); }
+const TL = {
+/* Q-008（Claude 分析影片 3；T-0004 ChatGPT 確認進度條）：大描邊編號＋標題＋截圖框的多則清單版型 */
+_pending: (c, item) => { telScene(c); const o = CAP({ w: 700 }), q = E.oc(seg(c.p, 0, .4)); word(c, { a: q, col: '#ffffff', stroke: lay(c, o).fs * .14, strokeCol: rgba('#000000', .7) }, o); pendingBadge(c, item.id); },
+};
+
+/* =================================================================
+TRANSITIONS（TRN）— A → B，無黑幀
+================================================================= */
+function scene(c, which) {
+return cached(['scn', which, c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H, u } = c, A = which === 'A', base = A ? c.bg : c.se, card = A ? c.pr : c.bg, fg = A ? inkFor(c.pr) : inkFor(c.bg);
+x.fillStyle = base; x.fillRect(0, 0, W, H); x.strokeStyle = rgba(inkFor(base), .08); x.lineWidth = 1; for (let X = 0; X < W; X += u / 10) { x.beginPath(); x.moveTo(X, 0); x.lineTo(X, H); x.stroke(); } for (let Y = 0; Y < H; Y += u / 10) { x.beginPath(); x.moveTo(0, Y); x.lineTo(W, Y); x.stroke(); }
+const cw = W * .62, ch = H * .56; x.fillStyle = card; rr(x, (W - cw) / 2, (H - ch) / 2, cw, ch, u * .04); x.fill(); x.fillStyle = fg; x.font = `800 ${Math.min(ch * .62, cw * .5)}px ${FAM.sans}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(which, W / 2, H / 2 + ch * .03);
+x.fillStyle = rgba(fg, .5); dot(x, (W - cw) / 2 + u * .05, (H - ch) / 2 + u * .05, u * .014); x.fillRect(W / 2 + cw / 2 - u * .07, H / 2 + ch / 2 - u * .07, u * .03, u * .03);
+x.font = `600 ${Math.max(9, u * .032)}px ${FAM.mono}`; x.textAlign = 'left'; x.textBaseline = 'top'; x.fillStyle = rgba(inkFor(base), .7); x.fillText('SCENE ' + which + (A ? '  ·  00:00:04' : '  ·  00:00:05'), u * .05, u * .05);
+});
+}
+function maskB(c, drawMask) { const O = off(c, 3), x = O.ctx; x.drawImage(scene(c, 'B'), 0, 0, c.W, c.H); const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; drawMask(m);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); }
+const drawA = c => c.ctx.drawImage(scene(c, 'A'), 0, 0, c.W, c.H), drawB = c => c.ctx.drawImage(scene(c, 'B'), 0, 0, c.W, c.H);
+function piece(c, img, clip, dx = 0, dy = 0, sc = 1, rot = 0, ox = c.cx, oy = c.cy) { const x = c.ctx; x.save(); x.translate(ox + dx, oy + dy); x.rotate(rot); x.scale(sc, sc); x.translate(-ox, -oy); x.beginPath(); clip(x); x.clip(); x.drawImage(img, 0, 0, c.W, c.H); x.restore(); }
+const TQ = c => E.io(seg(c.p, .12, .88));
+function wipe(fn) { return c => { const q = TQ(c); drawA(c); if (q > 0) maskB(c, x => fn(c, x, q)); }; }
+const TR = {
+};
+
+/* =================================================================
+ADDITIONS — 錄影規格以外新增的元件繪製函式
+每個函式加進對應類型的表：BG（背景）、TX（文字）、SH（圖形）、TL（字幕）、TR（轉場）。
+名稱必須和該表既有名稱不重複，並在下方 ADDED 登記。
+================================================================= */
+Object.assign(BG, {
+});
+Object.assign(TX, {
+});
+Object.assign(SH, {
+});
+Object.assign(TL, {
+});
+Object.assign(TR, {
+'Type Band Sweep': c => { const q = TQ(c), { ctx: x, W, H } = c, n = Math.max(3, Math.round(5 * c.d)), bh = H / n; if (q < .5) drawA(c); else drawB(c); if (q <= 0 || q >= 1) return;
+const unit = (c.P.text || 'MOTION').trim() + '  ·  ', L = lay(c, { text: unit, maxH: bh / H * .58, maxW: 9, w: 800 });
+for (let j = 0; j < n; j++) { const dir = j % 2 ? 1 : -1, lag = j / n * .2, a = E.oc(seg(q, lag, .5)), b = E.ic(seg(q, .5, .8 + lag)), X = q < .5 ? dir * (1 - a) * W * 1.08 : -dir * b * W * 1.08;
+if (Math.abs(X) >= W) continue; const Y = j * bh, col = j % 2 ? c.pr : c.se;
+x.save(); x.beginPath(); x.rect(X, Y, W, bh + 1); x.clip(); x.fillStyle = col; x.fillRect(X, Y, W, bh + 1);
+x.fillStyle = rgba(inkFor(col), .92); x.font = L.font; x.textAlign = 'left'; x.textBaseline = 'middle';
+const shift = fr(q * 1.6 * c.k * -dir + j * .37) * L.width; for (let tx = X - shift - L.width; tx < X + W; tx += L.width) x.fillText(unit, tx, Y + bh * .53);
+x.fillStyle = rgba(inkFor(col), .25); x.fillRect(dir > 0 ? X : X + W - 3, Y, 3, bh); x.restore(); } }
+});
+/* UI 微互動：單次動作（點擊預覽可重播）。INT 互動模式：持續循環，讀 c.ptr；沒有真實游標時 c.ptr 是自動示範路徑。
+c.ptr 欄位（函式須無狀態，只依 c.p、c.t、c.ptr 繪製）：
+x, y        目前游標位置（px）            sx, sy     平滑後位置，約 0.12 秒追上，選取／聚焦請用它避免跳動
+down        是否按住                      clicks     [{ x, y, age }] 3 秒內的點擊，age 為秒數
+hoverAge    游標進入畫布後的秒數（自動示範為 9）
+dragX/dragY 拖曳累積位移 px，放開後帶慣性滑行並衰減；輪播角度可用 dragX / W 換算
+vx, vy      速度 px/s                     dragging   是否拖曳中         real  是否為真實游標 */
+const UI = {}, IN = {};
+/* Word Focus Frame 用：依空格分詞；沒空格時用 Intl.Segmenter；仍少於 3 段時，把中文詞拆成單字（gap 是前面空白的倍數） */
+function focusWords(t) { t = String(t || '').trim() || 'MOTION'; const out = [], sg = (root.Intl && Intl.Segmenter) ? new Intl.Segmenter('zh-Hant', { granularity: 'word' }) : null;
+t.split(/\s+/).forEach((w, i) => { const parts = sg ? [...sg.segment(w)].filter(q => q.segment.trim() && q.isWordLike !== false).map(q => q.segment) : [w]; (parts.length ? parts : [w]).forEach((q, j) => out.push({ s: q, gap: i && !j ? 1 : 0 })); });
+if (out.length >= 3) return out.slice(0, 9); const o2 = []; out.forEach(o => { const cs = [...o.s]; if (/[㐀-鿿]/.test(o.s) && cs.length > 1) cs.forEach((ch, k) => o2.push({ s: ch, gap: k ? .25 : o.gap })); else o2.push(o); }); return o2.slice(0, 9); }
+
+/* D3 立體元件：實際繪製在 src/vfx/kit3d.mjs（three.js，載入後設定 root.MotionLib3D）；這裡只負責轉接與載入前的佔位畫面 */
+function d3Render(c, it) {
+const K = root.MotionLib3D;
+if (K && K.ready && K.draw(c, it.name)) return;
+const { ctx: x, W, H } = c, g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, mix(c.bg, c.pr, .18)); g.addColorStop(1, mix(c.bg, '#000000', .3)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = Math.min(W, H) * .12, a = c.t * 2; x.strokeStyle = rgba(c.pr, .8); x.lineWidth = Math.max(2, r * .12); x.lineCap = 'round'; x.beginPath(); x.arc(W / 2, H / 2 - r * .3, r, a, a + Math.PI * (K && (K.unsupported || (K.errors && K.errors[it.name])) ? 2 : 1.3)); x.stroke();
+x.fillStyle = rgba(c.ink, .75); x.font = `600 ${Math.max(10, Math.min(W, H) * .06)}px ${FAM.tc}`; x.textAlign = 'center'; x.textBaseline = 'middle'; const err = K && K.errors && K.errors[it.name]; x.fillText(K && K.unsupported ? '此裝置不支援 3D 顯示' : err ? '3D 元件發生錯誤' : '3D 載入中…', W / 2, H / 2 + r * 1.2);
+if (err) { x.font = `500 ${Math.max(9, Math.min(W, H) * .038)}px ${FAM.tc}`; x.fillStyle = rgba(c.ink, .5); x.fillText(err.slice(0, 70), W / 2, H / 2 + r * 2); }
+}
+Object.assign(UI, {
+'Copy Confirm': c => { bgFill(c); const { ctx: x } = c; const tall = c.H > c.W * 1.2, fw = Math.min(c.W * (tall ? .9 : .86), c.u * 1.5), fh = c.u * (tall ? .34 : .25), X0 = c.cx - fw / 2, Y0 = c.cy - fh / 2;
+const press = seg(c.p, 0, .12), flip = E.io(seg(c.p, .12, .32)), chk = E.oc(seg(c.p, .3, .48)), tip = seg(c.p, .2, .48), tipOut = E.io(seg(c.p, .78, .96)), sel = E.oc(seg(c.p, .06, .26)), selOut = seg(c.p, .45, .75), done = E.oc(seg(c.p, .12, .3));
+x.fillStyle = mix(c.bg, c.ink, .06); rr(x, X0, Y0, fw, fh, fh * .22); x.fill(); x.strokeStyle = rgba(mix(c.ink, c.pr, done * (1 - selOut) * .8), .2 + .25 * done * (1 - selOut)); x.lineWidth = 1.5; x.stroke();
+const bs = fh * .7, bx = X0 + fw - fh * .15 - bs, by = c.cy - bs / 2, label = '$ ' + ((c.P.text || '').trim() || 'npm i motion');
+/* 指令太長時字會縮到看不清楚：改成保留開頭與結尾、中間以 … 省略，字級維持在欄高的 22% 以上（T-0009 試作） */
+const LO = { fam: 'mono', w: 500, maxH: fh / c.H * .34, maxW: (bx - X0 - fh * .5) / c.W }; let L = lay(c, { ...LO, text: label });
+if (L.fs < fh * .22) { const ch = Array.from(label); let keep = ch.length - 1; while (keep > 10) { const h = Math.ceil(keep * .6), t = keep - h, s2 = ch.slice(0, h).join('') + '…' + ch.slice(ch.length - t).join(''); L = lay(c, { ...LO, text: s2 }); if (L.fs >= fh * .22) break; keep -= 2; } }
+const tx = X0 + fh * .3;
+if (sel > 0) { x.fillStyle = rgba(c.pr, .28 * (1 - selOut)); x.fillRect(tx - 2, c.cy - L.fs * .62, (L.width + 4) * sel, L.fs * 1.24); }
+x.font = L.font; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillStyle = rgba(c.ink, .88); x.fillText(L.text, tx, c.cy);
+const bsc = c.p < .12 ? 1 - .1 * E.oc(press) : lerp(.9, 1, E.el(seg(c.p, .12, .55))), bfill = mix(mix(c.bg, c.ink, .12), c.pr, .22 * done);
+x.save(); x.translate(bx + bs / 2, c.cy); x.scale(bsc, bsc); x.fillStyle = bfill; rr(x, -bs / 2, -bs / 2, bs, bs, bs * .24); x.fill();
+const sx = Math.cos(Math.PI * flip), s = bs * .5; x.scale(Math.max(.02, Math.abs(sx)), 1); x.lineJoin = 'round'; x.lineCap = 'round';
+if (flip < .5) { x.strokeStyle = rgba(c.ink, .8); x.lineWidth = s * .13; rr(x, -s * .5, -s * .5, s * .68, s * .68, s * .14); x.stroke(); x.fillStyle = bfill; rr(x, -s * .22, -s * .22, s * .72, s * .72, s * .14); x.fill(); x.stroke(); }
+else { x.strokeStyle = c.pr; x.lineWidth = s * .17; partial(x, [[-s * .42, 0], [-s * .12, s * .3], [s * .44, -s * .32]], chk); }
+x.restore();
+const ta = E.oc(tip) * (1 - tipOut); if (ta > .01) { const TL0 = lay(c, { text: '已複製', fam: 'tc', w: 700, maxH: fh / c.H * .3, maxW: .3 }), tw = TL0.width + fh * .5, th = TL0.fs * 1.8, tsc = lerp(.7, 1, E.ob(tip)), ty = Y0 - th * .75 - (1 - E.ob(tip)) * fh * .25 - tipOut * fh * .2;
+x.save(); x.globalAlpha = ta; x.translate(bx + bs / 2, ty); x.scale(tsc, tsc); x.fillStyle = c.ink; rr(x, -tw / 2, -th / 2, tw, th, th / 2); x.fill(); x.beginPath(); x.moveTo(-th * .2, th / 2 - 1); x.lineTo(th * .2, th / 2 - 1); x.lineTo(0, th * .78); x.closePath(); x.fill();
+x.fillStyle = c.bg; x.font = TL0.font; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('已複製', 0, th * .04); x.restore(); } },
+'Like Burst': c => { bgFill(c); const { ctx: x } = c; const s = c.u * .13, press = seg(c.p, 0, .15), pop = seg(c.p, .15, .6), burst = seg(c.p, .2, .7), cnt = seg(c.p, .3, .65);
+const sc = c.p < .15 ? 1 - .14 * E.oc(press) : lerp(.86, 1, E.el(pop)); const bx = c.cx - s * .9, by = c.cy;
+x.strokeStyle = rgba(c.ink, .14); x.lineWidth = 1.5; rr(x, bx - s * 1.3, by - s * 1.1, s * 5.4, s * 2.2, s * 1.1); x.stroke();
+if (burst > 0 && burst < 1) { x.strokeStyle = rgba(c.pr, 1 - burst); x.lineWidth = s * .12 * (1 - burst) + .5; x.beginPath(); x.arc(bx, by, s * (.8 + burst * .9 * c.k), 0, TAU); x.stroke();
+for (let i = 0; i < 8; i++) { const a = i / 8 * TAU - Math.PI / 2, d = s * (.9 + E.oc(burst) * .8 * c.k); x.fillStyle = rgba(i % 2 ? c.se : c.pr, 1 - burst); dot(x, bx + Math.cos(a) * d, by + Math.sin(a) * d, s * .09 * (1 - burst * .6)); } }
+x.save(); x.translate(bx, by + s * .12); x.scale(sc, sc); heart(x, 0, 0, s * .62); if (c.p > .15) { x.fillStyle = c.pr; x.fill(); } else { x.strokeStyle = rgba(c.ink, .7); x.lineWidth = s * .09; x.stroke(); } x.restore();
+const L = lay(c, { text: '128', fam: 'mono', w: 600, maxH: .12, maxW: .2 }); x.save(); x.beginPath(); x.rect(c.cx + s * .1, by - L.fs * .58, s * 3, L.fs * 1.16); x.clip(); x.font = L.font; x.textAlign = 'left'; x.textBaseline = 'middle';
+const dy = E.io(cnt) * L.fs * 1.3; x.fillStyle = rgba(c.ink, .6); x.fillText('128', c.cx + s * .25, by - dy); x.fillStyle = c.ink; x.fillText('129', c.cx + s * .25, by + L.fs * 1.3 - dy); x.restore(); },
+'Toggle Switch': c => { bgFill(c); const { ctx: x } = c; const w = c.u * .42, h = w * .5, X0 = c.cx - w / 2, Y0 = c.cy - h / 2, q = E.io(seg(c.p, .1, .6)), set = seg(c.p, .55, .85);
+x.fillStyle = mix(mix(c.bg, c.ink, .18), c.pr, q); rr(x, X0, Y0, w, h, h / 2); x.fill(); const r = h * .4, travel = w - h, vel = Math.sin(q * Math.PI);
+const kx = X0 + h / 2 + travel * q, sq = 1 + vel * .28 * c.k; x.save(); x.translate(kx, c.cy); x.scale(sq, 1 / Math.sqrt(sq)); x.fillStyle = '#FFFFFF'; x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = r * .4; x.shadowOffsetY = r * .1; dot(x, 0, 0, r); x.restore();
+x.strokeStyle = c.pr; x.lineWidth = r * .18; x.lineCap = 'round'; x.lineJoin = 'round'; partial(x, [[kx - r * .4, c.cy], [kx - r * .1, c.cy + r * .3], [kx + r * .42, c.cy - r * .3]], E.oc(set));
+const lbl = (c.P.text || '').trim().split(/\s+/)[0] || 'ON'; const L = lay(c, { text: lbl, maxH: .08, maxW: .3, fam: 'tc', w: 700 }); x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle';
+x.fillStyle = rgba(c.ink, .45 + .55 * q); x.fillText(lbl, c.cx, Y0 + h + L.fs * 1.2); }
+});
+Object.assign(IN, {
+/* Q-001（T-0005 效果 3）：以「詞」為單位對焦，取景框滑到新詞並伸縮到詞寬 */
+'Word Focus Frame': c => { const { ctx: x, W, H } = c, P0 = c.ptr, r = R(c, 41);
+const g = x.createRadialGradient(c.cx, c.cy, 0, c.cx, c.cy, Math.hypot(W, H) * .62); g.addColorStop(0, mix(c.bg, c.pr, .1)); g.addColorStop(1, mix(c.bg, '#000000', .38)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+for (let i = 0; i < 9; i++) { const o = r() * TAU, rad = c.u * (.06 + r() * .12), X = r() * W + Math.sin(c.ph + o) * W * .03, Y = r() * H + Math.cos(c.ph + o) * H * .03, gg = x.createRadialGradient(X, Y, rad * .55, X, Y, rad);
+gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .09 + r() * .07)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - rad, Y - rad, rad * 2, rad * 2); }
+const ws = focusWords(c.P.text), n = ws.length, L = lay(c, { text: ws.map(q => q.s).join(' '), maxW: .8, maxH: .17, w: 800 }); x.font = L.font; x.textAlign = 'left'; x.textBaseline = 'middle';
+const sp = x.measureText(' ').width, wd = ws.map(q => x.measureText(q.s).width), tot = wd.reduce((a, b) => a + b, 0) + ws.reduce((a, q, i) => a + (i ? q.gap * sp : 0), 0), k0 = Math.min(1, W * .84 / tot), fs = L.fs * k0;
+if (k0 < 1) { x.font = L.font.replace(/[\d.]+px/, fs + 'px'); for (let i = 0; i < n; i++) wd[i] *= k0; }
+const lefts = []; let X = c.cx - tot * k0 / 2; ws.forEach((q, i) => { if (i) X += q.gap * sp * k0; lefts.push(X); X += wd[i]; }); const cxs = lefts.map((l, i) => l + wd[i] / 2);
+let fpos;
+if (P0.real) { const sx = P0.sx; if (sx <= cxs[0] || n < 2) fpos = 0; else if (sx >= cxs[n - 1]) fpos = n - 1; else { let i = 0; while (i < n - 2 && sx >= cxs[i + 1]) i++; const t = (sx - cxs[i]) / (cxs[i + 1] - cxs[i]); fpos = i + E.io(cl((t - .5) * 3.2 + .5)); } }
+else if (n < 2) fpos = 0; else { const m = c.p * 2 * (n - 1), kk = Math.floor(m), tt = m - kk, id = j => j < n - 1 ? j : 2 * (n - 1) - j; fpos = lerp(id(kk), id(kk + 1), E.io(seg(tt, .55, 1))); }
+const i0 = Math.floor(fpos), i1 = Math.min(n - 1, i0 + 1), fr0 = fpos - i0, mv = Math.sin(fr0 * Math.PI), blurMax = fs * .1 * Math.min(1.6, c.k);
+for (let i = 0; i < n; i++) { const f = cl(1 - Math.abs(i - fpos)), b = (1 - f) * blurMax;
+x.save(); x.globalAlpha = .32 + .68 * f; if (b > .3) x.filter = `blur(${b.toFixed(1)}px)`; x.translate(cxs[i], c.cy); const sc = .965 + .035 * f; x.scale(sc, sc);
+if (f > .5) { x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = fs * .18; x.shadowOffsetY = fs * .06; }
+x.fillStyle = mix(mix(c.bg, c.ink, .7), c.ink, f); x.fillText(ws[i].s, -wd[i] / 2, 0); x.restore(); }
+let pulse = 0; for (const q of P0.clicks) if (q.age < .5) pulse = Math.max(pulse, 1 - q.age / .5);
+const pad = fs * (.16 + .1 * mv + .12 * E.oc(pulse)), bl = lerp(lefts[i0], lefts[i1], fr0) - pad, bw = lerp(wd[i0], wd[i1], fr0) + pad * 2, bh = fs * 1.12 + pad * 2 * .7, bt = c.cy - bh / 2, arm = Math.min(bw, bh) * (.26 + .08 * mv);
+x.save(); x.strokeStyle = c.pr; x.lineWidth = Math.max(2, fs * .05); x.lineCap = 'round'; x.lineJoin = 'round'; x.shadowColor = rgba(c.pr, .8); x.shadowBlur = fs * (.25 + .4 * pulse);
+[[bl, bt, 1, 1], [bl + bw, bt, -1, 1], [bl, bt + bh, 1, -1], [bl + bw, bt + bh, -1, -1]].forEach(([qx, qy, sx2, sy2]) => { x.beginPath(); x.moveTo(qx, qy + sy2 * arm); x.lineTo(qx, qy); x.lineTo(qx + sx2 * arm, qy); x.stroke(); }); x.restore();
+x.font = `600 ${Math.max(9, fs * .17)}px ${FAM.mono}`; x.fillStyle = rgba(c.pr, .75); x.textAlign = 'left'; x.textBaseline = 'top'; x.fillText(`FOCUS ${String(Math.round(fpos) + 1).padStart(2, '0')}/${String(n).padStart(2, '0')}`, bl, bt + bh + fs * .12);
+x.strokeStyle = rgba(c.se, P0.real ? .8 : .45); x.lineWidth = 1.5; x.beginPath(); x.arc(P0.x, P0.y, c.u * .022 * (P0.down ? .7 : 1), 0, TAU); x.stroke(); },
+'Proximity Weight': c => { bgFill(c); const { ctx: x } = c, P0 = c.ptr, o = { maxH: .2, maxW: .78, w: 500 }, L0 = lay(c, o);
+x.strokeStyle = rgba(c.ink, .12); x.lineWidth = 1; x.beginPath(); x.moveTo(L0.left - L0.fs * .3, c.cy + L0.fs * .48); x.lineTo(L0.left + L0.width + L0.fs * .3, c.cy + L0.fs * .48); x.stroke();
+const yf = Math.exp(-(((P0.y - c.cy) / (c.u * .34)) ** 2));
+x.strokeStyle = rgba(c.pr, .18 + .2 * yf); x.setLineDash([3, 5]); x.beginPath(); x.moveTo(P0.x, c.cy - L0.fs * .9); x.lineTo(P0.x, c.cy + L0.fs * .8); x.stroke(); x.setLineDash([]);
+drawChars(c, (i, n, L) => { const X = L.xs[i]; let rip = 0; for (const k of P0.clicks) { const r0 = k.age * c.u * 1.1; rip = Math.max(rip, Math.exp(-(((Math.abs(X - k.x) - r0) / (L.fs * .7)) ** 2)) * cl(1 - k.age / 1.5)); }
+const near = Math.exp(-(((P0.x - X) / (L.fs * 1.3)) ** 2)) * yf * (P0.down ? 1.2 : 1), f = cl((near + rip * .8) * Math.min(1.5, c.k), 0, 1.2), cf = cl(f);
+return { sc: 1 + .2 * f, piv: L.fs * .36, dy: -L.fs * .05 * f, stroke: f > .02 ? L.fs * .055 * f : 0, strokeCol: mix(c.ink, c.pr, cf), col: mix(c.ink, c.pr, cf) }; }, o);
+x.strokeStyle = rgba(c.se, .85); x.lineWidth = 1.5; x.beginPath(); x.arc(P0.x, P0.y, c.u * .028 * (P0.down ? .7 : 1), 0, TAU); x.stroke(); },
+'Cursor Spotlight': c => { bgFill(c); const { ctx: x, W, H } = c; const st = c.u / (14 * c.d), R0 = c.u * .28 * c.k, P0 = c.ptr;
+for (let Y = st / 2; Y < H; Y += st) for (let X = st / 2; X < W; X += st) { const d = Math.hypot(X - P0.x, Y - P0.y), f = Math.exp(-((d / R0) ** 2)); let ring = 0; for (const k of P0.clicks) { const rr0 = k.age * c.u * .9; ring = Math.max(ring, Math.exp(-(((Math.hypot(X - k.x, Y - k.y) - rr0) / (st * 1.4)) ** 2)) * (1 - k.age / 1.4)); }
+const v = Math.min(1, f + ring); x.fillStyle = v > .02 ? mix(c.pr, c.se, ring) : rgba(c.ink, .14); x.globalAlpha = .25 + .75 * v; dot(x, X, Y, st * (.1 + .32 * v * (P0.down ? 1.25 : 1))); }
+x.globalAlpha = 1; x.strokeStyle = rgba(c.se, .8); x.lineWidth = 1.5; x.beginPath(); x.arc(P0.x, P0.y, c.u * .03 * (P0.down ? .7 : 1), 0, TAU); x.stroke(); },
+'Magnetic Field': c => { bgFill(c); const { ctx: x, W, H } = c; const st = c.u / (11 * c.d), P0 = c.ptr; x.lineCap = 'round';
+for (let Y = st / 2; Y < H; Y += st) for (let X = st / 2; X < W; X += st) { let dx = P0.x - X, dy = P0.y - Y; const d = Math.hypot(dx, dy) || 1; let push = 0;
+for (const k of P0.clicks) { const rr0 = k.age * c.u * .8, dd = Math.hypot(X - k.x, Y - k.y); push = Math.max(push, Math.exp(-(((dd - rr0) / st) ** 2)) * (1 - k.age / 1.6)); }
+const near = Math.exp(-((d / (c.u * .45)) ** 2)), L = st * (.15 + .4 * near * c.k + .3 * push), a = Math.atan2(dy, dx) + (P0.down ? Math.PI / 2 : 0);
+x.strokeStyle = push > .2 ? c.se : mix(mix(c.bg, c.ink, .35), c.pr, near); x.lineWidth = Math.max(1.2, st * .1 * (1 + near));
+x.beginPath(); x.moveTo(X - Math.cos(a) * L, Y - Math.sin(a) * L); x.lineTo(X + Math.cos(a) * L, Y + Math.sin(a) * L); x.stroke(); }
+x.fillStyle = c.pr; dot(x, P0.x, P0.y, c.u * .018); }
+});
+
+
+/* =================================================================
+DATA — 280 項
+================================================================= */
+const HINT = { grid: '方格格線、矩陣依序位移或變形', line: '以線段描邊、延伸、波動或掃描為主', rot: '圍繞中心點持續或一次旋轉', dot: '以點陣、圓點群的分布與時差運動為主', pop: '利用彈跳式放大與回彈形成出現效果', zoom: '透過縮放、景深或縮放模糊創造動勢', wave: '以相位差的波浪節奏連續運動', half: '網點印刷感點陣的疏密、大小與移動變化', panel: '使用數個面板依序推移或展開', seq: '以逐字分配延遲的方式進行動態', slide: '平滑滑入、滑出、推動或移位', flash: '極短亮度閃爍與恢復，避免頻閃過強', mask: '使用字元與單詞的錯位、位移或遮罩動畫', circle: '圓形的縮放、環繞、切割或構圖變換', orbit: '元素以圓或橢圓軌道公轉', flip: '沿 X 或 Y 軸進行 3D 翻轉', glitch: '錯位色差與短促的數位故障感', stripe: '規律條紋依不同時差錯位移動', marker: '使用手繪螢光筆掃過文字', split: '畫面分割成多個區塊再重新拼接', blur: '使用模糊與清晰的快速轉換', bounce: '自由落體或彈簧物理感的跳動', pulse: '規律放大縮小並回復原始狀態', shape: '運用基本幾何形狀的縮放、位移、變形或組合', ring: '以同心圓擴張、收縮或環繞', draw: 'SVG 路徑從 0% 逐漸描繪到 100%', stroke: '以字體外框/圖形描邊的生成與變化為主', sub: '維持字幕清楚可辨，使用輕量淡入淡出', cap: '用字幕框、文字或顏色的變化提升可讀性', wipe: '遮罩逐步揭示下一畫面' };
+const GROUPS = [
+{ key: 'BG-A', name: '背景動態・幾何網格', kind: 'bg', role: '畫面背景填滿容器並可無縫循環，不顯示文字；根據效果名稱構造幾何、網格、線條或粒子運動。', src: 'Grid Fill|grid;Heartbeat Line|line;Tile Rotate|rot;Vertical Lines|line;Dot Connect|dot;Dizzy Stars|name;Random Pop Dots|pop;Grid Cursor|grid;Polar Grid|grid;Dot Matrix|dot;Parallel Curves|name;Broken Grid|grid;Scanning Lines|line;Halftone Blob|half;Triangle Grid|grid;Zap Marks|name;Flow Lines|line;Grid Magnet|grid;Bubble Dots|dot;Diagonal Lines|line;Graph Paper|name;Dot Wave Floor|wave;Comic Sky|name;Barcode|name;Dot Zoom|zoom;Moving Grid|grid;Sound Wave|wave;Heart Pop|pop;Topo Lines|line;Column Shift|name;Dot Rain|dot;Shock Lines|line;Retro Sunrise|name;Halftone Boom|half;Speed Panels|panel;Radar Sweep|name;Dot Swarm|dot;Zigzag Energy|name;Halftone Tunnel|half;Tilt Grid|grid' },
+{ key: 'TXT-A', name: '文字動態・基礎', kind: 'text', role: '以可編輯文字作為動畫主體，保留字距、易讀性與 UTF-8 繁中文字支援。', src: 'Word Burst|name;Letter Sequence|seq;Stamp In|name;Punch Zoom|zoom;Character Jitter|name;Stretch Pop|pop;Zoom Blur|zoom;Slide Text|slide;Giant Scroll|name;Follow Path|name;Repeat Lines|line;Impact Flash|flash;Ribbon|name;Torn Text|mask;Shatter Letters|seq;Tape Crossing|name;Text Tunnel|mask;Text Fall|mask;Gate|name;Arrow|name;Link Circle|circle;Orbit|orbit;Cube|name;Extrude|name;Paragraph|name;Flip|flip;Typewriter|name;Slot|name;Counter|name;Reveal Outline|line;LED|name;Up Scroll|name;Slice Text|mask;Glitch|glitch;Stripe Mask|stripe;Long Shadow|name;Liquid Text|mask;Marker|marker;Split Turn|split;Blur Scatter|blur' },
+{ key: 'TXT-B', name: '文字動態・特效', kind: 'text', role: '以可編輯文字作為動畫主體，著重具辨識度的特殊動態與結束時的清晰停格。', src: 'Lightning Strike|name;Laser Cut|name;Coin Flip|flip;Explode Out|name;Disintegrate|name;Heartbeat Zoom|zoom;Text Kaleido|mask;Number Slam|name;Wave Letters|wave;Stop Motion|name;Letter Rain|seq;Magnifier Lens|name;Scramble Decode|name;Domino Letters|seq;Gradient Flow|name;Circle Text|mask;Water Reflection|name;Letter Bounce|bounce;Text Flag|mask;Gravity Flip|flip;Magnet Pull|name;Word Pulse Grid|grid;Weight Grow|name;Text Fan|mask;Karaoke Ball|name;Swing Letters|seq;Pixel Dissolve|name;Rotating Words|name;Blur Trail|blur;Checker Words|name;Roller Path|name;Shuffle Letters|seq;Text Spiral|mask;Jitter Settle|name;Elastic Wave Stretch|wave;Ink Bleed|name;Letter Assemble|seq;Text Mosaic|mask;Crumble Down|name;Float Drift|name' },
+{ key: 'SHP', name: '圖形動畫', kind: 'shape', role: '使用 SVG 向量圖元展現動態，精準控制形變、時間曲線與物件數量。', src: 'Scale Pulse|pulse;Rotate Spin|rot;Bounce Drop|bounce;Slide Loop|slide;Squash & Stretch|name;Elastic Pop|pop;Wobble|name;Pendulum Swing|name;Shape Morph|shape;Pattern Morph|name;Circle to Square|circle;Split & Merge|split;Fold Unfold|name;Flip Tiles|flip;Ring Expand|ring;Triangle Twist|name;Shape Explosion|shape;Shape Rain|shape;Bubble Pop|pop;Confetti Burst|name;Ripple Squares|name;Radial Fan|name;Spiral Dots|dot;Particle Orbit|orbit;Shape Parade|shape;Shape Conveyor|shape;Shape Stack|shape;Bouncing Shapes|shape;Wave Dots|wave;Grid Cascade|grid;Domino Fall|name;Stairs Rise|name;Squiggle Draw|draw;Circle Draw|circle;Stroke Trace|stroke;Dash March|name;Path Follow|name;Spirograph|name;Arc Loader|name;Check Draw|draw' },
+{ key: 'BG-B', name: '背景動態・抽象', kind: 'bg', role: '抽象幾何視覺背景，提供無縫循環及降動態版本，避免文字內容重疊時視覺干擾。', src: 'Halftone Expand|half;Halftone Wave|wave;Comic Dots|dot;Halftone Sweep|half;Spiral Dots|dot;Halftone Rings|half;Halftone Checker|half;Halftone Sun|half;Perspective Grid|grid;Grid Zoom|grid;Grid Wave|grid;Rotating Grid|grid;Isometric Grid|grid;Hex Grid|grid;Truchet Tiles|name;Weave Grid|grid;Speed Lines|line;Horizontal Lines|line;Line Burst|line;Wave Lines|wave;Ripple Rings|ring;Stripe Twist|stripe;Line Tunnel|line;Crosshatch|name;Circle Pop|pop;Floating Shapes|shape;Shape Tunnel|shape;Orbit Shapes|shape;Kaleidoscope|name;Confetti Fall|name;Blob Shapes|shape;Pinwheels|name;Minimal Blocks|name;Minimal Circle|circle;Bauhaus Shapes|shape;Minimal Arcs|name;Minimal Stripes|stripe;Minimal Square|name;Minimal Wave|wave;Nested Squares|name' },
+{ key: 'TEL', name: '字幕與資訊版型', kind: 'tel', role: '透明背景的影片字幕/資訊元件，確保安全邊界、對比、在 9:16 與 16:9 均清楚。', src: 'Outline Pop|pop;Double Stroke|stroke;Gradient Impact|name;Tilted Sticker|name;Shake Emphasis|name;Burst Bubble|name;Color Block Telop|name;Pop Number|pop;Lower Third|name;Tape Label|name;Ribbon Banner|name;Highlight Marker|marker;Side Tab|name;Stripe Caution|stripe;Speech Bubble|name;Thought Cloud|name;Clean Subtitle|sub;Black Box Caption|cap;Yellow Subtitle|sub;Karaoke Fill|name;Typewriter Caption|cap;Word Pop Caption|pop;Two-Tone Caption|cap;Gradient Bar Caption|cap;待核對字幕效果 25|name;待核對字幕效果 26|name;待核對字幕效果 27|name;待核對字幕效果 28|name;待核對字幕效果 29|name;待核對字幕效果 30|name;待核對字幕效果 31|name;待核對字幕效果 32|name;Mincho Title|name;Vertical Mincho|name;Hanko Seal|name;Fade Elegance|name;Underline Reveal|line;Corner Frame|name;Chapter Card|name;End Credit|name' },
+{ key: 'UI', name: 'UI 微互動', kind: 'ui', role: '介面元件的細節回饋動畫：按鈕、開關、狀態變化與數字更新。動作短、回饋明確，結束停在新狀態。點擊預覽可重播。', src: '' },
+{ key: 'INT', name: '互動模式', kind: 'int', role: '跟隨游標、點擊或拖曳即時反應的互動動畫。沒有操作時以自動示範路徑播放，可無縫循環。', src: '' },
+{ key: 'D3', name: '立體元件', kind: 'd3', role: '2D 與 3D 結合的立體元件：文字、介面、圖樣先在 2D 畫好，再當成 3D 物件的貼圖、凹凸或粒子來源，放進有光影、景深、折射的空間。即時 3D 渲染，可無縫循環，部分元件跟隨游標。', src: '' },
+{ key: 'TRN', name: '轉場與分割', kind: 'trn', role: '以 A、B 兩個影片或圖片圖層示範畫面切換，實現一個時間確定、無黑幀的轉場。', src: 'Color Wipe|wipe;Diagonal Wipe|wipe;Multi Stripe Wipe|wipe;Zigzag Wipe|wipe;Slice Wipe|wipe;Bars Wipe|wipe;Brush Wipe|wipe;Curtain Slide|slide;Circle Wipe|wipe;Block Wipe|wipe;Shutter Wipe|wipe;Clock Wipe|wipe;Diamond Wipe|wipe;Star Wipe|wipe;Pinwheel Wipe|wipe;Corner Wipe|wipe;Liquid Wipe|wipe;Drip Wipe|wipe;Ripple Wipe|wipe;Text Wipe|wipe;Impact Flash|flash;Wave Split|wave;Zigzag Split|split;Circle Split|circle;Horizontal Split|split;Vertical Split|split;Triple Split|split;Four Panels|panel;Sliding Panels|panel;Diagonal Panels|panel;Quad Open|name;Checker Panels|panel;Diagonal Split|split;Mosaic Flash|flash;Frame Stack|name;Bar Panels|panel;Band Split|split;Grid Flip|grid;Panel Zoom Out|zoom;Strip Shuffle|name' }
+];
+const MAPS = { bg: BG, text: TX, shape: SH, tel: TL, trn: TR, ui: UI, int: IN, d3: {} };
+const LIST = [], BYID = {};
+GROUPS.forEach(g => { g.items = (g.src ? g.src.split(';') : []).map((s, i) => { const [name, h] = s.split('|'), id = `${g.key}-${String(i + 1).padStart(2, '0')}`, pending = name.startsWith('待核對');
+const hint = h === 'name' ? `依「${name}」名稱和錄影示意演繹具有辨識度的動畫；先建立主視覺，再以移動、旋轉、縮放、透明度或變形呈現此效果` : HINT[h];
+const it = { id, name, group: g.key, groupName: g.name, kind: g.kind, hintKey: h, hint, pending, source: 'spec', added: '2026-10-17', revised: null }; LIST.push(it); BYID[id] = it; return it; }); delete g.src; });
+
+/* 新增元件登記：依加入順序附加在 group 尾端，編號接續（例如 BG-A-41）。
+{ group: 'BG-A', name: 'Name In English', hint: '一句中文動作說明', added: 'YYYY-MM-DD', refs: ['R-0001'] }
+refs 對應 src/data/references.json 的 id（靈感來源，可省略）。 */
+const ADDED = [
+{ group: 'UI', name: 'Like Burst', hint: '按下愛心按鈕：先壓縮回饋，再彈性填色，外圈擴散與八點粒子迸出，計數由 128 上滑成 129', added: '2026-10-19' },
+{ group: 'UI', name: 'Toggle Switch', hint: '開關由關到開：圓鈕帶擠壓滑過軌道，軌道顏色漸變為主色，鈕上描出勾號，標籤由淡轉清楚', added: '2026-10-19' },
+{ group: 'INT', name: 'Cursor Spotlight', hint: '點陣隨游標局部放大發亮，按下時加強；點擊從點擊處擴散一圈亮環', added: '2026-10-19' },
+{ group: 'INT', name: 'Magnetic Field', hint: '短線像鐵粉一樣指向游標，越近越長越亮；按住時轉為環繞方向，點擊送出一圈震波', added: '2026-10-19' },
+{ group: 'TRN', name: 'Type Band Sweep', hint: '橫向色帶交錯從左右滑入，帶內重複文字以更快速度反向捲動形成視差；色帶接成整面後換到 B，再沿同方向依序滑出', added: '2026-10-18', refs: ['R-0001', 'R-0002'] },
+{ group: 'INT', name: 'Proximity Weight', hint: '游標靠近的字母局部加粗、放大並轉為主色，像可變字重隨距離起伏；按住加強，點擊送出一道沿文字傳遞的字重波', added: '2026-10-18', refs: ['R-0003'] },
+{ group: 'UI', name: 'Copy Confirm', hint: '按下複製鈕：指令文字先被選取高亮，按鈕壓縮回彈，圖示翻面由複製變成描出的勾號，上方彈出「已複製」提示後淡出', added: '2026-10-18' },
+{ group: 'D3', name: 'Glass Orb Lens', hint: '2D 大字在後、真實折射的玻璃球在前：球滑過時把字放大、扭曲，跟隨游標移動', added: '2026-10-19' },
+{ group: 'D3', name: 'Floating Card Stack', hint: '毛玻璃實體卡片：圓角倒角的玻璃板會真實透射、模糊折射後方的彩色光球，2D 數據介面印在玻璃表面；四張輪流沿弧線抽到最前面，地面有真實陰影，游標改變視角', added: '2026-10-19', refs: ['R-0006', 'R-0007'] },
+{ group: 'D3', name: 'Beveled Extrude Type', hint: '2D 字形描成輪廓後擠出成真的倒角立體字（亮面烤漆、深色側面、倒角反光），字一個接一個跳起前翻、落地壓扁回彈，地面有柔和陰影', added: '2026-10-19', refs: ['R-0006', 'R-0007'] },
+{ group: 'D3', name: 'Embossed Coin Flip', hint: '2D 文字轉成凹凸貼圖壓進金屬幣面；硬幣翻轉、落桌回彈，光線掃過浮雕', added: '2026-10-19' },
+{ group: 'D3', name: 'Cloth Banner Wave', hint: '2D 圖樣印在真實模擬的布旗上：Verlet 布料受風、織紋與絨面反光、太陽光自身陰影，金屬旗桿與升旗繩；游標在畫面上時改為即時模擬，左右控制風力', added: '2026-10-19', refs: ['R-0004', 'R-0005', 'R-0006'] },
+{ group: 'D3', name: 'Particle Text Depth', hint: '從 2D 文字取樣成粒子，從景深深處飛來組成字，停留時游標可推開粒子，最後散回空間', added: '2026-10-19' },
+{ group: 'INT', name: 'Word Focus Frame', hint: '以詞為單位對焦：游標所在的詞清楚、其餘依距離模糊變淡，四角取景框先停留再滑到新詞並伸縮成新詞寬度，點擊時框輕彈一下；後方有散景光斑做景深', added: '2026-10-20', refs: ['R-0032'] },
+{ group: 'TEL', name: 'Numbered Listicle Slides', hint: '多則清單影片版型：大描邊編號與標題從左進場、截圖框從右滑入並微傾帶投影，背景色逐則改變，後方大數字做最遠景；左下分段進度條（完成段全亮、目前段依進度填入），最後停在最後一則', added: '2026-10-20' },
+{ group: 'D3', name: 'Chrome Blob Morph', hint: '鉻金屬液滴：等值面（marching cubes）做出真的融合與分離，液滴繞核心走不同倍頻的軌道，靠近時黏合、拉開時拉出細頸再斷開；鏡面反射攝影棚的柔光箱、主色與輔色燈條，以及背後一塊 2D 文字燈牌；地面有真實投影，游標移動時核心被吸過去', added: '2026-10-20', refs: ['R-0031', 'R-0006'] },
+];
+ADDED.forEach(a => { const g = GROUPS.find(x => x.key === a.group); if (!g) throw new Error('ADDED: unknown group ' + a.group);
+const id = `${g.key}-${String(g.items.length + 1).padStart(2, '0')}`;
+const it = { id, name: a.name, group: g.key, groupName: g.name, kind: g.kind, hintKey: 'custom', hint: a.hint, pending: false, source: 'new', added: a.added, revised: null, refs: a.refs || [] };
+g.items.push(it); LIST.push(it); BYID[id] = it; });
+
+/* 改善紀錄：既有元件經排程審查並調整後登記，值為 [日期, 一句說明]。
+'BG-A-01': ['YYYY-MM-DD', '改了什麼'] */
+const REVISED = {
+'BG-A-13': ['2026-10-18', '加入一列列資料線段，掃描線經過時被點亮並留下餘暉（以環狀距離計算確保無縫），掃描線加光暈、四角加取景框，畫面不再大半空白'],
+'BG-A-16': ['2026-10-18', '改為放大的漫畫式電擊符號：每處三道鋸齒閃電向外放射、中心星形閃光，筆畫先長出再從尾端收回，每輪換位置'],
+'BG-A-18': ['2026-10-20', '依 T-0005 效果 4（Q-003）：線段亮度與粗細依和磁點的距離衰減、交點加小節點、拿掉中心大圓環改為小光點與光暈；吸附強度上限 0.6，網線不中斷；後方加一層較密的暗格線做景深'],
+'TXT-A-24': ['2026-10-20', '原本只有幾層同色偏移，看不出厚度；改為沿光線方向擠出的側面（越深越暗、透視縮小、前緣輪廓光），正面上亮下暗漸層加高光描邊，地面有壓扁模糊的投影，擠出方向從左下轉到右下'],
+'D3-02': ['2026-10-19', '整個重做：不透明薄盒加貼圖改為圓角倒角的毛玻璃實體（透射、折射、清漆），後方加彩色光球讓玻璃有內容可折射，假陰影改為真實投影'],
+'TXT-A-02': ['2026-10-20', '直式或長字串時自動換成 2～4 行（英數字詞不拆、標點不放行首），逐字錯開的順序跨行連續；原本只會把同一行縮小到看不清楚（T-0009 試作）'],
+'UI-03': ['2026-10-20', '直式畫面欄位加寬加高；指令太長時改為保留頭尾、中間省略，不再整串縮到看不清楚（T-0009 試作）'],
+'BG-A-33': ['2026-10-20', '先鋪滿底色：上下兩塊填色在地平線接縫留下 1 列沒畫到，播放時會透出上一格（T-0009 亂序檢查發現）'],
+'TRN-38': ['2026-10-20', '先鋪滿底色：方塊翻轉變窄時露出的縫隙會殘留上一格畫面，形成殘影（T-0009 亂序檢查發現）'],
+'D3-03': ['2026-10-19', '整個重做：36 層平面疊厚度改為用 marching squares 描出字形輪廓、ExtrudeGeometry 擠出的倒角實心立體字，加地面接觸陰影與逐字跳翻動作；名稱由 Layered Type Depth 改為 Beveled Extrude Type'],
+'D3-05': ['2026-10-19', '整個重做：正弦波位移改為 Verlet 布料物理（結構、剪切、彎曲約束，依面法線與切向受風，預烘焙一圈並首尾交叉淡化），加織紋法線貼圖、絨面反光、太陽光自身陰影、拉絲金屬旗桿、鍍金頂球、升旗繩與扣環；游標在畫面上時即時模擬'],
+};
+Object.keys(REVISED).forEach(id => { if (!BYID[id]) throw new Error('REVISED: unknown id ' + id); BYID[id].revised = REVISED[id][0]; BYID[id].revisedNote = REVISED[id][1]; });
+
+function promptFor(id) {
+const it = BYID[id]; if (!it) return ''; const g = GROUPS.find(x => x.key === it.group), txt = it.kind === 'text' || it.kind === 'tel' || it.kind === 'ui' || it.kind === 'd3';
+return `請建立動畫元件 \`${it.id}\`（${it.name}）。視覺動作：${it.hint}。${g.role}請用原生 HTML/CSS/JavaScript 實作（必要時 SVG/Canvas），輸出單一可執行 demo.html，另輸出可重用的元件 JS 模組。提供主題色、背景色、duration、loop、intensity、seed 與 16:9/9:16 比例參數；${txt ? '提供可修改的示範文字與繁體中文支援' : '提供可更改的形狀/密度或位置參數'}；預設 1.5 秒（背景循環 4 秒），使用 requestAnimationFrame 或 CSS keyframes，支援 replay、pause、destroy；加入 prefers-reduced-motion 降動態方案。動畫需具有明確起始、主動作和最終畫面，製作獨立預覽、基本測試與可調整控制面板。${it.source === 'spec' ? '不要假裝這是原作者的程式或 Prompt；視覺細節依錄影參考再校準。' : '這是錄影規格以外新增的原創元件。'}${it.pending ? ' 此編號在錄影中畫面辨識不清，先產出佔位規格，不要直接發布為已完成元件。' : ''}`;
+}
+
+/* =================================================================
+RUNTIME
+================================================================= */
+const AR = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const HOLD = .9;
+const LOOPK = { bg: 1, int: 1, d3: 1 }; const isLoop = it => !!LOOPK[it.kind];
+const DEFAULTS = { text: 'MOTION 動態', colors: { primary: '#5BD3F5', secondary: '#D6F55A', bg: '#111418' }, loop: true, intensity: 1, density: 1, seed: 7, aspectRatio: '16:9', reducedMotion: false };
+function norm(o) { const it = BYID[o.id] || LIST[0]; const n = { ...DEFAULTS, ...o, colors: { ...DEFAULTS.colors, ...(o.colors || {}) } }; n.id = it.id; if (n.duration == null) n.duration = isLoop(it) ? 4 : 1.5; n.duration = Math.max(.2, +n.duration); n.intensity = cl(+n.intensity, .1, 3); n.density = cl(+n.density, .2, 3); n.seed = Math.max(1, Math.floor(+n.seed) || 1); return n; }
+function cycleLen(o) { const it = BYID[o.id]; const d = o.duration * (o.reducedMotion && isLoop(it) ? 3 : 1); return isLoop(it) ? d : d + HOLD; }
+function progressAt(o, t) { const it = BYID[o.id], bg = isLoop(it), d = o.duration * (o.reducedMotion && bg ? 3 : 1); if (bg) return o.loop ? fr(t / d) : Math.min(.9999, t / d); const tt = o.loop ? t % (d + HOLD) : t; return Math.min(1, tt / d); }
+function getFn(it) { if (it.kind === 'd3') return c => d3Render(c, it); const m = MAPS[it.kind]; if (it.pending) return TL._pending; return m[it.name] || (c => { bgFill(c); }); }
+function autoPtr(W, H, p, dur) { const ph = p * TAU, x = W / 2 + Math.cos(ph) * W * .32, y = H / 2 + Math.sin(ph * 2) * H * .24, clicks = [];
+[.2, .7].forEach(pc => { const age = fr(p - pc) * dur; if (age < 1.6) { const q = pc * TAU; clicks.push({ x: W / 2 + Math.cos(q) * W * .32, y: H / 2 + Math.sin(q * 2) * H * .24, age }); } });
+const dx = Math.sin(ph) * W * .6, vx = Math.cos(ph) * TAU / Math.max(.2, dur) * W * .6;
+return { x, y, sx: x, sy: y, down: clicks.some(k => k.age < .25), real: false, clicks, hoverAge: 9, dragX: dx, dragY: 0, vx, vy: 0, dragging: false }; }
+function renderItem(ctx, W, H, dpr, o, p, t, ptr) {
+const it = BYID[o.id], P = { text: o.text || ' ', primary: o.colors.primary, secondary: o.colors.secondary, bg: o.colors.bg };
+const c = { ctx, W, H, dpr, P, p, t: t || 0, u: Math.min(W, H), cx: W / 2, cy: H / 2, pr: P.primary, se: P.secondary, bg: P.bg, ink: inkFor(P.bg), transparent: !!o.transparent, k: o.intensity * (o.reducedMotion && isLoop(it) ? .45 : 1), d: o.density, seed: o.seed, ph: p * TAU, dur: o.duration };
+c.ptr = ptr && ptr.real ? ptr : autoPtr(W, H, p, o.duration * (o.reducedMotion && isLoop(it) ? 3 : 1));
+const fn = getFn(it); ctx.save();
+try {
+if (o.reducedMotion && !isLoop(it)) {
+if (it.kind === 'trn') { const q = E.io(seg(p, .2, .8)); ctx.drawImage(scene(c, 'A'), 0, 0, W, H); ctx.globalAlpha = q; ctx.drawImage(scene(c, 'B'), 0, 0, W, H); ctx.globalAlpha = 1; }
+else { c.p = 1; c.ph = TAU; fn(c, it); ctx.globalAlpha = 1 - E.oc(seg(p, 0, .5)); ctx.fillStyle = it.kind === 'tel' ? 'rgba(0,0,0,0)' : c.bg; if (it.kind !== 'tel') ctx.fillRect(0, 0, W, H); }
+} else fn(c, it);
+} catch (e) { ctx.restore(); ctx.save(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f66'; ctx.font = '12px monospace'; ctx.fillText('render error: ' + it.id, 10, 20); if (root.console) console.warn(it.id, e); }
+ctx.restore();
+}
+function renderFrame(canvas, opts, p = .7, t = 0) { const o = norm(opts), dpr = opts.dpr || 1, W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderItem(ctx, W, H, dpr, o, p, t); }
+function clearCaches() { LC.clear(); PC.clear(); SC.clear(); }
+/* 純時間場景：給影片輸出與外部工具用。time 以秒計，0 ≤ time < duration；
+循環類 duration＝一個循環，一次性元件 duration＝動作時長＋停格 HOLD（保留原本的停格語意，不自行加退場）。
+畫面只由 time、opts（含 seed）決定，與之前畫過什麼無關。 */
+function sceneFor(opts) { const o = norm({ ...opts, loop: true }), it = BYID[o.id], duration = cycleLen(o);
+return { id: o.id, kind: it.kind, loop: isLoop(it), duration, hold: isLoop(it) ? 0 : HOLD, options: o,
+renderFrame(canvas, time, dpr = 1) { const W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); if (o.transparent) ctx.clearRect(0, 0, W, H); renderItem(ctx, W, H, dpr, o, progressAt(o, time), time); } }; }
+root.MotionLib = { renderFrame, scene: sceneFor, list: LIST, groups: GROUPS, byId: BYID, prompt: promptFor, defaults: DEFAULTS, clearCaches, isLoop, version: '1.8.0',
+/* 播放器（motion-player.js）與工具用的內部函式；不屬於公開 API */
+_core: { norm, renderItem, progressAt, cycleLen, isLoop, BYID, AR, cl, lerp } };
+})(typeof window !== 'undefined' ? window : this);
+
+
+/* motion-player.js @a75f72c（mount 播放器；1.8.0 起與繪製核心分檔） */
+/*!
+* MotionLib 播放器：mount() —— 把元件掛到頁面上即時播放、處理游標與尺寸。
+* 需要先載入 src/motion-lib.js（繪製核心）。即時互動的狀態（游標平滑、拖曳慣性、點擊）都在這裡，
+* 繪製核心只讀取這些值，所以核心可以單獨拿去逐格輸出影片。
+*/
+(function (root) {
+'use strict';
+const M = root.MotionLib; if (!M || !M._core) throw new Error('motion-player.js 需要先載入 motion-lib.js');
+const { norm, renderItem, progressAt, cycleLen, isLoop, BYID, AR, cl, lerp } = M._core;
+function mount(el, opts = {}) {
+const cv = document.createElement('canvas'); cv.className = 'motionlib-canvas'; cv.setAttribute('role', 'img'); el.appendChild(cv); const ctx = cv.getContext('2d');
+let o = norm(opts), raf = 0, alive = true, paused = !!opts.paused, t = 0, last = performance.now(), W = 0, H = 0; const dpr = Math.min(2, root.devicePixelRatio || 1);
+const mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null; if (opts.reducedMotion == null && mq && mq.matches) o.reducedMotion = true;
+function fit() { const ar = AR[o.aspectRatio] || 16 / 9, cw = el.clientWidth || 640, mh = o.maxHeight || cw / ar; const w = Math.max(40, Math.min(cw, mh * ar)); W = Math.round(w); H = Math.round(w / ar); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.setAttribute('aria-label', BYID[o.id].id + ' ' + BYID[o.id].name); cv.style.touchAction = BYID[o.id].kind === 'int' ? 'none' : ''; cv.style.cursor = BYID[o.id].kind === 'int' ? 'crosshair' : BYID[o.id].kind === 'ui' ? 'pointer' : ''; draw(); }
+/* 游標狀態集中在 runtime：繪製函式維持無狀態，只讀這些值。
+sx/sy 平滑位置（約 0.12 秒追上）；hoverAge 進入畫布後的秒數；dragX/dragY 拖曳累積位移（放開後依速度慣性滑行並衰減）；vx/vy 速度 px/s。 */
+const ptr = { x: 0, y: 0, sx: 0, sy: 0, down: false, real: false, clicks: [], _c: [], hoverAge: 0, dragX: 0, dragY: 0, vx: 0, vy: 0, dragging: false, _lx: 0, _ly: 0, _lt: 0 };
+const pos = e => { const r = cv.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; };
+const enter = e => { pos(e); if (!ptr.real) { ptr.sx = ptr.x; ptr.sy = ptr.y; ptr.hoverAge = 0; } ptr.real = true; };
+const ev = { pointermove: e => { const px = ptr.x, py = ptr.y; enter(e); if (ptr.dragging) { const now = performance.now(), dt = Math.max(1, now - ptr._lt) / 1000; ptr.dragX += ptr.x - px; ptr.dragY += ptr.y - py; ptr.vx = lerp(ptr.vx, (ptr.x - px) / dt, .5); ptr.vy = lerp(ptr.vy, (ptr.y - py) / dt, .5); ptr._lt = now; } },
+pointerenter: enter, pointerleave: () => { if (!ptr.dragging) { ptr.real = false; ptr.down = false; } },
+pointerdown: e => { enter(e); ptr.down = true; ptr.dragging = true; ptr.vx = ptr.vy = 0; ptr._lt = performance.now(); try { cv.setPointerCapture(e.pointerId); } catch (er) { } ptr._c.push({ x: ptr.x, y: ptr.y, t }); if (ptr._c.length > 12) ptr._c.shift(); if (BYID[o.id].kind === 'ui') { t = 0; paused = false; } },
+pointerup: e => { ptr.down = false; ptr.dragging = false; try { cv.releasePointerCapture(e.pointerId); } catch (er) { } }, pointercancel: () => { ptr.down = false; ptr.dragging = false; } };
+Object.keys(ev).forEach(k => cv.addEventListener(k, ev[k]));
+function stepPtr(dt) { if (!ptr.real) return; const a = 1 - Math.exp(-dt / .12); ptr.sx += (ptr.x - ptr.sx) * a; ptr.sy += (ptr.y - ptr.sy) * a; ptr.hoverAge += dt;
+if (!ptr.dragging) { ptr.dragX += ptr.vx * dt; ptr.dragY += ptr.vy * dt; const d = Math.exp(-dt / .35); ptr.vx *= d; ptr.vy *= d; if (Math.abs(ptr.vx) < 1) ptr.vx = 0; if (Math.abs(ptr.vy) < 1) ptr.vy = 0; } }
+function draw() { if (!W) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const p = progressAt(o, t); ptr.clicks = ptr._c.map(k => ({ x: k.x, y: k.y, age: t - k.t })).filter(k => k.age >= 0 && k.age < 3); renderItem(ctx, W, H, dpr, o, p, t, ptr); if (o.onFrame) o.onFrame(t, p, cycleLen(o)); }
+/* 離開畫面或分頁隱藏時不繪製（3D 元件很吃顯示卡，頁面上放多個也只有看得到的在跑） */
+let onScreen = true; const io = root.IntersectionObserver ? new IntersectionObserver(es => { onScreen = es[es.length - 1].isIntersecting; last = performance.now(); }, { rootMargin: '100px' }) : null; io && io.observe(cv);
+function tick(now) { if (!alive) return; if (!onScreen || (root.document && document.hidden)) { last = now; raf = requestAnimationFrame(tick); return; } const dt = Math.min(.1, (now - last) / 1000); last = now; stepPtr(dt); if (!paused) { t += dt; if (!o.loop && t >= cycleLen(o)) { t = cycleLen(o); } } draw(); raf = requestAnimationFrame(tick); }
+const ro = root.ResizeObserver ? new ResizeObserver(fit) : null; ro && ro.observe(el); fit(); raf = requestAnimationFrame(tick);
+return {
+play() { if (!o.loop && t >= cycleLen(o) - 1e-3) t = 0; paused = false; last = performance.now(); },
+pause() { paused = true; }, replay() { t = 0; paused = false; last = performance.now(); },
+seek(p) { paused = true; const it = BYID[o.id]; t = isLoop(it) ? cl(p) * cycleLen(o) * .9999 : cl(p) * o.duration; draw(); },
+set(n) { const idChanged = n.id && n.id !== o.id; o = norm({ ...o, ...n, colors: { ...o.colors, ...(n.colors || {}) } }); if (idChanged) t = 0; fit(); },
+destroy() { alive = false; cancelAnimationFrame(raf); ro && ro.disconnect(); io && io.disconnect(); cv.remove(); },
+get paused() { return paused; }, get pointer() { const { _c, _lx, _ly, _lt, ...pub } = ptr; return pub; }, get time() { return t; }, get options() { return { ...o, colors: { ...o.colors } }; }, get cycle() { return cycleLen(o); }, canvas: cv
+};
+}
+M.mount = mount;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<style>
+:root{--K:#1B1714;--P:#F3EBD8;--R:#D2352B;--Y:#EDB22C;--B:#24438C;--G:#3F7D3A;--Pk:#E9A0B2;--V:#6C4A93;--Br:#8A5A2B;--W:#FFFDF6;--mat:#6A5876;--mat2:#5A4966;--mat3:#463852;
+--serif:"Noto Serif TC","Songti TC",serif;--sans:"Noto Sans TC",system-ui,sans-serif;--rim:3.2%;}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--mat);color:var(--P);-webkit-text-size-adjust:100%}
+/* 座布団：紫の綸子目（1px 織線的重複圖樣，非漸層光影） */
+body{font-family:var(--sans);font-size:16px;line-height:1.75;background-color:var(--mat);
+ background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 5px);min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:900;line-height:1.25;letter-spacing:.02em}
+:focus-visible{outline:3px solid var(--Y);outline-offset:3px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+/* ── 特徵① 黒縁の小札 ── */
+.fuda{position:relative;display:block;width:var(--w,64px);aspect-ratio:64/104;flex:none;border-radius:0;background:var(--K);transform-style:preserve-3d;cursor:default}
+.fuda .face,.fuda .bk{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.fuda .bk{transform:rotateY(180deg)}
+.fuda svg{display:block;width:100%;height:100%}
+.fuda.down{transform:rotateY(180deg)}
+/* ── 特徵④ 短冊ラベル ── */
+.tanzaku{display:inline-flex;writing-mode:vertical-rl;font-family:var(--serif);font-weight:900;letter-spacing:.16em;background:var(--R);color:var(--P);padding:.7em .32em;line-height:1;border:0;font-size:15px}
+.tanzaku.ao{background:var(--B)}
+.tanzaku.kuro{background:var(--K)}
+.tag{display:inline-block;font:800 12px/1 var(--sans);letter-spacing:.18em;background:var(--R);color:var(--P);padding:5px 8px 5px 10px}
+/* ── 特徵⑤ 霞の帯 ── */
+.kasumi{position:relative;background:var(--R);color:var(--P);padding:22px 0 30px}
+.kasumi::after{content:"";position:absolute;left:0;right:0;bottom:-15px;height:16px;background:var(--R);
+ -webkit-mask:radial-gradient(circle 15px at 15px 0,#000 14.5px,transparent 15px) 0 0/30px 16px repeat-x;mask:radial-gradient(circle 15px at 15px 0,#000 14.5px,transparent 15px) 0 0/30px 16px repeat-x}
+.kasumi h1,.kasumi h2{font-size:clamp(28px,4.4vw,52px)}
+.kasumi .sub{font:800 13px/1.4 var(--sans);letter-spacing:.24em;opacity:.92}
+.moon{display:block;border-radius:50%;background:var(--W);border:2px solid var(--K)}
+/* 札山ナビ */
+.yama{position:fixed;top:14px;right:16px;z-index:60;display:flex;gap:10px;align-items:flex-start}
+.yama a{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;perspective:500px}
+.yama .fuda{--w:40px;transition:transform .26s cubic-bezier(.3,1.5,.5,1)}
+.yama a:not(.on):hover .fuda,.yama a:not(.on):focus-visible .fuda{transform:translateY(-6px) rotateY(0deg)}
+.yama a.on .fuda{transform:translateY(8px) rotate(-4deg)}
+.yama a.on:hover .fuda{transform:translateY(4px) rotate(-2deg)}
+.yama .lb{font:800 11px/1 var(--serif);letter-spacing:.2em;writing-mode:vertical-rl;background:var(--K);color:var(--P);padding:6px 3px}
+.yama a.on .lb{background:var(--R)}
+.brand{position:absolute;top:14px;left:16px;z-index:60;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{width:34px;height:55px}
+.brand b{font:900 18px/1 var(--serif);letter-spacing:.24em;writing-mode:vertical-rl}
+.btn{display:inline-flex;align-items:center;gap:10px;font:800 15px/1 var(--sans);letter-spacing:.12em;padding:13px 18px;border:0;background:var(--R);color:var(--P);text-decoration:none;cursor:pointer;box-shadow:inset 0 0 0 3px var(--K);transition:transform .08s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(1px)}
+.btn.kuro{background:var(--K)}
+.btn.kiiro{background:var(--Y);color:var(--K)}
+.paper{background:var(--P);color:var(--K);box-shadow:0 0 0 4px var(--K)}
+.foot{margin-top:90px;background:var(--K);color:var(--P);padding:36px 0 120px;font-size:13px}
+.foot .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px}
+.foot b{font-family:var(--serif)}
+.warn{display:block;margin-top:18px;font:900 15px/1.5 var(--serif);letter-spacing:.16em;color:var(--Y)}
+.ml{position:relative;overflow:hidden}
+.ml canvas{display:block;margin:0 auto}
+.ml.ml-live .ml-fb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.deal{will-change:transform}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:760px){
+ .yama{top:auto;bottom:0;left:0;right:0;justify-content:space-around;background:var(--mat3);padding:8px 8px 10px;box-shadow:0 -3px 0 var(--K)}
+ .yama a{flex-direction:row}
+ .yama .fuda{--w:28px}
+ .yama a.on .fuda{transform:translateY(-4px) rotate(-4deg)}
+ .brand b{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+
+</style>
+</head>
+<body>
+<script>
+/* 花月札 painter — 48 枚・墨版＋合羽摺平色（色版固定偏移 .7/.5）。全部原創簡化圖形。 */
+var HG=window.HG||(window.HG={});
+(function(){
+var K='#1B1714',P='#F3EBD8',R='#D2352B',Y='#EDB22C',B='#24438C',G='#3F7D3A',Pk='#E9A0B2',V='#6C4A93',Br='#8A5A2B',W='#FFFDF6';
+HG.C={K:K,P:P,R:R,Y:Y,B:B,G:G,Pk:Pk,V:V,Br:Br,W:W,MAT:'#6A5876'};
+var M=[['松','まつ','一月'],['梅','うめ','二月'],['桜','さくら','三月'],['藤','ふじ','四月'],['菖蒲','あやめ','五月'],['牡丹','ぼたん','六月'],['萩','はぎ','七月'],['芒','すすき','八月'],['菊','きく','九月'],['紅葉','もみじ','十月'],['柳','やなぎ','十一月'],['桐','きり','十二月']];
+var KIND={h:['光',20],t:['種',10],r:['短',5],k:['カス',1]};
+var D=[['h松に鶴','r松に赤短','k松','k松'],['t梅に鶯','r梅に赤短','k梅','k梅'],['h桜に幕','r桜に赤短','k桜','k桜'],['t藤に不如帰','r藤に短冊','k藤','k藤'],['t菖蒲に八橋','r菖蒲に短冊','k菖蒲','k菖蒲'],['t牡丹に蝶','r牡丹に青短','k牡丹','k牡丹'],['t萩に猪','r萩に短冊','k萩','k萩'],['h芒に月','t芒に雁','k芒','k芒'],['t菊に盃','r菊に青短','k菊','k菊'],['t紅葉に鹿','r紅葉に青短','k紅葉','k紅葉'],['h柳に番傘','t柳に燕','r柳に短冊','k柳に雷'],['h桐に鳳凰','k桐','k桐','k桐の黄']];
+HG.months=M;HG.list=[];
+D.forEach(function(row,m){row.forEach(function(s,i){var k=s[0],nm=s.slice(1);HG.list.push({id:m*4+i,m:m+1,i:i,kind:k,kname:KIND[k][0],pt:KIND[k][1],name:nm,label:k==='k'&&nm.length<=2?nm+'のカス':nm});});});
+function n(v){return Math.round(v*10)/10;}
+function S(t,a,f,o){return {t:t,a:a,f:f,o:o||{}};}
+function circ(cx,cy,r,f){return S('circle',{cx:cx,cy:cy,r:r},f);}
+function ell(cx,cy,rx,ry,f,rot){return S('ellipse',{cx:cx,cy:cy,rx:rx,ry:ry,transform:rot?'rotate('+rot+' '+cx+' '+cy+')':null},f);}
+function path(d,f,o){return S('path',{d:d},f,o);}
+function rect(x,y,w,h,f,rot){return S('rect',{x:x,y:y,width:w,height:h,transform:rot?'rotate('+rot+' '+n(x+w/2)+' '+n(y+h/2)+')':null},f);}
+function line(d,w,col){return S('path',{d:d},null,{line:w||1,col:col});}
+/* 霞：上緣直、下緣成串圓瘤的色帶（特徵⑤） */
+function haze(y,h,col,from,to){from=from==null?2.6:from;to=to==null?61.4:to;var cnt=Math.max(2,Math.round((to-from)/9)),bw=(to-from)/cnt,d='M'+from+' '+y+'H'+to+'V'+n(y+h-bw/2);for(var i=0;i<cnt;i++){var x=to-i*bw;d+='A'+n(bw/2)+' '+n(bw/2.4)+' 0 0 1 '+n(x-bw)+' '+n(y+h-bw/2);}return path(d+'Z',col||R);}
+HG.hazePath=function(w,h,bumpW){var cnt=Math.max(2,Math.round(w/bumpW)),bw=w/cnt,d='M0 0H'+w+'V'+n(h-bw/2);for(var i=0;i<cnt;i++){var x=w-i*bw;d+='A'+n(bw/2)+' '+n(bw/2.4)+' 0 0 1 '+n(x-bw)+' '+n(h-bw/2);}return d+'Z';};
+function petal5(cx,cy,r,f,c2){var a=[],i;for(i=0;i<5;i++){var t=i*Math.PI*2/5-Math.PI/2;a.push(circ(n(cx+Math.cos(t)*r*.62),n(cy+Math.sin(t)*r*.62),n(r*.48),f));}a.push(circ(cx,cy,n(r*.28),c2||Y));return a;}
+function star(cx,cy,r,f,rot){var d='',i;for(i=0;i<10;i++){var t=i*Math.PI/5-Math.PI/2+(rot||0),q=i%2?r*.45:r;d+=(i?'L':'M')+n(cx+Math.cos(t)*q)+' '+n(cy+Math.sin(t)*q);}return path(d+'Z',f);}
+function fan(cx,cy,r,f){var d='M'+n(cx-r)+' '+cy+'A'+r+' '+r+' 0 0 1 '+n(cx+r)+' '+cy+'Z',o=[path(d,f)];for(var i=1;i<6;i++){var t=Math.PI+i*Math.PI/6;o.push(line('M'+cx+' '+cy+'L'+n(cx+Math.cos(t)*r*.92)+' '+n(cy+Math.sin(t)*r*.92),.6));}return o;}
+function ribbon(col,txt,rot){var o=[rect(25,18,12,52,col,rot)];if(txt){var ch=Array.from(txt);ch.forEach(function(c,i){o.push(S('text',{x:31,y:n(27+i*(40/ch.length)+3),transform:'rotate('+rot+' 31 44)'},K,{txt:c,size:n(Math.min(8,36/ch.length))}));});}return o;}
+function bird(cx,cy,s,f,flip){var k=flip?-1:1;return path('M'+n(cx-9*s*k)+' '+n(cy+1*s)+'Q'+n(cx-2*s*k)+' '+n(cy-7*s)+' '+n(cx+3*s*k)+' '+n(cy-1*s)+'Q'+n(cx+6*s*k)+' '+n(cy-6*s)+' '+n(cx+11*s*k)+' '+n(cy-6*s)+'Q'+n(cx+7*s*k)+' '+n(cy+1*s)+' '+n(cx+4*s*k)+' '+n(cy+3*s)+'Q'+n(cx-2*s*k)+' '+n(cy+5*s)+' '+n(cx-9*s*k)+' '+n(cy+1*s)+'Z',f);}
+var plant={
+1:function(v){var r=v%2,o=[line('M'+(r?50:14)+' 101Q'+(r?40:24)+' 70 '+(r?44:20)+' 50Q'+(r?48:16)+' 38 '+(r?36:28)+' 30',3.2)];
+ [[20,52,10],[40,44,9],[28,34,8],[46,62,8],[16,72,7]].forEach(function(p){o=o.concat(fan(r?64-p[0]:p[0],p[1],p[2],G));});return o;},
+2:function(v){var o=[line('M8 96L22 74L18 60L34 46L30 30L46 18',2.6),line('M22 74L42 70L54 56',1.8)];[[18,60],[34,46],[30,30],[46,18],[42,70],[54,56],[24,84]].forEach(function(p,i){if((i+v)%5!==4)o=o.concat(petal5(p[0],p[1],5.4,R,Y));});return o;},
+3:function(v){var o=[line('M6 40Q20 46 30 38T58 34',2)];[[14,40],[26,44],[38,34],[50,38],[20,28],[44,24],[32,52]].forEach(function(p,i){if((i+v)%6!==5)o=o.concat(petal5(p[0],p[1],6,Pk,R));});return o;},
+4:function(v){var o=[line('M2.6 10Q20 18 34 8T61.4 12',2.4)];[14,28,42,54].forEach(function(x,j){for(var i=0;i<7;i++)o.push(ell(x+(i%2?1.6:-1.6),16+i*6.2+(j%2)*4,n(3.4-i*.25),2.6,V));});return o;},
+5:function(v){var o=[];[16,32,48].forEach(function(x){o.push(path('M'+x+' 101Q'+(x-4)+' 70 '+(x+2)+' 46L'+(x+5)+' 48Q'+(x+2)+' 72 '+(x+5)+' 101Z',G));});[[18,44],[40,36]].forEach(function(p){o.push(path('M'+p[0]+' '+p[1]+'q-8 -4 -6 -12q6 2 6 8q0 -10 6 -14q4 8 -2 14q8 -6 12 0q-6 6 -16 4z',(v%2?V:B)));});return o;},
+6:function(v){var o=[];[[22,70],[44,80]].forEach(function(p,i){o.push(ell(p[0]-8,p[1]+8,8,4,G,-30),ell(p[0]+9,p[1]+9,8,4,G,30));for(var j=0;j<6;j++){var t=j*Math.PI/3;o.push(circ(n(p[0]+Math.cos(t)*6),n(p[1]+Math.sin(t)*6),5.2,(i+v)%2?Pk:R));}o.push(circ(p[0],p[1],4,Y));});return o;},
+7:function(v){var o=[line('M6 101Q14 50 50 20',1.4),line('M20 101Q24 60 58 44',1.4),line('M40 101Q36 70 60 70',1.2)],i;for(i=0;i<14;i++){var t=i/13,x=6+44*t+Math.sin(t*3)*4,y=101-81*t;o.push(circ(n(x+3),n(y),1.8,R));}for(i=0;i<8;i++)o.push(ell(n(22+i*4),n(84-i*5),2.6,1.2,K,-40));return o;},
+8:function(v){return [path('M2.6 101.4V66Q20 52 34 60T61.4 58V101.4Z',K),line('M10 66Q14 40 22 30',1),line('M26 62Q30 44 40 36',1),line('M44 60Q48 40 56 30',1)];},
+9:function(v){var o=[];[[20,66,9],[44,76,8],[36,46,7]].forEach(function(p,i){for(var j=0;j<12;j++){var t=j*Math.PI/6;o.push(ell(n(p[0]+Math.cos(t)*p[2]*.6),n(p[1]+Math.sin(t)*p[2]*.6),n(p[2]*.42),n(p[2]*.16),i===2?R:Y,n(t*180/Math.PI)));}o.push(circ(p[0],p[1],n(p[2]*.3),i===2?Y:R));});o.push(ell(14,88,7,3,G,-20),ell(52,92,7,3,G,20));return o;},
+10:function(v){var o=[line('M2.6 30Q24 26 40 40T61.4 50',2.4),line('M24 28L30 8',1.6)];[[14,30],[30,22],[44,38],[56,50],[22,46],[36,58],[50,24]].forEach(function(p,i){if((i+v)%7!==6)o.push(star(p[0],p[1],6.4,i%3?R:Y,i*.3));});return o;},
+11:function(v){var o=[line('M36 2.6Q34 30 40 54',2.6)];for(var i=0;i<6;i++)o.push(line('M'+(30+i*3)+' 8Q'+(14+i*7)+' 40 '+(10+i*9)+' 92',1.6,G));return o;},
+12:function(v){var o=[];[[18,80],[46,82],[32,66]].forEach(function(p){o.push(path('M'+p[0]+' '+(p[1]+14)+'Q'+(p[0]-14)+' '+p[1]+' '+(p[0]-4)+' '+(p[1]-10)+'Q'+p[0]+' '+(p[1]-4)+' '+(p[0]+4)+' '+(p[1]-10)+'Q'+(p[0]+14)+' '+p[1]+' '+p[0]+' '+(p[1]+14)+'Z',G));});[[22,22],[32,16],[42,22]].forEach(function(p){for(var j=0;j<4;j++)o.push(circ(p[0],p[1]+j*6,2.6,V));o.push(line('M'+p[0]+' '+(p[1]+20)+'V'+(p[1]+32),1.2));});return o;}
+};
+var special={
+'松に鶴':function(){return [haze(2.6,14),circ(44,28,11,R),ell(28,66,11,6,W,-18),path('M34 62Q44 46 40 36L42.4 35.4Q48 48 37 64Z',K),circ(41,34,2.6,W),circ(41.4,32.4,1.2,R),path('M18 68L8 74L14 64Z',K),line('M26 71L24 86',1),line('M30 71L31 86',1)];},
+'梅に鶯':function(){return [ell(36,78,8,4.4,G,-14),circ(44,74.6,3.4,G),path('M47 73.6L52 73L47.4 75.6Z',K),circ(44.6,73.6,.7,K),path('M29 79L22 84L27 77Z',G)];},
+'桜に幕':function(){var o=[haze(2.6,12)];for(var i=0;i<7;i++)o.push(rect(n(2.6+i*8.4),60,8.4,41.4,i%2?W:R));o.push(line('M2.6 60.6Q32 66 61.4 60.6',1.6),circ(32,80,7,W),path('M32 74l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z',V));return o;},
+'藤に不如帰':function(){return [path('M44 74A12 12 0 1 0 56 90A9 9 0 1 1 44 74Z',Y),bird(30,62,1.2,K)];},
+'菖蒲に八橋':function(){return [path('M2.6 70L34 62L36 66L2.6 76Z',Br),path('M30 74L61.4 66V72L32 80Z',Br),path('M2.6 86L36 78L38 82L2.6 92Z',Br)];},
+'牡丹に蝶':function(){var o=[];[[22,26,B],[42,40,Y]].forEach(function(p){o.push(ell(p[0]-3.4,p[1]-2.4,4,5,p[2],-30),ell(p[0]+3.4,p[1]-2.4,4,5,p[2],30),ell(p[0]-2.4,p[1]+3.6,2.6,3.4,R,-20),ell(p[0]+2.4,p[1]+3.6,2.6,3.4,R,20),ell(p[0],p[1],.9,5,K));});return o;},
+'萩に猪':function(){return [path('M14 64Q20 46 40 50Q54 52 52 66L50 74H18Z',Br),path('M50 56L60 60L54 66Z',Br),circ(52,58,.9,K),line('M22 72V82M30 74V84M42 74V84M48 72V80',2),line('M18 52Q30 40 44 48',1.2)];},
+'芒に月':function(){return [rect(2.6,2.6,58.8,58,R),circ(32,32,17,W)];},
+'芒に雁':function(){return [rect(2.6,2.6,58.8,48,R),bird(20,22,.8,K),bird(36,14,.7,K),bird(46,32,.75,K)];},
+'菊に盃':function(){return [path('M14 34H50L44 48Q32 54 20 48Z',R),ell(32,34,18,4.6,R),circ(32,40.6,5.6,Y),S('text',{x:32,y:43.4},K,{txt:'寿',size:7.4})];},
+'紅葉に鹿':function(){return [path('M14 76Q16 62 34 62Q46 62 46 70L44 80H18Z',Br),path('M44 66L46 52L52 50L54 58L48 66Z',Br),circ(51,54,.9,K),line('M46 52L42 42M44 46L38 44M50 50L52 40M51 45L56 42',1.3),line('M20 80V92M26 80V93M38 80V93M42 79V91',1.8),circ(24,68,1,W),circ(30,70,1,W),circ(36,67,1,W)];},
+'柳に番傘':function(){return [rect(2.6,62,58.8,39.4,K),path('M14 46A20 16 0 0 1 54 46Z',R),line('M34 30V74',1.6),line('M14 46L34 31L54 46M22 46L34 31L46 46',.8),ell(22,86,6,4,G),circ(19,82,1.6,G),circ(25,82,1.6,G)];},
+'柳に燕':function(){return [bird(32,50,1.3,K,true),ell(28,52,2.4,1.4,R)];},
+'柳に雷':function(){var o=[rect(2.6,2.6,58.8,98.8,K)];[14,28,42,56].forEach(function(x){o.push(circ(x,16,5,R),circ(x,16,2,K));});o.push(path('M40 28L24 56H34L20 92L46 50H36L48 28Z',Y));return o;},
+'桐に鳳凰':function(){var o=[rect(2.6,2.6,58.8,30,R)];[[R,-50],[Y,-30],[G,-10],[B,10],[Y,30],[R,50]].forEach(function(p){o.push(ell(32,56,4,22,p[0],p[1]));});o.push(circ(32,40,6,Y),path('M36 38L44 36L37 42Z',R),circ(33,39,.9,K));return o;},
+'桐の黄':function(){return [rect(2.6,2.6,58.8,98.8,Y)];}
+};
+function render(sh){var col='',key='';sh.forEach(function(s){var a=s.a,at='';for(var k in a)if(a[k]!=null)at+=' '+k+'="'+a[k]+'"';
+ if(s.t==='text'){key+='<text'+at+' font-size="'+s.o.size+'" text-anchor="middle" fill="'+K+'" font-family="Noto Serif TC,serif" font-weight="900">'+s.o.txt+'</text>';return;}
+ if(s.o.line){key+='<'+s.t+at+' fill="none" stroke="'+(s.o.col||K)+'" stroke-width="'+s.o.line+'" stroke-linecap="square"/>';return;}
+ if(s.f===K){key+='<'+s.t+at+' fill="'+K+'"/>';return;}
+ col+='<'+s.t+at+' fill="'+s.f+'"/>';key+='<'+s.t+at+' fill="none" stroke="'+K+'" stroke-width=".7"/>';});
+ return '<g transform="translate(.7 .5)">'+col+'</g><g>'+key+'</g>';}
+var cache={};
+HG.svg=function(id){if(cache[id])return cache[id];var c=HG.list[id],sh=[],name=c.name,sp=special[name];
+ if(name==='柳に雷'||name==='桐の黄')sh=sh.concat(sp());
+ else{
+  if(c.kind==='k'&&c.m!==8&&c.m!==11)sh.push(haze(2.6,c.i%2?10:16,c.m===12?V:R));
+  if(c.m===8&&c.kind==='k')sh.push(rect(2.6,2.6,58.8,c.i===2?40:30,R));
+  if(name==='芒に月'||name==='芒に雁'||name==='桐に鳳凰')sh=sh.concat(sp());
+  sh=sh.concat(plant[c.m](c.i));
+  if(sp&&!/芒に|桐に鳳凰/.test(name))sh=sh.concat(sp());
+  if(c.kind==='r'){var blue=/青短/.test(name),txt=/赤短/.test(name)?(c.m===3?'みよしの':'あかよろし'):'';sh=sh.concat(ribbon(blue?B:R,txt,c.m%2?-7:7));}}
+ var mir=c.kind==='k'&&c.i===3&&c.m!==11&&c.m!==12;
+ return cache[id]='<svg viewBox="0 0 64 104" class="fuda-svg" aria-hidden="true" focusable="false"><rect width="64" height="104" fill="'+K+'"/><rect x="2.6" y="2.6" width="58.8" height="98.8" fill="'+P+'"/>'+(mir?'<g transform="matrix(-1 0 0 1 64 0)">':'<g>')+render(sh)+'</g></svg>';};
+HG.back='<svg viewBox="0 0 64 104" class="fuda-svg" aria-hidden="true" focusable="false"><rect width="64" height="104" fill="'+K+'"/><rect x="5" y="5" width="54" height="94" fill="none" stroke="#4A3D36" stroke-width=".8"/><circle cx="32" cy="52" r="7" fill="none" stroke="#4A3D36" stroke-width=".8"/></svg>';
+HG.byName=function(nm){for(var i=0;i<48;i++)if(HG.list[i].name===nm)return HG.list[i];return null;};
+/* 役判定 */
+function has(c,nm){return c.some(function(x){return x.name===nm;});}
+function cnt(c,k){return c.filter(function(x){return x.kind===k;}).length;}
+function lights(c,noRain){return c.filter(function(x){return x.kind==='h'&&!(noRain&&x.m===11);}).length;}
+HG.YAKU=[
+ {k:'gokou',n:'五光',set:'五光の宴 — 大吟釀 一合＋刺身五點',p:1280,test:function(c){return lights(c)>=5;}},
+ {k:'shikou',n:'四光',set:'四光 — 大吟釀 一合＋刺身三點',p:880,test:function(c){return lights(c,1)>=4;}},
+ {k:'sankou',n:'三光',set:'三光 — 純米大吟釀 一合＋炙烤鯖魚',p:620,test:function(c){return lights(c,1)>=3;}},
+ {k:'hanami',n:'花見で一杯',set:'花見で一杯 — 櫻花酵母純米 一合＋櫻蝦炸餅',p:420,test:function(c){return has(c,'桜に幕')&&has(c,'菊に盃');}},
+ {k:'tsukimi',n:'月見で一杯',set:'月見で一杯 — 山廢純米 燗一合＋月見つくね',p:420,test:function(c){return has(c,'芒に月')&&has(c,'菊に盃');}},
+ {k:'inoshika',n:'猪鹿蝶',set:'猪鹿蝶 — 三杯飲み比べ＋酒肴三品',p:520,test:function(c){return has(c,'萩に猪')&&has(c,'紅葉に鹿')&&has(c,'牡丹に蝶');}},
+ {k:'akatan',n:'赤短',set:'赤短 — 梅酒・紅麴米酒・本釀造 三杯',p:480,test:function(c){return has(c,'松に赤短')&&has(c,'梅に赤短')&&has(c,'桜に赤短');}},
+ {k:'aotan',n:'青短',set:'青短 — 生酛・山廢・速釀 三杯飲み比べ',p:520,test:function(c){return has(c,'牡丹に青短')&&has(c,'菊に青短')&&has(c,'紅葉に青短');}},
+ {k:'tane',n:'タネ',set:'タネ — 酒肴盛合わせ五品',p:360,test:function(c){return cnt(c,'t')>=5;}},
+ {k:'tan',n:'タン',set:'タン — 本釀造 冷一合＋漬物',p:300,test:function(c){return cnt(c,'r')>=5;}},
+ {k:'kasu',n:'カス',set:'カス — 本日のお燗 一合',p:220,test:function(c){return cnt(c,'k')>=10;}}];
+HG.yakuOf=function(cards){return HG.YAKU.filter(function(y){return y.test(cards);});};
+/* 十二月の酒と肴（月 → 酒, 價, 肴, 價） */
+HG.MENU=[
+ ['松の内 純米 冷','NT$260','烏魚子蘿蔔片','NT$180'],['梅 本釀造 燗','NT$240','梅肉山藥','NT$150'],['櫻花酵母 純米','NT$300','櫻蝦炸餅','NT$200'],['藤 生酒','NT$320','新筍味噌','NT$170'],
+ ['菖蒲 夏吟釀','NT$300','冷奴豆腐','NT$120'],['牡丹 濁酒','NT$280','鹽烤香魚','NT$260'],['萩 純米 常溫','NT$260','炙烤豬五花','NT$220'],['芒 山廢 燗','NT$340','月見つくね','NT$200'],
+ ['菊 生酛 冷卸','NT$360','烤銀杏','NT$160'],['紅葉 秋上がり','NT$340','味噌漬豬梅花','NT$240'],['柳 熱燗 大碗','NT$280','關東煮五品','NT$210'],['桐 新酒 搾りたて','NT$380','鰤魚燉蘿蔔','NT$250']];
+HG.taipeiMonth=function(){try{return +new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',month:'numeric'}).format(new Date());}catch(e){return new Date().getMonth()+1;}};
+HG.taipeiHour=function(){try{return +new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',hour:'numeric',hourCycle:'h23'}).format(new Date());}catch(e){return new Date().getHours();}};
+})();
+
+</script>
+<script>
+(function(){
+var H=window.HG;H.RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+H.$=function(s,r){return (r||document).querySelector(s);};H.$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+/* 札要素：表＝絵、裏＝黒裏 */
+H.fuda=function(id,o){o=o||{};var c=H.list[id],el=document.createElement(o.tag||'div');el.className='fuda'+(o.down?' down':'')+(o.cls?' '+o.cls:'');if(o.w)el.style.setProperty('--w',o.w);
+ el.dataset.id=id;el.dataset.m=c.m;el.innerHTML='<div class="face">'+H.svg(id)+'</div><div class="bk">'+H.back+'</div>';
+ if(!o.silent){el.setAttribute('aria-label',c.label+'（'+c.m+'月・'+c.kname+' '+c.pt+'点）');if(!o.tag)el.setAttribute('role','img');}return el;};
+/* 札山ナビ */
+var PAGES=[['index.html','花月','芒に月'],['koikoi.html','一局','桜に幕'],['tsuki.html','十二月','菊に盃'],['mise.html','場所','柳に番傘']];
+H.nav=function(cur){var n=document.createElement('nav');n.className='yama';n.setAttribute('aria-label','頁面');
+ PAGES.forEach(function(p){var a=document.createElement('a');a.href=p[0];if(p[0]===cur){a.className='on';a.setAttribute('aria-current','page');}
+  var f=H.fuda(H.byName(p[2]).id,{down:p[0]!==cur,silent:true});a.appendChild(f);var l=document.createElement('span');l.className='lb';l.textContent=p[1];a.appendChild(l);n.appendChild(a);
+  a.addEventListener('click',function(e){if(a.classList.contains('on')||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();H.leave(f,a.href);});});
+ var old=document.querySelector('nav.yama');if(old)old.replaceWith(n);else document.body.appendChild(n);};
+/* 轉場：配札（進場）＋集札（離場） */
+H.dealIn=function(){if(H.RM||!Element.prototype.animate)return;var els=H.$$('.deal');els.forEach(function(e,i){var r=e.getBoundingClientRect();if(r.top>innerHeight)return;
+ var dx=innerWidth-60-(r.left+r.width/2),dy=40-(r.top+r.height/2);e.animate([{transform:'translate('+dx+'px,'+dy+'px) rotate(14deg) scale(.3)',opacity:0},{transform:'none',opacity:1}],{duration:520,delay:60+i*55,easing:'cubic-bezier(.2,.9,.3,1.05)',fill:'backwards'});});};
+H.leave=function(card,href){if(H.RM||!Element.prototype.animate){location.href=href;return;}
+ var a=card.animate([{transform:'rotateY(180deg)'},{transform:'translateY(10px) rotateY(0deg)'}],{duration:260,easing:'cubic-bezier(.3,1.4,.5,1)',fill:'forwards'});
+ var cr=card.getBoundingClientRect();H.$$('.deal').forEach(function(e,i){var r=e.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;e.animate([{transform:'none',opacity:1},{transform:'translate('+(cr.left-r.left)+'px,'+(cr.top-r.top)+'px) rotate(-10deg) scale(.2)',opacity:0}],{duration:300,delay:i*25,easing:'cubic-bezier(.6,0,.8,.4)',fill:'forwards'});});
+ setTimeout(function(){location.href=href;},380);};
+/* motion-library 包裝（照 ka-to KT.ml）：fonts.ready 後掛、離屏 destroy、once 播一次、RM 停格 */
+H.ml=function(el,o){var cx=null;try{cx=document.createElement('canvas').getContext('2d');}catch(_){}if(!el||!window.MotionLib||!cx)return null;
+ var m=null,done=false,api={replay:function(){done=false;if(m){m.replay();done=true;}else mount();},set:function(p){Object.assign(o,p);if(m)m.set(p);}};
+ function mount(){if(m)return;m=MotionLib.mount(el,Object.assign({},o,{paused:true}));m.canvas.setAttribute('aria-hidden','true');m.canvas.removeAttribute('role');el.classList.add('ml-live');
+  if(H.RM)return m.seek(o.once?1:.35);if(o.once&&done)return m.seek(1);m.replay();if(o.once)done=true;}
+ function unmount(){if(m){m.destroy();m=null;}}
+ var go=function(){if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?mount():unmount();});},{rootMargin:'80px'}).observe(el);else mount();};
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);else go();return api;};
+/* 拍札音：WebAudio 合成（手勢後才建立） */
+var ac=null,noise=null;H.sound=false;try{H.sound=localStorage.getItem('hg-sound')==='1';}catch(_){}
+H.setSound=function(v){H.sound=v;try{localStorage.setItem('hg-sound',v?'1':'0');}catch(_){}if(v)ensure();};
+function ensure(){if(ac)return ac;var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ac=new C();var len=Math.floor(ac.sampleRate*.12),b=ac.createBuffer(1,len,ac.sampleRate),d=b.getChannelData(0),s=7;for(var i=0;i<len;i++){s=(s*16807)%2147483647;d[i]=(s/1073741823.5-1)*Math.pow(1-i/len,3);}noise=b;return ac;}
+H.slap=function(v){if(!H.sound)return;var a=ensure();if(!a)return;if(a.state==='suspended')a.resume();v=Math.max(.15,Math.min(1,v));var t=a.currentTime;
+ var src=a.createBufferSource();src.buffer=noise;var bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1400+2600*v;bp.Q.value=1.1;var g=a.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25+.65*v,t+.002);g.gain.exponentialRampToValueAtTime(.001,t+.05+.05*v);src.connect(bp);bp.connect(g);g.connect(a.destination);src.start(t);
+ var o=a.createOscillator(),g2=a.createGain();o.frequency.setValueAtTime(190,t);o.frequency.exponentialRampToValueAtTime(70,t+.06);g2.gain.setValueAtTime(.35*v,t);g2.gain.exponentialRampToValueAtTime(.001,t+.07);o.connect(g2);g2.connect(a.destination);o.start(t);o.stop(t+.08);};
+H.soundBtn=function(btn){if(!btn)return;function up(){btn.setAttribute('aria-pressed',H.sound?'true':'false');btn.textContent=H.sound?'拍札音：入':'拍札音：切';}up();btn.addEventListener('click',function(){H.setSound(!H.sound);up();if(H.sound)H.slap(.5);});};
+/* 營業狀態（臺北時間 18:00–01:00，週一休） */
+H.open=function(){var h=H.taipeiHour(),d;try{d=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',weekday:'short'}).format(new Date());}catch(_){d='';}
+ var mon=(d==='Mon'&&h>=18)||(d==='Tue'&&h<1);return !mon&&(h>=18||h<1);};
+})();
+
+</script>
+<!--CSS
+.top{padding-top:92px}
+.top .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:end}
+.top .mlcut{min-height:110px;max-width:440px}
+.top .mlcut h1{font-size:clamp(34px,5vw,60px)}
+.rules{counter-reset:r;list-style:none;font-size:15px}
+.rules li{counter-increment:r;padding-left:34px;position:relative;margin:6px 0}
+.rules li::before{content:counter(r,cjk-ideographic);position:absolute;left:0;top:2px;font:900 15px/1 var(--serif);background:var(--K);color:var(--P);padding:4px 6px}
+.ba{margin-top:46px;display:grid;grid-template-columns:110px minmax(0,1fr) 230px;grid-template-rows:auto auto;gap:18px;align-items:start}
+.yamafuda{text-align:center;font:800 13px/1.4 var(--sans)}
+.yamafuda .stack{position:relative;width:76px;height:124px;margin:0 auto 8px}
+.yamafuda .stack .fuda{--w:72px;position:absolute;left:0;top:0}
+.yamafuda .stack .fuda:nth-child(2){left:2px;top:-2px}.yamafuda .stack .fuda:nth-child(3){left:4px;top:-4px}
+.field{position:relative;min-height:300px;padding:18px;background:var(--mat2);box-shadow:inset 0 0 0 3px var(--K);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;justify-items:center;align-content:start}
+.field .slot{width:100%;max-width:84px;aspect-ratio:64/104;box-shadow:inset 0 0 0 1px rgba(243,235,216,.18)}
+.field .slot .fuda{--w:100%}
+.field button.fuda{border:0;padding:0}
+.field.hot{box-shadow:inset 0 0 0 3px var(--Y)}
+.field .fuda.can{outline:3px solid var(--Y);outline-offset:2px}
+.tori{background:var(--K);padding:14px;min-height:300px}
+.tori h3{font-size:16px;letter-spacing:.2em;margin-bottom:8px}
+.tori .rowk{display:flex;align-items:center;gap:6px;min-height:52px;margin-bottom:6px;flex-wrap:wrap}
+.tori .rowk>span{font:900 13px/1 var(--serif);width:32px;flex:none;color:var(--Y)}
+.tori .rowk .fuda{--w:28px;margin-right:-12px}
+.tori .yk{margin-top:10px;font:800 13px/1.6 var(--sans)}
+.tori .yk b{display:inline-block;background:var(--R);padding:2px 6px;margin:2px 4px 2px 0;font-family:var(--serif)}
+.te{grid-column:2/3;display:flex;justify-content:center;gap:clamp(4px,1vw,12px);min-height:150px;padding-top:6px;flex-wrap:wrap}
+.te button{border:0;padding:0;background:none;cursor:grab;touch-action:none;transition:transform .09s ease-out}
+.te button .fuda{--w:clamp(52px,7vw,84px)}
+.te button:hover,.te button:focus-visible{transform:translateY(-14px)}
+.te button[aria-pressed=true]{transform:translateY(-24px)}
+.te button.flying{position:fixed;z-index:80;cursor:grabbing;transition:none}
+.side{grid-column:3/4}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:800 14px/1.4 var(--sans);margin-top:16px}
+.bar .msg{flex:1;min-width:220px;background:var(--P);color:var(--K);padding:10px 14px;box-shadow:0 0 0 3px var(--K)}
+.modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;background:rgba(27,23,20,.7);padding:16px}
+.modal.on{display:grid}
+.modal .box{width:min(460px,100%);background:var(--P);color:var(--K);padding:18px;box-shadow:0 0 0 4px var(--K),0 0 0 10px var(--R),0 0 0 14px var(--K)}
+.modal .mlyaku{min-height:120px}
+.modal .mlyaku p{font:900 54px/1.2 var(--serif);text-align:center}
+.modal h3{font-size:26px;text-align:center}
+.modal .row{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.result{margin-top:40px;display:none;grid-template-columns:auto 1fr;gap:24px;align-items:start;padding:22px}
+.result.on{display:grid}
+.result .cards{display:flex;gap:6px;flex-wrap:wrap;max-width:300px}
+.result .cards .fuda{--w:46px}
+.result h2{font-size:30px}
+.result .price{font:900 28px/1.2 var(--serif);color:var(--R);margin:8px 0}
+.result .code{display:inline-block;font:800 15px/1 var(--sans);letter-spacing:.3em;background:var(--K);color:var(--P);padding:8px 10px;margin:8px 0}
+.fuda.slapped{animation:none}
+::view-transition-group(*){animation-duration:.42s;animation-timing-function:cubic-bezier(.3,1.1,.4,1)}
+@media (max-width:980px){.ba{grid-template-columns:90px minmax(0,1fr)}.side{grid-column:1/3}.te{grid-column:1/3}.field{grid-template-columns:repeat(4,minmax(0,1fr))}.tori{min-height:0}}
+@media (max-width:560px){.top .wrap{grid-template-columns:1fr}.ba{grid-template-columns:1fr}.yamafuda{display:flex;gap:12px;align-items:center;text-align:left}.yamafuda .stack{margin:0;transform:scale(.7);transform-origin:left top;height:90px}.field{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px}.result{grid-template-columns:1fr}}
+-->
+<a class="brand" href="index.html" aria-label="花月立飲 首頁"><img src="assets/logo.svg" alt=""><b>花月</b></a>
+<main>
+<section class="kasumi top deal" aria-labelledby="t-k">
+ <div class="wrap">
+  <div><span class="sub">一局・花合わせ八手</span><div class="ml mlcut" id="ml-cut"><h1 class="ml-fb" id="t-k">札を切る</h1></div></div>
+  <ol class="rules">
+   <li>把手上的札拖起來，往場上<b>同一個月</b>的札拍下去，兩張都歸你；放開時越快，拍得越響。</li>
+   <li>每出一手，山札自動翻一張；翻到同月也算你的。湊不到就留在場上。</li>
+   <li>八手之後（或你喊「あがり」），湊出的最高役就是今晚的那一杯，憑號碼到吧台。</li>
+  </ol>
+ </div>
+</section>
+<div class="wrap">
+ <div class="ba deal" id="ba">
+  <div class="yamafuda"><div class="stack" id="stack"></div><div>山札 <span id="n-yama">32</span> 枚<br>第 <span id="n-turn">1</span>／8 手</div></div>
+  <div class="field" id="field" aria-label="場札"></div>
+  <aside class="tori side" aria-label="取り札"><h3>取り札</h3>
+   <div class="rowk" data-k="h"><span>光</span></div><div class="rowk" data-k="t"><span>種</span></div><div class="rowk" data-k="r"><span>短</span></div><div class="rowk" data-k="k"><span>カス</span></div>
+   <div class="yk" id="yk" aria-live="polite">還沒有役。</div>
+  </aside>
+  <div class="te" id="te" aria-label="手札"></div>
+ </div>
+ <div class="bar"><div class="msg" id="msg" aria-live="polite">拖一枚手札，拍到場上同月的札上。也可以先點手札、再點場札。</div><button class="btn kuro" id="snd" type="button" aria-pressed="false">拍札音：切</button><button class="btn kiiro" id="redeal" type="button">重新切札</button></div>
+ <section class="result paper" id="result" aria-live="polite"></section>
+ <noscript><p class="paper" style="padding:16px;margin-top:20px">這一局需要 JavaScript。沒有也沒關係：到店裡跟葉老闆娘說「我要打一局」，她會在吧台上發八張給你。役與酒的對照表在〈十二月〉頁。</p></noscript>
+</div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="yk-name"><div class="box">
+ <div class="ml mlyaku" id="ml-yaku"><p class="ml-fb">役</p></div>
+ <h3 id="yk-name">月見で一杯</h3><p id="yk-set" style="text-align:center;margin-top:6px"></p>
+ <div class="row"><button class="btn" id="koi" type="button">こいこい（再拚）</button><button class="btn kuro" id="agari" type="button">あがり（就這杯）</button></div>
+</div></div>
+</main>
+<footer class="foot"><div class="wrap">
+ <div><b>花月立飲 HUE-GUE̍H</b><br>臺北市中山區林森北路 119 巷 8 號（條通內）<br>(02) 2567-1988</div>
+ <div><b>一局的規矩</b><br>只換酒、不換錢；一人一晚一張號碼。役價已含一合與酒肴。</div>
+ <div><b>頁面</b><br><a href="index.html">花月</a>・<a href="tsuki.html">十二月</a>・<a href="mise.html">場所</a></div>
+ <div>人物、店址、價格皆為虛構示意。<span class="warn">飲酒過量，有礙健康｜未滿十八歲禁止飲酒｜喝酒不開車</span></div>
+</div></footer>
+<script>
+(function(){var H=HG;H.nav('koikoi.html');H.soundBtn(H.$('#snd'));
+var field=H.$('#field'),te=H.$('#te'),msg=H.$('#msg'),S;
+var mlCut=H.ml(H.$('#ml-cut'),{id:'TXT-B-32',text:'札を切る',colors:{primary:'#F3EBD8',secondary:'#EDB22C',bg:'#D2352B'},duration:1.4,loop:false,once:true,seed:8,aspectRatio:'16:9'});
+var mlYaku=null;
+function rng(seed){var s=seed>>>0||1;return function(){s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+function seedFromURL(){var m=/[?&]seed=(\d+)/.exec(location.search);return m?+m[1]:(Date.now()%100000);}
+function deal(seed){var r=rng(seed*2654435761),d=[];for(var i=0;i<48;i++)d.push(i);for(i=47;i>0;i--){var j=Math.floor(r()*(i+1)),t=d[i];d[i]=d[j];d[j]=t;}
+ S={seed:seed,hand:d.slice(0,8),field:d.slice(8,16),deck:d.slice(16),got:[],turn:1,yaku:[],done:false,sel:null};render();}
+function el(id,o){var e=H.fuda(id,o);return e;}
+function render(){field.innerHTML='';for(var i=0;i<12;i++){var s=document.createElement('div');s.className='slot';s.dataset.slot=i;if(S.field[i]!=null)s.appendChild(fieldCard(S.field[i]));field.appendChild(s);}
+ te.innerHTML='';S.hand.forEach(function(id){te.appendChild(handCard(id));});
+ H.$$('.tori .rowk').forEach(function(r){H.$$('.fuda',r).forEach(function(f){f.remove();});});
+ S.got.forEach(function(id){addTori(id);});stack();upd();}
+function fieldCard(id){var b=H.fuda(id,{tag:'button'});b.type='button';b.addEventListener('click',function(){if(S.sel!=null)play(S.sel,id,.5);});return b;}
+function handCard(id){var b=document.createElement('button');b.type='button';b.dataset.id=id;b.setAttribute('aria-pressed','false');var c=H.list[id];b.setAttribute('aria-label','手札 '+c.label+'（'+c.m+'月）');b.appendChild(H.fuda(id,{silent:true}));
+ b.addEventListener('click',function(e){if(b._dragged){b._dragged=false;return;}select(id);});b.addEventListener('pointerdown',function(e){grab(e,b,id);});return b;}
+function select(id){S.sel=S.sel===id?null:id;H.$$('#te button').forEach(function(x){x.setAttribute('aria-pressed',+x.dataset.id===S.sel?'true':'false');});hint();
+ if(S.sel!=null)say('選了〈'+H.list[id].label+'〉。點場上發亮的同月札拍下去；沒有同月就點場上的空位丟出。');}
+function hint(){H.$$('#field .fuda').forEach(function(f){f.classList.toggle('can',S.sel!=null&&+f.dataset.m===H.list[S.sel].m);});}
+field.addEventListener('click',function(e){if(S.sel!=null&&e.target.classList.contains('slot'))play(S.sel,null,.4);});
+function stack(){var s=H.$('#stack');s.innerHTML='';for(var i=0;i<Math.min(3,S.deck.length);i++)s.appendChild(el(S.deck[i],{down:true,silent:true}));H.$('#n-yama').textContent=S.deck.length;H.$('#n-turn').textContent=Math.min(8,S.turn);}
+function say(t){msg.textContent=t;}
+function addTori(id){var c=H.list[id],r=H.$('.tori .rowk[data-k="'+c.kind+'"]');var f=el(id);r.appendChild(f);return f;}
+function upd(){var got=S.got.map(function(i){return H.list[i];}),ys=H.yakuOf(got);H.$('#yk').innerHTML=ys.length?'役：'+ys.map(function(y){return '<b>'+y.n+'</b>';}).join(''):'還沒有役。';return ys;}
+function fieldEl(id){return H.$('#field .fuda[data-id="'+id+'"]');}
+/* ── 拍札：一次拋擲的速度 v 同時決定 吸附、場札彈跳、拍札聲 ── */
+function grab(e,b,id){if(S.done||e.button>0)return;var r=b.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top,pts=[],moved=false,sx=e.clientX,sy=e.clientY;
+ try{b.setPointerCapture(e.pointerId);}catch(_){}
+ function mv(ev){var dx=ev.clientX-sx,dy=ev.clientY-sy;if(!moved&&Math.hypot(dx,dy)<6)return;if(!moved){moved=true;b._dragged=true;b.classList.add('flying');b.style.left=r.left+'px';b.style.top=r.top+'px';b.style.width=r.width+'px';field.classList.add('hot');S.sel=id;hint();}
+  pts.push([ev.clientX,ev.clientY,ev.timeStamp]);if(pts.length>6)pts.shift();var vx=vel(pts)[0];
+  b.style.transform='translate('+(ev.clientX-ox-r.left)+'px,'+(ev.clientY-oy-r.top)+'px) rotate('+Math.max(-14,Math.min(14,vx/120))+'deg)';}
+ function up(ev){b.removeEventListener('pointermove',mv);b.removeEventListener('pointerup',up);b.removeEventListener('pointercancel',up);if(!moved)return;field.classList.remove('hot');
+  var v=vel(pts),x=ev.clientX-ox-r.left,y=ev.clientY-oy-r.top;throwCard(b,id,x,y,v[0],v[1],r);}
+ b.addEventListener('pointermove',mv);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);}
+function vel(p){if(p.length<2)return [0,0];var a=p[0],z=p[p.length-1],dt=Math.max(8,z[2]-a[2])/1000;return [(z[0]-a[0])/dt,(z[1]-a[1])/dt];}
+function throwCard(b,id,x,y,vx,vy,r0){var m=H.list[id].m,snap=null,speed=Math.hypot(vx,vy),vImpact=Math.min(1,speed/2600),f=0;
+ function center(){return [r0.left+x+r0.width/2,r0.top+y+r0.height/2];}
+ function targets(){return H.$$('#field .fuda').filter(function(t){return +t.dataset.m===m;}).map(function(t){var q=t.getBoundingClientRect();return {el:t,x:q.left+q.width/2,y:q.top+q.height/2};});}
+ var T=targets();
+ function step(){f++;if(!snap){x+=vx/60;y+=vy/60;vx*=.86;vy*=.86;var c=center();for(var i=0;i<T.length;i++){if(Math.hypot(T[i].x-c[0],T[i].y-c[1])<70){snap=T[i];vImpact=Math.max(.2,Math.min(1,Math.hypot(vx,vy)/1800+vImpact*.5));break;}}}
+  else{var c2=center();x+=(snap.x-c2[0])*.38;y+=(snap.y-c2[1])*.38;}
+  b.style.transform='translate('+x+'px,'+y+'px) rotate('+Math.max(-14,Math.min(14,vx/120))*(snap?.3:1)+'deg)';
+  var c3=center(),slow=Math.hypot(vx,vy)<30;
+  if(snap&&Math.hypot(snap.x-c3[0],snap.y-c3[1])<1.2){finish(snap.el);return;}
+  if(!snap&&slow||f>150){finish(null);return;}requestAnimationFrame(step);}
+ function finish(tg){var fr=field.getBoundingClientRect(),c=center(),inField=c[0]>fr.left&&c[0]<fr.right&&c[1]>fr.top&&c[1]<fr.bottom;
+  b.classList.remove('flying');b.style.transform='';b.style.left=b.style.top=b.style.width='';
+  if(tg)play(id,+tg.dataset.id,vImpact);else if(inField)play(id,null,Math.min(.5,vImpact));else{S.sel=null;hint();say('沒拍到場上——札回到手裡了。');}}
+ if(H.RM){var c=center(),best=null;T.forEach(function(t){if(!best||Math.hypot(t.x-c[0],t.y-c[1])<Math.hypot(best.x-c[0],best.y-c[1]))best=t;});var c0=center();finish(best&&Math.hypot(best.x-c0[0],best.y-c0[1])<110?best.el:null);return;}
+ requestAnimationFrame(step);}
+/* 簽名：札打ち */
+function slapFx(card,target,v){H.slap(v);if(H.RM||!card.animate)return;
+ card.animate([{transform:'scale(1.08,.86)'},{transform:'scale(.98,1.03)'},{transform:'none'}],{duration:180+120*v,easing:'cubic-bezier(.2,1.6,.4,1)'});
+ if(target)target.animate([{transform:'none'},{transform:'translateY('+(-4-12*v)+'px) rotate('+(v*4-2)+'deg)'},{transform:'none'}],{duration:220+120*v,easing:'cubic-bezier(.3,1.5,.5,1)'});
+ H.$$('#field .fuda').forEach(function(o){if(o===target||o===card)return;var a=(Math.random()-.5)*(1+3*v);o.animate([{transform:'none'},{transform:'rotate('+a+'deg)'},{transform:'none'}],{duration:200,easing:'ease-out'});});}
+function emptySlot(){var n=field.children.length;for(var i=0;i<n;i++)if(S.field[i]==null)return i;var s=document.createElement('div');s.className='slot';s.dataset.slot=n;field.appendChild(s);S.field[n]=null;return n;}
+/* 取札移動：View Transitions（同文件）；不支援時 FLIP（WAAPI）；減少動態時直接移動 */
+function moveVT(fn){if(H.RM){fn();return Promise.resolve();}if(!document.startViewTransition){flip(fn);return new Promise(function(r){setTimeout(r,420);});}var vt=document.startViewTransition(fn);return vt.finished.catch(function(){});}
+function flip(fn){var before={};H.$$('.ba .fuda').forEach(function(n){if(n.style.viewTransitionName)before[n.style.viewTransitionName]=n.getBoundingClientRect();});fn();if(!Element.prototype.animate)return;
+ H.$$('.tori .fuda').forEach(function(n){var b=before[n.style.viewTransitionName];if(!b)return;var a=n.getBoundingClientRect();n.animate([{transform:'translate('+(b.left-a.left)+'px,'+(b.top-a.top)+'px) scale('+(b.width/a.width)+')',transformOrigin:'0 0'},{transform:'none',transformOrigin:'0 0'}],{duration:420,easing:'cubic-bezier(.3,1.1,.4,1)'});});}
+function play(hid,fid,v){if(S.done)return;S.sel=null;var hi=S.hand.indexOf(hid);if(hi<0)return;var hc=H.list[hid];
+ if(fid!=null&&H.list[fid].m!==hc.m)fid=null;
+ if(fid==null){var any=S.field.some(function(x){return x!=null&&H.list[x].m===hc.m;});if(any){var mt=S.field.filter(function(x){return x!=null&&H.list[x].m===hc.m;})[0];fid=mt;}}
+ S.hand.splice(hi,1);
+ if(fid!=null){var fi=S.field.indexOf(fid);var slot=field.children[fi],tEl=fieldEl(fid);
+  var hb=el(hid,{tag:'button'});hb.type='button';hb.style.position='absolute';hb.style.inset='0';hb.style.setProperty('--w','100%');hb.style.transform='translate(8%,10%) rotate(6deg)';slot.style.position='relative';slot.appendChild(hb);
+  H.$$('#te button').forEach(function(x){if(+x.dataset.id===hid)x.remove();});slapFx(hb,tEl,v);
+  say('パチン！〈'+hc.label+'〉拍在〈'+H.list[fid].label+'〉上，兩張歸你。');
+  setTimeout(function(){capture([hid,fid],[hb,tEl],fi);},H.RM?0:260);}
+ else{var ei=emptySlot();S.field[ei]=hid;H.$$('#te button').forEach(function(x){if(+x.dataset.id===hid)x.remove();});
+  var sl=field.children[ei];var nc=fieldCard(hid);if(sl){sl.appendChild(nc);}slapFx(nc,null,v*.6);say('〈'+hc.label+'〉場上沒有同月，留在場上。');setTimeout(flipDeck,H.RM?0:380);}}
+function capture(ids,els,fi){els.forEach(function(e,i){if(e)e.style.viewTransitionName='c'+ids[i];});
+ moveVT(function(){S.field[fi]=null;els.forEach(function(e){if(e)e.remove();});ids.forEach(function(id){S.got.push(id);var f=addTori(id);f.style.viewTransitionName='c'+id;});}).then(function(){H.$$('.tori .fuda').forEach(function(f){f.style.viewTransitionName='';});after(flipDeck);});}
+function flipDeck(){if(!S.deck.length){next();return;}var id=S.deck.shift(),c=H.list[id];stack();
+ var mt=null;S.field.forEach(function(x){if(mt==null&&x!=null&&H.list[x].m===c.m)mt=x;});
+ if(mt!=null){var fi=S.field.indexOf(mt),slot=field.children[fi],e=el(id,{tag:'button'});e.style.position='absolute';e.style.inset='0';e.style.setProperty('--w','100%');e.style.transform='translate(-8%,8%) rotate(-5deg)';slot.style.position='relative';slot.appendChild(e);
+  if(!H.RM&&e.animate)e.animate([{transform:'translate(-140%,-30%) rotateY(180deg)'},{transform:'translate(-8%,8%) rotate(-5deg)'}],{duration:320,easing:'cubic-bezier(.3,1.2,.5,1)'});
+  say('山札翻出〈'+c.label+'〉——同月，也歸你。');setTimeout(function(){slapFx(e,fieldEl(mt),.45);setTimeout(function(){capture2([id,mt],[e,fieldEl(mt)],fi);},240);},H.RM?0:330);}
+ else{var ei=emptySlot();S.field[ei]=id;var n2=fieldCard(id);field.children[ei].appendChild(n2);if(!H.RM&&n2.animate)n2.animate([{transform:'translate(-120%,-20%) rotateY(180deg)'},{transform:'none'}],{duration:320,easing:'cubic-bezier(.3,1.2,.5,1)'});
+  say('山札翻出〈'+c.label+'〉，場上沒有同月，留下。');setTimeout(next,H.RM?0:360);}}
+function capture2(ids,els,fi){els.forEach(function(e,i){if(e)e.style.viewTransitionName='c'+ids[i];});
+ moveVT(function(){S.field[fi]=null;els.forEach(function(e){if(e)e.remove();});ids.forEach(function(id){S.got.push(id);var f=addTori(id);f.style.viewTransitionName='c'+id;});}).then(function(){H.$$('.tori .fuda').forEach(function(f){f.style.viewTransitionName='';});after(next);});}
+function after(cb){var ys=upd(),nw=ys.filter(function(y){return S.yaku.indexOf(y.k)<0;});if(nw.length){nw.forEach(function(y){S.yaku.push(y.k);});ask(nw[0],cb);}else cb();}
+function next(){S.turn++;stack();if(S.turn>8||!S.hand.length){end();return;}hint();say('第 '+S.turn+' 手。還剩 '+S.hand.length+' 枚手札。');}
+function ask(y,cb){var m=H.$('#modal');H.$('#yk-name').textContent=y.n;H.$('#yk-set').textContent=y.set+'　NT$'+y.p;m.classList.add('on');
+ if(!mlYaku)mlYaku=H.ml(H.$('#ml-yaku'),{id:'TXT-A-06',text:'役',colors:{primary:'#D2352B',secondary:'#1B1714',bg:'#F3EBD8'},duration:.9,loop:false,seed:3,aspectRatio:'16:9'});else mlYaku.replay();
+ H.slap(.8);var k=H.$('#koi'),a=H.$('#agari');setTimeout(function(){k.focus();},50);
+ k.onclick=function(){m.classList.remove('on');say('こいこい！再拚下一個役——但八手到了就算數。');cb();};a.onclick=function(){m.classList.remove('on');end();};}
+function end(){S.done=true;var got=S.got.map(function(i){return H.list[i];}),ys=H.yakuOf(got),best=ys.sort(function(a,b){return b.p-a.p;})[0],R=H.$('#result');
+ var title,set,price;if(best){title=best.n;set=best.set;price=best.p;}else{var cnts={};got.forEach(function(c){cnts[c.m]=(cnts[c.m]||0)+1;});var mm=+Object.keys(cnts).sort(function(a,b){return cnts[b]-cnts[a];})[0]||H.taipeiMonth();var mn=H.MENU[mm-1];title=H.months[mm-1][2]+'の一杯';set='沒有役，就喝你拿最多的那個月：'+mn[0]+' 一合';price=+mn[1].replace(/\D/g,'');}
+ var code='HG-'+String(S.seed).padStart(5,'0').slice(-5)+'-'+got.length;
+ R.innerHTML='<div class="cards" id="rc"></div><div><span class="tag">今晚的那一杯</span><h2>'+title+'</h2><p>'+set+'</p><div class="price">NT$'+price+'</div><div class="code">'+code+'</div><p style="font-size:14px">憑號碼到吧台點，限當晚。想再看一次這副牌：<a href="koikoi.html?seed='+S.seed+'">koikoi.html?seed='+S.seed+'</a></p><p style="margin-top:12px"><button class="btn" type="button" id="again">もう一局</button></p></div>';
+ got.forEach(function(c){H.$('#rc').appendChild(el(c.id));});R.classList.add('on');H.$('#again').onclick=function(){R.classList.remove('on');deal(Date.now()%100000);mlCut&&mlCut.replay();};
+ say('一局結束：'+title+'。');R.scrollIntoView&&R.scrollIntoView({behavior:H.RM?'auto':'smooth',block:'center'});}
+H.$('#redeal').addEventListener('click',function(){H.$('#result').classList.remove('on');deal(Date.now()%100000);mlCut&&mlCut.replay();});
+deal(seedFromURL());H.dealIn();
+})();
+</script>
+</body>
+</html>

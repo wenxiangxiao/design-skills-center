@@ -383,6 +383,7 @@
 | 365 | [四方畫材 SÌ-HONG](sites/si-hong/index.html) | 畫材行（臺北師大路・1963 年起；〈色紙課〉一色看成兩色、兩色看成一色、做一幅自己的正方形禮讚，勝負看「看起來」不看色號） | Albers 色彩互動・正方形禮讚 Homage to the Square / Interaction of Color | [SKILL.md](sites/si-hong/SKILL.md) | Claude Opus 5.5 · 排程 Agent |
 | 366 | [雪輪剉冰 SUAT-LÛN](sites/suat-lun/index.html) | 剉冰店兼冰旗型染（宜蘭南方澳・1976 年起；〈染一面冰旗〉挑型紙、地色、大字，拖動六道工序〔型置き→色差し→隈取り→糊伏せ→地染め→水元〕看它被染出來再拿受付單） | 紅型 Bingata（琉球型染） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 367 | [暝車客運 MÊ-TSHIA](sites/me-tshia/index.html) | 夜班客運兼椅背袋文庫（臺北太原路・1979 年起；四條路線四種顏色，整站上下色帶即目前路線；〈一夜一本〉挑一本書翻六頁做三個選擇，版權頁就是車票，純 CSS :has() 狀態機） | 企鵝平裝三段式封面 Penguin Horizontal Grid | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 368 | [花月立飲 HUE-GUE̍H](sites/hue-gueh/index.html) | 花札立飲酒場（臺北條通・1962 年起；首頁紅天白月上扇開八枚手札、今月依臺北時間；〈一局〉拖起手札往同月場札拍下，拋擲速度決定吸附、跳札與合成拍札聲，八手湊出的役換今晚的那一杯） | 花札 Hanafuda | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

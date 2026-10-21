@@ -385,6 +385,7 @@
 | 367 | [暝車客運 MÊ-TSHIA](sites/me-tshia/index.html) | 夜班客運兼椅背袋文庫（臺北太原路・1979 年起；四條路線四種顏色，整站上下色帶即目前路線；〈一夜一本〉挑一本書翻六頁做三個選擇，版權頁就是車票，純 CSS :has() 狀態機） | 企鵝平裝三段式封面 Penguin Horizontal Grid | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 368 | [花月立飲 HUE-GUE̍H](sites/hue-gueh/index.html) | 花札立飲酒場（臺北條通・1962 年起；首頁紅天白月上扇開八枚手札、今月依臺北時間；〈一局〉拖起手札往同月場札拍下，拋擲速度決定吸附、跳札與合成拍札聲，八手湊出的役換今晚的那一杯） | 花札 Hanafuda | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 369 | [鐵門仔 THIH-MN̂G GATES](sites/thih-mng/index.html) | 鐵捲門行兼鐵門彩繪（高雄苓雅・1983 年起；首頁就是一扇拉下的鐵捲門與七層膨字 piece，換頁門拉下再拉上；〈噴一面〉照粉筆稿噴滿你的字，停太久積漆流成滴，最後切外框、HOWL 決定簽不簽） | 紐約地鐵噴漆 Subway Graffiti Piece | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 370 | [稻埕碾米廠 TIŪ-TIÂNN](sites/tiu-tiann/index.html) | 碾米廠兼稻埕夜（花蓮富里・1962 年起；首頁整面穀倉瓦爾利壁畫以 SMIL 有限動畫舂米、扛袋、轉圈；〈進圈〉鼓一響按一下，拍準就有人牽手進螺旋，拍歪就斷手，三十二拍後你的圈畫成一張畫） | 瓦爾利畫 Warli Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

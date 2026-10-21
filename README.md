@@ -387,6 +387,7 @@
 | 369 | [鐵門仔 THIH-MN̂G GATES](sites/thih-mng/index.html) | 鐵捲門行兼鐵門彩繪（高雄苓雅・1983 年起；首頁就是一扇拉下的鐵捲門與七層膨字 piece，換頁門拉下再拉上；〈噴一面〉照粉筆稿噴滿你的字，停太久積漆流成滴，最後切外框、HOWL 決定簽不簽） | 紐約地鐵噴漆 Subway Graffiti Piece | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 370 | [稻埕碾米廠 TIŪ-TIÂNN](sites/tiu-tiann/index.html) | 碾米廠兼稻埕夜（花蓮富里・1962 年起；首頁整面穀倉瓦爾利壁畫以 SMIL 有限動畫舂米、扛袋、轉圈；〈進圈〉鼓一響按一下，拍準就有人牽手進螺旋，拍歪就斷手，三十二拍後你的圈畫成一張畫） | 瓦爾利畫 Warli Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 371 | [福褓修改 BOK-BO](sites/bok-bo/index.html) | 修改衣服店兼조각보（永和中興街・1979 年起；苧麻布塊相乘疊在光上，縫份是兩層重疊的深線；游標或手機傾斜移動布後的燈；〈接一塊〉每天由日期切出七塊碎布，拼滿 35 公分窗框縫成상보） | 조각보 Jogakbo・보자기拼布包巾 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 372 | [點火煙火 TIÁM-HUÉ](sites/tiam-hue/index.html) | 煙火製造與施放（臺南鹽水・1961 年起；整站是一台 ZX Spectrum，首頁夜空依真機位址順序載入、邊框跳磁帶條紋；〈寫一場秀〉一鍵關鍵字寫 BASIC 煙火秀，長曝光裡同格撞色會閃、計入今晚的單，印出磁帶標籤與估價） | ZX Spectrum 載入畫面・屬性色格 Attribute Clash | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -398,6 +398,7 @@
 | 380 | [頂樓樂園 TÍNG-LÂU](sites/ting-lau/index.html) | 百貨頂樓遊樂場（高雄鹽埕七賢百貨 R 樓・1965 年起；首屏浮空七層樓等角像素切塊，屋頂十台遊具 8 fps 逐格運轉，小朋友照 BFS 最短路以 2px／1px 步伐出電梯排隊；電梯按鈕導覽、Bayer 抖動 16 格換頁；〈排一張屋頂〉包場建造器：連通約束閃紅、60 A 電力、即時估價、?r= 分享、開園試跑） | 等角像素・Pixorama（eBoy） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 381 | [雙胞胎補胎行 LOS CUATES](sites/los-cuates/index.html) | 補胎行 Vulcanizadora（墨西哥城伊斯塔帕拉帕・24 小時；整站是一面黃牆，招牌畫師依上漆順序把三層字畫出來——字面、影、外框、亮點、簽名；cqi 撐滿板寬、滾筒換頁、輪胎滾過 TOPE；〈¿Tiene arreglo?〉九十秒補胎分診，成績重畫上牆） | 墨西哥手繪招牌 Rótulos Mexicanos | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 382 | [野色帽仔間 IÁ-SIK](sites/ia-sik/index.html) | 帽店（臺中大甲・三角藺草帽與毛氈帽；首屏是一扇百葉窗打開的窗，窗外鐵砧山、海、藺草田、鎮瀾宮屋脊全由方頭寬筆塊畫成；每筆帶亮面色＋互補陰影色，光向由臺北時刻／游標決定；顏料管導覽、筆塊刷滿換頁；〈戴一頂野色〉上色＋評審＋染帽單） | 野獸派 Fauvisme・Les Fauves | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 383 | [泥仔湯 NÎ-Á THNG](sites/ni-a-thng/index.html) | 泥漿溫泉湯屋（臺南白河關子嶺・1987 年起；整站是一幅六條窄布縫成的泥染腰布，泥照筆序逐像素塗上背景——邊框帶、各場、店名——資訊全是泥繞過的白，游標是泥刷，塗滿後 sodani 漂白；subgrid 五條布六場價目、捲動縫回；〈留一條布〉紋樣寫訊息、收件者讀布解碼才見時段） | Bògòlanfini 泥染布 Bamana Mud Cloth | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

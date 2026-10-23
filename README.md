@@ -396,6 +396,7 @@
 | 378 | [繩仔冊 TSÎN-Á-TSHEH](sites/tsin-a-tsheh/index.html) | 歌仔冊印刷所兼廟口唸歌（雲林北港・1934 年起；首屏 56 節點 Verlet 麻繩吊八本色紙木刻冊、風一直吹，往下拉到挾子脫手即買、掛回空挾即放回，茄芷袋收條附 ?b= 可分享連結；全站木刻由建置期鑿痕生成器刻出、白一律是紙色；曬冊繩導覽、冊皮沿繩落下換頁；直排七字仔） | 巴西 Literatura de Cordel・木刻冊皮 Xilogravura | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 379 | [暗暝樹 ÀM-MÎ-TSHIŪ](sites/am-mi-tshiu/index.html) | 夜間生態導覽（南投鹿谷內湖村・2003 年起；首屏黑紙 Gond 生命之樹，枝成鳥、根成蛇，每塊剪影由 isPointInFill 沿紋向填入簽名紋；〈照一棵樹〉熄燈手電筒遊戲：白光見色但會嚇跑、紅光見輪廓停 0.8 秒記入夜單，找到的住戶紋從眼睛醒過來；棲枝小鳥導覽、熄燈虹膜換頁；住戶頁紋隨捲動落墨、樹幹長高） | Gond 繪畫・Jangarh Kalam（黑紙絹印） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 380 | [頂樓樂園 TÍNG-LÂU](sites/ting-lau/index.html) | 百貨頂樓遊樂場（高雄鹽埕七賢百貨 R 樓・1965 年起；首屏浮空七層樓等角像素切塊，屋頂十台遊具 8 fps 逐格運轉，小朋友照 BFS 最短路以 2px／1px 步伐出電梯排隊；電梯按鈕導覽、Bayer 抖動 16 格換頁；〈排一張屋頂〉包場建造器：連通約束閃紅、60 A 電力、即時估價、?r= 分享、開園試跑） | 等角像素・Pixorama（eBoy） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 381 | [雙胞胎補胎行 LOS CUATES](sites/los-cuates/index.html) | 補胎行 Vulcanizadora（墨西哥城伊斯塔帕拉帕・24 小時；整站是一面黃牆，招牌畫師依上漆順序把三層字畫出來——字面、影、外框、亮點、簽名；cqi 撐滿板寬、滾筒換頁、輪胎滾過 TOPE；〈¿Tiene arreglo?〉九十秒補胎分診，成績重畫上牆） | 墨西哥手繪招牌 Rótulos Mexicanos | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -397,6 +397,7 @@
 | 379 | [暗暝樹 ÀM-MÎ-TSHIŪ](sites/am-mi-tshiu/index.html) | 夜間生態導覽（南投鹿谷內湖村・2003 年起；首屏黑紙 Gond 生命之樹，枝成鳥、根成蛇，每塊剪影由 isPointInFill 沿紋向填入簽名紋；〈照一棵樹〉熄燈手電筒遊戲：白光見色但會嚇跑、紅光見輪廓停 0.8 秒記入夜單，找到的住戶紋從眼睛醒過來；棲枝小鳥導覽、熄燈虹膜換頁；住戶頁紋隨捲動落墨、樹幹長高） | Gond 繪畫・Jangarh Kalam（黑紙絹印） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 380 | [頂樓樂園 TÍNG-LÂU](sites/ting-lau/index.html) | 百貨頂樓遊樂場（高雄鹽埕七賢百貨 R 樓・1965 年起；首屏浮空七層樓等角像素切塊，屋頂十台遊具 8 fps 逐格運轉，小朋友照 BFS 最短路以 2px／1px 步伐出電梯排隊；電梯按鈕導覽、Bayer 抖動 16 格換頁；〈排一張屋頂〉包場建造器：連通約束閃紅、60 A 電力、即時估價、?r= 分享、開園試跑） | 等角像素・Pixorama（eBoy） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 381 | [雙胞胎補胎行 LOS CUATES](sites/los-cuates/index.html) | 補胎行 Vulcanizadora（墨西哥城伊斯塔帕拉帕・24 小時；整站是一面黃牆，招牌畫師依上漆順序把三層字畫出來——字面、影、外框、亮點、簽名；cqi 撐滿板寬、滾筒換頁、輪胎滾過 TOPE；〈¿Tiene arreglo?〉九十秒補胎分診，成績重畫上牆） | 墨西哥手繪招牌 Rótulos Mexicanos | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 382 | [野色帽仔間 IÁ-SIK](sites/ia-sik/index.html) | 帽店（臺中大甲・三角藺草帽與毛氈帽；首屏是一扇百葉窗打開的窗，窗外鐵砧山、海、藺草田、鎮瀾宮屋脊全由方頭寬筆塊畫成；每筆帶亮面色＋互補陰影色，光向由臺北時刻／游標決定；顏料管導覽、筆塊刷滿換頁；〈戴一頂野色〉上色＋評審＋染帽單） | 野獸派 Fauvisme・Les Fauves | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

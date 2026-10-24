@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>點單 ORDER｜同款早餐 KĀNG-KHUÁN</title><meta name="description" content="勾一張點單，它就排成一張你的同款早餐事件譜卡。"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2032%2032'%3E%3Crect%20width%3D'32'%20height%3D'32'%20fill%3D'%23111'%2F%3E%3Crect%20x%3D'2'%20y%3D'2'%20width%3D'13'%20height%3D'28'%20fill%3D'%23F3D54E'%2F%3E%3Crect%20x%3D'17'%20y%3D'2'%20width%3D'13'%20height%3D'13'%20fill%3D'%23F4A9BE'%2F%3E%3Crect%20x%3D'17'%20y%3D'17'%20width%3D'13'%20height%3D'13'%20fill%3D'%23EEE9DC'%2F%3E%3Ccircle%20cx%3D'23.5'%20cy%3D'23.5'%20r%3D'3.8'%20fill%3D'%23111'%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<script>/* motion-library 1.14.0 @30c55fe 子集：BG-B-04, TXT-A-27, TXT-B-14, TXT-B-30, BG-B-07（tools/ml-embed.js 產生，勿手改） */
+
+(function (root) {
+'use strict';
+const TAU = Math.PI * 2;
+const cl = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const fr = v => v - Math.floor(v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => cl((p - a) / (b - a));
+const E = {
+l: t => t,
+oc: t => 1 - (1 - t) ** 3,
+oq: t => 1 - (1 - t) ** 4,
+ic: t => t * t * t,
+io: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+ob: t => { const a = 1.70158, b = a + 1; return 1 + b * (t - 1) ** 3 + a * (t - 1) ** 2; },
+el: t => t <= 0 ? 0 : t >= 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - .75) * TAU / 3) + 1,
+bo: t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+};
+const stg = (p, i, n, sp = .5) => { const o = n > 1 ? i / (n - 1) * sp : 0; return seg(p, o, o + 1 - sp); };
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const R = (c, salt) => { const r = rng(c.seed * 9973 + salt * 7919 + 17); r(); r(); return r; };
+
+/* ---------- color ---------- */
+function hex(h) { h = (h || '#000').replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const toHex = a => '#' + a.map(v => Math.round(cl(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => lerp(v, B[i], t))); };
+const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${cl(a)})`; };
+const lum = h => { const [r, g, b] = hex(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+const inkFor = bg => lum(bg) > .55 ? '#121418' : '#F4F6F8';
+
+/* ---------- drawing helpers ---------- */
+function bgFill(c, col) { if (!col && c.transparent) { c.ctx.clearRect(0, 0, c.W, c.H); return; } c.ctx.fillStyle = col || c.bg; c.ctx.fillRect(0, 0, c.W, c.H); }  // transparent：輸出透明影片時，底色改為清空（元件自己指定的顏色照畫）
+function gridLines(c, s, ox, oy, col, lw = 1) { const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (let X = ((ox % s) + s) % s; X <= W; X += s) { x.moveTo(X, 0); x.lineTo(X, H); } for (let Y = ((oy % s) + s) % s; Y <= H; Y += s) { x.moveTo(0, Y); x.lineTo(W, Y); } x.stroke(); }
+function dot(x, X, Y, r) { if (r <= .25) return; x.beginPath(); x.arc(X, Y, r, 0, TAU); x.fill(); }
+function halftone(c, st, fn, col) { const { ctx: x, W, H } = c; x.fillStyle = col || c.pr; for (let Y = st / 2; Y < H + st; Y += st) for (let X = st / 2; X < W + st; X += st) dot(x, X, Y, cl(fn(X, Y)) * st * .56); }
+function star(x, X, Y, r1, r2, n, rot) { x.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n - Math.PI / 2, r = i % 2 ? r2 : r1; i ? x.lineTo(X + Math.cos(a) * r, Y + Math.sin(a) * r) : x.moveTo(X + Math.cos(a) * r, Y + Math.sin(a) * r); } x.closePath(); }
+function heart(x, X, Y, s) { x.beginPath(); x.moveTo(X, Y + s * .35); x.bezierCurveTo(X - s * 1.1, Y - s * .35, X - s * .45, Y - s * 1.05, X, Y - s * .45); x.bezierCurveTo(X + s * .45, Y - s * 1.05, X + s * 1.1, Y - s * .35, X, Y + s * .35); x.closePath(); }
+function rr(x, X, Y, w, h, r) { r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2)); x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function poly(x, pts, close = true) { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); if (close) x.closePath(); }
+function ngon(n, r, rot = 0) { const a = []; for (let i = 0; i < n; i++) { const t = rot + i / n * TAU - Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; }
+function shape(x, kind, X, Y, s, rot = 0) {
+x.save(); x.translate(X, Y); x.rotate(rot);
+if (kind === 0) { x.beginPath(); x.arc(0, 0, s, 0, TAU); }
+else if (kind === 1) { poly(x, ngon(3, s * 1.15)); }
+else if (kind === 2) { rr(x, -s * .9, -s * .9, s * 1.8, s * 1.8, s * .2); }
+else if (kind === 3) { star(x, 0, 0, s * 1.1, s * .5, 5, 0); }
+else { const w = s * .38; x.beginPath(); x.rect(-s, -w, s * 2, w * 2); x.rect(-w, -s, w * 2, s * 2); }
+x.restore();
+}
+function partial(x, pts, f) { const n = pts.length; const m = f * (n - 1); if (m <= 0) return; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); const k = Math.floor(m); for (let i = 1; i <= k; i++) x.lineTo(pts[i][0], pts[i][1]); if (k < n - 1) { const t = m - k; x.lineTo(lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)); } x.stroke(); }
+function floor3d(c, hz, col, n = 14, cols = 18, speed = 1) {
+const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = 1.5;
+for (let k = 0; k <= n; k++) { const f = (k + fr(c.p * speed)) / n; const y = hz + (H - hz) * f ** 2.6; x.globalAlpha = cl(f * 1.6); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+x.globalAlpha = 1; for (let i = -cols; i <= cols; i++) { x.beginPath(); x.moveTo(W / 2 + i * W * .02, hz); x.lineTo(W / 2 + i * W * .22, H); x.stroke(); }
+}
+
+/* ---------- offscreen ---------- */
+const POOL = [];
+function off(c, i = 0) {
+let o = POOL[i]; const w = Math.max(1, Math.round(c.W * c.dpr)), h = Math.max(1, Math.round(c.H * c.dpr));
+if (!o) { const cv = document.createElement('canvas'); o = POOL[i] = { cv, ctx: cv.getContext('2d') }; }
+if (o.cv.width !== w || o.cv.height !== h) { o.cv.width = w; o.cv.height = h; }
+const x = o.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, w, h); x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0); return o;
+}
+
+/* ---------- text layout ---------- */
+const FAM = { sans: '"Unbounded","Noto Sans TC",system-ui,sans-serif', tc: '"Noto Sans TC",system-ui,sans-serif', serif: '"Noto Serif TC","Songti TC",serif', mono: '"JetBrains Mono",ui-monospace,monospace' };
+const LC = new Map(); let MC = null;
+function lay(c, o = {}) {
+const text = o.text != null ? o.text : (c.P.text || ' ');
+const maxW = o.maxW || .82, maxH = o.maxH || .24, w = o.w || 800, fam = o.fam || 'sans', sc = o.sc || 1;
+const key = [text, c.W, c.H, maxW, maxH, w, fam, sc, o.wrap ? 1 : 0].join('|'); let L = LC.get(key); if (L) return L;
+if (!MC) MC = document.createElement('canvas').getContext('2d');
+const ch = Array.from(text.length ? text : ' '); MC.font = `${w} 100px ${FAM[fam]}`;
+const ws = ch.map(s => MC.measureText(s).width || 30); const tot = ws.reduce((a, b) => a + b, 0) || 1;
+let fs = Math.min(c.H * maxH, c.W * maxW * 100 / tot) * sc, k = fs / 100;
+/* wrap：單行字太小時（直式畫面或長字串）改成 2～4 行。英數字詞不拆開；標點不放行首、開括號不放行尾。
+目前只有明確傳入 wrap 的元件使用（T-0009 試作：TXT-A-02），其他元件維持單行。 */
+if (o.wrap && ch.length > 1 && fs < c.W * (c.H > c.W ? .14 : .085) * sc) {
+const toks = []; let cur = null; ch.forEach((s, i) => { const al = /[A-Za-z0-9'’\-]/.test(s); if (al && cur && cur.al) { cur.e = i + 1; cur.w += ws[i]; } else { cur = { s: i, e: i + 1, w: ws[i], al }; toks.push(cur); } });
+const NOSTART = /^[，。、：；！？）」』〉》,.;:!?)\]]/, NOEND = /[（「『〈《(\[]$/;
+const split = n => { const lines = [[]]; let lw = 0; const tgt = tot / n;
+toks.forEach((t, ti) => { const str = ch.slice(t.s, t.e).join(''); const line = lines[lines.length - 1];
+const canBreak = line.length && lines.length < n && lw + t.w / 2 > tgt && !NOSTART.test(str) && !NOEND.test(ch.slice(line[line.length - 1].s, line[line.length - 1].e).join(''));
+if (canBreak) { lines.push([t]); lw = t.w; } else { line.push(t); lw += t.w; } });
+return lines.map(l => { const st = l[0].s, en = l[l.length - 1].e; let a = st, b = en; while (a < b && !ch[a].trim()) a++; while (b > a && !ch[b - 1].trim()) b--; return { s: st, e: en, a, b, w: ws.slice(a, b).reduce((x, y) => x + y, 0) }; }); };
+let best = null; for (let n = 2; n <= 4; n++) { const ls = split(n), mw = Math.max(...ls.map(l => l.w)) || 1, f = Math.min(c.W * maxW * 100 / mw, c.H * .5 / (ls.length * 1.28)) * sc; if (!best || f > best.f * 1.04) best = { ls, f }; }
+if (best && best.f > fs * 1.15) { fs = best.f; k = fs / 100; const lh = fs * 1.28, n = best.ls.length, xs = new Array(ch.length).fill(-1e5), ys = new Array(ch.length).fill(0);
+best.ls.forEach((l, li) => { let X = c.W / 2 - l.w * k / 2; for (let i = l.a; i < l.b; i++) { xs[i] = X + ws[i] * k / 2; ys[i] = (li - (n - 1) / 2) * lh; X += ws[i] * k; } });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, ys, lines: n, width: Math.max(...best.ls.map(l => l.w)) * k, height: n * lh, left: c.W / 2 - Math.max(...best.ls.map(l => l.w)) * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L; }
+}
+let X = c.W / 2 - tot * k / 2; const xs = []; ws.forEach(v => { xs.push(X + v * k / 2); X += v * k; });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, width: tot * k, left: c.W / 2 - tot * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L;
+}
+function setFont(x, L) { x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle'; }
+function drawChars(c, fn, o = {}) {
+const L = lay(c, o), x = c.ctx, n = L.ch.length, Y = c.cy + (o.y || 0) * c.H; setFont(x, L); x.lineJoin = 'round';
+for (let i = 0; i < n; i++) {
+if (L.ys && L.xs[i] < -1e4) continue;  // 換行處被略過的空白
+const s = fn(i, n, L) || {}; if (s.a === 0 || s.skip) continue;
+x.save(); x.globalAlpha = cl(s.a == null ? 1 : s.a);
+const piv = s.piv || 0, pivx = s.pivx || 0;
+x.translate(L.xs[i] + (s.dx || 0) + pivx, Y + (L.ys ? L.ys[i] : 0) + (s.dy || 0) + piv); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc); x.translate(-pivx, -piv);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(s.ch || L.ch[i], 0, 0); }
+if (!s.noFill) { x.fillStyle = s.col || c.ink; x.fillText(s.ch || L.ch[i], 0, 0); }
+x.restore();
+}
+return L;
+}
+function word(c, s = {}, o = {}) {
+const L = lay(c, o), x = c.ctx; x.save(); setFont(x, L); x.lineJoin = 'round'; x.globalAlpha = cl(s.a == null ? 1 : s.a);
+x.translate(c.cx + (s.dx || 0), c.cy + (o.y || 0) * c.H + (s.dy || 0)); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(L.text, 0, 0); }
+if (!s.noFill) { x.fillStyle = s.fill || s.col || c.ink; x.fillText(L.text, 0, 0); }
+x.restore(); return L;
+}
+function maskText(c, mask, o = {}) {
+const O = off(c, 0), L = lay(c, o), x = O.ctx; setFont(x, L); x.fillStyle = o.col || c.ink; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; mask(m, L);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); return L;
+}
+const PC = new Map();
+function textPts(c, step, o = {}) {
+const L = lay(c, o); const key = L.font + L.text + c.W + 'x' + c.H + '|' + step + '|' + (o.y || 0); if (PC.has(key)) return PC.get(key);
+const cv = document.createElement('canvas'); cv.width = Math.ceil(c.W); cv.height = Math.ceil(c.H); const x = cv.getContext('2d');
+setFont(x, L); x.fillStyle = '#000'; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const d = x.getImageData(0, 0, cv.width, cv.height).data, pts = [];
+for (let Y = Math.floor(step / 2); Y < cv.height; Y += step) for (let X = Math.floor(step / 2); X < cv.width; X += step) if (d[(Y * cv.width + X) * 4 + 3] > 110) pts.push([X, Y]);
+PC.set(key, pts); if (PC.size > 40) PC.delete(PC.keys().next().value); return pts;
+}
+const GLYPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=?<>動態元件畫面切換';
+
+/* =================================================================
+BACKGROUNDS（BG-A、BG-B）— 以 p∈[0,1) 無縫循環
+================================================================= */
+const ecg = u => { u = fr(u); if (u < .4) return Math.sin(u / .4 * Math.PI) * .04; if (u < .45) return -.12 * (u - .4) / .05; if (u < .5) return -.12 + 1.12 * (u - .45) / .05; if (u < .55) return 1 - 1.35 * (u - .5) / .05; if (u < .6) return -.35 + .35 * (u - .55) / .05; if (u < .75) return Math.sin((u - .6) / .15 * Math.PI) * .18; return 0; };
+function zoomRings(c, fn, n = 22, base = .06, mul = 1.32) { for (let k = -6; k < n; k++) { const v = k + c.p * 2, r = c.u * base * mul ** v; if (r > Math.hypot(c.W, c.H)) break; fn(r, v, k); } }
+const BG = {
+'Halftone Sweep': c => { bgFill(c); const { W, H } = c; halftone(c, c.u / (16 * c.d), (X, Y) => { const u = (X + Y) / (W + H); return Math.pow(Math.cos((u - c.p) * TAU) * .5 + .5, 1.6) * c.k; }, c.pr); },
+'Halftone Checker': c => { bgFill(c); const cs = c.u / (2.5 * c.d), v = Math.sin(c.ph) * .5 + .5; halftone(c, c.u / (18 * c.d), (X, Y) => ((Math.floor(X / cs) + Math.floor(Y / cs)) % 2 ? v : 1 - v) * c.k, c.pr); },
+};
+
+/* =================================================================
+TEXT（TXT-A、TXT-B）— 單次動作 p∈[0,1]，結束停格清楚
+================================================================= */
+function wordsOf(t) { const w = t.trim().split(/\s+/).filter(Boolean); return w.length > 1 ? w : null; }
+function ghost(c, n, fn) { for (let k = n; k >= 0; k--) fn(k / n, k === 0 ? 1 : (1 - k / (n + 1)) * .35); }
+function digits(t, d = '280') { const m = (t || '').match(/\d+/); return m ? m[0] : d; }
+const TX = {
+'Typewriter': c => { bgFill(c); const { ctx: x } = c; const L = lay(c, { fam: 'mono', w: 600 }), n = L.ch.length, k = Math.floor(n * seg(c.p, 0, .8) + .001);
+drawChars(c, i => ({ a: i < k ? 1 : 0, dy: i === k - 1 ? -L.fs * .05 : 0 }), { fam: 'mono', w: 600 }); const cx2 = k < n ? L.xs[k] - L.ws[k] / 2 : L.left + L.width + 4;
+if (Math.floor(c.t * 2.4) % 2 === 0 || k < n) { x.fillStyle = c.pr; x.fillRect(cx2, c.cy - L.fs * .5, Math.max(3, L.fs * .07), L.fs); } },
+'Domino Letters': c => { bgFill(c); drawChars(c, (i, n, L) => { const pi = stg(c.p, i, n, .6); return { rot: -(1 - E.bo(pi)) * Math.PI / 2, piv: L.fs * .42, pivx: -L.ws[i] * .4, a: pi > 0 ? 1 : 0 }; }); },
+'Checker Words': c => { bgFill(c); const { ctx: x } = c; const n = 6, cs = c.u / n, cells = []; for (let j = -1; j < c.H / cs + 1; j++) for (let i = -1; i < c.W / cs + 1; i++) if ((i + j) % 2 === 0) cells.push([i * cs, j * cs, i + j]);
+const m = cells.length ? Math.max(...cells.map(v => v[2])) : 1, sz = v => cs * E.oc(seg(c.p, v / m * .5, v / m * .5 + .4)); x.fillStyle = c.pr; cells.forEach(([X, Y, v]) => { const s = sz(v); x.fillRect(X + (cs - s) / 2, Y + (cs - s) / 2, s, s); });
+word(c, { a: seg(c.p, .3, .6) }); maskText(c, mm => cells.forEach(([X, Y, v]) => { const s = sz(v); mm.fillRect(X + (cs - s) / 2, Y + (cs - s) / 2, s, s); }), { col: c.bg }); if (c.p < .3) { } },
+};
+
+/* =================================================================
+SHAPES（SHP）
+================================================================= */
+function softGrid(c) { bgFill(c); gridLines(c, c.u / 8, c.W / 2, c.H / 2, rgba(c.ink, .06)); }
+function floorLine(c, y) { c.ctx.strokeStyle = rgba(c.ink, .25); c.ctx.lineWidth = 2; c.ctx.beginPath(); c.ctx.moveTo(c.W * .1, y); c.ctx.lineTo(c.W * .9, y); c.ctx.stroke(); }
+function polyPts(kind, rad, n = 120) { const out = []; for (let i = 0; i < n; i++) { const t = i / n; if (kind === 'circle') { const a = t * TAU - Math.PI / 2; out.push([Math.cos(a) * rad, Math.sin(a) * rad]); continue; } const v = ngon(kind === 'tri' ? 3 : 4, rad * (kind === 'tri' ? 1.25 : 1.2), kind === 'sq' ? Math.PI / 4 : 0), m = v.length, f = t * m, k = Math.floor(f), u = f - k, A = v[k % m], B = v[(k + 1) % m]; out.push([lerp(A[0], B[0], u), lerp(A[1], B[1], u)]); } return out; }
+/* 圖形改善用的共用小工具（2026-10-22）：有景深的棚景（後牆＋地面＋接觸線）、立體球（漸層明暗＋高光＋輪廓光）、隨高度變化的接觸陰影 */
+function stage(c, fy) { const { ctx: x, W, H } = c; bgFill(c); let g = x.createLinearGradient(0, 0, 0, fy); g.addColorStop(0, mix(c.bg, '#000000', .25)); g.addColorStop(1, mix(c.bg, c.ink, .07)); x.fillStyle = g; x.fillRect(0, 0, W, fy);
+g = x.createLinearGradient(0, fy, 0, H); g.addColorStop(0, mix(c.bg, c.ink, .12)); g.addColorStop(1, mix(c.bg, '#000000', .35)); x.fillStyle = g; x.fillRect(0, fy, W, H - fy);
+x.fillStyle = rgba(c.ink, .16); x.fillRect(0, fy - .5, W, 1); g = x.createRadialGradient(c.cx, fy, 0, c.cx, fy, c.u * .9); g.addColorStop(0, rgba(c.pr, .1)); g.addColorStop(1, rgba(c.pr, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H); }
+function ball(c, X, Y, r, col, o = {}) { const x = c.ctx; x.save(); x.translate(X, Y); if (o.rot) x.rotate(o.rot); x.scale(o.sx || 1, o.sy || 1); if (o.rot) x.rotate(-o.rot);
+let g = x.createRadialGradient(-r * .35, -r * .4, r * .05, 0, 0, r); g.addColorStop(0, mix(col, '#FFFFFF', .55)); g.addColorStop(.45, col); g.addColorStop(1, mix(col, '#000000', .55)); x.fillStyle = g; dot(x, 0, 0, r);
+g = x.createRadialGradient(r * .35, r * .45, r * .5, r * .2, r * .3, r * 1.05); g.addColorStop(0, rgba(c.se, 0)); g.addColorStop(1, rgba(c.se, .35)); x.fillStyle = g; dot(x, 0, 0, r);
+x.fillStyle = 'rgba(255,255,255,.75)'; x.beginPath(); x.ellipse(-r * .38, -r * .42, r * .2, r * .12, -.6, 0, TAU); x.fill(); x.restore(); }
+function contact(c, X, fy, r, h) { const x = c.ctx, k = 1 / (1 + h / r * .5), g = x.createRadialGradient(X, fy, 0, X, fy, r * (1.1 + h / r * .25)); g.addColorStop(0, `rgba(0,0,0,${.55 * k})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+x.save(); x.translate(X, fy); x.scale(1, .22); x.translate(-X, -fy); x.fillStyle = g; x.fillRect(X - r * 3, fy - r * 3, r * 6, r * 6); x.restore(); }
+const SH = {
+};
+
+/* =================================================================
+TELOP（TEL）— 字幕與資訊版型，於示意畫面上
+================================================================= */
+const SC = new Map();
+function cached(key, W, H, dpr, draw) { let v = SC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr)); const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); draw(x); if (SC.size > 24) SC.delete(SC.keys().next().value); SC.set(key, cv); return cv; }
+function telScene(c) {
+const cv = cached(['tel', c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H } = c, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(c.bg, c.pr, .35)); g.addColorStop(.62, mix(c.bg, c.se, .12)); g.addColorStop(1, c.bg); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = R(c, 70); for (let i = 0; i < 14; i++) { const X = r() * W, Y = r() * H * .7, s = c.u * (.04 + r() * .12); const gg = x.createRadialGradient(X, Y, 0, X, Y, s); gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .35)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - s, Y - s, s * 2, s * 2); }
+x.fillStyle = mix(c.bg, '#000000', .25); x.beginPath(); x.moveTo(0, H * .72); for (let X = 0; X <= W; X += W / 12) x.lineTo(X, H * .7 - Math.sin(X / W * 7 + 1) * H * .04 - r() * H * .03); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fill();
+x.strokeStyle = rgba('#ffffff', .25); x.lineWidth = 1; const m = Math.min(W, H) * .05; x.strokeRect(m, m, W - m * 2, H - m * 2);
+});
+c.ctx.drawImage(cv, 0, 0, c.W, c.H); c.ctx.fillStyle = rgba('#ffffff', .65); c.ctx.font = `600 ${Math.max(9, c.u * .028)}px ${FAM.mono}`; c.ctx.textAlign = 'left'; c.ctx.textBaseline = 'top'; c.ctx.fillText('● REC  00:00:' + String(Math.floor(c.t % 60)).padStart(2, '0'), c.u * .07, c.u * .07);
+}
+const CAP = (o = {}) => ({ maxH: .085, maxW: .8, fam: 'tc', w: 900, y: .3, ...o });
+const TITLE = (o = {}) => ({ maxH: .15, maxW: .76, w: 900, ...o });
+function capBox(c, L, pad, col, y, rad = 6, wq = 1) { const x = c.ctx, w = (L.width + pad * 2) * wq, h = L.fs + pad * 1.3; x.fillStyle = col; rr(x, c.cx - w / 2, c.cy + y * c.H - h / 2, w, h, rad); x.fill(); return { w, h }; }
+function pendingBadge(c, id) { const x = c.ctx, fs = Math.max(10, c.u * .04); x.font = `600 ${fs}px ${FAM.mono}`; const t = '待核對 · ' + id, w = x.measureText(t).width + fs * 1.4; x.setLineDash([5, 4]); x.strokeStyle = c.se; x.lineWidth = 1.5; rr(x, c.W - w - fs, fs, w, fs * 1.9, 6); x.stroke(); x.setLineDash([]); x.fillStyle = c.se; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(t, c.W - w - fs + fs * .7, fs * 1.95); }
+const TL = {
+/* Q-008（Claude 分析影片 3；T-0004 ChatGPT 確認進度條）：大描邊編號＋標題＋截圖框的多則清單版型 */
+_pending: (c, item) => { telScene(c); const o = CAP({ w: 700 }), q = E.oc(seg(c.p, 0, .4)); word(c, { a: q, col: '#ffffff', stroke: lay(c, o).fs * .14, strokeCol: rgba('#000000', .7) }, o); pendingBadge(c, item.id); },
+};
+
+/* =================================================================
+TRANSITIONS（TRN）— A → B，無黑幀
+================================================================= */
+function scene(c, which) {
+return cached(['scn', which, c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H, u } = c, A = which === 'A', base = A ? c.bg : c.se, card = A ? c.pr : c.bg, fg = A ? inkFor(c.pr) : inkFor(c.bg);
+x.fillStyle = base; x.fillRect(0, 0, W, H); x.strokeStyle = rgba(inkFor(base), .08); x.lineWidth = 1; for (let X = 0; X < W; X += u / 10) { x.beginPath(); x.moveTo(X, 0); x.lineTo(X, H); x.stroke(); } for (let Y = 0; Y < H; Y += u / 10) { x.beginPath(); x.moveTo(0, Y); x.lineTo(W, Y); x.stroke(); }
+const cw = W * .62, ch = H * .56; x.fillStyle = card; rr(x, (W - cw) / 2, (H - ch) / 2, cw, ch, u * .04); x.fill(); x.fillStyle = fg; x.font = `800 ${Math.min(ch * .62, cw * .5)}px ${FAM.sans}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(which, W / 2, H / 2 + ch * .03);
+x.fillStyle = rgba(fg, .5); dot(x, (W - cw) / 2 + u * .05, (H - ch) / 2 + u * .05, u * .014); x.fillRect(W / 2 + cw / 2 - u * .07, H / 2 + ch / 2 - u * .07, u * .03, u * .03);
+x.font = `600 ${Math.max(9, u * .032)}px ${FAM.mono}`; x.textAlign = 'left'; x.textBaseline = 'top'; x.fillStyle = rgba(inkFor(base), .7); x.fillText('SCENE ' + which + (A ? '  ·  00:00:04' : '  ·  00:00:05'), u * .05, u * .05);
+});
+}
+function maskB(c, drawMask) { const O = off(c, 3), x = O.ctx; x.drawImage(scene(c, 'B'), 0, 0, c.W, c.H); const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; drawMask(m);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); }
+const drawA = c => c.ctx.drawImage(scene(c, 'A'), 0, 0, c.W, c.H), drawB = c => c.ctx.drawImage(scene(c, 'B'), 0, 0, c.W, c.H);
+function piece(c, img, clip, dx = 0, dy = 0, sc = 1, rot = 0, ox = c.cx, oy = c.cy) { const x = c.ctx; x.save(); x.translate(ox + dx, oy + dy); x.rotate(rot); x.scale(sc, sc); x.translate(-ox, -oy); x.beginPath(); clip(x); x.clip(); x.drawImage(img, 0, 0, c.W, c.H); x.restore(); }
+const TQ = c => E.io(seg(c.p, .12, .88));
+function wipe(fn) { return c => { const q = TQ(c); drawA(c); if (q > 0) maskB(c, x => fn(c, x, q)); }; }
+const TR = {
+};
+
+/* =================================================================
+ADDITIONS — 錄影規格以外新增的元件繪製函式
+每個函式加進對應類型的表：BG（背景）、TX（文字）、SH（圖形）、TL（字幕）、TR（轉場）。
+名稱必須和該表既有名稱不重複，並在下方 ADDED 登記。
+================================================================= */
+Object.assign(BG, {
+});
+Object.assign(TX, {
+/* 字在主角後面（Q-005／T-0002）：主角（多面寶石，真的 3D 頂點旋轉、背面剔除、依法線打光）先沿弧線飛入、減速收旋，
+接近終態後巨大標題才在它背後淡入（縮放 1.06→1、模糊 9px→0、逐字錯開），寶石投影落在字上、主色光暈染到字面；
+最後一道光掃過寶石切面並閃出星芒。層次：遠景光斑 → 標題（含投影）→ 寶石 → 近景散景。 */
+});
+Object.assign(SH, {
+/* 資料驅動折線圖（T-0008 KJ-A）：格線 → 描線（資料點在描線抵達時彈出）→ 面積 → 摘要數字；接著示範資料更新：從舊值過渡到新值，不從零重來。
+資料含一個負值（零基準線加重）與一個空值（線段中斷、虛線跨過並標「無資料」）。數字只用 ease-out 計數，不超過真值。 */
+});
+Object.assign(TL, {
+});
+Object.assign(TR, {
+});
+/* UI 微互動：單次動作（點擊預覽可重播）。INT 互動模式：持續循環，讀 c.ptr；沒有真實游標時 c.ptr 是自動示範路徑。
+c.ptr 欄位（函式須無狀態，只依 c.p、c.t、c.ptr 繪製）：
+x, y        目前游標位置（px）            sx, sy     平滑後位置，約 0.12 秒追上，選取／聚焦請用它避免跳動
+down        是否按住                      clicks     [{ x, y, age }] 3 秒內的點擊，age 為秒數
+hoverAge    游標進入畫布後的秒數（自動示範為 9）
+dragX/dragY 拖曳累積位移 px，放開後帶慣性滑行並衰減；輪播角度可用 dragX / W 換算
+vx, vy      速度 px/s                     dragging   是否拖曳中         real  是否為真實游標 */
+/* 卡片家族共用（Q-002、Q-004、Q-007、Q-009）：圓角卡片＋落影＋上緣反光＋內容裁切。
+paint(x, X, Y, w, h) 在卡片範圍內畫內容（已裁切）；lift 0～1 控制抬起時的影子深淺與位移。 */
+function drawCard(c, X, Y, w, h, o = {}) { const x = c.ctx, r = o.r != null ? o.r : c.u * .03, lift = o.lift || 0;
+x.save(); x.shadowColor = `rgba(0,0,0,${.32 + .28 * lift})`; x.shadowBlur = c.u * (.03 + .07 * lift); x.shadowOffsetY = c.u * (.012 + .03 * lift); x.fillStyle = o.fill || mix(c.bg, c.ink, .08); rr(x, X, Y, w, h, r); x.fill(); x.restore();
+x.save(); rr(x, X, Y, w, h, r); x.clip(); if (o.paint) o.paint(x, X, Y, w, h);
+const g = x.createLinearGradient(0, Y, 0, Y + h * .35); g.addColorStop(0, `rgba(255,255,255,${.1 + .08 * lift})`); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(X, Y, w, h * .35); x.restore();
+x.save(); rr(x, X + .5, Y + .5, w - 1, h - 1, r); x.strokeStyle = o.edge || `rgba(255,255,255,${.1 + .12 * lift})`; x.lineWidth = o.edgeW || 1; x.stroke(); x.restore(); }
+const UI = {}, IN = {};
+/* Word Focus Frame 用：依空格分詞；沒空格時用 Intl.Segmenter；仍少於 3 段時，把中文詞拆成單字（gap 是前面空白的倍數） */
+function focusWords(t) { t = String(t || '').trim() || 'MOTION'; const out = [], sg = (root.Intl && Intl.Segmenter) ? new Intl.Segmenter('zh-Hant', { granularity: 'word' }) : null;
+t.split(/\s+/).forEach((w, i) => { const parts = sg ? [...sg.segment(w)].filter(q => q.segment.trim() && q.isWordLike !== false).map(q => q.segment) : [w]; (parts.length ? parts : [w]).forEach((q, j) => out.push({ s: q, gap: i && !j ? 1 : 0 })); });
+if (out.length >= 3) return out.slice(0, 9); const o2 = []; out.forEach(o => { const cs = [...o.s]; if (/[㐀-鿿]/.test(o.s) && cs.length > 1) cs.forEach((ch, k) => o2.push({ s: ch, gap: k ? .25 : o.gap })); else o2.push(o); }); return o2.slice(0, 9); }
+
+Object.assign(BG, {
+/* 攝影棚柔光掃描（R-0052）：暗場中三排鍍鉻圓柱站在亮面地板上，一盞柔光箱繞著場景轉一圈（循環＝一圈，所以無縫）。
+每根圓柱的明暗不是畫上去的白線，而是「環境查表」：圓柱表面法線角 θ 的反射方向是 2θ，查環境函式 env(2θ − 柔光箱角度)，
+得到柔光箱的寬亮帶、地平線暖色燈條（輔色）、下方冷色（主色）；所以柔光箱轉到側面時亮帶滑到圓柱邊緣變成輪廓光，轉到背面時只剩邊緣細光。
+一根圓柱只用一條水平漸層（48 個色標）＋一條垂直明暗漸層，頂面是另一個橢圓（反射天花板）。
+層次：後牆（柔光箱照出的光池跟著移動）→ 遠排（小、低對比、模糊）→ 中排 → 近排（大、銳利）；地板有倒影（越遠越淡）與接觸陰影。 */
+});
+/* ---- 2026-10-24 補做批次共用工具 ----
+uiBack：UI 微互動的棚景背景（上方柔光、桌面漸層、暗角），讓按鈕有「放在某個表面上」的層次。
+uiCursor：示範用的游標箭頭（單次動作元件沒有真實游標，用它標出點擊位置與時機）。
+texQuad：把一張 2D 畫布以「真透視」貼到投影後的四邊形（切成 n×n 格、每格兩個三角形各自仿射），給 3D 傾斜卡片、透視牆用。
+proj3：把卡片平面上的點（u,v ∈ -0.5～0.5）依 rx/ry 旋轉後做透視投影。 */
+function uiBack(c, o = {}) { const { ctx: x, W, H } = c; bgFill(c); let g = x.createRadialGradient(c.cx, H * (o.ly || .3), 0, c.cx, H * .5, Math.hypot(W, H) * .65); g.addColorStop(0, mix(c.bg, c.ink, .09)); g.addColorStop(.55, c.bg); g.addColorStop(1, mix(c.bg, '#000000', .45)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+g = x.createRadialGradient(W * .82, H * .1, 0, W * .82, H * .1, c.u * .7); g.addColorStop(0, rgba(c.pr, .1)); g.addColorStop(1, rgba(c.pr, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+x.fillStyle = rgba(c.ink, .035); const s = c.u * .05; for (let Y = s / 2; Y < H; Y += s) for (let X = s / 2; X < W; X += s) dot(x, X, Y, .9); }
+function uiCursor(c, X, Y, press, a = 1) { if (a <= .01) return; const x = c.ctx, s = c.u * .045 * (1 - press * .12); x.save(); x.globalAlpha = a; x.translate(X, Y); x.rotate(-.12);
+x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = s * .35; x.shadowOffsetY = s * .12; x.fillStyle = '#FFFFFF'; x.strokeStyle = '#111317'; x.lineWidth = Math.max(1, s * .07); x.lineJoin = 'round';
+poly(x, [[0, 0], [0, s * 1.05], [s * .27, s * .8], [s * .45, s * 1.18], [s * .62, s * 1.1], [s * .44, s * .72], [s * .78, s * .7]]); x.fill(); x.shadowColor = 'transparent'; x.stroke(); x.restore(); }
+function proj3(cx, cy, w, h, rx, ry, f, lift = 0) { const cX = Math.cos(rx), sX = Math.sin(rx), cY = Math.cos(ry), sY = Math.sin(ry);
+return (u, v, dz = 0) => { let X = u * w, Y = v * h, Z = dz; let X2 = X * cY + Z * sY, Z2 = -X * sY + Z * cY; const Y2 = Y * cX - Z2 * sX, Z3 = Y * sX + Z2 * cX; const k = f / (f + Z3 - lift); return [cx + X2 * k, cy + Y2 * k, Z3]; }; }
+function texQuad(x, img, iw, ih, P, n = 8, alpha = 1) { // P(u,v) → [X,Y]，u,v ∈ 0～1；img 尺寸 iw×ih（像素，已含 dpr）
+const G = []; for (let j = 0; j <= n; j++) { const row = []; for (let i = 0; i <= n; i++) row.push(P(i / n, j / n)); G.push(row); }
+const tri = (s0, s1, s2, d0, d1, d2) => { const [x0, y0] = s0, [x1, y1] = s1, [x2, y2] = s2, den = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0); if (Math.abs(den) < 1e-9) return;
+const a = ((d1[0] - d0[0]) * (y2 - y0) - (d2[0] - d0[0]) * (y1 - y0)) / den, b = ((d1[1] - d0[1]) * (y2 - y0) - (d2[1] - d0[1]) * (y1 - y0)) / den, cc = ((d2[0] - d0[0]) * (x1 - x0) - (d1[0] - d0[0]) * (x2 - x0)) / den, d = ((d2[1] - d0[1]) * (x1 - x0) - (d1[1] - d0[1]) * (x2 - x0)) / den;
+const e = d0[0] - a * x0 - cc * y0, f2 = d0[1] - b * x0 - d * y0; x.save(); const mx = (d0[0] + d1[0] + d2[0]) / 3, my = (d0[1] + d1[1] + d2[1]) / 3, ex = q => [q[0] + (q[0] - mx) * .02 + Math.sign(q[0] - mx) * .4, q[1] + (q[1] - my) * .02 + Math.sign(q[1] - my) * .4];
+poly(x, [ex(d0), ex(d1), ex(d2)]); x.clip(); x.transform(a, b, cc, d, e, f2); x.drawImage(img, 0, 0); x.restore(); };
+x.save(); x.globalAlpha *= alpha; for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const s = (ii, jj) => [ii / n * iw, jj / n * ih];
+tri(s(i, j), s(i + 1, j), s(i, j + 1), G[j][i], G[j][i + 1], G[j + 1][i]); tri(s(i + 1, j), s(i + 1, j + 1), s(i, j + 1), G[j][i + 1], G[j + 1][i + 1], G[j + 1][i]); } x.restore(); }
+/* 離屏小畫布（給卡片內容、貼圖用；依 key 快取，最多保留 40 張） */
+const TC = new Map(); function texCanvas(key, w, h, draw) { let v = TC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(2, Math.round(w)); cv.height = Math.max(2, Math.round(h)); draw(cv.getContext('2d'), cv.width, cv.height); if (TC.size > 40) TC.delete(TC.keys().next().value); TC.set(key, cv); return cv; }
+const wordsOr = (c, def) => { const t0 = String(c.P.text || '').trim(); if (!t0 || t0 === DEFAULTS.text) return def.slice(); const ws = t0.split(/\s+/).filter(Boolean); return def.map((d, i) => ws[i] && [...ws[i]].length <= 10 ? ws[i] : d); };
+Object.assign(SH, {
+/* 透視參考牆（素材佇列 Q-010／T-0004 效果 1，依 ChatGPT 的時間拆解）：5 列×6 欄的網站縮圖組成一面傾斜的牆（上遠下近、真透視貼圖），
+由暗淡入、初始放大 1.08 倍，沿水平慢慢平移並縮回 1.00，最後減速停住；中央一張毛玻璃卡（背後的牆被模糊、提亮）於 0.23～0.39 淡入，
+大數字由 0.95 放到 1.00 並計數到目標值，下方小標題。不是只有整張平移縮放：縮圖之間有透視與景深霧化，中央卡的模糊是即時取樣後面的牆。 */
+});
+/* ---- 2026-10-24 Chris 交辦：Threads「UIアニメ48選」第 10～48 項（R-0057） ---- */
+
+/* ---- 48選 第 3 頁（17～23）卡片類共用小工具（前綴 bB 避免與其他批次撞名） ----
+bBIco：線條圖示（圖片、閃電、星、地球、播放、圖釘、勾）；bBPath：關鍵格路徑（每段 E.io，給自動示範游標）；
+bBOutline：把圓角矩形外框投影成多邊形（翻轉卡片的裁切、描邊、落影用）。 */
+function bBIco(x, k, X, Y, s, col, lw) { x.save(); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = lw || Math.max(1.2, s * .14); x.lineCap = 'round'; x.lineJoin = 'round';
+if (k === 'img') { rr(x, X - s, Y - s * .8, s * 2, s * 1.6, s * .3); x.stroke(); dot(x, X + s * .42, Y - s * .3, s * .17); poly(x, [[X - s * .75, Y + s * .55], [X - s * .2, Y - s * .02], [X + s * .2, Y + s * .38], [X + s * .45, Y + s * .15], [X + s * .78, Y + s * .55]], false); x.stroke(); }
+else if (k === 'bolt') { poly(x, [[.18, -1], [-.6, .12], [-.02, .12], [-.18, 1], [.6, -.12], [.02, -.12]].map(([a, b]) => [X + a * s, Y + b * s])); x.stroke(); }
+else if (k === 'star') { star(x, X, Y + s * .06, s * 1.05, s * .45, 5, 0); x.stroke(); }
+else if (k === 'globe') { x.beginPath(); x.arc(X, Y, s, 0, TAU); x.stroke(); x.beginPath(); x.ellipse(X, Y, s * .45, s, 0, 0, TAU); x.stroke(); x.beginPath(); x.moveTo(X - s, Y); x.lineTo(X + s, Y); x.stroke(); }
+else if (k === 'play') { poly(x, [[X - s * .5, Y - s * .8], [X + s * .8, Y], [X - s * .5, Y + s * .8]]); x.stroke(); }
+else if (k === 'pin') { poly(x, [[X - s * .42, Y - s * .9], [X + s * .42, Y - s * .9], [X + s * .3, Y - s * .1], [X + s * .7, Y + s * .25], [X - s * .7, Y + s * .25], [X - s * .3, Y - s * .1]]); x.stroke(); x.beginPath(); x.moveTo(X, Y + s * .25); x.lineTo(X, Y + s); x.stroke(); }
+else if (k === 'check') { poly(x, [[X - s * .7, Y], [X - s * .2, Y + s * .5], [X + s * .75, Y - s * .55]], false); x.stroke(); }
+x.restore(); }
+function bBPath(p, T, Ps) { for (let i = 0; i < T.length - 1; i++) if (p <= T[i + 1] || i === T.length - 2) { const t = E.io(seg(p, T[i], T[i + 1])); return [lerp(Ps[i][0], Ps[i + 1][0], t), lerp(Ps[i][1], Ps[i + 1][1], t)]; } return Ps[0]; }
+function bBOutline(P, ru, rv, dz = 0) { const pts = []; [[.5 - ru, -.5 + rv, -Math.PI / 2], [.5 - ru, .5 - rv, 0], [-.5 + ru, .5 - rv, Math.PI / 2], [-.5 + ru, -.5 + rv, Math.PI]].forEach(([u, v, a0]) => { for (let k = 0; k <= 6; k++) { const a = a0 + k / 6 * Math.PI / 2, q = P(u + Math.cos(a) * ru, v + Math.sin(a) * rv, dz); pts.push([q[0], q[1]]); } }); return pts; }
+const bBText = (c, x, text, X, Y, hpx, wpx, o = {}) => { const L = lay(c, { text, fam: o.fam || 'tc', w: o.w || 700, maxH: hpx / c.H, maxW: wpx / c.W }); x.font = L.font; x.textAlign = o.align || 'left'; x.textBaseline = 'middle'; x.fillStyle = o.col || c.ink; x.fillText(L.text, X, Y + L.fs * .04); return L; };
+
+/* ---- 表單／清單類 UI 共用小工具（48選 22、24、25、26、28、30）----
+fmT：用 lay() 量字後在指定位置畫一行字（左／中／右對齊），回傳版面資訊。
+fmField：凹入式輸入框（落影、內陰影、上緣反光、邊框；focus 0～1 時邊框轉主色並外暈）。
+fmIcon：線條小圖示（信封、購物車、換貨箭頭、鎖、勾、愛心、對話框）。
+fmRRPt：圓角矩形周長上的點（s 為 0～1 的周長比例，自左上直線段起順時針），給「光沿邊框跑」用。
+fmSpr：阻尼彈簧 0→1（過衝後衰減），給彈入、推開用。 */
+function fmT(c, text, X, Y, hpx, wpx, o = {}) { const L = lay(c, { text, fam: o.fam || 'tc', w: o.w || 700, maxH: Math.max(.005, hpx / c.H), maxW: Math.max(.005, wpx / c.W) }), x = c.ctx;
+x.font = L.font; x.textAlign = o.al || 'left'; x.textBaseline = 'middle'; x.fillStyle = o.col || c.ink; x.fillText(L.text, X, Y + L.fs * .04); return L; }
+const fmSpr = (q, k = 6, w = 11) => q <= 0 ? 0 : q >= 1 ? 1 : 1 - Math.exp(-k * q) * Math.cos(q * w);
+function fmField(c, X, Y, w, h, r, o = {}) { const x = c.ctx, f = o.focus || 0, ec = o.edgeCol || c.pr;
+if (f > .01) { x.save(); x.shadowColor = rgba(ec, .55 * f); x.shadowBlur = h * .45 * f; x.strokeStyle = rgba(ec, .5 * f); x.lineWidth = h * .05; rr(x, X, Y, w, h, r); x.stroke(); x.restore(); }
+x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = h * .25; x.shadowOffsetY = h * .06; x.fillStyle = mix(c.bg, '#000000', .18); rr(x, X, Y, w, h, r); x.fill(); x.restore();
+x.save(); rr(x, X, Y, w, h, r); x.clip(); let g = x.createLinearGradient(0, Y, 0, Y + h); g.addColorStop(0, 'rgba(0,0,0,.4)'); g.addColorStop(.3, 'rgba(0,0,0,0)'); g.addColorStop(1, rgba(c.ink, .04)); x.fillStyle = g; x.fillRect(X, Y, w, h);
+if (f > .01) { g = x.createLinearGradient(0, Y, 0, Y + h); g.addColorStop(0, rgba(ec, 0)); g.addColorStop(1, rgba(ec, .1 * f)); x.fillStyle = g; x.fillRect(X, Y, w, h); } x.restore();
+if (!o.noEdge) { x.strokeStyle = f > .01 ? mix(mix(c.bg, c.ink, .25), ec, f) : mix(c.bg, c.ink, .25); x.lineWidth = Math.max(1, h * (.025 + .015 * f)); rr(x, X, Y, w, h, r); x.stroke(); }
+x.strokeStyle = rgba('#FFFFFF', .06); x.lineWidth = 1; x.beginPath(); x.moveTo(X + r, Y + h + 1); x.lineTo(X + w - r, Y + h + 1); x.stroke(); }
+function fmIcon(x, k, X, Y, s, col, lw) { x.save(); x.translate(X, Y); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = lw || s * .14; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath();
+if (k === 'mail') { rr(x, -s * .5, -s * .36, s, s * .72, s * .1); x.stroke(); x.beginPath(); x.moveTo(-s * .44, -s * .28); x.lineTo(0, s * .06); x.lineTo(s * .44, -s * .28); }
+else if (k === 'cart') { x.moveTo(-s * .55, -s * .4); x.lineTo(-s * .36, -s * .4); x.lineTo(-s * .2, s * .18); x.lineTo(s * .42, s * .18); x.lineTo(s * .52, -s * .22); x.lineTo(-s * .3, -s * .22); x.stroke(); x.beginPath(); x.arc(-s * .12, s * .4, s * .07, 0, TAU); x.arc(s * .32, s * .4, s * .07, 0, TAU); x.fill(); x.beginPath(); }
+else if (k === 'swap') { x.moveTo(-s * .45, -s * .15); x.lineTo(s * .4, -s * .15); x.moveTo(s * .2, -s * .35); x.lineTo(s * .42, -s * .15); x.lineTo(s * .2, s * .05); x.moveTo(s * .45, s * .25); x.lineTo(-s * .4, s * .25); x.moveTo(-s * .2, s * .05); x.lineTo(-s * .42, s * .25); x.lineTo(-s * .2, s * .45); }
+else if (k === 'lock') { rr(x, -s * .38, -s * .08, s * .76, s * .56, s * .1); x.stroke(); x.beginPath(); x.arc(0, -s * .1, s * .24, Math.PI, 0); x.moveTo(-s * .24, -s * .1); x.lineTo(-s * .24, -s * .08); x.moveTo(s * .24, -s * .1); x.lineTo(s * .24, -s * .08); }
+else if (k === 'check') { x.moveTo(-s * .32, 0); x.lineTo(-s * .08, s * .24); x.lineTo(s * .34, -s * .24); }
+else if (k === 'heart') { heart(x, 0, s * .05, s * .5); x.stroke(); x.beginPath(); }
+else if (k === 'chat') { rr(x, -s * .44, -s * .36, s * .88, s * .6, s * .16); x.moveTo(-s * .2, s * .24); x.lineTo(-s * .28, s * .46); x.lineTo(s * 0, s * .24); x.stroke(); x.beginPath(); x.moveTo(-s * .2, -s * .08); x.lineTo(s * .2, -s * .08); }
+x.stroke(); x.restore(); }
+function fmRRPt(X, Y, w, h, r, s) { const a = Math.PI * r / 2, L = [w - 2 * r, a, h - 2 * r, a, w - 2 * r, a, h - 2 * r, a], T = L.reduce((p, q) => p + q, 0); let d = fr(s) * T;
+const arc = (cx, cy, a0, t) => [cx + Math.cos(a0 + t * Math.PI / 2) * r, cy + Math.sin(a0 + t * Math.PI / 2) * r];
+const f = [t => [X + r + t * (w - 2 * r), Y], t => arc(X + w - r, Y + r, -Math.PI / 2, t), t => [X + w, Y + r + t * (h - 2 * r)], t => arc(X + w - r, Y + h - r, 0, t), t => [X + w - r - t * (w - 2 * r), Y + h], t => arc(X + r, Y + h - r, Math.PI / 2, t), t => [X, Y + h - r - t * (h - 2 * r)], t => arc(X + r, Y + r, Math.PI, t)];
+for (let i = 0; i < 8; i++) { if (d <= L[i] || i === 7) return f[i](L[i] > 0 ? cl(d / L[i]) : 0); d -= L[i]; } }
+
+
+/* ---- 48選 第 5 頁（33～39）：進度、載入、骨架、計數 ---- */
+const e5ok = c => mix(mix(c.pr, c.se, .35), '#3FE39A', .55);   // 完成狀態的「成功綠」：和主題色混過，避免突兀
+function e5txt(x, L, X, Y, col, align = 'left', base = 'middle') { x.font = L.font; x.textAlign = align; x.textBaseline = base; x.fillStyle = col; x.fillText(L.text, X, Y); }
+function e5check(x, X, Y, s, f) { partial(x, [[X - s * .5, Y + s * .02], [X - s * .14, Y + s * .36], [X + s * .52, Y - s * .34]], f); }
+/* 改善 SHP-40 Check Draw（48選 36「成功チェック演出」）：圓環先描出 → 圓內主色填滿並彈一下（過衝回彈、整顆微微放大）→
+勾以反白筆畫描出 → 兩圈衝擊環外擴、紙花（會翻面的小長方形）與四芒星點噴出後受重力落下淡出 → 下方「完成了！」由下淡入；
+粒子在 p≈0.97 前全部消失，p=1 停在乾淨的完成徽章。 */
+Object.assign(SH, {
+});
+
+/* ---- 48選 第 6 頁（41～46、48）共用小工具 ----
+fzIco：線條圖示（首頁／搜尋／愛心／使用者／訊息／星／齒輪／勾／返回／箭頭），全部用路徑畫，不用字型或圖片。
+fzTxt：用 lay() 量字後在指定位置畫一行字（w、h 是可用寬高 px）；fzSk：骨架線（假文字）；fzSpr：彈簧緩動（過衝後衰減，q=1 時停在 1）。 */
+function fzIco(x, k, X, Y, s, col, lw) { x.save(); x.translate(X, Y); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = lw || s * .17; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath();
+if (k === 'home') { x.moveTo(-s * .9, -s * .02); x.lineTo(0, -s * .82); x.lineTo(s * .9, -s * .02); x.moveTo(-s * .62, -s * .28); x.lineTo(-s * .62, s * .78); x.lineTo(s * .62, s * .78); x.lineTo(s * .62, -s * .28); x.moveTo(-s * .2, s * .78); x.lineTo(-s * .2, s * .32); x.lineTo(s * .2, s * .32); x.lineTo(s * .2, s * .78); }
+else if (k === 'search') { x.arc(-s * .12, -s * .12, s * .56, 0, TAU); x.moveTo(s * .3, s * .3); x.lineTo(s * .8, s * .8); }
+else if (k === 'heart') heart(x, 0, s * .62, s * 1.1);
+else if (k === 'user') { x.arc(0, -s * .4, s * .36, 0, TAU); x.moveTo(-s * .74, s * .82); x.bezierCurveTo(-s * .74, s * .02, s * .74, s * .02, s * .74, s * .82); }
+else if (k === 'msg') { rr(x, -s * .82, -s * .68, s * 1.64, s * 1.18, s * .32); x.moveTo(-s * .38, s * .5); x.lineTo(-s * .52, s * .88); x.lineTo(s * .06, s * .5); }
+else if (k === 'star') star(x, 0, s * .05, s * .9, s * .4, 5, 0);
+else if (k === 'gear') { x.moveTo(s * .34, 0); x.arc(0, 0, s * .34, 0, TAU); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; x.moveTo(Math.cos(a) * s * .6, Math.sin(a) * s * .6); x.lineTo(Math.cos(a) * s * .88, Math.sin(a) * s * .88); } }
+else if (k === 'check') { x.moveTo(-s * .52, 0); x.lineTo(-s * .14, s * .4); x.lineTo(s * .56, -s * .4); }
+else if (k === 'back') { x.moveTo(s * .7, 0); x.lineTo(-s * .65, 0); x.moveTo(-s * .15, -s * .5); x.lineTo(-s * .65, 0); x.lineTo(-s * .15, s * .5); }
+else if (k === 'chev') { x.moveTo(-s * .22, -s * .5); x.lineTo(s * .28, 0); x.lineTo(-s * .22, s * .5); }
+x.stroke(); x.restore(); }
+function fzTxt(c, t, X, Y, w, h, o = {}) { const L = lay(c, { text: t, fam: o.fam || 'tc', w: o.w || 700, maxH: Math.max(1, h) / c.H, maxW: Math.max(1, w) / c.W }), x = c.ctx; x.font = L.font; x.textAlign = o.al || 'center'; x.textBaseline = 'middle'; x.fillStyle = o.col || c.ink; x.fillText(t, X, Y + L.fs * .04); return L; }
+function fzSk(x, X, Y, w, h, col) { x.fillStyle = col; rr(x, X, Y - h / 2, Math.max(h, w), h, h / 2); x.fill(); }
+const fzSpr = q => q <= 0 ? 0 : q >= 1 ? 1 : 1 - Math.exp(-q * 6.5) * Math.cos(q * 12);
+const fzFmt = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+/* D3 立體元件：實際繪製在 src/vfx/kit3d.mjs（three.js，載入後設定 root.MotionLib3D）；這裡只負責轉接與載入前的佔位畫面 */
+function d3Render(c, it) {
+const K = root.MotionLib3D;
+if (K && K.ready && K.draw(c, it.name)) return;
+const { ctx: x, W, H } = c, g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, mix(c.bg, c.pr, .18)); g.addColorStop(1, mix(c.bg, '#000000', .3)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = Math.min(W, H) * .12, a = c.t * 2; x.strokeStyle = rgba(c.pr, .8); x.lineWidth = Math.max(2, r * .12); x.lineCap = 'round'; x.beginPath(); x.arc(W / 2, H / 2 - r * .3, r, a, a + Math.PI * (K && (K.unsupported || (K.errors && K.errors[it.name])) ? 2 : 1.3)); x.stroke();
+x.fillStyle = rgba(c.ink, .75); x.font = `600 ${Math.max(10, Math.min(W, H) * .06)}px ${FAM.tc}`; x.textAlign = 'center'; x.textBaseline = 'middle'; const err = K && K.errors && K.errors[it.name]; x.fillText(K && K.unsupported ? '此裝置不支援 3D 顯示' : err ? '3D 元件發生錯誤' : '3D 載入中…', W / 2, H / 2 + r * 1.2);
+if (err) { x.font = `500 ${Math.max(9, Math.min(W, H) * .038)}px ${FAM.tc}`; x.fillStyle = rgba(c.ink, .5); x.fillText(err.slice(0, 70), W / 2, H / 2 + r * 2); }
+}
+
+
+
+/* =================================================================
+DATA — 280 項
+================================================================= */
+const HINT = { grid: '方格格線、矩陣依序位移或變形', line: '以線段描邊、延伸、波動或掃描為主', rot: '圍繞中心點持續或一次旋轉', dot: '以點陣、圓點群的分布與時差運動為主', pop: '利用彈跳式放大與回彈形成出現效果', zoom: '透過縮放、景深或縮放模糊創造動勢', wave: '以相位差的波浪節奏連續運動', half: '網點印刷感點陣的疏密、大小與移動變化', panel: '使用數個面板依序推移或展開', seq: '以逐字分配延遲的方式進行動態', slide: '平滑滑入、滑出、推動或移位', flash: '極短亮度閃爍與恢復，避免頻閃過強', mask: '使用字元與單詞的錯位、位移或遮罩動畫', circle: '圓形的縮放、環繞、切割或構圖變換', orbit: '元素以圓或橢圓軌道公轉', flip: '沿 X 或 Y 軸進行 3D 翻轉', glitch: '錯位色差與短促的數位故障感', stripe: '規律條紋依不同時差錯位移動', marker: '使用手繪螢光筆掃過文字', split: '畫面分割成多個區塊再重新拼接', blur: '使用模糊與清晰的快速轉換', bounce: '自由落體或彈簧物理感的跳動', pulse: '規律放大縮小並回復原始狀態', shape: '運用基本幾何形狀的縮放、位移、變形或組合', ring: '以同心圓擴張、收縮或環繞', draw: 'SVG 路徑從 0% 逐漸描繪到 100%', stroke: '以字體外框/圖形描邊的生成與變化為主', sub: '維持字幕清楚可辨，使用輕量淡入淡出', cap: '用字幕框、文字或顏色的變化提升可讀性', wipe: '遮罩逐步揭示下一畫面' };
+const GROUPS = [
+{ key: 'BG-A', name: '背景動態・幾何網格', kind: 'bg', role: '畫面背景填滿容器並可無縫循環，不顯示文字；根據效果名稱構造幾何、網格、線條或粒子運動。', src: 'Grid Fill|grid;Heartbeat Line|line;Tile Rotate|rot;Vertical Lines|line;Dot Connect|dot;Dizzy Stars|name;Random Pop Dots|pop;Grid Cursor|grid;Polar Grid|grid;Dot Matrix|dot;Parallel Curves|name;Broken Grid|grid;Scanning Lines|line;Halftone Blob|half;Triangle Grid|grid;Zap Marks|name;Flow Lines|line;Grid Magnet|grid;Bubble Dots|dot;Diagonal Lines|line;Graph Paper|name;Dot Wave Floor|wave;Comic Sky|name;Barcode|name;Dot Zoom|zoom;Moving Grid|grid;Sound Wave|wave;Heart Pop|pop;Topo Lines|line;Column Shift|name;Dot Rain|dot;Shock Lines|line;Retro Sunrise|name;Halftone Boom|half;Speed Panels|panel;Radar Sweep|name;Dot Swarm|dot;Zigzag Energy|name;Halftone Tunnel|half;Tilt Grid|grid' },
+{ key: 'TXT-A', name: '文字動態・基礎', kind: 'text', role: '以可編輯文字作為動畫主體，保留字距、易讀性與 UTF-8 繁中文字支援。', src: 'Word Burst|name;Letter Sequence|seq;Stamp In|name;Punch Zoom|zoom;Character Jitter|name;Stretch Pop|pop;Zoom Blur|zoom;Slide Text|slide;Giant Scroll|name;Follow Path|name;Repeat Lines|line;Impact Flash|flash;Ribbon|name;Torn Text|mask;Shatter Letters|seq;Tape Crossing|name;Text Tunnel|mask;Text Fall|mask;Gate|name;Arrow|name;Link Circle|circle;Orbit|orbit;Cube|name;Extrude|name;Paragraph|name;Flip|flip;Typewriter|name;Slot|name;Counter|name;Reveal Outline|line;LED|name;Up Scroll|name;Slice Text|mask;Glitch|glitch;Stripe Mask|stripe;Long Shadow|name;Liquid Text|mask;Marker|marker;Split Turn|split;Blur Scatter|blur' },
+{ key: 'TXT-B', name: '文字動態・特效', kind: 'text', role: '以可編輯文字作為動畫主體，著重具辨識度的特殊動態與結束時的清晰停格。', src: 'Lightning Strike|name;Laser Cut|name;Coin Flip|flip;Explode Out|name;Disintegrate|name;Heartbeat Zoom|zoom;Text Kaleido|mask;Number Slam|name;Wave Letters|wave;Stop Motion|name;Letter Rain|seq;Magnifier Lens|name;Scramble Decode|name;Domino Letters|seq;Gradient Flow|name;Circle Text|mask;Water Reflection|name;Letter Bounce|bounce;Text Flag|mask;Gravity Flip|flip;Magnet Pull|name;Word Pulse Grid|grid;Weight Grow|name;Text Fan|mask;Karaoke Ball|name;Swing Letters|seq;Pixel Dissolve|name;Rotating Words|name;Blur Trail|blur;Checker Words|name;Roller Path|name;Shuffle Letters|seq;Text Spiral|mask;Jitter Settle|name;Elastic Wave Stretch|wave;Ink Bleed|name;Letter Assemble|seq;Text Mosaic|mask;Crumble Down|name;Float Drift|name' },
+{ key: 'SHP', name: '圖形動畫', kind: 'shape', role: '使用 SVG 向量圖元展現動態，精準控制形變、時間曲線與物件數量。', src: 'Scale Pulse|pulse;Rotate Spin|rot;Bounce Drop|bounce;Slide Loop|slide;Squash & Stretch|name;Elastic Pop|pop;Wobble|name;Pendulum Swing|name;Shape Morph|shape;Pattern Morph|name;Circle to Square|circle;Split & Merge|split;Fold Unfold|name;Flip Tiles|flip;Ring Expand|ring;Triangle Twist|name;Shape Explosion|shape;Shape Rain|shape;Bubble Pop|pop;Confetti Burst|name;Ripple Squares|name;Radial Fan|name;Spiral Dots|dot;Particle Orbit|orbit;Shape Parade|shape;Shape Conveyor|shape;Shape Stack|shape;Bouncing Shapes|shape;Wave Dots|wave;Grid Cascade|grid;Domino Fall|name;Stairs Rise|name;Squiggle Draw|draw;Circle Draw|circle;Stroke Trace|stroke;Dash March|name;Path Follow|name;Spirograph|name;Arc Loader|name;Check Draw|draw' },
+{ key: 'BG-B', name: '背景動態・抽象', kind: 'bg', role: '抽象幾何視覺背景，提供無縫循環及降動態版本，避免文字內容重疊時視覺干擾。', src: 'Halftone Expand|half;Halftone Wave|wave;Comic Dots|dot;Halftone Sweep|half;Spiral Dots|dot;Halftone Rings|half;Halftone Checker|half;Halftone Sun|half;Perspective Grid|grid;Grid Zoom|grid;Grid Wave|grid;Rotating Grid|grid;Isometric Grid|grid;Hex Grid|grid;Truchet Tiles|name;Weave Grid|grid;Speed Lines|line;Horizontal Lines|line;Line Burst|line;Wave Lines|wave;Ripple Rings|ring;Stripe Twist|stripe;Line Tunnel|line;Crosshatch|name;Circle Pop|pop;Floating Shapes|shape;Shape Tunnel|shape;Orbit Shapes|shape;Kaleidoscope|name;Confetti Fall|name;Blob Shapes|shape;Pinwheels|name;Minimal Blocks|name;Minimal Circle|circle;Bauhaus Shapes|shape;Minimal Arcs|name;Minimal Stripes|stripe;Minimal Square|name;Minimal Wave|wave;Nested Squares|name' },
+{ key: 'TEL', name: '字幕與資訊版型', kind: 'tel', role: '透明背景的影片字幕/資訊元件，確保安全邊界、對比、在 9:16 與 16:9 均清楚。', src: 'Outline Pop|pop;Double Stroke|stroke;Gradient Impact|name;Tilted Sticker|name;Shake Emphasis|name;Burst Bubble|name;Color Block Telop|name;Pop Number|pop;Lower Third|name;Tape Label|name;Ribbon Banner|name;Highlight Marker|marker;Side Tab|name;Stripe Caution|stripe;Speech Bubble|name;Thought Cloud|name;Clean Subtitle|sub;Black Box Caption|cap;Yellow Subtitle|sub;Karaoke Fill|name;Typewriter Caption|cap;Word Pop Caption|pop;Two-Tone Caption|cap;Gradient Bar Caption|cap;待核對字幕效果 25|name;待核對字幕效果 26|name;待核對字幕效果 27|name;待核對字幕效果 28|name;待核對字幕效果 29|name;待核對字幕效果 30|name;待核對字幕效果 31|name;待核對字幕效果 32|name;Mincho Title|name;Vertical Mincho|name;Hanko Seal|name;Fade Elegance|name;Underline Reveal|line;Corner Frame|name;Chapter Card|name;End Credit|name' },
+{ key: 'UI', name: 'UI 微互動', kind: 'ui', role: '介面元件的細節回饋動畫：按鈕、開關、狀態變化與數字更新。動作短、回饋明確，結束停在新狀態。點擊預覽可重播。', src: '' },
+{ key: 'INT', name: '互動模式', kind: 'int', role: '跟隨游標、點擊或拖曳即時反應的互動動畫。沒有操作時以自動示範路徑播放，可無縫循環。', src: '' },
+{ key: 'D3', name: '立體元件', kind: 'd3', role: '2D 與 3D 結合的立體元件：文字、介面、圖樣先在 2D 畫好，再當成 3D 物件的貼圖、凹凸或粒子來源，放進有光影、景深、折射的空間。即時 3D 渲染，可無縫循環，部分元件跟隨游標。', src: '' },
+{ key: 'TRN', name: '轉場與分割', kind: 'trn', role: '以 A、B 兩個影片或圖片圖層示範畫面切換，實現一個時間確定、無黑幀的轉場。', src: 'Color Wipe|wipe;Diagonal Wipe|wipe;Multi Stripe Wipe|wipe;Zigzag Wipe|wipe;Slice Wipe|wipe;Bars Wipe|wipe;Brush Wipe|wipe;Curtain Slide|slide;Circle Wipe|wipe;Block Wipe|wipe;Shutter Wipe|wipe;Clock Wipe|wipe;Diamond Wipe|wipe;Star Wipe|wipe;Pinwheel Wipe|wipe;Corner Wipe|wipe;Liquid Wipe|wipe;Drip Wipe|wipe;Ripple Wipe|wipe;Text Wipe|wipe;Impact Flash|flash;Wave Split|wave;Zigzag Split|split;Circle Split|circle;Horizontal Split|split;Vertical Split|split;Triple Split|split;Four Panels|panel;Sliding Panels|panel;Diagonal Panels|panel;Quad Open|name;Checker Panels|panel;Diagonal Split|split;Mosaic Flash|flash;Frame Stack|name;Bar Panels|panel;Band Split|split;Grid Flip|grid;Panel Zoom Out|zoom;Strip Shuffle|name' }
+];
+const MAPS = { bg: BG, text: TX, shape: SH, tel: TL, trn: TR, ui: UI, int: IN, d3: {} };
+const LIST = [], BYID = {};
+GROUPS.forEach(g => { g.items = (g.src ? g.src.split(';') : []).map((s, i) => { const [name, h] = s.split('|'), id = `${g.key}-${String(i + 1).padStart(2, '0')}`, pending = name.startsWith('待核對');
+const hint = h === 'name' ? `依「${name}」名稱和錄影示意演繹具有辨識度的動畫；先建立主視覺，再以移動、旋轉、縮放、透明度或變形呈現此效果` : HINT[h];
+const it = { id, name, group: g.key, groupName: g.name, kind: g.kind, hintKey: h, hint, pending, source: 'spec', added: '2026-10-17', revised: null }; LIST.push(it); BYID[id] = it; return it; }); delete g.src; });
+
+/* 新增元件登記：依加入順序附加在 group 尾端，編號接續（例如 BG-A-41）。
+{ group: 'BG-A', name: 'Name In English', hint: '一句中文動作說明', added: 'YYYY-MM-DD', refs: ['R-0001'] }
+refs 對應 src/data/references.json 的 id（靈感來源，可省略）。 */
+const ADDED = [
+{ group: 'UI', name: 'Like Burst', hint: '按下愛心按鈕：先壓縮回饋，再彈性填色，外圈擴散與八點粒子迸出，計數由 128 上滑成 129', added: '2026-10-19' },
+{ group: 'UI', name: 'Toggle Switch', hint: '開關由關到開：圓鈕帶擠壓滑過軌道，軌道顏色漸變為主色，鈕上描出勾號，標籤由淡轉清楚', added: '2026-10-19' },
+{ group: 'INT', name: 'Cursor Spotlight', hint: '點陣隨游標局部放大發亮，按下時加強；點擊從點擊處擴散一圈亮環', added: '2026-10-19' },
+{ group: 'INT', name: 'Magnetic Field', hint: '短線像鐵粉一樣指向游標，越近越長越亮；按住時轉為環繞方向，點擊送出一圈震波', added: '2026-10-19' },
+{ group: 'TRN', name: 'Type Band Sweep', hint: '橫向色帶交錯從左右滑入，帶內重複文字以更快速度反向捲動形成視差；色帶接成整面後換到 B，再沿同方向依序滑出', added: '2026-10-18', refs: ['R-0001', 'R-0002'] },
+{ group: 'INT', name: 'Proximity Weight', hint: '游標靠近的字母局部加粗、放大並轉為主色，像可變字重隨距離起伏；按住加強，點擊送出一道沿文字傳遞的字重波', added: '2026-10-18', refs: ['R-0003'] },
+{ group: 'UI', name: 'Copy Confirm', hint: '按下複製鈕：指令文字先被選取高亮，按鈕壓縮回彈，圖示翻面由複製變成描出的勾號，上方彈出「已複製」提示後淡出', added: '2026-10-18' },
+{ group: 'D3', name: 'Glass Orb Lens', hint: '2D 大字在後、真實折射的玻璃球在前：球滑過時把字放大、扭曲，跟隨游標移動', added: '2026-10-19' },
+{ group: 'D3', name: 'Floating Card Stack', hint: '毛玻璃實體卡片：圓角倒角的玻璃板會真實透射、模糊折射後方的彩色光球，2D 數據介面印在玻璃表面；四張輪流沿弧線抽到最前面，地面有真實陰影，游標改變視角', added: '2026-10-19', refs: ['R-0006', 'R-0007'] },
+{ group: 'D3', name: 'Beveled Extrude Type', hint: '2D 字形描成輪廓後擠出成真的倒角立體字（亮面烤漆、深色側面、倒角反光），字一個接一個跳起前翻、落地壓扁回彈，地面有柔和陰影', added: '2026-10-19', refs: ['R-0006', 'R-0007'] },
+{ group: 'D3', name: 'Embossed Coin Flip', hint: '2D 文字轉成凹凸貼圖壓進金屬幣面；硬幣翻轉、落桌回彈，光線掃過浮雕', added: '2026-10-19' },
+{ group: 'D3', name: 'Cloth Banner Wave', hint: '2D 圖樣印在真實模擬的布旗上：Verlet 布料受風、織紋與絨面反光、太陽光自身陰影，金屬旗桿與升旗繩；游標在畫面上時改為即時模擬，左右控制風力', added: '2026-10-19', refs: ['R-0004', 'R-0005', 'R-0006'] },
+{ group: 'D3', name: 'Particle Text Depth', hint: '從 2D 文字取樣成粒子，從景深深處飛來組成字，停留時游標可推開粒子，最後散回空間', added: '2026-10-19' },
+{ group: 'INT', name: 'Word Focus Frame', hint: '以詞為單位對焦：游標所在的詞清楚、其餘依距離模糊變淡，四角取景框先停留再滑到新詞並伸縮成新詞寬度，點擊時框輕彈一下；後方有散景光斑做景深', added: '2026-10-20', refs: ['R-0032'] },
+{ group: 'TEL', name: 'Numbered Listicle Slides', hint: '多則清單影片版型：大描邊編號與標題從左進場、截圖框從右滑入並微傾帶投影，背景色逐則改變，後方大數字做最遠景；左下分段進度條（完成段全亮、目前段依進度填入），最後停在最後一則', added: '2026-10-20' },
+{ group: 'D3', name: 'Chrome Blob Morph', hint: '鉻金屬液滴：等值面（marching cubes）做出真的融合與分離，液滴繞核心走不同倍頻的軌道，靠近時黏合、拉開時拉出細頸再斷開；鏡面反射攝影棚的柔光箱、主色與輔色燈條，以及背後一塊 2D 文字燈牌；地面有真實投影，游標移動時核心被吸過去', added: '2026-10-20', refs: ['R-0031', 'R-0006'] },
+{ group: 'D3', name: 'Bar Chart Skyline', hint: '2D 長條圖立起成 3D 城市天際線：每根長條是一棟圓角大樓，立面有窗格與亮窗、頂部女兒牆，屋頂立著實體看板顯示數值；地面印著圖表基線、刻度、類別與標題。大樓以有重量的彈簧過衝升起，中段資料更新時從舊值長到新值、最高的一棟屋頂亮起主色，最後沉回地面；游標改變視角', added: '2026-10-21', refs: ['R-0036', 'R-0038'] },
+{ group: 'SHP', name: 'Data Chart Reveal', hint: '資料驅動折線圖：格線先淡入，折線依序描出、資料點在描線抵達時彈出，再補面積與摘要數字；接著示範資料更新，從舊值過渡到新值。含負值（零基準線加重）與空值（線段中斷、虛線跨過並標「無資料」），數字計數不超過真值', added: '2026-10-21', refs: ['R-0036', 'R-0040'] },
+{ group: 'INT', name: 'Accordion Focus', hint: '5 張直立卡排成一列，游標所在的卡展開到約 58% 寬、略為抬起並加深落影，其餘均分讓位，總寬不變；卡內風景以展開寬度繪製再裁切，不會拉伸；收合時顯示直排名稱，展開時標題、副標、按鈕錯開進場，點擊時卡緣亮起', added: '2026-10-21', refs: ['R-0037'] },
+{ group: 'D3', name: 'Neon Sign Flicker', hint: '2D 字形描出輪廓、彎成真的霓虹玻璃燈管（內有更亮的氣體芯），電極套管穿進牆面、沿線金屬支架與夾扣、變壓器盒拉一條下垂電線；上漆磚牆有凹凸與粗糙度差異。啟動時逐字閃爍點亮，牆面跟著被字的色光照亮、燈管在牆上投下影子；中段某一字接觸不良抖動，最後斷電、餘光衰減。密度大於 1.25 時字交替用輔色，游標改變視角', added: '2026-10-22', refs: ['R-0041', 'R-0044'] },
+{ group: 'TXT-B', name: 'Text Behind Subject', hint: '主角（真的 3D 旋轉、依切面打光的多面寶石）先沿弧線飛入、減速收旋並帶殘影，接近終態後巨大標題才在它背後逐字淡入（輕微縮小、由模糊轉清楚）；寶石的投影與主色光暈只落在字上，形成前後景，最後一道光掃過切面閃出星芒，前後各有一層散景光點做視差', added: '2026-10-22', refs: ['R-0042'] },
+{ group: 'UI', name: 'Async Status Button', hint: '同一顆按鈕承接狀態：按下壓縮 → 文字淡出、膠囊收成圓 → 轉圈載入 → 填色並展開回原寬。兩張表單並排：左邊成功（描出勾、「已訂閱」、外圈脈衝、欄位出現小勾），右邊失敗（描出叉、「失敗 · 重試」附重試箭頭、左右衰減震動、欄位邊框轉色並滑出錯誤說明）；狀態都有圖示與文字，不只換色', added: '2026-10-22', refs: ['R-0043', 'R-0040'] },
+{ group: 'D3', name: 'Paper Fold Reveal', hint: '一張真的三摺頁紙在木桌上展開再摺回：每格頂點依摺痕半徑沿弧長彎折（不是剛體硬轉），封面被紙的彈性撐起、過垂直後重力加速倒下、落桌回彈兩下，運動中尾端依角速度落後彎曲，攤平後摺痕留一點角度；內頁印著目錄、標題內文與插畫，外面是封面與引言（摺過去時才是正的）。紙有纖維法線、油墨比紙面亮一點，主光投下紙的自身陰影與落影，旁邊一支金屬筆蓋的筆當比例尺；游標改變視角', added: '2026-10-23', refs: ['R-0046', 'R-0045'] },
+{ group: 'TRN', name: 'Page Curl', hint: 'A 頁從右下角捲起，紙繞著沿摺線的圓柱翻過去：捲曲段分成細帶依圓柱角度壓縮、變暗，翻到背面露出紙色與透出來的反字，並有一道鏡面高光；捲起的紙在 A 與 B 上投下模糊落影，捲曲半徑隨捲動略增，最後整頁捲出畫面露出 B', added: '2026-10-23', refs: ['R-0045', 'R-0047'] },
+{ group: 'INT', name: 'Fan Card Focus', hint: '7 張漸層卡像手牌一樣扇形排開，游標水平位置對應目標卡：目標卡扶正、上抬、放大 1.12 倍並蓋到最前，其他卡依距離向兩側多轉一點讓位；遮擋順序由遠到近，最外側卡不會被裁切，卡內有光球與同心弧做景深，下方小點指示目前選取，按住時目標卡輕壓', added: '2026-10-23', refs: ['R-0049'] },
+{ group: 'D3', name: 'Newton Cradle', hint: '真的建模的牛頓擺：兩支圓角倒 U 形鍍鉻框架插進烤漆底座，5 顆鏡面鉻球各用兩條細線 V 形吊在前後橫桿上；右球擺出落回、撞擊瞬間左球彈出，完全彈性的動量傳遞無縫循環，擺動在最低點最快、頂點停頓，撞擊時中間三顆有極小的傳遞震動；攝影棚柔光箱與主色、輔色燈條映在球面上，球與線的影子隨擺動落在底座與石材桌面，底座前方黃銅名牌刻著文字；游標左右移動時繞著擺件轉看', added: '2026-10-24', refs: ['R-0050', 'R-0052'] },
+{ group: 'INT', name: 'Velocity Sticky Cursor', hint: '兩層游標：小核心直接跟著指標，外環平滑追隨並沿速度方向伸長（最多 1.6 倍、等面積收窄）；靠近三個導覽按鈕時外環被吸過去，從圓變成包住按鈕的圓角矩形、中心仍略偏向指標，按鈕亮起、字往游標方向微移；離開時回到圓形自由跟隨，點擊在按鈕內擴散一圈；後方有模糊的頁面內容與光斑', added: '2026-10-24', refs: ['R-0051', 'R-0040'] },
+{ group: 'BG-B', name: 'Studio Softbox Sweep', hint: '暗場攝影棚裡三排鍍鉻圓柱站在亮面地板上，一盞柔光箱繞場景轉一圈：每根圓柱的明暗由反射環境查表而來，柔光箱在前方時是正面寬亮帶、轉到側面變成邊緣輪廓光，地平線暖色燈條與下方冷色固定映在柱面上；後牆光池與地板長條反光跟著光箱移動，遠排小而模糊、近排大而銳利，地板有倒影與接觸陰影，循環無縫', added: '2026-10-24', refs: ['R-0052'] },
+{group: "UI", name: "Ripple Button", hint: "游標移到按鈕上按下：按鈕下沉、落影收緊，波紋從按下的那一點擴散到最遠的角並被膠囊外形裁切，第二道淡波稍晚；放開時彈性回升、外圈閃一道主色光暈，最後停在原狀", added: "2026-10-24", refs: ["R-0056", "R-0057"]},
+{group: "UI", name: "Neon Glow Button", hint: "暗場中的描邊按鈕：游標移入時燈管閃爍啟動後穩定發光（外光暈、內光、字發光），一道斜光掃過管面，地面有模糊倒影與光池；按下時亮度脈衝並外擴一圈光環，最後停在穩定亮燈", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Liquid Toggle", hint: "按下開關：圓鈕像一滴液體被拉往右邊，前端先衝出、後端黏著原處拉出越來越細的頸，中段甩出一顆小液珠，後端追上合體並過衝回彈；軌道液體同步從左灌到右，圓鈕停住後描出勾、標示轉為 ON", added: "2026-10-24", refs: ["R-0054", "R-0057"]},
+{group: "UI", name: "Slime Checkbox", hint: "按下勾選框：方框像果凍被壓扁再衰減晃動，主色從按下點像液體漫開填滿，勾以筆畫描出，噴出幾顆黏液小珠落地壓扁後消失；方框有上緣高光與內陰影，標籤由淡轉清楚並畫上底線", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Tab Slide Highlight", hint: "點第三個分頁：膠囊指示器前緣先走、後緣後到，先拉長成一條再彈性收回到新分頁寬度，被蓋到的字轉成反白；下方內容卡從右側滑入取代舊內容，最後停在新分頁", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Gradient Border Button", hint: "游標移入後，按鈕邊框的錐形漸層開始繞圈流動、邊框變粗並向外暈光；按下時漸層從按下點灌滿整顆按鈕，字反白並推出往右的箭頭，最後停在填滿的漸層按鈕", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Bounce CTA", hint: "CTA 按鈕從上方落下，落地依撞擊速度壓扁並回彈兩下，地面影子隨高度縮放；停穩後外圍發出兩圈脈衝環，箭頭往右輕推兩下，最後一道光掃過按鈕", added: "2026-10-24", refs: ["R-0057"]},
+{group: "INT", name: "Magnetic Button", hint: "游標進入按鈕周圍的磁場範圍時，按鈕被吸向游標、字與圖示吸得更多形成視差，按鈕略放大、落影往反方向；離開範圍後回到原位，按住時壓下、點擊在按鈕內擴散", added: "2026-10-24", refs: ["R-0057"]},
+{group: "INT", name: "Hover Tilt Card", hint: "卡片依游標位置在 3D 中傾斜（真透視貼圖），卡內標誌與文字依離卡面的高度產生視差，反光跟著游標移動、邊緣有隨角度變化的彩虹光澤，地面落影往傾斜反方向偏移；無游標時自動繞著傾斜", added: "2026-10-24", refs: ["R-0055", "R-0057"]},
+{group: "UI", name: "Alternating Product Drawer", hint: "商品大圖維持主視覺：右側奶白資訊面板整片往右退場，背景商品由寶石戒指交叉淡化成水滴墜飾（鏡頭略推近），左側面板帶新商品資訊進場，最後停在可讀的「左資訊、右商品」；直式畫面改為上下配置", added: "2026-10-24", refs: []},
+{group: "INT", name: "Drag Momentum Card", hint: "拖曳中央卡片：放開後帶著速度滑行並衰減，超出邊界只允許小幅橡皮筋並把邊界框標成輔色；抓住時放大 1.025、落影加深，移動時依速度微傾；沒有游標時自動示範抓起、甩出、撞邊彈回", added: "2026-10-24", refs: ["R-0040"]},
+{group: "INT", name: "Spotlight Card Rail", hint: "一排卡片水平排列，中央一張完整尺寸、鄰卡約 75%，越遠越小越淡、兩側漸隱；中央卡有亮框與柔影，標題與 CTA 只在置中時淡入，下方圓點指示位置；自動逐張平移，拖曳時整排跟著走並吸附到最近的卡", added: "2026-10-24", refs: []},
+{group: "INT", name: "Orbit Card Gallery", hint: "9 張直立卡沿水平圓環排列、面朝外，以真透視投影呈現：側面的卡自然變窄、後排變小、遠近遮擋正確，轉到背面露出暗色背板；自動等速旋轉一圈，拖曳可轉動並帶放手慣性，地面有柔影與光池", added: "2026-10-24", refs: []},
+{group: "SHP", name: "Perspective Reference Wall", hint: "5 列×6 欄的網站縮圖組成一面上遠下近的傾斜透視牆，由暗淡入、從 1.08 倍縮回並慢慢平移後減速停住，遠處有景深霧；中央毛玻璃卡（即時模糊背後的牆）淡入，大數字計數到目標值、下方小標題", added: "2026-10-24", refs: []},
+{ group: "UI", name: "Shutter Button", hint: "游標按下暗色「立即購買」：左右兩片斜切的擋板像快門加速闔上、在中線撞合（接縫閃光、按鈕震一下），闔上瞬間底下換成成功狀態，擋板往兩側滑開露出綠色「✓ 已購買」，勾筆畫描出、按鈕輕彈並亮起外光暈", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Invert Button", hint: "描邊按鈕（主色框與主色字）：游標移入後一塊斜切主色色塊帶著亮色前緣從左掃到右，覆蓋處底色與字色互換、字在斜線交界被切成兩色；掃滿後外光暈亮起，按下微縮並外擴一圈光環，停在實心反白狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Spring Day Night Toggle", hint: "按下太陽圓鈕：圓鈕依彈簧滑向右邊、衝過軌道端點再彈回，移動中依速度拉長成橢圓；軌道由晴空藍轉成夜空（雲往下淡出、星星依序亮起閃爍），太陽旋轉縮小換成月牙，下方標籤由淺色模式換成深色模式", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Snap Rocker Switch", hint: "方座凹槽裡的立體翹板開關：游標按住上半部，翹板先頂著慢慢下壓，到臨界點瞬間翻到另一側並過衝回彈，整顆震一下、四周噴出短火花；上半面點亮主色發光、凸起端換邊，旁邊指示燈閃一下亮起，OFF 彈成 ON", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Live Pulse Button", hint: "主色 LIVE 膠囊外有兩圈細框：按鈕以撲通撲通的雙拍心跳脈動，每拍微放大、紅點亮起發光，並從膠囊邊緣送出一圈圈圓角波紋向外擴散淡出，經過細框時把框點亮；下方觀看人數隨每拍跳增，最後游標移入按鈕浮起", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Energy Charge Button", hint: "圓形閃電按鈕：游標長按時按鈕微縮，外環從頂端順時針描繞充能、百分比上升，粒子沿螺旋被吸入、閃電越來越亮並在滿格時抖動；放開瞬間白光一閃、兩道衝擊波與一圈粒子條紋向外爆開，按鈕彈回、外環收回消失", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "INT", name: "Elevate Card", hint: "游標靠近卡片時卡片上浮略放大，落影變大變淡、地面接觸影散開，上緣亮起一道白光、外框暈出主色光，媒體區光球與圖示跟著游標輕微視差；底部「詳細 →」按鈕從卡片內滑出，游標停在按鈕上時按鈕變亮；離開後卡片落回、按鈕收回", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "INT", name: "Glow Edge Cards", hint: "三張功能卡（速度／品質／全球）排在凹槽底板上，邊框被以游標為中心的光照亮：光沿邊框分佈、離游標越近越亮並帶模糊外暈，游標在兩卡之間時相鄰兩邊同時亮（跨卡連續）；游標所在卡片內部有柔光，圖示被點亮發光", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Stack Fan Out", hint: "四張卡疊成一疊（微歪、越下越暗、角落有張數徽章），游標移上時頂卡微抬，按下整疊一壓，放開後由頂卡開始錯開延遲向兩側扇形展開，飛行中卡片抬起放大、落影加深分開，過衝後各自帶旋轉停成扇形", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Flip Card", hint: "點擊卡片後以真透視繞 Y 軸翻轉（轉過頭一點再回正）：正面是星形圖示與 FRONT，背面是漸層、BACK 與「這裡放詳細內容」；翻轉中卡片抬起前傾、朝向觀者的厚度邊亮起一道光、表面掠光並依角度變暗，落影跟著外框變形、抬起時變大變淡", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Swipe Action List", hint: "三列訊息清單，游標按住中間一列往左拖：該列抬起、落影加深，拖過頭一點後放開彈回並停在露出狀態；後方凹槽裡的「完成」與「釘選」按鈕依露出寬度由右至左依序彈出，其他列保持不動", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Accordion Expand", hint: "三列常見問題，原本第一列展開；游標點第三列：第一列內容淡出收合、第三列以彈性展開並亮起主色聚焦框光，箭頭轉 180°，兩行說明由下逐行淡入，其餘列依高度即時補位", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Card Expand To Fullscreen", hint: "三張選單卡（音樂／相片／影片），游標點「相片」：卡片上抬發光、按下一壓，接著從原位放大成全畫面（圓角變小、底色轉成漸層），圖示與標題從置中小字重排成左上大標題，背景其他卡縮小退後變暗；最後說明文字、相片縮圖格依序淡入、「開啟」按鈕彈出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Notification Stack", hint: "訊息、按讚、完成三則通知依序從上方以彈簧彈入，新的一進來就把舊的往下推一格，越舊越縮小變暗；圖示圓點彈出、各色底線由左畫到右，標頭未讀數跟著跳", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Focus Input Glow", hint: "游標點進電子郵件欄：一道彗星狀的光從點擊處沿邊框繞一圈，繞完整框亮起主色外暈，佔位字消失，email 逐字打入、游標閃爍，最後右側描出勾", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Floating Label Input", hint: "點擊輸入框：框內標籤縮小並浮到上邊框、轉成主色，邊框在標籤處斷開讓位，框亮起外暈；接著逐字輸入 email、游標閃爍，下方提示字淡入，下方密碼欄維持未聚焦作對照", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Segment Chart Switch", hint: "日／週／月分段控制：游標點「月」，凸起的選取塊從「日」滑過去（越快拉得越長、到點微過衝），塊內字反白；下方 7 根長條依序從舊高度長／縮到新高度並帶回彈、柱頂閃光，總數同步滾動、X 軸標籤交叉淡換，最後最高的柱子冒出數值泡泡", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Dropdown Select", hint: "點開語言下拉欄：箭頭翻上、浮層長出，四個選項依序帶彈性落下；游標經過繁體中文停在 English，高亮條跟著滑過去，點選後選單由下往上收回，English 從下方滑進欄位並描出勾", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Step Form Progress", hint: "三步驟表單：每按一次「下一步」，表單內容整頁往左滑、連線由左到右填滿、前一個圓點彈出打勾、下一個圓點亮起外圈；第三步按「送出」後滑到完成頁，大勾圓彈性放大並描出勾，「送出完成！」淡入", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Radio Ripple Select", hint: "三個方案列（NT$0／NT$290／NT$890），原選進階；點企業方案的圓鈕：圓點從中心彈性長出、兩圈波紋擴散，主色淡底從點擊處漫開填滿整列、邊框發光，舊選項圓點縮回並淡出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Password Reveal", hint: "密碼欄一排圓點，游標按眼睛圖示：眼皮由閉（下彎＋睫毛）張開、瞳孔放大，圓點從左到右逐字沿水平軸翻牌成明文 Pa55w0rd（等寬主色字），欄位邊框轉主色暈光，下方提示淡入", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Search Bar Expand", hint: "圓形放大鏡按鈕被按下後往左右伸展成長條搜尋列（小過衝），放大鏡留在左端、邊框亮起；逐字打出「motion」後下方建議面板展開，三個建議項依序從上方落下回彈，查詢字以主色標出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Linear Progress Glow", hint: "「上傳中」卡片的進度條從 0 以不均勻速度長到 100%：漸層填色內有斜紋往右流動、光帶週期掃過，前端一顆發光亮點，刻度隨進度點亮，百分比與 MB 數同步計數；到 100% 整條轉成功綠並脈衝發光，標籤改「上傳完成」，下方「✓ 完成」彈入", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Circular Progress Count", hint: "圓盤外圈 60 根刻度，進度弧以輔色到主色的錐形漸層描出、帶外光，端點發光亮點，刻度隨弧經過逐根點亮；中央大數字計數到目標、下方 PERCENT，到 100 時整圈轉成功綠、數字彈一下並外擴一圈脈衝環", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Loading Dots Duo", hint: "兩張小面板：左邊三顆點錯開相位彈跳，落地壓扁、空中拉長、地面落影隨高度縮放，配「Please wait」；右邊 12 顆點的環有亮頭繞行、尾巴漸小漸淡，配「Loading」；最後減速收束成三點排好、整圈均勻點亮的靜止狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Error Shake Field", hint: "游標按「登入」後密碼欄左右衰減搖晃（約四次往返），邊框與光暈轉警示色、欄內微泛紅，右側驚嘆號圓章彈出，下方錯誤訊息從上滑入，最後停在穩定的錯誤狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Skeleton Shimmer Load", hint: "貼文卡片先顯示骨架（頭像圓、名字條、內文灰條），斜向光波只在骨架形狀上掃過兩次；接著骨架淡出，頭像、名字與帳號、內文、（直式）圖片、按讚列依序由下往上淡入，停在完整貼文卡", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Rolling Count Badge", hint: "「追蹤者」卡片的數字每一位都是滾筒，越右邊轉越多圈、由左往右依序停下並過衝回彈，快轉時有殘影、上下有淡出遮罩，停在 12,480（可用文字參數裡的數字）；接著右上角愛心填色跳一下噴出光點，旁邊彈出「↑ 24%」成長膠囊", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Password Strength Meter", hint: "密碼逐字打入（圓點逐顆彈出），下方 4 段強度條依字數門檻從左依序灌滿並閃光，顏色由警示紅→輔色→主色→成功綠，欄位邊框跟著換色；等級文字弱→普通→強→很強！逐級彈出，滿級時右側描出勾", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Bottom Nav Bounce", hint: "App 底部導覽列點「我的」：原本浮起的首頁泡泡掉回列中小彈兩下，新圖示變成主色圓形泡泡從列裡彈出（彈簧過衝、上升拉長落下壓扁），外圈有缺口環、列面留下凹陷陰影與光池，標籤從泡泡下方浮出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Side Menu Push", hint: "點左上漢堡鈕：三條線轉成 ×，主畫面被往右推並縮小、圓角變大、拉出長影並壓暗，露出的選單層上「首頁／訊息／收藏／設定」帶圖示由上而下依序從左滑入回彈，目前項目有主色膠囊", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Modal Pop In", hint: "按下「開啟視窗」：背景畫面逐漸模糊、壓暗並加暗角，對話框從小以彈簧放大登場，勾勾徽章彈出、勾描出並放出光環與光點，顯示「註冊完成」與 OK 按鈕，游標移到 OK 上讓它亮起", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Toast With Timer", hint: "按「儲存」後按鈕轉成淡淡的已儲存狀態，「已儲存」吐司從畫面下緣彈簧滑上、勾勾描出、右側有「復原」連結，底部發光計時條逐漸縮短，歸零時吐司往下滑出淡出，畫面回到乾淨狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Page Push Slide", hint: "在 App 清單點第二列：該列按下變色描邊，詳細頁從右推入、舊頁只退 30% 並變暗（視差），新頁左緣帶陰影，主圖與內文稍晚到位，返回箭頭從右滑入，最後停在詳細頁", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "INT", name: "Scroll Progress Indicator", hint: "文章卡片內容捲動時，標題列下緣進度線、卡內細捲軸、卡外右側的進度軌與發光滑塊、章節圓點（已讀亮起、目前章節放大）與百分比同步變化；游標上下位置控制捲動，無游標時自動捲到底再捲回", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Dashboard Switch", hint: "點分段控制的「本月」：營收數字從 12,480 計數到 48,920、成長率膠囊彈一下變 ↑31%、迷你折線變形，長條圖各根錯開以彈簧長高，環形圖從 62% 掃到 88%，三張卡依序亮起主色描邊", added: '2026-10-24', refs: ['R-0057'] },
+];
+ADDED.forEach(a => { const g = GROUPS.find(x => x.key === a.group); if (!g) throw new Error('ADDED: unknown group ' + a.group);
+const id = `${g.key}-${String(g.items.length + 1).padStart(2, '0')}`;
+const it = { id, name: a.name, group: g.key, groupName: g.name, kind: g.kind, hintKey: 'custom', hint: a.hint, pending: false, source: 'new', added: a.added, revised: null, refs: a.refs || [] };
+g.items.push(it); LIST.push(it); BYID[id] = it; });
+
+/* 改善紀錄：既有元件經排程審查並調整後登記，值為 [日期, 一句說明]。
+'BG-A-01': ['YYYY-MM-DD', '改了什麼'] */
+const REVISED = {
+'SHP-40': ['2026-10-24', '依 Threads「UIアニメ48選」36 成功チェック演出（Chris 交辦）：原本只有細圓環＋淡底＋勾；改為圓環描出 → 主色過衝填滿（整個徽章短暫放大、背後光暈）→ 反色勾描出 → 兩圈衝擊環、翻轉紙花與四角星噴出後受重力落下淡出 →「完成了！」淡入，p=1 停在乾淨的徽章'],
+'TEL-12': ['2026-10-24', '原本螢光筆蓋在字上、字變深色後在暗的影片上讀不到；改為字先帶落影淡入，螢光筆從左到右刷在字的後面（斜切筆頭、上下緣微微起伏、兩端墨較深、順筆方向的墨水條紋、終點補一道回筆），筆經過的字逐字由白轉深色，任何時候都讀得到'],
+'TEL-13': ['2026-10-24', '原本是一顆膠囊從右緣滑出、一半被畫面切掉、字很小；改為貼在畫面右緣的實體標籤：先伸出主色細邊條，標籤帶過衝滑入，有落影、上下明暗與上緣反光、右端摺進畫面邊的摺角，圖示圓點脈衝一次，字以遮罩露出，下方副標晚一點淡入；字放大且全部留在安全框內'],
+'BG-B-01': ['2026-10-23', '原本網點半徑超過網格、整面糊成單色色塊；改為兩色各用不同網角（15°／75°）的印刷網點，最大半徑小於網格，點陣永遠看得到；擴張前緣像震波讓網點鼓起，退場色稍晚縮小，兩色在交界帶疊印出玫瑰紋；加套印偏移、由左上往右下的色調、每顆點的小落影與暗角'],
+'BG-B-33': ['2026-10-23', '原本是三個平面方塊在空中滑動；改為棚景中的 2×2 凹槽托盤（內陰影與下緣反光）與三塊有厚度的倒角方塊，往空格那塊先出發，移動時拋物線抬起、影子留在槽上變大變淡，落下輕壓回彈'],
+'SHP-05': ['2026-10-22', '原本是一顆很小的平面圓在線上跳；改為有景深棚景（後牆、地面、接觸線）裡的立體球往前跳三下，高度遞減，空中沿速度拉長、落地依撞擊速度壓扁（面積守恆），著地揚起塵點，接觸陰影隨高度縮放變淡，最後輕微回彈停在正圓'],
+'SHP-08': ['2026-10-22', '原本是細線加小圓點、擺幅幾乎看不出來；改為牆上金屬支架與螺絲、雙股吊線、立體擺錘，從高處釋放後阻尼衰減，快速時有殘影，背景刻度弧標出目前擺幅，牆上投影與地面接觸陰影跟著擺動，最後靜止在正下方'],
+'TXT-B-03': ['2026-10-21', '原本只把整行字水平壓扁，看不出是翻轉；改為印在有厚度的圓角牌上翻轉：側邊帶滾紋露出、背面換主色、光帶依角度掃過，翻轉時被拋起再落地輕壓，地面影子隨高度縮小變淡，停在正面'],
+'TXT-B-28': ['2026-10-21', '原本字很小、上下兩個字疊在一起難以辨認；改為滾筒：每一步先停再帶回彈轉到下一個，滾筒外的字依角度壓扁、變暗、模糊，上下淡出遮罩，中央取景槽寬度跟著目前的字伸縮，最後停在完整文字'],
+'BG-A-13': ['2026-10-18', '加入一列列資料線段，掃描線經過時被點亮並留下餘暉（以環狀距離計算確保無縫），掃描線加光暈、四角加取景框，畫面不再大半空白'],
+'BG-A-16': ['2026-10-18', '改為放大的漫畫式電擊符號：每處三道鋸齒閃電向外放射、中心星形閃光，筆畫先長出再從尾端收回，每輪換位置'],
+'BG-A-18': ['2026-10-20', '依 T-0005 效果 4（Q-003）：線段亮度與粗細依和磁點的距離衰減、交點加小節點、拿掉中心大圓環改為小光點與光暈；吸附強度上限 0.6，網線不中斷；後方加一層較密的暗格線做景深'],
+'TXT-A-24': ['2026-10-20', '原本只有幾層同色偏移，看不出厚度；改為沿光線方向擠出的側面（越深越暗、透視縮小、前緣輪廓光），正面上亮下暗漸層加高光描邊，地面有壓扁模糊的投影，擠出方向從左下轉到右下'],
+'D3-02': ['2026-10-19', '整個重做：不透明薄盒加貼圖改為圓角倒角的毛玻璃實體（透射、折射、清漆），後方加彩色光球讓玻璃有內容可折射，假陰影改為真實投影'],
+'TXT-A-02': ['2026-10-20', '直式或長字串時自動換成 2～4 行（英數字詞不拆、標點不放行首），逐字錯開的順序跨行連續；原本只會把同一行縮小到看不清楚（T-0009 試作）'],
+'UI-03': ['2026-10-20', '直式畫面欄位加寬加高；指令太長時改為保留頭尾、中間省略，不再整串縮到看不清楚（T-0009 試作）'],
+'BG-A-33': ['2026-10-20', '先鋪滿底色：上下兩塊填色在地平線接縫留下 1 列沒畫到，播放時會透出上一格（T-0009 亂序檢查發現）'],
+'TRN-38': ['2026-10-20', '先鋪滿底色：方塊翻轉變窄時露出的縫隙會殘留上一格畫面，形成殘影（T-0009 亂序檢查發現）'],
+'D3-03': ['2026-10-19', '整個重做：36 層平面疊厚度改為用 marching squares 描出字形輪廓、ExtrudeGeometry 擠出的倒角實心立體字，加地面接觸陰影與逐字跳翻動作；名稱由 Layered Type Depth 改為 Beveled Extrude Type'],
+'D3-05': ['2026-10-19', '整個重做：正弦波位移改為 Verlet 布料物理（結構、剪切、彎曲約束，依面法線與切向受風，預烘焙一圈並首尾交叉淡化），加織紋法線貼圖、絨面反光、太陽光自身陰影、拉絲金屬旗桿、鍍金頂球、升旗繩與扣環；游標在畫面上時即時模擬'],
+};
+Object.keys(REVISED).forEach(id => { if (!BYID[id]) throw new Error('REVISED: unknown id ' + id); BYID[id].revised = REVISED[id][0]; BYID[id].revisedNote = REVISED[id][1]; });
+
+function promptFor(id) {
+const it = BYID[id]; if (!it) return ''; const g = GROUPS.find(x => x.key === it.group), txt = it.kind === 'text' || it.kind === 'tel' || it.kind === 'ui' || it.kind === 'd3';
+return `請建立動畫元件 \`${it.id}\`（${it.name}）。視覺動作：${it.hint}。${g.role}請用原生 HTML/CSS/JavaScript 實作（必要時 SVG/Canvas），輸出單一可執行 demo.html，另輸出可重用的元件 JS 模組。提供主題色、背景色、duration、loop、intensity、seed 與 16:9/9:16 比例參數；${txt ? '提供可修改的示範文字與繁體中文支援' : '提供可更改的形狀/密度或位置參數'}；預設 1.5 秒（背景循環 4 秒），使用 requestAnimationFrame 或 CSS keyframes，支援 replay、pause、destroy；加入 prefers-reduced-motion 降動態方案。動畫需具有明確起始、主動作和最終畫面，製作獨立預覽、基本測試與可調整控制面板。${it.source === 'spec' ? '不要假裝這是原作者的程式或 Prompt；視覺細節依錄影參考再校準。' : '這是錄影規格以外新增的原創元件。'}${it.pending ? ' 此編號在錄影中畫面辨識不清，先產出佔位規格，不要直接發布為已完成元件。' : ''}`;
+}
+
+/* =================================================================
+RUNTIME
+================================================================= */
+const AR = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const HOLD = .9;
+const LOOPK = { bg: 1, int: 1, d3: 1 }; const isLoop = it => !!LOOPK[it.kind];
+const DEFAULTS = { text: 'MOTION 動態', colors: { primary: '#5BD3F5', secondary: '#D6F55A', bg: '#111418' }, loop: true, intensity: 1, density: 1, seed: 7, aspectRatio: '16:9', reducedMotion: false };
+function norm(o) { const it = BYID[o.id] || LIST[0]; const n = { ...DEFAULTS, ...o, colors: { ...DEFAULTS.colors, ...(o.colors || {}) } }; n.id = it.id; if (n.duration == null) n.duration = isLoop(it) ? 4 : 1.5; n.duration = Math.max(.2, +n.duration); n.intensity = cl(+n.intensity, .1, 3); n.density = cl(+n.density, .2, 3); n.seed = Math.max(1, Math.floor(+n.seed) || 1); return n; }
+function cycleLen(o) { const it = BYID[o.id]; const d = o.duration * (o.reducedMotion && isLoop(it) ? 3 : 1); return isLoop(it) ? d : d + HOLD; }
+function progressAt(o, t) { const it = BYID[o.id], bg = isLoop(it), d = o.duration * (o.reducedMotion && bg ? 3 : 1); if (bg) return o.loop ? fr(t / d) : Math.min(.9999, t / d); const tt = o.loop ? t % (d + HOLD) : t; return Math.min(1, tt / d); }
+function getFn(it) { if (it.kind === 'd3') return c => d3Render(c, it); const m = MAPS[it.kind]; if (it.pending) return TL._pending; return m[it.name] || (c => { bgFill(c); }); }
+function autoPtr(W, H, p, dur) { const ph = p * TAU, x = W / 2 + Math.cos(ph) * W * .32, y = H / 2 + Math.sin(ph * 2) * H * .24, clicks = [];
+[.2, .7].forEach(pc => { const age = fr(p - pc) * dur; if (age < 1.6) { const q = pc * TAU; clicks.push({ x: W / 2 + Math.cos(q) * W * .32, y: H / 2 + Math.sin(q * 2) * H * .24, age }); } });
+const dx = Math.sin(ph) * W * .6, vx = Math.cos(ph) * TAU / Math.max(.2, dur) * W * .6;
+return { x, y, sx: x, sy: y, down: clicks.some(k => k.age < .25), real: false, clicks, hoverAge: 9, dragX: dx, dragY: 0, vx, vy: 0, dragging: false }; }
+function renderItem(ctx, W, H, dpr, o, p, t, ptr) {
+const it = BYID[o.id], P = { text: o.text || ' ', primary: o.colors.primary, secondary: o.colors.secondary, bg: o.colors.bg };
+const c = { ctx, W, H, dpr, P, p, t: t || 0, u: Math.min(W, H), cx: W / 2, cy: H / 2, pr: P.primary, se: P.secondary, bg: P.bg, ink: inkFor(P.bg), transparent: !!o.transparent, k: o.intensity * (o.reducedMotion && isLoop(it) ? .45 : 1), d: o.density, seed: o.seed, ph: p * TAU, dur: o.duration };
+c.ptr = ptr && ptr.real ? ptr : autoPtr(W, H, p, o.duration * (o.reducedMotion && isLoop(it) ? 3 : 1));
+const fn = getFn(it); ctx.save();
+try {
+if (o.reducedMotion && !isLoop(it)) {
+if (it.kind === 'trn') { const q = E.io(seg(p, .2, .8)); ctx.drawImage(scene(c, 'A'), 0, 0, W, H); ctx.globalAlpha = q; ctx.drawImage(scene(c, 'B'), 0, 0, W, H); ctx.globalAlpha = 1; }
+else { c.p = 1; c.ph = TAU; fn(c, it); ctx.globalAlpha = 1 - E.oc(seg(p, 0, .5)); ctx.fillStyle = it.kind === 'tel' ? 'rgba(0,0,0,0)' : c.bg; if (it.kind !== 'tel') ctx.fillRect(0, 0, W, H); }
+} else fn(c, it);
+} catch (e) { ctx.restore(); ctx.save(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f66'; ctx.font = '12px monospace'; ctx.fillText('render error: ' + it.id, 10, 20); if (root.console) console.warn(it.id, e); }
+ctx.restore();
+}
+function renderFrame(canvas, opts, p = .7, t = 0) { const o = norm(opts), dpr = opts.dpr || 1, W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderItem(ctx, W, H, dpr, o, p, t); }
+function clearCaches() { LC.clear(); PC.clear(); SC.clear(); TC.clear(); }
+/* 純時間場景：給影片輸出與外部工具用。time 以秒計，0 ≤ time < duration；
+循環類 duration＝一個循環，一次性元件 duration＝動作時長＋停格 HOLD（保留原本的停格語意，不自行加退場）。
+畫面只由 time、opts（含 seed）決定，與之前畫過什麼無關。 */
+function sceneFor(opts) { const o = norm({ ...opts, loop: true }), it = BYID[o.id], duration = cycleLen(o);
+return { id: o.id, kind: it.kind, loop: isLoop(it), duration, hold: isLoop(it) ? 0 : HOLD, options: o,
+renderFrame(canvas, time, dpr = 1) { const W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); if (o.transparent) ctx.clearRect(0, 0, W, H); renderItem(ctx, W, H, dpr, o, progressAt(o, time), time); } }; }
+root.MotionLib = { renderFrame, scene: sceneFor, list: LIST, groups: GROUPS, byId: BYID, prompt: promptFor, defaults: DEFAULTS, clearCaches, isLoop, version: '1.14.0',
+/* 播放器（motion-player.js）與工具用的內部函式；不屬於公開 API */
+_core: { norm, renderItem, progressAt, cycleLen, isLoop, BYID, AR, cl, lerp } };
+})(typeof window !== 'undefined' ? window : this);
+
+
+(function (root) {
+'use strict';
+const M = root.MotionLib; if (!M || !M._core) throw new Error('motion-player.js 需要先載入 motion-lib.js');
+const { norm, renderItem, progressAt, cycleLen, isLoop, BYID, AR, cl, lerp } = M._core;
+function mount(el, opts = {}) {
+const cv = document.createElement('canvas'); cv.className = 'motionlib-canvas'; cv.setAttribute('role', 'img'); el.appendChild(cv); const ctx = cv.getContext('2d');
+let o = norm(opts), raf = 0, alive = true, paused = !!opts.paused, t = 0, last = performance.now(), W = 0, H = 0; const dpr = Math.min(2, root.devicePixelRatio || 1);
+const mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null; if (opts.reducedMotion == null && mq && mq.matches) o.reducedMotion = true;
+function fit() { const ar = AR[o.aspectRatio] || 16 / 9, cw = el.clientWidth || 640, mh = o.maxHeight || cw / ar; const w = Math.max(40, Math.min(cw, mh * ar)); W = Math.round(w); H = Math.round(w / ar); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.setAttribute('aria-label', BYID[o.id].id + ' ' + BYID[o.id].name); cv.style.touchAction = BYID[o.id].kind === 'int' ? 'none' : ''; cv.style.cursor = BYID[o.id].kind === 'int' ? 'crosshair' : BYID[o.id].kind === 'ui' ? 'pointer' : ''; draw(); }
+/* 游標狀態集中在 runtime：繪製函式維持無狀態，只讀這些值。
+sx/sy 平滑位置（約 0.12 秒追上）；hoverAge 進入畫布後的秒數；dragX/dragY 拖曳累積位移（放開後依速度慣性滑行並衰減）；vx/vy 速度 px/s。 */
+const ptr = { x: 0, y: 0, sx: 0, sy: 0, down: false, real: false, clicks: [], _c: [], hoverAge: 0, dragX: 0, dragY: 0, vx: 0, vy: 0, dragging: false, _lx: 0, _ly: 0, _lt: 0 };
+const pos = e => { const r = cv.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; };
+const enter = e => { pos(e); if (!ptr.real) { ptr.sx = ptr.x; ptr.sy = ptr.y; ptr.hoverAge = 0; } ptr.real = true; };
+const ev = { pointermove: e => { const px = ptr.x, py = ptr.y; enter(e); if (ptr.dragging) { const now = performance.now(), dt = Math.max(1, now - ptr._lt) / 1000; ptr.dragX += ptr.x - px; ptr.dragY += ptr.y - py; ptr.vx = lerp(ptr.vx, (ptr.x - px) / dt, .5); ptr.vy = lerp(ptr.vy, (ptr.y - py) / dt, .5); ptr._lt = now; } },
+pointerenter: enter, pointerleave: () => { if (!ptr.dragging) { ptr.real = false; ptr.down = false; } },
+pointerdown: e => { enter(e); ptr.down = true; ptr.dragging = true; ptr.vx = ptr.vy = 0; ptr._lt = performance.now(); try { cv.setPointerCapture(e.pointerId); } catch (er) { } ptr._c.push({ x: ptr.x, y: ptr.y, t }); if (ptr._c.length > 12) ptr._c.shift(); if (BYID[o.id].kind === 'ui') { t = 0; paused = false; } },
+pointerup: e => { ptr.down = false; ptr.dragging = false; try { cv.releasePointerCapture(e.pointerId); } catch (er) { } }, pointercancel: () => { ptr.down = false; ptr.dragging = false; } };
+Object.keys(ev).forEach(k => cv.addEventListener(k, ev[k]));
+function stepPtr(dt) { if (!ptr.real) return; const a = 1 - Math.exp(-dt / .12); ptr.sx += (ptr.x - ptr.sx) * a; ptr.sy += (ptr.y - ptr.sy) * a; ptr.hoverAge += dt;
+if (!ptr.dragging) { ptr.dragX += ptr.vx * dt; ptr.dragY += ptr.vy * dt; const d = Math.exp(-dt / .35); ptr.vx *= d; ptr.vy *= d; if (Math.abs(ptr.vx) < 1) ptr.vx = 0; if (Math.abs(ptr.vy) < 1) ptr.vy = 0; } }
+function draw() { if (!W) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const p = progressAt(o, t); ptr.clicks = ptr._c.map(k => ({ x: k.x, y: k.y, age: t - k.t })).filter(k => k.age >= 0 && k.age < 3); renderItem(ctx, W, H, dpr, o, p, t, ptr); if (o.onFrame) o.onFrame(t, p, cycleLen(o)); }
+/* 離開畫面或分頁隱藏時不繪製（3D 元件很吃顯示卡，頁面上放多個也只有看得到的在跑） */
+let onScreen = true; const io = root.IntersectionObserver ? new IntersectionObserver(es => { onScreen = es[es.length - 1].isIntersecting; last = performance.now(); }, { rootMargin: '100px' }) : null; io && io.observe(cv);
+function tick(now) { if (!alive) return; if (!onScreen || (root.document && document.hidden)) { last = now; raf = requestAnimationFrame(tick); return; } const dt = Math.min(.1, (now - last) / 1000); last = now; stepPtr(dt); if (!paused) { t += dt; if (!o.loop && t >= cycleLen(o)) { t = cycleLen(o); } } draw(); raf = requestAnimationFrame(tick); }
+const ro = root.ResizeObserver ? new ResizeObserver(fit) : null; ro && ro.observe(el); fit(); raf = requestAnimationFrame(tick);
+return {
+play() { if (!o.loop && t >= cycleLen(o) - 1e-3) t = 0; paused = false; last = performance.now(); },
+pause() { paused = true; }, replay() { t = 0; paused = false; last = performance.now(); },
+seek(p) { paused = true; const it = BYID[o.id]; t = isLoop(it) ? cl(p) * cycleLen(o) * .9999 : cl(p) * o.duration; draw(); },
+set(n) { const idChanged = n.id && n.id !== o.id; o = norm({ ...o, ...n, colors: { ...o.colors, ...(n.colors || {}) } }); if (idChanged) t = 0; fit(); },
+destroy() { alive = false; cancelAnimationFrame(raf); ro && ro.disconnect(); io && io.disconnect(); cv.remove(); },
+get paused() { return paused; }, get pointer() { const { _c, _lx, _ly, _lt, ...pub } = ptr; return pub; }, get time() { return t; }, get options() { return { ...o, colors: { ...o.colors } }; }, get cycle() { return cycleLen(o); }, canvas: cv
+};
+}
+M.mount = mount;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>try{if(sessionStorage.getItem('kk-neg')){sessionStorage.removeItem('kk-neg');document.documentElement.classList.add('arriving');setTimeout(function(){document.documentElement.classList.remove('arriving')},1200);}}catch(_){}document.documentElement.classList.add('js');</script>
+<style>:root{--np:#EEE9DC;--ink:#111111;--can:#F3D54E;--pnk:#F4A9BE;--mnt:#A8D9B9;--sky:#A6CBE8;--buf:#E6CFA0;--wht:#FAF8F2;
+--cond:"IBM Plex Sans Condensed","Noto Sans TC",sans-serif;--tc:"Noto Sans TC","IBM Plex Sans Condensed",sans-serif;--type:"Courier Prime","Noto Sans TC",ui-monospace,monospace;--rule:1.5px solid var(--ink)}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+html{background:var(--np);color:var(--ink);-webkit-text-size-adjust:100%}
+body{background:var(--np);font:500 16px/1.62 var(--tc);min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+img,svg,canvas{display:block}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* 特徵① 照相放大：每一行各自放大到剛好撐滿欄寬（JS 精算；無 JS 時以 cqi 近似） */
+.ps{container-type:inline-size;display:block;font-family:var(--cond);font-weight:700;text-transform:uppercase;line-height:.84;letter-spacing:-.01em}
+.ps>.l{display:block;white-space:nowrap;font-size:calc(100cqi / var(--n,6) * var(--k,1.62));overflow:visible}
+.ps>.l.tc{font-family:var(--tc);font-weight:900;line-height:.98;--k:.98;letter-spacing:-.02em}
+.ps>.l.r{background:var(--ink);color:var(--st,var(--np));padding:.04em .06em .02em}
+.ps>.l+.l{margin-top:.06em}
+.ps.fit>.l{font-size:var(--fs)}
+.ps>.l.go{animation:enl .42s steps(5,end) both}
+@keyframes enl{0%{transform:scale(.38);transform-origin:0 50%;}100%{transform:scale(1);transform-origin:0 50%}}
+/* 特徵② 反白：hover 單字立即反白（輸入動效） */
+.w{transition:none;cursor:default}
+.w:hover,.w:focus{background:var(--ink);color:var(--st,var(--np))}
+.rev{background:var(--ink);color:var(--np)}
+/* 色卡紙 */
+.s-can{--st:var(--can);background:var(--can)}.s-pnk{--st:var(--pnk);background:var(--pnk)}.s-mnt{--st:var(--mnt);background:var(--mnt)}
+.s-sky{--st:var(--sky);background:var(--sky)}.s-buf{--st:var(--buf);background:var(--buf)}.s-wht{--st:var(--wht);background:var(--wht)}.s-np{--st:var(--np);background:var(--np)}
+/* 頁首與點單導覽 */
+.top{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:start;padding-top:22px;padding-bottom:18px;border-bottom:3px solid var(--ink)}
+.brand{display:flex;gap:12px;align-items:center;text-decoration:none}
+.brand svg{width:58px;height:58px}
+.brand b{font:900 22px/1 var(--tc);display:block;letter-spacing:.04em}
+.brand i{font:700 12px/1.2 var(--cond);font-style:normal;letter-spacing:.14em;display:block;margin-top:5px}
+.topnote{font:600 12px/1.45 var(--cond);letter-spacing:.06em;text-transform:uppercase;align-self:center;max-width:46ch}
+.slipnav{background:var(--buf);border:var(--rule);width:228px;font:700 12px/1 var(--cond);letter-spacing:.08em;text-transform:uppercase}
+.slipnav .h{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:var(--rule);font-size:10px}
+.slipnav a{display:grid;grid-template-columns:20px 26px 1fr auto;gap:6px;align-items:center;padding:6px 8px;text-decoration:none;border-bottom:1px dashed var(--ink)}
+.slipnav a:last-child{border-bottom:0}
+.slipnav .bx{width:16px;height:16px;border:1.5px solid currentColor;position:relative}
+.slipnav .bx svg{position:absolute;left:-3px;top:-7px;width:24px;height:24px;overflow:visible}
+.slipnav .bx path{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:square;stroke-dasharray:40;stroke-dashoffset:40}
+.slipnav a:hover .bx path{stroke-dashoffset:24}
+.slipnav a[aria-current] {background:var(--ink);color:var(--buf)}
+.slipnav a[aria-current] .bx path{stroke-dashoffset:0;animation:tick .5s steps(4,end) .35s both}
+@keyframes tick{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
+.slipnav .zh{font:900 15px/1 var(--tc);letter-spacing:.1em}
+/* 頁尾 */
+.foot{margin-top:72px;border-top:3px solid var(--ink);padding:26px 0 40px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:22px;font:600 13px/1.6 var(--cond);letter-spacing:.03em}
+.foot h4{font:700 11px/1 var(--cond);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;border-bottom:var(--rule);padding-bottom:6px}
+.foot a{display:block}
+.foot .pat{grid-column:1/-1}
+/* 特徵③ 字排成圖樣 */
+.pat{font:700 11px/1.05 var(--cond);letter-spacing:.06em;word-break:break-all;overflow:hidden;max-height:4.3em;user-select:none}
+.pat.big{font-size:14px;max-height:none}
+/* 特徵④ 盒格 */
+.box{display:grid;border:3px solid var(--ink);background:var(--ink);gap:1.5px}
+.box>*{background:var(--np);min-width:0}
+/* 特徵⑤ 事件譜卡 */
+.card{position:relative;border:var(--rule);padding:14px 16px 16px;font:400 15px/1.55 var(--type)}
+.card .no{display:flex;justify-content:space-between;font:700 11px/1 var(--cond);letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--st,var(--np));margin:-14px -16px 12px;padding:6px 10px}
+.card h3{font:900 30px/1 var(--tc);letter-spacing:.02em;margin-bottom:8px}
+.card h3 small{font:700 13px/1 var(--cond);letter-spacing:.1em;margin-left:6px;text-transform:uppercase}
+.card .pr{font:700 28px/1 var(--cond);letter-spacing:-.01em}
+.kick{font:700 11px/1 var(--cond);letter-spacing:.18em;text-transform:uppercase;display:inline-block;background:var(--ink);color:var(--np);padding:5px 8px 4px}
+.btn{display:inline-flex;align-items:center;gap:10px;font:700 15px/1 var(--cond);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border:2px solid var(--ink);padding:12px 16px 11px;background:var(--np);color:var(--ink);cursor:pointer}
+.btn:hover,.btn:focus-visible{background:var(--ink);color:var(--np)}
+.btn.r{background:var(--ink);color:var(--can)}
+.btn.r:hover{background:var(--can);color:var(--ink)}
+.btn .zh{font:900 15px/1 var(--tc);letter-spacing:.08em}
+/* ML 容器 */
+.ml{position:relative;overflow:hidden}
+.ml canvas{position:absolute;left:0;top:50%;transform:translateY(-50%)}
+.ml.ml-live .ml-fb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* 換頁：照相負片刷（轉場） */
+.neg{position:fixed;inset:0;z-index:99;pointer-events:none;background:var(--ink);clip-path:inset(0 50% 0 50%)}
+.neg i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 13px/1 var(--cond);letter-spacing:.3em;color:var(--np);font-style:normal}
+html.arriving body{visibility:hidden}
+@media (max-width:900px){.top{grid-template-columns:1fr auto}.topnote{display:none}.foot{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.wrap{padding:0 16px}.top{grid-template-columns:1fr}.slipnav{width:100%;display:grid;grid-template-columns:repeat(4,1fr)}.slipnav .h{display:none}.slipnav a{grid-template-columns:18px 1fr;border-bottom:0;border-right:1px dashed var(--ink);padding:8px 6px}.slipnav a:last-child{border-right:0}.slipnav .n,.slipnav .en{display:none}.foot{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important}}
+@media print{.top,.foot,.neg{display:none}}
+html:not(.js) canvas.th,html:not(.js) canvas.pht{display:none}
+
+.slhead{display:grid;grid-template-columns:1.1fr 1fr;gap:26px;align-items:end;margin:26px 0 22px}
+.slhead p{font:500 15px/1.65 var(--tc)}
+.vh{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.slipform{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px;align-items:start;counter-reset:total 0 mins 0 items 0}
+.pad{border:3px solid var(--ink);padding:0 0 12px;min-width:0}
+.padh{display:flex;justify-content:space-between;width:100%;font:900 16px/1 var(--tc);letter-spacing:.1em;padding:10px 14px;border-bottom:var(--rule);float:left}
+.padh span:last-child{font:700 11px/1.4 var(--cond);letter-spacing:.14em}
+.rows{clear:both}
+.row{display:grid;grid-template-columns:30px 34px 1fr auto;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px dashed var(--ink);cursor:pointer;position:relative}
+.row .cb{width:22px;height:22px;border:2px solid var(--ink);position:relative;background:var(--wht)}
+.row .cb svg{position:absolute;left:-4px;top:-10px;width:32px;height:32px;overflow:visible}
+.row .cb path{fill:none;stroke:var(--ink);stroke-width:3.4;stroke-linecap:square;stroke-dasharray:44;stroke-dashoffset:44;transition:stroke-dashoffset .26s steps(4,end)}
+.row .n{font:700 13px/1 var(--cond);letter-spacing:.06em}
+.row .t{font:900 19px/1.2 var(--tc)}.row .t small{font:400 13px/1 var(--type);margin-left:8px}
+.row .p{font:700 20px/1 var(--cond)}
+.row:hover{background:var(--wht)}
+.row:has(input:checked){background:var(--ink);color:var(--buf)}
+.row:has(input:checked) .cb{background:var(--buf)}
+.row:has(input:checked) .cb path{stroke-dashoffset:0}
+.row:has(input:focus-visible){outline:3px solid var(--ink);outline-offset:-3px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;padding:14px 14px 0}
+.og{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.og label{display:inline-flex;gap:6px;align-items:center;font:700 15px/1 var(--tc);cursor:pointer}
+.ol{display:block;width:100%;font:700 11px/1 var(--cond);letter-spacing:.16em}
+.rb{width:16px;height:16px;border:2px solid var(--ink);background:var(--wht)}
+.og label:has(input:checked) .rb{background:var(--ink);box-shadow:inset 0 0 0 3px var(--wht)}
+.og label:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:3px}
+.nm{grid-column:1/-1}.nm input{width:100%;font:400 17px/1 var(--type);padding:9px 10px;border:2px solid var(--ink);background:var(--wht);color:var(--ink);border-radius:0}
+.out{border:3px solid var(--ink);position:sticky;top:14px}
+.tw{height:52px;margin:0 -16px 8px;border-bottom:var(--rule)}
+.tw .ml-fb{font:700 18px/52px var(--cond);padding:0 16px}
+.where{font:700 12px/1 var(--cond);letter-spacing:.12em;margin-bottom:10px}
+.where .w-out{display:none}
+.slipform:has(#w-out:checked) .where .w-out{display:inline}.slipform:has(#w-out:checked) .where .w-in{display:none}
+.lbl{margin:0 0 10px}
+.empty{font:400 15px/1.6 var(--type);padding:14px 0;border-top:1px dashed var(--ink)}
+.slipform:has(.it:checked) .empty{display:none}
+.lines{list-style:none;counter-reset:ln}
+.lines li{display:none;grid-template-columns:28px 1fr;gap:8px;padding:8px 0;border-top:1px dashed var(--ink);font:400 15px/1.5 var(--type);counter-increment:ln;opacity:1;transform:none;transition:opacity .3s steps(3,end),transform .3s steps(3,end),display .3s allow-discrete;transition-behavior:allow-discrete}
+.lines li::before{content:counter(ln);font:700 22px/1 var(--cond)}
+.lines li b{font:900 17px/1 var(--tc)}
+@starting-style{.lines li{opacity:0;transform:translateX(-18px)}}
+.tmpw::after{content:'溫的'}
+.slipform:has(#t-ice:checked) .tmpw::after{content:'冰的'}
+.slipform:has(#t-hot:checked) .tmpw::after{content:'熱的'}
+#i-dan:checked{counter-increment:total 35 mins 4 items 1}.slipform:has(#i-dan:checked) .lines li[data-i="dan"]{display:grid}
+#i-shao:checked{counter-increment:total 45 mins 3 items 1}.slipform:has(#i-shao:checked) .lines li[data-i="shao"]{display:grid}
+#i-xian:checked{counter-increment:total 40 mins 5 items 1}.slipform:has(#i-xian:checked) .lines li[data-i="xian"]{display:grid}
+#i-tian:checked{counter-increment:total 25 mins 1 items 1}.slipform:has(#i-tian:checked) .lines li[data-i="tian"]{display:grid}
+#i-luo:checked{counter-increment:total 40 mins 6 items 1}.slipform:has(#i-luo:checked) .lines li[data-i="luo"]{display:grid}
+#i-fan:checked{counter-increment:total 45 mins 3 items 1}.slipform:has(#i-fan:checked) .lines li[data-i="fan"]{display:grid}
+#i-xlb:checked{counter-increment:total 70 mins 8 items 1}.slipform:has(#i-xlb:checked) .lines li[data-i="xlb"]{display:grid}
+#i-egg:checked{counter-increment:total 15 mins 2 items 1}.slipform:has(#i-egg:checked) .lines li[data-i="egg"]{display:grid}
+#i-tea:checked{counter-increment:total 25 mins 1 items 1}.slipform:has(#i-tea:checked) .lines li[data-i="tea"]{display:grid}
+#i-bing:checked{counter-increment:total 40 mins 4 items 1}.slipform:has(#i-bing:checked) .lines li[data-i="bing"]{display:grid}
+.sum{display:flex;justify-content:space-between;align-items:baseline;border-top:3px solid var(--ink);margin-top:6px;padding-top:10px}
+.mins{font:400 15px/1 var(--type)}.mins::after{content:counter(mins) ' 分鐘 · ' counter(items) ' 首'}
+.tot{font:700 34px/1 var(--cond)}.tot::after{content:' ' counter(total)}
+.perf{height:0;border-top:2px dashed var(--ink);margin:16px -16px 14px;position:relative}
+.perf::before,.perf::after{content:'';position:absolute;top:-9px;width:16px;height:16px;background:var(--np);border:2px solid var(--ink)}
+.perf::before{left:-9px}.perf::after{right:-9px}
+.acts2{display:flex;flex-wrap:wrap;gap:8px}
+.slipform:not(:has(.it:checked)) .acts2 .btn{opacity:.35;pointer-events:none}
+.msg{font:400 13px/1.5 var(--type);margin-top:10px;min-height:1.5em}
+.out.torn{animation:torn .6s steps(6,end)}
+@keyframes torn{0%{clip-path:inset(0 0 0 0)}40%{clip-path:inset(0 0 0 0);transform:translateY(0) rotate(0)}70%{transform:translateY(-10px) rotate(-1.6deg)}100%{transform:none}}
+.streak{grid-template-columns:1fr 1.4fr;margin-top:48px}
+.sth{padding:18px 20px}.sth h2{font:900 26px/1.15 var(--tc);margin:12px 0 8px}.sth p{font:500 14px/1.65 var(--tc)}
+.cells{display:grid;grid-template-columns:repeat(8,1fr);gap:0;padding:16px;align-content:center}
+.cell{aspect-ratio:1;border:2px solid var(--ink);margin-left:-2px;display:flex;align-items:center;justify-content:center;font:900 clamp(18px,3vw,34px)/1 var(--tc);position:relative}
+.cell small{position:absolute;left:4px;top:4px;font:700 10px/1 var(--cond)}
+.cell.on{background:var(--ink);color:var(--can)}
+.cell.on.new{animation:stamp .4s steps(3,end)}
+@keyframes stamp{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+.cell.free{font-size:clamp(12px,1.6vw,16px);text-align:center}
+.why{grid-template-columns:1.2fr 1fr;margin-top:48px}.why>div{padding:18px 20px}.why p{font:500 14px/1.7 var(--tc);margin-top:10px}
+@media (max-width:900px){.slipform,.slhead,.streak,.why{grid-template-columns:1fr}.out{position:static}}
+@media (max-width:560px){.row{grid-template-columns:26px 1fr auto}.row .n{display:none}.opts{grid-template-columns:1fr}.cells{grid-template-columns:repeat(4,1fr);row-gap:8px}}
+@media print{body *{visibility:hidden}.out,.out *{visibility:visible}.out{position:absolute;left:0;top:0;width:100%}.acts2,.msg,.tw{display:none}}
+</style></head>
+<body>
+<a class="sr" href="#main">跳到內容</a>
+<header class="wrap top"><a class="brand" href="index.html" aria-label="同款早餐 首頁"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><title>同款早餐 KĀNG-KHUÁN</title>
+<rect width="120" height="120" fill="#111111"/>
+<rect x="5" y="5" width="56" height="110" fill="#F3D54E"/>
+<rect x="65" y="5" width="50" height="52" fill="#F4A9BE"/>
+<rect x="65" y="61" width="50" height="54" fill="#EEE9DC"/>
+<text x="33" y="52" text-anchor="middle" font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" font-weight="900" font-size="46" fill="#111111">同</text>
+<rect x="9" y="64" width="48" height="46" fill="#111111"/>
+<text x="33" y="102" text-anchor="middle" font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" font-weight="900" font-size="40" fill="#F3D54E">款</text>
+<text x="90" y="37" text-anchor="middle" font-family="'IBM Plex Sans Condensed','Arial Narrow',sans-serif" font-weight="700" font-size="21" fill="#111111">No.47</text>
+<g fill="#111111"><circle cx="90" cy="88" r="13"/><circle cx="74" cy="72" r="1.6"/><circle cx="80" cy="72" r="1.6"/><circle cx="86" cy="72" r="1.6"/><circle cx="92" cy="72" r="1.6"/><circle cx="98" cy="72" r="1.6"/><circle cx="104" cy="72" r="1.6"/><circle cx="74" cy="104" r="2.2"/><circle cx="106" cy="104" r="2.2"/><circle cx="72" cy="88" r="1.2"/><circle cx="108" cy="88" r="1.2"/></g>
+<circle cx="85" cy="83" r="3.4" fill="#EEE9DC"/>
+</svg>
+<span><b>同款早餐</b><i>KĀNG-KHUÁN · BREAKFAST EVENTS</i></span></a><p class="topnote"><span data-w>每天一樣的早餐，是一首每天重演的事件譜。永和竹林路 79 巷，1979 年起。</span></p><nav class="slipnav" aria-label="點單（全站導覽）"><div class="h"><span>點單 No.47</span><span>□ 內用 □ 外帶</span></div><a href="index.html" data-neg="BOX"><span class="bx"><svg viewBox="0 0 24 24"><path d="M3 12 L9 19 L22 2"/></svg></span><span class="n">01</span><span class="zh">盒</span><span class="en">BOX</span></a><a href="slip.html" aria-current="page" data-neg="ORDER"><span class="bx"><svg viewBox="0 0 24 24"><path d="M3 12 L9 19 L22 2"/></svg></span><span class="n">02</span><span class="zh">點單</span><span class="en">ORDER</span></a><a href="paper.html" data-neg="PAPER"><span class="bx"><svg viewBox="0 0 24 24"><path d="M3 12 L9 19 L22 2"/></svg></span><span class="n">03</span><span class="zh">早報</span><span class="en">PAPER</span></a><a href="visit.html" data-neg="VISIT"><span class="bx"><svg viewBox="0 0 24 24"><path d="M3 12 L9 19 L22 2"/></svg></span><span class="n">04</span><span class="zh">來店</span><span class="en">VISIT</span></a></nav></header>
+<main id="main" class="wrap">
+<div class="slhead"><h1 class="ps"><span class="l tc" style="--n:6">勾一張點單</span><span class="l r" style="--n:20">ORDER = EVENT SCORE</span></h1>
+<p data-w>三句規則：在點單上勾你要的，每一格都是一首譜。右邊會即時把它們排成一張《你的同款早餐》譜卡，連總價與演出分鐘數一起算好。撕下帶走；明天點一樣的，就是第二次演出。</p></div>
+<form class="slipform" id="slip" action="#" autocomplete="off">
+ <fieldset class="pad s-buf">
+  <legend class="padh"><span>同款早餐 點單</span><span>No.47 · 竹林路</span></legend>
+  <div class="rows"><label class="row" for="i-dan"><input type="checkbox" class="vh it" id="i-dan" name="o" value="dan"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">01</span><span class="t">蛋餅<small>〈翻〉</small></span><span class="p">35</span></label><label class="row" for="i-shao"><input type="checkbox" class="vh it" id="i-shao" name="o" value="shao"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">02</span><span class="t">燒餅油條<small>〈夾〉</small></span><span class="p">45</span></label><label class="row" for="i-xian"><input type="checkbox" class="vh it" id="i-xian" name="o" value="xian"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">03</span><span class="t">鹹豆漿<small>〈凝〉</small></span><span class="p">40</span></label><label class="row" for="i-tian"><input type="checkbox" class="vh it" id="i-tian" name="o" value="tian"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">04</span><span class="t">豆漿<small>〈倒〉</small></span><span class="p">25</span></label><label class="row" for="i-luo"><input type="checkbox" class="vh it" id="i-luo" name="o" value="luo"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">05</span><span class="t">蘿蔔糕<small>〈兩面〉</small></span><span class="p">40</span></label><label class="row" for="i-fan"><input type="checkbox" class="vh it" id="i-fan" name="o" value="fan"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">06</span><span class="t">飯糰<small>〈握〉</small></span><span class="p">45</span></label><label class="row" for="i-xlb"><input type="checkbox" class="vh it" id="i-xlb" name="o" value="xlb"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">07</span><span class="t">小籠湯包<small>〈等〉</small></span><span class="p">70</span></label><label class="row" for="i-egg"><input type="checkbox" class="vh it" id="i-egg" name="o" value="egg"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">08</span><span class="t">荷包蛋<small>〈一顆〉</small></span><span class="p">15</span></label><label class="row" for="i-tea"><input type="checkbox" class="vh it" id="i-tea" name="o" value="tea"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">09</span><span class="t">紅茶<small>〈外面〉</small></span><span class="p">25</span></label><label class="row" for="i-bing"><input type="checkbox" class="vh it" id="i-bing" name="o" value="bing"><span class="cb"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16 L12 26 L30 2"/></svg></span><span class="n">10</span><span class="t">蔥抓餅<small>〈捲〉</small></span><span class="p">40</span></label></div>
+  <div class="opts">
+   <div class="og" role="radiogroup" aria-label="豆漿與紅茶溫度"><span class="ol">溫度 TEMP</span>
+    <label><input type="radio" name="t" value="ice" id="t-ice" class="vh"><span class="rb"></span>冰</label>
+    <label><input type="radio" name="t" value="warm" id="t-warm" class="vh" checked><span class="rb"></span>溫</label>
+    <label><input type="radio" name="t" value="hot" id="t-hot" class="vh"><span class="rb"></span>熱</label></div>
+   <div class="og" role="radiogroup" aria-label="內用或外帶"><span class="ol">地點 WHERE</span>
+    <label><input type="radio" name="w" value="in" id="w-in" class="vh" checked><span class="rb"></span>內用</label>
+    <label><input type="radio" name="w" value="out" id="w-out" class="vh"><span class="rb"></span>外帶</label></div>
+   <label class="nm"><span class="ol">譜卡署名 NAME</span><input type="text" id="nm" name="n" maxlength="10" placeholder="例：阿樂"></label>
+  </div>
+ </fieldset>
+ <section class="out card s-wht" aria-labelledby="sc-t" aria-live="polite">
+  <span class="no"><span>EVENT FOR ONE BREAKFAST</span><span>No.<b id="evno">0000</b></span></span>
+  <div class="ml tw" id="ml-type"><h2 id="sc-t" class="ml-fb">你的同款早餐 SCORE</h2></div>
+  <p class="where"><span class="w-in">店內第 3 桌演出</span><span class="w-out">帶走，在路上演出</span></p>
+  <div class="lbl ps" id="lbl" aria-hidden="true"><span class="l tc" style="--n:3">你的</span><span class="l" style="--n:16">IDENTICAL BREAKFAST</span></div>
+  <p class="empty">點單還是空的。勾左邊任何一格，這裡就開始寫譜。</p>
+  <ol class="lines"><li data-i="dan"><span><b>〈翻〉蛋餅</b> — 只翻一次。</span></li><li data-i="shao"><span><b>〈夾〉燒餅油條</b> — 先聽它碎的聲音。</span></li><li data-i="xian"><span><b>〈凝〉鹹豆漿</b> — 不要攪，數到三十。</span></li><li data-i="tian"><span><b>〈倒〉豆漿</b>（<span class="tmpw"></span>） — 不要留最後一口。</span></li><li data-i="luo"><span><b>〈兩面〉蘿蔔糕</b> — 兩面一樣黃。</span></li><li data-i="fan"><span><b>〈握〉飯糰</b> — 握十秒。</span></li><li data-i="xlb"><span><b>〈等〉小籠湯包</b> — 等蒸氣散了。</span></li><li data-i="egg"><span><b>〈一顆〉荷包蛋</b> — 不要戳破蛋黃。</span></li><li data-i="tea"><span><b>〈外面〉紅茶</b>（<span class="tmpw"></span>） — 看三台機車經過。</span></li><li data-i="bing"><span><b>〈捲〉蔥抓餅</b> — 中途不放下。</span></li></ol>
+  <p class="sum"><span class="mins">演出約 </span><span class="tot">NT$</span></p>
+  <div class="perf" aria-hidden="true"></div>
+  <div class="acts2"><button type="button" class="btn r tear" id="tear"><span class="zh">撕下譜卡</span>TEAR</button><button type="button" class="btn" id="share"><span class="zh">複製連結</span>SHARE</button><button type="button" class="btn" id="print"><span class="zh">列印</span>PRINT</button></div>
+  <p class="msg" id="msg" role="status"></p>
+ </section>
+</form>
+<section class="streak box" aria-labelledby="st-t">
+ <div class="sth s-np"><span class="kick">同款七格 SEVEN SAME</span><h2 id="st-t">連續七次同款，第八次我們請</h2><p data-w>撕下譜卡就蓋今天一格。隔天點一模一樣的，蓋下一格；換了一樣，從第一格重來。紀錄只存在你這台裝置。</p></div>
+ <div class="cells s-can" id="cells"><span class="cell"><small>1</small>同</span><span class="cell"><small>2</small>同</span><span class="cell"><small>3</small>同</span><span class="cell"><small>4</small>同</span><span class="cell"><small>5</small>同</span><span class="cell"><small>6</small>同</span><span class="cell"><small>7</small>同</span><span class="cell free"><small>8</small>請你</span></div>
+</section>
+<section class="why box">
+ <div class="s-np"><span class="kick">為什麼是點單 WHY</span><p data-w>臺灣早餐店的點單本來就是一張要你照做的紙：一列一樣東西，前面一個空格，用原子筆勾。林以樂說，他在紐約看到那些用打字機打在卡片上的事件譜時，第一個想到的就是阿母櫃台上那疊點單。</p></div>
+ 
+ <div class="s-mnt"><span class="kick">沒有 JavaScript 也能點 NO-JS</span><p data-w>這張點單的勾選、譜卡、總價與分鐘數，全部由樣式表算出來；關掉 JavaScript 照樣能點，只是不會有署名標籤與連結。</p></div>
+</section>
+</main>
+
+<footer class="wrap foot"><div><h4>同款早餐 KĀNG-KHUÁN TSÁ-TNG</h4>新北市永和區竹林路 79 巷 6 號〔門牌虛構〕<br>(02) 2921-1979 · 05:30–11:30 · 週一公休<br>捷運中和新蘆線 頂溪站 1 號出口 步行 7 分</div><div><h4>盒 / 點單</h4><a href="index.html">01 盒 BOX</a><a href="slip.html">02 點單 ORDER</a></div><div><h4>早報 / 來店</h4><a href="paper.html">03 早報 PAPER</a><a href="visit.html">04 來店 VISIT</a></div><div><h4>FLUX-POST</h4>郵購同款盒 No.47<br>電話訂、週二寄出<br><small>店名、人物、門牌為虛構</small></div><div class="pat" aria-hidden="true">同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 同款 KĀNG-KHUÁN 同款 IDENTICAL BREAKFAST 同款 SAME AS YESTERDAY 同款 </div></footer>
+<script>/* 同款早餐 KĀNG-KHUÁN — 共用腳本（照相放大填滿／網點機／motion-library 包裝／點單導覽／負片換頁／營業狀態） */
+(function(){
+'use strict';
+var KK=window.KK={};var D=document,$=function(s,r){return (r||D).querySelector(s)},$$=function(s,r){return [].slice.call((r||D).querySelectorAll(s))};
+KK.$=$;KK.$$=$$;
+var RM=KK.RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+/* ---------- 1. 照相放大 photostat fill（簽名動效的底層）：每行量自然寬，放大到撐滿欄寬 ---------- */
+KK.fill=function(el,animate){if(!el)return;var W=el.clientWidth;if(!W)return;
+ var ls=$$('.l',el);ls.forEach(function(l){l.style.fontSize='100px';});
+ var ws=ls.map(function(l){var r=D.createRange();r.selectNodeContents(l);var w=r.getBoundingClientRect().width;var cs=getComputedStyle(l);return w+parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);});
+ ls.forEach(function(l,i){var pad=parseFloat(getComputedStyle(l).paddingLeft)*2;var fs=Math.max(8,(W-0.5)/(ws[i])*100);l.style.fontSize='';l.style.setProperty('--fs',fs.toFixed(2)+'px');});
+ el.classList.add('fit');
+ if(animate&&!RM){ls.forEach(function(l,i){l.classList.remove('go');void l.offsetWidth;l.style.animationDelay=(i*110)+'ms';l.classList.add('go');});}};
+KK.fillAll=function(){$$('.ps').forEach(function(el){KK.fill(el,false);});};
+var ro=null;KK.watch=function(el){if(!('ResizeObserver' in window))return;if(!ro)ro=new ResizeObserver(function(es){es.forEach(function(e){KK.fill(e.target,false);});});ro.observe(el);};
+/* 把一段字拆成可反白的 .w 單字 */
+KK.words=function(root){$$('[data-w]',root).forEach(function(el){if(el.dataset.wd)return;el.dataset.wd=1;var t=el.textContent;el.textContent='';t.split(/(\s+)/).forEach(function(s){if(!s.trim()){el.appendChild(D.createTextNode(s));return;}var sp=D.createElement('span');sp.className='w';sp.textContent=s;el.appendChild(sp);});});};
+/* ---------- 2. 決定性雜湊與 value noise ---------- */
+function h2(x,y,s){var n=(x*374761393+y*668265263+(s|0)*2147483647)|0;n=(n^(n>>>13))*1274126177|0;return ((n^(n>>>16))>>>0)/4294967296;}
+function vn(x,y,s){var xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);var a=h2(xi,yi,s),b=h2(xi+1,yi,s),c=h2(xi,yi+1,s),d=h2(xi+1,yi+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+KK.vn=vn;KK.fnv=function(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
+/* ---------- 3. 網點機 offset screen：只有一罐黑墨，45° 調幅網點，點徑＝√濃度 ---------- */
+KK.screen=function(cv,dark,o){o=o||{};var dpr=Math.min(2,window.devicePixelRatio||1),W=cv.clientWidth,H=cv.clientHeight;if(!W||!H)return;
+ if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+ var x=cv.getContext('2d');if(!x)return;x.setTransform(dpr,0,0,dpr,0,0);x.fillStyle=o.paper||getComputedStyle(cv).getPropertyValue('--paper')||'#EEE9DC';x.fillRect(0,0,W,H);
+ var cell=o.cell||7,a=(o.ang==null?45:o.ang)*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a),n=Math.ceil(Math.hypot(W,H)/cell/2)+2,P=o.loupe,cx=W/2,cy=H/2;
+ x.fillStyle=o.ink||'#111111';x.beginPath();var nb=0;
+ for(var j=-n;j<=n;j++)for(var i=-n;i<=n;i++){var X=cx+(i*ca-j*sa)*cell,Y=cy+(i*sa+j*ca)*cell;if(X<-cell||X>W+cell||Y<-cell||Y>H+cell)continue;
+  var d=dark(X/W,Y/H,X,Y,W/H);if(d<=0.012)continue;if(d>1)d=1;var r=Math.sqrt(d)*cell*0.64,PX=X,PY=Y;
+  if(P){var dx=X-P[0],dy=Y-P[1],dd=Math.hypot(dx,dy),R0=P[2]||80;if(dd<R0){var m=1+1.25*Math.pow(1-dd/R0,1.6);PX=P[0]+dx*m;PY=P[1]+dy*m;r*=m;}}
+  if(r<0.35)continue;x.moveTo(PX+r,PY);x.arc(PX,PY,r,0,6.2832);if(++nb===20){x.fill();x.beginPath();nb=0;}}/* 每 20 點填一次：一條巨大路徑在 Skia 會退化成秒級 */
+ x.fill();};
+/* ---------- 4. 早餐場景（濃度場 0..1；只算明暗，不畫輪廓線——照相製版沒有線） ---------- */
+function sm(a,b,v){v=(v-a)/(b-a);v=v<0?0:v>1?1:v;return v*v*(3-2*v);}
+function capsule(px,py,ax,ay,bx,by){var pax=px-ax,pay=py-ay,bax=bx-ax,bay=by-ay,h=Math.max(0,Math.min(1,(pax*bax+pay*bay)/(bax*bax+bay*bay)));return Math.hypot(pax-bax*h,pay-bay*h);}
+function lit(d,r,nx,ny){/* 圓頂近似：越靠左上越亮 */var z=Math.sqrt(Math.max(0,1-(d/r)*(d/r)));return Math.max(0,Math.min(1,.55+.45*(-.5*nx-.6*ny+.62*z)));}
+var S=KK.scene={};
+S.griddle=function(t,cook){cook=cook==null?1:cook;return function(u,v,X,Y,A){var asp=A||1.45,x=(u-.5)*asp,y=v-.5;
+  var base=.80+.10*(vn(X*.05,Y*.05,3)-.5)+(vn(X*.012+t*.02,Y*.012,9)>.72?-.22:0);
+  var ex=x+.04,ey=y+.02,ang=Math.atan2(ey,ex),R=.30*(.86+.14*cook)*(1+.13*(vn(ang*1.3+4,t*.04,5)-.5)+.06*Math.sin(ang*5+1));
+  var dd=Math.hypot(ex,ey);if(dd<R){var edge=sm(R-.035,R,dd);var lace=edge*(.25+.45*cook*vn(ang*9,dd*30,2));var w=.05+lace;
+   for(var b=0;b<6;b++){var bt=t*.6+b*1.7,ph=bt-Math.floor(bt),bx=(h2(b,Math.floor(bt),7)-.5)*R*1.3,by=(h2(b,Math.floor(bt),8)-.5)*R*1.2,br=.012+.02*ph;var bd=Math.abs(Math.hypot(ex-bx,ey-by)-br);if(bd<.004&&cook>.2)w=Math.max(w,.34*(1-ph));}
+   var yx=ex-.05,yy=ey+.03,yd=Math.hypot(yx,yy),yr=.105;if(yd<yr){var l=lit(yd,yr,yx/yr,yy/yr);w=.62-.5*l;if(Math.hypot(yx+.035,yy+.04)<.022)w=.02;}
+   return w;}
+  var sh=sm(R,R+.03,dd);return base*(.65+.35*sh);};};
+function cyl(x,y,ax,bx,cy,r){/* 橫放圓柱：上亮下暗 */if(x<ax||x>bx||Math.abs(y-cy)>r)return -1;var q=(y-cy)/r;return .14+.5*sm(-.6,1,q)+.12*sm(.2,-1,q)*0;}
+function plateD(x,y){var d=Math.hypot(x/.62,y/.4);if(d>1)return -1;if(d>.9)return .34;return .04+.05*sm(.5,.9,d);}
+function tableD(x,y){return .2+.08*(KK.vn(x*14,y*14,11)-.5);}
+S.item=function(k){return function(u,v,X,Y,asp){var x=(u-.5)*(asp||1),y=v-.5,d,s,q,i;
+ var bg=function(){var p=plateD(x,y);return p<0?tableD(x,y):p;};
+ if(k==='dan'){for(i=0;i<3;i++){var x0=-.42+i*.29,x1=x0+.24;if(x>=x0&&x<=x1&&Math.abs(y)<.13){q=y/.13;s=.3+.45*sm(-.4,1,q);if(KK.vn(x*30,y*30,4)>.72)s+=.2;return s;}
+   if(Math.hypot((x-x1)/.035,y/.13)<1){var rr=Math.hypot((x-x1)/.035,y/.13);return (Math.sin(rr*14)>.3)?.55:.06;}}return bg();}
+ if(k==='shao'){if(Math.abs(x)<.36&&Math.abs(y)<.15){if(Math.abs(y)<.05&&Math.abs(x)<.5)return .62+.15*(Math.sin(x*80)>0?1:0);s=.22+.3*sm(-.15,.15,y);if(h2(Math.floor(X/4),Math.floor(Y/4),3)>.86)s=.02;return s;}if(Math.abs(y)<.05&&Math.abs(x)<.5)return .6+.15*(Math.sin(x*80)>0?1:0);return bg();}
+ if(k==='xian'){d=Math.hypot(x,y);if(d<.4){if(d>.34)return .7;s=.36+.1*KK.vn(x*12,y*12,2);if(KK.vn(x*9,y*9,8)>.62)s=.08;if(h2(Math.floor(X/5),Math.floor(Y/5),5)>.93)s=.85;return s;}return tableD(x,y);}
+ if(k==='tian'||k==='tea'){var top=-.38,bot=.38,hw=.2-.05*(y-top)/(bot-top);if(Math.abs(x-.02+.25*(y+.6)*0)<.012&&y<-.2&&y>-.5&&Math.abs(x-.08)<.015)return .9;if(y>top&&y<bot&&Math.abs(x)<hw){if(Math.abs(x-.08)<.014&&y<-.05)return .85;var lq=y>-.22;s=lq?(k==='tea'?.62:.3):.05;s+=.4*sm(hw*.55,hw,Math.abs(x))*(x>0?1:.5);if(hw-Math.abs(x)<.018)s=.8;if(Math.abs(y-top)<.02)s=.7;return s;}if(Math.abs(x-.08)<.014&&y<=top&&y>-.5)return .85;return tableD(x,y);}
+ if(k==='luo'){var r1=Math.abs(x+.14)<.22&&Math.abs(y+.05)<.13,r2=Math.abs(x-.16)<.22&&Math.abs(y-.1)<.13;if(r2){s=.3+.22*KK.vn(x*20,y*20,3);if(Math.abs(x-.16)>.19||Math.abs(y-.1)>.1)s=.68;return s;}if(r1){s=.24+.2*KK.vn(x*20,y*20,6);if(Math.abs(x+.14)>.19||Math.abs(y+.05)>.1)s=.66;return s;}return bg();}
+ if(k==='fan'){if(Math.abs(x)<.4&&Math.abs(y)<.15){q=y/.15;s=.48+.3*sm(-.3,1,q);if(h2(Math.floor(X/3),Math.floor(Y/3),9)>.8)s-=.3;return s;}if(Math.hypot((x-.4)/.06,y/.15)<1){var rr2=Math.hypot((x-.4)/.06,y/.15);return rr2<.45?.2:rr2<.75?.75:.5;}return bg();}
+ if(k==='xlb'){d=Math.hypot(x,y);if(d<.46){if(d>.4)return .8+.1*(Math.sin(Math.atan2(y,x)*60)>0?1:0);var best=9,bx=0,by=0;for(i=0;i<8;i++){var a=i/7*6.283,cx=i===7?0:Math.cos(a)*.25,cy=i===7?0:Math.sin(a)*.25;var dd=Math.hypot(x-cx,y-cy);if(dd<best){best=dd;bx=cx;by=cy;}}if(best<.11){var an=Math.atan2(y-by,x-bx);s=.08+.22*sm(.04,.11,best)+(Math.sin(an*9)>.6&&best>.03?.3:0);if(best<.02)s=.55;return s;}return .55+.1*KK.vn(x*40,y*4,1);}return tableD(x,y);}
+ if(k==='egg'){var p=plateD(x,y);if(p<0)return tableD(x,y);var ang=Math.atan2(y,x);var R=.3*(1+.12*(KK.vn(ang*1.4,2,5)-.5));d=Math.hypot(x,y);if(d<R){var yd=Math.hypot(x-.04,y+.02);if(yd<.1)return .62-.52*lit(yd,.1,(x-.04)/.1,(y+.02)/.1);return .02+.45*sm(R-.04,R,d)*KK.vn(ang*8,d*20,3);}return p+.04;}
+ if(k==='bing'){d=Math.hypot(x,y);if(d<.36){var th=Math.atan2(y,x);var sp=((d/.36)*5-th/6.283)%1;sp=sp<0?sp+1:sp;s=sp<.18?.72:.2+.15*KK.vn(x*16,y*16,7);return s;}if(d<.4)return .55;return bg();}
+ return tableD(x,y);};};
+/* ---------- 5. motion-library 包裝（照抄 ka-to KT.ml 的生命週期）---------- */
+KK.ml=function(el,o){var cx=null;try{cx=D.createElement('canvas').getContext('2d');}catch(_){}if(!el||!window.MotionLib||!cx)return null;
+ var m=null,done=false,api={replay:function(){done=false;if(m){m.replay();done=true;}}};
+ function mount(){if(m)return;m=MotionLib.mount(el,Object.assign({},o,{paused:true}));m.canvas.setAttribute('aria-hidden','true');m.canvas.removeAttribute('role');el.classList.add('ml-live');
+  if(RM)return m.seek(o.once?1:.35);if(o.once&&done)return m.seek(1);m.replay();if(o.once)done=true;}
+ function unmount(){if(m){m.destroy();m=null;}}
+ var go=function(){if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?mount():unmount();});},{rootMargin:'80px'}).observe(el);else mount();};
+ (D.fonts&&D.fonts.ready?D.fonts.ready:Promise.resolve()).then(go);return api;};
+/* ---------- 6. 營業狀態（臺北時間）：05:30–11:30，週一休 ---------- */
+KK.now=function(){var p={};try{new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Taipei',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(function(q){p[q.type]=q.value;});}catch(_){var d=new Date();p={weekday:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],hour:d.getHours(),minute:d.getMinutes()};}
+ var m=(+p.hour)*60+(+p.minute),wd=p.weekday;var open=wd!=='Mon'&&m>=330&&m<690;var cook=open?Math.min(1,(m-330)/120*0+((m%20)/20)):0;
+ return {open:open,mins:m,wd:wd,hh:('0'+p.hour).slice(-2),mm:('0'+p.minute).slice(-2),cook:cook};};
+KK.status=function(){var s=KK.now();$$('[data-status]').forEach(function(el){el.textContent=s.open?'開爐中 OPEN · 臺北 '+s.hh+':'+s.mm+' · 11:30 收攤':(s.wd==='Mon'?'今天週一公休 CLOSED · 週二 05:30 開爐':'收攤了 CLOSED · 臺北 '+s.hh+':'+s.mm+' · 明早 05:30 開爐');el.closest('[data-open]')&&el.closest('[data-open]').setAttribute('data-open',s.open?'1':'0');});return s;};
+/* ---------- 7. 換頁：照相負片刷（離開時黑幕由中線向兩側張開，抵達時收回）---------- */
+function neg(label){var o=D.createElement('div');o.className='neg';o.setAttribute('aria-hidden','true');o.innerHTML='<i>'+(label||'')+'</i>';D.body.appendChild(o);return o;}
+if(D.documentElement.classList.contains('arriving')){D.documentElement.classList.remove('arriving');if(!RM&&Element.prototype.animate){var o=neg('');o.style.clipPath='inset(0 0 0 0)';o.animate([{clipPath:'inset(0 0 0 0)'},{clipPath:'inset(0 0 0 100%)'}],{duration:380,delay:40,easing:'steps(6,end)',fill:'forwards'});setTimeout(function(){o.remove();},520);}}
+D.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||RM||e.metaKey||e.ctrlKey||e.shiftKey||a.target||a.hasAttribute('download'))return;var h=a.getAttribute('href');if(!/^[\w-]+\.html([?#].*)?$/.test(h)||!Element.prototype.animate)return;e.preventDefault();
+ try{sessionStorage.setItem('kk-neg','1');}catch(_){}var o=neg(a.dataset.neg||'PHOTOSTAT');o.animate([{clipPath:'inset(0 50% 0 50%)'},{clipPath:'inset(0 0 0 0)'}],{duration:300,easing:'steps(5,end)',fill:'forwards'});setTimeout(function(){location.href=h;},330);});
+addEventListener('pageshow',function(e){if(e.persisted)$$('.neg').forEach(function(n){n.remove();});});
+/* ---------- 8. 啟動 ---------- */
+KK.words(D);KK.status();setInterval(KK.status,30000);
+(D.fonts&&D.fonts.ready?D.fonts.ready:Promise.resolve()).then(function(){$$('.ps').forEach(function(el){KK.fill(el,!!el.dataset.go);KK.watch(el);});});
+})();
+</script>
+<script>(function(){var KK=window.KK,$=KK.$,$$=KK.$$;var IT=[{"k":"dan","no":"01","zh":"蛋餅","v":"翻","en":"FLIP","p":35,"min":4,"st":"can","sc":"麵皮下鐵板。打一顆蛋在上面。等邊緣起泡，翻一次。只翻一次。","line":"只翻一次。"},{"k":"shao","no":"02","zh":"燒餅油條","v":"夾","en":"CLAMP","p":45,"min":3,"st":"buf","sc":"把一根油條對折，放進剛出爐的燒餅。咬下去之前，先聽它碎的聲音。","line":"先聽它碎的聲音。"},{"k":"xian","no":"03","zh":"鹹豆漿","v":"凝","en":"CURDLE","p":40,"min":5,"st":"mnt","sc":"碗底放蝦皮、蔥花、菜脯、一匙醋。倒入滾燙的豆漿。不要攪。數到三十。","line":"不要攪，數到三十。"},{"k":"tian","no":"04","zh":"豆漿","v":"倒","en":"POUR","p":25,"min":1,"st":"wht","sc":"從四十公分高倒進杯子。冰的、溫的、熱的都可以。不要留最後一口。","line":"不要留最後一口。"},{"k":"luo","no":"05","zh":"蘿蔔糕","v":"兩面","en":"BOTH SIDES","p":40,"min":6,"st":"pnk","sc":"切兩片。煎到兩面一樣黃。端上桌之前，再翻過來看一次。","line":"兩面一樣黃。"},{"k":"fan","no":"06","zh":"飯糰","v":"握","en":"GRIP","p":45,"min":3,"st":"sky","sc":"攤開紫米。放油條、菜脯、肉鬆。用力握十秒，直到它記得你的手。","line":"握十秒。"},{"k":"xlb","no":"07","zh":"小籠湯包","v":"等","en":"WAIT","p":70,"min":8,"st":"buf","sc":"蒸八分鐘。掀開蒸籠。等蒸氣散了，才看得見它們。八顆。","line":"等蒸氣散了。"},{"k":"egg","no":"08","zh":"荷包蛋","v":"一顆","en":"ONE","p":15,"min":2,"st":"can","sc":"打一顆蛋。不要戳破蛋黃。","line":"不要戳破蛋黃。"},{"k":"tea","no":"09","zh":"紅茶","v":"外面","en":"OUTSIDE","p":25,"min":1,"st":"mnt","sc":"倒進塑膠杯，插一根吸管。拿到騎樓外面喝，看三台機車經過。","line":"看三台機車經過。"},{"k":"bing","no":"10","zh":"蔥抓餅","v":"捲","en":"ROLL","p":40,"min":4,"st":"pnk","sc":"把蔥抓餅捲成一根。從一頭吃到另一頭，中途不放下。","line":"中途不放下。"}];var F=$('#slip');if(!F)return;
+function sel(){return IT.filter(function(it){return $('#i-'+it.k).checked;});}
+function state(){var s=sel(),t=(F.querySelector('[name=t]:checked')||{}).value||'warm',w=(F.querySelector('[name=w]:checked')||{}).value||'in',n=$('#nm').value.trim().slice(0,10);return {s:s,t:t,w:w,n:n,sig:s.map(function(i){return i.k;}).join(',')+'|'+t+'|'+w};}
+/* 簽名：照相放大重排——署名標籤每次改點單就逐行重新放大到撐滿 */
+var lbl=$('#lbl'),lastSig='';
+function render(anim){var st=state(),s=st.s;var no=('000'+(KK.fnv(st.sig)%10000)).slice(-4);$('#evno').textContent=s.length?no:'0000';
+ var verbs=s.map(function(i){return i.v;}).join('・')||'空白';var tot=s.reduce(function(a,i){return a+i.p;},0),mn=s.reduce(function(a,i){return a+i.min;},0);
+ var L=[[st.n||'你','tc'],['的同款早餐','tc'],[verbs,'tc r'],['NT$'+tot+' · '+mn+' MIN',''],['EVENT No.'+no,'']];
+ lbl.innerHTML=L.map(function(x){return '<span class="l '+x[1]+'">'+x[0].replace(/[<>&]/g,'')+'</span>';}).join('');
+ if(st.sig!==lastSig||anim){KK.fill(lbl,anim!==false);lastSig=st.sig;}else KK.fill(lbl,false);}
+/* 預填：?o=dan,xian&t=ice&w=out&n=阿樂 */
+try{var q=new URLSearchParams(location.search);(q.get('o')||'').split(',').forEach(function(k){var e=$('#i-'+k);if(e)e.checked=true;});var t=$('#t-'+q.get('t'));if(t)t.checked=true;var w=$('#w-'+q.get('w'));if(w)w.checked=true;if(q.get('n'))$('#nm').value=q.get('n').slice(0,10);}catch(_){}
+F.addEventListener('change',function(){render(true);});$('#nm').addEventListener('input',function(){render(true);});F.addEventListener('submit',function(e){e.preventDefault();});
+function url(){var st=state();var u=new URL(location.href);u.search='';u.searchParams.set('o',st.s.map(function(i){return i.k;}).join(','));u.searchParams.set('t',st.t);u.searchParams.set('w',st.w);if(st.n)u.searchParams.set('n',st.n);return u.toString();}
+function msg(t){$('#msg').textContent=t;}
+$('#share').addEventListener('click',function(){var u=url();try{history.replaceState(null,'',u);}catch(_){}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(function(){msg('連結已複製：打開它就是同一張譜。');},function(){msg(u);});else msg(u);});
+$('#print').addEventListener('click',function(){window.print();});
+/* 同款七格：localStorage 只存「上次的點單簽名、日期、連續次數」 */
+function day(){var s=KK.now();var d=new Date(Date.now()+8*3600e3);return d.toISOString().slice(0,10);}
+function load(){try{return JSON.parse(localStorage.getItem('kk-streak')||'null');}catch(_){return null;}}
+function save(o){try{localStorage.setItem('kk-streak',JSON.stringify(o));}catch(_){}}
+function cells(n,fresh){$$('#cells .cell').forEach(function(c,i){c.classList.toggle('on',i<n);c.classList.toggle('new',!!fresh&&i===n-1);});}
+var S0=load();cells(S0?Math.min(7,S0.n):0);
+$('#tear').addEventListener('click',function(){var st=state();if(!st.s.length)return;var today=day(),y=new Date(Date.parse(today)-864e5).toISOString().slice(0,10),o=load()||{n:0};var sig=st.sig;
+ if(o.d===today){msg(o.sig===sig?'今天這首已經演過了；明天點一樣的，蓋第 '+Math.min(7,o.n+1)+' 格。':'今天已經蓋過一格了。明天再來。');}
+ else{o.n=(o.d===y&&o.sig===sig)?o.n+1:1;o.d=today;o.sig=sig;save(o);cells(Math.min(7,o.n),true);msg(o.n>=7?'七格滿了。第八次這份早餐我們請——把這張譜卡給櫃台看。':'蓋了第 '+o.n+' 格。譜卡編號 No.'+$('#evno').textContent+'，明天點一樣的。');}
+ var c=$('.out');c.classList.remove('torn');void c.offsetWidth;if(!KK.RM)c.classList.add('torn');});
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){render(false);KK.watch(lbl);});render(false);
+/* motion-library：TXT-A-27 Typewriter — 譜卡的打字機抬頭 */
+KK.ml($('#ml-type'),{id:'TXT-A-27',text:'SCORE FOR ONE BREAKFAST',colors:{primary:'#111111',secondary:'#F3D54E',bg:'#FAF8F2'},duration:2.4,loop:false,once:true,seed:47,aspectRatio:'16:9'});
+})();
+</script>
+</body></html>

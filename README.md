@@ -403,6 +403,7 @@
 | 385 | [金干樂 KIM KAN-LÓK](sites/kim-kan-lok/index.html) | 干樂與木器車木所（苗栗三義水美街・1962 年起；首屏一只在車床上慢轉、可拖曳的盤，載入後停車進窯，SVG 濾鏡把銀精確映成金；〈轉一顆〉筆刷固定、轉一圈畫一圈，三圈草紋畫完進窯、放下去轉成平均色環，出可分享訂製單帶去預約取件） | Khokhloma 金地彩繪 хохломская роспись | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 386 | [磅米芳 PŌNG BÍ-PHANG](sites/pong-bi-phang/index.html) | 爆米香代磅所（彰化埤頭・1953 年起；首屏片頭卡上一台戴白手套、無關節手臂的鑄鐵鍋跟著拍子跳、手追游標；整站一拍兩格同拍彈跳，每天 :00 :20 :40「碰！」衝擊波 take 震動整頁；〈碰一鍋〉跟著跳跳球搖鍋扳蓋，四鍋重演成可分享短片） | 橡皮管動畫 Rubber Hose Animation（雙色 Technicolor） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 387 | [側影寫真館 TSHIK-IÁNN](sites/tshik-iann/index.html) | 照相館（臺南民權路二段・1958 年起；首屏是一整塊 WebGL 即時打光的碧玉藍壁爐飾板，游標或手機傾角就是燈；白土貼花的白由厚度決定、薄處透出地色；〈畫一張側臉〉一筆側線壓成浮雕章、可傳給另一人畫對面那一半） | Wedgwood 碧玉炻器浮雕 Jasperware（新古典 1775–1790） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 388 | [同款早餐 KĀNG-KHUÁN](sites/kang-khuan/index.html) | 豆漿早餐店（新北永和竹林路・1979 年起；十樣早餐寫成十首打字機事件譜裝進分格盒；首屏鐵板網點照臺北時間煎蛋；〈點一張譜〉關掉 JS 也能點、CSS 計數器算總價、署名標籤逐行照相放大） | Fluxus 盒裝平面 Fluxus Kit-Box Graphics（Maciunas 派） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

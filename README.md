@@ -401,6 +401,7 @@
 | 383 | [泥仔湯 NÎ-Á THNG](sites/ni-a-thng/index.html) | 泥漿溫泉湯屋（臺南白河關子嶺・1987 年起；整站是一幅六條窄布縫成的泥染腰布，泥照筆序逐像素塗上背景——邊框帶、各場、店名——資訊全是泥繞過的白，游標是泥刷，塗滿後 sodani 漂白；subgrid 五條布六場價目、捲動縫回；〈留一條布〉紋樣寫訊息、收件者讀布解碼才見時段） | Bògòlanfini 泥染布 Bamana Mud Cloth | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 384 | [芳路調香所 PHANG-LŌO](sites/phang-loo/index.html) | 調香所（臺北大稻埕歸綏街・1953 年起；整站是一張 Beck 式香材路線圖：六條香調線只走 0／45／90 度、24 站、9 轉乘站、淡水河是酒精；〈搭一趟香〉沿線選 3–7 站＝前中後調配方，你的線以平行偏移沿既有線鋪出並奏發車旋律，出可分享車票帶去預約；跨文件 View Transitions 依行進方向換頁） | 地鐵路線圖風 Schematic Transit Diagram（Beck／Vignelli） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 385 | [金干樂 KIM KAN-LÓK](sites/kim-kan-lok/index.html) | 干樂與木器車木所（苗栗三義水美街・1962 年起；首屏一只在車床上慢轉、可拖曳的盤，載入後停車進窯，SVG 濾鏡把銀精確映成金；〈轉一顆〉筆刷固定、轉一圈畫一圈，三圈草紋畫完進窯、放下去轉成平均色環，出可分享訂製單帶去預約取件） | Khokhloma 金地彩繪 хохломская роспись | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 386 | [磅米芳 PŌNG BÍ-PHANG](sites/pong-bi-phang/index.html) | 爆米香代磅所（彰化埤頭・1953 年起；首屏片頭卡上一台戴白手套、無關節手臂的鑄鐵鍋跟著拍子跳、手追游標；整站一拍兩格同拍彈跳，每天 :00 :20 :40「碰！」衝擊波 take 震動整頁；〈碰一鍋〉跟著跳跳球搖鍋扳蓋，四鍋重演成可分享短片） | 橡皮管動畫 Rubber Hose Animation（雙色 Technicolor） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

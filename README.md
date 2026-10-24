@@ -399,6 +399,7 @@
 | 381 | [雙胞胎補胎行 LOS CUATES](sites/los-cuates/index.html) | 補胎行 Vulcanizadora（墨西哥城伊斯塔帕拉帕・24 小時；整站是一面黃牆，招牌畫師依上漆順序把三層字畫出來——字面、影、外框、亮點、簽名；cqi 撐滿板寬、滾筒換頁、輪胎滾過 TOPE；〈¿Tiene arreglo?〉九十秒補胎分診，成績重畫上牆） | 墨西哥手繪招牌 Rótulos Mexicanos | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 382 | [野色帽仔間 IÁ-SIK](sites/ia-sik/index.html) | 帽店（臺中大甲・三角藺草帽與毛氈帽；首屏是一扇百葉窗打開的窗，窗外鐵砧山、海、藺草田、鎮瀾宮屋脊全由方頭寬筆塊畫成；每筆帶亮面色＋互補陰影色，光向由臺北時刻／游標決定；顏料管導覽、筆塊刷滿換頁；〈戴一頂野色〉上色＋評審＋染帽單） | 野獸派 Fauvisme・Les Fauves | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 383 | [泥仔湯 NÎ-Á THNG](sites/ni-a-thng/index.html) | 泥漿溫泉湯屋（臺南白河關子嶺・1987 年起；整站是一幅六條窄布縫成的泥染腰布，泥照筆序逐像素塗上背景——邊框帶、各場、店名——資訊全是泥繞過的白，游標是泥刷，塗滿後 sodani 漂白；subgrid 五條布六場價目、捲動縫回；〈留一條布〉紋樣寫訊息、收件者讀布解碼才見時段） | Bògòlanfini 泥染布 Bamana Mud Cloth | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 384 | [芳路調香所 PHANG-LŌO](sites/phang-loo/index.html) | 調香所（臺北大稻埕歸綏街・1953 年起；整站是一張 Beck 式香材路線圖：六條香調線只走 0／45／90 度、24 站、9 轉乘站、淡水河是酒精；〈搭一趟香〉沿線選 3–7 站＝前中後調配方，你的線以平行偏移沿既有線鋪出並奏發車旋律，出可分享車票帶去預約；跨文件 View Transitions 依行進方向換頁） | 地鐵路線圖風 Schematic Transit Diagram（Beck／Vignelli） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -407,6 +407,7 @@
 | 389 | [金石果子行 KIM-TSIO̍H](sites/kim-tsioh/index.html) | 精品水果行（臺中第二市場・1971 年起；十二個月的水果一片片嵌進拋光黑石掛板，首屏逐片入槽、游標是斜照燈；〈配一塊石〉不能調色只能挑石與移動紋路，Lab 色差算分、配石單可分享） | 硬石鑲嵌 Pietra dura（佛羅倫斯 commesso） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 390 | [七彩樂園 TSHIT-TSHÁI](sites/tshit-tshai/index.html) | 家庭樂園（嘉義中埔・1979 年起；整站是 1998 年那張 3D 導覽光碟：320×240 原生 WebGL、頂點吸附會跳、仿射貼圖會游、15-bit 抖色、霧色＝臺北此刻天色；首屏精度開機；〈集章一日〉手把／鍵盤／觸控走園區坐設施蓋章、存進記憶卡） | PS1 低多邊形 PSX Low-Poly Aesthetic | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 391 | [樑頭車架 NIÛ-THÂU](sites/niu-thau/index.html) | 車架行・丹青烤漆（臺中大雅・1968 年起；首屏簷下：부연方椽頭與연목圓椽頭全由 CSS 硬停點漸層畫成三階退暈、游標靠近亮一階，창방橫樑兩端鏡像머리초；〈點一副車架〉오방색規則引擎排色＋擦粉轉印＋七位畫工一人一色上彩出工單；〈一遍一色〉scroll-driven 八道工序逐層上色） | 단청 丹青 Dancheong（韓國木構彩畫） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 392 | [電光三太子團 TIĀN-KONG](sites/tian-kong/index.html) | 電音三太子陣頭（高雄鳳山・2003 年起；首屏的出陣海報就是鼓譜：四行字＝大鼓／鈔／銅鑼／電音貝斯，寬的字會響，Web Audio 即時合成、打到的字瞬間撐寬；〈編一段起鼓〉點字改譜、印出可分享 ?b= 的出陣單、貼上大東路口那面牆、帶去請陣當開場鼓） | 秘魯 Chicha 螢光海報 Cartel Chicha | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

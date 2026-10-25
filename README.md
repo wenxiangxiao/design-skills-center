@@ -405,6 +405,7 @@
 | 387 | [側影寫真館 TSHIK-IÁNN](sites/tshik-iann/index.html) | 照相館（臺南民權路二段・1958 年起；首屏是一整塊 WebGL 即時打光的碧玉藍壁爐飾板，游標或手機傾角就是燈；白土貼花的白由厚度決定、薄處透出地色；〈畫一張側臉〉一筆側線壓成浮雕章、可傳給另一人畫對面那一半） | Wedgwood 碧玉炻器浮雕 Jasperware（新古典 1775–1790） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 388 | [同款早餐 KĀNG-KHUÁN](sites/kang-khuan/index.html) | 豆漿早餐店（新北永和竹林路・1979 年起；十樣早餐寫成十首打字機事件譜裝進分格盒；首屏鐵板網點照臺北時間煎蛋；〈點一張譜〉關掉 JS 也能點、CSS 計數器算總價、署名標籤逐行照相放大） | Fluxus 盒裝平面 Fluxus Kit-Box Graphics（Maciunas 派） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 389 | [金石果子行 KIM-TSIO̍H](sites/kim-tsioh/index.html) | 精品水果行（臺中第二市場・1971 年起；十二個月的水果一片片嵌進拋光黑石掛板，首屏逐片入槽、游標是斜照燈；〈配一塊石〉不能調色只能挑石與移動紋路，Lab 色差算分、配石單可分享） | 硬石鑲嵌 Pietra dura（佛羅倫斯 commesso） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 390 | [七彩樂園 TSHIT-TSHÁI](sites/tshit-tshai/index.html) | 家庭樂園（嘉義中埔・1979 年起；整站是 1998 年那張 3D 導覽光碟：320×240 原生 WebGL、頂點吸附會跳、仿射貼圖會游、15-bit 抖色、霧色＝臺北此刻天色；首屏精度開機；〈集章一日〉手把／鍵盤／觸控走園區坐設施蓋章、存進記憶卡） | PS1 低多邊形 PSX Low-Poly Aesthetic | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

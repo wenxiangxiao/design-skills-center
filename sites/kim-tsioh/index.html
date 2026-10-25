@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>/* motion-library 1.15.0 @f216548 子集：BG-A-29, BG-B-21, SHP-34, BG-A-11, SHP-15（tools/ml-embed.js 產生，勿手改） */
+
+(function (root) {
+'use strict';
+const TAU = Math.PI * 2;
+const cl = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const fr = v => v - Math.floor(v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (p, a, b) => cl((p - a) / (b - a));
+const E = {
+l: t => t,
+oc: t => 1 - (1 - t) ** 3,
+oq: t => 1 - (1 - t) ** 4,
+ic: t => t * t * t,
+io: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+ob: t => { const a = 1.70158, b = a + 1; return 1 + b * (t - 1) ** 3 + a * (t - 1) ** 2; },
+el: t => t <= 0 ? 0 : t >= 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - .75) * TAU / 3) + 1,
+bo: t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; }
+};
+const stg = (p, i, n, sp = .5) => { const o = n > 1 ? i / (n - 1) * sp : 0; return seg(p, o, o + 1 - sp); };
+function rng(seed) { let s = (seed >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+const R = (c, salt) => { const r = rng(c.seed * 9973 + salt * 7919 + 17); r(); r(); return r; };
+
+/* ---------- color ---------- */
+function hex(h) { h = (h || '#000').replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const toHex = a => '#' + a.map(v => Math.round(cl(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => lerp(v, B[i], t))); };
+const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${cl(a)})`; };
+const lum = h => { const [r, g, b] = hex(h); return (.2126 * r + .7152 * g + .0722 * b) / 255; };
+const inkFor = bg => lum(bg) > .55 ? '#121418' : '#F4F6F8';
+
+/* ---------- drawing helpers ---------- */
+function bgFill(c, col) { if (!col && c.transparent) { c.ctx.clearRect(0, 0, c.W, c.H); return; } c.ctx.fillStyle = col || c.bg; c.ctx.fillRect(0, 0, c.W, c.H); }  // transparent：輸出透明影片時，底色改為清空（元件自己指定的顏色照畫）
+function gridLines(c, s, ox, oy, col, lw = 1) { const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (let X = ((ox % s) + s) % s; X <= W; X += s) { x.moveTo(X, 0); x.lineTo(X, H); } for (let Y = ((oy % s) + s) % s; Y <= H; Y += s) { x.moveTo(0, Y); x.lineTo(W, Y); } x.stroke(); }
+function dot(x, X, Y, r) { if (r <= .25) return; x.beginPath(); x.arc(X, Y, r, 0, TAU); x.fill(); }
+function halftone(c, st, fn, col) { const { ctx: x, W, H } = c; x.fillStyle = col || c.pr; for (let Y = st / 2; Y < H + st; Y += st) for (let X = st / 2; X < W + st; X += st) dot(x, X, Y, cl(fn(X, Y)) * st * .56); }
+function star(x, X, Y, r1, r2, n, rot) { x.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n - Math.PI / 2, r = i % 2 ? r2 : r1; i ? x.lineTo(X + Math.cos(a) * r, Y + Math.sin(a) * r) : x.moveTo(X + Math.cos(a) * r, Y + Math.sin(a) * r); } x.closePath(); }
+function heart(x, X, Y, s) { x.beginPath(); x.moveTo(X, Y + s * .35); x.bezierCurveTo(X - s * 1.1, Y - s * .35, X - s * .45, Y - s * 1.05, X, Y - s * .45); x.bezierCurveTo(X + s * .45, Y - s * 1.05, X + s * 1.1, Y - s * .35, X, Y + s * .35); x.closePath(); }
+function rr(x, X, Y, w, h, r) { r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2)); x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function poly(x, pts, close = true) { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); if (close) x.closePath(); }
+function ngon(n, r, rot = 0) { const a = []; for (let i = 0; i < n; i++) { const t = rot + i / n * TAU - Math.PI / 2; a.push([Math.cos(t) * r, Math.sin(t) * r]); } return a; }
+function shape(x, kind, X, Y, s, rot = 0) {
+x.save(); x.translate(X, Y); x.rotate(rot);
+if (kind === 0) { x.beginPath(); x.arc(0, 0, s, 0, TAU); }
+else if (kind === 1) { poly(x, ngon(3, s * 1.15)); }
+else if (kind === 2) { rr(x, -s * .9, -s * .9, s * 1.8, s * 1.8, s * .2); }
+else if (kind === 3) { star(x, 0, 0, s * 1.1, s * .5, 5, 0); }
+else { const w = s * .38; x.beginPath(); x.rect(-s, -w, s * 2, w * 2); x.rect(-w, -s, w * 2, s * 2); }
+x.restore();
+}
+function partial(x, pts, f) { const n = pts.length; const m = f * (n - 1); if (m <= 0) return; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]); const k = Math.floor(m); for (let i = 1; i <= k; i++) x.lineTo(pts[i][0], pts[i][1]); if (k < n - 1) { const t = m - k; x.lineTo(lerp(pts[k][0], pts[k + 1][0], t), lerp(pts[k][1], pts[k + 1][1], t)); } x.stroke(); }
+function floor3d(c, hz, col, n = 14, cols = 18, speed = 1) {
+const { ctx: x, W, H } = c; x.strokeStyle = col; x.lineWidth = 1.5;
+for (let k = 0; k <= n; k++) { const f = (k + fr(c.p * speed)) / n; const y = hz + (H - hz) * f ** 2.6; x.globalAlpha = cl(f * 1.6); x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+x.globalAlpha = 1; for (let i = -cols; i <= cols; i++) { x.beginPath(); x.moveTo(W / 2 + i * W * .02, hz); x.lineTo(W / 2 + i * W * .22, H); x.stroke(); }
+}
+
+/* ---------- offscreen ---------- */
+const POOL = [];
+function off(c, i = 0) {
+let o = POOL[i]; const w = Math.max(1, Math.round(c.W * c.dpr)), h = Math.max(1, Math.round(c.H * c.dpr));
+if (!o) { const cv = document.createElement('canvas'); o = POOL[i] = { cv, ctx: cv.getContext('2d') }; }
+if (o.cv.width !== w || o.cv.height !== h) { o.cv.width = w; o.cv.height = h; }
+const x = o.ctx; x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.clearRect(0, 0, w, h); x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0); return o;
+}
+
+/* ---------- text layout ---------- */
+const FAM = { sans: '"Unbounded","Noto Sans TC",system-ui,sans-serif', tc: '"Noto Sans TC",system-ui,sans-serif', serif: '"Noto Serif TC","Songti TC",serif', mono: '"JetBrains Mono",ui-monospace,monospace' };
+const LC = new Map(); let MC = null;
+function lay(c, o = {}) {
+const text = o.text != null ? o.text : (c.P.text || ' ');
+const maxW = o.maxW || .82, maxH = o.maxH || .24, w = o.w || 800, fam = o.fam || 'sans', sc = o.sc || 1;
+const key = [text, c.W, c.H, maxW, maxH, w, fam, sc, o.wrap ? 1 : 0].join('|'); let L = LC.get(key); if (L) return L;
+if (!MC) MC = document.createElement('canvas').getContext('2d');
+const ch = Array.from(text.length ? text : ' '); MC.font = `${w} 100px ${FAM[fam]}`;
+const ws = ch.map(s => MC.measureText(s).width || 30); const tot = ws.reduce((a, b) => a + b, 0) || 1;
+let fs = Math.min(c.H * maxH, c.W * maxW * 100 / tot) * sc, k = fs / 100;
+/* wrap：單行字太小時（直式畫面或長字串）改成 2～4 行。英數字詞不拆開；標點不放行首、開括號不放行尾。
+目前只有明確傳入 wrap 的元件使用（T-0009 試作：TXT-A-02），其他元件維持單行。 */
+if (o.wrap && ch.length > 1 && fs < c.W * (c.H > c.W ? .14 : .085) * sc) {
+const toks = []; let cur = null; ch.forEach((s, i) => { const al = /[A-Za-z0-9'’\-]/.test(s); if (al && cur && cur.al) { cur.e = i + 1; cur.w += ws[i]; } else { cur = { s: i, e: i + 1, w: ws[i], al }; toks.push(cur); } });
+const NOSTART = /^[，。、：；！？）」』〉》,.;:!?)\]]/, NOEND = /[（「『〈《(\[]$/;
+const split = n => { const lines = [[]]; let lw = 0; const tgt = tot / n;
+toks.forEach((t, ti) => { const str = ch.slice(t.s, t.e).join(''); const line = lines[lines.length - 1];
+const canBreak = line.length && lines.length < n && lw + t.w / 2 > tgt && !NOSTART.test(str) && !NOEND.test(ch.slice(line[line.length - 1].s, line[line.length - 1].e).join(''));
+if (canBreak) { lines.push([t]); lw = t.w; } else { line.push(t); lw += t.w; } });
+return lines.map(l => { const st = l[0].s, en = l[l.length - 1].e; let a = st, b = en; while (a < b && !ch[a].trim()) a++; while (b > a && !ch[b - 1].trim()) b--; return { s: st, e: en, a, b, w: ws.slice(a, b).reduce((x, y) => x + y, 0) }; }); };
+let best = null; for (let n = 2; n <= 4; n++) { const ls = split(n), mw = Math.max(...ls.map(l => l.w)) || 1, f = Math.min(c.W * maxW * 100 / mw, c.H * .5 / (ls.length * 1.28)) * sc; if (!best || f > best.f * 1.04) best = { ls, f }; }
+if (best && best.f > fs * 1.15) { fs = best.f; k = fs / 100; const lh = fs * 1.28, n = best.ls.length, xs = new Array(ch.length).fill(-1e5), ys = new Array(ch.length).fill(0);
+best.ls.forEach((l, li) => { let X = c.W / 2 - l.w * k / 2; for (let i = l.a; i < l.b; i++) { xs[i] = X + ws[i] * k / 2; ys[i] = (li - (n - 1) / 2) * lh; X += ws[i] * k; } });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, ys, lines: n, width: Math.max(...best.ls.map(l => l.w)) * k, height: n * lh, left: c.W / 2 - Math.max(...best.ls.map(l => l.w)) * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L; }
+}
+let X = c.W / 2 - tot * k / 2; const xs = []; ws.forEach(v => { xs.push(X + v * k / 2); X += v * k; });
+L = { text: ch.join(''), ch, fs, font: `${w} ${fs}px ${FAM[fam]}`, ws: ws.map(v => v * k), xs, width: tot * k, left: c.W / 2 - tot * k / 2 };
+if (LC.size > 500) LC.clear(); LC.set(key, L); return L;
+}
+function setFont(x, L) { x.font = L.font; x.textAlign = 'center'; x.textBaseline = 'middle'; }
+function drawChars(c, fn, o = {}) {
+const L = lay(c, o), x = c.ctx, n = L.ch.length, Y = c.cy + (o.y || 0) * c.H; setFont(x, L); x.lineJoin = 'round';
+for (let i = 0; i < n; i++) {
+if (L.ys && L.xs[i] < -1e4) continue;  // 換行處被略過的空白
+const s = fn(i, n, L) || {}; if (s.a === 0 || s.skip) continue;
+x.save(); x.globalAlpha = cl(s.a == null ? 1 : s.a);
+const piv = s.piv || 0, pivx = s.pivx || 0;
+x.translate(L.xs[i] + (s.dx || 0) + pivx, Y + (L.ys ? L.ys[i] : 0) + (s.dy || 0) + piv); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc); x.translate(-pivx, -piv);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(s.ch || L.ch[i], 0, 0); }
+if (!s.noFill) { x.fillStyle = s.col || c.ink; x.fillText(s.ch || L.ch[i], 0, 0); }
+x.restore();
+}
+return L;
+}
+function word(c, s = {}, o = {}) {
+const L = lay(c, o), x = c.ctx; x.save(); setFont(x, L); x.lineJoin = 'round'; x.globalAlpha = cl(s.a == null ? 1 : s.a);
+x.translate(c.cx + (s.dx || 0), c.cy + (o.y || 0) * c.H + (s.dy || 0)); x.rotate(s.rot || 0);
+const sc = s.sc == null ? 1 : s.sc; x.scale((s.sx == null ? 1 : s.sx) * sc, (s.sy == null ? 1 : s.sy) * sc);
+if (s.glow) { x.shadowColor = s.glowCol || c.pr; x.shadowBlur = s.glow; }
+if (s.stroke) { x.lineWidth = s.stroke; x.strokeStyle = s.strokeCol || c.pr; x.strokeText(L.text, 0, 0); }
+if (!s.noFill) { x.fillStyle = s.fill || s.col || c.ink; x.fillText(L.text, 0, 0); }
+x.restore(); return L;
+}
+function maskText(c, mask, o = {}) {
+const O = off(c, 0), L = lay(c, o), x = O.ctx; setFont(x, L); x.fillStyle = o.col || c.ink; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; mask(m, L);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; x.setTransform(c.dpr, 0, 0, c.dpr, 0, 0);
+c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); return L;
+}
+const PC = new Map();
+function textPts(c, step, o = {}) {
+const L = lay(c, o); const key = L.font + L.text + c.W + 'x' + c.H + '|' + step + '|' + (o.y || 0); if (PC.has(key)) return PC.get(key);
+const cv = document.createElement('canvas'); cv.width = Math.ceil(c.W); cv.height = Math.ceil(c.H); const x = cv.getContext('2d');
+setFont(x, L); x.fillStyle = '#000'; x.fillText(L.text, c.cx, c.cy + (o.y || 0) * c.H);
+const d = x.getImageData(0, 0, cv.width, cv.height).data, pts = [];
+for (let Y = Math.floor(step / 2); Y < cv.height; Y += step) for (let X = Math.floor(step / 2); X < cv.width; X += step) if (d[(Y * cv.width + X) * 4 + 3] > 110) pts.push([X, Y]);
+PC.set(key, pts); if (PC.size > 40) PC.delete(PC.keys().next().value); return pts;
+}
+const GLYPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=?<>動態元件畫面切換';
+
+/* =================================================================
+BACKGROUNDS（BG-A、BG-B）— 以 p∈[0,1) 無縫循環
+================================================================= */
+const ecg = u => { u = fr(u); if (u < .4) return Math.sin(u / .4 * Math.PI) * .04; if (u < .45) return -.12 * (u - .4) / .05; if (u < .5) return -.12 + 1.12 * (u - .45) / .05; if (u < .55) return 1 - 1.35 * (u - .5) / .05; if (u < .6) return -.35 + .35 * (u - .55) / .05; if (u < .75) return Math.sin((u - .6) / .15 * Math.PI) * .18; return 0; };
+function zoomRings(c, fn, n = 22, base = .06, mul = 1.32) { for (let k = -6; k < n; k++) { const v = k + c.p * 2, r = c.u * base * mul ** v; if (r > Math.hypot(c.W, c.H)) break; fn(r, v, k); } }
+const BG = {
+'Parallel Curves': c => { bgFill(c); const { ctx: x, W, H } = c; const n = Math.round(14 * c.d) + 4; x.lineWidth = 2.4;
+for (let i = 0; i < n; i++) { const y0 = H * (i + .5) / n; x.strokeStyle = i % 4 === 0 ? c.se : rgba(c.pr, .85); x.beginPath(); for (let X = 0; X <= W; X += 6) { const Y = y0 + Math.sin(X / W * TAU * 1.5 + c.ph + i * .25) * H * .07 * c.k + Math.sin(X / W * TAU * .5 - c.ph) * H * .04; X ? x.lineTo(X, Y) : x.moveTo(X, Y); } x.stroke(); } },
+'Topo Lines': c => { bgFill(c); const { ctx: x, W, H } = c; const hills = [[W * .35, H * .45], [W * .72, H * .6]], n = Math.round(10 * c.d) + 4;
+hills.forEach((hl, hi) => { for (let k = 1; k <= n; k++) { const base = k * c.u * .055; x.strokeStyle = k % 5 === 0 ? c.se : rgba(c.pr, .75); x.lineWidth = k % 5 === 0 ? 2.4 : 1.3; x.beginPath();
+for (let a = 0; a <= TAU + .01; a += TAU / 90) { const rad = base * (1 + .14 * c.k * Math.sin(3 * a + c.ph + k * .3 + hi) + .08 * Math.sin(5 * a - c.ph + k * .2)); const X = hl[0] + Math.cos(a) * rad, Y = hl[1] + Math.sin(a) * rad * .8; a ? x.lineTo(X, Y) : x.moveTo(X, Y); } x.stroke(); } }); },
+'Ripple Rings': c => { bgFill(c); const { ctx: x, W, H } = c; const n = Math.round(8 * c.d) + 3, mx = Math.hypot(W, H) / 2;
+for (let i = 0; i < n; i++) { const f = fr(c.p + i / n), rad = f * mx; x.strokeStyle = rgba(i % 3 === 0 ? c.se : c.pr, (1 - f) * .95); x.lineWidth = Math.max(1, c.u * .03 * (1 - f) * c.k); x.beginPath(); x.arc(W / 2, H / 2, rad, 0, TAU); x.stroke(); } },
+};
+
+/* =================================================================
+TEXT（TXT-A、TXT-B）— 單次動作 p∈[0,1]，結束停格清楚
+================================================================= */
+function wordsOf(t) { const w = t.trim().split(/\s+/).filter(Boolean); return w.length > 1 ? w : null; }
+function ghost(c, n, fn) { for (let k = n; k >= 0; k--) fn(k / n, k === 0 ? 1 : (1 - k / (n + 1)) * .35); }
+function digits(t, d = '280') { const m = (t || '').match(/\d+/); return m ? m[0] : d; }
+const TX = {
+};
+
+/* =================================================================
+SHAPES（SHP）
+================================================================= */
+function softGrid(c) { bgFill(c); gridLines(c, c.u / 8, c.W / 2, c.H / 2, rgba(c.ink, .06)); }
+function floorLine(c, y) { c.ctx.strokeStyle = rgba(c.ink, .25); c.ctx.lineWidth = 2; c.ctx.beginPath(); c.ctx.moveTo(c.W * .1, y); c.ctx.lineTo(c.W * .9, y); c.ctx.stroke(); }
+function polyPts(kind, rad, n = 120) { const out = []; for (let i = 0; i < n; i++) { const t = i / n; if (kind === 'circle') { const a = t * TAU - Math.PI / 2; out.push([Math.cos(a) * rad, Math.sin(a) * rad]); continue; } const v = ngon(kind === 'tri' ? 3 : 4, rad * (kind === 'tri' ? 1.25 : 1.2), kind === 'sq' ? Math.PI / 4 : 0), m = v.length, f = t * m, k = Math.floor(f), u = f - k, A = v[k % m], B = v[(k + 1) % m]; out.push([lerp(A[0], B[0], u), lerp(A[1], B[1], u)]); } return out; }
+/* 圖形改善用的共用小工具（2026-10-22）：有景深的棚景（後牆＋地面＋接觸線）、立體球（漸層明暗＋高光＋輪廓光）、隨高度變化的接觸陰影 */
+function stage(c, fy) { const { ctx: x, W, H } = c; bgFill(c); let g = x.createLinearGradient(0, 0, 0, fy); g.addColorStop(0, mix(c.bg, '#000000', .25)); g.addColorStop(1, mix(c.bg, c.ink, .07)); x.fillStyle = g; x.fillRect(0, 0, W, fy);
+g = x.createLinearGradient(0, fy, 0, H); g.addColorStop(0, mix(c.bg, c.ink, .12)); g.addColorStop(1, mix(c.bg, '#000000', .35)); x.fillStyle = g; x.fillRect(0, fy, W, H - fy);
+x.fillStyle = rgba(c.ink, .16); x.fillRect(0, fy - .5, W, 1); g = x.createRadialGradient(c.cx, fy, 0, c.cx, fy, c.u * .9); g.addColorStop(0, rgba(c.pr, .1)); g.addColorStop(1, rgba(c.pr, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H); }
+function ball(c, X, Y, r, col, o = {}) { const x = c.ctx; x.save(); x.translate(X, Y); if (o.rot) x.rotate(o.rot); x.scale(o.sx || 1, o.sy || 1); if (o.rot) x.rotate(-o.rot);
+let g = x.createRadialGradient(-r * .35, -r * .4, r * .05, 0, 0, r); g.addColorStop(0, mix(col, '#FFFFFF', .55)); g.addColorStop(.45, col); g.addColorStop(1, mix(col, '#000000', .55)); x.fillStyle = g; dot(x, 0, 0, r);
+g = x.createRadialGradient(r * .35, r * .45, r * .5, r * .2, r * .3, r * 1.05); g.addColorStop(0, rgba(c.se, 0)); g.addColorStop(1, rgba(c.se, .35)); x.fillStyle = g; dot(x, 0, 0, r);
+x.fillStyle = 'rgba(255,255,255,.75)'; x.beginPath(); x.ellipse(-r * .38, -r * .42, r * .2, r * .12, -.6, 0, TAU); x.fill(); x.restore(); }
+function contact(c, X, fy, r, h) { const x = c.ctx, k = 1 / (1 + h / r * .5), g = x.createRadialGradient(X, fy, 0, X, fy, r * (1.1 + h / r * .25)); g.addColorStop(0, `rgba(0,0,0,${.55 * k})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+x.save(); x.translate(X, fy); x.scale(1, .22); x.translate(-X, -fy); x.fillStyle = g; x.fillRect(X - r * 3, fy - r * 3, r * 6, r * 6); x.restore(); }
+const SH = {
+'Ring Expand': c => { softGrid(c); const { ctx: x } = c; for (let i = 0; i < 4; i++) { const q = E.oc(stg(c.p, i, 4, .5)), rad = c.u * .4 * q; x.strokeStyle = rgba(i % 2 ? c.se : c.pr, 1 - q * .7); x.lineWidth = c.u * .02 * (1 - q) * c.k + 1; x.beginPath(); x.arc(c.cx, c.cy, rad, 0, TAU); x.stroke(); } x.fillStyle = c.pr; dot(x, c.cx, c.cy, c.u * .05 * E.ob(seg(c.p, 0, .3))); },
+'Circle Draw': c => { softGrid(c); const { ctx: x } = c; const q = E.io(seg(c.p, 0, .85)), R0 = c.u * .25; x.strokeStyle = rgba(c.ink, .1); x.lineWidth = c.u * .03; x.beginPath(); x.arc(c.cx, c.cy, R0, 0, TAU); x.stroke(); x.strokeStyle = c.pr; x.lineCap = 'round'; x.beginPath(); x.arc(c.cx, c.cy, R0, -Math.PI / 2, -Math.PI / 2 + TAU * q + .001); x.stroke(); const a = -Math.PI / 2 + TAU * q; x.fillStyle = c.se; dot(x, c.cx + Math.cos(a) * R0, c.cy + Math.sin(a) * R0, c.u * .025); },
+};
+
+/* =================================================================
+TELOP（TEL）— 字幕與資訊版型，於示意畫面上
+================================================================= */
+const SC = new Map();
+function cached(key, W, H, dpr, draw) { let v = SC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr)); const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); draw(x); if (SC.size > 24) SC.delete(SC.keys().next().value); SC.set(key, cv); return cv; }
+function telScene(c) {
+const cv = cached(['tel', c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H } = c, g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(c.bg, c.pr, .35)); g.addColorStop(.62, mix(c.bg, c.se, .12)); g.addColorStop(1, c.bg); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = R(c, 70); for (let i = 0; i < 14; i++) { const X = r() * W, Y = r() * H * .7, s = c.u * (.04 + r() * .12); const gg = x.createRadialGradient(X, Y, 0, X, Y, s); gg.addColorStop(0, rgba(r() < .5 ? c.pr : c.se, .35)); gg.addColorStop(1, rgba(c.bg, 0)); x.fillStyle = gg; x.fillRect(X - s, Y - s, s * 2, s * 2); }
+x.fillStyle = mix(c.bg, '#000000', .25); x.beginPath(); x.moveTo(0, H * .72); for (let X = 0; X <= W; X += W / 12) x.lineTo(X, H * .7 - Math.sin(X / W * 7 + 1) * H * .04 - r() * H * .03); x.lineTo(W, H); x.lineTo(0, H); x.closePath(); x.fill();
+x.strokeStyle = rgba('#ffffff', .25); x.lineWidth = 1; const m = Math.min(W, H) * .05; x.strokeRect(m, m, W - m * 2, H - m * 2);
+});
+c.ctx.drawImage(cv, 0, 0, c.W, c.H); c.ctx.fillStyle = rgba('#ffffff', .65); c.ctx.font = `600 ${Math.max(9, c.u * .028)}px ${FAM.mono}`; c.ctx.textAlign = 'left'; c.ctx.textBaseline = 'top'; c.ctx.fillText('● REC  00:00:' + String(Math.floor(c.t % 60)).padStart(2, '0'), c.u * .07, c.u * .07);
+}
+const CAP = (o = {}) => ({ maxH: .085, maxW: .8, fam: 'tc', w: 900, y: .3, ...o });
+const TITLE = (o = {}) => ({ maxH: .15, maxW: .76, w: 900, ...o });
+function capBox(c, L, pad, col, y, rad = 6, wq = 1) { const x = c.ctx, w = (L.width + pad * 2) * wq, h = L.fs + pad * 1.3; x.fillStyle = col; rr(x, c.cx - w / 2, c.cy + y * c.H - h / 2, w, h, rad); x.fill(); return { w, h }; }
+function pendingBadge(c, id) { const x = c.ctx, fs = Math.max(10, c.u * .04); x.font = `600 ${fs}px ${FAM.mono}`; const t = '待核對 · ' + id, w = x.measureText(t).width + fs * 1.4; x.setLineDash([5, 4]); x.strokeStyle = c.se; x.lineWidth = 1.5; rr(x, c.W - w - fs, fs, w, fs * 1.9, 6); x.stroke(); x.setLineDash([]); x.fillStyle = c.se; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillText(t, c.W - w - fs + fs * .7, fs * 1.95); }
+const TL = {
+/* Q-008（Claude 分析影片 3；T-0004 ChatGPT 確認進度條）：大描邊編號＋標題＋截圖框的多則清單版型 */
+_pending: (c, item) => { telScene(c); const o = CAP({ w: 700 }), q = E.oc(seg(c.p, 0, .4)); word(c, { a: q, col: '#ffffff', stroke: lay(c, o).fs * .14, strokeCol: rgba('#000000', .7) }, o); pendingBadge(c, item.id); },
+};
+
+/* =================================================================
+TRANSITIONS（TRN）— A → B，無黑幀
+================================================================= */
+function scene(c, which) {
+return cached(['scn', which, c.W, c.H, c.dpr, c.bg, c.pr, c.se, c.seed].join('|'), c.W, c.H, c.dpr, x => {
+const { W, H, u } = c, A = which === 'A', base = A ? c.bg : c.se, card = A ? c.pr : c.bg, fg = A ? inkFor(c.pr) : inkFor(c.bg);
+x.fillStyle = base; x.fillRect(0, 0, W, H); x.strokeStyle = rgba(inkFor(base), .08); x.lineWidth = 1; for (let X = 0; X < W; X += u / 10) { x.beginPath(); x.moveTo(X, 0); x.lineTo(X, H); x.stroke(); } for (let Y = 0; Y < H; Y += u / 10) { x.beginPath(); x.moveTo(0, Y); x.lineTo(W, Y); x.stroke(); }
+const cw = W * .62, ch = H * .56; x.fillStyle = card; rr(x, (W - cw) / 2, (H - ch) / 2, cw, ch, u * .04); x.fill(); x.fillStyle = fg; x.font = `800 ${Math.min(ch * .62, cw * .5)}px ${FAM.sans}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(which, W / 2, H / 2 + ch * .03);
+x.fillStyle = rgba(fg, .5); dot(x, (W - cw) / 2 + u * .05, (H - ch) / 2 + u * .05, u * .014); x.fillRect(W / 2 + cw / 2 - u * .07, H / 2 + ch / 2 - u * .07, u * .03, u * .03);
+x.font = `600 ${Math.max(9, u * .032)}px ${FAM.mono}`; x.textAlign = 'left'; x.textBaseline = 'top'; x.fillStyle = rgba(inkFor(base), .7); x.fillText('SCENE ' + which + (A ? '  ·  00:00:04' : '  ·  00:00:05'), u * .05, u * .05);
+});
+}
+function maskB(c, drawMask) { const O = off(c, 3), x = O.ctx; x.drawImage(scene(c, 'B'), 0, 0, c.W, c.H); const M = off(c, 4), m = M.ctx; m.fillStyle = '#000'; m.strokeStyle = '#000'; drawMask(m);
+x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(M.cv, 0, 0); x.globalCompositeOperation = 'source-over'; c.ctx.drawImage(O.cv, 0, 0, c.W, c.H); }
+const drawA = c => c.ctx.drawImage(scene(c, 'A'), 0, 0, c.W, c.H), drawB = c => c.ctx.drawImage(scene(c, 'B'), 0, 0, c.W, c.H);
+function piece(c, img, clip, dx = 0, dy = 0, sc = 1, rot = 0, ox = c.cx, oy = c.cy) { const x = c.ctx; x.save(); x.translate(ox + dx, oy + dy); x.rotate(rot); x.scale(sc, sc); x.translate(-ox, -oy); x.beginPath(); clip(x); x.clip(); x.drawImage(img, 0, 0, c.W, c.H); x.restore(); }
+const TQ = c => E.io(seg(c.p, .12, .88));
+function wipe(fn) { return c => { const q = TQ(c); drawA(c); if (q > 0) maskB(c, x => fn(c, x, q)); }; }
+const TR = {
+};
+
+/* =================================================================
+ADDITIONS — 錄影規格以外新增的元件繪製函式
+每個函式加進對應類型的表：BG（背景）、TX（文字）、SH（圖形）、TL（字幕）、TR（轉場）。
+名稱必須和該表既有名稱不重複，並在下方 ADDED 登記。
+================================================================= */
+Object.assign(BG, {
+});
+Object.assign(TX, {
+/* 字在主角後面（Q-005／T-0002）：主角（多面寶石，真的 3D 頂點旋轉、背面剔除、依法線打光）先沿弧線飛入、減速收旋，
+接近終態後巨大標題才在它背後淡入（縮放 1.06→1、模糊 9px→0、逐字錯開），寶石投影落在字上、主色光暈染到字面；
+最後一道光掃過寶石切面並閃出星芒。層次：遠景光斑 → 標題（含投影）→ 寶石 → 近景散景。 */
+});
+Object.assign(SH, {
+/* 資料驅動折線圖（T-0008 KJ-A）：格線 → 描線（資料點在描線抵達時彈出）→ 面積 → 摘要數字；接著示範資料更新：從舊值過渡到新值，不從零重來。
+資料含一個負值（零基準線加重）與一個空值（線段中斷、虛線跨過並標「無資料」）。數字只用 ease-out 計數，不超過真值。 */
+});
+function capWords(t) { const out = [], sg = (root.Intl && Intl.Segmenter) ? new Intl.Segmenter('zh-Hant', { granularity: 'word' }) : null; // 和 focusWords 相同的分詞，但不截斷（字幕要完整）
+t.split(/\s+/).filter(Boolean).forEach((w, i) => { const parts = sg ? [...sg.segment(w)].filter(q => q.segment.trim()).map(q => q.segment) : [w]; (parts.length ? parts : [w]).forEach((q, j) => { const prev = out[out.length - 1]; if (j && prev && /^[，。、！？,.!?]$/.test(q)) prev.s += q; else out.push({ s: q, gap: i && !j ? 1 : 0 }); }); });
+return out.slice(0, 30); }
+Object.assign(TL, {
+/* 毛玻璃字幕條（2026-10-25，R-0060）：條後方的影片先被模糊、壓暗、增飽和，再鋪一層半透明深色與顆粒（霜面），
+上緣一道細高光、下緣暗線與落影讓玻璃有厚度；條從中間展開時霜面逐漸「起霧」，字逐詞由模糊對焦淡入；
+後方有散景光點橫向飄過，經過條後面時被模糊成色塊，證明看得到後方；最後一道光掃過玻璃，停在乾淨的完整字幕。 */
+});
+Object.assign(TR, {
+});
+/* UI 微互動：單次動作（點擊預覽可重播）。INT 互動模式：持續循環，讀 c.ptr；沒有真實游標時 c.ptr 是自動示範路徑。
+c.ptr 欄位（函式須無狀態，只依 c.p、c.t、c.ptr 繪製）：
+x, y        目前游標位置（px）            sx, sy     平滑後位置，約 0.12 秒追上，選取／聚焦請用它避免跳動
+down        是否按住                      clicks     [{ x, y, age }] 3 秒內的點擊，age 為秒數
+hoverAge    游標進入畫布後的秒數（自動示範為 9）
+dragX/dragY 拖曳累積位移 px，放開後帶慣性滑行並衰減；輪播角度可用 dragX / W 換算
+vx, vy      速度 px/s                     dragging   是否拖曳中         real  是否為真實游標 */
+/* 卡片家族共用（Q-002、Q-004、Q-007、Q-009）：圓角卡片＋落影＋上緣反光＋內容裁切。
+paint(x, X, Y, w, h) 在卡片範圍內畫內容（已裁切）；lift 0～1 控制抬起時的影子深淺與位移。 */
+function drawCard(c, X, Y, w, h, o = {}) { const x = c.ctx, r = o.r != null ? o.r : c.u * .03, lift = o.lift || 0;
+x.save(); x.shadowColor = `rgba(0,0,0,${.32 + .28 * lift})`; x.shadowBlur = c.u * (.03 + .07 * lift); x.shadowOffsetY = c.u * (.012 + .03 * lift); x.fillStyle = o.fill || mix(c.bg, c.ink, .08); rr(x, X, Y, w, h, r); x.fill(); x.restore();
+x.save(); rr(x, X, Y, w, h, r); x.clip(); if (o.paint) o.paint(x, X, Y, w, h);
+const g = x.createLinearGradient(0, Y, 0, Y + h * .35); g.addColorStop(0, `rgba(255,255,255,${.1 + .08 * lift})`); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(X, Y, w, h * .35); x.restore();
+x.save(); rr(x, X + .5, Y + .5, w - 1, h - 1, r); x.strokeStyle = o.edge || `rgba(255,255,255,${.1 + .12 * lift})`; x.lineWidth = o.edgeW || 1; x.stroke(); x.restore(); }
+const UI = {}, IN = {};
+/* Word Focus Frame 用：依空格分詞；沒空格時用 Intl.Segmenter；仍少於 3 段時，把中文詞拆成單字（gap 是前面空白的倍數） */
+function focusWords(t) { t = String(t || '').trim() || 'MOTION'; const out = [], sg = (root.Intl && Intl.Segmenter) ? new Intl.Segmenter('zh-Hant', { granularity: 'word' }) : null;
+t.split(/\s+/).forEach((w, i) => { const parts = sg ? [...sg.segment(w)].filter(q => q.segment.trim() && q.isWordLike !== false).map(q => q.segment) : [w]; (parts.length ? parts : [w]).forEach((q, j) => out.push({ s: q, gap: i && !j ? 1 : 0 })); });
+if (out.length >= 3) return out.slice(0, 9); const o2 = []; out.forEach(o => { const cs = [...o.s]; if (/[㐀-鿿]/.test(o.s) && cs.length > 1) cs.forEach((ch, k) => o2.push({ s: ch, gap: k ? .25 : o.gap })); else o2.push(o); }); return o2.slice(0, 9); }
+
+Object.assign(BG, {
+/* 攝影棚柔光掃描（R-0052）：暗場中三排鍍鉻圓柱站在亮面地板上，一盞柔光箱繞著場景轉一圈（循環＝一圈，所以無縫）。
+每根圓柱的明暗不是畫上去的白線，而是「環境查表」：圓柱表面法線角 θ 的反射方向是 2θ，查環境函式 env(2θ − 柔光箱角度)，
+得到柔光箱的寬亮帶、地平線暖色燈條（輔色）、下方冷色（主色）；所以柔光箱轉到側面時亮帶滑到圓柱邊緣變成輪廓光，轉到背面時只剩邊緣細光。
+一根圓柱只用一條水平漸層（48 個色標）＋一條垂直明暗漸層，頂面是另一個橢圓（反射天花板）。
+層次：後牆（柔光箱照出的光池跟著移動）→ 遠排（小、低對比、模糊）→ 中排 → 近排（大、銳利）；地板有倒影（越遠越淡）與接觸陰影。 */
+});
+/* ---- 2026-10-24 補做批次共用工具 ----
+uiBack：UI 微互動的棚景背景（上方柔光、桌面漸層、暗角），讓按鈕有「放在某個表面上」的層次。
+uiCursor：示範用的游標箭頭（單次動作元件沒有真實游標，用它標出點擊位置與時機）。
+texQuad：把一張 2D 畫布以「真透視」貼到投影後的四邊形（切成 n×n 格、每格兩個三角形各自仿射），給 3D 傾斜卡片、透視牆用。
+proj3：把卡片平面上的點（u,v ∈ -0.5～0.5）依 rx/ry 旋轉後做透視投影。 */
+function uiBack(c, o = {}) { const { ctx: x, W, H } = c; bgFill(c); let g = x.createRadialGradient(c.cx, H * (o.ly || .3), 0, c.cx, H * .5, Math.hypot(W, H) * .65); g.addColorStop(0, mix(c.bg, c.ink, .09)); g.addColorStop(.55, c.bg); g.addColorStop(1, mix(c.bg, '#000000', .45)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+g = x.createRadialGradient(W * .82, H * .1, 0, W * .82, H * .1, c.u * .7); g.addColorStop(0, rgba(c.pr, .1)); g.addColorStop(1, rgba(c.pr, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+x.fillStyle = rgba(c.ink, .035); const s = c.u * .05; for (let Y = s / 2; Y < H; Y += s) for (let X = s / 2; X < W; X += s) dot(x, X, Y, .9); }
+function uiCursor(c, X, Y, press, a = 1) { if (a <= .01) return; const x = c.ctx, s = c.u * .045 * (1 - press * .12); x.save(); x.globalAlpha = a; x.translate(X, Y); x.rotate(-.12);
+x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = s * .35; x.shadowOffsetY = s * .12; x.fillStyle = '#FFFFFF'; x.strokeStyle = '#111317'; x.lineWidth = Math.max(1, s * .07); x.lineJoin = 'round';
+poly(x, [[0, 0], [0, s * 1.05], [s * .27, s * .8], [s * .45, s * 1.18], [s * .62, s * 1.1], [s * .44, s * .72], [s * .78, s * .7]]); x.fill(); x.shadowColor = 'transparent'; x.stroke(); x.restore(); }
+function proj3(cx, cy, w, h, rx, ry, f, lift = 0) { const cX = Math.cos(rx), sX = Math.sin(rx), cY = Math.cos(ry), sY = Math.sin(ry);
+return (u, v, dz = 0) => { let X = u * w, Y = v * h, Z = dz; let X2 = X * cY + Z * sY, Z2 = -X * sY + Z * cY; const Y2 = Y * cX - Z2 * sX, Z3 = Y * sX + Z2 * cX; const k = f / (f + Z3 - lift); return [cx + X2 * k, cy + Y2 * k, Z3]; }; }
+function texQuad(x, img, iw, ih, P, n = 8, alpha = 1) { // P(u,v) → [X,Y]，u,v ∈ 0～1；img 尺寸 iw×ih（像素，已含 dpr）
+const G = []; for (let j = 0; j <= n; j++) { const row = []; for (let i = 0; i <= n; i++) row.push(P(i / n, j / n)); G.push(row); }
+const tri = (s0, s1, s2, d0, d1, d2) => { const [x0, y0] = s0, [x1, y1] = s1, [x2, y2] = s2, den = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0); if (Math.abs(den) < 1e-9) return;
+const a = ((d1[0] - d0[0]) * (y2 - y0) - (d2[0] - d0[0]) * (y1 - y0)) / den, b = ((d1[1] - d0[1]) * (y2 - y0) - (d2[1] - d0[1]) * (y1 - y0)) / den, cc = ((d2[0] - d0[0]) * (x1 - x0) - (d1[0] - d0[0]) * (x2 - x0)) / den, d = ((d2[1] - d0[1]) * (x1 - x0) - (d1[1] - d0[1]) * (x2 - x0)) / den;
+const e = d0[0] - a * x0 - cc * y0, f2 = d0[1] - b * x0 - d * y0; x.save(); const mx = (d0[0] + d1[0] + d2[0]) / 3, my = (d0[1] + d1[1] + d2[1]) / 3, ex = q => [q[0] + (q[0] - mx) * .02 + Math.sign(q[0] - mx) * .4, q[1] + (q[1] - my) * .02 + Math.sign(q[1] - my) * .4];
+poly(x, [ex(d0), ex(d1), ex(d2)]); x.clip(); x.transform(a, b, cc, d, e, f2); x.drawImage(img, 0, 0); x.restore(); };
+x.save(); x.globalAlpha *= alpha; for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const s = (ii, jj) => [ii / n * iw, jj / n * ih];
+tri(s(i, j), s(i + 1, j), s(i, j + 1), G[j][i], G[j][i + 1], G[j + 1][i]); tri(s(i + 1, j), s(i + 1, j + 1), s(i, j + 1), G[j][i + 1], G[j + 1][i + 1], G[j + 1][i]); } x.restore(); }
+/* 離屏小畫布（給卡片內容、貼圖用；依 key 快取，最多保留 40 張） */
+const TC = new Map(); function texCanvas(key, w, h, draw) { let v = TC.get(key); if (v) return v; const cv = document.createElement('canvas'); cv.width = Math.max(2, Math.round(w)); cv.height = Math.max(2, Math.round(h)); draw(cv.getContext('2d'), cv.width, cv.height); if (TC.size > 40) TC.delete(TC.keys().next().value); TC.set(key, cv); return cv; }
+const wordsOr = (c, def) => { const t0 = String(c.P.text || '').trim(); if (!t0 || t0 === DEFAULTS.text) return def.slice(); const ws = t0.split(/\s+/).filter(Boolean); return def.map((d, i) => ws[i] && [...ws[i]].length <= 10 ? ws[i] : d); };
+Object.assign(SH, {
+/* 透視參考牆（素材佇列 Q-010／T-0004 效果 1，依 ChatGPT 的時間拆解）：5 列×6 欄的網站縮圖組成一面傾斜的牆（上遠下近、真透視貼圖），
+由暗淡入、初始放大 1.08 倍，沿水平慢慢平移並縮回 1.00，最後減速停住；中央一張毛玻璃卡（背後的牆被模糊、提亮）於 0.23～0.39 淡入，
+大數字由 0.95 放到 1.00 並計數到目標值，下方小標題。不是只有整張平移縮放：縮圖之間有透視與景深霧化，中央卡的模糊是即時取樣後面的牆。 */
+});
+/* ---- 2026-10-24 Chris 交辦：Threads「UIアニメ48選」第 10～48 項（R-0057） ---- */
+
+/* ---- 48選 第 3 頁（17～23）卡片類共用小工具（前綴 bB 避免與其他批次撞名） ----
+bBIco：線條圖示（圖片、閃電、星、地球、播放、圖釘、勾）；bBPath：關鍵格路徑（每段 E.io，給自動示範游標）；
+bBOutline：把圓角矩形外框投影成多邊形（翻轉卡片的裁切、描邊、落影用）。 */
+function bBIco(x, k, X, Y, s, col, lw) { x.save(); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = lw || Math.max(1.2, s * .14); x.lineCap = 'round'; x.lineJoin = 'round';
+if (k === 'img') { rr(x, X - s, Y - s * .8, s * 2, s * 1.6, s * .3); x.stroke(); dot(x, X + s * .42, Y - s * .3, s * .17); poly(x, [[X - s * .75, Y + s * .55], [X - s * .2, Y - s * .02], [X + s * .2, Y + s * .38], [X + s * .45, Y + s * .15], [X + s * .78, Y + s * .55]], false); x.stroke(); }
+else if (k === 'bolt') { poly(x, [[.18, -1], [-.6, .12], [-.02, .12], [-.18, 1], [.6, -.12], [.02, -.12]].map(([a, b]) => [X + a * s, Y + b * s])); x.stroke(); }
+else if (k === 'star') { star(x, X, Y + s * .06, s * 1.05, s * .45, 5, 0); x.stroke(); }
+else if (k === 'globe') { x.beginPath(); x.arc(X, Y, s, 0, TAU); x.stroke(); x.beginPath(); x.ellipse(X, Y, s * .45, s, 0, 0, TAU); x.stroke(); x.beginPath(); x.moveTo(X - s, Y); x.lineTo(X + s, Y); x.stroke(); }
+else if (k === 'play') { poly(x, [[X - s * .5, Y - s * .8], [X + s * .8, Y], [X - s * .5, Y + s * .8]]); x.stroke(); }
+else if (k === 'pin') { poly(x, [[X - s * .42, Y - s * .9], [X + s * .42, Y - s * .9], [X + s * .3, Y - s * .1], [X + s * .7, Y + s * .25], [X - s * .7, Y + s * .25], [X - s * .3, Y - s * .1]]); x.stroke(); x.beginPath(); x.moveTo(X, Y + s * .25); x.lineTo(X, Y + s); x.stroke(); }
+else if (k === 'check') { poly(x, [[X - s * .7, Y], [X - s * .2, Y + s * .5], [X + s * .75, Y - s * .55]], false); x.stroke(); }
+x.restore(); }
+function bBPath(p, T, Ps) { for (let i = 0; i < T.length - 1; i++) if (p <= T[i + 1] || i === T.length - 2) { const t = E.io(seg(p, T[i], T[i + 1])); return [lerp(Ps[i][0], Ps[i + 1][0], t), lerp(Ps[i][1], Ps[i + 1][1], t)]; } return Ps[0]; }
+function bBOutline(P, ru, rv, dz = 0) { const pts = []; [[.5 - ru, -.5 + rv, -Math.PI / 2], [.5 - ru, .5 - rv, 0], [-.5 + ru, .5 - rv, Math.PI / 2], [-.5 + ru, -.5 + rv, Math.PI]].forEach(([u, v, a0]) => { for (let k = 0; k <= 6; k++) { const a = a0 + k / 6 * Math.PI / 2, q = P(u + Math.cos(a) * ru, v + Math.sin(a) * rv, dz); pts.push([q[0], q[1]]); } }); return pts; }
+const bBText = (c, x, text, X, Y, hpx, wpx, o = {}) => { const L = lay(c, { text, fam: o.fam || 'tc', w: o.w || 700, maxH: hpx / c.H, maxW: wpx / c.W }); x.font = L.font; x.textAlign = o.align || 'left'; x.textBaseline = 'middle'; x.fillStyle = o.col || c.ink; x.fillText(L.text, X, Y + L.fs * .04); return L; };
+
+/* ---- 表單／清單類 UI 共用小工具（48選 22、24、25、26、28、30）----
+fmT：用 lay() 量字後在指定位置畫一行字（左／中／右對齊），回傳版面資訊。
+fmField：凹入式輸入框（落影、內陰影、上緣反光、邊框；focus 0～1 時邊框轉主色並外暈）。
+fmIcon：線條小圖示（信封、購物車、換貨箭頭、鎖、勾、愛心、對話框）。
+fmRRPt：圓角矩形周長上的點（s 為 0～1 的周長比例，自左上直線段起順時針），給「光沿邊框跑」用。
+fmSpr：阻尼彈簧 0→1（過衝後衰減），給彈入、推開用。 */
+function fmT(c, text, X, Y, hpx, wpx, o = {}) { const L = lay(c, { text, fam: o.fam || 'tc', w: o.w || 700, maxH: Math.max(.005, hpx / c.H), maxW: Math.max(.005, wpx / c.W) }), x = c.ctx;
+x.font = L.font; x.textAlign = o.al || 'left'; x.textBaseline = 'middle'; x.fillStyle = o.col || c.ink; x.fillText(L.text, X, Y + L.fs * .04); return L; }
+const fmSpr = (q, k = 6, w = 11) => q <= 0 ? 0 : q >= 1 ? 1 : 1 - Math.exp(-k * q) * Math.cos(q * w);
+function fmField(c, X, Y, w, h, r, o = {}) { const x = c.ctx, f = o.focus || 0, ec = o.edgeCol || c.pr;
+if (f > .01) { x.save(); x.shadowColor = rgba(ec, .55 * f); x.shadowBlur = h * .45 * f; x.strokeStyle = rgba(ec, .5 * f); x.lineWidth = h * .05; rr(x, X, Y, w, h, r); x.stroke(); x.restore(); }
+x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = h * .25; x.shadowOffsetY = h * .06; x.fillStyle = mix(c.bg, '#000000', .18); rr(x, X, Y, w, h, r); x.fill(); x.restore();
+x.save(); rr(x, X, Y, w, h, r); x.clip(); let g = x.createLinearGradient(0, Y, 0, Y + h); g.addColorStop(0, 'rgba(0,0,0,.4)'); g.addColorStop(.3, 'rgba(0,0,0,0)'); g.addColorStop(1, rgba(c.ink, .04)); x.fillStyle = g; x.fillRect(X, Y, w, h);
+if (f > .01) { g = x.createLinearGradient(0, Y, 0, Y + h); g.addColorStop(0, rgba(ec, 0)); g.addColorStop(1, rgba(ec, .1 * f)); x.fillStyle = g; x.fillRect(X, Y, w, h); } x.restore();
+if (!o.noEdge) { x.strokeStyle = f > .01 ? mix(mix(c.bg, c.ink, .25), ec, f) : mix(c.bg, c.ink, .25); x.lineWidth = Math.max(1, h * (.025 + .015 * f)); rr(x, X, Y, w, h, r); x.stroke(); }
+x.strokeStyle = rgba('#FFFFFF', .06); x.lineWidth = 1; x.beginPath(); x.moveTo(X + r, Y + h + 1); x.lineTo(X + w - r, Y + h + 1); x.stroke(); }
+function fmIcon(x, k, X, Y, s, col, lw) { x.save(); x.translate(X, Y); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = lw || s * .14; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath();
+if (k === 'mail') { rr(x, -s * .5, -s * .36, s, s * .72, s * .1); x.stroke(); x.beginPath(); x.moveTo(-s * .44, -s * .28); x.lineTo(0, s * .06); x.lineTo(s * .44, -s * .28); }
+else if (k === 'cart') { x.moveTo(-s * .55, -s * .4); x.lineTo(-s * .36, -s * .4); x.lineTo(-s * .2, s * .18); x.lineTo(s * .42, s * .18); x.lineTo(s * .52, -s * .22); x.lineTo(-s * .3, -s * .22); x.stroke(); x.beginPath(); x.arc(-s * .12, s * .4, s * .07, 0, TAU); x.arc(s * .32, s * .4, s * .07, 0, TAU); x.fill(); x.beginPath(); }
+else if (k === 'swap') { x.moveTo(-s * .45, -s * .15); x.lineTo(s * .4, -s * .15); x.moveTo(s * .2, -s * .35); x.lineTo(s * .42, -s * .15); x.lineTo(s * .2, s * .05); x.moveTo(s * .45, s * .25); x.lineTo(-s * .4, s * .25); x.moveTo(-s * .2, s * .05); x.lineTo(-s * .42, s * .25); x.lineTo(-s * .2, s * .45); }
+else if (k === 'lock') { rr(x, -s * .38, -s * .08, s * .76, s * .56, s * .1); x.stroke(); x.beginPath(); x.arc(0, -s * .1, s * .24, Math.PI, 0); x.moveTo(-s * .24, -s * .1); x.lineTo(-s * .24, -s * .08); x.moveTo(s * .24, -s * .1); x.lineTo(s * .24, -s * .08); }
+else if (k === 'check') { x.moveTo(-s * .32, 0); x.lineTo(-s * .08, s * .24); x.lineTo(s * .34, -s * .24); }
+else if (k === 'heart') { heart(x, 0, s * .05, s * .5); x.stroke(); x.beginPath(); }
+else if (k === 'chat') { rr(x, -s * .44, -s * .36, s * .88, s * .6, s * .16); x.moveTo(-s * .2, s * .24); x.lineTo(-s * .28, s * .46); x.lineTo(s * 0, s * .24); x.stroke(); x.beginPath(); x.moveTo(-s * .2, -s * .08); x.lineTo(s * .2, -s * .08); }
+x.stroke(); x.restore(); }
+function fmRRPt(X, Y, w, h, r, s) { const a = Math.PI * r / 2, L = [w - 2 * r, a, h - 2 * r, a, w - 2 * r, a, h - 2 * r, a], T = L.reduce((p, q) => p + q, 0); let d = fr(s) * T;
+const arc = (cx, cy, a0, t) => [cx + Math.cos(a0 + t * Math.PI / 2) * r, cy + Math.sin(a0 + t * Math.PI / 2) * r];
+const f = [t => [X + r + t * (w - 2 * r), Y], t => arc(X + w - r, Y + r, -Math.PI / 2, t), t => [X + w, Y + r + t * (h - 2 * r)], t => arc(X + w - r, Y + h - r, 0, t), t => [X + w - r - t * (w - 2 * r), Y + h], t => arc(X + r, Y + h - r, Math.PI / 2, t), t => [X, Y + h - r - t * (h - 2 * r)], t => arc(X + r, Y + r, Math.PI, t)];
+for (let i = 0; i < 8; i++) { if (d <= L[i] || i === 7) return f[i](L[i] > 0 ? cl(d / L[i]) : 0); d -= L[i]; } }
+
+
+/* ---- 48選 第 5 頁（33～39）：進度、載入、骨架、計數 ---- */
+const e5ok = c => mix(mix(c.pr, c.se, .35), '#3FE39A', .55);   // 完成狀態的「成功綠」：和主題色混過，避免突兀
+function e5txt(x, L, X, Y, col, align = 'left', base = 'middle') { x.font = L.font; x.textAlign = align; x.textBaseline = base; x.fillStyle = col; x.fillText(L.text, X, Y); }
+function e5check(x, X, Y, s, f) { partial(x, [[X - s * .5, Y + s * .02], [X - s * .14, Y + s * .36], [X + s * .52, Y - s * .34]], f); }
+/* 改善 SHP-40 Check Draw（48選 36「成功チェック演出」）：圓環先描出 → 圓內主色填滿並彈一下（過衝回彈、整顆微微放大）→
+勾以反白筆畫描出 → 兩圈衝擊環外擴、紙花（會翻面的小長方形）與四芒星點噴出後受重力落下淡出 → 下方「完成了！」由下淡入；
+粒子在 p≈0.97 前全部消失，p=1 停在乾淨的完成徽章。 */
+Object.assign(SH, {
+});
+
+/* ---- 48選 第 6 頁（41～46、48）共用小工具 ----
+fzIco：線條圖示（首頁／搜尋／愛心／使用者／訊息／星／齒輪／勾／返回／箭頭），全部用路徑畫，不用字型或圖片。
+fzTxt：用 lay() 量字後在指定位置畫一行字（w、h 是可用寬高 px）；fzSk：骨架線（假文字）；fzSpr：彈簧緩動（過衝後衰減，q=1 時停在 1）。 */
+function fzIco(x, k, X, Y, s, col, lw) { x.save(); x.translate(X, Y); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = lw || s * .17; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath();
+if (k === 'home') { x.moveTo(-s * .9, -s * .02); x.lineTo(0, -s * .82); x.lineTo(s * .9, -s * .02); x.moveTo(-s * .62, -s * .28); x.lineTo(-s * .62, s * .78); x.lineTo(s * .62, s * .78); x.lineTo(s * .62, -s * .28); x.moveTo(-s * .2, s * .78); x.lineTo(-s * .2, s * .32); x.lineTo(s * .2, s * .32); x.lineTo(s * .2, s * .78); }
+else if (k === 'search') { x.arc(-s * .12, -s * .12, s * .56, 0, TAU); x.moveTo(s * .3, s * .3); x.lineTo(s * .8, s * .8); }
+else if (k === 'heart') heart(x, 0, s * .62, s * 1.1);
+else if (k === 'user') { x.arc(0, -s * .4, s * .36, 0, TAU); x.moveTo(-s * .74, s * .82); x.bezierCurveTo(-s * .74, s * .02, s * .74, s * .02, s * .74, s * .82); }
+else if (k === 'msg') { rr(x, -s * .82, -s * .68, s * 1.64, s * 1.18, s * .32); x.moveTo(-s * .38, s * .5); x.lineTo(-s * .52, s * .88); x.lineTo(s * .06, s * .5); }
+else if (k === 'star') star(x, 0, s * .05, s * .9, s * .4, 5, 0);
+else if (k === 'gear') { x.moveTo(s * .34, 0); x.arc(0, 0, s * .34, 0, TAU); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; x.moveTo(Math.cos(a) * s * .6, Math.sin(a) * s * .6); x.lineTo(Math.cos(a) * s * .88, Math.sin(a) * s * .88); } }
+else if (k === 'check') { x.moveTo(-s * .52, 0); x.lineTo(-s * .14, s * .4); x.lineTo(s * .56, -s * .4); }
+else if (k === 'back') { x.moveTo(s * .7, 0); x.lineTo(-s * .65, 0); x.moveTo(-s * .15, -s * .5); x.lineTo(-s * .65, 0); x.lineTo(-s * .15, s * .5); }
+else if (k === 'chev') { x.moveTo(-s * .22, -s * .5); x.lineTo(s * .28, 0); x.lineTo(-s * .22, s * .5); }
+x.stroke(); x.restore(); }
+function fzTxt(c, t, X, Y, w, h, o = {}) { const L = lay(c, { text: t, fam: o.fam || 'tc', w: o.w || 700, maxH: Math.max(1, h) / c.H, maxW: Math.max(1, w) / c.W }), x = c.ctx; x.font = L.font; x.textAlign = o.al || 'center'; x.textBaseline = 'middle'; x.fillStyle = o.col || c.ink; x.fillText(t, X, Y + L.fs * .04); return L; }
+function fzSk(x, X, Y, w, h, col) { x.fillStyle = col; rr(x, X, Y - h / 2, Math.max(h, w), h, h / 2); x.fill(); }
+const fzSpr = q => q <= 0 ? 0 : q >= 1 ? 1 : 1 - Math.exp(-q * 6.5) * Math.cos(q * 12);
+const fzFmt = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+/* D3 立體元件：實際繪製在 src/vfx/kit3d.mjs（three.js，載入後設定 root.MotionLib3D）；這裡只負責轉接與載入前的佔位畫面 */
+function d3Render(c, it) {
+const K = root.MotionLib3D;
+if (K && K.ready && K.draw(c, it.name)) return;
+const { ctx: x, W, H } = c, g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, mix(c.bg, c.pr, .18)); g.addColorStop(1, mix(c.bg, '#000000', .3)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+const r = Math.min(W, H) * .12, a = c.t * 2; x.strokeStyle = rgba(c.pr, .8); x.lineWidth = Math.max(2, r * .12); x.lineCap = 'round'; x.beginPath(); x.arc(W / 2, H / 2 - r * .3, r, a, a + Math.PI * (K && (K.unsupported || (K.errors && K.errors[it.name])) ? 2 : 1.3)); x.stroke();
+x.fillStyle = rgba(c.ink, .75); x.font = `600 ${Math.max(10, Math.min(W, H) * .06)}px ${FAM.tc}`; x.textAlign = 'center'; x.textBaseline = 'middle'; const err = K && K.errors && K.errors[it.name]; x.fillText(K && K.unsupported ? '此裝置不支援 3D 顯示' : err ? '3D 元件發生錯誤' : '3D 載入中…', W / 2, H / 2 + r * 1.2);
+if (err) { x.font = `500 ${Math.max(9, Math.min(W, H) * .038)}px ${FAM.tc}`; x.fillStyle = rgba(c.ink, .5); x.fillText(err.slice(0, 70), W / 2, H / 2 + r * 2); }
+}
+/* 燈光浮雕（2026-10-25，R-0059）：高度場與法線只在尺寸、文字、顏色改變時烘一次；每格在低解析度緩衝上做
+蘭伯特漫射＋Blinn 高光＋距離衰減，燈就是游標。 */
+const RELIEF = new Map(); let RELIEF_BUF = null;
+function reliefMap(c, rw, rh) {
+const t0 = String(c.P.text || '').trim() || 'MOTION', key = [rw, rh, t0, c.pr, c.bg, c.ink, c.seed, c.d].join('|'); let m = RELIEF.get(key); if (m) return m;
+const cv = document.createElement('canvas'); cv.width = rw; cv.height = rh; const x = cv.getContext('2d'), u = Math.min(rw, rh);
+x.fillStyle = '#000'; x.fillRect(0, 0, rw, rh); const ts = u / (4.2 * c.d), gr = Math.max(1.5, ts * .07), r = rng(c.seed * 13 + 3);
+for (let Y = -ts; Y < rh + ts; Y += ts) for (let X = -ts + ((Math.round(Y / ts) % 2) * ts / 2); X < rw + ts; X += ts) { const hgt = .55 + r() * .12, g = x.createLinearGradient(X, Y, X + ts, Y + ts);
+x.filter = `blur(${(ts * .05).toFixed(2)}px)`; x.fillStyle = `rgb(${Math.round(hgt * 255)},0,0)`; rr(x, X + gr, Y + gr, ts - gr * 2, ts - gr * 2, ts * .08); x.fill(); void g; }
+x.filter = 'none';
+let fs = u * .3; x.font = `900 ${fs}px ${FAM.sans}`; const tw = x.measureText(t0).width; if (tw > rw * .78) { fs *= rw * .78 / tw; x.font = `900 ${fs}px ${FAM.sans}`; }
+x.textAlign = 'center'; x.textBaseline = 'middle'; x.globalCompositeOperation = 'lighten';
+[[fs * .09, 130], [fs * .04, 200], [fs * .012, 255]].forEach(([b, v]) => { x.filter = `blur(${b.toFixed(2)}px)`; x.fillStyle = `rgb(${v},${v},0)`; x.fillText(t0, rw / 2, rh / 2); });
+x.filter = 'none'; x.globalCompositeOperation = 'source-over';
+const d = x.getImageData(0, 0, rw, rh).data, n = rw * rh, H = new Float32Array(n), tx = new Float32Array(n), rn = rng(c.seed * 7 + 11);
+for (let i = 0; i < n; i++) { H[i] = d[i * 4] / 255 + (rn() - .5) * .004; tx[i] = d[i * 4 + 1] / 255; }
+const N = new Float32Array(n * 3), A = new Float32Array(n * 3), base = hex(mix(c.bg, c.ink, .32)), grout = hex(mix(c.bg, '#000000', .3)), letter = hex(mix(c.pr, c.ink, .15)), amp = u * .05;
+for (let j = 0; j < rh; j++) for (let i = 0; i < rw; i++) { const k = j * rw + i, hx = (H[j * rw + Math.min(rw - 1, i + 1)] - H[j * rw + Math.max(0, i - 1)]) * amp, hy = (H[Math.min(rh - 1, j + 1) * rw + i] - H[Math.max(0, j - 1) * rw + i]) * amp;
+let nx = -hx, ny = -hy, nz = 2; const l = Math.hypot(nx, ny, nz); N[k * 3] = nx / l; N[k * 3 + 1] = ny / l; N[k * 3 + 2] = nz / l;
+const g = Math.min(1, H[k] / .5), t = tx[k], col = [0, 1, 2].map(q => (grout[q] + (base[q] - grout[q]) * g) * (1 - t) + letter[q] * t); A[k * 3] = col[0] / 255; A[k * 3 + 1] = col[1] / 255; A[k * 3 + 2] = col[2] / 255; }
+for (let i = 0; i < n; i++) H[i] *= amp;
+m = { N, A, H, rw, rh }; if (RELIEF.size > 6) RELIEF.delete(RELIEF.keys().next().value); RELIEF.set(key, m); return m;
+}
+
+
+
+/* =================================================================
+DATA — 280 項
+================================================================= */
+const HINT = { grid: '方格格線、矩陣依序位移或變形', line: '以線段描邊、延伸、波動或掃描為主', rot: '圍繞中心點持續或一次旋轉', dot: '以點陣、圓點群的分布與時差運動為主', pop: '利用彈跳式放大與回彈形成出現效果', zoom: '透過縮放、景深或縮放模糊創造動勢', wave: '以相位差的波浪節奏連續運動', half: '網點印刷感點陣的疏密、大小與移動變化', panel: '使用數個面板依序推移或展開', seq: '以逐字分配延遲的方式進行動態', slide: '平滑滑入、滑出、推動或移位', flash: '極短亮度閃爍與恢復，避免頻閃過強', mask: '使用字元與單詞的錯位、位移或遮罩動畫', circle: '圓形的縮放、環繞、切割或構圖變換', orbit: '元素以圓或橢圓軌道公轉', flip: '沿 X 或 Y 軸進行 3D 翻轉', glitch: '錯位色差與短促的數位故障感', stripe: '規律條紋依不同時差錯位移動', marker: '使用手繪螢光筆掃過文字', split: '畫面分割成多個區塊再重新拼接', blur: '使用模糊與清晰的快速轉換', bounce: '自由落體或彈簧物理感的跳動', pulse: '規律放大縮小並回復原始狀態', shape: '運用基本幾何形狀的縮放、位移、變形或組合', ring: '以同心圓擴張、收縮或環繞', draw: 'SVG 路徑從 0% 逐漸描繪到 100%', stroke: '以字體外框/圖形描邊的生成與變化為主', sub: '維持字幕清楚可辨，使用輕量淡入淡出', cap: '用字幕框、文字或顏色的變化提升可讀性', wipe: '遮罩逐步揭示下一畫面' };
+const GROUPS = [
+{ key: 'BG-A', name: '背景動態・幾何網格', kind: 'bg', role: '畫面背景填滿容器並可無縫循環，不顯示文字；根據效果名稱構造幾何、網格、線條或粒子運動。', src: 'Grid Fill|grid;Heartbeat Line|line;Tile Rotate|rot;Vertical Lines|line;Dot Connect|dot;Dizzy Stars|name;Random Pop Dots|pop;Grid Cursor|grid;Polar Grid|grid;Dot Matrix|dot;Parallel Curves|name;Broken Grid|grid;Scanning Lines|line;Halftone Blob|half;Triangle Grid|grid;Zap Marks|name;Flow Lines|line;Grid Magnet|grid;Bubble Dots|dot;Diagonal Lines|line;Graph Paper|name;Dot Wave Floor|wave;Comic Sky|name;Barcode|name;Dot Zoom|zoom;Moving Grid|grid;Sound Wave|wave;Heart Pop|pop;Topo Lines|line;Column Shift|name;Dot Rain|dot;Shock Lines|line;Retro Sunrise|name;Halftone Boom|half;Speed Panels|panel;Radar Sweep|name;Dot Swarm|dot;Zigzag Energy|name;Halftone Tunnel|half;Tilt Grid|grid' },
+{ key: 'TXT-A', name: '文字動態・基礎', kind: 'text', role: '以可編輯文字作為動畫主體，保留字距、易讀性與 UTF-8 繁中文字支援。', src: 'Word Burst|name;Letter Sequence|seq;Stamp In|name;Punch Zoom|zoom;Character Jitter|name;Stretch Pop|pop;Zoom Blur|zoom;Slide Text|slide;Giant Scroll|name;Follow Path|name;Repeat Lines|line;Impact Flash|flash;Ribbon|name;Torn Text|mask;Shatter Letters|seq;Tape Crossing|name;Text Tunnel|mask;Text Fall|mask;Gate|name;Arrow|name;Link Circle|circle;Orbit|orbit;Cube|name;Extrude|name;Paragraph|name;Flip|flip;Typewriter|name;Slot|name;Counter|name;Reveal Outline|line;LED|name;Up Scroll|name;Slice Text|mask;Glitch|glitch;Stripe Mask|stripe;Long Shadow|name;Liquid Text|mask;Marker|marker;Split Turn|split;Blur Scatter|blur' },
+{ key: 'TXT-B', name: '文字動態・特效', kind: 'text', role: '以可編輯文字作為動畫主體，著重具辨識度的特殊動態與結束時的清晰停格。', src: 'Lightning Strike|name;Laser Cut|name;Coin Flip|flip;Explode Out|name;Disintegrate|name;Heartbeat Zoom|zoom;Text Kaleido|mask;Number Slam|name;Wave Letters|wave;Stop Motion|name;Letter Rain|seq;Magnifier Lens|name;Scramble Decode|name;Domino Letters|seq;Gradient Flow|name;Circle Text|mask;Water Reflection|name;Letter Bounce|bounce;Text Flag|mask;Gravity Flip|flip;Magnet Pull|name;Word Pulse Grid|grid;Weight Grow|name;Text Fan|mask;Karaoke Ball|name;Swing Letters|seq;Pixel Dissolve|name;Rotating Words|name;Blur Trail|blur;Checker Words|name;Roller Path|name;Shuffle Letters|seq;Text Spiral|mask;Jitter Settle|name;Elastic Wave Stretch|wave;Ink Bleed|name;Letter Assemble|seq;Text Mosaic|mask;Crumble Down|name;Float Drift|name' },
+{ key: 'SHP', name: '圖形動畫', kind: 'shape', role: '使用 SVG 向量圖元展現動態，精準控制形變、時間曲線與物件數量。', src: 'Scale Pulse|pulse;Rotate Spin|rot;Bounce Drop|bounce;Slide Loop|slide;Squash & Stretch|name;Elastic Pop|pop;Wobble|name;Pendulum Swing|name;Shape Morph|shape;Pattern Morph|name;Circle to Square|circle;Split & Merge|split;Fold Unfold|name;Flip Tiles|flip;Ring Expand|ring;Triangle Twist|name;Shape Explosion|shape;Shape Rain|shape;Bubble Pop|pop;Confetti Burst|name;Ripple Squares|name;Radial Fan|name;Spiral Dots|dot;Particle Orbit|orbit;Shape Parade|shape;Shape Conveyor|shape;Shape Stack|shape;Bouncing Shapes|shape;Wave Dots|wave;Grid Cascade|grid;Domino Fall|name;Stairs Rise|name;Squiggle Draw|draw;Circle Draw|circle;Stroke Trace|stroke;Dash March|name;Path Follow|name;Spirograph|name;Arc Loader|name;Check Draw|draw' },
+{ key: 'BG-B', name: '背景動態・抽象', kind: 'bg', role: '抽象幾何視覺背景，提供無縫循環及降動態版本，避免文字內容重疊時視覺干擾。', src: 'Halftone Expand|half;Halftone Wave|wave;Comic Dots|dot;Halftone Sweep|half;Spiral Dots|dot;Halftone Rings|half;Halftone Checker|half;Halftone Sun|half;Perspective Grid|grid;Grid Zoom|grid;Grid Wave|grid;Rotating Grid|grid;Isometric Grid|grid;Hex Grid|grid;Truchet Tiles|name;Weave Grid|grid;Speed Lines|line;Horizontal Lines|line;Line Burst|line;Wave Lines|wave;Ripple Rings|ring;Stripe Twist|stripe;Line Tunnel|line;Crosshatch|name;Circle Pop|pop;Floating Shapes|shape;Shape Tunnel|shape;Orbit Shapes|shape;Kaleidoscope|name;Confetti Fall|name;Blob Shapes|shape;Pinwheels|name;Minimal Blocks|name;Minimal Circle|circle;Bauhaus Shapes|shape;Minimal Arcs|name;Minimal Stripes|stripe;Minimal Square|name;Minimal Wave|wave;Nested Squares|name' },
+{ key: 'TEL', name: '字幕與資訊版型', kind: 'tel', role: '透明背景的影片字幕/資訊元件，確保安全邊界、對比、在 9:16 與 16:9 均清楚。', src: 'Outline Pop|pop;Double Stroke|stroke;Gradient Impact|name;Tilted Sticker|name;Shake Emphasis|name;Burst Bubble|name;Color Block Telop|name;Pop Number|pop;Lower Third|name;Tape Label|name;Ribbon Banner|name;Highlight Marker|marker;Side Tab|name;Stripe Caution|stripe;Speech Bubble|name;Thought Cloud|name;Clean Subtitle|sub;Black Box Caption|cap;Yellow Subtitle|sub;Karaoke Fill|name;Typewriter Caption|cap;Word Pop Caption|pop;Two-Tone Caption|cap;Gradient Bar Caption|cap;待核對字幕效果 25|name;待核對字幕效果 26|name;待核對字幕效果 27|name;待核對字幕效果 28|name;待核對字幕效果 29|name;待核對字幕效果 30|name;待核對字幕效果 31|name;待核對字幕效果 32|name;Mincho Title|name;Vertical Mincho|name;Hanko Seal|name;Fade Elegance|name;Underline Reveal|line;Corner Frame|name;Chapter Card|name;End Credit|name' },
+{ key: 'UI', name: 'UI 微互動', kind: 'ui', role: '介面元件的細節回饋動畫：按鈕、開關、狀態變化與數字更新。動作短、回饋明確，結束停在新狀態。點擊預覽可重播。', src: '' },
+{ key: 'INT', name: '互動模式', kind: 'int', role: '跟隨游標、點擊或拖曳即時反應的互動動畫。沒有操作時以自動示範路徑播放，可無縫循環。', src: '' },
+{ key: 'D3', name: '立體元件', kind: 'd3', role: '2D 與 3D 結合的立體元件：文字、介面、圖樣先在 2D 畫好，再當成 3D 物件的貼圖、凹凸或粒子來源，放進有光影、景深、折射的空間。即時 3D 渲染，可無縫循環，部分元件跟隨游標。', src: '' },
+{ key: 'TRN', name: '轉場與分割', kind: 'trn', role: '以 A、B 兩個影片或圖片圖層示範畫面切換，實現一個時間確定、無黑幀的轉場。', src: 'Color Wipe|wipe;Diagonal Wipe|wipe;Multi Stripe Wipe|wipe;Zigzag Wipe|wipe;Slice Wipe|wipe;Bars Wipe|wipe;Brush Wipe|wipe;Curtain Slide|slide;Circle Wipe|wipe;Block Wipe|wipe;Shutter Wipe|wipe;Clock Wipe|wipe;Diamond Wipe|wipe;Star Wipe|wipe;Pinwheel Wipe|wipe;Corner Wipe|wipe;Liquid Wipe|wipe;Drip Wipe|wipe;Ripple Wipe|wipe;Text Wipe|wipe;Impact Flash|flash;Wave Split|wave;Zigzag Split|split;Circle Split|circle;Horizontal Split|split;Vertical Split|split;Triple Split|split;Four Panels|panel;Sliding Panels|panel;Diagonal Panels|panel;Quad Open|name;Checker Panels|panel;Diagonal Split|split;Mosaic Flash|flash;Frame Stack|name;Bar Panels|panel;Band Split|split;Grid Flip|grid;Panel Zoom Out|zoom;Strip Shuffle|name' }
+];
+const MAPS = { bg: BG, text: TX, shape: SH, tel: TL, trn: TR, ui: UI, int: IN, d3: {} };
+const LIST = [], BYID = {};
+GROUPS.forEach(g => { g.items = (g.src ? g.src.split(';') : []).map((s, i) => { const [name, h] = s.split('|'), id = `${g.key}-${String(i + 1).padStart(2, '0')}`, pending = name.startsWith('待核對');
+const hint = h === 'name' ? `依「${name}」名稱和錄影示意演繹具有辨識度的動畫；先建立主視覺，再以移動、旋轉、縮放、透明度或變形呈現此效果` : HINT[h];
+const it = { id, name, group: g.key, groupName: g.name, kind: g.kind, hintKey: h, hint, pending, source: 'spec', added: '2026-10-17', revised: null }; LIST.push(it); BYID[id] = it; return it; }); delete g.src; });
+
+/* 新增元件登記：依加入順序附加在 group 尾端，編號接續（例如 BG-A-41）。
+{ group: 'BG-A', name: 'Name In English', hint: '一句中文動作說明', added: 'YYYY-MM-DD', refs: ['R-0001'] }
+refs 對應 src/data/references.json 的 id（靈感來源，可省略）。 */
+const ADDED = [
+{ group: 'UI', name: 'Like Burst', hint: '按下愛心按鈕：先壓縮回饋，再彈性填色，外圈擴散與八點粒子迸出，計數由 128 上滑成 129', added: '2026-10-19' },
+{ group: 'UI', name: 'Toggle Switch', hint: '開關由關到開：圓鈕帶擠壓滑過軌道，軌道顏色漸變為主色，鈕上描出勾號，標籤由淡轉清楚', added: '2026-10-19' },
+{ group: 'INT', name: 'Cursor Spotlight', hint: '點陣隨游標局部放大發亮，按下時加強；點擊從點擊處擴散一圈亮環', added: '2026-10-19' },
+{ group: 'INT', name: 'Magnetic Field', hint: '短線像鐵粉一樣指向游標，越近越長越亮；按住時轉為環繞方向，點擊送出一圈震波', added: '2026-10-19' },
+{ group: 'TRN', name: 'Type Band Sweep', hint: '橫向色帶交錯從左右滑入，帶內重複文字以更快速度反向捲動形成視差；色帶接成整面後換到 B，再沿同方向依序滑出', added: '2026-10-18', refs: ['R-0001', 'R-0002'] },
+{ group: 'INT', name: 'Proximity Weight', hint: '游標靠近的字母局部加粗、放大並轉為主色，像可變字重隨距離起伏；按住加強，點擊送出一道沿文字傳遞的字重波', added: '2026-10-18', refs: ['R-0003'] },
+{ group: 'UI', name: 'Copy Confirm', hint: '按下複製鈕：指令文字先被選取高亮，按鈕壓縮回彈，圖示翻面由複製變成描出的勾號，上方彈出「已複製」提示後淡出', added: '2026-10-18' },
+{ group: 'D3', name: 'Glass Orb Lens', hint: '2D 大字在後、真實折射的玻璃球在前：球滑過時把字放大、扭曲，跟隨游標移動', added: '2026-10-19' },
+{ group: 'D3', name: 'Floating Card Stack', hint: '毛玻璃實體卡片：圓角倒角的玻璃板會真實透射、模糊折射後方的彩色光球，2D 數據介面印在玻璃表面；四張輪流沿弧線抽到最前面，地面有真實陰影，游標改變視角', added: '2026-10-19', refs: ['R-0006', 'R-0007'] },
+{ group: 'D3', name: 'Beveled Extrude Type', hint: '2D 字形描成輪廓後擠出成真的倒角立體字（亮面烤漆、深色側面、倒角反光），字一個接一個跳起前翻、落地壓扁回彈，地面有柔和陰影', added: '2026-10-19', refs: ['R-0006', 'R-0007'] },
+{ group: 'D3', name: 'Embossed Coin Flip', hint: '2D 文字轉成凹凸貼圖壓進金屬幣面；硬幣翻轉、落桌回彈，光線掃過浮雕', added: '2026-10-19' },
+{ group: 'D3', name: 'Cloth Banner Wave', hint: '2D 圖樣印在真實模擬的布旗上：Verlet 布料受風、織紋與絨面反光、太陽光自身陰影，金屬旗桿與升旗繩；游標在畫面上時改為即時模擬，左右控制風力', added: '2026-10-19', refs: ['R-0004', 'R-0005', 'R-0006'] },
+{ group: 'D3', name: 'Particle Text Depth', hint: '從 2D 文字取樣成粒子，從景深深處飛來組成字，停留時游標可推開粒子，最後散回空間', added: '2026-10-19' },
+{ group: 'INT', name: 'Word Focus Frame', hint: '以詞為單位對焦：游標所在的詞清楚、其餘依距離模糊變淡，四角取景框先停留再滑到新詞並伸縮成新詞寬度，點擊時框輕彈一下；後方有散景光斑做景深', added: '2026-10-20', refs: ['R-0032'] },
+{ group: 'TEL', name: 'Numbered Listicle Slides', hint: '多則清單影片版型：大描邊編號與標題從左進場、截圖框從右滑入並微傾帶投影，背景色逐則改變，後方大數字做最遠景；左下分段進度條（完成段全亮、目前段依進度填入），最後停在最後一則', added: '2026-10-20' },
+{ group: 'D3', name: 'Chrome Blob Morph', hint: '鉻金屬液滴：等值面（marching cubes）做出真的融合與分離，液滴繞核心走不同倍頻的軌道，靠近時黏合、拉開時拉出細頸再斷開；鏡面反射攝影棚的柔光箱、主色與輔色燈條，以及背後一塊 2D 文字燈牌；地面有真實投影，游標移動時核心被吸過去', added: '2026-10-20', refs: ['R-0031', 'R-0006'] },
+{ group: 'D3', name: 'Bar Chart Skyline', hint: '2D 長條圖立起成 3D 城市天際線：每根長條是一棟圓角大樓，立面有窗格與亮窗、頂部女兒牆，屋頂立著實體看板顯示數值；地面印著圖表基線、刻度、類別與標題。大樓以有重量的彈簧過衝升起，中段資料更新時從舊值長到新值、最高的一棟屋頂亮起主色，最後沉回地面；游標改變視角', added: '2026-10-21', refs: ['R-0036', 'R-0038'] },
+{ group: 'SHP', name: 'Data Chart Reveal', hint: '資料驅動折線圖：格線先淡入，折線依序描出、資料點在描線抵達時彈出，再補面積與摘要數字；接著示範資料更新，從舊值過渡到新值。含負值（零基準線加重）與空值（線段中斷、虛線跨過並標「無資料」），數字計數不超過真值', added: '2026-10-21', refs: ['R-0036', 'R-0040'] },
+{ group: 'INT', name: 'Accordion Focus', hint: '5 張直立卡排成一列，游標所在的卡展開到約 58% 寬、略為抬起並加深落影，其餘均分讓位，總寬不變；卡內風景以展開寬度繪製再裁切，不會拉伸；收合時顯示直排名稱，展開時標題、副標、按鈕錯開進場，點擊時卡緣亮起', added: '2026-10-21', refs: ['R-0037'] },
+{ group: 'D3', name: 'Neon Sign Flicker', hint: '2D 字形描出輪廓、彎成真的霓虹玻璃燈管（內有更亮的氣體芯），電極套管穿進牆面、沿線金屬支架與夾扣、變壓器盒拉一條下垂電線；上漆磚牆有凹凸與粗糙度差異。啟動時逐字閃爍點亮，牆面跟著被字的色光照亮、燈管在牆上投下影子；中段某一字接觸不良抖動，最後斷電、餘光衰減。密度大於 1.25 時字交替用輔色，游標改變視角', added: '2026-10-22', refs: ['R-0041', 'R-0044'] },
+{ group: 'TXT-B', name: 'Text Behind Subject', hint: '主角（真的 3D 旋轉、依切面打光的多面寶石）先沿弧線飛入、減速收旋並帶殘影，接近終態後巨大標題才在它背後逐字淡入（輕微縮小、由模糊轉清楚）；寶石的投影與主色光暈只落在字上，形成前後景，最後一道光掃過切面閃出星芒，前後各有一層散景光點做視差', added: '2026-10-22', refs: ['R-0042'] },
+{ group: 'UI', name: 'Async Status Button', hint: '同一顆按鈕承接狀態：按下壓縮 → 文字淡出、膠囊收成圓 → 轉圈載入 → 填色並展開回原寬。兩張表單並排：左邊成功（描出勾、「已訂閱」、外圈脈衝、欄位出現小勾），右邊失敗（描出叉、「失敗 · 重試」附重試箭頭、左右衰減震動、欄位邊框轉色並滑出錯誤說明）；狀態都有圖示與文字，不只換色', added: '2026-10-22', refs: ['R-0043', 'R-0040'] },
+{ group: 'D3', name: 'Paper Fold Reveal', hint: '一張真的三摺頁紙在木桌上展開再摺回：每格頂點依摺痕半徑沿弧長彎折（不是剛體硬轉），封面被紙的彈性撐起、過垂直後重力加速倒下、落桌回彈兩下，運動中尾端依角速度落後彎曲，攤平後摺痕留一點角度；內頁印著目錄、標題內文與插畫，外面是封面與引言（摺過去時才是正的）。紙有纖維法線、油墨比紙面亮一點，主光投下紙的自身陰影與落影，旁邊一支金屬筆蓋的筆當比例尺；游標改變視角', added: '2026-10-23', refs: ['R-0046', 'R-0045'] },
+{ group: 'TRN', name: 'Page Curl', hint: 'A 頁從右下角捲起，紙繞著沿摺線的圓柱翻過去：捲曲段分成細帶依圓柱角度壓縮、變暗，翻到背面露出紙色與透出來的反字，並有一道鏡面高光；捲起的紙在 A 與 B 上投下模糊落影，捲曲半徑隨捲動略增，最後整頁捲出畫面露出 B', added: '2026-10-23', refs: ['R-0045', 'R-0047'] },
+{ group: 'INT', name: 'Fan Card Focus', hint: '7 張漸層卡像手牌一樣扇形排開，游標水平位置對應目標卡：目標卡扶正、上抬、放大 1.12 倍並蓋到最前，其他卡依距離向兩側多轉一點讓位；遮擋順序由遠到近，最外側卡不會被裁切，卡內有光球與同心弧做景深，下方小點指示目前選取，按住時目標卡輕壓', added: '2026-10-23', refs: ['R-0049'] },
+{ group: 'D3', name: 'Newton Cradle', hint: '真的建模的牛頓擺：兩支圓角倒 U 形鍍鉻框架插進烤漆底座，5 顆鏡面鉻球各用兩條細線 V 形吊在前後橫桿上；右球擺出落回、撞擊瞬間左球彈出，完全彈性的動量傳遞無縫循環，擺動在最低點最快、頂點停頓，撞擊時中間三顆有極小的傳遞震動；攝影棚柔光箱與主色、輔色燈條映在球面上，球與線的影子隨擺動落在底座與石材桌面，底座前方黃銅名牌刻著文字；游標左右移動時繞著擺件轉看', added: '2026-10-24', refs: ['R-0050', 'R-0052'] },
+{ group: 'INT', name: 'Velocity Sticky Cursor', hint: '兩層游標：小核心直接跟著指標，外環平滑追隨並沿速度方向伸長（最多 1.6 倍、等面積收窄）；靠近三個導覽按鈕時外環被吸過去，從圓變成包住按鈕的圓角矩形、中心仍略偏向指標，按鈕亮起、字往游標方向微移；離開時回到圓形自由跟隨，點擊在按鈕內擴散一圈；後方有模糊的頁面內容與光斑', added: '2026-10-24', refs: ['R-0051', 'R-0040'] },
+{ group: 'BG-B', name: 'Studio Softbox Sweep', hint: '暗場攝影棚裡三排鍍鉻圓柱站在亮面地板上，一盞柔光箱繞場景轉一圈：每根圓柱的明暗由反射環境查表而來，柔光箱在前方時是正面寬亮帶、轉到側面變成邊緣輪廓光，地平線暖色燈條與下方冷色固定映在柱面上；後牆光池與地板長條反光跟著光箱移動，遠排小而模糊、近排大而銳利，地板有倒影與接觸陰影，循環無縫', added: '2026-10-24', refs: ['R-0052'] },
+{group: "UI", name: "Ripple Button", hint: "游標移到按鈕上按下：按鈕下沉、落影收緊，波紋從按下的那一點擴散到最遠的角並被膠囊外形裁切，第二道淡波稍晚；放開時彈性回升、外圈閃一道主色光暈，最後停在原狀", added: "2026-10-24", refs: ["R-0056", "R-0057"]},
+{group: "UI", name: "Neon Glow Button", hint: "暗場中的描邊按鈕：游標移入時燈管閃爍啟動後穩定發光（外光暈、內光、字發光），一道斜光掃過管面，地面有模糊倒影與光池；按下時亮度脈衝並外擴一圈光環，最後停在穩定亮燈", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Liquid Toggle", hint: "按下開關：圓鈕像一滴液體被拉往右邊，前端先衝出、後端黏著原處拉出越來越細的頸，中段甩出一顆小液珠，後端追上合體並過衝回彈；軌道液體同步從左灌到右，圓鈕停住後描出勾、標示轉為 ON", added: "2026-10-24", refs: ["R-0054", "R-0057"]},
+{group: "UI", name: "Slime Checkbox", hint: "按下勾選框：方框像果凍被壓扁再衰減晃動，主色從按下點像液體漫開填滿，勾以筆畫描出，噴出幾顆黏液小珠落地壓扁後消失；方框有上緣高光與內陰影，標籤由淡轉清楚並畫上底線", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Tab Slide Highlight", hint: "點第三個分頁：膠囊指示器前緣先走、後緣後到，先拉長成一條再彈性收回到新分頁寬度，被蓋到的字轉成反白；下方內容卡從右側滑入取代舊內容，最後停在新分頁", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Gradient Border Button", hint: "游標移入後，按鈕邊框的錐形漸層開始繞圈流動、邊框變粗並向外暈光；按下時漸層從按下點灌滿整顆按鈕，字反白並推出往右的箭頭，最後停在填滿的漸層按鈕", added: "2026-10-24", refs: ["R-0057"]},
+{group: "UI", name: "Bounce CTA", hint: "CTA 按鈕從上方落下，落地依撞擊速度壓扁並回彈兩下，地面影子隨高度縮放；停穩後外圍發出兩圈脈衝環，箭頭往右輕推兩下，最後一道光掃過按鈕", added: "2026-10-24", refs: ["R-0057"]},
+{group: "INT", name: "Magnetic Button", hint: "游標進入按鈕周圍的磁場範圍時，按鈕被吸向游標、字與圖示吸得更多形成視差，按鈕略放大、落影往反方向；離開範圍後回到原位，按住時壓下、點擊在按鈕內擴散", added: "2026-10-24", refs: ["R-0057"]},
+{group: "INT", name: "Hover Tilt Card", hint: "卡片依游標位置在 3D 中傾斜（真透視貼圖），卡內標誌與文字依離卡面的高度產生視差，反光跟著游標移動、邊緣有隨角度變化的彩虹光澤，地面落影往傾斜反方向偏移；無游標時自動繞著傾斜", added: "2026-10-24", refs: ["R-0055", "R-0057"]},
+{group: "UI", name: "Alternating Product Drawer", hint: "商品大圖維持主視覺：右側奶白資訊面板整片往右退場，背景商品由寶石戒指交叉淡化成水滴墜飾（鏡頭略推近），左側面板帶新商品資訊進場，最後停在可讀的「左資訊、右商品」；直式畫面改為上下配置", added: "2026-10-24", refs: []},
+{group: "INT", name: "Drag Momentum Card", hint: "拖曳中央卡片：放開後帶著速度滑行並衰減，超出邊界只允許小幅橡皮筋並把邊界框標成輔色；抓住時放大 1.025、落影加深，移動時依速度微傾；沒有游標時自動示範抓起、甩出、撞邊彈回", added: "2026-10-24", refs: ["R-0040"]},
+{group: "INT", name: "Spotlight Card Rail", hint: "一排卡片水平排列，中央一張完整尺寸、鄰卡約 75%，越遠越小越淡、兩側漸隱；中央卡有亮框與柔影，標題與 CTA 只在置中時淡入，下方圓點指示位置；自動逐張平移，拖曳時整排跟著走並吸附到最近的卡", added: "2026-10-24", refs: []},
+{group: "INT", name: "Orbit Card Gallery", hint: "9 張直立卡沿水平圓環排列、面朝外，以真透視投影呈現：側面的卡自然變窄、後排變小、遠近遮擋正確，轉到背面露出暗色背板；自動等速旋轉一圈，拖曳可轉動並帶放手慣性，地面有柔影與光池", added: "2026-10-24", refs: []},
+{group: "SHP", name: "Perspective Reference Wall", hint: "5 列×6 欄的網站縮圖組成一面上遠下近的傾斜透視牆，由暗淡入、從 1.08 倍縮回並慢慢平移後減速停住，遠處有景深霧；中央毛玻璃卡（即時模糊背後的牆）淡入，大數字計數到目標值、下方小標題", added: "2026-10-24", refs: []},
+{ group: "UI", name: "Shutter Button", hint: "游標按下暗色「立即購買」：左右兩片斜切的擋板像快門加速闔上、在中線撞合（接縫閃光、按鈕震一下），闔上瞬間底下換成成功狀態，擋板往兩側滑開露出綠色「✓ 已購買」，勾筆畫描出、按鈕輕彈並亮起外光暈", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Invert Button", hint: "描邊按鈕（主色框與主色字）：游標移入後一塊斜切主色色塊帶著亮色前緣從左掃到右，覆蓋處底色與字色互換、字在斜線交界被切成兩色；掃滿後外光暈亮起，按下微縮並外擴一圈光環，停在實心反白狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Spring Day Night Toggle", hint: "按下太陽圓鈕：圓鈕依彈簧滑向右邊、衝過軌道端點再彈回，移動中依速度拉長成橢圓；軌道由晴空藍轉成夜空（雲往下淡出、星星依序亮起閃爍），太陽旋轉縮小換成月牙，下方標籤由淺色模式換成深色模式", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Snap Rocker Switch", hint: "方座凹槽裡的立體翹板開關：游標按住上半部，翹板先頂著慢慢下壓，到臨界點瞬間翻到另一側並過衝回彈，整顆震一下、四周噴出短火花；上半面點亮主色發光、凸起端換邊，旁邊指示燈閃一下亮起，OFF 彈成 ON", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Live Pulse Button", hint: "主色 LIVE 膠囊外有兩圈細框：按鈕以撲通撲通的雙拍心跳脈動，每拍微放大、紅點亮起發光，並從膠囊邊緣送出一圈圈圓角波紋向外擴散淡出，經過細框時把框點亮；下方觀看人數隨每拍跳增，最後游標移入按鈕浮起", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Energy Charge Button", hint: "圓形閃電按鈕：游標長按時按鈕微縮，外環從頂端順時針描繞充能、百分比上升，粒子沿螺旋被吸入、閃電越來越亮並在滿格時抖動；放開瞬間白光一閃、兩道衝擊波與一圈粒子條紋向外爆開，按鈕彈回、外環收回消失", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "INT", name: "Elevate Card", hint: "游標靠近卡片時卡片上浮略放大，落影變大變淡、地面接觸影散開，上緣亮起一道白光、外框暈出主色光，媒體區光球與圖示跟著游標輕微視差；底部「詳細 →」按鈕從卡片內滑出，游標停在按鈕上時按鈕變亮；離開後卡片落回、按鈕收回", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "INT", name: "Glow Edge Cards", hint: "三張功能卡（速度／品質／全球）排在凹槽底板上，邊框被以游標為中心的光照亮：光沿邊框分佈、離游標越近越亮並帶模糊外暈，游標在兩卡之間時相鄰兩邊同時亮（跨卡連續）；游標所在卡片內部有柔光，圖示被點亮發光", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Stack Fan Out", hint: "四張卡疊成一疊（微歪、越下越暗、角落有張數徽章），游標移上時頂卡微抬，按下整疊一壓，放開後由頂卡開始錯開延遲向兩側扇形展開，飛行中卡片抬起放大、落影加深分開，過衝後各自帶旋轉停成扇形", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Flip Card", hint: "點擊卡片後以真透視繞 Y 軸翻轉（轉過頭一點再回正）：正面是星形圖示與 FRONT，背面是漸層、BACK 與「這裡放詳細內容」；翻轉中卡片抬起前傾、朝向觀者的厚度邊亮起一道光、表面掠光並依角度變暗，落影跟著外框變形、抬起時變大變淡", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Swipe Action List", hint: "三列訊息清單，游標按住中間一列往左拖：該列抬起、落影加深，拖過頭一點後放開彈回並停在露出狀態；後方凹槽裡的「完成」與「釘選」按鈕依露出寬度由右至左依序彈出，其他列保持不動", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Accordion Expand", hint: "三列常見問題，原本第一列展開；游標點第三列：第一列內容淡出收合、第三列以彈性展開並亮起主色聚焦框光，箭頭轉 180°，兩行說明由下逐行淡入，其餘列依高度即時補位", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Card Expand To Fullscreen", hint: "三張選單卡（音樂／相片／影片），游標點「相片」：卡片上抬發光、按下一壓，接著從原位放大成全畫面（圓角變小、底色轉成漸層），圖示與標題從置中小字重排成左上大標題，背景其他卡縮小退後變暗；最後說明文字、相片縮圖格依序淡入、「開啟」按鈕彈出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Notification Stack", hint: "訊息、按讚、完成三則通知依序從上方以彈簧彈入，新的一進來就把舊的往下推一格，越舊越縮小變暗；圖示圓點彈出、各色底線由左畫到右，標頭未讀數跟著跳", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Focus Input Glow", hint: "游標點進電子郵件欄：一道彗星狀的光從點擊處沿邊框繞一圈，繞完整框亮起主色外暈，佔位字消失，email 逐字打入、游標閃爍，最後右側描出勾", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Floating Label Input", hint: "點擊輸入框：框內標籤縮小並浮到上邊框、轉成主色，邊框在標籤處斷開讓位，框亮起外暈；接著逐字輸入 email、游標閃爍，下方提示字淡入，下方密碼欄維持未聚焦作對照", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Segment Chart Switch", hint: "日／週／月分段控制：游標點「月」，凸起的選取塊從「日」滑過去（越快拉得越長、到點微過衝），塊內字反白；下方 7 根長條依序從舊高度長／縮到新高度並帶回彈、柱頂閃光，總數同步滾動、X 軸標籤交叉淡換，最後最高的柱子冒出數值泡泡", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Dropdown Select", hint: "點開語言下拉欄：箭頭翻上、浮層長出，四個選項依序帶彈性落下；游標經過繁體中文停在 English，高亮條跟著滑過去，點選後選單由下往上收回，English 從下方滑進欄位並描出勾", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Step Form Progress", hint: "三步驟表單：每按一次「下一步」，表單內容整頁往左滑、連線由左到右填滿、前一個圓點彈出打勾、下一個圓點亮起外圈；第三步按「送出」後滑到完成頁，大勾圓彈性放大並描出勾，「送出完成！」淡入", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Radio Ripple Select", hint: "三個方案列（NT$0／NT$290／NT$890），原選進階；點企業方案的圓鈕：圓點從中心彈性長出、兩圈波紋擴散，主色淡底從點擊處漫開填滿整列、邊框發光，舊選項圓點縮回並淡出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Password Reveal", hint: "密碼欄一排圓點，游標按眼睛圖示：眼皮由閉（下彎＋睫毛）張開、瞳孔放大，圓點從左到右逐字沿水平軸翻牌成明文 Pa55w0rd（等寬主色字），欄位邊框轉主色暈光，下方提示淡入", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Search Bar Expand", hint: "圓形放大鏡按鈕被按下後往左右伸展成長條搜尋列（小過衝），放大鏡留在左端、邊框亮起；逐字打出「motion」後下方建議面板展開，三個建議項依序從上方落下回彈，查詢字以主色標出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Linear Progress Glow", hint: "「上傳中」卡片的進度條從 0 以不均勻速度長到 100%：漸層填色內有斜紋往右流動、光帶週期掃過，前端一顆發光亮點，刻度隨進度點亮，百分比與 MB 數同步計數；到 100% 整條轉成功綠並脈衝發光，標籤改「上傳完成」，下方「✓ 完成」彈入", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Circular Progress Count", hint: "圓盤外圈 60 根刻度，進度弧以輔色到主色的錐形漸層描出、帶外光，端點發光亮點，刻度隨弧經過逐根點亮；中央大數字計數到目標、下方 PERCENT，到 100 時整圈轉成功綠、數字彈一下並外擴一圈脈衝環", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Loading Dots Duo", hint: "兩張小面板：左邊三顆點錯開相位彈跳，落地壓扁、空中拉長、地面落影隨高度縮放，配「Please wait」；右邊 12 顆點的環有亮頭繞行、尾巴漸小漸淡，配「Loading」；最後減速收束成三點排好、整圈均勻點亮的靜止狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Error Shake Field", hint: "游標按「登入」後密碼欄左右衰減搖晃（約四次往返），邊框與光暈轉警示色、欄內微泛紅，右側驚嘆號圓章彈出，下方錯誤訊息從上滑入，最後停在穩定的錯誤狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Skeleton Shimmer Load", hint: "貼文卡片先顯示骨架（頭像圓、名字條、內文灰條），斜向光波只在骨架形狀上掃過兩次；接著骨架淡出，頭像、名字與帳號、內文、（直式）圖片、按讚列依序由下往上淡入，停在完整貼文卡", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Rolling Count Badge", hint: "「追蹤者」卡片的數字每一位都是滾筒，越右邊轉越多圈、由左往右依序停下並過衝回彈，快轉時有殘影、上下有淡出遮罩，停在 12,480（可用文字參數裡的數字）；接著右上角愛心填色跳一下噴出光點，旁邊彈出「↑ 24%」成長膠囊", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Password Strength Meter", hint: "密碼逐字打入（圓點逐顆彈出），下方 4 段強度條依字數門檻從左依序灌滿並閃光，顏色由警示紅→輔色→主色→成功綠，欄位邊框跟著換色；等級文字弱→普通→強→很強！逐級彈出，滿級時右側描出勾", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Bottom Nav Bounce", hint: "App 底部導覽列點「我的」：原本浮起的首頁泡泡掉回列中小彈兩下，新圖示變成主色圓形泡泡從列裡彈出（彈簧過衝、上升拉長落下壓扁），外圈有缺口環、列面留下凹陷陰影與光池，標籤從泡泡下方浮出", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Side Menu Push", hint: "點左上漢堡鈕：三條線轉成 ×，主畫面被往右推並縮小、圓角變大、拉出長影並壓暗，露出的選單層上「首頁／訊息／收藏／設定」帶圖示由上而下依序從左滑入回彈，目前項目有主色膠囊", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Modal Pop In", hint: "按下「開啟視窗」：背景畫面逐漸模糊、壓暗並加暗角，對話框從小以彈簧放大登場，勾勾徽章彈出、勾描出並放出光環與光點，顯示「註冊完成」與 OK 按鈕，游標移到 OK 上讓它亮起", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Toast With Timer", hint: "按「儲存」後按鈕轉成淡淡的已儲存狀態，「已儲存」吐司從畫面下緣彈簧滑上、勾勾描出、右側有「復原」連結，底部發光計時條逐漸縮短，歸零時吐司往下滑出淡出，畫面回到乾淨狀態", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Page Push Slide", hint: "在 App 清單點第二列：該列按下變色描邊，詳細頁從右推入、舊頁只退 30% 並變暗（視差），新頁左緣帶陰影，主圖與內文稍晚到位，返回箭頭從右滑入，最後停在詳細頁", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "INT", name: "Scroll Progress Indicator", hint: "文章卡片內容捲動時，標題列下緣進度線、卡內細捲軸、卡外右側的進度軌與發光滑塊、章節圓點（已讀亮起、目前章節放大）與百分比同步變化；游標上下位置控制捲動，無游標時自動捲到底再捲回", added: '2026-10-24', refs: ['R-0057'] },
+{ group: "UI", name: "Dashboard Switch", hint: "點分段控制的「本月」：營收數字從 12,480 計數到 48,920、成長率膠囊彈一下變 ↑31%、迷你折線變形，長條圖各根錯開以彈簧長高，環形圖從 62% 掃到 88%，三張卡依序亮起主色描邊", added: '2026-10-24', refs: ['R-0057'] },
+{ group: 'D3', name: 'Dice Roll', hint: '真的建模的兩顆骰子（細分方塊推成圓角、每個點都是挖進去的凹坑並填漆；一顆象牙樹脂、一顆主色半透明樹脂）從畫面右側擲進胡桃木框的絨布骰盤：重力拋物線彈跳、高度依恢復係數遞減，著地後一格一格翻滾（翻上稜線時重心真的被抬高），最後一翻輕微搖晃停在面上；朝上點數由文字參數裡的 1～6 數字決定，文字印在絨布上；最後骰子被拋出畫面回到空盤；游標移動時改變俯視角度', added: '2026-10-25', refs: ['R-0058'] },
+{ group: 'TEL', name: 'Frosted Caption Bar', hint: '毛玻璃字幕條：條從中間展開時後方影片逐漸被模糊、壓暗、增飽和成霜面（加顆粒、上緣細高光、下緣暗線與落影），主色說話者圓點彈一下，字逐詞由模糊對焦淡入，長句自動換兩行；後方散景光點飄過時在條內變成柔和色塊；最後一道光掃過玻璃，停在乾淨可讀的字幕', added: '2026-10-25', refs: ['R-0060'] },
+{ group: 'INT', name: 'Lamp Cursor Relief', hint: '游標是一盞低懸的燈，畫面是暗場中的浮雕磚牆與凸起的文字：燈靠近時受光面亮起、背光面與灰縫沉進陰影、倒角邊緣閃出高光，離開後回到暗場；按住時燈壓低、光圈收緊變亮，點擊時燈閃一下照亮更遠（每格依法線即時打光）', added: '2026-10-25', refs: ['R-0059'] },
+];
+ADDED.forEach(a => { const g = GROUPS.find(x => x.key === a.group); if (!g) throw new Error('ADDED: unknown group ' + a.group);
+const id = `${g.key}-${String(g.items.length + 1).padStart(2, '0')}`;
+const it = { id, name: a.name, group: g.key, groupName: g.name, kind: g.kind, hintKey: 'custom', hint: a.hint, pending: false, source: 'new', added: a.added, revised: null, refs: a.refs || [] };
+g.items.push(it); LIST.push(it); BYID[id] = it; });
+
+/* 改善紀錄：既有元件經排程審查並調整後登記，值為 [日期, 一句說明]。
+'BG-A-01': ['YYYY-MM-DD', '改了什麼'] */
+const REVISED = {
+'TRN-08': ['2026-10-25', '原本是兩片平面主色長方形加幾條暗條；改為天鵝絨布幕：皺摺固定在布上、收攏時摺變密變深並有絨面高光，前緣下襬依速度落後擺動、下緣金色滾邊與流蘇，布幕在場景上投下柔影，上暗下亮的垂直漸層'],
+'TRN-34': ['2026-10-25', '原本放大像素後整面閃白，中段只剩灰白一片看不出畫面；改為馬賽克長成有縫隙、倒角高光與底部暗邊的方磚，中段沿對角線依序翻面（A 的顏色翻成 B 的顏色、翻到側面變暗），再縮回像素還原成 B，閃白改成一道淡掃光'],
+'SHP-40': ['2026-10-24', '依 Threads「UIアニメ48選」36 成功チェック演出（Chris 交辦）：原本只有細圓環＋淡底＋勾；改為圓環描出 → 主色過衝填滿（整個徽章短暫放大、背後光暈）→ 反色勾描出 → 兩圈衝擊環、翻轉紙花與四角星噴出後受重力落下淡出 →「完成了！」淡入，p=1 停在乾淨的徽章'],
+'TEL-12': ['2026-10-24', '原本螢光筆蓋在字上、字變深色後在暗的影片上讀不到；改為字先帶落影淡入，螢光筆從左到右刷在字的後面（斜切筆頭、上下緣微微起伏、兩端墨較深、順筆方向的墨水條紋、終點補一道回筆），筆經過的字逐字由白轉深色，任何時候都讀得到'],
+'TEL-13': ['2026-10-24', '原本是一顆膠囊從右緣滑出、一半被畫面切掉、字很小；改為貼在畫面右緣的實體標籤：先伸出主色細邊條，標籤帶過衝滑入，有落影、上下明暗與上緣反光、右端摺進畫面邊的摺角，圖示圓點脈衝一次，字以遮罩露出，下方副標晚一點淡入；字放大且全部留在安全框內'],
+'BG-B-01': ['2026-10-23', '原本網點半徑超過網格、整面糊成單色色塊；改為兩色各用不同網角（15°／75°）的印刷網點，最大半徑小於網格，點陣永遠看得到；擴張前緣像震波讓網點鼓起，退場色稍晚縮小，兩色在交界帶疊印出玫瑰紋；加套印偏移、由左上往右下的色調、每顆點的小落影與暗角'],
+'BG-B-33': ['2026-10-23', '原本是三個平面方塊在空中滑動；改為棚景中的 2×2 凹槽托盤（內陰影與下緣反光）與三塊有厚度的倒角方塊，往空格那塊先出發，移動時拋物線抬起、影子留在槽上變大變淡，落下輕壓回彈'],
+'SHP-05': ['2026-10-22', '原本是一顆很小的平面圓在線上跳；改為有景深棚景（後牆、地面、接觸線）裡的立體球往前跳三下，高度遞減，空中沿速度拉長、落地依撞擊速度壓扁（面積守恆），著地揚起塵點，接觸陰影隨高度縮放變淡，最後輕微回彈停在正圓'],
+'SHP-08': ['2026-10-22', '原本是細線加小圓點、擺幅幾乎看不出來；改為牆上金屬支架與螺絲、雙股吊線、立體擺錘，從高處釋放後阻尼衰減，快速時有殘影，背景刻度弧標出目前擺幅，牆上投影與地面接觸陰影跟著擺動，最後靜止在正下方'],
+'TXT-B-03': ['2026-10-21', '原本只把整行字水平壓扁，看不出是翻轉；改為印在有厚度的圓角牌上翻轉：側邊帶滾紋露出、背面換主色、光帶依角度掃過，翻轉時被拋起再落地輕壓，地面影子隨高度縮小變淡，停在正面'],
+'TXT-B-28': ['2026-10-21', '原本字很小、上下兩個字疊在一起難以辨認；改為滾筒：每一步先停再帶回彈轉到下一個，滾筒外的字依角度壓扁、變暗、模糊，上下淡出遮罩，中央取景槽寬度跟著目前的字伸縮，最後停在完整文字'],
+'BG-A-13': ['2026-10-18', '加入一列列資料線段，掃描線經過時被點亮並留下餘暉（以環狀距離計算確保無縫），掃描線加光暈、四角加取景框，畫面不再大半空白'],
+'BG-A-16': ['2026-10-18', '改為放大的漫畫式電擊符號：每處三道鋸齒閃電向外放射、中心星形閃光，筆畫先長出再從尾端收回，每輪換位置'],
+'BG-A-18': ['2026-10-20', '依 T-0005 效果 4（Q-003）：線段亮度與粗細依和磁點的距離衰減、交點加小節點、拿掉中心大圓環改為小光點與光暈；吸附強度上限 0.6，網線不中斷；後方加一層較密的暗格線做景深'],
+'TXT-A-24': ['2026-10-20', '原本只有幾層同色偏移，看不出厚度；改為沿光線方向擠出的側面（越深越暗、透視縮小、前緣輪廓光），正面上亮下暗漸層加高光描邊，地面有壓扁模糊的投影，擠出方向從左下轉到右下'],
+'D3-02': ['2026-10-19', '整個重做：不透明薄盒加貼圖改為圓角倒角的毛玻璃實體（透射、折射、清漆），後方加彩色光球讓玻璃有內容可折射，假陰影改為真實投影'],
+'TXT-A-02': ['2026-10-20', '直式或長字串時自動換成 2～4 行（英數字詞不拆、標點不放行首），逐字錯開的順序跨行連續；原本只會把同一行縮小到看不清楚（T-0009 試作）'],
+'UI-03': ['2026-10-20', '直式畫面欄位加寬加高；指令太長時改為保留頭尾、中間省略，不再整串縮到看不清楚（T-0009 試作）'],
+'BG-A-33': ['2026-10-20', '先鋪滿底色：上下兩塊填色在地平線接縫留下 1 列沒畫到，播放時會透出上一格（T-0009 亂序檢查發現）'],
+'TRN-38': ['2026-10-20', '先鋪滿底色：方塊翻轉變窄時露出的縫隙會殘留上一格畫面，形成殘影（T-0009 亂序檢查發現）'],
+'D3-03': ['2026-10-19', '整個重做：36 層平面疊厚度改為用 marching squares 描出字形輪廓、ExtrudeGeometry 擠出的倒角實心立體字，加地面接觸陰影與逐字跳翻動作；名稱由 Layered Type Depth 改為 Beveled Extrude Type'],
+'D3-05': ['2026-10-19', '整個重做：正弦波位移改為 Verlet 布料物理（結構、剪切、彎曲約束，依面法線與切向受風，預烘焙一圈並首尾交叉淡化），加織紋法線貼圖、絨面反光、太陽光自身陰影、拉絲金屬旗桿、鍍金頂球、升旗繩與扣環；游標在畫面上時即時模擬'],
+};
+Object.keys(REVISED).forEach(id => { if (!BYID[id]) throw new Error('REVISED: unknown id ' + id); BYID[id].revised = REVISED[id][0]; BYID[id].revisedNote = REVISED[id][1]; });
+
+function promptFor(id) {
+const it = BYID[id]; if (!it) return ''; const g = GROUPS.find(x => x.key === it.group), txt = it.kind === 'text' || it.kind === 'tel' || it.kind === 'ui' || it.kind === 'd3';
+return `請建立動畫元件 \`${it.id}\`（${it.name}）。視覺動作：${it.hint}。${g.role}請用原生 HTML/CSS/JavaScript 實作（必要時 SVG/Canvas），輸出單一可執行 demo.html，另輸出可重用的元件 JS 模組。提供主題色、背景色、duration、loop、intensity、seed 與 16:9/9:16 比例參數；${txt ? '提供可修改的示範文字與繁體中文支援' : '提供可更改的形狀/密度或位置參數'}；預設 1.5 秒（背景循環 4 秒），使用 requestAnimationFrame 或 CSS keyframes，支援 replay、pause、destroy；加入 prefers-reduced-motion 降動態方案。動畫需具有明確起始、主動作和最終畫面，製作獨立預覽、基本測試與可調整控制面板。${it.source === 'spec' ? '不要假裝這是原作者的程式或 Prompt；視覺細節依錄影參考再校準。' : '這是錄影規格以外新增的原創元件。'}${it.pending ? ' 此編號在錄影中畫面辨識不清，先產出佔位規格，不要直接發布為已完成元件。' : ''}`;
+}
+
+/* =================================================================
+RUNTIME
+================================================================= */
+const AR = { '16:9': 16 / 9, '9:16': 9 / 16, '1:1': 1, '4:5': 4 / 5 };
+const HOLD = .9;
+const LOOPK = { bg: 1, int: 1, d3: 1 }; const isLoop = it => !!LOOPK[it.kind];
+const DEFAULTS = { text: 'MOTION 動態', colors: { primary: '#5BD3F5', secondary: '#D6F55A', bg: '#111418' }, loop: true, intensity: 1, density: 1, seed: 7, aspectRatio: '16:9', reducedMotion: false };
+function norm(o) { const it = BYID[o.id] || LIST[0]; const n = { ...DEFAULTS, ...o, colors: { ...DEFAULTS.colors, ...(o.colors || {}) } }; n.id = it.id; if (n.duration == null) n.duration = isLoop(it) ? 4 : 1.5; n.duration = Math.max(.2, +n.duration); n.intensity = cl(+n.intensity, .1, 3); n.density = cl(+n.density, .2, 3); n.seed = Math.max(1, Math.floor(+n.seed) || 1); return n; }
+function cycleLen(o) { const it = BYID[o.id]; const d = o.duration * (o.reducedMotion && isLoop(it) ? 3 : 1); return isLoop(it) ? d : d + HOLD; }
+function progressAt(o, t) { const it = BYID[o.id], bg = isLoop(it), d = o.duration * (o.reducedMotion && bg ? 3 : 1); if (bg) return o.loop ? fr(t / d) : Math.min(.9999, t / d); const tt = o.loop ? t % (d + HOLD) : t; return Math.min(1, tt / d); }
+function getFn(it) { if (it.kind === 'd3') return c => d3Render(c, it); const m = MAPS[it.kind]; if (it.pending) return TL._pending; return m[it.name] || (c => { bgFill(c); }); }
+function autoPtr(W, H, p, dur) { const ph = p * TAU, x = W / 2 + Math.cos(ph) * W * .32, y = H / 2 + Math.sin(ph * 2) * H * .24, clicks = [];
+[.2, .7].forEach(pc => { const age = fr(p - pc) * dur; if (age < 1.6) { const q = pc * TAU; clicks.push({ x: W / 2 + Math.cos(q) * W * .32, y: H / 2 + Math.sin(q * 2) * H * .24, age }); } });
+const dx = Math.sin(ph) * W * .6, vx = Math.cos(ph) * TAU / Math.max(.2, dur) * W * .6;
+return { x, y, sx: x, sy: y, down: clicks.some(k => k.age < .25), real: false, clicks, hoverAge: 9, dragX: dx, dragY: 0, vx, vy: 0, dragging: false }; }
+function renderItem(ctx, W, H, dpr, o, p, t, ptr) {
+const it = BYID[o.id], P = { text: o.text || ' ', primary: o.colors.primary, secondary: o.colors.secondary, bg: o.colors.bg };
+const c = { ctx, W, H, dpr, P, p, t: t || 0, u: Math.min(W, H), cx: W / 2, cy: H / 2, pr: P.primary, se: P.secondary, bg: P.bg, ink: inkFor(P.bg), transparent: !!o.transparent, k: o.intensity * (o.reducedMotion && isLoop(it) ? .45 : 1), d: o.density, seed: o.seed, ph: p * TAU, dur: o.duration };
+c.ptr = ptr && ptr.real ? ptr : autoPtr(W, H, p, o.duration * (o.reducedMotion && isLoop(it) ? 3 : 1));
+const fn = getFn(it); ctx.save();
+try {
+if (o.reducedMotion && !isLoop(it)) {
+if (it.kind === 'trn') { const q = E.io(seg(p, .2, .8)); ctx.drawImage(scene(c, 'A'), 0, 0, W, H); ctx.globalAlpha = q; ctx.drawImage(scene(c, 'B'), 0, 0, W, H); ctx.globalAlpha = 1; }
+else { c.p = 1; c.ph = TAU; fn(c, it); ctx.globalAlpha = 1 - E.oc(seg(p, 0, .5)); ctx.fillStyle = it.kind === 'tel' ? 'rgba(0,0,0,0)' : c.bg; if (it.kind !== 'tel') ctx.fillRect(0, 0, W, H); }
+} else fn(c, it);
+} catch (e) { ctx.restore(); ctx.save(); ctx.fillStyle = c.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#f66'; ctx.font = '12px monospace'; ctx.fillText('render error: ' + it.id, 10, 20); if (root.console) console.warn(it.id, e); }
+ctx.restore();
+}
+function renderFrame(canvas, opts, p = .7, t = 0) { const o = norm(opts), dpr = opts.dpr || 1, W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); renderItem(ctx, W, H, dpr, o, p, t); }
+function clearCaches() { LC.clear(); PC.clear(); SC.clear(); TC.clear(); }
+/* 純時間場景：給影片輸出與外部工具用。time 以秒計，0 ≤ time < duration；
+循環類 duration＝一個循環，一次性元件 duration＝動作時長＋停格 HOLD（保留原本的停格語意，不自行加退場）。
+畫面只由 time、opts（含 seed）決定，與之前畫過什麼無關。 */
+function sceneFor(opts) { const o = norm({ ...opts, loop: true }), it = BYID[o.id], duration = cycleLen(o);
+return { id: o.id, kind: it.kind, loop: isLoop(it), duration, hold: isLoop(it) ? 0 : HOLD, options: o,
+renderFrame(canvas, time, dpr = 1) { const W = canvas.width / dpr, H = canvas.height / dpr, ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); if (o.transparent) ctx.clearRect(0, 0, W, H); renderItem(ctx, W, H, dpr, o, progressAt(o, time), time); } }; }
+root.MotionLib = { renderFrame, scene: sceneFor, list: LIST, groups: GROUPS, byId: BYID, prompt: promptFor, defaults: DEFAULTS, clearCaches, isLoop, version: '1.15.0',
+/* 播放器（motion-player.js）與工具用的內部函式；不屬於公開 API */
+_core: { norm, renderItem, progressAt, cycleLen, isLoop, BYID, AR, cl, lerp } };
+})(typeof window !== 'undefined' ? window : this);
+
+
+(function (root) {
+'use strict';
+const M = root.MotionLib; if (!M || !M._core) throw new Error('motion-player.js 需要先載入 motion-lib.js');
+const { norm, renderItem, progressAt, cycleLen, isLoop, BYID, AR, cl, lerp } = M._core;
+function mount(el, opts = {}) {
+const cv = document.createElement('canvas'); cv.className = 'motionlib-canvas'; cv.setAttribute('role', 'img'); el.appendChild(cv); const ctx = cv.getContext('2d');
+let o = norm(opts), raf = 0, alive = true, paused = !!opts.paused, t = 0, last = performance.now(), W = 0, H = 0; const dpr = Math.min(2, root.devicePixelRatio || 1);
+const mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null; if (opts.reducedMotion == null && mq && mq.matches) o.reducedMotion = true;
+function fit() { const ar = AR[o.aspectRatio] || 16 / 9, cw = el.clientWidth || 640, mh = o.maxHeight || cw / ar; const w = Math.max(40, Math.min(cw, mh * ar)); W = Math.round(w); H = Math.round(w / ar); cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.setAttribute('aria-label', BYID[o.id].id + ' ' + BYID[o.id].name); cv.style.touchAction = BYID[o.id].kind === 'int' ? 'none' : ''; cv.style.cursor = BYID[o.id].kind === 'int' ? 'crosshair' : BYID[o.id].kind === 'ui' ? 'pointer' : ''; draw(); }
+/* 游標狀態集中在 runtime：繪製函式維持無狀態，只讀這些值。
+sx/sy 平滑位置（約 0.12 秒追上）；hoverAge 進入畫布後的秒數；dragX/dragY 拖曳累積位移（放開後依速度慣性滑行並衰減）；vx/vy 速度 px/s。 */
+const ptr = { x: 0, y: 0, sx: 0, sy: 0, down: false, real: false, clicks: [], _c: [], hoverAge: 0, dragX: 0, dragY: 0, vx: 0, vy: 0, dragging: false, _lx: 0, _ly: 0, _lt: 0 };
+const pos = e => { const r = cv.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; };
+const enter = e => { pos(e); if (!ptr.real) { ptr.sx = ptr.x; ptr.sy = ptr.y; ptr.hoverAge = 0; } ptr.real = true; };
+const ev = { pointermove: e => { const px = ptr.x, py = ptr.y; enter(e); if (ptr.dragging) { const now = performance.now(), dt = Math.max(1, now - ptr._lt) / 1000; ptr.dragX += ptr.x - px; ptr.dragY += ptr.y - py; ptr.vx = lerp(ptr.vx, (ptr.x - px) / dt, .5); ptr.vy = lerp(ptr.vy, (ptr.y - py) / dt, .5); ptr._lt = now; } },
+pointerenter: enter, pointerleave: () => { if (!ptr.dragging) { ptr.real = false; ptr.down = false; } },
+pointerdown: e => { enter(e); ptr.down = true; ptr.dragging = true; ptr.vx = ptr.vy = 0; ptr._lt = performance.now(); try { cv.setPointerCapture(e.pointerId); } catch (er) { } ptr._c.push({ x: ptr.x, y: ptr.y, t }); if (ptr._c.length > 12) ptr._c.shift(); if (BYID[o.id].kind === 'ui') { t = 0; paused = false; } },
+pointerup: e => { ptr.down = false; ptr.dragging = false; try { cv.releasePointerCapture(e.pointerId); } catch (er) { } }, pointercancel: () => { ptr.down = false; ptr.dragging = false; } };
+Object.keys(ev).forEach(k => cv.addEventListener(k, ev[k]));
+function stepPtr(dt) { if (!ptr.real) return; const a = 1 - Math.exp(-dt / .12); ptr.sx += (ptr.x - ptr.sx) * a; ptr.sy += (ptr.y - ptr.sy) * a; ptr.hoverAge += dt;
+if (!ptr.dragging) { ptr.dragX += ptr.vx * dt; ptr.dragY += ptr.vy * dt; const d = Math.exp(-dt / .35); ptr.vx *= d; ptr.vy *= d; if (Math.abs(ptr.vx) < 1) ptr.vx = 0; if (Math.abs(ptr.vy) < 1) ptr.vy = 0; } }
+function draw() { if (!W) return; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); const p = progressAt(o, t); ptr.clicks = ptr._c.map(k => ({ x: k.x, y: k.y, age: t - k.t })).filter(k => k.age >= 0 && k.age < 3); renderItem(ctx, W, H, dpr, o, p, t, ptr); if (o.onFrame) o.onFrame(t, p, cycleLen(o)); }
+/* 離開畫面或分頁隱藏時不繪製（3D 元件很吃顯示卡，頁面上放多個也只有看得到的在跑） */
+let onScreen = true; const io = root.IntersectionObserver ? new IntersectionObserver(es => { onScreen = es[es.length - 1].isIntersecting; last = performance.now(); }, { rootMargin: '100px' }) : null; io && io.observe(cv);
+function tick(now) { if (!alive) return; if (!onScreen || (root.document && document.hidden)) { last = now; raf = requestAnimationFrame(tick); return; } const dt = Math.min(.1, (now - last) / 1000); last = now; stepPtr(dt); if (!paused) { t += dt; if (!o.loop && t >= cycleLen(o)) { t = cycleLen(o); } } draw(); raf = requestAnimationFrame(tick); }
+const ro = root.ResizeObserver ? new ResizeObserver(fit) : null; ro && ro.observe(el); fit(); raf = requestAnimationFrame(tick);
+return {
+play() { if (!o.loop && t >= cycleLen(o) - 1e-3) t = 0; paused = false; last = performance.now(); },
+pause() { paused = true; }, replay() { t = 0; paused = false; last = performance.now(); },
+seek(p) { paused = true; const it = BYID[o.id]; t = isLoop(it) ? cl(p) * cycleLen(o) * .9999 : cl(p) * o.duration; draw(); },
+set(n) { const idChanged = n.id && n.id !== o.id; o = norm({ ...o, ...n, colors: { ...o.colors, ...(n.colors || {}) } }); if (idChanged) t = 0; fit(); },
+destroy() { alive = false; cancelAnimationFrame(raf); ro && ro.disconnect(); io && io.disconnect(); cv.remove(); },
+get paused() { return paused; }, get pointer() { const { _c, _lx, _ly, _lt, ...pub } = ptr; return pub; }, get time() { return t; }, get options() { return { ...o, colors: { ...o.colors } }; }, get cycle() { return cycleLen(o); }, canvas: cv
+};
+}
+M.mount = mount;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<title>金石果子行｜十二果掛板</title>
+<meta name="description" content="臺中第二市場旁的水果行，用佛羅倫斯硬石鑲嵌 pietra dura 嵌出十二個月的水果。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20150%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22q0%22%3E%3Cpath%20d%3D%22M101.4%2084L101.1%2087.2L100.2%2090.4L98.8%2093.4L97%2096.2L94.8%2098.9L92.4%20101.3L89.9%20103.6L87.3%20105.8L84.6%20107.9L81.7%20109.9L78.6%20111.8L75.3%20113.6L71.8%20115L68%20116.2L64%20116.9L60%20117.1L56%20116.9L52%20116.2L48.2%20115L44.7%20113.6L41.4%20111.8L38.3%20109.9L35.4%20107.9L32.7%20105.8L30.1%20103.6L27.6%20101.3L25.2%2098.9L23%2096.2L21.2%2093.4L19.8%2090.4L18.9%2087.2L18.6%2084L18.9%2080.8L19.8%2077.6L21.2%2074.6L23%2071.8L25.2%2069.1L27.6%2066.7L30.1%2064.4L32.7%2062.2L35.4%2060.1L38.3%2058.1L41.4%2056.2L44.7%2054.4L48.2%2053L52%2051.8L56%2051.1L60%2050.9L64%2051.1L68%2051.8L71.8%2053L75.3%2054.4L78.6%2056.2L81.7%2058.1L84.6%2060.1L87.3%2062.2L89.9%2064.4L92.4%2066.7L94.8%2069.1L97%2071.8L98.8%2074.6L100.2%2077.6L101.1%2080.8Z%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%22q1%22%3E%3Cpath%20d%3D%22M101.4%2084L101.1%2087.2L100.2%2090.4L98.8%2093.4L97%2096.2L94.8%2098.9L92.4%20101.3L89.9%20103.6L87.3%20105.8L84.6%20107.9L81.7%20109.9L78.6%20111.8L75.3%20113.6L71.8%20115L68%20116.2L64%20116.9L60%20117.1L56%20116.9L52%20116.2L48.2%20115L44.7%20113.6L41.4%20111.8L38.3%20109.9L35.4%20107.9L32.7%20105.8L30.1%20103.6L27.6%20101.3L25.2%2098.9L23%2096.2L21.2%2093.4L19.8%2090.4L18.9%2087.2L18.6%2084L18.9%2080.8L19.8%2077.6L21.2%2074.6L23%2071.8L25.2%2069.1L27.6%2066.7L30.1%2064.4L32.7%2062.2L35.4%2060.1L38.3%2058.1L41.4%2056.2L44.7%2054.4L48.2%2053L52%2051.8L56%2051.1L60%2050.9L64%2051.1L68%2051.8L71.8%2053L75.3%2054.4L78.6%2056.2L81.7%2058.1L84.6%2060.1L87.3%2062.2L89.9%2064.4L92.4%2066.7L94.8%2069.1L97%2071.8L98.8%2074.6L100.2%2077.6L101.1%2080.8Z%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cellipse%20cx%3D%2260%22%20cy%3D%2275%22%20rx%3D%2257%22%20ry%3D%2272%22%20fill%3D%22%23A98638%22%2F%3E%3Cellipse%20cx%3D%2260%22%20cy%3D%2275%22%20rx%3D%2249%22%20ry%3D%2264%22%20fill%3D%22%2355723A%22%2F%3E%3Cellipse%20cx%3D%2260%22%20cy%3D%2275%22%20rx%3D%2246%22%20ry%3D%2261%22%20fill%3D%22%23121110%22%2F%3E%3Cpath%20d%3D%22M101.4%2084L101.1%2087.2L100.2%2090.4L98.8%2093.4L97%2096.2L94.8%2098.9L92.4%20101.3L89.9%20103.6L87.3%20105.8L84.6%20107.9L81.7%20109.9L78.6%20111.8L75.3%20113.6L71.8%20115L68%20116.2L64%20116.9L60%20117.1L56%20116.9L52%20116.2L48.2%20115L44.7%20113.6L41.4%20111.8L38.3%20109.9L35.4%20107.9L32.7%20105.8L30.1%20103.6L27.6%20101.3L25.2%2098.9L23%2096.2L21.2%2093.4L19.8%2090.4L18.9%2087.2L18.6%2084L18.9%2080.8L19.8%2077.6L21.2%2074.6L23%2071.8L25.2%2069.1L27.6%2066.7L30.1%2064.4L32.7%2062.2L35.4%2060.1L38.3%2058.1L41.4%2056.2L44.7%2054.4L48.2%2053L52%2051.8L56%2051.1L60%2050.9L64%2051.1L68%2051.8L71.8%2053L75.3%2054.4L78.6%2056.2L81.7%2058.1L84.6%2060.1L87.3%2062.2L89.9%2064.4L92.4%2066.7L94.8%2069.1L97%2071.8L98.8%2074.6L100.2%2077.6L101.1%2080.8Z%22%20fill%3D%22%239C2A23%22%2F%3E%3Cpath%20clip-path%3D%22url(%23q0)%22%20d%3D%22M86.8%2076L86.5%2080.2L85.5%2084.3L83.9%2088.2L81.7%2092L78.9%2095.5L75.7%2098.6L71.9%20101.4L67.8%20103.7L63.3%20105.6L58.6%20106.9L53.8%20107.7L48.8%20108L43.8%20107.7L39%20106.9L34.3%20105.6L29.8%20103.7L25.7%20101.4L21.9%2098.6L18.7%2095.5L15.9%2092L13.7%2088.2L12.1%2084.3L11.1%2080.2L10.8%2076L11.1%2071.8L12.1%2067.7L13.7%2063.8L15.9%2060L18.7%2056.5L21.9%2053.4L25.7%2050.6L29.8%2048.3L34.3%2046.4L39%2045.1L43.8%2044.3L48.8%2044L53.8%2044.3L58.6%2045.1L63.3%2046.4L67.8%2048.3L71.9%2050.6L75.7%2053.4L78.9%2056.5L81.7%2060L83.9%2063.8L85.5%2067.7L86.5%2071.8Z%22%20fill%3D%22%23C4522A%22%2F%3E%3Cpath%20clip-path%3D%22url(%23q1)%22%20d%3D%22M46.2%2069.5L46.3%2069.8L46.4%2070.2L46.3%2070.6L46.2%2071.1L46%2071.5L45.8%2072L45.4%2072.4L45%2072.9L44.6%2073.3L44.1%2073.7L43.5%2074.1L42.9%2074.5L42.3%2074.8L41.7%2075L41.1%2075.2L40.5%2075.4L39.9%2075.5L39.3%2075.5L38.8%2075.5L38.3%2075.4L37.9%2075.2L37.5%2075L37.3%2074.8L37%2074.5L36.9%2074.2L36.8%2073.8L36.9%2073.4L37%2072.9L37.2%2072.5L37.4%2072L37.8%2071.6L38.2%2071.1L38.6%2070.7L39.1%2070.3L39.7%2069.9L40.3%2069.5L40.9%2069.2L41.5%2069L42.1%2068.8L42.7%2068.6L43.3%2068.5L43.9%2068.5L44.4%2068.5L44.9%2068.6L45.3%2068.8L45.7%2069L45.9%2069.2Z%22%20fill%3D%22%23D2D7DA%22%2F%3E%3Cpath%20d%3D%22M77.5%2061.8L76.8%2062.4L75.2%2062.5L73%2062.1L70.7%2061.5L68.4%2060.6L66.5%2059.8L65.2%2059.2L64.3%2059L63.8%2059.3L63.6%2059.9L63.2%2060.7L62.6%2061.6L61.6%2062.4L60.1%2062.8L58.4%2062.8L56.7%2062.3L55.1%2061.4L53.9%2060.2L53.2%2058.8L53%2057.6L53.2%2056.5L53.6%2055.7L53.8%2055L53.7%2054.5L52.9%2054.1L51.6%2053.5L49.7%2052.7L47.5%2051.7L45.4%2050.4L43.6%2049.1L42.6%2047.9L42.5%2047L43.2%2046.4L44.8%2046.3L47%2046.7L49.3%2047.3L51.6%2048.2L53.5%2049L54.8%2049.6L55.7%2049.8L56.2%2049.5L56.4%2048.9L56.8%2048.1L57.4%2047.2L58.4%2046.4L59.9%2046L61.6%2046L63.3%2046.5L64.9%2047.4L66.1%2048.6L66.8%2050L67%2051.2L66.8%2052.3L66.4%2053.1L66.2%2053.8L66.3%2054.3L67.1%2054.7L68.4%2055.3L70.3%2056.1L72.5%2057.1L74.6%2058.4L76.4%2059.7L77.4%2060.9Z%22%20fill%3D%22%2355723A%22%2F%3E%3Cpath%20d%3D%22M63.2%2052L63.2%2052.4L63.1%2052.7L63%2053.1L62.8%2053.4L62.5%2053.7L62.3%2054L61.9%2054.2L61.6%2054.4L61.2%2054.6L60.8%2054.7L60.4%2054.8L60%2054.8L59.6%2054.8L59.2%2054.7L58.8%2054.6L58.4%2054.4L58.1%2054.2L57.7%2054L57.5%2053.7L57.2%2053.4L57%2053.1L56.9%2052.7L56.8%2052.4L56.8%2052L56.8%2051.6L56.9%2051.3L57%2050.9L57.2%2050.6L57.5%2050.3L57.7%2050L58.1%2049.8L58.4%2049.6L58.8%2049.4L59.2%2049.3L59.6%2049.2L60%2049.2L60.4%2049.2L60.8%2049.3L61.2%2049.4L61.6%2049.6L61.9%2049.8L62.3%2050L62.5%2050.3L62.8%2050.6L63%2050.9L63.1%2051.3L63.2%2051.6Z%22%20fill%3D%22%239C6A42%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+<script>try{if(sessionStorage.getItem('kj-saw')){sessionStorage.removeItem('kj-saw');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('arriving');}}catch(e){}</script>
+<style>:root{--nero:#121110;--nero2:#1B1917;--seam:#070605;--bianco:#E8E4DB;--bianco2:#ADA79B;--siena:#D7B460;--siena2:#A98638;--lapis:#2B4FA8;--malachite:#2FA06A;--corniola:#D0602F;--rosso:#9C2A23;--verde:#55723A;
+--f-cap:"Cinzel",Georgia,serif;--f-it:"Cormorant Garamond",Georgia,serif;--f-tc:"Noto Serif TC","Songti TC",serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--nero)}
+body{margin:0;background:var(--nero);color:var(--bianco);font:400 17px/1.75 var(--f-tc);letter-spacing:.02em;-webkit-font-smoothing:antialiased}
+/* 拋光黑石地：極細石粒（特徵①），由 JS 換上真石紋；無 JS 時是平的黑 */
+html.tx body{background-image:var(--st-nero,none)}
+a{color:var(--siena);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+a:hover{color:var(--bianco)}
+:focus-visible{outline:2px dashed var(--siena);outline-offset:3px}
+.cap{font-family:var(--f-cap);font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.it{font-family:var(--f-it);font-style:italic;letter-spacing:.01em}
+/* 嵌字（特徵⑤）：羅馬碑刻大寫與宋體，字面填錫耶納黃大理石紋 */
+.inlay{color:var(--siena)}
+html.tx .inlay{background-image:var(--st-siena);background-size:256px 256px;-webkit-background-clip:text;background-clip:text;color:transparent}
+html.tx .inlay.w{background-image:var(--st-bianco)}
+html.tx .inlay.r{background-image:var(--st-corniola)}
+/* ---------- 版面：左側石樣盤導覽＋主欄 ---------- */
+.shell{display:grid;grid-template-columns:104px 1fr;min-height:100vh}
+.tray{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 0;border-right:6px solid var(--siena2);background:var(--nero2);z-index:20}
+html.tx .tray{border-image:var(--st-siena) 6 / 0 6px 0 0 stretch}
+.tray .brand{display:block;width:62px;margin-bottom:10px}
+.tray .brand svg{display:block;width:62px;height:auto}
+.cab{display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--bianco2);font-size:13px;line-height:1.2;text-align:center}
+.cab i{display:block;width:44px;height:58px;border-radius:50%;background:var(--c,#444);border:3px solid var(--nero);outline:1px solid var(--seam);transition:transform .18s,border-color .18s}
+html.tx .cab i{background:var(--t) 0 0/96px 96px,var(--c)}
+.cab b{font:700 15px/1 var(--f-tc);color:var(--bianco)}
+.cab span{font:600 9px/1.2 var(--f-cap);letter-spacing:.14em}
+.cab:hover i{transform:translateY(-3px)}
+.cab[aria-current=page] i{border-color:var(--siena);width:52px;height:68px}
+.cab[aria-current=page] b{color:var(--siena)}
+.main{min-width:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px}
+/* ---------- 標題 ---------- */
+h1,h2,h3{margin:0;font-family:var(--f-tc);font-weight:900;line-height:1.2;letter-spacing:.06em}
+h2{font-size:clamp(28px,3.4vw,44px)}
+.kick{display:block;font:700 12px/1 var(--f-cap);letter-spacing:.3em;color:var(--bianco2);margin-bottom:14px}
+.kick em{font-style:normal;color:var(--corniola)}
+section{padding:84px 0;position:relative}
+.rule{height:14px;border:0;margin:0;background:var(--siena2)}
+html.tx .rule{background:var(--st-siena) 0 0/256px 256px}
+/* 石帶邊框（特徵④）：錫耶納條＋綠線＋青金石角 */
+.band{position:relative;border:14px solid var(--siena2);outline:4px solid var(--verde);outline-offset:-18px}
+html.tx .band{border-image:var(--st-siena) 14 / 14px stretch}
+.band::before,.band::after{content:"";position:absolute;width:14px;height:14px;background:var(--lapis);top:-14px;left:-14px}
+.band::after{left:auto;right:-14px}
+html.tx .band::before,html.tx .band::after{background:var(--st-lapis) 0 0/96px 96px}
+/* 拋光：一道緩慢掠過的斜照反光（環境動效）＋游標燈（輸入動效）。全站唯一允許的漸層＝反光，不是顏色 */
+.polish{position:relative;overflow:hidden;isolation:isolate}
+.polish::after{content:"";position:absolute;inset:-10% -40%;pointer-events:none;background:linear-gradient(104deg,transparent 42%,rgba(255,246,226,.075) 48%,rgba(255,246,226,.16) 50%,rgba(255,246,226,.075) 52%,transparent 58%);transform:translateX(-60%);animation:sheen 13s cubic-bezier(.45,0,.2,1) 2.8s infinite;mix-blend-mode:screen;z-index:3}
+@keyframes sheen{0%{transform:translateX(-60%)}38%,100%{transform:translateX(60%)}}
+.polish::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .12s;background:radial-gradient(240px 170px at var(--lx,50%) var(--ly,50%),rgba(255,244,220,.17),rgba(255,244,220,.05) 45%,transparent 70%);mix-blend-mode:screen}
+.polish.lit::before{opacity:1}
+/* 鋸縫轉場 */
+.saw{position:fixed;inset:0;z-index:99;pointer-events:none;background:var(--nero);clip-path:inset(0 100% 0 0);transition:clip-path .42s cubic-bezier(.6,0,.3,1)}
+.saw i{position:absolute;top:0;bottom:0;right:0;width:2px;background:var(--siena);box-shadow:0 0 0 1px rgba(215,180,96,.25)}
+.saw.in{clip-path:inset(0 0 0 0)}
+.saw.hold{transition:none}
+.saw.out{clip-path:inset(0 0 0 100%);transition:clip-path .5s cubic-bezier(.6,0,.3,1)}
+.saw.out i{left:0;right:auto}
+html.arriving body{overflow:hidden}
+html.arriving body::before{content:"";position:fixed;inset:0;background:var(--nero);z-index:98}
+/* motion-library 容器 */
+.ml{position:relative;overflow:hidden}
+.ml canvas{display:block}
+.ml.ml-live .ml-fb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* footer */
+.foot{border-top:14px solid var(--siena2);padding:54px 0 70px;color:var(--bianco2);font-size:15px}
+html.tx .foot{border-image:var(--st-siena) 14 0 0 0 / 14px 0 0 0 stretch}
+.foot .wrap{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:40px}
+.foot h3{font-size:22px;color:var(--bianco);margin-bottom:8px}
+.foot ul{list-style:none;margin:0;padding:0}
+.foot .inscr{grid-column:1/-1;font:700 13px/1.6 var(--f-cap);letter-spacing:.34em;color:var(--siena);border-top:1px solid #2A2724;padding-top:20px}
+.btn{display:inline-block;padding:12px 22px;border:2px solid var(--siena);color:var(--siena);text-decoration:none;font:700 15px/1 var(--f-tc);letter-spacing:.12em;background:transparent;cursor:pointer;border-radius:0}
+.btn:hover{background:var(--siena);color:var(--nero)}
+.btn.solid{background:var(--siena);color:var(--nero)}
+.btn.solid:hover{background:var(--bianco);border-color:var(--bianco)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.fb-svg{display:block;width:100%;height:auto}
+html.js .board-wrap .fb-svg{display:none}
+.board-wrap canvas{display:none;width:100%;height:auto}
+html.js .board-wrap canvas{display:block}
+@media (max-width:820px){
+ .shell{grid-template-columns:1fr}
+ .tray{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;flex-direction:row;justify-content:space-around;padding:8px 6px 10px;border-right:0;border-top:5px solid var(--siena2)}
+ html.tx .tray{border-image:var(--st-siena) 5 0 0 0 / 5px 0 0 0 stretch}
+ .tray .brand{display:none}
+ .cab i{width:30px;height:40px}.cab[aria-current=page] i{width:34px;height:46px}
+ .main{padding-bottom:96px}
+ .wrap{padding:0 20px}
+ section{padding:56px 0}
+ .foot .wrap{grid-template-columns:1fr;gap:22px}
+}
+@media (prefers-reduced-motion:reduce){
+ .polish::after{animation:none;transform:translateX(0);opacity:.5}
+ .polish::before{transition:none}
+ .cab i{transition:none}
+}
+
+
+.hero{padding:44px 0 30px}
+.hero .wrap{max-width:1360px;display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);gap:44px;align-items:start}
+.board-wrap{position:relative;background:var(--nero2)}
+.board-wrap canvas{cursor:crosshair}
+.tip{position:absolute;left:0;top:0;pointer-events:none;background:var(--nero);border:1px solid var(--siena2);padding:8px 12px;font-size:14px;line-height:1.45;max-width:240px;opacity:0;transform:translate(-50%,calc(-100% - 14px));transition:opacity .1s;z-index:5}
+.tip b{color:var(--siena);font-weight:600}.tip span{display:block;color:var(--bianco2);font:500 15px/1.3 var(--f-it);font-style:italic}
+.tip.on{opacity:1}
+figcaption{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--bianco2)}
+figcaption button{background:none;border:0;color:var(--siena);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:0}
+.lede h1{font-size:clamp(46px,5.6vw,84px);letter-spacing:.12em;line-height:1.05}
+.lede .roman{display:block;font:700 clamp(13px,1.1vw,16px)/1.5 var(--f-cap);letter-spacing:.3em;color:var(--bianco2);margin:16px 0 26px}
+.lede p{margin:0 0 18px}
+.season{margin:28px 0 26px;padding:22px 24px 20px;border-left:10px solid var(--corniola);background:var(--nero2)}
+html.tx .season{border-image:var(--st-corniola) 0 0 0 10 / 0 0 0 10px stretch}
+.season .kick{margin-bottom:8px}
+.season h2{font-size:26px;margin-bottom:6px}
+.season .price{font:700 22px/1 var(--f-cap);letter-spacing:.08em;color:var(--siena)}
+.acts{display:flex;gap:14px;flex-wrap:wrap}
+.agate{height:120px;border-top:3px solid var(--seam);border-bottom:3px solid var(--seam)}
+.agate .ml-fb{display:flex;align-items:center;justify-content:center;height:100%;margin:0;font:700 14px/1 var(--f-cap);letter-spacing:.4em;color:var(--bianco2)}
+.agate canvas{position:absolute;left:0;top:50%;transform:translateY(-50%);width:100%!important;height:auto!important}
+.agate .lbl{position:absolute;right:20px;bottom:10px;z-index:2;font:700 11px/1 var(--f-cap);letter-spacing:.3em;color:var(--siena);background:var(--nero);padding:6px 10px}
+.two{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:start}
+.facts{margin:24px 0 0;display:grid;grid-template-columns:auto 1fr;gap:10px 22px;font-size:16px}
+.facts dt{font:700 12px/1.9 var(--f-cap);letter-spacing:.24em;color:var(--bianco2)}
+.facts dd{margin:0}
+.card{background:var(--nero2);padding:26px}
+.time{list-style:none;margin:30px 0 0;padding:0;border-left:4px solid var(--siena2)}
+.time li{display:grid;grid-template-columns:96px 1fr;gap:18px;padding:12px 0 12px 22px;position:relative}
+.time li::before{content:"";position:absolute;left:-11px;top:20px;width:18px;height:18px;background:var(--lapis);border:2px solid var(--nero)}
+html.tx .time li::before{background:var(--st-lapis) 0 0/64px}
+.time b{font:700 20px/1.3 var(--f-cap);color:var(--siena);letter-spacing:.06em}
+.stones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px 22px;margin-top:38px}
+.stone{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:start}
+.stone i{display:block;width:62px;height:80px;border-radius:50%;background:var(--c);border:3px solid var(--siena2)}
+.stone h3{font-size:18px;letter-spacing:.08em}
+.stone h3 small{display:block;font:500 15px/1.3 var(--f-it);font-style:italic;color:var(--bianco2);letter-spacing:0;margin-top:2px}
+.stone p{margin:6px 0 0;font-size:14.5px;line-height:1.6;color:var(--bianco2)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border:2px solid #2A2724}
+.steps div{padding:26px;border-right:2px solid #2A2724}
+.steps div:last-child{border-right:0}
+.steps b{display:block;font:700 40px/1 var(--f-cap);margin-bottom:12px}
+@media (max-width:1080px){.hero .wrap{grid-template-columns:1fr}.stones{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr;gap:34px}}
+@media (max-width:560px){.stones{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.steps div{border-right:0;border-bottom:2px solid #2A2724}.lede h1{letter-spacing:.06em}.time li{grid-template-columns:70px 1fr;gap:10px}.facts{grid-template-columns:1fr;gap:2px}.facts dd{margin-bottom:10px}}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">跳到內容</a>
+<div class="shell">
+<nav class="tray" aria-label="主選單"><a class="brand" href="index.html" aria-label="金石果子行 首頁"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150"><defs><clipPath id="q0"><path d="M101.4 84L101.1 87.2L100.2 90.4L98.8 93.4L97 96.2L94.8 98.9L92.4 101.3L89.9 103.6L87.3 105.8L84.6 107.9L81.7 109.9L78.6 111.8L75.3 113.6L71.8 115L68 116.2L64 116.9L60 117.1L56 116.9L52 116.2L48.2 115L44.7 113.6L41.4 111.8L38.3 109.9L35.4 107.9L32.7 105.8L30.1 103.6L27.6 101.3L25.2 98.9L23 96.2L21.2 93.4L19.8 90.4L18.9 87.2L18.6 84L18.9 80.8L19.8 77.6L21.2 74.6L23 71.8L25.2 69.1L27.6 66.7L30.1 64.4L32.7 62.2L35.4 60.1L38.3 58.1L41.4 56.2L44.7 54.4L48.2 53L52 51.8L56 51.1L60 50.9L64 51.1L68 51.8L71.8 53L75.3 54.4L78.6 56.2L81.7 58.1L84.6 60.1L87.3 62.2L89.9 64.4L92.4 66.7L94.8 69.1L97 71.8L98.8 74.6L100.2 77.6L101.1 80.8Z"/></clipPath><clipPath id="q1"><path d="M101.4 84L101.1 87.2L100.2 90.4L98.8 93.4L97 96.2L94.8 98.9L92.4 101.3L89.9 103.6L87.3 105.8L84.6 107.9L81.7 109.9L78.6 111.8L75.3 113.6L71.8 115L68 116.2L64 116.9L60 117.1L56 116.9L52 116.2L48.2 115L44.7 113.6L41.4 111.8L38.3 109.9L35.4 107.9L32.7 105.8L30.1 103.6L27.6 101.3L25.2 98.9L23 96.2L21.2 93.4L19.8 90.4L18.9 87.2L18.6 84L18.9 80.8L19.8 77.6L21.2 74.6L23 71.8L25.2 69.1L27.6 66.7L30.1 64.4L32.7 62.2L35.4 60.1L38.3 58.1L41.4 56.2L44.7 54.4L48.2 53L52 51.8L56 51.1L60 50.9L64 51.1L68 51.8L71.8 53L75.3 54.4L78.6 56.2L81.7 58.1L84.6 60.1L87.3 62.2L89.9 64.4L92.4 66.7L94.8 69.1L97 71.8L98.8 74.6L100.2 77.6L101.1 80.8Z"/></clipPath></defs><ellipse cx="60" cy="75" rx="57" ry="72" fill="#A98638"/><ellipse cx="60" cy="75" rx="49" ry="64" fill="#55723A"/><ellipse cx="60" cy="75" rx="46" ry="61" fill="#121110"/><path d="M101.4 84L101.1 87.2L100.2 90.4L98.8 93.4L97 96.2L94.8 98.9L92.4 101.3L89.9 103.6L87.3 105.8L84.6 107.9L81.7 109.9L78.6 111.8L75.3 113.6L71.8 115L68 116.2L64 116.9L60 117.1L56 116.9L52 116.2L48.2 115L44.7 113.6L41.4 111.8L38.3 109.9L35.4 107.9L32.7 105.8L30.1 103.6L27.6 101.3L25.2 98.9L23 96.2L21.2 93.4L19.8 90.4L18.9 87.2L18.6 84L18.9 80.8L19.8 77.6L21.2 74.6L23 71.8L25.2 69.1L27.6 66.7L30.1 64.4L32.7 62.2L35.4 60.1L38.3 58.1L41.4 56.2L44.7 54.4L48.2 53L52 51.8L56 51.1L60 50.9L64 51.1L68 51.8L71.8 53L75.3 54.4L78.6 56.2L81.7 58.1L84.6 60.1L87.3 62.2L89.9 64.4L92.4 66.7L94.8 69.1L97 71.8L98.8 74.6L100.2 77.6L101.1 80.8Z" fill="#9C2A23"/><path clip-path="url(#q0)" d="M86.8 76L86.5 80.2L85.5 84.3L83.9 88.2L81.7 92L78.9 95.5L75.7 98.6L71.9 101.4L67.8 103.7L63.3 105.6L58.6 106.9L53.8 107.7L48.8 108L43.8 107.7L39 106.9L34.3 105.6L29.8 103.7L25.7 101.4L21.9 98.6L18.7 95.5L15.9 92L13.7 88.2L12.1 84.3L11.1 80.2L10.8 76L11.1 71.8L12.1 67.7L13.7 63.8L15.9 60L18.7 56.5L21.9 53.4L25.7 50.6L29.8 48.3L34.3 46.4L39 45.1L43.8 44.3L48.8 44L53.8 44.3L58.6 45.1L63.3 46.4L67.8 48.3L71.9 50.6L75.7 53.4L78.9 56.5L81.7 60L83.9 63.8L85.5 67.7L86.5 71.8Z" fill="#C4522A"/><path clip-path="url(#q1)" d="M46.2 69.5L46.3 69.8L46.4 70.2L46.3 70.6L46.2 71.1L46 71.5L45.8 72L45.4 72.4L45 72.9L44.6 73.3L44.1 73.7L43.5 74.1L42.9 74.5L42.3 74.8L41.7 75L41.1 75.2L40.5 75.4L39.9 75.5L39.3 75.5L38.8 75.5L38.3 75.4L37.9 75.2L37.5 75L37.3 74.8L37 74.5L36.9 74.2L36.8 73.8L36.9 73.4L37 72.9L37.2 72.5L37.4 72L37.8 71.6L38.2 71.1L38.6 70.7L39.1 70.3L39.7 69.9L40.3 69.5L40.9 69.2L41.5 69L42.1 68.8L42.7 68.6L43.3 68.5L43.9 68.5L44.4 68.5L44.9 68.6L45.3 68.8L45.7 69L45.9 69.2Z" fill="#D2D7DA"/><path d="M77.5 61.8L76.8 62.4L75.2 62.5L73 62.1L70.7 61.5L68.4 60.6L66.5 59.8L65.2 59.2L64.3 59L63.8 59.3L63.6 59.9L63.2 60.7L62.6 61.6L61.6 62.4L60.1 62.8L58.4 62.8L56.7 62.3L55.1 61.4L53.9 60.2L53.2 58.8L53 57.6L53.2 56.5L53.6 55.7L53.8 55L53.7 54.5L52.9 54.1L51.6 53.5L49.7 52.7L47.5 51.7L45.4 50.4L43.6 49.1L42.6 47.9L42.5 47L43.2 46.4L44.8 46.3L47 46.7L49.3 47.3L51.6 48.2L53.5 49L54.8 49.6L55.7 49.8L56.2 49.5L56.4 48.9L56.8 48.1L57.4 47.2L58.4 46.4L59.9 46L61.6 46L63.3 46.5L64.9 47.4L66.1 48.6L66.8 50L67 51.2L66.8 52.3L66.4 53.1L66.2 53.8L66.3 54.3L67.1 54.7L68.4 55.3L70.3 56.1L72.5 57.1L74.6 58.4L76.4 59.7L77.4 60.9Z" fill="#55723A"/><path d="M63.2 52L63.2 52.4L63.1 52.7L63 53.1L62.8 53.4L62.5 53.7L62.3 54L61.9 54.2L61.6 54.4L61.2 54.6L60.8 54.7L60.4 54.8L60 54.8L59.6 54.8L59.2 54.7L58.8 54.6L58.4 54.4L58.1 54.2L57.7 54L57.5 53.7L57.2 53.4L57 53.1L56.9 52.7L56.8 52.4L56.8 52L56.8 51.6L56.9 51.3L57 50.9L57.2 50.6L57.5 50.3L57.7 50L58.1 49.8L58.4 49.6L58.8 49.4L59.2 49.3L59.6 49.2L60 49.2L60.4 49.2L60.8 49.3L61.2 49.4L61.6 49.6L61.9 49.8L62.3 50L62.5 50.3L62.8 50.6L63 50.9L63.1 51.3L63.2 51.6Z" fill="#9C6A42"/><path d="M66 50L67.4 46.7L68.9 43.7L70.8 40.9L72.9 38.4L75.2 36.2L77.8 34.3L80.6 32.6L83.6 31.2L86.9 30.1L90.5 29.2L94.3 28.7L98.3 28.4L102.6 28.3L107.1 28.6L104.2 30.2L101.3 31.8L98.5 33.4L95.6 35L92.6 36.6L89.7 38.1L86.8 39.7L83.9 41.2L80.9 42.7L77.9 44.2L75 45.7L72 47.1L69 48.6L66 50Z" fill="#1E7E55"/><path d="M66 50L69.9 49.8L73.6 49.4L77.1 48.8L80.6 48L83.8 47L87 45.8L90 44.3L92.9 42.7L95.6 40.9L98.2 38.8L100.6 36.6L102.9 34.1L105.1 31.5L107.1 28.6L104.2 30.2L101.3 31.8L98.5 33.4L95.6 35L92.6 36.6L89.7 38.1L86.8 39.7L83.9 41.2L80.9 42.7L77.9 44.2L75 45.7L72 47.1L69 48.6L66 50Z" fill="#55723A"/></svg></a>
+<a class="cab" href="index.html" aria-current="page" style="--c:#24408F;--t:var(--st-lapis)"><i aria-hidden="true"></i><b>石</b><span>PANEL</span></a>
+<a class="cab" href="box.html" style="--c:#1E7E55;--t:var(--st-malachite)"><i aria-hidden="true"></i><b>盒</b><span>BOXES</span></a>
+<a class="cab" href="pei.html" style="--c:#C4522A;--t:var(--st-corniola)"><i aria-hidden="true"></i><b>配</b><span>INLAY</span></a>
+<a class="cab" href="visit.html" style="--c:#D7B460;--t:var(--st-siena)"><i aria-hidden="true"></i><b>來</b><span>VISIT</span></a></nav>
+<div class="main" id="main">
+
+<section class="hero" aria-label="十二果掛板">
+<div class="wrap">
+<figure class="board-wrap polish" data-lamp style="margin:0">
+<svg class="fb-svg" viewBox="0 0 1000 640" role="img" aria-hidden="true" focusable="false"><defs><clipPath id="h0"><path d="M421.1 440L420.4 447.1L418.4 454.1L415.3 460.7L411.3 466.9L406.6 472.7L401.4 478.1L395.8 483.2L390 488L384 492.7L377.7 497.1L370.9 501.3L363.7 505L355.9 508.3L347.6 510.8L338.9 512.3L330 512.9L321.1 512.3L312.4 510.8L304.1 508.3L296.3 505L289.1 501.3L282.3 497.1L276 492.7L270 488L264.2 483.2L258.6 478.1L253.4 472.7L248.7 466.9L244.7 460.7L241.6 454.1L239.6 447.1L238.9 440L239.6 432.9L241.6 425.9L244.7 419.3L248.7 413.1L253.4 407.3L258.6 401.9L264.2 396.8L270 392L276 387.3L282.3 382.9L289.1 378.7L296.3 375L304.1 371.7L312.4 369.2L321.1 367.7L330 367.1L338.9 367.7L347.6 369.2L355.9 371.7L363.7 375L370.9 378.7L377.7 382.9L384 387.3L390 392L395.8 396.8L401.4 401.9L406.6 407.3L411.3 413.1L415.3 419.3L418.4 425.9L420.4 432.9Z"/></clipPath><clipPath id="h1"><path d="M646.4 436.6L648.7 442.9L650.1 449.9L650.5 457.6L649.9 465.6L648.2 473.9L645.4 482.2L641.4 490.3L636.3 497.9L630.1 504.8L622.9 511L614.7 516.4L605.7 520.8L595.9 524.3L585.6 526.9L575 528.8L564.5 531.2L554 532.8L543.6 533.8L533.5 534L523.8 533.5L514.7 532.3L506.2 530.3L498.5 527.6L491.6 524.3L485.7 520.3L480.7 515.7L476.7 510.6L473.8 505.1L471.8 499.1L470.9 492.8L470.9 486.2L471.9 479.5L473.7 472.7L476.4 465.8L479.9 459.1L484.1 452.5L489 446.2L494.5 440.2L500.5 434.5L507.1 429.2L514 424.5L521.3 420.3L528.9 416.6L536.9 413.6L545 411.2L553.5 410.5L562.2 410.3L570.8 410.5L579.3 410.9L587.6 411.5L595.6 412.2L603.4 413.1L610.7 414.3L617.5 415.7L623.9 417.5L629.7 419.8L634.9 422.8L639.5 426.6L643.3 431.2Z"/></clipPath><clipPath id="h2"><path d="M737.3 430L739.2 436.5L737.8 442.9L736.2 449.2L735.3 455.2L735.1 460.9L734.4 466.2L732.3 471L728.3 475.3L723.5 479.1L718.7 482.3L714.4 484.7L710.1 486.5L705.3 487.6L700 488L694.7 487.6L689.9 486.5L685.6 484.7L681.3 482.3L676.5 479.1L671.7 475.3L667.7 471L665.6 466.2L664.9 460.9L664.7 455.2L663.8 449.2L662.2 442.9L660.8 436.5L660.9 430L663.9 423.5L665.6 417.1L667.6 410.8L669.8 404.8L672.4 399.1L675.1 393.8L678 389L681 384.7L684.1 380.9L687.3 377.7L690.4 375.3L693.6 373.5L696.8 372.4L700 372L703.2 372.4L706.4 373.5L709.6 375.3L712.7 377.7L715.9 380.9L719 384.7L722 389L724.9 393.8L727.6 399.1L730.2 404.8L732.4 410.8L734.4 417.1L736.1 423.5Z"/></clipPath><clipPath id="h3"><path d="M822 404L823.8 410L822.5 416L821 421.8L820.2 427.4L820 432.7L819.4 437.7L817.4 442.2L813.9 446.2L809.5 449.7L805.1 452.7L801.1 455L797.2 456.6L792.8 457.7L788 458L783.2 457.7L778.8 456.6L774.9 455L770.9 452.7L766.5 449.7L762.1 446.2L758.6 442.2L756.6 437.7L756 432.7L755.8 427.4L755 421.8L753.5 416L752.2 410L752.3 404L755.1 398L756.6 392L758.4 386.2L760.5 380.6L762.8 375.3L765.3 370.3L767.9 365.8L770.7 361.8L773.5 358.3L776.4 355.3L779.3 353L782.2 351.4L785.1 350.3L788 350L790.9 350.3L793.8 351.4L796.7 353L799.6 355.3L802.5 358.3L805.3 361.8L808.1 365.8L810.7 370.3L813.2 375.3L815.5 380.6L817.6 386.2L819.4 392L820.9 398Z"/></clipPath><clipPath id="h4"><path d="M849.1 300L849 302.6L848.5 305.2L847.7 307.6L846.6 310L845.2 312.1L843.6 314.1L841.7 315.8L839.6 317.3L837.4 318.4L835 319.3L832.6 319.8L830.1 320L827.6 319.8L825.2 319.3L822.9 318.4L820.6 317.3L818.6 315.8L816.7 314.1L815.1 312.1L813.7 310L812.6 307.6L811.8 305.2L811.3 302.6L811.1 300L811.3 297.4L811.8 294.8L812.6 292.4L813.7 290L815.1 287.9L816.7 285.9L818.6 284.2L820.6 282.7L822.9 281.6L825.2 280.7L827.6 280.2L830.1 280.1L832.6 280.2L835 280.7L837.4 281.6L839.6 282.7L841.7 284.2L843.6 285.9L845.2 287.9L846.6 290L847.7 292.4L848.5 294.8L849 297.4Z"/></clipPath><clipPath id="h5"><path d="M882.4 300L882.2 302.6L881.7 305.2L880.9 307.6L879.8 310L878.4 312.1L876.8 314.1L874.9 315.8L872.9 317.3L870.6 318.4L868.3 319.3L865.9 319.8L863.4 320L860.9 319.8L858.5 319.3L856.1 318.4L853.9 317.3L851.8 315.8L849.9 314.1L848.3 312.1L846.9 310L845.8 307.6L845 305.2L844.5 302.6L844.4 300L844.5 297.4L845 294.8L845.8 292.4L846.9 290L848.3 287.9L849.9 285.9L851.8 284.2L853.9 282.7L856.1 281.6L858.5 280.7L860.9 280.2L863.4 280.1L865.9 280.2L868.3 280.7L870.6 281.6L872.9 282.7L874.9 284.2L876.8 285.9L878.4 287.9L879.8 290L880.9 292.4L881.7 294.8L882.2 297.4Z"/></clipPath><clipPath id="h6"><path d="M915.6 300L915.5 302.6L915 305.2L914.2 307.6L913.1 310L911.7 312.1L910.1 314.1L908.2 315.8L906.1 317.3L903.9 318.4L901.5 319.3L899.1 319.8L896.6 320L894.1 319.8L891.7 319.3L889.4 318.4L887.1 317.3L885.1 315.8L883.2 314.1L881.6 312.1L880.2 310L879.1 307.6L878.3 305.2L877.8 302.6L877.6 300L877.8 297.4L878.3 294.8L879.1 292.4L880.2 290L881.6 287.9L883.2 285.9L885.1 284.2L887.1 282.7L889.4 281.6L891.7 280.7L894.1 280.2L896.6 280.1L899.1 280.2L901.5 280.7L903.9 281.6L906.1 282.7L908.2 284.2L910.1 285.9L911.7 287.9L913.1 290L914.2 292.4L915 294.8L915.5 297.4Z"/></clipPath><clipPath id="h7"><path d="M948.9 300L948.7 302.6L948.2 305.2L947.4 307.6L946.3 310L944.9 312.1L943.3 314.1L941.4 315.8L939.4 317.3L937.1 318.4L934.8 319.3L932.4 319.8L929.9 320L927.4 319.8L925 319.3L922.6 318.4L920.4 317.3L918.3 315.8L916.4 314.1L914.8 312.1L913.4 310L912.3 307.6L911.5 305.2L911 302.6L910.9 300L911 297.4L911.5 294.8L912.3 292.4L913.4 290L914.8 287.9L916.4 285.9L918.3 284.2L920.4 282.7L922.6 281.6L925 280.7L927.4 280.2L929.9 280.1L932.4 280.2L934.8 280.7L937.1 281.6L939.4 282.7L941.4 284.2L943.3 285.9L944.9 287.9L946.3 290L947.4 292.4L948.2 294.8L948.7 297.4Z"/></clipPath><clipPath id="h8"><path d="M852.9 328.5L852.8 331.1L852.3 333.7L851.5 336.1L850.4 338.5L849 340.6L847.4 342.6L845.5 344.3L843.4 345.8L841.2 346.9L838.8 347.8L836.4 348.3L833.9 348.5L831.4 348.3L829 347.8L826.7 346.9L824.4 345.8L822.4 344.3L820.5 342.6L818.9 340.6L817.5 338.5L816.4 336.1L815.6 333.7L815.1 331.1L814.9 328.5L815.1 325.9L815.6 323.3L816.4 320.9L817.5 318.5L818.9 316.4L820.5 314.4L822.4 312.7L824.4 311.2L826.7 310.1L829 309.2L831.4 308.7L833.9 308.6L836.4 308.7L838.8 309.2L841.2 310.1L843.4 311.2L845.5 312.7L847.4 314.4L849 316.4L850.4 318.5L851.5 320.9L852.3 323.3L852.8 325.9Z"/></clipPath><clipPath id="h9"><path d="M886.2 328.5L886 331.1L885.5 333.7L884.7 336.1L883.6 338.5L882.2 340.6L880.6 342.6L878.7 344.3L876.7 345.8L874.4 346.9L872.1 347.8L869.7 348.3L867.2 348.5L864.7 348.3L862.3 347.8L859.9 346.9L857.7 345.8L855.6 344.3L853.7 342.6L852.1 340.6L850.7 338.5L849.6 336.1L848.8 333.7L848.3 331.1L848.2 328.5L848.3 325.9L848.8 323.3L849.6 320.9L850.7 318.5L852.1 316.4L853.7 314.4L855.6 312.7L857.7 311.2L859.9 310.1L862.3 309.2L864.7 308.7L867.2 308.6L869.7 308.7L872.1 309.2L874.4 310.1L876.7 311.2L878.7 312.7L880.6 314.4L882.2 316.4L883.6 318.5L884.7 320.9L885.5 323.3L886 325.9Z"/></clipPath><clipPath id="h10"><path d="M919.4 328.5L919.3 331.1L918.8 333.7L918 336.1L916.9 338.5L915.5 340.6L913.9 342.6L912 344.3L909.9 345.8L907.7 346.9L905.3 347.8L902.9 348.3L900.4 348.5L897.9 348.3L895.5 347.8L893.2 346.9L890.9 345.8L888.9 344.3L887 342.6L885.4 340.6L884 338.5L882.9 336.1L882.1 333.7L881.6 331.1L881.4 328.5L881.6 325.9L882.1 323.3L882.9 320.9L884 318.5L885.4 316.4L887 314.4L888.9 312.7L890.9 311.2L893.2 310.1L895.5 309.2L897.9 308.7L900.4 308.6L902.9 308.7L905.3 309.2L907.7 310.1L909.9 311.2L912 312.7L913.9 314.4L915.5 316.4L916.9 318.5L918 320.9L918.8 323.3L919.3 325.9Z"/></clipPath><clipPath id="h11"><path d="M952.7 328.5L952.5 331.1L952 333.7L951.2 336.1L950.1 338.5L948.7 340.6L947.1 342.6L945.2 344.3L943.2 345.8L940.9 346.9L938.6 347.8L936.2 348.3L933.7 348.5L931.2 348.3L928.8 347.8L926.4 346.9L924.2 345.8L922.1 344.3L920.2 342.6L918.6 340.6L917.2 338.5L916.1 336.1L915.3 333.7L914.8 331.1L914.7 328.5L914.8 325.9L915.3 323.3L916.1 320.9L917.2 318.5L918.6 316.4L920.2 314.4L922.1 312.7L924.2 311.2L926.4 310.1L928.8 309.2L931.2 308.7L933.7 308.6L936.2 308.7L938.6 309.2L940.9 310.1L943.2 311.2L945.2 312.7L947.1 314.4L948.7 316.4L950.1 318.5L951.2 320.9L952 323.3L952.5 325.9Z"/></clipPath><clipPath id="h12"><path d="M865.8 357L865.6 359.6L865.1 362.2L864.3 364.6L863.2 367L861.8 369.1L860.2 371.1L858.3 372.8L856.3 374.3L854 375.4L851.7 376.3L849.2 376.8L846.8 377L844.3 376.8L841.8 376.3L839.5 375.4L837.3 374.3L835.2 372.8L833.3 371.1L831.7 369.1L830.3 367L829.2 364.6L828.4 362.2L827.9 359.6L827.8 357L827.9 354.4L828.4 351.8L829.2 349.4L830.3 347L831.7 344.9L833.3 342.9L835.2 341.2L837.3 339.7L839.5 338.6L841.8 337.7L844.3 337.2L846.8 337.1L849.2 337.2L851.7 337.7L854 338.6L856.3 339.7L858.3 341.2L860.2 342.9L861.8 344.9L863.2 347L864.3 349.4L865.1 351.8L865.6 354.4Z"/></clipPath><clipPath id="h13"><path d="M899 357L898.8 359.6L898.4 362.2L897.6 364.6L896.5 367L895.1 369.1L893.4 371.1L891.6 372.8L889.5 374.3L887.3 375.4L884.9 376.3L882.5 376.8L880 377L877.5 376.8L875.1 376.3L872.7 375.4L870.5 374.3L868.4 372.8L866.6 371.1L864.9 369.1L863.5 367L862.4 364.6L861.6 362.2L861.2 359.6L861 357L861.2 354.4L861.6 351.8L862.4 349.4L863.5 347L864.9 344.9L866.6 342.9L868.4 341.2L870.5 339.7L872.7 338.6L875.1 337.7L877.5 337.2L880 337.1L882.5 337.2L884.9 337.7L887.3 338.6L889.5 339.7L891.6 341.2L893.4 342.9L895.1 344.9L896.5 347L897.6 349.4L898.4 351.8L898.8 354.4Z"/></clipPath><clipPath id="h14"><path d="M932.3 357L932.1 359.6L931.6 362.2L930.8 364.6L929.7 367L928.3 369.1L926.7 371.1L924.8 372.8L922.8 374.3L920.5 375.4L918.2 376.3L915.7 376.8L913.3 377L910.8 376.8L908.3 376.3L906 375.4L903.8 374.3L901.7 372.8L899.8 371.1L898.2 369.1L896.8 367L895.7 364.6L894.9 362.2L894.4 359.6L894.3 357L894.4 354.4L894.9 351.8L895.7 349.4L896.8 347L898.2 344.9L899.8 342.9L901.7 341.2L903.8 339.7L906 338.6L908.3 337.7L910.8 337.2L913.3 337.1L915.7 337.2L918.2 337.7L920.5 338.6L922.8 339.7L924.8 341.2L926.7 342.9L928.3 344.9L929.7 347L930.8 349.4L931.6 351.8L932.1 354.4Z"/></clipPath><clipPath id="h15"><path d="M886.2 385.5L886 388.1L885.5 390.7L884.7 393.1L883.6 395.5L882.2 397.6L880.6 399.6L878.7 401.3L876.7 402.8L874.4 403.9L872.1 404.8L869.7 405.3L867.2 405.5L864.7 405.3L862.3 404.8L859.9 403.9L857.7 402.8L855.6 401.3L853.7 399.6L852.1 397.6L850.7 395.5L849.6 393.1L848.8 390.7L848.3 388.1L848.2 385.5L848.3 382.9L848.8 380.3L849.6 377.9L850.7 375.5L852.1 373.4L853.7 371.4L855.6 369.7L857.7 368.2L859.9 367.1L862.3 366.2L864.7 365.7L867.2 365.6L869.7 365.7L872.1 366.2L874.4 367.1L876.7 368.2L878.7 369.7L880.6 371.4L882.2 373.4L883.6 375.5L884.7 377.9L885.5 380.3L886 382.9Z"/></clipPath><clipPath id="h16"><path d="M919.4 385.5L919.3 388.1L918.8 390.7L918 393.1L916.9 395.5L915.5 397.6L913.9 399.6L912 401.3L909.9 402.8L907.7 403.9L905.3 404.8L902.9 405.3L900.4 405.5L897.9 405.3L895.5 404.8L893.2 403.9L890.9 402.8L888.9 401.3L887 399.6L885.4 397.6L884 395.5L882.9 393.1L882.1 390.7L881.6 388.1L881.4 385.5L881.6 382.9L882.1 380.3L882.9 377.9L884 375.5L885.4 373.4L887 371.4L888.9 369.7L890.9 368.2L893.2 367.1L895.5 366.2L897.9 365.7L900.4 365.6L902.9 365.7L905.3 366.2L907.7 367.1L909.9 368.2L912 369.7L913.9 371.4L915.5 373.4L916.9 375.5L918 377.9L918.8 380.3L919.3 382.9Z"/></clipPath><clipPath id="h17"><path d="M899 414L898.8 416.6L898.4 419.2L897.6 421.6L896.5 424L895.1 426.1L893.4 428.1L891.6 429.8L889.5 431.3L887.3 432.4L884.9 433.3L882.5 433.8L880 434L877.5 433.8L875.1 433.3L872.7 432.4L870.5 431.3L868.4 429.8L866.6 428.1L864.9 426.1L863.5 424L862.4 421.6L861.6 419.2L861.2 416.6L861 414L861.2 411.4L861.6 408.8L862.4 406.4L863.5 404L864.9 401.9L866.6 399.9L868.4 398.2L870.5 396.7L872.7 395.6L875.1 394.7L877.5 394.2L880 394.1L882.5 394.2L884.9 394.7L887.3 395.6L889.5 396.7L891.6 398.2L893.4 399.9L895.1 401.9L896.5 404L897.6 406.4L898.4 408.8L898.8 411.4Z"/></clipPath><clipPath id="h18"><path d="M210.7 378.8L208.6 384.1L205.6 389L201.9 393.4L197.8 397.4L193.4 401L188.9 404.4L184.3 407.6L179.4 410.6L174.4 413.4L169 415.8L163.3 417.6L157.3 418.7L151.1 418.9L144.9 418.2L138.9 416.7L133.1 414.5L127.7 411.8L122.5 408.8L117.5 405.7L112.6 402.3L107.9 398.8L103.3 395L99 390.7L95.2 386L92.2 380.9L89.9 375.4L88.7 369.7L88.2 364L88.6 358.3L89.5 352.8L90.7 347.4L92.2 342.1L94 336.9L96 331.8L98.3 326.7L101.3 321.9L104.9 317.3L109.1 313.4L114.1 310.1L119.5 307.6L125.3 305.9L131.2 304.8L137.2 304.2L143.1 304L149 304L154.9 304.2L160.8 304.6L166.9 305.5L172.8 306.9L178.7 309.1L184.2 312L189.1 315.7L193.5 320L197.2 324.7L200.2 329.7L202.9 334.9L205.1 340.1L207.2 345.3L209 350.7L210.6 356.1L211.7 361.7L212.2 367.4L211.9 373.2Z"/></clipPath><clipPath id="h19"><path d="M490.7 144.3L492.7 150.1L493.9 156L494.4 162.1L494.2 168.2L493.2 174.2L491.7 180L489.6 185.7L487 191.1L484 196.3L480.7 201.3L477 206L473 210.5L468.6 214.7L463.9 218.7L458.8 222.2L453.4 225.4L447.7 228.1L441.7 230.2L435.4 231.7L429.1 232.4L422.7 232.4L416.3 231.7L410.2 230.2L404.4 228L398.9 225.2L393.8 221.8L389.2 218L385 213.7L381.3 209.2L378.1 204.4L375.3 199.4L372.8 194.2L370.8 188.8L369.2 183.3L368 177.6L367.3 171.8L367.2 165.9L367.6 159.9L368.7 153.9L370.5 148L373 142.3L376.2 136.8L380.1 131.8L384.6 127.2L389.6 123.1L394.9 119.7L400.7 116.8L406.6 114.6L412.6 112.9L418.7 111.8L424.8 111.1L430.9 111L436.9 111.2L442.9 111.8L448.8 112.9L454.6 114.4L460.3 116.4L465.8 118.8L471.1 121.8L476 125.3L480.6 129.3L484.6 133.9L488 138.9Z"/></clipPath><clipPath id="h20"><path d="M421.1 440L420.4 447.1L418.4 454.1L415.3 460.7L411.3 466.9L406.6 472.7L401.4 478.1L395.8 483.2L390 488L384 492.7L377.7 497.1L370.9 501.3L363.7 505L355.9 508.3L347.6 510.8L338.9 512.3L330 512.9L321.1 512.3L312.4 510.8L304.1 508.3L296.3 505L289.1 501.3L282.3 497.1L276 492.7L270 488L264.2 483.2L258.6 478.1L253.4 472.7L248.7 466.9L244.7 460.7L241.6 454.1L239.6 447.1L238.9 440L239.6 432.9L241.6 425.9L244.7 419.3L248.7 413.1L253.4 407.3L258.6 401.9L264.2 396.8L270 392L276 387.3L282.3 382.9L289.1 378.7L296.3 375L304.1 371.7L312.4 369.2L321.1 367.7L330 367.1L338.9 367.7L347.6 369.2L355.9 371.7L363.7 375L370.9 378.7L377.7 382.9L384 387.3L390 392L395.8 396.8L401.4 401.9L406.6 407.3L411.3 413.1L415.3 419.3L418.4 425.9L420.4 432.9Z"/></clipPath><clipPath id="h21"><path d="M646.4 436.6L648.7 442.9L650.1 449.9L650.5 457.6L649.9 465.6L648.2 473.9L645.4 482.2L641.4 490.3L636.3 497.9L630.1 504.8L622.9 511L614.7 516.4L605.7 520.8L595.9 524.3L585.6 526.9L575 528.8L564.5 531.2L554 532.8L543.6 533.8L533.5 534L523.8 533.5L514.7 532.3L506.2 530.3L498.5 527.6L491.6 524.3L485.7 520.3L480.7 515.7L476.7 510.6L473.8 505.1L471.8 499.1L470.9 492.8L470.9 486.2L471.9 479.5L473.7 472.7L476.4 465.8L479.9 459.1L484.1 452.5L489 446.2L494.5 440.2L500.5 434.5L507.1 429.2L514 424.5L521.3 420.3L528.9 416.6L536.9 413.6L545 411.2L553.5 410.5L562.2 410.3L570.8 410.5L579.3 410.9L587.6 411.5L595.6 412.2L603.4 413.1L610.7 414.3L617.5 415.7L623.9 417.5L629.7 419.8L634.9 422.8L639.5 426.6L643.3 431.2Z"/></clipPath><clipPath id="h22"><path d="M490.7 144.3L492.7 150.1L493.9 156L494.4 162.1L494.2 168.2L493.2 174.2L491.7 180L489.6 185.7L487 191.1L484 196.3L480.7 201.3L477 206L473 210.5L468.6 214.7L463.9 218.7L458.8 222.2L453.4 225.4L447.7 228.1L441.7 230.2L435.4 231.7L429.1 232.4L422.7 232.4L416.3 231.7L410.2 230.2L404.4 228L398.9 225.2L393.8 221.8L389.2 218L385 213.7L381.3 209.2L378.1 204.4L375.3 199.4L372.8 194.2L370.8 188.8L369.2 183.3L368 177.6L367.3 171.8L367.2 165.9L367.6 159.9L368.7 153.9L370.5 148L373 142.3L376.2 136.8L380.1 131.8L384.6 127.2L389.6 123.1L394.9 119.7L400.7 116.8L406.6 114.6L412.6 112.9L418.7 111.8L424.8 111.1L430.9 111L436.9 111.2L442.9 111.8L448.8 112.9L454.6 114.4L460.3 116.4L465.8 118.8L471.1 121.8L476 125.3L480.6 129.3L484.6 133.9L488 138.9Z"/></clipPath></defs><rect width="1000" height="640" fill="#121110"/><path d="M40 600C230 540 330 330 520 300S840 220 965 110" fill="none" stroke="#9C6A42" stroke-width="17" stroke-linecap="round"/><path d="M520 300C560 360 600 380 640 372" fill="none" stroke="#9C6A42" stroke-width="9" stroke-linecap="round"/><path d="M700 372C702 330 690 300 690 280" fill="none" stroke="#9C6A42" stroke-width="6" stroke-linecap="round"/><path d="M788 350C790 300 800 270 805 240" fill="none" stroke="#9C6A42" stroke-width="6" stroke-linecap="round"/><path d="M880 290C882 260 880 240 872 205" fill="none" stroke="#9C6A42" stroke-width="6" stroke-linecap="round"/><path d="M300 455C290 400 300 370 330 352" fill="none" stroke="#9C6A42" stroke-width="8" stroke-linecap="round"/><path d="M134.9 554.9L145.9 554.5L156.6 555.1L167 556.6L176.9 559.2L186.5 562.7L195.8 567.3L204.7 572.8L213.2 579.4L221.4 586.9L229.3 595.4L236.7 605L243.9 615.5L250.6 627L257 639.5L248.1 633.8L239.2 628.1L230.4 622.3L221.6 616.4L212.8 610.5L204 604.6L195.3 598.5L186.6 592.5L177.9 586.4L169.2 580.2L160.6 573.9L152 567.7L143.4 561.3L134.9 554.9Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M134.9 554.9L141.5 564.9L148.5 574.3L155.8 583.1L163.4 591.2L171.3 598.8L179.5 605.8L188.1 612.1L197 617.8L206.2 623L215.7 627.5L225.6 631.4L235.7 634.7L246.2 637.4L257 639.5L248.1 633.8L239.2 628.1L230.4 622.3L221.6 616.4L212.8 610.5L204 604.6L195.3 598.5L186.6 592.5L177.9 586.4L169.2 580.2L160.6 573.9L152 567.7L143.4 561.3L134.9 554.9Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M218.6 492.3L212.1 484.9L206.2 477.3L200.9 469.4L196.2 461.3L192 453L188.4 444.4L185.3 435.6L182.8 426.5L180.9 417.2L179.6 407.7L178.9 397.9L178.7 387.9L179.1 377.6L180 367.2L182.4 376.2L184.9 385.1L187.4 394.1L190 403.1L192.6 412.1L195.3 421L198 429.9L200.8 438.9L203.7 447.8L206.5 456.7L209.5 465.6L212.5 474.5L215.5 483.4L218.6 492.3Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M218.6 492.3L221.8 482.3L224 472.4L225.3 462.7L225.8 453.2L225.3 443.9L223.9 434.7L221.6 425.7L218.4 416.8L214.2 408.1L209.2 399.6L203.3 391.2L196.4 383.1L188.7 375L180 367.2L182.4 376.2L184.9 385.1L187.4 394.1L190 403.1L192.6 412.1L195.3 421L198 429.9L200.8 438.9L203.7 447.8L206.5 456.7L209.5 465.6L212.5 474.5L215.5 483.4L218.6 492.3Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M332.5 394.1L344.2 392.2L355.6 391.5L366.7 391.9L377.6 393.4L388.2 396L398.6 399.7L408.7 404.5L418.6 410.3L428.2 417.3L437.6 425.4L446.7 434.6L455.5 444.9L464.1 456.3L472.5 468.8L462.3 463.8L452.2 458.8L442.1 453.8L432 448.6L421.9 443.4L411.9 438.2L401.9 432.9L391.9 427.5L382 422.1L372 416.6L362.1 411.1L352.2 405.5L342.4 399.8L332.5 394.1Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M332.5 394.1L340.8 403.8L349.3 412.9L358.1 421.3L367.2 429.1L376.5 436.1L386.1 442.5L396 448.2L406.1 453.1L416.5 457.5L427.2 461.1L438.1 464L449.3 466.3L460.7 467.9L472.5 468.8L462.3 463.8L452.2 458.8L442.1 453.8L432 448.6L421.9 443.4L411.9 438.2L401.9 432.9L391.9 427.5L382 422.1L372 416.6L362.1 411.1L352.2 405.5L342.4 399.8L332.5 394.1Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M445 322.3L441.2 314L438 305.8L435.3 297.4L433.2 289L431.7 280.5L430.7 272L430.3 263.4L430.5 254.7L431.2 246L432.6 237.2L434.4 228.3L436.9 219.4L439.9 210.5L443.5 201.4L443.3 210L443.1 218.6L443 227.2L443 235.9L442.9 244.5L443 253.1L443.1 261.7L443.2 270.4L443.4 279L443.6 287.6L443.9 296.3L444.2 305L444.6 313.6L445 322.3Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M445 322.3L450.4 314.2L455 306.1L458.7 297.9L461.5 289.6L463.5 281.2L464.7 272.7L465 264.1L464.5 255.4L463.1 246.6L460.9 237.8L457.8 228.8L453.9 219.8L449.1 210.7L443.5 201.4L443.3 210L443.1 218.6L443 227.2L443 235.9L442.9 244.5L443 253.1L443.1 261.7L443.2 270.4L443.4 279L443.6 287.6L443.9 296.3L444.2 305L444.6 313.6L445 322.3Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M585.9 288.3L596.5 291.9L606.5 296.3L615.7 301.5L624.3 307.6L632.1 314.4L639.2 322.1L645.7 330.6L651.4 340L656.5 350.1L660.8 361L664.4 372.8L667.4 385.4L669.6 398.8L671.1 413L664.7 404.4L658.4 395.7L652.1 386.9L645.9 378.2L639.6 369.4L633.5 360.5L627.4 351.6L621.3 342.7L615.3 333.7L609.3 324.7L603.4 315.7L597.5 306.6L591.7 297.4L585.9 288.3Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M585.9 288.3L588.6 300.2L591.8 311.6L595.5 322.6L599.7 333.1L604.5 343.2L609.8 352.8L615.6 361.9L622 370.6L628.9 378.8L636.3 386.6L644.2 393.9L652.6 400.7L661.6 407.1L671.1 413L664.7 404.4L658.4 395.7L652.1 386.9L645.9 378.2L639.6 369.4L633.5 360.5L627.4 351.6L621.3 342.7L615.3 333.7L609.3 324.7L603.4 315.7L597.5 306.6L591.7 297.4L585.9 288.3Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M695.2 260.9L691.9 251L689.3 241.2L687.3 231.3L686 221.5L685.4 211.6L685.4 201.8L686.1 191.9L687.4 182.1L689.4 172.3L692 162.4L695.3 152.6L699.2 142.8L703.8 132.9L709.1 123.1L707.7 132.9L706.4 142.6L705.2 152.4L704 162.2L702.9 172L701.8 181.9L700.8 191.7L699.8 201.5L698.9 211.4L698 221.3L697.2 231.2L696.5 241.1L695.8 251L695.2 260.9Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M695.2 260.9L702.3 252.4L708.6 243.8L713.9 234.9L718.2 225.8L721.6 216.5L724 207L725.5 197.2L726 187.3L725.5 177.1L724.2 166.7L721.8 156.2L718.5 145.4L714.3 134.3L709.1 123.1L707.7 132.9L706.4 142.6L705.2 152.4L704 162.2L702.9 172L701.8 181.9L700.8 191.7L699.8 201.5L698.9 211.4L698 221.3L697.2 231.2L696.5 241.1L695.8 251L695.2 260.9Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M788.2 225.7L799.8 226.8L810.8 228.9L821.3 232L831.3 236.1L840.9 241.2L849.8 247.2L858.3 254.3L866.3 262.3L873.7 271.3L880.7 281.3L887.1 292.3L893 304.3L898.4 317.2L903.3 331.2L894.8 324L886.4 316.7L878 309.4L869.7 302.1L861.4 294.7L853.1 287.2L844.8 279.7L836.6 272.1L828.5 264.5L820.3 256.9L812.3 249.1L804.2 241.4L796.2 233.6L788.2 225.7Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M788.2 225.7L793.7 237L799.6 247.8L805.9 258L812.7 267.5L819.8 276.5L827.4 285L835.4 292.8L843.9 300L852.7 306.7L862 312.7L871.7 318.2L881.8 323.1L892.3 327.4L903.3 331.2L894.8 324L886.4 316.7L878 309.4L869.7 302.1L861.4 294.7L853.1 287.2L844.8 279.7L836.6 272.1L828.5 264.5L820.3 256.9L812.3 249.1L804.2 241.4L796.2 233.6L788.2 225.7Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M881.2 174.3L875.6 166.2L870.7 158L866.3 149.5L862.5 140.9L859.4 132.1L856.8 123.2L854.8 114.1L853.4 104.8L852.6 95.3L852.4 85.7L852.8 75.9L853.8 66L855.4 55.8L857.6 45.5L858.9 54.7L860.3 64L861.8 73.2L863.3 82.4L864.8 91.6L866.4 100.8L868.1 110L869.8 119.2L871.6 128.4L873.4 137.6L875.3 146.8L877.2 156L879.2 165.1L881.2 174.3Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M881.2 174.3L885.5 164.7L888.9 155.2L891.3 145.8L892.9 136.4L893.5 127L893.2 117.8L892 108.5L889.8 99.4L886.8 90.2L882.8 81.2L877.9 72.2L872 63.2L865.3 54.4L857.6 45.5L858.9 54.7L860.3 64L861.8 73.2L863.3 82.4L864.8 91.6L866.4 100.8L868.1 110L869.8 119.2L871.6 128.4L873.4 137.6L875.3 146.8L877.2 156L879.2 165.1L881.2 174.3Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M938.7 132.2L947.5 130.8L956.2 130.3L964.7 130.6L973 131.7L981.1 133.7L989 136.5L996.7 140.1L1004.3 144.6L1011.6 149.9L1018.7 156.1L1025.7 163.1L1032.4 170.9L1039 179.6L1045.3 189.1L1037.6 185.3L1029.9 181.5L1022.2 177.7L1014.5 173.8L1006.8 169.8L999.2 165.8L991.5 161.8L983.9 157.7L976.3 153.6L968.8 149.4L961.2 145.2L953.7 140.9L946.2 136.6L938.7 132.2Z" fill="#1E7E55" stroke="#070605" stroke-width="1.4"/><path d="M938.7 132.2L945 139.7L951.5 146.6L958.2 153L965.1 158.9L972.2 164.2L979.5 169.1L987 173.4L994.8 177.2L1002.7 180.5L1010.8 183.3L1019.1 185.5L1027.6 187.2L1036.4 188.4L1045.3 189.1L1037.6 185.3L1029.9 181.5L1022.2 177.7L1014.5 173.8L1006.8 169.8L999.2 165.8L991.5 161.8L983.9 157.7L976.3 153.6L968.8 149.4L961.2 145.2L953.7 140.9L946.2 136.6L938.7 132.2Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M421.1 440L420.4 447.1L418.4 454.1L415.3 460.7L411.3 466.9L406.6 472.7L401.4 478.1L395.8 483.2L390 488L384 492.7L377.7 497.1L370.9 501.3L363.7 505L355.9 508.3L347.6 510.8L338.9 512.3L330 512.9L321.1 512.3L312.4 510.8L304.1 508.3L296.3 505L289.1 501.3L282.3 497.1L276 492.7L270 488L264.2 483.2L258.6 478.1L253.4 472.7L248.7 466.9L244.7 460.7L241.6 454.1L239.6 447.1L238.9 440L239.6 432.9L241.6 425.9L244.7 419.3L248.7 413.1L253.4 407.3L258.6 401.9L264.2 396.8L270 392L276 387.3L282.3 382.9L289.1 378.7L296.3 375L304.1 371.7L312.4 369.2L321.1 367.7L330 367.1L338.9 367.7L347.6 369.2L355.9 371.7L363.7 375L370.9 378.7L377.7 382.9L384 387.3L390 392L395.8 396.8L401.4 401.9L406.6 407.3L411.3 413.1L415.3 419.3L418.4 425.9L420.4 432.9Z" fill="#9C2A23" stroke="#070605" stroke-width="1.4"/><path d="M646.4 436.6L648.7 442.9L650.1 449.9L650.5 457.6L649.9 465.6L648.2 473.9L645.4 482.2L641.4 490.3L636.3 497.9L630.1 504.8L622.9 511L614.7 516.4L605.7 520.8L595.9 524.3L585.6 526.9L575 528.8L564.5 531.2L554 532.8L543.6 533.8L533.5 534L523.8 533.5L514.7 532.3L506.2 530.3L498.5 527.6L491.6 524.3L485.7 520.3L480.7 515.7L476.7 510.6L473.8 505.1L471.8 499.1L470.9 492.8L470.9 486.2L471.9 479.5L473.7 472.7L476.4 465.8L479.9 459.1L484.1 452.5L489 446.2L494.5 440.2L500.5 434.5L507.1 429.2L514 424.5L521.3 420.3L528.9 416.6L536.9 413.6L545 411.2L553.5 410.5L562.2 410.3L570.8 410.5L579.3 410.9L587.6 411.5L595.6 412.2L603.4 413.1L610.7 414.3L617.5 415.7L623.9 417.5L629.7 419.8L634.9 422.8L639.5 426.6L643.3 431.2Z" fill="#CB9733" stroke="#070605" stroke-width="1.4"/><path d="M737.3 430L739.2 436.5L737.8 442.9L736.2 449.2L735.3 455.2L735.1 460.9L734.4 466.2L732.3 471L728.3 475.3L723.5 479.1L718.7 482.3L714.4 484.7L710.1 486.5L705.3 487.6L700 488L694.7 487.6L689.9 486.5L685.6 484.7L681.3 482.3L676.5 479.1L671.7 475.3L667.7 471L665.6 466.2L664.9 460.9L664.7 455.2L663.8 449.2L662.2 442.9L660.8 436.5L660.9 430L663.9 423.5L665.6 417.1L667.6 410.8L669.8 404.8L672.4 399.1L675.1 393.8L678 389L681 384.7L684.1 380.9L687.3 377.7L690.4 375.3L693.6 373.5L696.8 372.4L700 372L703.2 372.4L706.4 373.5L709.6 375.3L712.7 377.7L715.9 380.9L719 384.7L722 389L724.9 393.8L727.6 399.1L730.2 404.8L732.4 410.8L734.4 417.1L736.1 423.5Z" fill="#9C2A23" stroke="#070605" stroke-width="1.4"/><path d="M822 404L823.8 410L822.5 416L821 421.8L820.2 427.4L820 432.7L819.4 437.7L817.4 442.2L813.9 446.2L809.5 449.7L805.1 452.7L801.1 455L797.2 456.6L792.8 457.7L788 458L783.2 457.7L778.8 456.6L774.9 455L770.9 452.7L766.5 449.7L762.1 446.2L758.6 442.2L756.6 437.7L756 432.7L755.8 427.4L755 421.8L753.5 416L752.2 410L752.3 404L755.1 398L756.6 392L758.4 386.2L760.5 380.6L762.8 375.3L765.3 370.3L767.9 365.8L770.7 361.8L773.5 358.3L776.4 355.3L779.3 353L782.2 351.4L785.1 350.3L788 350L790.9 350.3L793.8 351.4L796.7 353L799.6 355.3L802.5 358.3L805.3 361.8L808.1 365.8L810.7 370.3L813.2 375.3L815.5 380.6L817.6 386.2L819.4 392L820.9 398Z" fill="#9C2A23" stroke="#070605" stroke-width="1.4"/><path d="M849.1 300L849 302.6L848.5 305.2L847.7 307.6L846.6 310L845.2 312.1L843.6 314.1L841.7 315.8L839.6 317.3L837.4 318.4L835 319.3L832.6 319.8L830.1 320L827.6 319.8L825.2 319.3L822.9 318.4L820.6 317.3L818.6 315.8L816.7 314.1L815.1 312.1L813.7 310L812.6 307.6L811.8 305.2L811.3 302.6L811.1 300L811.3 297.4L811.8 294.8L812.6 292.4L813.7 290L815.1 287.9L816.7 285.9L818.6 284.2L820.6 282.7L822.9 281.6L825.2 280.7L827.6 280.2L830.1 280.1L832.6 280.2L835 280.7L837.4 281.6L839.6 282.7L841.7 284.2L843.6 285.9L845.2 287.9L846.6 290L847.7 292.4L848.5 294.8L849 297.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M882.4 300L882.2 302.6L881.7 305.2L880.9 307.6L879.8 310L878.4 312.1L876.8 314.1L874.9 315.8L872.9 317.3L870.6 318.4L868.3 319.3L865.9 319.8L863.4 320L860.9 319.8L858.5 319.3L856.1 318.4L853.9 317.3L851.8 315.8L849.9 314.1L848.3 312.1L846.9 310L845.8 307.6L845 305.2L844.5 302.6L844.4 300L844.5 297.4L845 294.8L845.8 292.4L846.9 290L848.3 287.9L849.9 285.9L851.8 284.2L853.9 282.7L856.1 281.6L858.5 280.7L860.9 280.2L863.4 280.1L865.9 280.2L868.3 280.7L870.6 281.6L872.9 282.7L874.9 284.2L876.8 285.9L878.4 287.9L879.8 290L880.9 292.4L881.7 294.8L882.2 297.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M915.6 300L915.5 302.6L915 305.2L914.2 307.6L913.1 310L911.7 312.1L910.1 314.1L908.2 315.8L906.1 317.3L903.9 318.4L901.5 319.3L899.1 319.8L896.6 320L894.1 319.8L891.7 319.3L889.4 318.4L887.1 317.3L885.1 315.8L883.2 314.1L881.6 312.1L880.2 310L879.1 307.6L878.3 305.2L877.8 302.6L877.6 300L877.8 297.4L878.3 294.8L879.1 292.4L880.2 290L881.6 287.9L883.2 285.9L885.1 284.2L887.1 282.7L889.4 281.6L891.7 280.7L894.1 280.2L896.6 280.1L899.1 280.2L901.5 280.7L903.9 281.6L906.1 282.7L908.2 284.2L910.1 285.9L911.7 287.9L913.1 290L914.2 292.4L915 294.8L915.5 297.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M948.9 300L948.7 302.6L948.2 305.2L947.4 307.6L946.3 310L944.9 312.1L943.3 314.1L941.4 315.8L939.4 317.3L937.1 318.4L934.8 319.3L932.4 319.8L929.9 320L927.4 319.8L925 319.3L922.6 318.4L920.4 317.3L918.3 315.8L916.4 314.1L914.8 312.1L913.4 310L912.3 307.6L911.5 305.2L911 302.6L910.9 300L911 297.4L911.5 294.8L912.3 292.4L913.4 290L914.8 287.9L916.4 285.9L918.3 284.2L920.4 282.7L922.6 281.6L925 280.7L927.4 280.2L929.9 280.1L932.4 280.2L934.8 280.7L937.1 281.6L939.4 282.7L941.4 284.2L943.3 285.9L944.9 287.9L946.3 290L947.4 292.4L948.2 294.8L948.7 297.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M852.9 328.5L852.8 331.1L852.3 333.7L851.5 336.1L850.4 338.5L849 340.6L847.4 342.6L845.5 344.3L843.4 345.8L841.2 346.9L838.8 347.8L836.4 348.3L833.9 348.5L831.4 348.3L829 347.8L826.7 346.9L824.4 345.8L822.4 344.3L820.5 342.6L818.9 340.6L817.5 338.5L816.4 336.1L815.6 333.7L815.1 331.1L814.9 328.5L815.1 325.9L815.6 323.3L816.4 320.9L817.5 318.5L818.9 316.4L820.5 314.4L822.4 312.7L824.4 311.2L826.7 310.1L829 309.2L831.4 308.7L833.9 308.6L836.4 308.7L838.8 309.2L841.2 310.1L843.4 311.2L845.5 312.7L847.4 314.4L849 316.4L850.4 318.5L851.5 320.9L852.3 323.3L852.8 325.9Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M886.2 328.5L886 331.1L885.5 333.7L884.7 336.1L883.6 338.5L882.2 340.6L880.6 342.6L878.7 344.3L876.7 345.8L874.4 346.9L872.1 347.8L869.7 348.3L867.2 348.5L864.7 348.3L862.3 347.8L859.9 346.9L857.7 345.8L855.6 344.3L853.7 342.6L852.1 340.6L850.7 338.5L849.6 336.1L848.8 333.7L848.3 331.1L848.2 328.5L848.3 325.9L848.8 323.3L849.6 320.9L850.7 318.5L852.1 316.4L853.7 314.4L855.6 312.7L857.7 311.2L859.9 310.1L862.3 309.2L864.7 308.7L867.2 308.6L869.7 308.7L872.1 309.2L874.4 310.1L876.7 311.2L878.7 312.7L880.6 314.4L882.2 316.4L883.6 318.5L884.7 320.9L885.5 323.3L886 325.9Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M919.4 328.5L919.3 331.1L918.8 333.7L918 336.1L916.9 338.5L915.5 340.6L913.9 342.6L912 344.3L909.9 345.8L907.7 346.9L905.3 347.8L902.9 348.3L900.4 348.5L897.9 348.3L895.5 347.8L893.2 346.9L890.9 345.8L888.9 344.3L887 342.6L885.4 340.6L884 338.5L882.9 336.1L882.1 333.7L881.6 331.1L881.4 328.5L881.6 325.9L882.1 323.3L882.9 320.9L884 318.5L885.4 316.4L887 314.4L888.9 312.7L890.9 311.2L893.2 310.1L895.5 309.2L897.9 308.7L900.4 308.6L902.9 308.7L905.3 309.2L907.7 310.1L909.9 311.2L912 312.7L913.9 314.4L915.5 316.4L916.9 318.5L918 320.9L918.8 323.3L919.3 325.9Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M952.7 328.5L952.5 331.1L952 333.7L951.2 336.1L950.1 338.5L948.7 340.6L947.1 342.6L945.2 344.3L943.2 345.8L940.9 346.9L938.6 347.8L936.2 348.3L933.7 348.5L931.2 348.3L928.8 347.8L926.4 346.9L924.2 345.8L922.1 344.3L920.2 342.6L918.6 340.6L917.2 338.5L916.1 336.1L915.3 333.7L914.8 331.1L914.7 328.5L914.8 325.9L915.3 323.3L916.1 320.9L917.2 318.5L918.6 316.4L920.2 314.4L922.1 312.7L924.2 311.2L926.4 310.1L928.8 309.2L931.2 308.7L933.7 308.6L936.2 308.7L938.6 309.2L940.9 310.1L943.2 311.2L945.2 312.7L947.1 314.4L948.7 316.4L950.1 318.5L951.2 320.9L952 323.3L952.5 325.9Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M865.8 357L865.6 359.6L865.1 362.2L864.3 364.6L863.2 367L861.8 369.1L860.2 371.1L858.3 372.8L856.3 374.3L854 375.4L851.7 376.3L849.2 376.8L846.8 377L844.3 376.8L841.8 376.3L839.5 375.4L837.3 374.3L835.2 372.8L833.3 371.1L831.7 369.1L830.3 367L829.2 364.6L828.4 362.2L827.9 359.6L827.8 357L827.9 354.4L828.4 351.8L829.2 349.4L830.3 347L831.7 344.9L833.3 342.9L835.2 341.2L837.3 339.7L839.5 338.6L841.8 337.7L844.3 337.2L846.8 337.1L849.2 337.2L851.7 337.7L854 338.6L856.3 339.7L858.3 341.2L860.2 342.9L861.8 344.9L863.2 347L864.3 349.4L865.1 351.8L865.6 354.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M899 357L898.8 359.6L898.4 362.2L897.6 364.6L896.5 367L895.1 369.1L893.4 371.1L891.6 372.8L889.5 374.3L887.3 375.4L884.9 376.3L882.5 376.8L880 377L877.5 376.8L875.1 376.3L872.7 375.4L870.5 374.3L868.4 372.8L866.6 371.1L864.9 369.1L863.5 367L862.4 364.6L861.6 362.2L861.2 359.6L861 357L861.2 354.4L861.6 351.8L862.4 349.4L863.5 347L864.9 344.9L866.6 342.9L868.4 341.2L870.5 339.7L872.7 338.6L875.1 337.7L877.5 337.2L880 337.1L882.5 337.2L884.9 337.7L887.3 338.6L889.5 339.7L891.6 341.2L893.4 342.9L895.1 344.9L896.5 347L897.6 349.4L898.4 351.8L898.8 354.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M932.3 357L932.1 359.6L931.6 362.2L930.8 364.6L929.7 367L928.3 369.1L926.7 371.1L924.8 372.8L922.8 374.3L920.5 375.4L918.2 376.3L915.7 376.8L913.3 377L910.8 376.8L908.3 376.3L906 375.4L903.8 374.3L901.7 372.8L899.8 371.1L898.2 369.1L896.8 367L895.7 364.6L894.9 362.2L894.4 359.6L894.3 357L894.4 354.4L894.9 351.8L895.7 349.4L896.8 347L898.2 344.9L899.8 342.9L901.7 341.2L903.8 339.7L906 338.6L908.3 337.7L910.8 337.2L913.3 337.1L915.7 337.2L918.2 337.7L920.5 338.6L922.8 339.7L924.8 341.2L926.7 342.9L928.3 344.9L929.7 347L930.8 349.4L931.6 351.8L932.1 354.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M886.2 385.5L886 388.1L885.5 390.7L884.7 393.1L883.6 395.5L882.2 397.6L880.6 399.6L878.7 401.3L876.7 402.8L874.4 403.9L872.1 404.8L869.7 405.3L867.2 405.5L864.7 405.3L862.3 404.8L859.9 403.9L857.7 402.8L855.6 401.3L853.7 399.6L852.1 397.6L850.7 395.5L849.6 393.1L848.8 390.7L848.3 388.1L848.2 385.5L848.3 382.9L848.8 380.3L849.6 377.9L850.7 375.5L852.1 373.4L853.7 371.4L855.6 369.7L857.7 368.2L859.9 367.1L862.3 366.2L864.7 365.7L867.2 365.6L869.7 365.7L872.1 366.2L874.4 367.1L876.7 368.2L878.7 369.7L880.6 371.4L882.2 373.4L883.6 375.5L884.7 377.9L885.5 380.3L886 382.9Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M919.4 385.5L919.3 388.1L918.8 390.7L918 393.1L916.9 395.5L915.5 397.6L913.9 399.6L912 401.3L909.9 402.8L907.7 403.9L905.3 404.8L902.9 405.3L900.4 405.5L897.9 405.3L895.5 404.8L893.2 403.9L890.9 402.8L888.9 401.3L887 399.6L885.4 397.6L884 395.5L882.9 393.1L882.1 390.7L881.6 388.1L881.4 385.5L881.6 382.9L882.1 380.3L882.9 377.9L884 375.5L885.4 373.4L887 371.4L888.9 369.7L890.9 368.2L893.2 367.1L895.5 366.2L897.9 365.7L900.4 365.6L902.9 365.7L905.3 366.2L907.7 367.1L909.9 368.2L912 369.7L913.9 371.4L915.5 373.4L916.9 375.5L918 377.9L918.8 380.3L919.3 382.9Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M899 414L898.8 416.6L898.4 419.2L897.6 421.6L896.5 424L895.1 426.1L893.4 428.1L891.6 429.8L889.5 431.3L887.3 432.4L884.9 433.3L882.5 433.8L880 434L877.5 433.8L875.1 433.3L872.7 432.4L870.5 431.3L868.4 429.8L866.6 428.1L864.9 426.1L863.5 424L862.4 421.6L861.6 419.2L861.2 416.6L861 414L861.2 411.4L861.6 408.8L862.4 406.4L863.5 404L864.9 401.9L866.6 399.9L868.4 398.2L870.5 396.7L872.7 395.6L875.1 394.7L877.5 394.2L880 394.1L882.5 394.2L884.9 394.7L887.3 395.6L889.5 396.7L891.6 398.2L893.4 399.9L895.1 401.9L896.5 404L897.6 406.4L898.4 408.8L898.8 411.4Z" fill="#6A3F82" stroke="#070605" stroke-width="1.4"/><path d="M210.7 378.8L208.6 384.1L205.6 389L201.9 393.4L197.8 397.4L193.4 401L188.9 404.4L184.3 407.6L179.4 410.6L174.4 413.4L169 415.8L163.3 417.6L157.3 418.7L151.1 418.9L144.9 418.2L138.9 416.7L133.1 414.5L127.7 411.8L122.5 408.8L117.5 405.7L112.6 402.3L107.9 398.8L103.3 395L99 390.7L95.2 386L92.2 380.9L89.9 375.4L88.7 369.7L88.2 364L88.6 358.3L89.5 352.8L90.7 347.4L92.2 342.1L94 336.9L96 331.8L98.3 326.7L101.3 321.9L104.9 317.3L109.1 313.4L114.1 310.1L119.5 307.6L125.3 305.9L131.2 304.8L137.2 304.2L143.1 304L149 304L154.9 304.2L160.8 304.6L166.9 305.5L172.8 306.9L178.7 309.1L184.2 312L189.1 315.7L193.5 320L197.2 324.7L200.2 329.7L202.9 334.9L205.1 340.1L207.2 345.3L209 350.7L210.6 356.1L211.7 361.7L212.2 367.4L211.9 373.2Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M490.7 144.3L492.7 150.1L493.9 156L494.4 162.1L494.2 168.2L493.2 174.2L491.7 180L489.6 185.7L487 191.1L484 196.3L480.7 201.3L477 206L473 210.5L468.6 214.7L463.9 218.7L458.8 222.2L453.4 225.4L447.7 228.1L441.7 230.2L435.4 231.7L429.1 232.4L422.7 232.4L416.3 231.7L410.2 230.2L404.4 228L398.9 225.2L393.8 221.8L389.2 218L385 213.7L381.3 209.2L378.1 204.4L375.3 199.4L372.8 194.2L370.8 188.8L369.2 183.3L368 177.6L367.3 171.8L367.2 165.9L367.6 159.9L368.7 153.9L370.5 148L373 142.3L376.2 136.8L380.1 131.8L384.6 127.2L389.6 123.1L394.9 119.7L400.7 116.8L406.6 114.6L412.6 112.9L418.7 111.8L424.8 111.1L430.9 111L436.9 111.2L442.9 111.8L448.8 112.9L454.6 114.4L460.3 116.4L465.8 118.8L471.1 121.8L476 125.3L480.6 129.3L484.6 133.9L488 138.9Z" fill="#D7B460" stroke="#070605" stroke-width="1.4"/><path clip-path="url(#h0)" d="M389 422.4L388.2 431.6L386.1 440.6L382.6 449.3L377.8 457.6L371.7 465.3L364.5 472.2L356.3 478.3L347.2 483.4L337.4 487.4L327 490.4L316.3 492.2L305.4 492.8L294.4 492.2L283.7 490.4L273.4 487.4L263.6 483.4L254.5 478.3L246.2 472.2L239 465.3L233 457.6L228.1 449.3L224.6 440.6L222.5 431.6L221.8 422.4L222.5 413.2L224.6 404.2L228.1 395.5L233 387.2L239 379.5L246.2 372.6L254.5 366.5L263.6 361.4L273.4 357.4L283.7 354.4L294.4 352.6L305.4 352L316.3 352.6L327 354.4L337.4 357.4L347.2 361.4L356.3 366.5L364.5 372.6L371.7 379.5L377.8 387.2L382.6 395.5L386.1 404.2L388.2 413.2Z" fill="#C4522A" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h1)" d="M668 409.3L669 415.8L668.6 422.6L667 429.5L664.1 436.4L659.9 443.1L654.6 449.6L648.3 455.7L640.9 461.4L632.8 466.5L623.9 470.9L614.5 474.7L604.7 477.6L594.7 479.7L584.7 481L574.8 481.3L565.2 480.7L556 479.3L547.5 476.9L539.7 473.8L532.8 469.9L527 465.2L522.3 460L518.7 454.2L516.4 447.9L515.4 441.4L515.8 434.6L517.4 427.7L520.3 420.8L524.5 414.1L529.8 407.6L536.1 401.5L543.5 395.8L551.6 390.7L560.5 386.3L569.9 382.5L579.7 379.6L589.7 377.5L599.7 376.2L609.6 375.9L619.2 376.5L628.4 377.9L636.9 380.3L644.7 383.4L651.6 387.3L657.4 392L662.1 397.2L665.7 403Z" fill="#9C2A23" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h2)" d="M694 435.8L693.9 442.6L693.4 449.3L692.5 455.8L691.4 461.9L690 467.6L688.4 472.7L686.5 477.2L684.4 481L682.1 484L679.7 486.2L677.2 487.6L674.7 488L672.2 487.6L669.7 486.2L667.3 484L665 481L662.9 477.2L661 472.7L659.4 467.6L658 461.9L656.9 455.8L656 449.3L655.5 442.6L655.4 435.8L655.5 429L656 422.3L656.9 415.8L658 409.7L659.4 404L661 398.9L662.9 394.4L665 390.6L667.3 387.6L669.7 385.4L672.2 384L674.7 383.6L677.2 384L679.7 385.4L682.1 387.6L684.4 390.6L686.5 394.4L688.4 398.9L690 404L691.4 409.7L692.5 415.8L693.4 422.3L693.9 429Z" fill="#C4522A" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h3)" d="M782.5 409.4L782.4 415.7L781.9 422L781.2 428L780.2 433.7L778.9 439L777.4 443.8L775.6 448L773.7 451.5L771.7 454.3L769.5 456.3L767.2 457.6L764.9 458L762.6 457.6L760.3 456.3L758.1 454.3L756.1 451.5L754.2 448L752.4 443.8L750.9 439L749.6 433.7L748.6 428L747.9 422L747.4 415.7L747.3 409.4L747.4 403.1L747.9 396.8L748.6 390.8L749.6 385.1L750.9 379.8L752.4 375L754.2 370.8L756.1 367.3L758.1 364.5L760.3 362.5L762.6 361.2L764.9 360.8L767.2 361.2L769.5 362.5L771.7 364.5L773.7 367.3L775.6 370.8L777.4 375L778.9 379.8L780.2 385.1L781.2 390.8L781.9 396.8L782.4 403.1Z" fill="#C4522A" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h4)" d="M826.6 290L826.8 290.3L826.9 290.7L826.9 291L826.8 291.5L826.7 291.9L826.5 292.4L826.2 292.8L825.9 293.3L825.5 293.7L825 294.2L824.5 294.6L824 295L823.5 295.3L822.9 295.6L822.4 295.9L821.8 296.1L821.2 296.2L820.7 296.3L820.2 296.3L819.7 296.3L819.3 296.2L819 296L818.7 295.8L818.4 295.6L818.3 295.3L818.2 294.9L818.2 294.5L818.2 294.1L818.4 293.7L818.6 293.2L818.9 292.7L819.2 292.3L819.6 291.8L820 291.4L820.5 291L821 290.6L821.6 290.2L822.1 289.9L822.7 289.7L823.3 289.5L823.8 289.3L824.3 289.3L824.8 289.2L825.3 289.3L825.7 289.4L826.1 289.5L826.4 289.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h5)" d="M859.9 290L860 290.3L860.1 290.7L860.1 291L860.1 291.5L859.9 291.9L859.7 292.4L859.4 292.8L859.1 293.3L858.7 293.7L858.3 294.2L857.8 294.6L857.3 295L856.7 295.3L856.2 295.6L855.6 295.9L855 296.1L854.5 296.2L854 296.3L853.5 296.3L853 296.3L852.6 296.2L852.2 296L851.9 295.8L851.7 295.6L851.5 295.3L851.4 294.9L851.4 294.5L851.5 294.1L851.6 293.7L851.8 293.2L852.1 292.7L852.4 292.3L852.8 291.8L853.3 291.4L853.8 291L854.3 290.6L854.8 290.2L855.4 289.9L855.9 289.7L856.5 289.5L857.1 289.3L857.6 289.3L858.1 289.2L858.6 289.3L859 289.4L859.3 289.5L859.6 289.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h6)" d="M893.1 290L893.3 290.3L893.4 290.7L893.4 291L893.3 291.5L893.2 291.9L893 292.4L892.7 292.8L892.4 293.3L892 293.7L891.5 294.2L891 294.6L890.5 295L890 295.3L889.4 295.6L888.9 295.9L888.3 296.1L887.7 296.2L887.2 296.3L886.7 296.3L886.2 296.3L885.8 296.2L885.5 296L885.2 295.8L884.9 295.6L884.8 295.3L884.7 294.9L884.7 294.5L884.7 294.1L884.9 293.7L885.1 293.2L885.4 292.7L885.7 292.3L886.1 291.8L886.5 291.4L887 291L887.5 290.6L888.1 290.2L888.6 289.9L889.2 289.7L889.8 289.5L890.3 289.3L890.8 289.3L891.3 289.2L891.8 289.3L892.2 289.4L892.6 289.5L892.9 289.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h7)" d="M926.4 290L926.5 290.3L926.6 290.7L926.6 291L926.6 291.5L926.4 291.9L926.2 292.4L925.9 292.8L925.6 293.3L925.2 293.7L924.8 294.2L924.3 294.6L923.8 295L923.2 295.3L922.7 295.6L922.1 295.9L921.5 296.1L921 296.2L920.5 296.3L920 296.3L919.5 296.3L919.1 296.2L918.7 296L918.4 295.8L918.2 295.6L918 295.3L917.9 294.9L917.9 294.5L918 294.1L918.1 293.7L918.3 293.2L918.6 292.7L918.9 292.3L919.3 291.8L919.8 291.4L920.3 291L920.8 290.6L921.3 290.2L921.9 289.9L922.4 289.7L923 289.5L923.6 289.3L924.1 289.3L924.6 289.2L925.1 289.3L925.5 289.4L925.8 289.5L926.1 289.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h8)" d="M830.4 318.5L830.6 318.8L830.7 319.2L830.7 319.5L830.6 320L830.5 320.4L830.3 320.9L830 321.3L829.7 321.8L829.3 322.2L828.8 322.7L828.3 323.1L827.8 323.5L827.3 323.8L826.7 324.1L826.2 324.4L825.6 324.6L825 324.7L824.5 324.8L824 324.8L823.5 324.8L823.1 324.7L822.8 324.5L822.5 324.3L822.2 324.1L822.1 323.8L822 323.4L822 323L822 322.6L822.2 322.2L822.4 321.7L822.7 321.2L823 320.8L823.4 320.3L823.8 319.9L824.3 319.5L824.8 319.1L825.4 318.7L825.9 318.4L826.5 318.2L827.1 318L827.6 317.8L828.1 317.8L828.6 317.7L829.1 317.8L829.5 317.9L829.9 318L830.2 318.2Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h9)" d="M863.7 318.5L863.8 318.8L863.9 319.2L863.9 319.5L863.9 320L863.7 320.4L863.5 320.9L863.2 321.3L862.9 321.8L862.5 322.2L862.1 322.7L861.6 323.1L861.1 323.5L860.5 323.8L860 324.1L859.4 324.4L858.8 324.6L858.3 324.7L857.8 324.8L857.3 324.8L856.8 324.8L856.4 324.7L856 324.5L855.7 324.3L855.5 324.1L855.3 323.8L855.2 323.4L855.2 323L855.3 322.6L855.4 322.2L855.6 321.7L855.9 321.2L856.2 320.8L856.6 320.3L857.1 319.9L857.6 319.5L858.1 319.1L858.6 318.7L859.2 318.4L859.7 318.2L860.3 318L860.9 317.8L861.4 317.8L861.9 317.7L862.4 317.8L862.8 317.9L863.1 318L863.4 318.2Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h10)" d="M896.9 318.5L897.1 318.8L897.2 319.2L897.2 319.5L897.1 320L897 320.4L896.8 320.9L896.5 321.3L896.2 321.8L895.8 322.2L895.3 322.7L894.8 323.1L894.3 323.5L893.8 323.8L893.2 324.1L892.7 324.4L892.1 324.6L891.5 324.7L891 324.8L890.5 324.8L890 324.8L889.6 324.7L889.3 324.5L889 324.3L888.7 324.1L888.6 323.8L888.5 323.4L888.5 323L888.5 322.6L888.7 322.2L888.9 321.7L889.2 321.2L889.5 320.8L889.9 320.3L890.3 319.9L890.8 319.5L891.3 319.1L891.9 318.7L892.4 318.4L893 318.2L893.6 318L894.1 317.8L894.6 317.8L895.1 317.7L895.6 317.8L896 317.9L896.4 318L896.7 318.2Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h11)" d="M930.2 318.5L930.3 318.8L930.4 319.2L930.4 319.5L930.4 320L930.2 320.4L930 320.9L929.7 321.3L929.4 321.8L929 322.2L928.6 322.7L928.1 323.1L927.6 323.5L927 323.8L926.5 324.1L925.9 324.4L925.3 324.6L924.8 324.7L924.3 324.8L923.8 324.8L923.3 324.8L922.9 324.7L922.5 324.5L922.2 324.3L922 324.1L921.8 323.8L921.7 323.4L921.7 323L921.8 322.6L921.9 322.2L922.1 321.7L922.4 321.2L922.7 320.8L923.1 320.3L923.6 319.9L924.1 319.5L924.6 319.1L925.1 318.7L925.7 318.4L926.2 318.2L926.8 318L927.4 317.8L927.9 317.8L928.4 317.7L928.9 317.8L929.3 317.9L929.6 318L929.9 318.2Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h12)" d="M843.2 347L843.4 347.3L843.5 347.7L843.5 348L843.4 348.5L843.3 348.9L843.1 349.4L842.8 349.8L842.5 350.3L842.1 350.7L841.7 351.2L841.2 351.6L840.7 352L840.1 352.3L839.5 352.6L839 352.9L838.4 353.1L837.9 353.2L837.3 353.3L836.8 353.3L836.4 353.3L836 353.2L835.6 353L835.3 352.8L835.1 352.6L834.9 352.3L834.8 351.9L834.8 351.5L834.9 351.1L835 350.7L835.2 350.2L835.5 349.7L835.8 349.3L836.2 348.8L836.6 348.4L837.1 348L837.6 347.6L838.2 347.2L838.8 346.9L839.3 346.7L839.9 346.5L840.4 346.3L841 346.3L841.5 346.2L841.9 346.3L842.3 346.4L842.7 346.5L843 346.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h13)" d="M876.5 347L876.6 347.3L876.7 347.7L876.7 348L876.7 348.5L876.5 348.9L876.3 349.4L876.1 349.8L875.7 350.3L875.3 350.7L874.9 351.2L874.4 351.6L873.9 352L873.4 352.3L872.8 352.6L872.2 352.9L871.7 353.1L871.1 353.2L870.6 353.3L870.1 353.3L869.6 353.3L869.2 353.2L868.9 353L868.6 352.8L868.3 352.6L868.2 352.3L868.1 351.9L868.1 351.5L868.1 351.1L868.3 350.7L868.5 350.2L868.7 349.7L869.1 349.3L869.5 348.8L869.9 348.4L870.4 348L870.9 347.6L871.4 347.2L872 346.9L872.6 346.7L873.1 346.5L873.7 346.3L874.2 346.3L874.7 346.2L875.2 346.3L875.6 346.4L875.9 346.5L876.2 346.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h14)" d="M909.7 347L909.9 347.3L910 347.7L910 348L909.9 348.5L909.8 348.9L909.6 349.4L909.3 349.8L909 350.3L908.6 350.7L908.2 351.2L907.7 351.6L907.2 352L906.6 352.3L906 352.6L905.5 352.9L904.9 353.1L904.4 353.2L903.8 353.3L903.3 353.3L902.9 353.3L902.5 353.2L902.1 353L901.8 352.8L901.6 352.6L901.4 352.3L901.3 351.9L901.3 351.5L901.4 351.1L901.5 350.7L901.7 350.2L902 349.7L902.3 349.3L902.7 348.8L903.1 348.4L903.6 348L904.1 347.6L904.7 347.2L905.3 346.9L905.8 346.7L906.4 346.5L906.9 346.3L907.5 346.3L908 346.2L908.4 346.3L908.8 346.4L909.2 346.5L909.5 346.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h15)" d="M863.7 375.5L863.8 375.8L863.9 376.2L863.9 376.5L863.9 377L863.7 377.4L863.5 377.9L863.2 378.3L862.9 378.8L862.5 379.2L862.1 379.7L861.6 380.1L861.1 380.5L860.5 380.8L860 381.1L859.4 381.4L858.8 381.6L858.3 381.7L857.8 381.8L857.3 381.8L856.8 381.8L856.4 381.7L856 381.5L855.7 381.3L855.5 381.1L855.3 380.8L855.2 380.4L855.2 380L855.3 379.6L855.4 379.2L855.6 378.7L855.9 378.2L856.2 377.8L856.6 377.3L857.1 376.9L857.6 376.5L858.1 376.1L858.6 375.7L859.2 375.4L859.7 375.2L860.3 375L860.9 374.8L861.4 374.8L861.9 374.7L862.4 374.8L862.8 374.9L863.1 375L863.4 375.2Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h16)" d="M896.9 375.5L897.1 375.8L897.2 376.2L897.2 376.5L897.1 377L897 377.4L896.8 377.9L896.5 378.3L896.2 378.8L895.8 379.2L895.3 379.7L894.8 380.1L894.3 380.5L893.8 380.8L893.2 381.1L892.7 381.4L892.1 381.6L891.5 381.7L891 381.8L890.5 381.8L890 381.8L889.6 381.7L889.3 381.5L889 381.3L888.7 381.1L888.6 380.8L888.5 380.4L888.5 380L888.5 379.6L888.7 379.2L888.9 378.7L889.2 378.2L889.5 377.8L889.9 377.3L890.3 376.9L890.8 376.5L891.3 376.1L891.9 375.7L892.4 375.4L893 375.2L893.6 375L894.1 374.8L894.6 374.8L895.1 374.7L895.6 374.8L896 374.9L896.4 375L896.7 375.2Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h17)" d="M876.5 404L876.6 404.3L876.7 404.7L876.7 405L876.7 405.5L876.5 405.9L876.3 406.4L876.1 406.8L875.7 407.3L875.3 407.7L874.9 408.2L874.4 408.6L873.9 409L873.4 409.3L872.8 409.6L872.2 409.9L871.7 410.1L871.1 410.2L870.6 410.3L870.1 410.3L869.6 410.3L869.2 410.2L868.9 410L868.6 409.8L868.3 409.6L868.2 409.3L868.1 408.9L868.1 408.5L868.1 408.1L868.3 407.7L868.5 407.2L868.7 406.7L869.1 406.3L869.5 405.8L869.9 405.4L870.4 405L870.9 404.6L871.4 404.2L872 403.9L872.6 403.7L873.1 403.5L873.7 403.3L874.2 403.3L874.7 403.2L875.2 403.3L875.6 403.4L875.9 403.5L876.2 403.7Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h18)" d="M124.5 309.1L125.5 311.3L126 313.7L126.2 316.3L125.9 318.9L125.2 321.6L124.1 324.3L122.6 326.9L120.8 329.5L118.6 331.9L116.2 334.1L113.5 336.1L110.6 337.9L107.5 339.4L104.3 340.6L101.1 341.4L97.9 341.9L94.8 342.1L91.8 341.9L88.9 341.4L86.3 340.5L83.9 339.3L81.9 337.8L80.1 336.1L78.8 334L77.8 331.8L77.3 329.4L77.1 326.8L77.4 324.2L78.1 321.5L79.2 318.8L80.7 316.2L82.5 313.7L84.7 311.3L87.1 309L89.8 307L92.7 305.2L95.8 303.7L98.9 302.6L102.1 301.7L105.3 301.2L108.5 301L111.5 301.2L114.3 301.7L117 302.6L119.3 303.8L121.4 305.3L123.1 307.1Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h19)" d="M527.5 242.2L523.5 247.1L518.8 251.3L513.5 254.9L507.5 257.7L501.1 259.6L494.4 260.7L487.4 260.9L480.2 260.3L473.1 258.7L466 256.4L459.3 253.2L452.8 249.3L446.8 244.7L441.4 239.5L436.7 233.8L432.7 227.7L429.5 221.3L427.1 214.7L425.7 208L425.2 201.3L425.6 194.8L427 188.5L429.2 182.6L432.4 177.2L436.3 172.3L441 168L446.4 164.5L452.3 161.7L458.7 159.8L465.5 158.7L472.5 158.5L479.6 159.1L486.8 160.6L493.8 163L500.6 166.2L507 170.1L513 174.6L518.4 179.8L523.2 185.5L527.2 191.6L530.4 198L532.7 204.7L534.1 211.4L534.6 218L534.2 224.6L532.9 230.8L530.6 236.8Z" fill="#9C6A42" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h20)" d="M299.6 408.1L299.9 408.9L300 409.7L299.9 410.6L299.7 411.6L299.3 412.5L298.7 413.5L298 414.5L297.1 415.5L296.1 416.5L295 417.4L293.8 418.2L292.5 419L291.1 419.7L289.8 420.2L288.4 420.7L287.1 421L285.8 421.2L284.5 421.3L283.4 421.2L282.3 421.1L281.4 420.7L280.6 420.3L280 419.7L279.5 419.1L279.2 418.3L279.1 417.5L279.1 416.6L279.3 415.6L279.8 414.7L280.3 413.7L281.1 412.7L281.9 411.7L282.9 410.7L284.1 409.8L285.3 409L286.6 408.2L287.9 407.5L289.3 407L290.6 406.5L292 406.2L293.3 406L294.5 405.9L295.7 406L296.7 406.1L297.7 406.5L298.5 406.9L299.1 407.5Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path clip-path="url(#h21)" d="M536.5 437.8L536.6 438.4L536.5 439.1L536.2 439.9L535.7 440.8L534.9 441.7L534 442.6L532.9 443.6L531.6 444.6L530.1 445.6L528.6 446.6L526.9 447.5L525.2 448.4L523.5 449.2L521.7 449.9L520 450.5L518.3 451L516.7 451.4L515.2 451.7L513.9 451.8L512.7 451.9L511.7 451.7L510.9 451.5L510.3 451.1L509.9 450.6L509.8 450L509.9 449.4L510.2 448.6L510.7 447.7L511.5 446.8L512.4 445.8L513.5 444.9L514.8 443.9L516.3 442.9L517.8 441.9L519.5 441L521.2 440.1L522.9 439.3L524.7 438.6L526.4 438L528.1 437.5L529.7 437.1L531.2 436.8L532.5 436.6L533.7 436.6L534.7 436.7L535.5 437L536.1 437.4Z" fill="#D2D7DA" stroke="#070605" stroke-width="2.8"/><path d="M710.1 483.4L710 483.9L709.8 484.4L709.3 484.9L708.8 485.4L708 485.8L707.2 486.2L706.2 486.6L705.1 486.9L703.9 487.1L702.6 487.3L701.3 487.4L700 487.4L698.7 487.4L697.4 487.3L696.1 487.1L694.9 486.9L693.8 486.6L692.8 486.2L692 485.8L691.2 485.4L690.7 484.9L690.2 484.4L690 483.9L689.9 483.4L690 482.8L690.2 482.3L690.7 481.8L691.2 481.3L692 480.9L692.8 480.5L693.8 480.1L694.9 479.8L696.1 479.6L697.4 479.4L698.7 479.3L700 479.3L701.3 479.3L702.6 479.4L703.9 479.6L705.1 479.8L706.2 480.1L707.2 480.5L708 480.9L708.8 481.3L709.3 481.8L709.8 482.3L710 482.8Z" fill="#121110" stroke="#070605" stroke-width="1.4"/><path d="M797.2 453.7L797.2 454.2L796.9 454.7L796.5 455.1L796 455.6L795.3 456L794.5 456.4L793.6 456.7L792.6 457L791.5 457.2L790.4 457.3L789.2 457.4L788 457.5L786.8 457.4L785.6 457.3L784.5 457.2L783.4 457L782.4 456.7L781.5 456.4L780.7 456L780 455.6L779.5 455.1L779.1 454.7L778.8 454.2L778.8 453.7L778.8 453.2L779.1 452.7L779.5 452.2L780 451.8L780.7 451.4L781.5 451L782.4 450.7L783.4 450.4L784.5 450.2L785.6 450L786.8 449.9L788 449.9L789.2 449.9L790.4 450L791.5 450.2L792.6 450.4L793.6 450.7L794.5 451L795.3 451.4L796 451.8L796.5 452.2L796.9 452.7L797.2 453.2Z" fill="#121110" stroke="#070605" stroke-width="1.4"/><path d="M164.8 413.3L164.4 414L163.3 414.5L161.7 414.9L160 415L158.7 415.1L157.8 415.2L157.6 415.5L157.7 416.1L158 416.9L158.3 417.9L158.1 418.9L157.5 419.7L156.5 420L155.3 419.9L154.1 419.4L153.1 418.5L152.4 417.6L151.9 416.9L151.5 416.6L150.9 416.6L149.9 416.9L148.6 417.4L147 417.8L145.4 417.9L144.1 417.7L143.4 417.2L143.4 416.4L144 415.6L145.1 414.8L146.2 414.1L147.1 413.7L147.5 413.3L147.1 413L146.2 412.5L145.1 411.9L144 411.1L143.4 410.2L143.4 409.4L144.1 408.9L145.4 408.7L147 408.9L148.6 409.3L149.9 409.7L150.9 410.1L151.5 410.1L151.9 409.7L152.4 409L153.1 408.1L154.1 407.3L155.3 406.7L156.5 406.6L157.5 407L158.1 407.7L158.3 408.7L158 409.7L157.7 410.5L157.6 411.1L157.8 411.4L158.7 411.5L160 411.6L161.7 411.8L163.3 412.1L164.4 412.7Z" fill="#9C6A42" stroke="#070605" stroke-width="1.4"/><path clip-path="url(#h22)" d="M410.3 136.9L410.5 137.3L410.7 137.8L410.8 138.4L410.7 139L410.6 139.7L410.3 140.4L409.9 141.2L409.5 141.9L408.9 142.7L408.3 143.4L407.6 144.1L406.9 144.8L406.1 145.4L405.3 146L404.4 146.4L403.6 146.9L402.8 147.2L402 147.4L401.2 147.6L400.5 147.6L399.9 147.5L399.4 147.4L398.9 147.1L398.5 146.8L398.3 146.4L398.1 145.9L398 145.3L398.1 144.7L398.2 144L398.5 143.3L398.9 142.5L399.3 141.8L399.9 141L400.5 140.3L401.2 139.6L401.9 138.9L402.7 138.3L403.5 137.7L404.4 137.2L405.2 136.8L406 136.5L406.8 136.3L407.6 136.1L408.3 136.1L408.9 136.1L409.4 136.3L409.9 136.6Z" fill="#E8E4DB" stroke="#070605" stroke-width="2.8"/><path d="M368.6 391.2L366.9 392.4L363.4 392.6L358.7 391.9L353.5 390.4L348.5 388.5L344.3 386.8L341.3 385.5L339.5 385.1L338.5 385.6L337.9 386.9L337.1 388.8L335.7 390.8L333.4 392.5L330.3 393.4L326.6 393.3L322.7 392.2L319.2 390.2L316.5 387.6L315 384.7L314.6 381.9L315.1 379.5L315.9 377.6L316.4 376.3L316.1 375.2L314.5 374.2L311.5 372.9L307.3 371.1L302.5 368.9L297.8 366.2L294 363.3L291.7 360.7L291.4 358.6L293.1 357.3L296.6 357.1L301.3 357.9L306.5 359.4L311.5 361.2L315.7 363L318.7 364.2L320.5 364.7L321.5 364.2L322.1 362.8L322.9 361L324.3 359L326.6 357.3L329.7 356.4L333.4 356.4L337.3 357.5L340.8 359.5L343.5 362.2L345 365.1L345.4 367.9L344.9 370.3L344.1 372.1L343.6 373.5L343.9 374.6L345.5 375.6L348.5 376.9L352.7 378.6L357.5 380.9L362.2 383.6L366 386.4L368.3 389.1Z" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M427 113.7L433 113.7L439 91.9L433 90.6Z" fill="#9C6A42" stroke="#070605" stroke-width="1.4"/><path d="M337 369.6L337 370.4L336.8 371.2L336.5 372L336.1 372.7L335.6 373.3L335 374L334.3 374.5L333.5 374.9L332.7 375.3L331.8 375.6L330.9 375.7L330 375.8L329.1 375.7L328.2 375.6L327.3 375.3L326.5 374.9L325.7 374.5L325 374L324.4 373.3L323.9 372.7L323.5 372L323.2 371.2L323 370.4L323 369.6L323 368.8L323.2 368L323.5 367.2L323.9 366.5L324.4 365.9L325 365.2L325.7 364.7L326.5 364.3L327.3 363.9L328.2 363.6L329.1 363.5L330 363.4L330.9 363.5L331.8 363.6L332.7 363.9L333.5 364.3L334.3 364.7L335 365.2L335.6 365.9L336.1 366.5L336.5 367.2L336.8 368L337 368.8Z" fill="#9C6A42" stroke="#070605" stroke-width="1.4"/><path d="M0 0H1000V640H0Z M22 22V618H978V22Z" fill-rule="evenodd" fill="#D7B460" stroke="#070605" stroke-width="1.4"/><path d="M22 22H978V618H22Z M28 28V612H972V28Z" fill-rule="evenodd" fill="#55723A" stroke="#070605" stroke-width="1.4"/><path d="M0 0h22v22h-22Z" fill="#24408F" stroke="#070605" stroke-width="1.4"/><path d="M978 0h22v22h-22Z" fill="#24408F" stroke="#070605" stroke-width="1.4"/><path d="M0 618h22v22h-22Z" fill="#24408F" stroke="#070605" stroke-width="1.4"/><path d="M978 618h22v22h-22Z" fill="#24408F" stroke="#070605" stroke-width="1.4"/></svg>
+<canvas id="panel" width="1000" height="640" role="img" aria-label="十二果掛板：黑石地上一枝瑪瑙枝條，掛著甜柿、愛文芒果、兩顆蓮霧、一串巨峰、一顆芭樂與一顆新興梨，葉子各由孔雀石與綠碧玉兩半拼成。"></canvas>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+</figure>
+<div class="lede">
+<span class="kick">臺中第二市場旁・<em>水果與石頭</em></span>
+<h1 class="inlay">金石<br>果子行</h1>
+<span class="roman">KIM-TSIO̍H KUÉ-TSÍ-HÂNG</span>
+<p>林金石一九七一年在第二市場擺第一攤水果。五十多年後，孫女林亭妤從佛羅倫斯的硬石鑲嵌工坊回來，花三年把十二個月的水果，一片一片用石頭嵌進這塊黑板子裡。</p>
+<p>游標移到板上，看每一片是哪一種石頭。</p>
+<div class="season">
+<span class="kick">十月・<em>本季</em></span>
+<h2>和平甜柿禮盒</h2>
+<p style="margin:0 0 10px">臺中和平區梨山下的次郎甜柿，八入，附一張本季果牌印刷卡。</p>
+<span class="price">NT$ 1,580</span>
+</div>
+<div class="acts"><a class="btn solid" href="box.html">看十二個月的禮盒</a><a class="btn" href="pei.html">自己配一塊石</a></div>
+</div>
+</div>
+<div class="wrap" style="max-width:1360px"><figcaption><span>〈十二果掛板〉局部・96 × 61 公分・147 片・林亭妤 2020–2023・掛在收銀台後面</span><button type="button" id="replay">再嵌一次</button></figcaption></div>
+</section>
+
+<div class="ml agate" id="ml-agate"><p class="ml-fb">AGATA · 瑪瑙帶</p><span class="lbl" aria-hidden="true">AGATA · 瑪瑙帶</span></div>
+
+<section aria-labelledby="h-season">
+<div class="wrap two">
+<div>
+<span class="kick">X ・ OCTOBER</span>
+<h2 id="h-season" class="inlay">十月，甜柿</h2>
+<p style="margin-top:22px">和平區的甜柿十月中開始轉色，我們等到果蒂下緣也轉橙才收。甜柿不必脫澀，脆的時候吃脆，放到軟了再吃軟的，各有人愛。</p>
+<p>每一盒附一張林亭妤畫稿、再照著選石嵌出來的果牌印刷卡。今年的果牌用了四種石：紅碧玉做背光面、紅玉髓做受光面、玉髓點高光、綠碧玉做果萼。</p>
+<dl class="facts">
+<dt>產地</dt><dd>臺中市和平區（梨山、環山一帶）</dd>
+<dt>內容</dt><dd>次郎甜柿 8 入・每顆 220–260 克</dd>
+<dt>價格</dt><dd>NT$ 1,580・宅配加 NT$ 160</dd>
+<dt>出貨</dt><dd>10 月 15 日至 12 月 10 日，週二至週六</dd>
+</dl>
+</div>
+<div class="card">
+<span class="kick">三道工序</span>
+<div class="steps" style="margin-top:12px">
+<div><b class="inlay">I</b><h3 style="font-size:19px">畫稿</h3><p style="font-size:14.5px;color:var(--bianco2)">先畫一張上色的稿，每一塊顏色就是將來的一片石。</p></div>
+<div><b class="inlay">II</b><h3 style="font-size:19px">選石</h3><p style="font-size:14.5px;color:var(--bianco2)">不調色，只挑石：在整塊料上找顏色、紋路剛好的那一處，用線鋸切下來。</p></div>
+<div><b class="inlay">III</b><h3 style="font-size:19px">拋光</h3><p style="font-size:14.5px;color:var(--bianco2)">嵌好之後整面一起磨。磨亮了，石頭的顏色才會出來。</p></div>
+</div>
+</div>
+</div>
+</section>
+
+<hr class="rule">
+
+<section aria-labelledby="h-story">
+<div class="wrap two">
+<div>
+<span class="kick">TRES GENERATIONES</span>
+<h2 id="h-story" class="inlay">一攤水果，<br>一塊板，三代</h2>
+<p style="margin-top:22px">第二市場的攤位從一九七一年到現在沒有搬過，只是後面多了一面牆。林素卿說，阿爸挑水果跟亭妤挑石頭是同一件事：拿起來、轉一圈、看光。</p>
+</div>
+<ol class="time">
+<li><b>1971</b><span>林金石（1936–2011）在第二市場北側擺水果攤，賣東勢的梨與彰化的葡萄。</span></li>
+<li><b>1983</b><span>開始做中秋與過年的禮盒，木箱上手寫「金石」兩個字。</span></li>
+<li><b>1998</b><span>女兒林素卿接手，改成每個月一種當令禮盒，十二個月輪一圈。</span></li>
+<li><b>2016</b><span>林亭妤到佛羅倫斯一間硬石鑲嵌工坊當學徒三年，學線鋸、選石與拋光。</span></li>
+<li><b>2020</b><span>回臺，在店後隔出一間兩坪的工作室，開始嵌〈十二果掛板〉。</span></li>
+<li><b>2023</b><span>掛板完成，147 片。每個月的禮盒開始附一張果牌印刷卡。</span></li>
+</ol>
+</div>
+</section>
+
+<hr class="rule">
+
+<section aria-labelledby="h-stones">
+<div class="wrap">
+<span class="kick">LAPIDES · 石譜</span>
+<h2 id="h-stones" class="inlay">板上的十二種石</h2>
+<p style="max-width:720px;margin-top:18px">硬石鑲嵌不調顏色。要一塊亮一點的橙，就去找一塊亮一點的紅玉髓；要葉子有陰陽，就用兩種綠石各切一半。</p>
+<div class="stones">
+<div class="stone"><i data-st="nero" style="--c:#121110" aria-hidden="true"></i><div><h3>黑石<small>Nero del Belgio · 比利時 Dinant</small></h3><p>整片地。拋光到能照出人影，所有顏色都嵌在它裡面。</p></div></div>
+<div class="stone"><i data-st="lapis" style="--c:#24408F" aria-hidden="true"></i><div><h3>青金石<small>Lapis lazuli · 阿富汗 Badakhshan</small></h3><p>四個角方塊。金色亮點是天然黃鐵礦，不是畫上去的。</p></div></div>
+<div class="stone"><i data-st="malachite" style="--c:#1E7E55" aria-hidden="true"></i><div><h3>孔雀石<small>Malachite · 剛果 Katanga</small></h3><p>葉的陰半。同心紋要順著葉脈切，切反了葉子會「翻面」。</p></div></div>
+<div class="stone"><i data-st="verde" style="--c:#55723A" aria-hidden="true"></i><div><h3>綠碧玉<small>Diaspro verde · 科西嘉</small></h3><p>葉的陽半、芭樂果身、框內細線。</p></div></div>
+<div class="stone"><i data-st="corniola" style="--c:#C4522A" aria-hidden="true"></i><div><h3>紅玉髓<small>Corniola · 印度 Gujarat</small></h3><p>甜柿受光面、蓮霧亮面。半透明，越薄越亮。</p></div></div>
+<div class="stone"><i data-st="rosso" style="--c:#9C2A23" aria-hidden="true"></i><div><h3>紅碧玉<small>Diaspro rosso · 西西里</small></h3><p>甜柿背光面、蓮霧果身、芒果紅頰。</p></div></div>
+<div class="stone"><i data-st="giallo" style="--c:#CB9733" aria-hidden="true"></i><div><h3>黃碧玉<small>Diaspro giallo · 西西里</small></h3><p>芒果果身。黑點是氧化鐵，挑片時盡量避開果心。</p></div></div>
+<div class="stone"><i data-st="siena" style="--c:#D7B460" aria-hidden="true"></i><div><h3>錫耶納黃大理石<small>Giallo di Siena · 托斯卡尼</small></h3><p>外框、梨的果身；站上所有嵌字也是它。</p></div></div>
+<div class="stone"><i data-st="bianco" style="--c:#E8E4DB" aria-hidden="true"></i><div><h3>白大理石<small>Bianco di Carrara · 托斯卡尼 Carrara</small></h3><p>梨的高光、店招的白字。</p></div></div>
+<div class="stone"><i data-st="calcedonio" style="--c:#D2D7DA" aria-hidden="true"></i><div><h3>玉髓<small>Calcedonio · 沃爾泰拉</small></h3><p>所有高光。乳白偏藍，拿來「打燈」。</p></div></div>
+<div class="stone"><i data-st="agata" style="--c:#9C6A42" aria-hidden="true"></i><div><h3>瑪瑙<small>Agata · 波希米亞</small></h3><p>枝條、果梗、梨的暗面。紋路要順著枝走。</p></div></div>
+<div class="stone"><i data-st="ametista" style="--c:#6A3F82" aria-hidden="true"></i><div><h3>紫水晶<small>Ametista · 巴西</small></h3><p>十四顆巨峰，每顆從同一塊料的不同位置取。</p></div></div>
+</div>
+</div>
+</section>
+
+<footer class="foot"><div class="wrap">
+<div><h3>金石果子行</h3><p>臺中市中區三民路二段 87 號（第二市場北側，門牌虛構）<br>(04) 2226-3815・08:30–19:30・週一公休<br>禮盒宅配週二至週六出貨，臺灣本島隔日到。</p></div>
+<div><h3>本站</h3><ul><li><a href="index.html">石｜十二果掛板</a></li><li><a href="box.html">盒｜十二個月的禮盒</a></li><li><a href="pei.html">配｜以石代筆</a></li><li><a href="visit.html">來｜來店與宅配</a></li></ul></div>
+<div><h3>說明</h3><p>店名、人物、地址與價格皆為虛構示意。站上每一塊「石」都是程式生成的石紋，不是照片。</p></div>
+<p class="inscr">KIM · TSIO̍H · KUÉ-TSÍ-HÂNG · TAI-TIONG · PIETRA DURA · FRUCTUS · MENSIBUS · DUODECIM</p>
+</div></footer>
+</div></div>
+<script>/* KS stone engine — periodic value noise + fbm + domain warp → 12 stone textures */
+var KS=(function(){
+function h2(x,y,s){var n=(x*374761393+y*668265263+s*1442695041)|0;n=(n^(n>>>13))*1274126177|0;n=n^(n>>>16);return (n>>>0)/4294967296;}
+function vn(x,y,P,s){var xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi;var u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+ var x0=((xi%P)+P)%P,y0=((yi%P)+P)%P,x1=(x0+1)%P,y1=(y0+1)%P;
+ var a=h2(x0,y0,s),b=h2(x1,y0,s),c=h2(x0,y1,s),d=h2(x1,y1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+function fbm(x,y,P,s,o){var t=0,a=.5,f=1,n=0;for(var i=0;i<o;i++){t+=a*vn(x*f,y*f,P*f,s+i*17);n+=a;a*=.5;f*=2;}return t/n;}
+function hx(c){return [parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];}
+function mx(a,b,t){t=t<0?0:t>1?1:t;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+function ss(a,b,x){var t=(x-a)/(b-a);t=t<0?0:t>1?1:t;return t*t*(3-2*t);}
+var C={};function c(k){return C[k]||(C[k]=hx(k));}
+/* each: (u,v in 0..P lattice units, w = warped fbm) -> rgb */
+var DEF={
+ nero:{n:'黑石 Nero del Belgio',o:'比利時 Dinant',avg:'#121110',f:function(x,y,P,s){var w=fbm(x,y,P,s,3);var r=mx(c('#0C0B0A'),c('#1A1816'),w*1.2-.2);if(h2(x*40|0,y*40|0,s)>.996)r=c('#3A3631');return r;}},
+ lapis:{n:'青金石 Lapis lazuli',o:'阿富汗 Badakhshan',avg:'#24408F',f:function(x,y,P,s){var w=fbm(x+fbm(x,y,P,s+5,3)*1.6,y,P,s,4);var r=mx(c('#132462'),c('#3156B4'),ss(.3,.75,w));var vv=Math.abs(Math.sin((y/P*2+w*1.3)*Math.PI*2));r=mx(r,c('#A8B8DD'),(1-ss(0,.1,vv))*.55);if(h2(x*32|0,y*32|0,s+9)>.988)r=c('#D2AE52');return r;}},
+ malachite:{n:'孔雀石 Malachite',o:'剛果 Katanga',avg:'#1E7E55',f:function(x,y,P,s){var w=fbm(x,y,P,s,3);var t=(y/P*6+w*2.4+Math.sin(x/P*Math.PI*2)*.35)%1;t=t<0?t+1:t;var r=t<.18?c('#083F2A'):t<.55?mx(c('#13734B'),c('#2FA06A'),(t-.18)/.37):mx(c('#58BF8C'),c('#1C8556'),(t-.55)/.45);if(Math.abs(t-.18)<.012)r=c('#052A1C');return r;}},
+ corniola:{n:'紅玉髓 Corniola',o:'印度 Gujarat',avg:'#C4522A',f:function(x,y,P,s){var w=fbm(x+fbm(x,y,P,s+3,3),y+fbm(x,y,P,s+4,3),P,s,4);return mx(c('#8F2814'),c('#EE8A44'),ss(.25,.8,w));}},
+ giallo:{n:'黃碧玉 Diaspro giallo',o:'西西里',avg:'#CB9733',f:function(x,y,P,s){var w=fbm(x,y,P,s,4);var r=mx(c('#A06A1A'),c('#E6BA52'),ss(.3,.75,w));if(h2(x*24|0,y*24|0,s+2)>.985)r=mx(r,c('#5C3A12'),.6);return r;}},
+ siena:{n:'錫耶納黃大理石 Giallo di Siena',o:'托斯卡尼 Montarrenti',avg:'#D7B460',f:function(x,y,P,s){var w=fbm(x,y,P,s,4);var r=mx(c('#CDA54C'),c('#E9CB7E'),w);var vv=Math.abs(Math.sin((x/P*2+y/P+w*2.2)*Math.PI*2));r=mx(r,c('#7A4434'),(1-ss(0,.12,vv))*.85);return r;}},
+ bianco:{n:'白大理石 Bianco di Carrara',o:'托斯卡尼 Carrara',avg:'#E8E4DB',f:function(x,y,P,s){var w=fbm(x,y,P,s,4);var r=mx(c('#DAD5CA'),c('#F3F0EA'),w*1.3-.15);var vv=Math.abs(Math.sin((x/P+y/P*2+w*2.6)*Math.PI*2));r=mx(r,c('#9A958B'),(1-ss(0,.08,vv))*.6);return r;}},
+ rosso:{n:'紅碧玉 Diaspro rosso',o:'西西里',avg:'#9C2A23',f:function(x,y,P,s){var w=fbm(x+fbm(x,y,P,s+8,3)*2,y,P,s,4);var r=mx(c('#6E1514'),c('#C23C2C'),ss(.3,.75,w));var vv=Math.abs(Math.sin((y/P*3+w*3)*Math.PI*2));r=mx(r,c('#D9A890'),(1-ss(0,.07,vv))*.45);return r;}},
+ verde:{n:'綠碧玉 Diaspro verde',o:'科西嘉',avg:'#55723A',f:function(x,y,P,s){var w=fbm(x,y,P,s,4),w2=fbm(x*2,y*2,P*2,s+6,2);return mx(mx(c('#2F4A24'),c('#82A250'),ss(.25,.8,w)),c('#C9C46A'),w2>.72?.35:0);}},
+ calcedonio:{n:'玉髓 Calcedonio',o:'沃爾泰拉',avg:'#D2D7DA',f:function(x,y,P,s){var w=fbm(x+fbm(x,y,P,s+1,3),y,P,s,4);return mx(c('#AEB6BE'),c('#F0F2F2'),ss(.2,.8,w));}},
+ agata:{n:'瑪瑙 Agata',o:'波希米亞',avg:'#9C6A42',f:function(x,y,P,s){var w=fbm(x,y,P,s,3);var t=(x/P*5+w*2.8)%1;t=t<0?t+1:t;return t<.33?mx(c('#5A331C'),c('#8C5532'),t/.33):t<.7?mx(c('#B07A4C'),c('#DDB88E'),(t-.33)/.37):mx(c('#C99B6A'),c('#6E4024'),(t-.7)/.3);}},
+ ametista:{n:'紫水晶 Ametista',o:'巴西',avg:'#6A3F82',f:function(x,y,P,s){var w=fbm(x,y,P,s,3),k=fbm(x*3,y*3,P*3,s+4,2);return mx(mx(c('#3E2252'),c('#9A6CB6'),ss(.3,.8,w)),c('#D7C2E3'),ss(.62,.8,k)*.45);}}
+};
+var cache={};
+function tex(name,N,seed){N=N||128;seed=seed||7;var key=name+N+seed;if(cache[key])return cache[key];var d=DEF[name],P=4,data=new Uint8ClampedArray(N*N*4);
+ for(var j=0;j<N;j++)for(var i=0;i<N;i++){var r=d.f(i/N*P,j/N*P,P,seed),k=(j*N+i)*4;data[k]=r[0];data[k+1]=r[1];data[k+2]=r[2];data[k+3]=255;}
+ return cache[key]={w:N,h:N,data:data};}
+return {DEF:DEF,tex:tex,fbm:fbm,h2:h2};})();
+
+
+/* FR — commesso piece geometry. Every piece = {id,n,s(stone),d:[svg path strings to intersect],gx,gy,gr,o(order)}; stroke pieces {k:'line',d,w}. */
+var FR=(function(){
+function f(v){return Math.round(v*10)/10;}
+function poly(pts){var s='M'+f(pts[0][0])+' '+f(pts[0][1]);for(var i=1;i<pts.length;i++)s+='L'+f(pts[i][0])+' '+f(pts[i][1]);return s+'Z';}
+function lobed(cx,cy,r,sq,lob,amp,rot,n){n=n||64;var p=[];for(var i=0;i<n;i++){var a=i/n*Math.PI*2,rr=r*(1+amp*Math.cos(lob*a));var x=Math.cos(a)*rr,y=Math.sin(a)*rr*sq;p.push([cx+x*Math.cos(rot)-y*Math.sin(rot),cy+x*Math.sin(rot)+y*Math.cos(rot)]);}return poly(p);}
+function ell(cx,cy,rx,ry,rot){return lobed(cx,cy,rx,ry/rx,0,0,rot||0,48);}
+function leaf(bx,by,len,w,ang,curl){var ca=Math.cos(ang),sa=Math.sin(ang);function P(u,v){return [bx+u*ca-v*sa,by+u*sa+v*ca];}
+ var t=P(len,curl*len*.12),cl=P(len*.45,-w),cr=P(len*.5,w),cm=P(len*.5,curl*len*.08);
+ function q(a,c,b){var s='',n=14;for(var i=1;i<=n;i++){var k=i/n,x=(1-k)*(1-k)*a[0]+2*(1-k)*k*c[0]+k*k*b[0],y=(1-k)*(1-k)*a[1]+2*(1-k)*k*c[1]+k*k*b[1];s+='L'+f(x)+' '+f(y);}return s;}
+ var b=[bx,by];return ['M'+f(bx)+' '+f(by)+q(b,cl,t)+q(t,cm,b)+'Z','M'+f(bx)+' '+f(by)+q(b,cr,t)+q(t,cm,b)+'Z'];}
+function bell(cx,cy,w,h){var p=[],n=56;for(var i=0;i<n;i++){var a=i/n*Math.PI*2,x=Math.cos(a),y=Math.sin(a);var wid=w*(.62+.38*(y+1)/2)*(1+.05*Math.cos(a*8)*(y>0?1:0));p.push([cx+x*wid,cy+y*h]);}return poly(p);}
+function kidney(cx,cy,rx,ry,rot){var p=[],n=60;for(var i=0;i<n;i++){var a=i/n*Math.PI*2,x=Math.cos(a)*rx,y=Math.sin(a)*ry;y-=Math.max(0,Math.cos(a))*ry*.18*Math.cos(a*2);x*=1+.12*Math.sin(a);p.push([cx+x*Math.cos(rot)-y*Math.sin(rot),cy+x*Math.sin(rot)+y*Math.cos(rot)]);}return poly(p);}
+/* fruit builders return arrays of pieces */
+function persimmon(id,cx,cy,r){var body=lobed(cx,cy,r,.8,4,.035,0),lc=ell(cx-r*.28,cy-r*.2,r*.95,r*.8,0);
+ var lv=leaf(cx+r*.1,cy-r*.78,r*.9,r*.3,-.5,1);
+ return [{id:id+'b',n:'果身',s:'rosso',d:[body],o:2},
+  {id:id+'l',n:'受光面',s:'corniola',d:[body,lc],gx:20,o:3},
+  {id:id+'h',n:'高光',s:'calcedonio',d:[body,ell(cx-r*.46,cy-r*.3,r*.13,r*.07,-.5)],o:4},
+  {id:id+'c',n:'果萼',s:'verde',d:[lobed(cx,cy-r*.74,r*.34,.45,4,.4,.4)],o:5},
+  {id:id+'s',n:'蒂',s:'agata',d:[ell(cx,cy-r*.8,r*.08,r*.07,0)],o:6}];}
+function mango(id,cx,cy,r,rot){var body=kidney(cx,cy,r,r*.66,rot);return [
+  {id:id+'b',n:'果身',s:'giallo',d:[body],o:2},
+  {id:id+'r',n:'紅頰',s:'rosso',d:[body,ell(cx+r*.35,cy-r*.45,r*.85,r*.55,rot)],gr:.6,o:3},
+  {id:id+'h',n:'高光',s:'calcedonio',d:[body,ell(cx-r*.4,cy-r*.28,r*.16,r*.05,rot-.2)],o:4}];}
+function waxapple(id,cx,cy,w,h){var body=bell(cx,cy,w,h);return [
+  {id:id+'b',n:'果身',s:'rosso',d:[body],gx:40,o:2},
+  {id:id+'l',n:'亮面',s:'corniola',d:[body,ell(cx-w*.55,cy+h*.1,w*.42,h*.9,0)],o:3},
+  {id:id+'h',n:'臍',s:'nero',d:[ell(cx,cy+h*.92,w*.22,h*.07,0)],o:4}];}
+function grapes(id,cx,cy,r){var out=[],k=0,rows=[4,4,3,2,1];for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j];i++){var x=cx+(i-(rows[j]-1)/2)*r*1.75+(j%2?r*.2:0),y=cy+j*r*1.5;var b=ell(x,y,r,r*1.05,0);
+ out.push({id:id+'g'+k,n:'果粒',s:'ametista',d:[b],gx:k*23,gy:k*11,o:2});out.push({id:id+'h'+k,n:'果粉',s:'calcedonio',d:[b,ell(x-r*.4,y-r*.38,r*.26,r*.14,-.6)],o:3});k++;}
+ return out;}
+function guava(id,cx,cy,r){var body=lobed(cx,cy,r,.92,5,.025,.3);return [
+  {id:id+'b',n:'果身',s:'verde',d:[body],gx:30,o:2},
+  {id:id+'l',n:'受光面',s:'calcedonio',d:[body,ell(cx-r*.78,cy-r*.62,r*.42,r*.3,-.5)],o:3},
+  {id:id+'c',n:'臍',s:'agata',d:[lobed(cx+r*.05,cy+r*.86,r*.14,.6,5,.35,0)],o:4}];}
+function pear(id,cx,cy,r){var body=lobed(cx,cy,r,.94,3,.03,-.4);return [
+  {id:id+'b',n:'果身',s:'siena',d:[body],o:2},
+  {id:id+'d',n:'暗面',s:'agata',d:[body,ell(cx+r*.78,cy+r*.62,r*.9,r*.75,.6)],gr:1,o:3},
+  {id:id+'h',n:'高光',s:'bianco',d:[body,ell(cx-r*.4,cy-r*.44,r*.12,r*.06,-.7)],o:4},
+  {id:id+'s',n:'梗',s:'agata',d:[poly([[cx-3,cy-r*.88],[cx+3,cy-r*.88],[cx+9,cy-r*1.22],[cx+3,cy-r*1.24]])],o:5}];}
+function leafPair(id,bx,by,len,w,ang,curl,sa,sb){var L=leaf(bx,by,len,w,ang,curl);return [{id:id+'a',n:'葉・陰半',s:sa||'malachite',d:[L[0]],gr:ang,o:1},{id:id+'b',n:'葉・陽半',s:sb||'verde',d:[L[1]],gr:ang,o:1}];}
+
+function citrus(id,cx,cy,r){var b=lobed(cx,cy,r,.9,0,0,0);return [{id:id+'b',n:'果身',s:'corniola',d:[b],o:2},{id:id+'l',n:'亮面',s:'giallo',d:[b,ell(cx-r*.3,cy-r*.3,r*.8,r*.7,0)],o:3},{id:id+'h',n:'高光',s:'calcedonio',d:[b,ell(cx-r*.45,cy-r*.42,r*.14,r*.07,-.6)],o:4},{id:id+'c',n:'蒂',s:'verde',d:[lobed(cx,cy-r*.86,r*.14,.6,5,.3,0)],o:5}];}
+function jujube(id,cx,cy,r){var b=ell(cx,cy,r*.8,r,.25);return [{id:id+'b',n:'果身',s:'verde',d:[b],gx:60,o:2},{id:id+'l',n:'亮面',s:'calcedonio',d:[b,ell(cx-r*.85,cy-r*.3,r*.45,r*.75,.25)],o:3},{id:id+'s',n:'蒂',s:'agata',d:[ell(cx+r*.24,cy-r*.98,r*.08,r*.06,0)],o:4}];}
+function berry(id,cx,cy,r){var p=[],n=48;for(var i=0;i<n;i++){var a=i/n*Math.PI*2,x=Math.cos(a),y=Math.sin(a);var w=r*(.55+.45*(1-(y+1)/2));p.push([cx+x*w*(y<0?1.08:1),cy+y*r*1.15]);}var b=poly(p);var out=[{id:id+'b',n:'果身',s:'rosso',d:[b],o:2},{id:id+'l',n:'亮面',s:'corniola',d:[b,ell(cx-r*.5,cy-r*.2,r*.45,r*.9,0)],o:3}];
+ for(var k=0;k<9;k++){var a=k*2.4,rr=r*.25+(k%3)*r*.2;out.push({id:id+'d'+k,n:'瘦果',s:'giallo',d:[ell(cx+Math.cos(a)*rr*.8,cy+Math.sin(a)*rr*.9,r*.05,r*.08,a)],o:4});}
+ out.push({id:id+'c',n:'萼',s:'malachite',d:[lobed(cx,cy-r*1.08,r*.5,.35,5,.45,0)],o:5});return out;}
+function lychee(id,cx,cy,r){var b=lobed(cx,cy,r,.95,18,.04,0);return [{id:id+'b',n:'果殼',s:'rosso',d:[b],o:2},{id:id+'l',n:'亮面',s:'corniola',d:[b,ell(cx-r*.35,cy-r*.35,r*.7,r*.6,0)],o:3},{id:id+'h',n:'果肉',s:'calcedonio',d:[ell(cx+r*1.25,cy+r*.25,r*.62,r*.72,0)],o:3},{id:id+'k',n:'籽',s:'agata',d:[ell(cx+r*1.25,cy+r*.3,r*.22,r*.3,0)],o:4}];}
+function pomelo(id,cx,cy,r){var b=lobed(cx,cy,r,1.08,1,.12,Math.PI/2);return [{id:id+'b',n:'果身',s:'giallo',d:[b],gx:30,o:2},{id:id+'l',n:'亮面',s:'verde',d:[b,ell(cx+r*.55,cy+r*.3,r*.7,r*.9,0)],o:3},{id:id+'h',n:'高光',s:'calcedonio',d:[b,ell(cx-r*.4,cy-r*.2,r*.12,r*.07,-.6)],o:4}];}
+function sugarapple(id,cx,cy,r){var b=lobed(cx,cy,r,1.02,0,0,0),out=[{id:id+'b',n:'果身',s:'verde',d:[b],o:2}];var k=0;for(var j=-3;j<=3;j++)for(var i=-3;i<=3;i++){var x=cx+i*r*.3+(j%2?r*.15:0),y=cy+j*r*.28;if(Math.hypot(x-cx,(y-cy)/1.02)>r*.86)continue;out.push({id:id+'k'+(k++),n:'鱗目',s:(i+j)%2?'malachite':'verde',gx:k*17,d:[b,lobed(x,y,r*.15,.9,6,.05,0)],o:3});}return out;}
+/* the hero panel 1000×640 */
+function panel(){var P=[];
+ P.push({id:'br',k:'line',n:'枝',s:'agata',d:'M40 600C230 540 330 330 520 300S840 220 965 110',w:17,o:0});
+ P.push({id:'tw',k:'line',n:'小枝',s:'agata',d:'M520 300C560 360 600 380 640 372',w:9,o:0});
+ P.push({id:'tw3',k:'line',n:'果梗',s:'agata',d:'M700 372C702 330 690 300 690 280',w:6,o:0});P.push({id:'tw4',k:'line',n:'果梗',s:'agata',d:'M788 350C790 300 800 270 805 240',w:6,o:0});P.push({id:'tw5',k:'line',n:'果梗',s:'agata',d:'M880 290C882 260 880 240 872 205',w:6,o:0});
+ P.push({id:'tw2',k:'line',n:'小枝',s:'agata',d:'M300 455C290 400 300 370 330 352',w:8,o:0});
+ var SG=[[[40,600],[230,540],[330,330],[520,300]],[[520,300],[710,270],[840,220],[965,110]]];
+ function bz(g,t){var a=SG[g],u=1-t;return [u*u*u*a[0][0]+3*u*u*t*a[1][0]+3*u*t*t*a[2][0]+t*t*t*a[3][0],u*u*u*a[0][1]+3*u*u*t*a[1][1]+3*u*t*t*a[2][1]+t*t*t*a[3][1]];}
+ function tg(g,t){var p=bz(g,Math.max(0,t-.01)),q=bz(g,Math.min(1,t+.01));return Math.atan2(q[1]-p[1],q[0]-p[0]);}
+ [[0,.18,1,118],[0,.36,-1,104],[0,.62,1,126],[0,.86,-1,96],[1,.12,1,120],[1,.34,-1,110],[1,.55,1,124],[1,.78,-1,104],[1,.93,1,96]].forEach(function(l,i){var p=bz(l[0],l[1]),a=tg(l[0],l[1])+l[2]*1.05;P=P.concat(leafPair('lf'+i,p[0],p[1],l[3]*1.25,l[3]*.36,a,l[2],i%2?'verde':'malachite',i%2?'malachite':'verde'));});
+ P=P.concat(persimmon('ps',330,440,88),mango('mg',560,470,92,-.25),waxapple('wa',700,430,46,58),waxapple('wb',788,404,42,54),grapes('gp',880,300,19),guava('gv',150,360,62),pear('pr',430,170,64));
+ return P.sort(function(a,b){return a.o-b.o;});}
+/* game target: one persimmon plaque 600×600 */
+function plaque(){var cx=300,cy=330,r=170;var body=lobed(cx,cy,r,.8,4,.035,0),lc=ell(cx-r*.28,cy-r*.2,r*.95,r*.8,0),L=leaf(cx+r*.15,cy-r*.8,r*1.15,r*.36,-.42,1);
+ return [{id:'p1',n:'① 果身・背光',s:null,t:'#9A2D1E',d:[body],o:1},
+  {id:'p2',n:'② 受光面',s:null,t:'#CF612D',d:[body,lc],o:2},
+  {id:'p3',n:'③ 高光',s:null,t:'#D6D9DB',d:[body,ell(cx-r*.46,cy-r*.3,r*.15,r*.08,-.5)],o:3},
+  {id:'p4',n:'④ 果萼',s:null,t:'#56733A',d:[lobed(cx,cy-r*.74,r*.34,.45,4,.4,.4)],o:4},
+  {id:'p5',n:'⑤ 葉・陰半',s:null,t:'#1F7B52',d:[L[0]],o:0},
+  {id:'p6',n:'⑥ 葉・陽半',s:null,t:'#7E9C4C',d:[L[1]],o:0}].sort(function(a,b){return a.o-b.o;});}
+return {citrus:citrus,jujube:jujube,berry:berry,lychee:lychee,pomelo:pomelo,sugarapple:sugarapple,panel:panel,plaque:plaque,persimmon:persimmon,mango:mango,waxapple:waxapple,grapes:grapes,guava:guava,pear:pear,leafPair:leafPair,ell:ell,lobed:lobed,poly:poly};})();
+
+/* month plaques for box page: 300×220 */
+FR.month=function(m){var cx=150,cy=118;switch(m){
+case 1:return FR.citrus('m1',cx,cy,62).concat(FR.leafPair('m1l',cx+10,cy-60,70,22,-.5,1));
+case 2:return FR.waxapple('m2a',cx-38,cy,38,50).concat(FR.waxapple('m2b',cx+40,cy-6,36,48));
+case 3:return FR.jujube('m3a',cx-36,cy,50).concat(FR.jujube('m3b',cx+38,cy+6,46));
+case 4:return FR.berry('m4a',cx-40,cy+4,40).concat(FR.berry('m4b',cx+42,cy,38));
+case 5:return FR.lychee('m5',cx-40,cy,46);
+case 6:return FR.mango('m6',cx,cy,90,-.2);
+case 7:return FR.grapes('m7',cx,cy-58,17);
+case 8:return FR.pear('m8',cx,cy+8,64);
+case 9:return FR.pomelo('m9',cx,cy+4,66).concat(FR.leafPair('m9l',cx+8,cy-68,64,20,-.6,1));
+case 10:return FR.persimmon('m10',cx,cy+12,74);
+case 11:return FR.sugarapple('m11',cx,cy,66);
+case 12:return FR.guava('m12',cx,cy,66).concat(FR.leafPair('m12l',cx-4,cy-64,66,20,-2.4,-1));}};
+FR.sortp=function(P){return P.sort(function(a,b){return (a.o||0)-(b.o||0);});};
+
+/* ===== KJ：金石果子行站內引擎（石紋貼圖・嵌片繪製・元件包裝・鋸縫轉場・燈） ===== */
+var KJ=(function(){
+var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var root=document.documentElement;root.classList.add('js');
+/* --- 1. 石紋 → canvas 貼圖（每種石只算一次） --- */
+var TX={};
+function texCanvas(name){if(TX[name])return TX[name];var t=KS.tex(name,128,7),cv=document.createElement('canvas');cv.width=cv.height=128;
+ var g=cv.getContext('2d'),im=g.createImageData(128,128);im.data.set(t.data);g.putImageData(im,0,0);return TX[name]=cv;}
+var PAT=new WeakMap();
+function pat(ctx,name){var m=PAT.get(ctx);if(!m){m={};PAT.set(ctx,m);}return m[name]||(m[name]=ctx.createPattern(texCanvas(name),'repeat'));}
+/* CSS 用：把石紋寫成 data URL 掛在 :root（導覽石樣、嵌字標題） */
+function cssStones(list){try{list.forEach(function(n){root.style.setProperty('--st-'+n,'url('+texCanvas(n).toDataURL()+')');});root.classList.add('tx');}catch(e){}}
+/* --- 2. 嵌片繪製 --- */
+function P2(p){if(!p._p){p._p=Array.isArray(p.d)?p.d.map(function(d){return new Path2D(d);}):[new Path2D(p.d)];}return p._p;}
+function fillStone(ctx,p,name,alpha,dy){var pt=pat(ctx,name);var gx=p.gx||0,gy=p.gy||0,gr=p.gr||0;
+ if(pt.setTransform&&window.DOMMatrix){pt.setTransform(new DOMMatrix().translate(gx,gy).rotate(gr*57.2958).scale(2));}
+ ctx.fillStyle=pt;}
+function drawPiece(ctx,p,o){o=o||{};var ps=P2(p),a=o.a==null?1:o.a;if(a<=0)return;ctx.save();ctx.globalAlpha=a;if(o.dy)ctx.translate(0,o.dy);
+ if(p.k==='line'){fillStone(ctx,p,p.s);ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=p.w;ctx.lineCap='round';ctx.stroke(ps[0]);
+  ctx.strokeStyle='rgba(8,7,6,.7)';ctx.lineWidth=1;ctx.restore();return;}
+ var rule=p.ev?'evenodd':'nonzero';for(var i=0;i<ps.length;i++)ctx.clip(ps[i],rule);
+ var s=o.stone||p.s;
+ if(s){fillStone(ctx,p,s);ctx.fill(ps[0],rule);}else{ctx.fillStyle='#0B0A09';ctx.fill(ps[0],rule);}
+ ctx.lineWidth=o.hl?3:1.6;ctx.strokeStyle=o.hl?'#E6C77A':'rgba(7,6,5,.88)';for(var j=0;j<ps.length;j++)ctx.stroke(ps[j]);
+ ctx.restore();}
+function cavity(ctx,p){var ps=P2(p);ctx.save();ctx.setLineDash([3,4]);ctx.lineWidth=1;ctx.strokeStyle='rgba(215,180,96,.32)';if(p.k==='line'){ctx.lineWidth=p.w;ctx.strokeStyle='rgba(215,180,96,.08)';ctx.setLineDash([]);ctx.lineCap='round';}ctx.stroke(ps[0]);ctx.restore();}
+/* 外框：錫耶納黃條＋綠碧玉細線＋青金石角方塊（也是嵌片） */
+function frame(W,H,b){b=b||22;var f=6,R=function(x,y,w,h){return 'M'+x+' '+y+'h'+w+'v'+h+'h'+(-w)+'Z';};
+ var out='M0 0H'+W+'V'+H+'H0Z M'+b+' '+b+'V'+(H-b)+'H'+(W-b)+'V'+b+'Z';
+ return [{id:'fr',n:'外框',s:'siena',d:[out],o:93,ev:1},
+  {id:'ff',n:'內線',s:'verde',d:['M'+b+' '+b+'H'+(W-b)+'V'+(H-b)+'H'+b+'Z M'+(b+f)+' '+(b+f)+'V'+(H-b-f)+'H'+(W-b-f)+'V'+(b+f)+'Z'],o:92,ev:1},
+  {id:'c1',n:'角方',s:'lapis',d:[R(0,0,b,b)],o:91},{id:'c2',n:'角方',s:'lapis',d:[R(W-b,0,b,b)],o:91},{id:'c3',n:'角方',s:'lapis',d:[R(0,H-b,b,b)],o:91},{id:'c4',n:'角方',s:'lapis',d:[R(W-b,H-b,b,b)],o:91}];}
+/* 一張嵌板：canvas＋片表；t＝組裝進度 0..1（簽名動效：逐片入槽） */
+function Board(cv,W,H,P,opt){opt=opt||{};var ctx=cv.getContext('2d'),dpr=Math.min(2,window.devicePixelRatio||1),hover=null,self={P:P,W:W,H:H,t:opt.t==null?1:opt.t,cv:cv,ctx:ctx};
+ function fit(){var w=cv.clientWidth||W;cv.width=Math.round(w*dpr);cv.height=Math.round(w*H/W*dpr);draw();}
+ function draw(){var k=cv.width/W;ctx.setTransform(k,0,0,k,0,0);var bg=pat(ctx,'nero');if(bg.setTransform&&window.DOMMatrix)bg.setTransform(new DOMMatrix().scale(2));ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  var n=P.length,t=self.t;for(var i=0;i<n;i++){var p=P[i],t0=i/n*.86,q=(t-t0)/.1;if(q<=0){cavity(ctx,p);continue;}q=q>1?1:q;var e=1-Math.pow(1-q,3);
+   drawPiece(ctx,p,{a:q<1?e:1,dy:q<1?(1-e)*-7:0,hl:hover===p,stone:opt.stoneOf?opt.stoneOf(p):null});}
+  if(opt.after)opt.after(ctx,k);}
+ self.draw=draw;self.fit=fit;
+ self.hit=function(x,y){ctx.save();ctx.setTransform(1,0,0,1,0,0);var hit=null;for(var i=P.length-1;i>=0&&!hit;i--){var p=P[i];if(p.k==='line'||p.nohit)continue;var ps=P2(p),ok=true;for(var j=0;j<ps.length;j++){if(!ctx.isPointInPath(ps[j],x,y,p.ev?'evenodd':'nonzero')){ok=false;break;}}if(ok)hit=p;}ctx.restore();return hit;};
+ self.toLocal=function(e){var r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};};
+ self.setHover=function(p){if(p!==hover){hover=p;draw();}};
+ self.assemble=function(ms,done){if(RM){self.t=1;draw();done&&done();return;}var t0=performance.now();(function step(now){self.t=Math.min(1,(now-t0)/ms);draw();if(self.t<1)requestAnimationFrame(step);else done&&done();})(t0);};
+ if(window.ResizeObserver)new ResizeObserver(fit).observe(cv);fit();return self;}
+/* --- 3. 指標燈：游標即一盞斜照燈，拋光面上的高光跟著走（輸入動效 <16ms） --- */
+function lamp(el){if(!el)return;el.addEventListener('pointermove',function(e){var r=el.getBoundingClientRect();el.style.setProperty('--lx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');el.style.setProperty('--ly',((e.clientY-r.top)/r.height*100).toFixed(1)+'%');el.classList.add('lit');});
+ el.addEventListener('pointerleave',function(){el.classList.remove('lit');});}
+/* --- 4. motion-library 包裝（PLAYBOOK §2.8；照 sites/ka-to 的 KT.ml） --- */
+function ml(el,o){var cx=null;try{cx=document.createElement('canvas').getContext('2d');}catch(_){}if(!el||!window.MotionLib||!cx)return null;
+ var m=null,done=false,api={replay:function(){if(m){m.replay();done=true;}}};
+ function mount(){if(m)return;m=MotionLib.mount(el,Object.assign({},o,{paused:true}));m.canvas.setAttribute('aria-hidden','true');m.canvas.removeAttribute('role');el.classList.add('ml-live');
+  if(RM)return m.seek(o.once?1:.35);if(o.once&&done)return m.seek(1);m.replay();if(o.once)done=true;}
+ function unmount(){if(m){m.destroy();m=null;}}
+ var go=function(){if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?mount():unmount();});},{rootMargin:'80px'}).observe(el);else mount();};
+ (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(go);return api;}
+/* --- 5. 換頁：鋸縫轉場——一道線鋸由左往右切過，黑石板跟著蓋上；下一頁從鋸縫處往右退開 --- */
+function saw(){var o=document.createElement('div');o.className='saw';o.setAttribute('aria-hidden','true');o.innerHTML='<i></i>';document.body.appendChild(o);return o;}
+function links(){document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||RM||e.metaKey||e.ctrlKey||e.shiftKey||a.target)return;var h=a.getAttribute('href');if(!/^[a-z-]+\.html(#.*)?$/.test(h))return;
+  e.preventDefault();var o=saw();requestAnimationFrame(function(){o.classList.add('in');});try{sessionStorage.setItem('kj-saw','1');}catch(_){}setTimeout(function(){location.href=h;},430);});
+ if(root.classList.contains('arriving')){var o=saw();o.classList.add('in','hold');requestAnimationFrame(function(){requestAnimationFrame(function(){o.classList.remove('hold');o.classList.add('out');setTimeout(function(){o.remove();root.classList.remove('arriving');},520);});});}}
+addEventListener('pageshow',function(e){if(e.persisted){document.querySelectorAll('.saw').forEach(function(s){s.remove();});}});
+function init(){cssStones(['nero','verde','siena','bianco','lapis','malachite','corniola','giallo','rosso']);links();document.querySelectorAll('[data-lamp]').forEach(lamp);}
+return {RM:RM,Board:Board,frame:frame,drawPiece:drawPiece,texCanvas:texCanvas,pat:pat,ml:ml,lamp:lamp,init:init,P2:P2};})();
+</script>
+<script>KJ.init();
+
+var tip=document.getElementById('tip'),cv=document.getElementById('panel');
+var P=FR.panel().concat(KJ.frame(1000,640));
+var bd=KJ.Board(cv,1000,640,P,{t:0});
+var played=false;
+function play(){bd.t=0;bd.assemble(3600);}
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){if(es[0].isIntersecting&&!played){played=true;play();}},{threshold:.3}).observe(cv);}else play();
+document.getElementById('replay').addEventListener('click',play);
+var lastHit=null;
+cv.addEventListener('pointermove',function(e){var l=bd.toLocal(e),p=bd.hit(l.x,l.y);bd.setHover(p);
+ if(p&&p.s){var d=KS.DEF[p.s],r=cv.getBoundingClientRect(),fr=cv.parentNode.getBoundingClientRect();if(p!==lastHit){tip.innerHTML='<b>'+(p.n||'')+'</b>・'+d.n.split(' ')[0]+'<span>'+d.n.split(' ').slice(1).join(' ')+' — '+d.o+'</span>';lastHit=p;}
+  tip.style.left=(e.clientX-fr.left)+'px';tip.style.top=(e.clientY-fr.top)+'px';tip.classList.add('on');}else{tip.classList.remove('on');lastHit=null;}});
+cv.addEventListener('pointerleave',function(){bd.setHover(null);tip.classList.remove('on');});
+/* 石譜色樣：真石紋 */
+document.querySelectorAll('.stone i[data-st]').forEach(function(i){try{i.style.background='url('+KJ.texCanvas(i.dataset.st).toDataURL()+') 0 0/128px 128px';}catch(e){}});
+KJ.ml(document.getElementById('ml-agate'),{id:'BG-A-29',colors:{primary:'#C9A34A',secondary:'#E8E4DB',bg:'#121110'},duration:10,density:1.1,intensity:.8,seed:1971,aspectRatio:'16:9'});
+</script>
+</body>
+</html>

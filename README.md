@@ -413,6 +413,7 @@
 | 395 | [北門鏡畫行 KIÀNN-UĒ](sites/kiann-ue/index.html) | 玻璃行兼鏡畫／鏡匾（新竹北門街・1956 年起；首屏鏡畫照真實筆序倒著畫出：樹枝一層層長、色塊從線後面滲入、天空最後倒滿，可翻到背面；〈畫鏡台〉在鏡像的玻璃背面作畫、翻面看層序評語、貼金箔字下訂） | Hlebine 學派玻璃背畫 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 396 | [格仔西服 KEH-Á TAILORS](sites/keh-a/index.html) | 格紋專門西服店（高雄鹽埕新樂街・1961 年起；全站格布依 threadcount 以 CSS 斜紋遮罩真的織出：首屏織機一梭四線上梭、字譜同步亮起，數紗鏡讀出任一點的經緯線；〈對一條格〉裁布台拖版型對側縫／後中／前中，裁單算出對格多用的布） | 蘇格蘭格紋 Highland Tartan | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 397 | [飛倉搬家 PUE-TSHNG](sites/pue-tshng/index.html) | 搬家公司（臺南・1976 年起；整個首頁是一卷由右往左捲的絵巻，同一位師傅在四樓公寓剖面裡出現四次，捲到卷心的那一個才上色；〈畫一卷你的搬家〉選舊家、去處、三樣家當，生成專屬繪卷、詞書與估價） | 大和繪絵巻物 Yamato-e Emakimono | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 398 | [揣貓事務所 TSHUĒ-NIÂU](sites/tshue-niau/index.html) | 走失貓協尋事務所（臺北萬華・2016 年起；整個網站是一台 PC-98 冒險遊戲，全站 16 色，按「時刻」只改 16 個調色盤暫存器就從黃昏變深夜；〈揣貓委託〉說貓、指地點，拿到估價與 16 色尋貓啟事） | PC-98 ADV 像素畫 PC-98 Adventure Pixel Art | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

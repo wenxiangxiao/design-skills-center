@@ -417,6 +417,7 @@
 | 399 | [笑版仔租書 TSHIÒ-PÁN-Á](sites/tshio-pan/index.html) | 漫畫租書店（嘉義文化路夜市北口・1971 年起；每月新書單是一張手刷四色的 lubok 木刻：首屏〈眾鼠扛貓還書圖〉黑版壓下、四位上色工依序刷過，題記自動塞滿人物之間的空隙；〈印一張笑版〉自己排角色與題記、開印、下載、拿版號去店裡拓） | Lubok 俄羅斯民間木刻版畫 Лубок · Russian Popular Print | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 400 | [五點剪髮室 GOO-TIÁM](sites/goo-tiam/index.html) | 幾何剪髮室（臺北南京西路・1969 年起；首屏是一條 Panton 式暖色同心色環隧道，舷窗裡的模特兒頂著會甩的彈簧鮑伯；〈試剪一顆五點頭〉拖曳就是一刀，90 秒對準五個點，帶這顆頭去預約） | 太空時代 Space Age・Panton 視覺環境半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 401 | [羊齒園 IÛNN-KHÍ](sites/iunn-khi/index.html) | 蕨類苗圃兼晴天曬圖（新北石碇・1978 年起；首屏是一張依石碇此刻真實太陽曝光的藍曬紙，游標是手影、沖水時藍從水流處綻開；〈曬一冊羊齒〉挑葉、按住曬、沖水，收齊六張 Atkins 式光圖） | 藍曬 Cyanotype・Anna Atkins 光圖半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 402 | [日課田 JIT-KHÒ TSHÂN](sites/jit-kho/index.html) | 有機稻米月令箱（臺東池上・1962 年起；首屏是時禱書對開：黃道拱楣下的月令細密畫＋依當年中世紀曆算真算的 KL 曆表，金隨游標亮、怪趣小動物沿常春藤框走路；〈訂一冊你家的時禱曆〉選月份、寫下紅字日、封裝成你家那一年的曆頁） | 哥德時禱書 Gothic Book of Hours・曆頁半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -421,10 +421,11 @@
 | 403 | [方格門牌所 BÛN-PÂI](sites/bun-pai/index.html) | 門牌副牌與燈箱字工作所（臺中綠川東街・1962 年起；整頁印著模組格線，所有字只在 5×9 格上畫、轉角切半格 45°；換字時同一批格子沿格線先橫後直搬家，首頁門牌每分鐘換成此刻時間；〈排一塊〉打號碼、挑材質顏色、自刻一字，估價與分享連結即時更新） | 格網主義・Crouwel／Total Design 模組字 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 404 | [福湯洗衫店 HOK-THNG SÉ-SANN](sites/hok-thng/index.html) | 澡堂改建的投幣洗衣店（基隆仁愛區・1958 年的澡堂；首屏ペンキ絵照繪師順序一筆筆畫完、湯氣起霧用游標擦；營業資訊寫在壁畫下的廣告看板；〈畫一面〉90 秒用會拾色的滾筒畫一面富士；〈塗り替え〉五層壁畫 sticky 疊蓋） | 錢湯ペンキ絵 Sentō Penki-e | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 405 | [睏一下 KHÙN TSI̍T-Ē](sites/khun-tsit-e/index.html) | 午睡站（新竹關新路・2021 年起；整站是一台 Braun 式機器：黃色秒針即時掃動的鐘、12 顆艙燈、同心孔陣喇叭——五種白噪音即時合成，聲音只從孔裡看得見；〈訂一段午睡〉四擋起床鈴撥盤選長度、選艙、試聽聲音；說明書引線以 anchor positioning 從零件拉到說明） | 博朗功能主義 Braun Functionalism | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 406 | [銀河站網咖 GALAXY STATION](sites/gin-ho-tsam/index.html) | 二十四小時網咖（臺中一中街・1999 年開店；首頁二十七年沒改版：黑底平鋪星空、216 安全色、框架頁、全部逐格動的 GIF；站名是真的在燒的 WordArt，游標揮過去起風；IE4 棋盤格換頁；〈做一頁首頁〉挑磚貼 GIF 按上傳，56k 跑完掛上會員首頁） | Web 1.0 GeoCities・Area 51 黑底星空半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 297 個產業種子 × 267 個風格種子（79,299 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 298 個產業種子 × 268 個風格種子（79,299 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

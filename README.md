@@ -422,6 +422,7 @@
 | 404 | [福湯洗衫店 HOK-THNG SÉ-SANN](sites/hok-thng/index.html) | 澡堂改建的投幣洗衣店（基隆仁愛區・1958 年的澡堂；首屏ペンキ絵照繪師順序一筆筆畫完、湯氣起霧用游標擦；營業資訊寫在壁畫下的廣告看板；〈畫一面〉90 秒用會拾色的滾筒畫一面富士；〈塗り替え〉五層壁畫 sticky 疊蓋） | 錢湯ペンキ絵 Sentō Penki-e | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 405 | [睏一下 KHÙN TSI̍T-Ē](sites/khun-tsit-e/index.html) | 午睡站（新竹關新路・2021 年起；整站是一台 Braun 式機器：黃色秒針即時掃動的鐘、12 顆艙燈、同心孔陣喇叭——五種白噪音即時合成，聲音只從孔裡看得見；〈訂一段午睡〉四擋起床鈴撥盤選長度、選艙、試聽聲音；說明書引線以 anchor positioning 從零件拉到說明） | 博朗功能主義 Braun Functionalism | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 406 | [銀河站網咖 GALAXY STATION](sites/gin-ho-tsam/index.html) | 二十四小時網咖（臺中一中街・1999 年開店；首頁二十七年沒改版：黑底平鋪星空、216 安全色、框架頁、全部逐格動的 GIF；站名是真的在燒的 WordArt，游標揮過去起風；IE4 棋盤格換頁；〈做一頁首頁〉挑磚貼 GIF 按上傳，56k 跑完掛上會員首頁） | Web 1.0 GeoCities・Area 51 黑底星空半身 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 407 | [雪山牌・劉家青果集貨場](sites/kam-tshng/index.html) | 柑橘與甜柿集貨場（臺中東勢・1964 年起；整站是一個松木箱頭，貼一張石版彩印標籤：牌子名實色斜投影、果園排到雪山、越框的大椪柑；拖動標籤上的太陽，石版點描即時重新長顆粒；三等級三張標籤；〈上輸送帶〉60 秒按 1／2／3 分級） | 柑橘箱頭標籤 Orange Crate Label・石版彩印 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

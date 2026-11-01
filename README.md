@@ -430,6 +430,7 @@
 | 412 | [開喙 KTV KHUI-TSHUÌ](sites/khui-tshui/index.html) | KTV 歡唱包廂（臺南西門路二段・1992 年起；八扇門各一張波蘭式門海報，一張只講一件事；首屏 01 號房門上張嘴的頭不停飛出鳥、瞳孔跟游標；〈唱一張海報〉麥克風的音量與音高即時變成從嘴裡畫出的水粉筆觸，唱完拿分數、代號與 PNG） | 波蘭海報學派・水粉開喙半身 Polska Szkoła Plakatu — Gouache "Open Mouth" | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 413 | [無賰餅舖 BÔ-TSHUN](sites/bo-tshun/index.html) | 零邊料餅乾舖（彰化鹿港中山路・1991 年起；平移分割錫模方磚／烏魚／招潮蟹，每片 21 g；首屏捲動驅動 SMIL 變形帶：方格→烏魚→招潮蟹，任何中間態都零縫；〈刻一塊〉平移約束餅模編輯器：拖上緣左緣、對邊自動照描、切滿一張剩料 0 g） | 艾雪平面規則分割 Regular Division of the Plane（Escher 對稱圖紙・木刻密鋪） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 414 | [門口粉 MN̂G-KHÁU-HÚN](sites/mng-khau/index.html) | 米粉寮（新竹香山南勢・1952 年起；九降風曬純米米粉，碎米粉每天早上先在曬埕門口撒成一張 kolam；首頁由日期決定今天這一張，點陣一列列落下、指尖以手速一筆撒完、每天只撒一次；〈一筆不斷〉鏡線曲線補線：每道縫交叉／擋住／轉彎，把五個圈補成一筆再撒出來） | 泰米爾 Kolam・pulli／sikku 一筆點陣 Tamil Kolam | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 415 | [樹林內觀葉苗圃 TSHIŪ-NÂ-LĀI](sites/tshiu-na-lai/index.html) | 觀葉植物苗圃（屏東長治；前國道收費員把溫室後牆畫成盧梭叢林，首頁整面是那張畫——約 180 片葉各是一支阻尼彈簧，用手撥開才找得到躲在以牠們為名的植物後面的八隻動物，收齊八張通行券換小苗；八盆頁文字沿葉叢外形 shape-outside 繞排） | 盧梭素人叢林 Henri Rousseau — Naïve Jungle | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

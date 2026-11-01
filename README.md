@@ -428,6 +428,7 @@
 | 410 | [阿瑪包布](sites/pau-poo/index.html) | 蠟印布包禮攤（臺北永樂市場二樓・2014 年起；你說不出口的那句話，挑一匹叫那個名字的布；首屏布塔＋滿版攤開的布，Worker 即時長樹脂裂紋、揉到哪裂到哪；〈包一份〉揉一塊只屬於這份禮的裂紋，收禮人拉開兩隻布耳看到同一組裂紋） | 荷蘭蠟印布 Dutch Wax Print・西非布名（Real Dutch Wax／Ankara） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 411 | [徛壁抱石館 KHIĀ-PIAH](sites/khia-piah/index.html) | 抱石攀岩館（高雄苓雅・2018 年起；首屏是一張燈箱，K 網點片、琥珀線網片、刀切紅遮光片、階梯字片疊印、可拖開再對位、線網慢轉出摩爾紋；捲過四面牆時階梯字的階距＝tan(傾角−90°)，垂直牆齊左、屋簷爬 45° 樓梯；〈疊一晚〉三張路線片疊上定位釘，疊印出共用手點並沖成一張疊片海報） | 瑞士新浪潮・膠片蒙太奇半身 Swiss New Wave — Film Montage | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 412 | [開喙 KTV KHUI-TSHUÌ](sites/khui-tshui/index.html) | KTV 歡唱包廂（臺南西門路二段・1992 年起；八扇門各一張波蘭式門海報，一張只講一件事；首屏 01 號房門上張嘴的頭不停飛出鳥、瞳孔跟游標；〈唱一張海報〉麥克風的音量與音高即時變成從嘴裡畫出的水粉筆觸，唱完拿分數、代號與 PNG） | 波蘭海報學派・水粉開喙半身 Polska Szkoła Plakatu — Gouache "Open Mouth" | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 413 | [無賰餅舖 BÔ-TSHUN](sites/bo-tshun/index.html) | 零邊料餅乾舖（彰化鹿港中山路・1991 年起；平移分割錫模方磚／烏魚／招潮蟹，每片 21 g；首屏捲動驅動 SMIL 變形帶：方格→烏魚→招潮蟹，任何中間態都零縫；〈刻一塊〉平移約束餅模編輯器：拖上緣左緣、對邊自動照描、切滿一張剩料 0 g） | 艾雪平面規則分割 Regular Division of the Plane（Escher 對稱圖紙・木刻密鋪） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

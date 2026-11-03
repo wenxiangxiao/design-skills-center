@@ -432,6 +432,7 @@
 | 414 | [門口粉 MN̂G-KHÁU-HÚN](sites/mng-khau/index.html) | 米粉寮（新竹香山南勢・1952 年起；九降風曬純米米粉，碎米粉每天早上先在曬埕門口撒成一張 kolam；首頁由日期決定今天這一張，點陣一列列落下、指尖以手速一筆撒完、每天只撒一次；〈一筆不斷〉鏡線曲線補線：每道縫交叉／擋住／轉彎，把五個圈補成一筆再撒出來） | 泰米爾 Kolam・pulli／sikku 一筆點陣 Tamil Kolam | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 415 | [樹林內觀葉苗圃 TSHIŪ-NÂ-LĀI](sites/tshiu-na-lai/index.html) | 觀葉植物苗圃（屏東長治；前國道收費員把溫室後牆畫成盧梭叢林，首頁整面是那張畫——約 180 片葉各是一支阻尼彈簧，用手撥開才找得到躲在以牠們為名的植物後面的八隻動物，收齊八張通行券換小苗；八盆頁文字沿葉叢外形 shape-outside 繞排） | 盧梭素人叢林 Henri Rousseau — Naïve Jungle | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 416 | [蔡家紙戲台 TSUÁ-HÌ-TÂI](sites/tsua-hi-tai/index.html) | 紙劇場文具行（嘉義中正路；前戲院布景師 1972 年起自刻鋅版印紙戲台，白版一張 30、彩版一張 60——首頁就是一座紙戲台，用鐵線推桿把人物推到記號、站定才念台詞，換景時景片從溝槽抽走、天幕上吊，三景《白蛇傳》演完落幕拿戲單；整座戲台可一鍵在只剩銅版線的白版與手上色不對位的彩版間刷換） | 維多利亞紙劇場 Juvenile Drama・Toy Theatre（Penny Plain, Twopence Coloured） | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 417 | [飛魚航空 flyingfish air](sites/pue-hi/index.html) | 離島小飛機航空（台東豐年機場⇄蘭嶼・綠島；十九人座 Dornier 228，剩下的位子靠當天有人沒來——首屏是一條 Windows Phone 式全景，細體小寫標題被右緣切斷、下一欄永遠探頭、動態磚自己翻出下一班與現在叫到幾號；〈排候補〉抽號碼牌看飛機一班一班走，叫到你 8 秒內按「我在這裡」；換頁是逐列旋轉門） | Frutiger Metro／Windows Phone・淺色主題全景與樞軸 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

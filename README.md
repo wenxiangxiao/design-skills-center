@@ -433,6 +433,7 @@
 | 415 | [樹林內觀葉苗圃 TSHIŪ-NÂ-LĀI](sites/tshiu-na-lai/index.html) | 觀葉植物苗圃（屏東長治；前國道收費員把溫室後牆畫成盧梭叢林，首頁整面是那張畫——約 180 片葉各是一支阻尼彈簧，用手撥開才找得到躲在以牠們為名的植物後面的八隻動物，收齊八張通行券換小苗；八盆頁文字沿葉叢外形 shape-outside 繞排） | 盧梭素人叢林 Henri Rousseau — Naïve Jungle | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 416 | [蔡家紙戲台 TSUÁ-HÌ-TÂI](sites/tsua-hi-tai/index.html) | 紙劇場文具行（嘉義中正路；前戲院布景師 1972 年起自刻鋅版印紙戲台，白版一張 30、彩版一張 60——首頁就是一座紙戲台，用鐵線推桿把人物推到記號、站定才念台詞，換景時景片從溝槽抽走、天幕上吊，三景《白蛇傳》演完落幕拿戲單；整座戲台可一鍵在只剩銅版線的白版與手上色不對位的彩版間刷換） | 維多利亞紙劇場 Juvenile Drama・Toy Theatre（Penny Plain, Twopence Coloured） | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 417 | [飛魚航空 flyingfish air](sites/pue-hi/index.html) | 離島小飛機航空（台東豐年機場⇄蘭嶼・綠島；十九人座 Dornier 228，剩下的位子靠當天有人沒來——首屏是一條 Windows Phone 式全景，細體小寫標題被右緣切斷、下一欄永遠探頭、動態磚自己翻出下一班與現在叫到幾號；〈排候補〉抽號碼牌看飛機一班一班走，叫到你 8 秒內按「我在這裡」；換頁是逐列旋轉門） | Frutiger Metro／Windows Phone・淺色主題全景與樞軸 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 418 | [胖酒工房 PHÁNG-TSIÚ](sites/phang-tsiu/index.html) | 麵包酒工房（臺中南區；隔壁明興麵包每天送來賣剩的麵包，撕碎入甕醒七天——首屏是一面底比斯墓壁，主人比誰都大、三欄工人在地線上收麵包搗甕封泥，捲動時照紅稿→上彩→黑線定稿的工序畫完；〈辦一場宴〉拖客人進宴席、疊供品上供桌，書吏以象形數字記帳，封甕拿陶片收據） | 古埃及新王國墓室壁畫・底比斯分欄 Ancient Egyptian Tomb Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

@@ -436,6 +436,7 @@
 | 418 | [胖酒工房 PHÁNG-TSIÚ](sites/phang-tsiu/index.html) | 麵包酒工房（臺中南區；隔壁明興麵包每天送來賣剩的麵包，撕碎入甕醒七天——首屏是一面底比斯墓壁，主人比誰都大、三欄工人在地線上收麵包搗甕封泥，捲動時照紅稿→上彩→黑線定稿的工序畫完；〈辦一場宴〉拖客人進宴席、疊供品上供桌，書吏以象形數字記帳，封甕拿陶片收據） | 古埃及新王國墓室壁畫・底比斯分欄 Ancient Egyptian Tomb Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 419 | [雞母埕 KE-BÓ-TIÂNN](sites/ke-bo-tiann/index.html) | 放牧雞蛋農場（花蓮富里；640 隻母雞在柚子樹下撿食，蛋用 San Nicolás 手繡的 tenango 方巾包——首屏是一整塊緞面繡桌布，游標或手機傾角就是太陽，同一罐線因針向不同一亮一暗；〈排一塊布〉左半排動物右半自動鏡像，照針數算繡工，從藍色鉛筆稿一針一針繡起，網址可分享，連同蛋一起訂） | Tenango 刺繡・奧托米緞面繡 Tenango Embroidery | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 420 | [時興鐘錶行 SÎ-HING](sites/si-hing/index.html) | 鐘錶修理行（臺北大稻埕；1934 年起每年送客人一張月份牌——首屏是掛在牆上的擦筆水彩月份牌，美人倚著走真實時間的落地鐘；〈撕到那天〉把送修日曆一張張撕到你要送修的日子，蓋章出取件聯） | 上海月份牌・擦筆水彩中西月份牌 Shanghai Yuefenpai | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 421 | [變猴弄戲法道具行 PÌNN-KÂU-LĀNG](sites/pinn-kau-lang/index.html) | 戲法道具行（臺北西門町漢中街；自家手搖印刷機與四十二盤木活字自印告示——每行一副字撐滿版心、紅版等滾筒走過才印上；〈猜你的牌〉心裡記一張、指三次欄，告示把它排成最大的字） | 木活字演出告示・兩色半身 Wood Type Showbill | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

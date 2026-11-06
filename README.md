@@ -439,6 +439,7 @@
 | 421 | [變猴弄戲法道具行 PÌNN-KÂU-LĀNG](sites/pinn-kau-lang/index.html) | 戲法道具行（臺北西門町漢中街；自家手搖印刷機與四十二盤木活字自印告示——每行一副字撐滿版心、紅版等滾筒走過才印上；〈猜你的牌〉心裡記一張、指三次欄，告示把它排成最大的字） | 木活字演出告示・兩色半身 Wood Type Showbill | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 422 | [瓦盤 HIĀ-PUÂNN](sites/hia-puann/index.html) | 日曬鹽田（臺南北門井仔腳；64 格鹵色接板牆以日期抽籤、點一下硬切重抽；〈撈鹽花〉推鹽耙收成，自動排成附牆標的接板作品） | 硬邊抽象・Ellsworth Kelly 單色接板 Hard-edge Joined Panels | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 423 | [樹厝客 TSHIŪ-TSHÙ-KHEH](sites/tshiu-tshu-kheh/index.html) | 屋頂綠化工程行（新北三重；沒有一條直線的公寓立面，九扇窗各不相同；〈樹房客入住〉L-system 樹從窗裡長出或垂頭，住進三位簽租約） | Hundertwasser 有機螺旋建築・窗戶權與樹房客 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 424 | [金搖馬 KIM-IÔ-BÉ](sites/kim-io-be/index.html) | 投幣搖搖馬修理彩繪行（臺中太平；一頁一塊單色瓷漆板，五道工序示範板；〈搖一首〉投十元跟著 Web Audio 節拍點點，點紋與鬃毛條紋一層層長出來） | Tingatinga 瓷漆硬板畫 Tingatinga Enamel Board Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

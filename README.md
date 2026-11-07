@@ -440,10 +440,11 @@
 | 422 | [瓦盤 HIĀ-PUÂNN](sites/hia-puann/index.html) | 日曬鹽田（臺南北門井仔腳；64 格鹵色接板牆以日期抽籤、點一下硬切重抽；〈撈鹽花〉推鹽耙收成，自動排成附牆標的接板作品） | 硬邊抽象・Ellsworth Kelly 單色接板 Hard-edge Joined Panels | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 423 | [樹厝客 TSHIŪ-TSHÙ-KHEH](sites/tshiu-tshu-kheh/index.html) | 屋頂綠化工程行（新北三重；沒有一條直線的公寓立面，九扇窗各不相同；〈樹房客入住〉L-system 樹從窗裡長出或垂頭，住進三位簽租約） | Hundertwasser 有機螺旋建築・窗戶權與樹房客 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 424 | [金搖馬 KIM-IÔ-BÉ](sites/kim-io-be/index.html) | 投幣搖搖馬修理彩繪行（臺中太平；一頁一塊單色瓷漆板，五道工序示範板；〈搖一首〉投十元跟著 Web Audio 節拍點點，點紋與鬃毛條紋一層層長出來） | Tingatinga 瓷漆硬板畫 Tingatinga Enamel Board Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 425 | [漏光噴砂玻璃 LĀU-KNG](sites/lau-kng/index.html) | 噴砂玻璃行（新北三重；整站是一張對光的伊勢型紙，店名與鮫小紋都是孔、孔裡是此刻的天光；〈噴一扇〉自己彫型——沒有繋ぎ的紙島會掉，噴砂時 backdrop-filter 霧面只在彫穿處長出） | 伊勢型紙・渋紙彫透 Ise Katagami Persimmon-paper Stencil | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
-[seeds.html](seeds.html) 收錄 298 個產業種子 × 268 個風格種子（79,299 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
+[seeds.html](seeds.html) 收錄 299 個產業種子 × 269 個風格種子（80,431 種組合），內建「產業 × 風格 → AI 生成指令」組合器，用來持續擴充館藏。
 
 ## 去AI化守則
 

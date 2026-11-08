@@ -441,6 +441,7 @@
 | 423 | [樹厝客 TSHIŪ-TSHÙ-KHEH](sites/tshiu-tshu-kheh/index.html) | 屋頂綠化工程行（新北三重；沒有一條直線的公寓立面，九扇窗各不相同；〈樹房客入住〉L-system 樹從窗裡長出或垂頭，住進三位簽租約） | Hundertwasser 有機螺旋建築・窗戶權與樹房客 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 424 | [金搖馬 KIM-IÔ-BÉ](sites/kim-io-be/index.html) | 投幣搖搖馬修理彩繪行（臺中太平；一頁一塊單色瓷漆板，五道工序示範板；〈搖一首〉投十元跟著 Web Audio 節拍點點，點紋與鬃毛條紋一層層長出來） | Tingatinga 瓷漆硬板畫 Tingatinga Enamel Board Painting | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 425 | [漏光噴砂玻璃 LĀU-KNG](sites/lau-kng/index.html) | 噴砂玻璃行（新北三重；整站是一張對光的伊勢型紙，店名與鮫小紋都是孔、孔裡是此刻的天光；〈噴一扇〉自己彫型——沒有繋ぎ的紙島會掉，噴砂時 backdrop-filter 霧面只在彫穿處長出） | 伊勢型紙・渋紙彫透 Ise Katagami Persimmon-paper Stencil | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 426 | [過灘泛舟 KUE-THUANN](sites/kue-thuann/index.html) | 秀姑巒溪泛舟業者（花蓮瑞穗；整站畫面照 TIA 暫存器逐掃描線組出，按住「追光束」看畫面一條線一條線寫出來；〈插卡報名〉用主機開關與搖桿選行程日期人數） | Atari VCS／TIA 掃描線像素風 Racing the Beam | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

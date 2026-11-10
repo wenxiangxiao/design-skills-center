@@ -443,6 +443,7 @@
 | 425 | [漏光噴砂玻璃 LĀU-KNG](sites/lau-kng/index.html) | 噴砂玻璃行（新北三重；整站是一張對光的伊勢型紙，店名與鮫小紋都是孔、孔裡是此刻的天光；〈噴一扇〉自己彫型——沒有繋ぎ的紙島會掉，噴砂時 backdrop-filter 霧面只在彫穿處長出） | 伊勢型紙・渋紙彫透 Ise Katagami Persimmon-paper Stencil | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 426 | [過灘泛舟 KUE-THUANN](sites/kue-thuann/index.html) | 秀姑巒溪泛舟業者（花蓮瑞穗；整站畫面照 TIA 暫存器逐掃描線組出，按住「追光束」看畫面一條線一條線寫出來；〈插卡報名〉用主機開關與搖桿選行程日期人數） | Atari VCS／TIA 掃描線像素風 Racing the Beam | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 427 | [夢園造型樹苗圃 BĀNG-HN̂G](sites/bang-hng/index.html) | 造型樹苗圃（彰化田尾；段落由 shape-outside 多邊形從矩形傾注成高腳杯、漏斗與樹形，木刻與文字共用同一條剖面；〈修剪台〉拖曳樹冠字跟著重排；〈三個夢〉選門→住處→修剪頻率得到一棵樹） | Aldine 文藝復興書冊・Hypnerotomachia 杯形排版 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 428 | [火紅自助餐 HÓE-ÂNG](sites/hue-ang/index.html) | 自助餐（臺南西門路；赭黃磨光牆是 WebGL 熱場，夾菜的熱羽流把超過 225°C 的地方由黃烤成龐貝紅、不可逆；〈夾一盒〉阿娥照 Hedone 酒館寫法把價錢刷在牆上） | 龐貝第三風格壁畫 Pompeian Third Style | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

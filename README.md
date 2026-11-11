@@ -452,6 +452,7 @@
 | 434 | [田中央 TSHÂN-TIONG-NG](sites/tshan-tiong/index.html) | 兒童自然日營（臺東池上；課表不寫時鐘、只畫六種天色；首頁同一張不透明水彩主畫隨捲動走過六張 color key；〈排一天〉奶色底稿卡放進哪段天色就被乾刷刷上那個時辰，規則引擎說理由、回溯求解幫你排） | Mary Blair 色彩概念畫・不透明水彩 color key Mary Blair Color Key Gouache | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 435 | [開始電腦班 KHAI-SÍ](sites/khai-si/index.html) | 長青電腦班（新北板橋府中路；1996 年開班教第一次摸滑鼠的人；首頁是一支 9x 安裝精靈——班規即授權合約、選課即選擇元件、進度條跑完即報名摘要；課程放在檔案總管；結業考是一張滑鼠駕照，考完駕照彈落留下殘影） | 9x 經典介面・立體斜面 Classic 9x Bevel UI | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 436 | [響銅鑼仔 HIÁNG-TÂNG](sites/hiang-tang/index.html) | 手錘銅鑼工坊（彰化鹿港埔頭街；1964 年開店，鑼掛樑上試音、對面吊色片撐平；首頁是一支會被游標吹動、色片撞鑼會響的吊鑼；鑼譜七面鑼掛在一根橫桿上；掛一支：挑鑼選色、力矩求解吊點、吹一口自己敲） | Calder 吊件・剪片與鐵絲 Calder Mobile — Painted Sheet & Wire | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 437 | [土厝目錄 THÔO-TSHÙ](sites/thoo-tshu/index.html) | 自力造屋與樸門自學所（花蓮壽豐；1996 年起一年一本新聞紙目錄，每則簽名、寫價錢與 FROM；黑封面網點地球、三欄密排剪刀歪線、6× 布紋放大鏡；拼一頁：拖貼條進三欄 36 行版面，拍版後非複製藍消失、印出報名單） | 全地型錄・新聞紙單墨 Whole Earth Catalog Newsprint | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

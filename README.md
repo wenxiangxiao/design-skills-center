@@ -448,6 +448,7 @@
 | 430 | [通格有線 THONG-KEH](sites/thong-keh/index.html) | 有線電視與弱電配線工程行（嘉義東區；整站是一幅 Halley 式格管畫，顏色＝從機房 BFS 走不走得到；〈颱風夜〉90 秒派兩位師傅沿管溝接回被吹斷的線，修好一段訊號就沿管長灌回下游每一格） | Neo-Geo 格與管・Peter Halley | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 431 | [八風號船釣 PAT-HONG](sites/pat-hong/index.html) | 船釣船家（宜蘭頭城烏石港；整站是一張收頸羊皮海圖，地名垂直海岸、十七朵風花放三色恆向線；點風花首字平行尺掃過整張皮；〈讀圖〉轉皮讓字站起來；〈針路〉90 秒照口訣選風名量浬數找三個私房釣點） | Portolan 海圖・一張皮 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 432 | [鋪線簇絨 PHOO-SUÀNN](sites/phoo-suann/index.html) | 簇絨地毯工作室（臺中大雅；每一塊顏色先打外框、再往內一圈圈、底最後；整站圖與標題由距離場等距線在 Worker 裡逐條鋪成；游標讀出每一區鋪了幾公尺；〈打一塊〉90 秒點區換線、看它鋪完，弧長直接換算用線單並留位） | 維秋爾毛線畫 nierika・沿形鋪線 | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 433 | [同車 TÂNG-TSHIA](sites/tang-tshia/index.html) | 計程車運輸合作社（臺北萬華；一張一色、一個圖、一句話、不署名，天亮前貼上排班點；首屏曬衣繩上的海報由逐像素單墨過網引擎刮出、濕紙起皺再收乾；〈開會〉九位社員各看一條風格規則舉手表決，過半當場刮印晾上首頁） | 人民工坊・一張一墨 Atelier Populaire, Mai 68 | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

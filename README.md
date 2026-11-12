@@ -454,6 +454,7 @@
 | 436 | [響銅鑼仔 HIÁNG-TÂNG](sites/hiang-tang/index.html) | 手錘銅鑼工坊（彰化鹿港埔頭街；1964 年開店，鑼掛樑上試音、對面吊色片撐平；首頁是一支會被游標吹動、色片撞鑼會響的吊鑼；鑼譜七面鑼掛在一根橫桿上；掛一支：挑鑼選色、力矩求解吊點、吹一口自己敲） | Calder 吊件・剪片與鐵絲 Calder Mobile — Painted Sheet & Wire | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 437 | [土厝目錄 THÔO-TSHÙ](sites/thoo-tshu/index.html) | 自力造屋與樸門自學所（花蓮壽豐；1996 年起一年一本新聞紙目錄，每則簽名、寫價錢與 FROM；黑封面網點地球、三欄密排剪刀歪線、6× 布紋放大鏡；拼一頁：拖貼條進三欄 36 行版面，拍版後非複製藍消失、印出報名單） | 全地型錄・新聞紙單墨 Whole Earth Catalog Newsprint | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 438 | [插仔舞台車 TSHAH-Á BÚ-TÂI](sites/tshah-a/index.html) | 舞台車出租行（雲林北港；軸測拼貼首屏：巨構框插滿艙、舞台車站在伸縮腳上、吊車阻尼擺把艙 KLUNK 插上；零件表同一個艙依插座大小以 container queries 攤開或收起；插上去：吊車擺錘遊戲放七個艙，插準才算、派車單即時試算） | Archigram 插件城市拼貼 Archigram Plug-in Megastructure Collage | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 439 | [Knutsgården 掛畫行](sites/knutsgarden/index.html) | 聖誕掛畫出租（瑞典 Rättvik；首屏三拱 bonad 開場只有底色、畫師的筆依筆序點上 928 顆白逗點，可拖「畫師的手」前後走、倒轉重畫；八幅畫掛木牆、捲軸展開、?b= 分享；點活：輪廓吸附白筆＋九十秒蠟燭＋有數的白漆，評等師傅／學徒） | Dalarna 民間畫・kurbits Dalmålning (Kurbits Painting) | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 

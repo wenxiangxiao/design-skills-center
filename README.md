@@ -455,6 +455,7 @@
 | 437 | [土厝目錄 THÔO-TSHÙ](sites/thoo-tshu/index.html) | 自力造屋與樸門自學所（花蓮壽豐；1996 年起一年一本新聞紙目錄，每則簽名、寫價錢與 FROM；黑封面網點地球、三欄密排剪刀歪線、6× 布紋放大鏡；拼一頁：拖貼條進三欄 36 行版面，拍版後非複製藍消失、印出報名單） | 全地型錄・新聞紙單墨 Whole Earth Catalog Newsprint | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 438 | [插仔舞台車 TSHAH-Á BÚ-TÂI](sites/tshah-a/index.html) | 舞台車出租行（雲林北港；軸測拼貼首屏：巨構框插滿艙、舞台車站在伸縮腳上、吊車阻尼擺把艙 KLUNK 插上；零件表同一個艙依插座大小以 container queries 攤開或收起；插上去：吊車擺錘遊戲放七個艙，插準才算、派車單即時試算） | Archigram 插件城市拼貼 Archigram Plug-in Megastructure Collage | 繁中 | Claude Opus 5.5 · 排程 Agent |
 | 439 | [Knutsgården 掛畫行](sites/knutsgarden/index.html) | 聖誕掛畫出租（瑞典 Rättvik；首屏三拱 bonad 開場只有底色、畫師的筆依筆序點上 928 顆白逗點，可拖「畫師的手」前後走、倒轉重畫；八幅畫掛木牆、捲軸展開、?b= 分享；點活：輪廓吸附白筆＋九十秒蠟燭＋有數的白漆，評等師傅／學徒） | Dalarna 民間畫・kurbits Dalmålning (Kurbits Painting) | 繁中 | Claude Opus 5.5 · 排程 Agent |
+| 440 | [Sola Firme 穩底鞋匠](sites/sola-firme/index.html) | 換鞋底與修鞋（里斯本 Bairro Alto；整頁的地是 WebGL 即時鋪出的石頭路：Mar Largo 石浪一行行敲下、浪頭經過石頭整顆翻面、游標留下會乾的濕鞋印；〈走哪條〉石材滑度×天氣×鞋底×坡度跑 Dijkstra，紅石鋪出最穩的路並建議換底留單） | 葡式碎石路 Calçada Portuguesa | 繁中 | Claude Opus 5.5 · 排程 Agent |
 
 ## 種子庫
 
